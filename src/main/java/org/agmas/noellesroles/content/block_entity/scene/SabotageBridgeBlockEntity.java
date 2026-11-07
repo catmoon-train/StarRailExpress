@@ -27,7 +27,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.agmas.noellesroles.content.block.scene.SabotageBridgeBlock;
 import org.agmas.noellesroles.init.ModSceneBlocks;
-import org.agmas.noellesroles.scene.SceneEventManager;
+import org.agmas.noellesroles.client.scene.SceneEventManager;
 
 public class SabotageBridgeBlockEntity extends BlockEntity {
     public SabotageBridgeBlockEntity(BlockPos pos, BlockState state) {

@@ -26,6 +26,8 @@
     "compat.dashloader.DashModelCacheExclusionsMixin",
     "compat.resourcefullib.ResourcefulStateVariantMixin",
     "compat.sre.GeneralModelLookupMixin",
+    "compat.voicechat.VoicechatClientManagerMixin",
+    "compat.voicechat.VoicechatGroupHudMixin",
     "client.StateDefinitionLookupMixin",
     "client.StateHolderTableMixin",
     "client.BlockStateWarningMixin",

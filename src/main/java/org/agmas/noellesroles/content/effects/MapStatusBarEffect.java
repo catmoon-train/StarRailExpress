@@ -4,7 +4,7 @@ import io.wifi.starrailexpress.game.data.MapStatusBarType;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
-import org.agmas.noellesroles.scene.MapStatusBarRuntime;
+import org.agmas.noellesroles.client.scene.MapStatusBarRuntime;
 
 /**
  * 地图状态条类药水效果：每秒按等级改变饥饿 / 口渴 / 保暖 / 污染四条状态中的一条。

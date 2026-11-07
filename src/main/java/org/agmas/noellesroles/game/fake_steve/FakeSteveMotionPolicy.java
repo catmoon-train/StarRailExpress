@@ -110,6 +110,13 @@ public final class FakeSteveMotionPolicy {
         return new LocalMove(clampInput(forward), clampInput(left));
     }
 
+    /** 把服务端目标朝向下的输入换算到本帧平滑转头后的朝向，保持世界移动方向不变。 */
+    public static LocalMove reframe(float forward, float strafe, float intendedYaw, float actualYaw) {
+        double angle = Math.toRadians(intendedYaw - actualYaw);
+        return new LocalMove((float) (forward * Math.cos(angle) + strafe * Math.sin(angle)),
+                (float) (-forward * Math.sin(angle) + strafe * Math.cos(angle)));
+    }
+
     private static float clampInput(float value) {
         if (value < -1.0F) {
             return -1.0F;

@@ -66,6 +66,7 @@ public class TeamKillViolationHandler {
         SREConfig config = SREConfig.instance();
         if (victim == null || killer == null)
             return;
+        if (io.wifi.starrailexpress.training.TrainingRules.suppressFriendlyPenalty(victim)) return;
         final WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(victim.level());
         if (worldModifierComponent.isModifier(victim, SEModifiers.LOVERS)
                 || worldModifierComponent.isModifier(killer, SEModifiers.LOVERS)) {
@@ -86,8 +87,11 @@ public class TeamKillViolationHandler {
             return;
         // 排除中立职业：击杀者或受害者任意一方为中立则不计入
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
-        SRERole killerRole = gameWorldComponent.getRole(killer);
-        SRERole victimRole = gameWorldComponent.getRole(victim);
+        SRERole killerRole = gameWorldComponent.getAllegianceRole(killer);
+        SRERole victimRole = gameWorldComponent.getAllegianceRole(victim);
+        if (isInnocent && (gameWorldComponent.isKillerTeam(killer) || gameWorldComponent.isKillerTeam(victim))) {
+            return;
+        }
 
         if (killerRole == null || killerRole.isNeutrals()) {
             return;

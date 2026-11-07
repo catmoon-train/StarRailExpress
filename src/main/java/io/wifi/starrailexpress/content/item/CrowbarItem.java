@@ -50,6 +50,8 @@ public class CrowbarItem extends SkinableItem implements AdventureUsable, DoorCu
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
+        InteractionResult override = io.wifi.starrailexpress.event.GameplayExtensionEvents.CROWBAR_USE.invoker().use(context);
+        if (override != null) return override;
         Level world = context.getLevel();
         BlockPos lowerPos = context.getClickedPos();
         BlockEntity entity = world.getBlockEntity(lowerPos);

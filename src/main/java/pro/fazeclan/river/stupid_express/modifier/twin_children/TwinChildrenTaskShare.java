@@ -26,7 +26,7 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.ModifierEffects;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
-import org.agmas.noellesroles.scene.SceneTaskManager;
+import org.agmas.noellesroles.client.scene.SceneTaskManager;
 
 import java.util.ArrayList;
 

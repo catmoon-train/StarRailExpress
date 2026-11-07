@@ -61,12 +61,19 @@ public class YouluSmokeWaveRenderer extends EntityRenderer<YouluSmokeWaveEntity>
         poseStack.pushPose();
 
         float radius = entity.getRadius();
+        boolean seeThrough = org.agmas.noellesroles.client.YouluSmokeClient.canSeeThroughSmoke();
+        if (!seeThrough) {
+            // 外层动画只负责烟雾动效，实心内核始终覆盖实际烟雾范围。
+            SphereRenderHelper.renderSphere(poseStack,
+                    bufferSource.getBuffer(RenderType.entityCutoutNoCull(TEXTURE)),
+                    radius, 14, 28, 15, 15, 18, 255, packedLight);
+        }
         // 缓慢起伏
         float pulse = (float) Math.sin((entity.tickCount + partialTick) * 0.05) * 0.03f + 1.0f;
 
         // 初始显现动画
         float appearProgress = Math.min(1.0f, (entity.tickCount + partialTick) / APPEAR_TICKS);
-        float appearAlpha = smoothstep(appearProgress);
+        float appearAlpha = smoothstep(appearProgress) * (seeThrough ? 0.12f : 1.0f);
 
         // 推进进度：已走过距离 / 总距离
         float distTraveled = entity.getMaxDistance() - (float) entity.getRemainingDistance();

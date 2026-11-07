@@ -44,6 +44,11 @@ public abstract class MobEffectKeyMixin {
         final LocalPlayer player = instance.player;
         if (player == null)
             return false;
+        // 伪人复用技能键申请短暂手控；必须越过自身持续刷新的技能禁用效果。
+        if (this.same(NoellesrolesClient.abilityBind)
+                && org.agmas.noellesroles.game.fake_steve.FakeSteveDirector.isReplaced(player)) {
+            return false;
+        }
         final var options = instance.options;
         if (MirrorReunionSceneManager.INSTANCE.blocksPlayerControl()) {
             if (this.same(options.keyJump) || this.same(options.keyLeft) || this.same(options.keyRight)

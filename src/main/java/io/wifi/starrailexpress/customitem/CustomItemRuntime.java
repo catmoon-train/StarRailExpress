@@ -82,7 +82,7 @@ import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
 import org.agmas.noellesroles.content.item.HandCuffsItem;
 import org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent;
-import org.agmas.noellesroles.gunfx.GunTracers;
+import org.agmas.noellesroles.client.gunfx.GunTracers;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.utils.RoleUtils;
 

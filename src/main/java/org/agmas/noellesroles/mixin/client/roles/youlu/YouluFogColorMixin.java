@@ -26,9 +26,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * 幽露球烟：本地玩家处于球烟内（带视野迷雾效果）时，将雾色与背景清屏色染黑。
- * 雾的可见距离仍由既有的 VISION_FOG 渲染逻辑控制（见 WorldRendererMixin），
- * 本 mixin 只负责把雾"变为黑色"。
+ * 幽露实体烟：非幽露玩家的相机处于烟内时，将雾色与背景清屏色染黑。
+ * 完整画面遮蔽由 YouluSmokeScreenMixin 在世界渲染后处理，不依赖迷雾药水。
  */
 @Mixin(FogRenderer.class)
 public abstract class YouluFogColorMixin {

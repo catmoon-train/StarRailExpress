@@ -37,7 +37,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent;
-import org.agmas.noellesroles.katana.KatanaHandler;
+import org.agmas.noellesroles.content.item.katana.KatanaHandler;
 import org.agmas.noellesroles.role_data.killer.DreamRoleData;
 
 

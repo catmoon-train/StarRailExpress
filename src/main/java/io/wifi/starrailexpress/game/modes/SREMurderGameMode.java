@@ -67,6 +67,7 @@ import org.agmas.noellesroles.CustomWinnerClass;
 import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.role_data.neutral.MercenaryRoleData;
 import org.agmas.noellesroles.role.ModRoles;
+import io.wifi.starrailexpress.event.GameplayExtensionEvents;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -160,9 +161,10 @@ public class SREMurderGameMode extends GameMode {
             var roleType = PlayerRoleWeightManager.getRoleType(role);
             PlayerRoleWeightManager.addWeight(player, roleType, 1);
             // PlayerRoleWeightManager.
-            ServerPlayNetworking.send(player,
-                    new AnnounceWelcomePayload(role.getIdentifier().toString(), (int) killCount,
-                            (int) (players.size() - killCount)));
+            var welcomePayload = new AnnounceWelcomePayload(role.getIdentifier().toString(), (int) killCount,
+                    (int) (players.size() - killCount));
+            ServerPlayNetworking.send(player, GameplayExtensionEvents.WELCOME_PAYLOAD.invoker()
+                    .apply(serverWorld, gameWorldComponent, players, welcomePayload));
             ModdedRoleAssigned.EVENT.invoker().assignModdedRole(player, role);
         }
         // 分配修饰符（修饰符放在职业分配后）
@@ -504,7 +506,7 @@ public class SREMurderGameMode extends GameMode {
         // 第二步：创建角色池并分配角色
         // 杀手池
         if (playerSize - forcedRoleSize <= 0)
-            return List.of();
+            return GameplayExtensionEvents.ROLE_POOL_RESULT.invoker().apply(List.of());
         List<SRERole> assignedKillers = killerPool.selectRoles(killerCount);
 
         // 警卫池 - 使用无限重复模式，因为警卫职业数量有限
@@ -591,7 +593,7 @@ public class SREMurderGameMode extends GameMode {
         int needCivilian = (playerSize - forcedRoleSize) - resultRoleInstances.size();
         for (int i = 0; i < needCivilian; i++)
             resultRoleInstances.add(new RoleInstance(UUID.randomUUID(), TMMRoles.CIVILIAN));
-        return resultRoleInstances;
+        return GameplayExtensionEvents.ROLE_POOL_RESULT.invoker().apply(resultRoleInstances);
     }
 
     private static Map<Player, SRERole> assignRolesToPlayers(ServerLevel serverWorld, List<ServerPlayer> players) {
@@ -909,24 +911,25 @@ public class SREMurderGameMode extends GameMode {
     public GameUtils.WinStatus allowGameEnd(ServerLevel serverWorld, GameUtils.WinStatus winStatus,
             boolean isLooseEndsMode, SREGameWorldComponent gameWorldComponent) {
         if (org.agmas.noellesroles.game.command_block.CommandBlockDirector.holdsTheRound(serverWorld)) {
-            return org.agmas.noellesroles.game.command_block.CommandBlockWinPriority.check(serverWorld,
+            return GameplayExtensionEvents.GAME_END_RESULT.invoker().apply(serverWorld, winStatus,
+                    org.agmas.noellesroles.game.command_block.CommandBlockWinPriority.check(serverWorld,
                     () -> AllowGameEnd.EVENT_START.invoker().allowGameEnd(serverWorld, winStatus, isLooseEndsMode),
                     () -> CustomWinnerClass.checkWinnerBuiltin(serverWorld, winStatus, isLooseEndsMode),
-                    () -> AllowGameEnd.EVENT_END.invoker().allowGameEnd(serverWorld, winStatus, isLooseEndsMode));
+                    () -> AllowGameEnd.EVENT_END.invoker().allowGameEnd(serverWorld, winStatus, isLooseEndsMode)));
         }
         var c = AllowGameEnd.EVENT_START.invoker().allowGameEnd(serverWorld,
                 winStatus, false);
         if (c != null && !c.equals(WinStatus.NOT_MODIFY)) {
-            return c;
+            return GameplayExtensionEvents.GAME_END_RESULT.invoker().apply(serverWorld, winStatus, c);
         }
 
         var b = CustomWinnerClass.checkWinnerBuiltin(serverWorld, winStatus, isLooseEndsMode);
         if (b != null && !b.equals(WinStatus.NOT_MODIFY)) {
-            return b;
+            return GameplayExtensionEvents.GAME_END_RESULT.invoker().apply(serverWorld, winStatus, b);
         }
 
-        return AllowGameEnd.EVENT_END.invoker().allowGameEnd(serverWorld,
-                winStatus, false);
+        return GameplayExtensionEvents.GAME_END_RESULT.invoker().apply(serverWorld, winStatus,
+                AllowGameEnd.EVENT_END.invoker().allowGameEnd(serverWorld, winStatus, false));
     }
 
     @Override
@@ -964,6 +967,8 @@ public class SREMurderGameMode extends GameMode {
     public static boolean isPlayerTheWinner(ServerLevel world, ServerPlayer player, SRERole playerRole,
             SREGameRoundEndComponent roundEnd,
             SREGameWorldComponent gameComponent) {
+        // 胜负跟随玩家的实际阵营，复制来的职业只决定能力。
+        playerRole = gameComponent.getAllegianceRole(player);
         if (playerRole == null)
             return false;
         if (playerRole.identifier().equals(TMMRoles.DISCOVERY_CIVILIAN.identifier())) {

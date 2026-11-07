@@ -132,7 +132,7 @@ public class StandardRevolverItem extends SkinableItem {
                 result = wireResult;
             }
         }
-        return result;
+        return io.wifi.starrailexpress.event.ItemGameplayEvents.STANDARD_REVOLVER_TARGET.invoker().modify(user, result);
     }
 
     @Override

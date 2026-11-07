@@ -6,1664 +6,408 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-
 package io.wifi.starrailexpress.game;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
-
-import org.agmas.harpymodloader.commands.ListRolesCommand;
-import org.agmas.harpymodloader.component.WorldModifierComponent;
-import org.agmas.harpymodloader.events.GameInitializeEvent;
-import org.agmas.harpymodloader.events.ResetPlayerEvent;
-import org.agmas.noellesroles.api.time.TimeRewindPlayback;
-import org.agmas.noellesroles.utils.AnatmanAsatyaCorpseGuard;
-import org.agmas.noellesroles.component.DeathPenaltyComponent;
-import org.agmas.noellesroles.component.DefibrillatorComponent;
-import org.agmas.noellesroles.component.InfectedPlayerComponent;
-import org.agmas.noellesroles.content.effects.TimeStopEffect;
-import org.agmas.noellesroles.content.item.LetterItem;
-import org.agmas.noellesroles.content.item.RadioItem;
-import org.agmas.noellesroles.game.roles.innocence.hoan_meirin.HoanMeirinFistPunchHandler;
-import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.init.events.NRDeathEvents;
-import org.agmas.noellesroles.init.events.NRGameStateEvents;
-import org.agmas.noellesroles.packet.NameTagSyncPayload;
-import org.agmas.noellesroles.packet.RefreshDimensionsS2CPacket;
-import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.utils.EntityClearUtils;
-import org.agmas.noellesroles.utils.LocalDateData;
-import org.agmas.noellesroles.utils.MCItemsUtils;
-import org.agmas.noellesroles.utils.RoleUtils;
-import org.agmas.noellesroles.voice.HeliumBuzzPlayerComponent;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import io.wifi.StarRailExpressID;
-import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.GameMode;
-import io.wifi.starrailexpress.api.RoleMethodDispatcher;
-import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.event.AllowGameInitialize;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
-import io.wifi.starrailexpress.cca.ExtraSlotComponent;
-import io.wifi.starrailexpress.cca.ParticipationComponent;
-import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
-import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
-import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.SREPlayerNoteComponent;
-import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
-import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
-import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
-import io.wifi.starrailexpress.cca.SRERoleDataPlayerComponent;
-import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
-import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
-import io.wifi.starrailexpress.compat.TrainVoicePlugin;
-import io.wifi.starrailexpress.content.command.AutoShutdownWhenNotRunningCommand;
-import io.wifi.starrailexpress.content.command.ListRoleInRoundCommand;
-import io.wifi.starrailexpress.content.command.StaminaCommand;
-import io.wifi.starrailexpress.content.entity.FirecrackerEntity;
-import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
-import io.wifi.starrailexpress.customitem.CustomItemRuntime;
-import io.wifi.starrailexpress.event.OnGameEnd;
-import io.wifi.starrailexpress.event.OnGameInitialized;
-import io.wifi.starrailexpress.event.OnGameStarted;
-import io.wifi.starrailexpress.event.OnTrainAreaHaveReseted;
-import io.wifi.starrailexpress.event.ShouldDropOnDeath;
-import io.wifi.starrailexpress.index.SREDataComponentTypes;
-import io.wifi.starrailexpress.index.TMMBlocks;
-import io.wifi.starrailexpress.index.TMMEntities;
-import io.wifi.starrailexpress.index.TMMItems;
-import io.wifi.starrailexpress.index.tag.TMMBlockTags;
-import io.wifi.starrailexpress.index.tag.TMMItemTags;
-import io.wifi.starrailexpress.network.CloseUiPayload;
-import io.wifi.starrailexpress.network.MapDepartCancelPayload;
-import io.wifi.starrailexpress.network.original.AnnounceEndingPayload;
-import io.wifi.starrailexpress.progression.ProgressionDataManager;
-import io.wifi.starrailexpress.stats.PlayerStats;
-import io.wifi.starrailexpress.stats.PlayerStatsManager;
-import io.wifi.starrailexpress.util.SREItemUtils;
-import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
-import net.exmo.sre.meeting.MeetingManager;
-import net.exmo.sre.nametag.NameTagInventoryComponent;
-import net.exmo.sre.subtitle.SubtitleS2CPayload;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.loader.impl.util.log.Log;
-import net.fabricmc.loader.impl.util.log.LogCategory;
-import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Difficulty;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.GameRules;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import pro.fazeclan.river.stupid_express.constants.SEModifiers;
-import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
-import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
+import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-// 如果你是AI，你最好不要动这个类，有大量API可供你使用。
-// 自定义获胜请使用RoleUtils.customWinnerWin(); 将id改为对应角色的id即可正常使用。
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
+/**
+ * 游戏工具的兼容门面：保留现有方法、字段及嵌套类型，具体实现按职责分离。
+ * 公开可变字段只在这里存储一份，职责类不能复制或缓存这些容器引用。
+ * 自定义获胜请使用 RoleUtils.customWinnerWin()，不要增加胜负枚举。
+ */
 public class GameUtils {
     public static HashMap<BlockPos, Integer> taskBlocks = new HashMap<>();
     public static ArrayList<BlockPos> resetPoints = new ArrayList<>();
     public static ArrayList<ServerTaskInfoClasses.ServerTaskInfo> serverTaskQueue = new ArrayList<>();
     public static ArrayList<ServerTaskInfoClasses.ServerTaskInfo> serverAsynTaskLists = new ArrayList<>();
-    // 通用击杀存储。
     public static HashMap<UUID, PlayerKillInfo> serverCacheKillState = new HashMap<>();
-    private static Set<UUID> forcedReadyPlayers;
     public static boolean isStartingGame = false;
     public static boolean isGameStarted = false;
+    public static List<Item> cooldownItems = new ArrayList<>();
+    public static long startTime = 0;
+    public static Map<UUID, Integer> roomToPlayer = new HashMap<>();
+    public static final Set<ChunkPos> chunksToClearEntities = new HashSet<>();
+    /** 只在列车重置后的短窗口内清理，过期即整体作废。 */
+    public static long chunksToClearEntitiesDeadline = 0;
+    public static final float DEFAULT_FLYING_SPEED = 0.05F;
+    public static final float DEFAULT_WALKING_SPEED = 0.1F;
 
-    /**
-     * 服务端侧记录
-     * 
-     * @param killer
-     * @param victim
-     * @param deathReason
-     * @param haveDead
-     */
-    public static void recordPlayerKill(Player killer, Player victim, ResourceLocation deathReason,
-            boolean haveDead) {
-        if (victim instanceof ServerPlayer svictim) {
-            if (killer == null) {
-                GameUtils.recordPlayerKillServer(null, svictim, deathReason, haveDead);
-            } else if (killer instanceof ServerPlayer skiller) {
-                GameUtils.recordPlayerKillServer(skiller, svictim, deathReason, haveDead);
-            }
-        }
-    }
-
-    /**
-     * 服务端侧记录
-     * 
-     * @param killer
-     * @param victim
-     * @param deathReason
-     * @param haveDead
-     */
-    public static void recordPlayerKillServer(ServerPlayer killer, ServerPlayer victim, ResourceLocation deathReason,
-            boolean haveDead) {
-        if (victim == null)
-            return;
-        if (killer != null)
-            serverCacheKillState.putIfAbsent(killer.getUUID(), new PlayerKillInfo());
-        serverCacheKillState.putIfAbsent(victim.getUUID(), new PlayerKillInfo());
-
-        PlayerKillInfo killerInfo = null;
-        if (killer != null)
-            killerInfo = serverCacheKillState.get(killer.getUUID());
-        final PlayerKillInfo victimInfo = serverCacheKillState.get(victim.getUUID());
-        var info = new PlayerKillResultInfo(victim.level().getGameTime(), haveDead,
-                killer == null ? null : killer.getUUID(), victim.getUUID(), deathReason);
-        if (killerInfo != null)
-            killerInfo.recordKill(info);
-        victimInfo.recordDeath(info);
-    }
-
-    /**
-     * 服务端侧记录
-     */
-    public static PlayerKillInfo getPlayerKillsInfo(UUID player) {
-        if (player == null)
-            return null;
-        return serverCacheKillState.getOrDefault(player, null);
-    }
-
-    /**
-     * 服务端侧记录
-     */
-    public static PlayerKillInfo getPlayerKillsInfo(Player player) {
-        if (player == null)
-            return null;
-        return serverCacheKillState.getOrDefault(player.getUUID(), null);
-    }
-
-    /**
-     * 服务端侧记录
-     */
-    public static PlayerKillResultInfo getPlayerLastDeathInfo(UUID player) {
-        if (player == null)
-            return null;
-        var t = serverCacheKillState.getOrDefault(player, null);
-        if (t == null)
-            return null;
-        return t.getLastDeathInfo();
-    }
-
-    /**
-     * 服务端侧记录
-     */
-    public static PlayerKillResultInfo getPlayerLastDeathInfo(Player player) {
-        if (player == null)
-            return null;
-        return getPlayerLastDeathInfo(player.getUUID());
-    }
-
-    /**
-     * 服务端侧记录
-     */
-    public static PlayerKillResultInfo getPlayerLastKillInfo(UUID player) {
-        if (player == null)
-            return null;
-        var t = serverCacheKillState.getOrDefault(player, null);
-        if (t == null)
-            return null;
-        return t.getLastKillInfo();
-    }
-
-    /**
-     * 服务端侧记录
-     */
-    public static PlayerKillResultInfo getPlayerLastKillInfo(Player player) {
-        if (player == null)
-            return null;
-        return getPlayerLastKillInfo(player.getUUID());
-    }
-
-    public static void teleportBackToRoom(Player player) {
-        if (player == null)
-            return;
-        if (GameUtils.roomToPlayer.isEmpty())
-            return;
-        player.stopRiding();
-        player.stopSleeping();
-        var areas = AreasWorldComponent.KEY.get(player.level());
-        Vec3 pos = GameUtils.getSpawnPos(areas,
-                GameUtils.roomToPlayer.getOrDefault(player.getUUID(), 0));
-        if (pos != null) {
-            player.teleportTo(pos.x(), pos.y() + 1, pos.z());
-        } else {
-            if (player instanceof ServerPlayer sp) {
-                sp.setGameMode(GameType.SPECTATOR);
-            }
-        }
-    }
-
-    public static PlayerBodyEntity spawnBodyEntity(Player victim, @Nullable Player killer, @Nullable SRERole victimRole,
-            ResourceLocation deathReason, boolean saveItems) {
-        return spawnBodyEntity(victim, killer, victimRole, deathReason, saveItems,
-                victim.position().add(victim.getLookAngle().normalize().scale(1)), victim.getYHeadRot(), 0f);
-    }
-
-    public static PlayerBodyEntity spawnBodyEntity(Player victim, @Nullable Player killer, @Nullable SRERole victimRole,
-            ResourceLocation deathReason) {
-        return spawnBodyEntity(victim, killer, victimRole, deathReason, SREConfig.instance().savePlayerBodyItems,
-                victim.position().add(victim.getLookAngle().normalize().scale(1)), victim.getYHeadRot(), 0f);
-    }
-
-    public static PlayerBodyEntity spawnBodyEntity(Player victim, @Nullable Player killer, @Nullable SRERole victimRole,
-            ResourceLocation deathReason, boolean saveItems, Vec3 spawnPos, float yHeadRot, float xHeadRot) {
-        if (victim == null)
-            return null;
-        PlayerBodyEntity body = TMMEntities.PLAYER_BODY.create(victim.level());
-        if (body != null) {
-            double scale = victim.getAttributeValue(Attributes.SCALE);
-            victim.stopRiding();
-            victim.stopSleeping();
-            body.getAttribute(Attributes.SCALE).setBaseValue(scale);
-            PlayerBodyEntityComponent bodycca = body.getComponent();
-            if (killer != null) {
-                bodycca.setKillerUuid(killer.getUUID(), false);
-            }
-            bodycca.setDeathReason(deathReason.toString(), false);
-            body.setPlayerUuid(victim.getUUID());
-            bodycca.setOwnerName(victim.getScoreboardName(), false);
-            body.moveTo(spawnPos.x(), victim.getY(), spawnPos.z(), yHeadRot, xHeadRot);
-            body.setYRot(victim.getYHeadRot());
-            body.setYHeadRot(victim.getYHeadRot());
-            victim.level().addFreshEntity(body);
-
-            if (saveItems) {
-                body.setCorpseInventoryFromPlayerInventory(victim.getInventory(), false);
-            }
-            var role = victimRole;
-            if (role == null) {
-                role = RoleUtils.getPlayerRole(victim);
-            }
-            if (role != null) {
-                bodycca.playerRole = role.identifier();
-                // 不立即同步
-            }
-            // 玩家死亡时若已安排复活（如循声者的被动复活先于尸体生成触发），
-            // 其尸体标记为不可交互，避免复活完成前被他人复活 / 打开物品栏
-            if (DefibrillatorComponent.KEY.get(victim).isDead) {
-                bodycca.setNonInteractable(true, false);
-            }
-            // 无我/无妄一方存活、另一方死亡时，死者还能被还魂复活，尸体同样标记为待复活
-            AnatmanAsatyaCorpseGuard.onBodySpawned(body, victim);
-            // 最后统一同步一次
-            bodycca.sync();
-        }
-        return body;
-    }
-
-    /**
-     * 把玩家传送到一个随机房间（在所有已配置坐标的房间中随机挑选）。
-     * Teleport the player into a random room (chosen among all rooms that have a
-     * configured anchor).
-     *
-     * <p>
-     * 若存在多个可用房间，会尽量避开玩家自己的房间，以保证"随机"确实换了房间；
-     * 没有任何可用房间时退回旁观模式。 / When more than one room is available it avoids the
-     * player's own
-     * room so the teleport actually changes rooms; falls back to spectator if no
-     * room is configured.
-     */
-    public static void teleportToRandomRoom(Player player) {
-        if (player == null)
-            return;
-
-        var areas = AreasWorldComponent.KEY.get(player.level());
-        if (areas == null)
-            return;
-
-        List<Integer> rooms = new ArrayList<>();
-        for (int room = 1; room <= areas.getRoomCount(); room++) {
-            if (GameUtils.getSpawnPos(areas, room) != null) {
-                rooms.add(room);
-            }
-        }
-        if (rooms.isEmpty()) {
-            if (player instanceof ServerPlayer sp) {
-                sp.setGameMode(GameType.SPECTATOR);
-            }
-            return;
-        }
-
-        // 多于一个房间时排除自己的房间，确保确实传送到了"别的"随机房间。
-        if (rooms.size() > 1) {
-            rooms.remove((Integer) GameUtils.roomToPlayer.getOrDefault(player.getUUID(), 0));
-        }
-
-        int picked = rooms.get(player.getRandom().nextInt(rooms.size()));
-        Vec3 pos = GameUtils.getSpawnPos(areas, picked);
-        if (pos != null) {
-            player.teleportTo(pos.x(), pos.y() + 1, pos.z());
-        }
-    }
-
-    public static void recordPlayerStats(ServerLevel serverWorld, SREGameWorldComponent gameComponent,
-            ArrayList<ServerPlayer> readyPlayerList) {
-        for (ServerPlayer player : readyPlayerList) {
-            PlayerStats stats = PlayerStatsManager.get(player);
-            stats.incrementTotalGamesPlayed();
-            SRERole playerRole = gameComponent.getRole(player);
-            if (playerRole != null) {
-                stats.getOrCreateRoleStats(playerRole.identifier()).incrementTimesPlayed();
-
-                // 统计阵营场次
-                if (playerRole.isVigilanteTeam()) {
-                    stats.incrementTotalSheriffGames();
-                } else if (playerRole.canUseKiller()) {
-                    stats.incrementTotalKillerGames();
-                } else if (playerRole.isNeutrals()) {
-                    stats.incrementTotalNeutralGames();
-                } else if (playerRole.isInnocent() && !playerRole.isVigilanteTeam()) {
-                    stats.incrementTotalCivilianGames();
-                }
-            }
-        }
-    }
-
-    public static void limitPlayerToBox(ServerPlayer player, AABB box) {
-        Vec3 playerPos = player.position();
-        Vec3 teleportPos = playerPos;
-
-        if (!box.contains(playerPos)) {
-            double x = playerPos.x();
-            double y = playerPos.y();
-            double z = playerPos.z();
-            double bounceFactor = 0.2; // 反弹系数，可根据需要调整
-
-            // Z轴边界检测和反弹
-            if (z < box.minZ - 50) {
-                z = box.minZ - 50;
-                // 添加Z轴正方向的反弹速度
-                player.setDeltaMovement(player.getDeltaMovement().add(0, 0, bounceFactor));
-            }
-            if (z > box.maxZ + 50) {
-                z = box.maxZ + 50;
-                // 添加Z轴负方向的反弹速度
-                player.setDeltaMovement(player.getDeltaMovement().add(0, 0, -bounceFactor));
-            }
-
-            // Y轴边界检测和反弹
-            if (y < box.minY - 20) {
-                y = box.minY - 20;
-                // 添加Y轴正方向的反弹速度
-                player.setDeltaMovement(player.getDeltaMovement().add(0, bounceFactor, 0));
-            }
-            if (y > box.maxY + 20) {
-                y = box.maxY + 20;
-                // 添加Y轴负方向的反弹速度
-                player.setDeltaMovement(player.getDeltaMovement().add(0, -bounceFactor, 0));
-            }
-
-            // X轴边界检测和反弹
-            if (x < box.minX - 50) {
-                x = box.minX - 50;
-                // 添加X轴正方向的反弹速度
-                player.setDeltaMovement(player.getDeltaMovement().add(bounceFactor, 0, 0));
-            }
-            if (x > box.maxX + 50) {
-                x = box.maxX + 50;
-                // 添加X轴负方向的反弹速度
-                player.setDeltaMovement(player.getDeltaMovement().add(-bounceFactor, 0, 0));
-            }
-
-            teleportPos = new Vec3(x, y, z);
-        }
-
-        // 只有在玩家位置需要调整时才进行传送
-        if (!teleportPos.equals(playerPos)) {
-            player.teleportTo(teleportPos.x(), teleportPos.y(), teleportPos.z());
-        }
-    }
-
-    public static void executeCommand(CommandSourceStack source, String command) {
-        try {
-            source.getServer().getCommands().performPrefixedCommand(source, command);
-        } catch (Exception e) {
-            Log.warn(LogCategory.GENERAL, "Failed to execute: " + command + ", error: " + e.getMessage());
-        }
-    }
-
+    // 对局生命周期。
     public static void startGame(ServerLevel world, GameMode gameMode, int time) {
-        if (SRE.isLobby || isStartingGame)
-            return;
-        if (SREGameWorldComponent.KEY.get(world).isRunning()) {
-            return;
-        }
-        if (io.wifi.starrailexpress.settlement.SettlementManager.hasViewers()
-                && (forcedReadyPlayers == null || forcedReadyPlayers.isEmpty())) {
-            setForcedReadyPlayers(getStartingPlayers(world).stream().map(ServerPlayer::getUUID).toList());
-        }
-        io.wifi.starrailexpress.settlement.SettlementManager.stopAll(world.getServer());
-        if (!AllowGameInitialize.EVENT.invoker().allow(world, gameMode, List.copyOf(getStartingPlayers(world)))) {
-            clearForcedReadyPlayers();
-            return;
-        }
-        isStartingGame = true;
-        AreasWorldComponent areas = AreasWorldComponent.KEY.get(world);
-        if (areas.mapName == null) {
-            MapManager.loadRandomMap(world);
-        } else {
-            // 重新加载当前地图配置，确保获取最新配置
-            MapManager.loadMap(world, areas.mapName);
-        }
-        MapResetManager.loadArea(world);
-        if (areas.areasSettings.noReset) {
-            resetEntities(world);
-            SRE.LOGGER.info("NO RESET MAP!");
-            trueStartGame(world, gameMode, time);
-            return;
-        }
-        if (areas.areasSettings.mustCopy || resetPoints.isEmpty() || SREConfig.instance().enableAutoTrainReset) {
-            var task = new ServerTaskInfoClasses.FullTrainResetTask(areas, world, gameMode, time);
-            serverTaskQueue.add(task);
-        } else {
-            var task = new ServerTaskInfoClasses.OnlySomeBlockResetTask(resetPoints, world, gameMode, time, areas);
-            serverTaskQueue.add(task);
-        }
+        if (io.wifi.starrailexpress.training.TrainingRules.isTrainingWorld(world)
+                || gameMode instanceof io.wifi.starrailexpress.training.TrainingGameMode) return;
+        GameLifecycle.startGame(world, gameMode, time);
+    }
+
+    public static void trueStartGame(ServerLevel world, GameMode gameMode, int time) {
+        if (io.wifi.starrailexpress.training.TrainingRules.isTrainingWorld(world)
+                || gameMode instanceof io.wifi.starrailexpress.training.TrainingGameMode) return;
+        GameLifecycle.trueStartGame(world, gameMode, time);
+    }
+
+    public static void stopGame(ServerLevel world) {
+        if (io.wifi.starrailexpress.training.TrainingRules.isTrainingWorld(world)) return;
+        GameLifecycle.stopGame(world);
+    }
+
+    public static void initializeGame(ServerLevel world) {
+        GameLifecycle.initializeGame(world);
+    }
+
+    public static void baseInitialize(ServerLevel world, SREGameWorldComponent component, List<ServerPlayer> players) {
+        GameLifecycle.baseInitialize(world, component, players);
+    }
+
+    public static void finalizeGame(ServerLevel world) {
+        if (io.wifi.starrailexpress.training.TrainingRules.isTrainingWorld(world)) return;
+        GameLifecycle.finalizeGame(world);
+    }
+
+    public static void setForcedReadyPlayers(Collection<UUID> playerIds) {
+        GameLifecycle.setForcedReadyPlayers(playerIds);
+    }
+
+    public static void clearForcedReadyPlayers() {
+        GameLifecycle.clearForcedReadyPlayers();
+    }
+
+    public static int getStartingPlayerCount(ServerLevel world) {
+        return GameLifecycle.getStartingPlayerCount(world);
+    }
+
+    public static void registerEventForServerTickForDoingResetTasks() {
+        GameTaskScheduler.register();
+    }
+
+    // 玩家重置、状态与阵营。
+    public static void resetPlayerAbilities(ServerPlayer player) {
+        GamePlayerState.resetPlayerAbilities(player);
+    }
+
+    public static void normalizeSpectatorFlightAbilities(ServerPlayer player) {
+        GamePlayerState.normalizeSpectatorFlightAbilities(player);
+    }
+
+    public static void releaseRoleFlight(ServerPlayer player) {
+        GamePlayerState.releaseRoleFlight(player);
+    }
+
+    public static void resetPlayer(ServerPlayer player) {
+        GamePlayerState.resetPlayer(player);
+    }
+
+    public static void resetPlayerAfterGame(ServerPlayer player) {
+        GamePlayerState.resetPlayerAfterGame(player);
+    }
+
+    public static boolean differentTeam(SRERole role1, SRERole role2) {
+        return GamePlayerState.differentTeam(role1, role2);
+    }
+
+    /** 按玩家实际阵营判断敌我；仅有职业定义时使用职业维度的重载。 */
+    public static boolean differentTeam(Player player1, Player player2) {
+        return GamePlayerState.differentTeam(player1, player2);
+    }
+
+    public static boolean isPlayerEliminatedIgnoreShitSplit(Player player) {
+        return GamePlayerState.isPlayerEliminatedIgnoreShitSplit(player);
+    }
+
+    public static boolean isPlayerEliminated(Player player) {
+        return GamePlayerState.isPlayerEliminated(player);
+    }
+
+    public static boolean isPlayerSpectator(Player player) {
+        return GamePlayerState.isPlayerSpectator(player);
+    }
+
+    public static boolean isPlayerAliveAndSurvivalIgnoreShitSplit(Player player) {
+        return GamePlayerState.isPlayerAliveAndSurvivalIgnoreShitSplit(player);
+    }
+
+    public static boolean isPlayerAliveAndSurvival(Player player, WorldModifierComponent modifiers) {
+        return GamePlayerState.isPlayerAliveAndSurvival(player, modifiers);
+    }
+
+    public static boolean isPlayerAliveAndSurvival(Player player) {
+        return GamePlayerState.isPlayerAliveAndSurvival(player);
+    }
+
+    public static boolean isPlayerCreative(Player player) {
+        return GamePlayerState.isPlayerCreative(player);
+    }
+
+    public static boolean isPlayerSpectatingOrCreative(Player player) {
+        return GamePlayerState.isPlayerSpectatingOrCreative(player);
+    }
+
+    public static SPAliveResult isPlayerReallyAliveOrDead(Player player) {
+        return GamePlayerState.isPlayerReallyAliveOrDead(player);
+    }
+
+    public static SPAliveResult isPlayerReallyAliveOrDead(Player player, WorldModifierComponent modifiers) {
+        return GamePlayerState.isPlayerReallyAliveOrDead(player, modifiers);
+    }
+
+    public static boolean isPlayerSpectatingOrCreativeIgnoreShitSplit(Player player) {
+        return GamePlayerState.isPlayerSpectatingOrCreativeIgnoreShitSplit(player);
+    }
+
+    public static int getReadyPlayerCount(Level world) {
+        return GamePlayerState.getReadyPlayerCount(world);
+    }
+
+    public static int getParticipatingPlayerCount(Level world) {
+        return GamePlayerState.getParticipatingPlayerCount(world);
+    }
+
+    public static int getOptedOutPlayerCount(Level world) {
+        return GamePlayerState.getOptedOutPlayerCount(world);
+    }
+
+    public static long getAlivePlayerCount(Level level) {
+        return GamePlayerState.getAlivePlayerCount(level);
+    }
+
+    public static void reJudgeSpectatorsPenalty(Level world) {
+        GamePlayerState.reJudgeSpectatorsPenalty(world);
+    }
+
+    public static void pendingReJudgeSpectatorsPenalty() {
+        GamePlayerState.pendingReJudgeSpectatorsPenalty();
+    }
+
+    public static boolean shouldGiveSpectatorsDeathPenalty(Player player) {
+        return GamePlayerState.shouldGiveSpectatorsDeathPenalty(player);
+    }
+
+    public static String spectatorsDeathPenaltyMessageKey(Player player) {
+        return GamePlayerState.spectatorsDeathPenaltyMessageKey(player);
+    }
+
+    public static void refreshPlayerDimension(ServerPlayer player) {
+        GamePlayerState.refreshPlayerDimension(player);
+    }
+
+    // 死亡、尸体和复活。
+    public static PlayerBodyEntity spawnBodyEntity(Player victim, @Nullable Player killer, @Nullable SRERole role,
+            ResourceLocation reason, boolean saveItems) {
+        return GameDeath.spawnBodyEntity(victim, killer, role, reason, saveItems);
+    }
+
+    public static PlayerBodyEntity spawnBodyEntity(Player victim, @Nullable Player killer, @Nullable SRERole role,
+            ResourceLocation reason) {
+        return GameDeath.spawnBodyEntity(victim, killer, role, reason);
+    }
+
+    public static PlayerBodyEntity spawnBodyEntity(Player victim, @Nullable Player killer, @Nullable SRERole role,
+            ResourceLocation reason, boolean saveItems, Vec3 spawnPos, float yHeadRot, float xHeadRot) {
+        return GameDeath.spawnBodyEntity(victim, killer, role, reason, saveItems, spawnPos, yHeadRot, xHeadRot);
     }
 
     @Nullable
     public static PlayerBodyEntity findPlayerBodyEntity(ServerPlayer player) {
-        var serverLevel = player.serverLevel();
-        var bodies = serverLevel.getAllEntities();
-
-        List<PlayerBodyEntity> bodiesMatched = new ArrayList<>();
-        for (var body : bodies) {
-            if (body instanceof PlayerBodyEntity bodyEntity) {
-                if (bodyEntity.getPlayerUuid().equals(player.getUUID())) {
-                    bodiesMatched.add(bodyEntity);
-                    break;
-                }
-            }
-        }
-        if (bodiesMatched.isEmpty())
-            return null;
-        return bodiesMatched.getFirst();
-    }
-
-    public static void registerEventForServerTickForDoingResetTasks() {
-        // 列车重置时同步强载的区块，其中的实体要晚几刻才由实体管理器载入世界；
-        // 在限时窗口内按区块清掉上一局的残留实体（尸体/掉落物/彩虹马等）。
-        // 注意：这里绝不能整图 resetEntities —— 旧实现的登记时序有误（getChunk 同步加载在登记之前，
-        // CHUNK_LOAD 事件先于登记触发），条目会残留到局中，之后任意一次区块重载都会把全图的
-        // 彩虹马、轮椅、掉落物等活跃实体一并误清（见"彩虹马蹄铁召唤马后其他彩虹马消失"问题）。
-        ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
-            if (chunksToClearEntities.isEmpty())
-                return;
-            if (world.getGameTime() > chunksToClearEntitiesDeadline) {
-                chunksToClearEntities.clear();
-                return;
-            }
-            if (!chunksToClearEntities.contains(entity.chunkPosition()))
-                return;
-            if (EntityClearUtils.shouldClearOnReset(entity)) {
-                // 实体正处于入世界回调中，推迟到任务队列再移除，避免重入实体管理器
-                world.getServer().execute(() -> {
-                    if (!entity.isRemoved())
-                        entity.discard();
-                });
-            }
-        });
-        ServerTickEvents.START_SERVER_TICK.register(server -> {
-            if (!serverTaskQueue.isEmpty()) {
-                // int size = serverTaskQueue.size();
-                int i = 0;
-                {
-                    var task = serverTaskQueue.get(i);
-                    if (!task.finished && task.onTick(server)) {
-                        task.finished = true;
-                        if (!task.cancelled)
-                            task.onFinished();
-                    }
-                }
-                serverTaskQueue.removeIf((t) -> t.finished || t.cancelled);
-            }
-            if (!serverAsynTaskLists.isEmpty()) {
-                int size = serverAsynTaskLists.size();
-                for (int i = 0; i < size; i++) {
-                    var task = serverAsynTaskLists.get(i);
-                    if (!task.finished && task.onTick(server)) {
-                        task.finished = true;
-                        if (!task.cancelled)
-                            task.onFinished();
-                    }
-                }
-                serverAsynTaskLists.removeIf((t) -> t.finished || t.cancelled);
-            }
-        });
-    }
-
-    public static void trueStartGame(ServerLevel world, GameMode gameMode, int time) {
-        if (SRE.isLobby)
-            return;
-        // 延迟5s
-        SRE.LOGGER.info("=".repeat(20));
-        SRE.LOGGER.info("Game Started!");
-        executeFunction(world.getServer().createCommandSourceStack(), "harpymodloader:early_start_game");
-        executeFunction(world.getServer().createCommandSourceStack(),
-                "harpymodloader:early_start_game_" + MapManager.last_start_map);
-        List<ServerPlayer> players = world.getServer().getPlayerList().getPlayers();
-        for (ServerPlayer player : players) {
-            ServerPlayNetworking.send(player, new CloseUiPayload());
-        }
-        SREGameWorldComponent game = SREGameWorldComponent.KEY.get(world);
-        int playerCount = getStartingPlayers(world).size();
-        game.gameMode = (gameMode);
-        SREGameTimeComponent.KEY.get(world).setResetTime(time);
-        RefugeeComponent.KEY.get(world).reset();
-        if (playerCount >= gameMode.minPlayerCount) {
-            game.setGameStatus(SREGameWorldComponent.GameStatus.STARTING);
-        } else {
-            clearForcedReadyPlayers();
-            for (ServerPlayer player : players) {
-                player.displayClientMessage(
-                        Component.translatable("game.start_error.sre.not_enough_players", gameMode.minPlayerCount),
-                        true);
-                // 无法发车：让客户端关闭地图投票结果页的铺黑，避免卡黑屏
-                ServerPlayNetworking.send(player, new MapDepartCancelPayload());
-            }
-            isStartingGame = false;
-        }
-    }
-
-    public static void stopGame(ServerLevel world) {
-        world.players().forEach(serverPlayer -> {
-            serverPlayer.addEffect(new MobEffectInstance(ModEffects.INVINCIBLE, 80, 0, false, false, false));
-            serverPlayer.addEffect(new MobEffectInstance(ModEffects.USED_BANED, 80, 0, false, false, false));
-        });
-        SREGameWorldComponent component = SREGameWorldComponent.KEY.get(world);
-        SREWorldBlackoutComponent.KEY.get(world).reset();
-        component.setGameStatus(SREGameWorldComponent.GameStatus.STOPPING);
-        component.gameMode.stopGame(world);
-        org.agmas.noellesroles.game.MirrorReunionEndEgg.onGameStopping(world, component);
-    }
-
-    public static void executeFunction(MinecraftServer server, int permission, String function) {
-        try {
-            server.getCommands().performPrefixedCommand(server.createCommandSourceStack().withPermission(permission),
-                    "function " + function);
-        } catch (Exception e) {
-            Log.warn(LogCategory.GENERAL, "Failed to execute function: " + function + ", error: " + e.getMessage());
-        }
-    }
-
-    public static void executeFunction(CommandSourceStack source, String function) {
-        try {
-            source.getServer().getCommands().performPrefixedCommand(source, "function " + function);
-        } catch (Exception e) {
-            Log.warn(LogCategory.GENERAL, "Failed to execute function: " + function + ", error: " + e.getMessage());
-        }
-    }
-
-    public static void initializeGame(ServerLevel serverWorld) {
-        SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(serverWorld);
-        io.wifi.starrailexpress.settlement.SettlementManager.stopAll(serverWorld.getServer());
-        ArrayList<ServerPlayer> readyPlayerList = new ArrayList<>(getStartingPlayers(serverWorld));
-        if (io.wifi.starrailexpress.event.DeferGameInitialize.EVENT.invoker()
-                .defer(serverWorld, gameComponent.getGameMode(), List.copyOf(readyPlayerList))) return;
-        if (!AllowGameInitialize.EVENT.invoker().allow(serverWorld, gameComponent.getGameMode(),
-                List.copyOf(readyPlayerList))) {
-            clearForcedReadyPlayers();
-            isStartingGame = false;
-            isGameStarted = false;
-            gameComponent.setGameStatus(SREGameWorldComponent.GameStatus.INACTIVE);
-            gameComponent.setFade(0);
-            gameComponent.sync();
-            for (ServerPlayer player : serverWorld.players()) {
-                ServerPlayNetworking.send(player, new MapDepartCancelPayload());
-            }
-            return;
-        }
-        OnGameInitialized.EVENT.invoker().onGameInitialized(serverWorld);
-        isGameStarted = false;
-        SRERole.resetStatic();
-        var packet = ListRolesCommand.getRoleAndModifierEnableInfoPacket(false);
-        for (var p : serverWorld.players()) {
-            ServerPlayNetworking.send(p, packet);
-        }
-        isStartingGame = false;
-        HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
-        RadioItem.RADIO_GROUP.clear();
-        gameComponent.clear();
-        gameComponent.isSkillAvailable = true;
-        // AreasWorldComponent areasWorldComponent =
-        // AreasWorldComponent.KEY.get(serverWorld);
-
-        RoleMethodDispatcher.onStartGame(serverWorld);
-        // 记录开局玩家数量，供基于开局人数的逻辑使用
-        gameComponent.setStartingPlayerCount(readyPlayerList.size());
-        clearForcedReadyPlayers();
-        // serverWorld.setWeatherParameters(0, -1, true, true);
-        List<ServerPlayer> players = new ArrayList<>(serverWorld.getServer().getPlayerList().getPlayers());
-        // 在分配角色前将所有玩家设置为冒险模式，并且resetPlayer
-        for (ServerPlayer player : players) {
-            player.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
-        }
-        for (ServerPlayer player : readyPlayerList) {
-            player.setGameMode(net.minecraft.world.level.GameType.ADVENTURE);
-        }
-        serverCacheKillState.clear();
-
-        GameInitializeEvent.EVENT.invoker().initializeGame(serverWorld, gameComponent, readyPlayerList);
-        // 初始化房间等
-        gameComponent.getGameMode().beforeInitializeGame(serverWorld, gameComponent, readyPlayerList);
-        // 分配角色
-        gameComponent.getGameMode().initializeGame(serverWorld, gameComponent, readyPlayerList);
-        // 初始化回放管理器
-        gameComponent.getGameMode().afterInitializeGame(serverWorld, gameComponent, readyPlayerList);
-
-        // 准备游戏开始（过渡状态）
-        gameComponent.setGameStatus(SREGameWorldComponent.GameStatus.ACTIVE);
-
-        gameComponent.sync();
-
-        gameComponent.getGameMode().recordPlayerStats(serverWorld, gameComponent, readyPlayerList);
-
-        gameComponent.getGameMode().gameStarted(serverWorld, gameComponent, readyPlayerList);
-
-        // 发放地图初始物品
-        distributeMapInitialItems(serverWorld, readyPlayerList);
-        gameComponent.playerBannedBlockTime.clear();
-        OnGameStarted.EVENT.invoker().onGameStarted(serverWorld);
-
-        TimeStopEffect.canMovePlayers.clear();
-        // --- 结束新增统计数据更新逻辑 ---
-        OnTrainAreaHaveReseted.EVENT.invoker().onWorldHaveInited(serverWorld);
-        isGameStarted = true;
-    }
-
-    /**
-     * 分发地图初始物品给所有玩家
-     * 格式：initialItems 列表中每个元素为 "itemId;count"
-     */
-    private static void distributeMapInitialItems(ServerLevel serverWorld, List<ServerPlayer> players) {
-        AreasWorldComponent areas = AreasWorldComponent.KEY.get(serverWorld);
-        if (areas.areasSettings.initialItems.isEmpty()) {
-            return;
-        }
-        for (String entry : areas.areasSettings.initialItems) {
-            String[] parts = entry.split(";");
-            if (parts.length < 2)
-                continue;
-            String itemId = parts[0];
-            int count;
-            try {
-                count = Integer.parseInt(parts[1]);
-            } catch (NumberFormatException e) {
-                continue;
-            }
-            if (count <= 0)
-                continue;
-
-            ResourceLocation itemLocation = ResourceLocation.tryParse(itemId);
-            if (itemLocation == null)
-                continue;
-            Item item = BuiltInRegistries.ITEM.get(itemLocation);
-            if (item == Items.AIR)
-                continue;
-
-            for (ServerPlayer player : players) {
-                player.addItem(new ItemStack(item, count));
-            }
-            SRE.LOGGER.info(
-                    "Distributed map initial item: " + itemId + " x" + count + " to " + players.size() + " players");
-        }
-    }
-
-    public static List<Item> cooldownItems = new ArrayList<>();
-
-    public static void addItemCooldowns(ServerLevel world, int time) {
-        if (cooldownItems.isEmpty()) {
-            BuiltInRegistries.ITEM.forEach(item -> {
-                // starrailexpress:custom_item 是「所有自定义列车物品共用的那一个注册物品」，
-                // 它的冷却键不是它自己，而是每件自定义物品各自专属的键（见 CustomItemCooldownKeys）。
-                // 所以这里必须把它排除，否则原版按 Item 记的冷却会同时点亮玩家身上所有自定义物品，
-                // 表现为「同一件物品出现原版冷却 + 自定义冷却两套状态」。
-                if (item == io.wifi.starrailexpress.index.DevItems.CUSTOM_ITEM) {
-                    return;
-                }
-                if (!(item instanceof LetterItem)) {
-                    String namespace = BuiltInRegistries.ITEM.getKey(item).getNamespace();
-                    if (namespace.equals(StarRailExpressID.MOD_ID)
-                            || namespace.equals(StarRailExpressID.STUPIDEXPRESS)
-                            || namespace.equals(StarRailExpressID.NOELLESROLES_ROLE)) {
-                        cooldownItems.add(item);
-                    }
-                }
-            });
-        }
-        for (ServerPlayer player : world.players()) {
-            var cooldowns = player.getCooldowns();
-            var items = new ArrayList<>(MCItemsUtils.getItemsByTag(player.serverLevel(), TMMItemTags.GUNS));
-            // Noellesroles.LOGGER.info("itemSize:" + items.size());
-            items.forEach((item) -> {
-                cooldowns.addCooldown(item,
-                        (Integer) time);
-            });
-            cooldowns.addCooldown(Items.BOW, time);
-            cooldowns.addCooldown(Items.CLOCK, time);
-            cooldowns.addCooldown(Items.TRIDENT, time);
-
-            cooldowns.addCooldown(TMMItems.MONITOR_BROKEN, time);
-            cooldowns.addCooldown(ModItems.SHORT_SHOTGUN, time);
-            cooldowns.addCooldown(TMMItems.GRENADE, time);
-            cooldowns.addCooldown(TMMItems.PSYCHO_MODE, time);
-            cooldowns.addCooldown(TMMItems.NUNCHUCK, time);
-            cooldowns.addCooldown(TMMItems.BAT, time);
-            cooldowns.addCooldown(TMMItems.KNIFE, time);
-            cooldowns.addCooldown(TMMItems.SNIPER_RIFLE, time);
-            cooldowns.addCooldown(TMMItems.BLACKOUT, time);
-
-            cooldownItems.forEach(
-                    item -> cooldowns.addCooldown(item, time));
-
-            // 自定义列车物品：冷却条目同样写在原版 ItemCooldowns 里，但按自定义物品 id 逐个压，
-            // 安全时间内左键 / 右键都无法使用，且 A 物品的冷却不会牵连 B 物品。
-            CustomItemRuntime.applySafeTimeCooldown(player, time);
-
-            // cooldowns.addCooldown(ModItems.SP_KNIFE, time);
-            // cooldowns.addCooldown(ModItems.STALKER_KNIFE, time);
-            // cooldowns.addCooldown(ModItems.STALKER_KNIFE_OFFHAND, time);
-            // cooldowns.addCooldown(ModItems.FAKE_REVOLVER, time);
-            // cooldowns.addCooldown(ModItems.THROWING_KNIFE, time);
-            // cooldowns.addCooldown(ModItems.NINJA_KNIFE, time);
-            // cooldowns.addCooldown(ModItems.NINJA_SHURIKEN, time);
-            // cooldowns.addCooldown(HSRItems.TOXIN, time);
-            // cooldowns.addCooldown(HSRItems.ANTIDOTE, time);
-
-            if (!player.hasEffect(ModEffects.SAFE_TIME))
-                player.addEffect(new MobEffectInstance(
-                        ModEffects.SAFE_TIME,
-                        (int) (time), // 持续时间 30s（tick）
-                        0, // 等级（0 = 速度 I）
-                        true, // ambient（环境效果，如信标）
-                        false, // showParticles（显示粒子）
-                        false // showIcon（显示图标）
-                ));
-            if (!player.hasEffect(ModEffects.SKILL_BANED))
-                player.addEffect(new MobEffectInstance(
-                        ModEffects.SKILL_BANED,
-                        (int) (time), // 持续时间 30s（tick）
-                        0, // 等级（0 = 速度 I）
-                        true, // ambient（环境效果，如信标）
-                        false, // showParticles（显示粒子）
-                        false // showIcon（显示图标）
-                ));
-        }
-    }
-
-    public static Vec3 getSpawnPos(AreasWorldComponent areas, int room) {
-        // Try to get position from configured room positions
-        Vec3 configuredPos = areas.getRoomPosition(room);
-        if (configuredPos != null) {
-            return configuredPos;
-        }
-
-        // Fallback to default positions based on room count
-        // int roomCount = areas.getRoomCount();
-        // if (roomCount >= 7) {
-        // if (room == 1) {
-        // return new Vec3(116, 122, -539);
-        // } else if (room == 2) {
-        // return new Vec3(124, 122, -534);
-        // } else if (room == 3) {
-        // return new Vec3(131, 122, -534);
-        // } else if (room == 4) {
-        // return new Vec3(144, 122, -540);
-        // } else if (room == 5) {
-        // return new Vec3(119, 128, -537);
-        // } else if (room == 6) {
-        // return new Vec3(132, 128, -536);
-        // } else if (room == 7) {
-        // return new Vec3(146, 128, -537);
-        // }
-        // } else if (roomCount >= 4) {
-        // // Handle 4-6 rooms
-        // switch (room) {
-        // case 1: return new Vec3(116, 122, -539);
-        // case 2: return new Vec3(124, 122, -534);
-        // case 3: return new Vec3(131, 122, -534);
-        // case 4: return new Vec3(144, 122, -540);
-        // }
-        // } else if (roomCount >= 2) {
-        // // Handle 2-3 rooms
-        // switch (room) {
-        // case 1: return new Vec3(116, 122, -539);
-        // case 2: return new Vec3(131, 122, -534);
-        // case 3: return new Vec3(144, 122, -540);
-        // }
-        // } else if (roomCount == 1) {
-        // // Handle single room
-        // return new Vec3(131, 122, -534);
-        // }
-        return null;
-    }
-
-    public static long startTime = 0;
-    public static Map<UUID, Integer> roomToPlayer = new HashMap<>();
-    // public static Map<TaskPointType, List<BlockPos>> taskPoints = new
-    // HashMap<>();
-
-    /**
-     * 基础重置，包含分配房间、重置玩家、游戏规则等
-     * 
-     * @param serverWorld
-     * @param gameComponent
-     * @param players
-     */
-    public static void baseInitialize(ServerLevel serverWorld, SREGameWorldComponent gameComponent,
-            List<ServerPlayer> players) {
-        if (SRE.isLobby)
-            return;
-        AreasWorldComponent areas = AreasWorldComponent.KEY.get(serverWorld);
-        startTime = System.currentTimeMillis();
-
-        SRETrainWorldComponent.KEY.get(serverWorld).reset();
-        SREWorldBlackoutComponent.KEY.get(serverWorld).reset();
-        // 重置画板已画出物品状态
-        gameComponent.resetDrawnCategories();
-        serverWorld.setDayTime(areas.areasSettings.time);
-        serverWorld.getGameRules().getRule(GameRules.RULE_KEEPINVENTORY).set(true, serverWorld.getServer());
-        SREGameWorldComponent.perPlayerDarknessTime.clear();
-
-        // 天气循环配置 - 默认关闭
-        serverWorld.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE).set(areas.areasSettings.weatherCycle,
-                serverWorld.getServer());
-
-        // 应用地图天气配置
-        switch (areas.areasSettings.weather) {
-            case rain:
-                serverWorld.setWeatherParameters(0, 120000, true, false);
-                break;
-            case thunder:
-                serverWorld.setWeatherParameters(0, 120000, true, true);
-                break;
-            default: // clear
-                serverWorld.setWeatherParameters(120000, 0, false, false);
-                break;
-        }
-
-        // 昼夜循环配置 - 默认关闭，开启后使用正常昼夜循环
-        serverWorld.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(areas.areasSettings.daylightCycle,
-                serverWorld.getServer());
-
-        serverWorld.getGameRules().getRule(GameRules.RULE_MOBGRIEFING).set(false, serverWorld.getServer());
-        serverWorld.getGameRules().getRule(GameRules.RULE_DOMOBSPAWNING).set(false, serverWorld.getServer());
-        serverWorld.getGameRules().getRule(GameRules.RULE_ANNOUNCE_ADVANCEMENTS).set(false, serverWorld.getServer());
-        serverWorld.getGameRules().getRule(GameRules.RULE_DO_TRADER_SPAWNING).set(false, serverWorld.getServer());
-        serverWorld.getGameRules().getRule(GameRules.RULE_PLAYERS_SLEEPING_PERCENTAGE).set(9999,
-                serverWorld.getServer());
-        serverWorld.getServer().setDifficulty(Difficulty.PEACEFUL, true);
-
-        // dismount all players as it can cause issues
-        Map<UUID, String> nameTagMap = new HashMap<>();
-        for (ServerPlayer player : serverWorld.players()) {
-            NameTagInventoryComponent nameTagInventoryComponent = NameTagInventoryComponent.KEY.get(player);
-            String effectiveNameTag = nameTagInventoryComponent.getEffectiveNameTag();
-            if (effectiveNameTag != null && !effectiveNameTag.isEmpty()) {
-                nameTagMap.put(player.getUUID(), effectiveNameTag);
-            }
-            player.removeVehicle();
-            resetPlayer(player);
-        }
-        if (SREConfig.instance().isItemSkinEnabled) {
-            NameTagSyncPayload payload = new NameTagSyncPayload(nameTagMap);
-            for (ServerPlayer player : players) {
-                ServerPlayNetworking.send(player, payload);
-            }
-        }
-        // teleport players to play area
-
-        // teleport non playing players
-        for (ServerPlayer player : serverWorld.getServer().getPlayerList().getPlayers()) {
-            if (players.contains(player))
-                continue;
-            player.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
-
-            AreasWorldComponent.PosWithOrientation spectatorSpawnPos = areas.getSpectatorSpawnPos();
-            player.teleportTo(serverWorld, spectatorSpawnPos.pos.x(), spectatorSpawnPos.pos.y(),
-                    spectatorSpawnPos.pos.z(), spectatorSpawnPos.yaw, spectatorSpawnPos.pitch);
-        }
-
-        // clear items, clear previous game data
-        for (ServerPlayer serverPlayerEntity : players) {
-            serverPlayerEntity.getInventory().clearContent();
-            SREPlayerMoodComponent.KEY.get(serverPlayerEntity).init();
-            SREPlayerShopComponent.KEY.get(serverPlayerEntity).init();
-            SREPlayerPoisonComponent.KEY.get(serverPlayerEntity).init();
-            SREPlayerPsychoComponent.KEY.get(serverPlayerEntity).init();
-            SREPlayerNoteComponent.KEY.get(serverPlayerEntity).init();
-            SREPlayerShopComponent.KEY.get(serverPlayerEntity).init();
-            io.wifi.starrailexpress.cca.DynamicShopComponent.KEY.get(serverPlayerEntity).init();
-            io.wifi.starrailexpress.cca.SREPlayerMinigameTaskComponent.KEY.get(serverPlayerEntity).init();
-            if (!TrainVoicePlugin.isVoiceChatMissing()) {
-                TrainVoicePlugin.resetPlayer(serverPlayerEntity.getUUID());
-            }
-
-            // remove item cooldowns
-            HashSet<Item> copy = new HashSet<>(serverPlayerEntity.getCooldowns().cooldowns.keySet());
-            for (Item item : copy)
-                serverPlayerEntity.getCooldowns().removeCooldown(item);
-        }
-        gameComponent.clearRoleMap(true);
-        SREGameTimeComponent.KEY.get(serverWorld).reset();
-
-        // reset train 已经提前重置
-        // gameComponent.queueTrainReset();
-
-        // select rooms
-        Collections.shuffle(players);
-        int roomNumber = 0;
-        int i = 0;
-        int roomCount = areas.getRoomCount(); // Get room count from config
-        // Echo 模式不使用房间钥匙与介绍信件：三格携带由模式自己发放。
-        final boolean echoMode = gameComponent.getGameMode() != null
-                && gameComponent.getGameMode().identifier.equals(org.agmas.noellesroles.game.modes.echo.EchoBootstrap.ID);
-        for (ServerPlayer serverPlayerEntity : players) {
-            ItemStack itemStack = new ItemStack(TMMItems.KEY);
-            roomNumber = i % roomCount + 1;
-            int finalRoomNumber = roomNumber;
-            itemStack.update(DataComponents.LORE, ItemLore.EMPTY, component -> new ItemLore(Component
-                    .nullToEmpty("Room " + finalRoomNumber)
-                    .toFlatList(Style.EMPTY.withItalic(false).withColor(0xFF8C00))));
-            if (!echoMode) serverPlayerEntity.addItem(itemStack);
-            roomToPlayer.put(serverPlayerEntity.getUUID(), finalRoomNumber);
-
-            // give letter
-            ItemStack letter = new ItemStack(ModItems.LETTER_ITEM);
-            {
-                Component displayName = serverPlayerEntity.getName();
-                letter.set(DataComponents.ITEM_NAME,
-                        Component.translatable("tip.n.letter.item_name", displayName)
-                                .withStyle(ChatFormatting.AQUA));
-
-                int letterColor = 0xC5AE8B;
-                String tipString = "tip.n.letter.";
-                letter.update(DataComponents.LORE, ItemLore.EMPTY, component -> {
-                    List<Component> text = new ArrayList<>();
-                    UnaryOperator<Style> stylizer = style -> style.withItalic(false).withColor(letterColor);
-
-                    String string = displayName != null ? displayName.getString()
-                            : serverPlayerEntity.getName().getString();
-                    if (string.charAt(string.length() - 1) == '\uE780') { // remove ratty supporter icon
-                        string = string.substring(0, string.length() - 1);
-                    }
-                    text.add(Component
-                            .translatable(tipString + "name", string,
-                                    Component.translatable(tipString + "map_name"))
-                            .withStyle(stylizer));
-                    text.add(Component.translatable(tipString + "room").withStyle(stylizer));
-                    var date = new LocalDateData();
-                    text.add(Component.translatable(tipString + "tooltip1",
-                            Component.translatable(tipString + "date", date.getYear(),
-                                    date.getMonth(), date.getDay()))
-                            .withStyle(stylizer));
-                    text.add(Component.translatable(tipString + "tooltip2").withStyle(stylizer));
-                    return new ItemLore(text);
-                });
-            }
-
-            // 若存在赞助者，把信封替换为赞助者的 plush，但多给一个（可以丢弃）
-            ItemStack sponsorPlush = io.wifi.starrailexpress.sponsor.SponsorManager.decorateIntroStack(letter,
-                    serverPlayerEntity);
-            if (!echoMode && sponsorPlush != null) {
-                serverPlayerEntity.addItem(sponsorPlush);
-            }
-
-            if (!echoMode) serverPlayerEntity.addItem(letter);
-            i++;
-        }
-        for (ServerPlayer player : players) {
-            player.setGameMode(net.minecraft.world.level.GameType.ADVENTURE);
-            //
-            Vec3 pos = getSpawnPos(areas, roomToPlayer.getOrDefault(player.getUUID(), 1));
-            if (pos != null) {
-                player.teleportTo(pos.x(), pos.y() + 1, pos.z());
-            } else {
-                Vec3 pos1 = player.position().add(areas.getPlayAreaOffset());
-                player.teleportTo(player.serverLevel(), pos1.x(), pos1.y() + 1, pos1.z(), Set.of(), 0, 0);
-            }
-        }
-
-        gameComponent.setJumpAvailable(areas.areasSettings.canJump);
-
-        // 应用地图重力配置
-        // 不要修改base用modifier！！！！！！！！！！
-        for (ServerPlayer player : players) {
-            var gravityAttr = player.getAttribute(Attributes.GRAVITY);
-            if (gravityAttr != null) {
-                AttributeModifier gravityModifier = new AttributeModifier(
-                        SRE.id("map"),
-                        areas.areasSettings.gravityModifier, AttributeModifier.Operation.ADD_VALUE);
-                gravityAttr.addOrReplacePermanentModifier(gravityModifier);
-            }
-        }
-
-        // 应用全局药水效果
-        for (String effectStr : areas.areasSettings.mobEffects) {
-            if (effectStr.isEmpty())
-                continue;
-            try {
-                String[] parts = effectStr.split(",");
-                if (parts.length >= 1) {
-                    ResourceLocation effectId = ResourceLocation.parse(parts[0]);
-                    int level = parts.length >= 2 ? Integer.parseInt(parts[1]) : 0;
-                    var effectHolder = BuiltInRegistries.MOB_EFFECT.getHolder(effectId).orElse(null);
-                    if (effectHolder != null) {
-                        for (ServerPlayer player : players) {
-                            player.addEffect(new MobEffectInstance(
-                                    effectHolder, Integer.MAX_VALUE, level, true, false, false));
-                        }
-                        SRE.LOGGER.info("Applied global effect: " + effectStr);
-                    } else {
-                        SRE.LOGGER.warn("Unknown effect: " + effectId);
-                    }
-                }
-            } catch (Exception e) {
-                SRE.LOGGER.error("Failed to apply effect: " + effectStr, e);
-            }
-        }
-    }
-
-    public static void setForcedReadyPlayers(Collection<UUID> playerIds) {
-        if (playerIds == null || playerIds.isEmpty()) {
-            forcedReadyPlayers = null;
-            return;
-        }
-        forcedReadyPlayers = new LinkedHashSet<>(playerIds);
-    }
-
-    public static void clearForcedReadyPlayers() {
-        forcedReadyPlayers = null;
-    }
-
-    private static List<ServerPlayer> getStartingPlayers(ServerLevel serverWorld) {
-        ParticipationComponent participation = ParticipationComponent.KEY.get(serverWorld);
-        if (forcedReadyPlayers != null && !forcedReadyPlayers.isEmpty()) {
-            List<ServerPlayer> selected = forcedReadyPlayers.stream()
-                    .map(serverWorld.getServer().getPlayerList()::getPlayer)
-                    .filter(Objects::nonNull)
-                    .filter(participation::isParticipating)
-                    .toList();
-            if (!selected.isEmpty()) {
-                return selected;
-            }
-        }
-        return getReadyPlayerList(serverWorld);
-    }
-
-    public static int getStartingPlayerCount(ServerLevel serverWorld) {
-        return getStartingPlayers(serverWorld).size();
-    }
-
-    private static List<ServerPlayer> getReadyPlayerList(ServerLevel serverWorld) {
-        AreasWorldComponent areas = AreasWorldComponent.KEY.get(serverWorld);
-        ParticipationComponent participation = ParticipationComponent.KEY.get(serverWorld);
-        return serverWorld.getServer().getPlayerList().getPlayers().stream()
-                .filter(participation::isParticipating)
-                .filter(player -> participation.isSettlementViewer(player.getUUID())
-                        || (player.serverLevel() == serverWorld && areas.getReadyArea().contains(player.position())))
-                .toList();
-    }
-
-    public static final Set<ChunkPos> chunksToClearEntities = new HashSet<>();
-    /** {@link #chunksToClearEntities} 的生效截止游戏刻：只在列车重置后的短窗口内清理，过期即整体作废。 */
-    public static long chunksToClearEntitiesDeadline = 0;
-
-    public static void finalizeGame(ServerLevel world) {
-        SREGameWorldComponent.getInstance(world).playerBannedBlockTime.clear();
-
-        SRE.LOGGER.info("-".repeat(20));
-
-        SRE.LOGGER.info("Game Stopped!");
-        RefugeeComponent.KEY.get(world).reset();
-        world.setWeatherParameters(6000, 0, false, false);
-        serverTaskQueue.clear();
-        serverAsynTaskLists.clear();
-
-        isStartingGame = false;
-        SREGameRoundEndComponent roundEnd = SREGameRoundEndComponent.KEY.get(world);
-        RoleMethodDispatcher.onEndGame(world);
-        SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(world);
-
-        // var areasWorldComponent = AreasWorldComponent.KEY.get(world);
-        gameComponent.isSkillAvailable = false;
-
-        world.setDayTime(Level.TICKS_PER_DAY / 2);
-        world.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(false, world.getServer());
-        world.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE).set(false, world.getServer());
-        gameComponent.getGameMode().finalizeGame(world, gameComponent);
-        OnGameEnd.EVENT.invoker().onGameEnd(world, gameComponent);
-
-        TimeStopEffect.canMovePlayers.clear();
-        SRE.REPLAY_MANAGER.finalizeReplay(roundEnd.getWinStatus(), roundEnd);
-        // 对局结束后把完整回放时间线作为全局战绩异步保存到远端数据库（未开启 MySQL 同步时自动跳过）。
-        net.exmo.sre.record.MatchRecordService.recordFinishedMatch(world);
-
-        isGameStarted = false;
-
-        gameComponent.getGameMode().recordWinStats(world, roundEnd, gameComponent);
-        io.wifi.starrailexpress.settlement.SettlementSnapshot settlement = null;
-        try {
-            settlement = io.wifi.starrailexpress.settlement.SettlementManager.capture(world, roundEnd, gameComponent);
-        } catch (RuntimeException exception) {
-            SRE.LOGGER.error("无法冻结舞台结算，保留原文字回放", exception);
-        }
-        // --- 结束新增统计数据更新逻辑 (胜利/失败) ---
-        // roundEnd.sync();
-        // Show replay to all players
-        gameComponent.getGameMode().showReplay(world, roundEnd, gameComponent);
-        if (SREConfig.instance().logGameEvent) {
-            SRE.LOGGER.info("-".repeat(20));
-            SRE.LOGGER.info(ListRoleInRoundCommand.generateRoleInRoundText(world).getString().replaceAll("\n", "; "));
-            SRE.LOGGER.info("-".repeat(20));
-        }
-
-        SREWorldBlackoutComponent.KEY.get(world).reset();
-        SRETrainWorldComponent trainComponent = SRETrainWorldComponent.KEY.get(world);
-        trainComponent.setSpeed(0);
-
-        trainComponent.setTimeOfDay(SRETrainWorldComponent.TimeOfDay.NOON);
-
-        resetEntities(world);
-
-        // reset all players
-        for (ServerPlayer player : world.getServer().getPlayerList().getPlayers()) {
-            // 不需要别的逻辑，会自己清掉修饰符+药水
-            resetPlayerAfterGame(player);
-        }
-        HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
-        RadioItem.RADIO_GROUP.clear();
-
-        // reset game component
-        roundEnd.CustomWinnerPlayers.clear();
-
-        SREGameTimeComponent.KEY.get(world).reset();
-        gameComponent.clearRoleMap(false);
-        gameComponent.resetPerPlayerKills(); // 重置本局击杀数
-        SREGameWorldComponent.perPlayerDarknessTime.clear();
-        gameComponent.setGameStatus(SREGameWorldComponent.GameStatus.INACTIVE);
-        trainComponent.setTime(0);
-        gameComponent.roleWorldComponent.sync();
-
-        roundEnd.sync();
-
-        if (AutoShutdownWhenNotRunningCommand.autoShutdownWhenGameNotRunning) {
-            world.getServer().getPlayerList().broadcastSystemMessage(
-                    Component.translatable("\n\n\n\n%s\n",
-                            Component.translatable("sre.shutdown.waring", 30).withStyle(ChatFormatting.YELLOW)),
-                    false);
-            SRENetworkMessageUtils.sendCODSubtitleToAll(
-                    Component.translatable("sre.shutdown.waring", 30).withStyle(ChatFormatting.YELLOW),
-                    Component.translatable("sre.shutdown.waring", 30).withStyle(ChatFormatting.YELLOW), 30 * 20,
-                    java.awt.Color.GREEN.getRGB(), false, SubtitleS2CPayload.POS_CENTER);
-            AutoShutdownWhenNotRunningCommand.autoShutdownWhenGameNotRunning = false;
-            serverTaskQueue.add(new ServerTaskInfoClasses.SchedulerTask(30 * 20, () -> {
-                world.getServer().halt(false);
-            }));
-        }
-        SRE.LOGGER.info("=".repeat(20));
-
-        WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(world);
-        worldModifierComponent.clearAll();
-        worldModifierComponent.sync();
-        serverCacheKillState.clear();
-        io.wifi.starrailexpress.settlement.SettlementManager.begin(world, settlement);
-    }
-
-    public static void recordWinStats(ServerLevel world, GameMode gameMode, SREGameRoundEndComponent roundEnd,
-            SREGameWorldComponent gameComponent) {
-        // --- 新增统计数据更新逻辑 (胜利/失败) ---
-        GameUtils.WinStatus winStatus = roundEnd.getWinStatus();
-        // SREWorldBlackoutComponent.KEY.get(world).reset();
-        // 修复4: 检查是否为恋人胜利
-        boolean isLoversWin = winStatus == WinStatus.LOVERS;
-        {
-            for (ServerPlayer player : world.players()) {
-                PlayerStats stats = PlayerStatsManager.get(player);
-
-                SRERole playerRole = gameComponent.getRole(player);
-
-                boolean isWinner = gameMode.isPlayerWinning(world, player, playerRole, roundEnd, gameComponent);
-
-                if (isWinner) {
-                    roundEnd.setPlayerWin(player.getUUID(), isWinner);
-                    roundEnd.CustomWinnerPlayers.add(player.getUUID());
-                    stats.incrementTotalWins();
-                    if (playerRole != null) {
-                        stats.getOrCreateRoleStats(playerRole.identifier()).incrementWinsAsRole();
-
-                        // 统计阵营胜利
-                        if (playerRole.isVigilanteTeam()) {
-                            stats.incrementTotalSheriffWins();
-                        } else if (playerRole.canUseKiller()) {
-                            stats.incrementTotalKillerWins();
-                        } else if (playerRole.isNeutrals()) {
-                            stats.incrementTotalNeutralWins();
-                        } else if (playerRole.isInnocent() && !playerRole.isVigilanteTeam()) {
-                            stats.incrementTotalCivilianWins();
-                        }
-                    }
-                    // 修复4: 恋人胜利时额外统计恋人胜利次数
-                    if (isLoversWin && roundEnd.CustomWinnerPlayers != null
-                            && roundEnd.CustomWinnerPlayers.contains(player.getUUID())) {
-                        stats.incrementTotalLoversWins();
-                        ProgressionDataManager.onLoversWin(player);
-                    }
-                    // 中立达成独立胜利：CUSTOM 及内置特殊胜负 GAMBLER/NIAN_SHOU/RECORDER/LOOSE_END
-                    if (playerRole != null && playerRole.isNeutrals()
-                            && (winStatus == WinStatus.CUSTOM || winStatus == WinStatus.GAMBLER
-                                    || winStatus == WinStatus.NIAN_SHOU || winStatus == WinStatus.RECORDER
-                                    || winStatus == WinStatus.LOOSE_END)) {
-                        ProgressionDataManager.onNeutralIndependentWin(player);
-                    }
-                } else {
-                    stats.incrementTotalLosses();
-                    if (playerRole != null) {
-                        stats.getOrCreateRoleStats(playerRole.identifier()).incrementLossesAsRole();
-                    }
-                }
-                ProgressionDataManager.onRoundSettled(player, playerRole, isWinner);
-            }
-        }
-    }
-
-    /** 原版 Abilities 的飞行速度默认值。 */
-    public static final float DEFAULT_FLYING_SPEED = 0.05F;
-    /** 原版 Abilities 的行走速度默认值。 */
-    public static final float DEFAULT_WALKING_SPEED = 0.1F;
-    /** 速度浮点比较容差。这些值只由本类常量与职业技能写入，不需要更严格。 */
-    private static final float SPEED_EPSILON = 1.0E-4F;
-
-    /**
-     * 把玩家的 abilities 恢复为原版默认值。
-     * <p>
-     * 只用于确实要离开游戏玩法的场合（开局与对局结束），旁观者请在调用前先
-     * 通过 {@link #normalizeSpectatorFlightAbilities(ServerPlayer)} 处理。
-     */
-    public static void resetPlayerAbilities(ServerPlayer player) {
-        var abilities = player.getAbilities();
-        abilities.mayfly = false;
-        abilities.flying = false;
-        abilities.instabuild = false;
-        abilities.invulnerable = false;
-        abilities.setFlyingSpeed(DEFAULT_FLYING_SPEED);
-        abilities.setWalkingSpeed(DEFAULT_WALKING_SPEED);
-        player.onUpdateAbilities();
-    }
-
-    /**
-     * 死亡切换旁观后收尾 abilities：仅在明显异常时才写回旁观基线。
-     * <p>
-     * 职业飞行技能（例如灵梦把 flyingSpeed 改成 0.018）在玩家死亡时可能来不及收尾，
-     * 残留的速度会让旁观者"飞不动"。这里把 mayfly 与两个速度拉回默认。
-     * 刻意不动 flying：旁观者的飞行开关由客户端接管，强行置假会让刚死的玩家一直下坠。
-     */
-    public static void normalizeSpectatorFlightAbilities(ServerPlayer player) {
-        var abilities = player.getAbilities();
-        if (abilities.mayfly
-                && Math.abs(abilities.getFlyingSpeed() - DEFAULT_FLYING_SPEED) <= SPEED_EPSILON
-                && Math.abs(abilities.getWalkingSpeed() - DEFAULT_WALKING_SPEED) <= SPEED_EPSILON) {
-            return;
-        }
-        abilities.mayfly = true;
-        abilities.setFlyingSpeed(DEFAULT_FLYING_SPEED);
-        abilities.setWalkingSpeed(DEFAULT_WALKING_SPEED);
-        player.onUpdateAbilities();
-    }
-
-    /**
-     * 职业飞行技能收尾。旁观/创造下只回收被技能改过的速度，避免连旁观者的飞行权限一起清掉。
-     */
-    public static void releaseRoleFlight(ServerPlayer player) {
-        if (player.isSpectator() || player.isCreative()) {
-            normalizeSpectatorFlightAbilities(player);
-            return;
-        }
-        var abilities = player.getAbilities();
-        abilities.mayfly = false;
-        abilities.flying = false;
-        abilities.setFlyingSpeed(DEFAULT_FLYING_SPEED);
-        abilities.setWalkingSpeed(DEFAULT_WALKING_SPEED);
-        player.fallDistance = 0;
-        player.onUpdateAbilities();
-    }
-
-    public static void resetPlayer(ServerPlayer player) {
-        SREItemUtils.clearItem(player, (item) -> true, -1);
-        resetPlayerAbilities(player);
-        player.fallDistance = 0;
-        InfectedPlayerComponent.KEY.get(player).clear();
-        SRERoleDataPlayerComponent.KEY.get(player).clear();
-        SREPlayerMoodComponent.KEY.get(player).clear();
-        SREPlayerShopComponent.KEY.get(player).clear();
-        io.wifi.starrailexpress.cca.DynamicShopComponent.KEY.get(player).clear();
-        SREPlayerPoisonComponent.KEY.get(player).clear();
-        SREPlayerPsychoComponent.KEY.get(player).clear();
-        SREPlayerNoteComponent.KEY.get(player).clear();
-        SREArmorPlayerComponent.KEY.get(player).clear();
-        io.wifi.starrailexpress.cca.SREPlayerMinigameTaskComponent.KEY.get(player).clear();
-        ResetPlayerEvent.EVENT.invoker().resetPlayer(player);
-        HeliumBuzzPlayerComponent.KEY.get(player).clear();
-        if (!TrainVoicePlugin.isVoiceChatMissing()) {
-            TrainVoicePlugin.resetPlayer(player.getUUID());
-        }
-        player.setGameMode(net.minecraft.world.level.GameType.ADVENTURE);
-        if (player.isSleeping())
-            player.stopSleeping();
-        player.removeVehicle();
-        ExtraSlotComponent.KEY.get(player).clear();
-        player.setInvulnerable(false);
-        player.setNoGravity(false);
-        // 体力重置。-1代表职业最大值
-        StaminaCommand.setStamina(player, -1);
-        player.setLastHurtByMob(null);
-        player.setLastHurtByPlayer(null);
-        player.refreshDimensions();
-        // PlayerResetMixin插入位置
-    }
-
-    public static void resetPlayerAfterGame(ServerPlayer player) {
-        resetPlayer(player);
-
-        // 局末修饰符由 harpymodloader:end_game 直接清空，绕过了 ModifierRemoved 事件，
-        // 客户端拿不到尺寸刷新包：兔兔万岁变回的兔子玩家结算后视角会一直停在伪装时的高度
-        // （EntityDisguiseEyeHeightMixin 缓存的 eyeHeight 不会重算）。
-        // 服务端 refreshDimensions 已在 resetPlayer 内做过，这里只需补发客户端刷新。
-        ServerPlayNetworking.send(player, new RefreshDimensionsS2CPacket());
-
-        ServerPlayNetworking.send(player, new AnnounceEndingPayload());
-        player.removeVehicle();
-        AreasWorldComponent.PosWithOrientation spawnPos = null;
-        if (spawnPos == null) {
-            BlockPos worldSpawnPos = player.serverLevel().getSharedSpawnPos();
-            float worldSpawnAngle = player.serverLevel().getSharedSpawnAngle();
-            var spawnPosVec3 = new Vec3(worldSpawnPos.getX(), worldSpawnPos.getY(), worldSpawnPos.getZ());
-            spawnPos = new AreasWorldComponent.PosWithOrientation(spawnPosVec3, worldSpawnAngle, 0);
-        }
-        player.setCamera(player);
-        player.teleportTo(player.getServer().overworld(), spawnPos.pos.x, spawnPos.pos.y, spawnPos.pos.z,
-                player.getYRot(), player.getXRot());
-    }
-
-    public static boolean differentTeam(SRERole role1, SRERole role2) {
-        if (role1 == null || role2 == null)
-            return false;
-        if (role1.isVigilanteTeam() && role2.isVigilanteTeam())
-            return false;
-        if (role1.isCanUseKiller() && role2.isCanUseKiller())
-            return false;
-        if (role1.isNeutralForKiller() && role2.isCanUseKiller())
-            return false;
-        if (role1.isCanUseKiller() && role2.isNeutralForKiller())
-            return false;
-        if (role1.isNeutralForKiller() && role2.isNeutralForKiller())
-            return false;
-        if (role1.isInnocent() && role2.isInnocent())
-            return false;
-        return true;
-    }
-
-    public static boolean isPlayerEliminatedIgnoreShitSplit(Player player) {
-        return player == null || !player.isAlive() || player.isCreative() || player.isSpectator();
-    }
-
-    public static boolean isPlayerEliminated(Player player) {
-        if (isPlayerReallyAliveOrDead(player) == SPAliveResult.ALIVE)
-            return false;
-        return player == null || !player.isAlive() || player.isCreative() || player.isSpectator();
+        return GameDeath.findPlayerBodyEntity(player);
     }
 
     public static void killPlayer(Player victim, boolean spawnBody, @Nullable Player killer) {
         killPlayer(victim, spawnBody, killer, GameConstants.DeathReasons.GENERIC);
     }
 
+    public static void killPlayer(Player victim, boolean spawnBody, @Nullable Player killer, ResourceLocation reason) {
+        killPlayer(victim, spawnBody, killer, reason, false);
+    }
+
+    public static void forceKillPlayer(Player victim, boolean spawnBody, @Nullable Player killer, ResourceLocation reason) {
+        killPlayer(victim, spawnBody, killer, reason, true);
+    }
+
     public static void killPlayer(Player victim, boolean spawnBody, @Nullable Player killer,
-            ResourceLocation deathReason) {
-        killPlayer(victim, spawnBody, killer, deathReason, false);
+            ResourceLocation reason, boolean forceDeath) {
+        GameDeath.killPlayer(victim, spawnBody, killer, reason, forceDeath);
     }
 
-    public static void forceKillPlayer(Player victim, boolean spawnBody, @Nullable Player killer,
-            ResourceLocation deathReason) {
-        killPlayer(victim, spawnBody, killer, deathReason, true);
-    }
-
-    /**
-     * 当前正在结算的击杀是否为强制死亡（forcekill）。
-     *
-     * <p>
-     * 整条死亡链（{@code GameMode#killPlayer} 及其 {@code AllowPlayerDeath*} 监听器）都在服务端
-     * 主线程执行，且 {@link #killPlayerOnServerThread} 是唯一入口，所以用静态值 + 进入/退出时
-     * 保存恢复（可重入）即可，不必用 ThreadLocal。
-     */
-    private static boolean forcedDeathInProgress = false;
-
-    /**
-     * 当前正在结算的死亡是否为强制死亡（{@link #forceKillPlayer}）。
-     *
-     * <p>
-     * 只在死亡链内部有意义：强制死亡在 {@code GameMode#killPlayer} 里<b>无论如何都会执行</b>
-     * （监听器返回 false 也挡不住）。因此「要消耗自身资源来抵挡」的监听器（保险、武士刀格挡等）
-     * 必须先查这个标记，否则会出现「提示/回放写着抵挡成功，玩家却照常死亡」的假象。
-     */
+    /** 死亡链内部的强杀上下文，嵌套调用及异常退出都会恢复外层状态。 */
     public static boolean isForcedDeathInProgress() {
-        return forcedDeathInProgress;
+        return GameDeath.isForcedDeathInProgress();
     }
 
-    public static void killPlayer(Player victim, boolean spawnBody, @Nullable Player _killer,
-            ResourceLocation deathReason, boolean forceDeath) {
-        if (victim == null)
-            return;
-        if (victim.level() == null)
-            return;
-        // 非 ServerPlayer（傀儡尸体、Dummy 等）不参与死亡结算，维持原有行为。
-        if (!(victim instanceof ServerPlayer serverPlayer))
-            return;
-        var server = serverPlayer.getServer();
-        if (server == null)
-            return;
-        // 整条死亡链（含游戏模式查找与异常溯源日志）都必须在服务端主线程执行。
-        // 主线程调用时 execute 会内联执行，顺序与直接调用一致，因此调用方照旧能同步拿到死亡结果。
-        server.execute(() -> killPlayerOnServerThread(victim, spawnBody, _killer, deathReason, forceDeath));
+    public static void revivePlayerToItsRoom(ServerPlayer player) {
+        GameDeath.revivePlayerToItsRoom(player);
     }
 
-    private static void killPlayerOnServerThread(Player victim, boolean spawnBody, @Nullable Player _killer,
-            ResourceLocation deathReason, boolean forceDeath) {
-        var gameMode = SREGameWorldComponent.KEY.get(victim.level()).getGameMode();
-        if (gameMode == null)
-            return;
-        // 死亡链期间对外暴露「本次是否强制死亡」；嵌套击杀（死亡链里再触发击杀）时保存并恢复外层值。
-        boolean previousForced = forcedDeathInProgress;
-        forcedDeathInProgress = forceDeath;
-        try {
-            gameMode.killPlayer(victim, spawnBody, _killer, deathReason, forceDeath);
-        } catch (Exception e) {
-            // 溯源输出，方便找bug
-            String victimName = victim.getScoreboardName();
-            String victimRole = RoleUtils.getPlayerRole(victim) instanceof SRERole role
-                    ? role.getName().getString()
-                    : "null";
-            String victimModifiers = RoleUtils.getPlayerModifier(victim).stream()
-                    .map(f -> f.getName().getString())
-                    .collect(Collectors.joining(","));
+    public static void revivePlayer(ServerPlayer player, double x, double y, double z) {
+        GameDeath.revivePlayer(player, x, y, z);
+    }
 
-            // 提取击杀者信息（若存在）
-            String killerName = _killer != null ? _killer.getScoreboardName() : "null";
-            String killerRole = _killer != null && RoleUtils.getPlayerRole(_killer) instanceof SRERole role
-                    ? role.getName().getString()
-                    : "null";
-            String killerModifiers = _killer != null
-                    ? RoleUtils.getPlayerModifier(_killer).stream()
-                            .map(f -> f.getName().getString())
-                            .collect(Collectors.joining(","))
-                    : "null";
+    // 地图、位置、命令与时间查询。
+    public static void teleportBackToRoom(Player player) {
+        GameWorld.teleportBackToRoom(player);
+    }
 
-            // 优雅输出
-            SRE.LOGGER.error(
-                    "Error while killPlayer: [victim={}({})[{}], spawnBody={}, killer={}({})[{}], deathReason={}, forceDeath={}]",
-                    victimName,
-                    victimRole,
-                    victimModifiers,
-                    spawnBody,
-                    killerName,
-                    killerRole,
-                    killerModifiers,
-                    deathReason,
-                    forceDeath);
-            throw e;
-        } finally {
-            forcedDeathInProgress = previousForced;
-        }
+    public static void teleportToRandomRoom(Player player) {
+        GameWorld.teleportToRandomRoom(player);
+    }
+
+    public static Vec3 getSpawnPos(AreasWorldComponent areas, int room) {
+        return GameWorld.getSpawnPos(areas, room);
+    }
+
+    public static void limitPlayerToBox(ServerPlayer player, AABB box) {
+        GameWorld.limitPlayerToBox(player, box);
+    }
+
+    public static void resetEntities(ServerLevel world) {
+        GameWorld.resetEntities(world);
+    }
+
+    public static boolean isTmmDoorBlock(Block block) {
+        return GameWorld.isTmmDoorBlock(block);
+    }
+
+    public static void executeCommand(CommandSourceStack source, String command) {
+        GameWorld.executeCommand(source, command);
+    }
+
+    public static void executeFunction(MinecraftServer server, int permission, String function) {
+        GameWorld.executeFunction(server, permission, function);
+    }
+
+    public static void executeFunction(CommandSourceStack source, String function) {
+        GameWorld.executeFunction(source, function);
+    }
+
+    public static boolean isGameRunning(Player player) {
+        return GameWorld.isGameRunning(player);
+    }
+
+    public static boolean isGameRunning(Level level) {
+        return GameWorld.isGameRunning(level);
+    }
+
+    public static boolean isTimeFrozen(MinecraftServer server) {
+        return GameWorld.isTimeFrozen(server);
+    }
+
+    public static boolean isTimeFrozen(Level world) {
+        return GameWorld.isTimeFrozen(world);
+    }
+
+    public static long getTicksFromGameStart(Level world) {
+        return GameWorld.getTicksFromGameStart(world);
+    }
+
+    public static boolean isPlayerInLobby(ServerPlayer player) {
+        return GameWorld.isPlayerInLobby(player);
+    }
+
+    public static boolean isUnderSprinklers(Player player) {
+        return GameWorld.isUnderSprinklers(player);
+    }
+
+    // 物品冷却、掉落与弹药。
+    public static void addItemCooldowns(ServerLevel world, int time) {
+        GameItems.addItemCooldowns(world, time);
     }
 
     public static boolean shouldDropOnDeath(@NotNull ItemStack stack) {
-        return !stack.isEmpty() && (stack.is(TMMItems.REVOLVER) || stack.is(Items.SPYGLASS)
-                || ShouldDropOnDeath.EVENT.invoker().shouldDrop(stack));
+        return GameItems.shouldDropOnDeath(stack);
     }
 
-    public static boolean isPlayerSpectator(Player p) {
-        if (p == null)
-            return false;
-        if (isPlayerReallyAliveOrDead(p) == SPAliveResult.ALIVE)
-            return false;
-        return p.isSpectator();
+    public static boolean haveUsedoutDerringer(Player player) {
+        return GameItems.haveUsedoutDerringer(player);
     }
 
-    public static void reJudgeSpectatorsPenalty(Level world) {
-        if (world.isClientSide)
-            return;
-        NRDeathEvents.reJudgeSpectatorsPenalty(world);
+    public static boolean refillDerringer(Player player, boolean haveBullet) {
+        return GameItems.refillDerringer(player, haveBullet);
     }
 
-    public static void pendingReJudgeSpectatorsPenalty() {
-        // 推迟到下一个tick执行
-        NRGameStateEvents.pendingRejudgingSpectatorDeathPeanlty.set(true);
+    // 击杀记录与战绩。
+    public static void recordPlayerKill(Player killer, Player victim, ResourceLocation reason, boolean haveDead) {
+        GameStatistics.recordPlayerKill(killer, victim, reason, haveDead);
     }
 
-    public static boolean isPlayerAliveAndSurvivalIgnoreShitSplit(Player player) {
-        return player != null && !player.isSpectator() && !player.isCreative();
+    public static void recordPlayerKillServer(ServerPlayer killer, ServerPlayer victim,
+            ResourceLocation reason, boolean haveDead) {
+        GameStatistics.recordPlayerKillServer(killer, victim, reason, haveDead);
     }
 
-    public static boolean isPlayerAliveAndSurvival(Player player, WorldModifierComponent worldModifierComponent) {
-        if (player == null)
-            return false;
-        if (isPlayerReallyAliveOrDead(player, worldModifierComponent) == SPAliveResult.ALIVE)
-            return true;
-        return isPlayerAliveAndSurvivalIgnoreShitSplit(player);
+    public static PlayerKillInfo getPlayerKillsInfo(UUID player) {
+        return GameStatistics.getPlayerKillsInfo(player);
     }
 
-    public static boolean isPlayerAliveAndSurvival(Player player) {
-        if (player == null)
-            return false;
-        var worldModifierComponent = WorldModifierComponent.KEY.get(player.level());
-        return isPlayerAliveAndSurvival(player, worldModifierComponent);
+    public static PlayerKillInfo getPlayerKillsInfo(Player player) {
+        return GameStatistics.getPlayerKillsInfo(player);
     }
 
-    public static boolean isPlayerCreative(Player player) {
-        return player != null && player.isCreative();
+    public static PlayerKillResultInfo getPlayerLastDeathInfo(UUID player) {
+        return GameStatistics.getPlayerLastDeathInfo(player);
     }
 
-    public static boolean isPlayerSpectatingOrCreative(Player player) {
-        if (player == null)
-            return false;
-        if (isPlayerReallyAliveOrDead(player) == SPAliveResult.ALIVE)
-            return false;
-        return isPlayerSpectatingOrCreativeIgnoreShitSplit(player);
+    public static PlayerKillResultInfo getPlayerLastDeathInfo(Player player) {
+        return GameStatistics.getPlayerLastDeathInfo(player);
     }
 
-    public static enum SPAliveResult {
+    public static PlayerKillResultInfo getPlayerLastKillInfo(UUID player) {
+        return GameStatistics.getPlayerLastKillInfo(player);
+    }
+
+    public static PlayerKillResultInfo getPlayerLastKillInfo(Player player) {
+        return GameStatistics.getPlayerLastKillInfo(player);
+    }
+
+    public static void recordPlayerStats(ServerLevel world, SREGameWorldComponent component,
+            ArrayList<ServerPlayer> players) {
+        GameStatistics.recordPlayerStats(world, component, players);
+    }
+
+    public static void recordWinStats(ServerLevel world, GameMode mode, SREGameRoundEndComponent roundEnd,
+            SREGameWorldComponent component) {
+        GameStatistics.recordWinStats(world, mode, roundEnd, component);
+    }
+
+    public enum SPAliveResult {
         ALIVE, DEAD, NOT
-    }
-
-    public static SPAliveResult isPlayerReallyAliveOrDead(Player player) {
-        if (player == null)
-            return SPAliveResult.DEAD;
-        var worldModifierComponent = WorldModifierComponent.KEY.get(player.level());
-        return isPlayerReallyAliveOrDead(player, worldModifierComponent);
-    }
-
-    public static SPAliveResult isPlayerReallyAliveOrDead(Player player,
-            WorldModifierComponent worldModifierComponent) {
-        if (player == null)
-            return SPAliveResult.DEAD;
-        if (player.hasEffect(ModEffects.TIME_REWIND_MARK) || TimeRewindPlayback.isActive(player.getUUID())) {
-            return SPAliveResult.ALIVE;
-        }
-        if (worldModifierComponent.isModifier(player, SEModifiers.SPLIT_PERSONALITY)) {
-            if (player.isSpectator()) {
-                if (!SplitPersonalityComponent.KEY.get(player).isDeath()) {
-                    return SPAliveResult.ALIVE;
-                } else {
-                    return SPAliveResult.DEAD;
-                }
-            } else if (player.isCreative()) {
-                return SPAliveResult.DEAD;
-            } else {
-                return SPAliveResult.ALIVE;
-            }
-        }
-        return SPAliveResult.NOT;
-    }
-
-    public static boolean isPlayerSpectatingOrCreativeIgnoreShitSplit(Player player) {
-        return player != null && (player.isSpectator() || player.isCreative());
     }
 
     public record BlockEntityInfo(CompoundTag nbt, DataComponentMap components) {
@@ -1672,67 +416,10 @@ public class GameUtils {
     public record BlockInfo(BlockPos pos, BlockState state, @Nullable BlockEntityInfo blockEntityInfo) {
     }
 
-    public static void resetEntities(ServerLevel serverWorld) {
-        for (PlayerBodyEntity body : serverWorld.getEntities(TMMEntities.PLAYER_BODY,
-                playerBodyEntity -> true)) {
-            body.discard();
-        }
-        for (ItemEntity item : serverWorld.getEntities(EntityType.ITEM, playerBodyEntity -> true)) {
-            item.discard();
-        }
-        for (FirecrackerEntity entity : serverWorld.getEntities(TMMEntities.FIRECRACKER, entity -> true))
-            entity.discard();
-        for (NoteEntity entity : serverWorld.getEntities(TMMEntities.NOTE, entity -> true))
-            entity.discard();
-        EntityClearUtils.clearAllEntities(serverWorld);
-        // SRE.LOGGER.info("Kill all related entities in game world!");
-    }
-
-    /**
-     * Checks if a block is one of TMM's door blocks
-     */
-    public static boolean isTmmDoorBlock(Block block) {
-        return block == TMMBlocks.SMALL_GLASS_DOOR
-                || block == TMMBlocks.SMALL_WOOD_DOOR
-                || block == TMMBlocks.ANTHRACITE_STEEL_DOOR
-                || block == TMMBlocks.KHAKI_STEEL_DOOR
-                || block == TMMBlocks.MAROON_STEEL_DOOR
-                || block == TMMBlocks.MUNTZ_STEEL_DOOR
-                || block == TMMBlocks.NAVY_STEEL_DOOR
-                || block == TMMBlocks.METAL_SHEET_DOOR
-                || block == TMMBlocks.COCKPIT_DOOR;
-    }
-
-    public static int getReadyPlayerCount(Level world) {
-        List<? extends Player> players = world.players();
-        AreasWorldComponent areas = AreasWorldComponent.KEY.get(world);
-        ParticipationComponent participation = ParticipationComponent.KEY.get(world);
-        Set<UUID> ready = new HashSet<>(participation.getSettlementViewers());
-        players.stream().filter(participation::isParticipating)
-                .filter(p -> areas.getReadyArea().contains(p.position()))
-                .forEach(p -> ready.add(p.getUUID()));
-        ready.removeIf(id -> !participation.isParticipating(id));
-        return ready.size();
-    }
-
-    public static int getParticipatingPlayerCount(Level world) {
-        return ParticipationComponent.KEY.get(world).getParticipatingOnlineCount();
-    }
-
-    public static int getOptedOutPlayerCount(Level world) {
-        return ParticipationComponent.KEY.get(world).getOptedOutOnlineCount();
-    }
-
-    /**
-     * 自定义获胜请使用RoleUtils.customWinnerWin(); 将id改为对应角色的id的path即可正常使用。如果有自定义获胜玩家，请添加
-     * roundEnd.CustomWinnerID 或 使用谓词判断：CustomWinnersPredicates
-     */
     public enum WinStatus {
         NOT_MODIFY, NONE, KILLERS, PASSENGERS, TIME, LOOSE_END, GAMBLER, RECORDER, NO_PLAYER, NIAN_SHOU, LOVERS,
         CUSTOM_COMPONENT, CUSTOM;
 
-        // 自定义获胜请使用RoleUtils.customWinnerWin(); 将id改为对应角色的id的path即可正常使用。请不要在这里添加枚举项目。
-        // 如果有自定义获胜玩家，请添加 roundEnd.CustomWinnerID 或 使用谓词判断：CustomWinnersPredicates
         public boolean isKillerWin() {
             return this.equals(WinStatus.KILLERS);
         }
@@ -1740,160 +427,6 @@ public class GameUtils {
         public boolean isInnocentWin() {
             return this.equals(WinStatus.TIME) || this.equals(WinStatus.PASSENGERS);
         }
-    }
-
-    public static long getAlivePlayerCount(Level level) {
-        return level.players().stream().filter((p) -> isPlayerAliveAndSurvivalIgnoreShitSplit(p)).count();
-    }
-
-    /**
-     * 给阴谋家：旁观者死亡惩罚
-     * 
-     * @param player
-     * @return
-     */
-    public static boolean shouldGiveSpectatorsDeathPenalty(Player player) {
-        var gameWorldComponent = SREGameWorldComponent.getInstance(player);
-        if (gameWorldComponent.isRole(player, ModRoles.CONSPIRATOR)
-                // 无我或无妄存活时，与阴谋家一样进入死亡惩罚（视角限制）
-                || gameWorldComponent.isRole(player, ModRoles.ANATMAN)
-                || gameWorldComponent.isRole(player, ModRoles.ASATYA))
-            return true;
-        return false;
-    }
-
-    /**
-     * 永久死亡惩罚（旁观者视角限制）该用哪条提示文案的翻译键。
-     *
-     * <p>
-     * 阴谋家 与 无我 / 无妄 共用同一套惩罚（见 {@link #shouldGiveSpectatorsDeathPenalty}），
-     * 但提示必须分开：无我 / 无妄 存活时场上可能根本没有阴谋家，此时说「由于阴谋家存活」会让
-     * 玩家以为惩罚没生效、是 bug。
-     *
-     * @param penalized 被惩罚的玩家，用它取所在维度的玩家列表与阵营信息
-     * @return 翻译键；无我 / 无妄 存活时返回无我/无妄那一条，否则回退到阴谋家那一条
-     */
-    public static String spectatorsDeathPenaltyMessageKey(Player penalized) {
-        if (penalized == null || penalized.level() == null)
-            return "message.noellesroles.penalty.limit.god_job_couple";
-        var gameWorldComponent = SREGameWorldComponent.getInstance(penalized);
-        for (Player p : penalized.level().players()) {
-            if (!isPlayerAliveAndSurvival(p))
-                continue;
-            if (gameWorldComponent.isRole(p, ModRoles.ANATMAN) || gameWorldComponent.isRole(p, ModRoles.ASATYA)) {
-                return "message.noellesroles.penalty.limit.anatman_asatya";
-            }
-        }
-        return "message.noellesroles.penalty.limit.god_job_couple";
-    }
-
-    public static void revivePlayerToItsRoom(ServerPlayer player) {
-        DeathPenaltyComponent.KEY.get(player).clear();
-        DefibrillatorComponent.KEY.get(player).clear();
-        // 复活后清掉尸体上的不可交互标记（部分复活路径不会销毁尸体，如蜂后继承人继位）
-        PlayerBodyEntity body = DefibrillatorComponent.findPlayerBodyEntity(player);
-        if (body != null) {
-            body.setNonInteractable(false);
-        }
-        GameUtils.teleportBackToRoom(player);
-        player.setGameMode(GameType.ADVENTURE);
-        {
-            var gravityAttr = player.getAttribute(Attributes.GRAVITY);
-            if (gravityAttr != null) {
-                var areas = AreasWorldComponent.KEY.get(player.level());
-                AttributeModifier gravityModifier = new AttributeModifier(
-                        SRE.id("map"),
-                        areas.areasSettings.gravityModifier, AttributeModifier.Operation.ADD_VALUE);
-                gravityAttr.addOrReplacePermanentModifier(gravityModifier);
-            }
-        }
-        TrainVoicePlugin.resetPlayer(player.getUUID());
-        if (shouldGiveSpectatorsDeathPenalty(player)) {
-            pendingReJudgeSpectatorsPenalty();
-        }
-        SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), null);
-        player.addEffect(ModEffects.of(ModEffects.SAFE_TIME, 10, 1, false, false, true));
-        if (MeetingManager.isActive()) {
-            DefibrillatorComponent.KEY.get(player).triggerDeath(10, null, player.position());
-        }
-
-        player.updateFluidOnEyes();
-        player.updateInWaterStateAndDoFluidPushing();
-    }
-
-    public static void revivePlayer(ServerPlayer player, double x, double y, double z) {
-        DeathPenaltyComponent.KEY.get(player).clear();
-        DefibrillatorComponent.KEY.get(player).clear();
-        // 复活后清掉尸体上的不可交互标记（部分复活路径不会销毁尸体，如蜂后继承人继位）
-        PlayerBodyEntity body = DefibrillatorComponent.findPlayerBodyEntity(player);
-        if (body != null) {
-            body.setNonInteractable(false);
-        }
-        {
-            var gravityAttr = player.getAttribute(Attributes.GRAVITY);
-            if (gravityAttr != null) {
-                var areas = AreasWorldComponent.KEY.get(player.level());
-                AttributeModifier gravityModifier = new AttributeModifier(
-                        SRE.id("map"),
-                        areas.areasSettings.gravityModifier, AttributeModifier.Operation.ADD_VALUE);
-                gravityAttr.addOrReplacePermanentModifier(gravityModifier);
-            }
-        }
-        player.addEffect(ModEffects.of(ModEffects.SAFE_TIME, 10, 1, false, false, true));
-        player.teleportTo(x, y, z);
-        player.setGameMode(GameType.ADVENTURE);
-        TrainVoicePlugin.resetPlayer(player.getUUID());
-
-        if (shouldGiveSpectatorsDeathPenalty(player)) {
-            pendingReJudgeSpectatorsPenalty();
-        }
-
-        SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), null);
-
-        if (MeetingManager.isActive()) {
-            DefibrillatorComponent.KEY.get(player).triggerDeath(10, null, player.position());
-        }
-
-        player.updateFluidOnEyes();
-        player.updateInWaterStateAndDoFluidPushing();
-        ProgressionDataManager.onRevived(player);
-    }
-
-    public static boolean isGameRunning(Player player) {
-        if (player == null)
-            return false;
-        return isGameRunning(player.level());
-    }
-
-    public static boolean isGameRunning(Level level) {
-        if (level == null)
-            return false;
-        return SREGameWorldComponent.KEY.get(level).isRunning();
-    }
-
-    public static boolean haveUsedoutDerringer(Player player) {
-        for (List<ItemStack> list : player.getInventory().compartments) {
-            for (int i = 0; i < list.size(); i++) {
-                ItemStack stack = list.get(i);
-                if (org.agmas.noellesroles.content.item.DesperadoGunItem.isDerringerWeapon(stack)) {
-                    return stack.getOrDefault(SREDataComponentTypes.USED, false);
-                }
-            }
-        }
-        return false;
-    }
-
-    public static boolean refillDerringer(Player player, boolean haveBullet) {
-        for (List<ItemStack> list : player.getInventory().compartments) {
-            for (int i = 0; i < list.size(); i++) {
-                ItemStack stack = list.get(i);
-                if (org.agmas.noellesroles.content.item.DesperadoGunItem.isDerringerWeapon(stack)) {
-                    stack.set(SREDataComponentTypes.USED, !haveBullet);
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     public static record PlayerKillResultInfo(long time, boolean dead, UUID killer, UUID victim,
@@ -1905,8 +438,7 @@ public class GameUtils {
         }
 
         public PlayerKillResultInfo getLastDeathInfo() {
-            if (deaths.isEmpty())
-                return null;
+            if (deaths.isEmpty()) return null;
             return deaths.getLast();
         }
 
@@ -1922,52 +454,8 @@ public class GameUtils {
         }
 
         public PlayerKillResultInfo getLastKillInfo() {
-            if (kills.isEmpty())
-                return null;
+            if (kills.isEmpty()) return null;
             return kills.getLast();
         }
-    }
-
-    public static boolean isTimeFrozen(MinecraftServer server) {
-        return SREGameTimeComponent.KEY.get(server.overworld()).isTimeFrozen();
-    }
-
-    public static boolean isTimeFrozen(Level world) {
-        return SREGameTimeComponent.KEY.get(world).isTimeFrozen();
-    }
-
-    public static long getTicksFromGameStart(Level world) {
-        return SREGameTimeComponent.KEY.get(world).getTicksFromGameStart();
-    }
-
-    public static boolean isPlayerInLobby(ServerPlayer player) {
-        final ServerLevel serverWorld = player.serverLevel();
-        Vec3 playerPos = player.position();
-        BlockPos spawn = serverWorld.getSharedSpawnPos();
-        if (spawn.getX() - 200 < playerPos.x && playerPos.x < spawn.getX() + 200) {
-            if (spawn.getZ() - 200 < playerPos.z && playerPos.z < spawn.getZ() + 200) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * 更新玩家的 dimension（服务端+客户端）
-     * 
-     * @param player
-     */
-    public static void refreshPlayerDimension(ServerPlayer player) {
-        player.refreshDimensions();
-        ServerPlayNetworking.send(player, new RefreshDimensionsS2CPacket());
-    }
-
-    public static boolean isUnderSprinklers(Player player) {
-        for (int y = 0; y < 4; y++) {
-            if (player.level().getBlockState(player.blockPosition().above(y)).is(TMMBlockTags.SPRINKLERS)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

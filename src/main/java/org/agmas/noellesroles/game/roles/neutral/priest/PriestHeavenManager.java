@@ -191,7 +191,7 @@ public final class PriestHeavenManager {
             if (role.identifier().equals(ModRoles.CLOCKMAKER_ID)
                     && modifiers.isModifier(player, NRModifiers.GODS_MISSION)) {
                 clockmaker = player;
-            } else if (role.canIncreaseSurvivingInnocents()) {
+            } else if (game.canIncreaseSurvivingInnocents(player)) {
                 // 只计算平民，不计算杀手和其他中立
                 civilians++;
             }

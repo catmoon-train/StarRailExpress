@@ -31,7 +31,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import org.agmas.noellesroles.scene.SceneTaskManager;
+import org.agmas.noellesroles.client.scene.SceneTaskManager;
 
 /**
  * 灌木（场景任务「修剪灌木」）：拿原版剪刀右键即完成修剪。原版橡木树叶贴图。

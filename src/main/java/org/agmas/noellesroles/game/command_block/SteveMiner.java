@@ -22,10 +22,9 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 
 /**
- * Steve 的挖掘与材料商店。挖任务点不拆方块，只给基础掉落，并扣铁镐耐久。
+ * Steve 的挖掘与材料商店。挖任务点不拆方块，只累计虚拟材料并扣镐耐久。
  */
 public final class SteveMiner {
     public static final int USES = 32;
@@ -62,7 +61,7 @@ public final class SteveMiner {
                 && !player.level().getBlockState(pos).isAir();
     }
 
-    /** 挖掉任务点：方块留在原地，换成一份基础掉落。 */
+    /** 完成一次任务点开采：方块不变，30% 空挖也正常消耗耐久。 */
     public static boolean mine(ServerPlayer player, BlockPos pos) {
         if (!canMine(player, pos) || !(player.level() instanceof ServerLevel level)) {
             return false;
@@ -78,54 +77,40 @@ public final class SteveMiner {
         if (!data.tryHarvest(level.getGameTime(), ((StevePickaxeItem) pick.getItem()).miningTicks())) {
             return false;
         }
-        ItemStack drop = randomDrop(level);
-        Component dropName = drop.getHoverName();
-        if (!player.getInventory().add(drop)) {
-            player.drop(drop, false);
-        }
+        SteveMaterial material = randomDrop(level);
+        if (material != null) data.add(material, 1);
         pick.hurtAndBreak(1, player, net.minecraft.world.entity.EquipmentSlot.MAINHAND);
         level.playSound(null, pos, SoundEvents.STONE_BREAK, SoundSource.BLOCKS, 0.7F, 1.1F);
-        player.displayClientMessage(Component.translatable("message.noellesroles.steve.mined", dropName)
-                .withStyle(ChatFormatting.GREEN), true);
+        if (material == null) {
+            player.displayClientMessage(Component.translatable("message.noellesroles.steve.mined_empty")
+                    .withStyle(ChatFormatting.GRAY), true);
+        } else {
+            player.displayClientMessage(Component.translatable("message.noellesroles.steve.mined",
+                    Component.translatable(material.item().getDescriptionId())).withStyle(ChatFormatting.GREEN), true);
+        }
         return true;
     }
 
-    public static ItemStack randomDrop(ServerLevel level) {
-        Item item = switch (level.random.nextInt(4)) {
-            case 0 -> Items.OAK_PLANKS;
-            case 1 -> Items.IRON_INGOT;
-            case 2 -> Items.GOLD_INGOT;
-            default -> Items.DIAMOND;
-        };
-        return new ItemStack(item);
+    /** 服务端独立抽取：30% 无产出，其余四种材料各占 17.5%。 */
+    public static SteveMaterial randomDrop(ServerLevel level) {
+        return materialDrop(level.random.nextInt(40));
+    }
+
+    static SteveMaterial materialDrop(int roll) {
+        if (roll < 0 || roll >= 40) throw new IllegalArgumentException("roll must be in [0, 40)");
+        return roll < 12 ? null : SteveMaterial.values()[(roll - 12) / 7];
     }
 
     public static int count(Player player, Item item) {
-        int total = 0;
-        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-            ItemStack stack = player.getInventory().getItem(i);
-            if (stack.is(item)) {
-                total += stack.getCount();
-            }
-        }
-        return total;
+        SteveRoleData data = RoleData.getNullable(SteveRoleData.class, player);
+        SteveMaterial material = SteveMaterial.forItem(item);
+        return data == null || material == null ? 0 : data.count(material);
     }
 
     public static boolean take(Player player, Item item, int amount) {
-        if (count(player, item) < amount) {
-            return false;
-        }
-        int left = amount;
-        for (int i = 0; i < player.getInventory().getContainerSize() && left > 0; i++) {
-            ItemStack stack = player.getInventory().getItem(i);
-            if (!stack.is(item)) {
-                continue;
-            }
-            int used = Math.min(left, stack.getCount());
-            stack.shrink(used);
-            left -= used;
-        }
-        return left == 0;
+        SteveRoleData data = RoleData.getNullable(SteveRoleData.class, player);
+        SteveMaterial material = SteveMaterial.forItem(item);
+        return data != null && material != null && data.take(material, amount);
     }
 
     /** 商店图标显示所需材料，购买时扣材料而不是金币。 */

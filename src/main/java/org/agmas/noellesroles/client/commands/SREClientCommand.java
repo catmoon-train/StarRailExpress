@@ -25,6 +25,7 @@ import io.wifi.starrailexpress.client.gui.screen.NewspaperScreen;
 import io.wifi.starrailexpress.client.util.ClientScheduler;
 import io.wifi.starrailexpress.scenery.client.SceneAssetClient;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
+import io.wifi.starrailexpress.training.client.TrainingClient;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.minecraft.ChatFormatting;
@@ -45,6 +46,14 @@ public class SREClientCommand {
   public static void register() {
     ClientCommandRegistrationCallback.EVENT.register(
         (dispatcher, registryAccess) -> {
+          dispatcher.register(ClientCommandManager.literal("sre:training").executes(ctx -> {
+            if (!TrainingClient.isTraining()) {
+              ctx.getSource().sendError(Component.translatable("training.sre.ui.not_training"));
+              return 0;
+            }
+            ClientScheduler.schedule(() -> TrainingClient.openPanel(null), 1);
+            return 1;
+          }));
           dispatcher.register(ClientCommandManager.literal("sre:echo_bag").executes(ctx -> {
             var data=org.agmas.noellesroles.game.modes.echo.client.EchoBagClient.data();
             if(data==null || data.matchId()==null) { ctx.getSource().sendError(Component.translatable("echo.error.no_active_session")); return 0; }

@@ -38,7 +38,7 @@ import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.ModDataComponentTypes;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.scene.SceneTaskManager;
+import org.agmas.noellesroles.client.scene.SceneTaskManager;
 
 import java.util.ArrayList;
 import java.util.List;

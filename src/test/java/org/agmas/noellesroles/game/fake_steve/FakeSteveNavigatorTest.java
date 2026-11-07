@@ -2,10 +2,12 @@ package org.agmas.noellesroles.game.fake_steve;
 
 import io.wifi.starrailexpress.api.AreasSettings;
 import net.minecraft.core.BlockPos;
-import org.agmas.noellesroles.game.fake_steve.FakeSteveNavigator.PathResult;
+import net.minecraft.core.Direction;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -16,12 +18,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * {@link FakeSteveNavigator} 与 {@link FakeSteveNavRules} 的网格单元测试。
+ * 当前生产 A* 内核与地图约束的网格单元测试。
  *
- * <p>
- * 这里<b>不</b>启动 Minecraft：{@link FakeSteveNavigator.Search} 只依赖 {@link FakeSteveNavWorld}
- * 这个接口，所以用一张手写网格图就能验证 A* 的每一条分支（这正是把世界评估层拆出去的目的）。
- * 方块评估（{@link FakeSteveLevelNavWorld}）需要真实 {@code ServerLevel}，不在本测试范围内。
+ * <p>不启动 Minecraft：手写网格提供水平邻接和站立高度，使用生产的
+ * {@link FakeStevePathSearch} 与 {@link FakeStevePathPolicy} 检查路线和移动约束。
+ * 真实方块碰撞评估仍需要 ServerLevel，不在本测试范围内。
  */
 class FakeSteveNavigatorTest {
 
@@ -71,7 +72,7 @@ class FakeSteveNavigatorTest {
     // ---------------------------------------------------------------- 基本寻路
 
     @Test
-    void straightCorridorIsSimplifiedToOneNode() {
+    void straightCorridorKeepsWalkableWaypointsToGoal() {
         GridWorld world = new GridWorld();
         world.corridor(new BlockPos(0, 0, 0), new BlockPos(0, 0, 5));
 
@@ -80,10 +81,9 @@ class FakeSteveNavigatorTest {
 
         assertTrue(result.reached());
         ArrayDeque<BlockPos> path = result.path();
-        assertEquals(1, path.size(), "共线合并后只应剩终点：" + path);
-        // 到达判定是「与目标的曼哈顿距离 ≤ 1」，所以终点可能是 (0,0,4)。
-        assertTrue(FakeSteveNavigator.manhattan(path.peekFirst(), new BlockPos(0, 0, 5)) <= 1,
-                "最后一个路点必须紧贴目标：" + path);
+        assertEquals(5, path.size(), "当前搜索内核保留沿途路点：" + path);
+        assertEquals(new BlockPos(0, 0, 5), path.peekLast(), "必须实际到达目标，而不是停在邻格");
+        assertTrue(path.stream().allMatch(world::standable));
     }
 
     @Test
@@ -103,8 +103,7 @@ class FakeSteveNavigatorTest {
                 FakeSteveNavRules.PERMISSIVE);
 
         assertTrue(result.reached(), "绕墙后应当能到达：" + result.path());
-        // 简化会把缺口那几格共线合并掉，所以不能直接断言路径里出现 (2,0,3)；
-        // 改为断言「没有穿过墙体」——墙体是 (2,0,0)..(2,0,2)。
+        // 当前内核保留路点，路线不得穿过墙体 (2,0,0)..(2,0,2)。
         for (int z = 0; z <= 2; z++) {
             assertFalse(result.path().contains(new BlockPos(2, 0, z)),
                     "不能穿过墙体：" + result.path());
@@ -225,9 +224,34 @@ class FakeSteveNavigatorTest {
 
     private static PathResult search(GridWorld world, BlockPos start, BlockPos goal,
                                      FakeSteveNavRules rules) {
-        FakeSteveNavigator.Search search =
-                new FakeSteveNavigator.Search(world, rules, FakeSteveNavigator.MAX_VISITED);
-        return search.find(start, goal, false);
+        var result = FakeStevePathSearch.find(start, goal::equals,
+                pos -> Math.max(Math.max(Math.abs(pos.getX() - goal.getX()), Math.abs(pos.getZ() - goal.getZ())),
+                        Math.abs(pos.getY() - goal.getY()) / 3.0D),
+                pos -> neighbours(world, pos, rules), 512);
+        return new PathResult(new ArrayDeque<>(result.path()), result.complete());
+    }
+
+    /** 与当前导航一样只生成水平邻接，垂直偏移由网格高度及纯移动策略约束。 */
+    private static List<FakeStevePathSearch.Edge<BlockPos>> neighbours(GridWorld world, BlockPos from,
+            FakeSteveNavRules rules) {
+        List<FakeStevePathSearch.Edge<BlockPos>> edges = new ArrayList<>();
+        for (Direction direction : Direction.Plane.HORIZONTAL) {
+            BlockPos column = from.relative(direction);
+            for (int dy : new int[] {0, 1, -1, -2, -3}) {
+                BlockPos next = column.offset(0, dy, 0);
+                if (!world.standable(next) || world.isWater(next) && !rules.canSwim()) continue;
+                double rise = world.standY(next) - world.standY(from);
+                if (rise > 0 && !FakeStevePathPolicy.canAscendWithoutJump(rise, world.stepBlock(next))
+                        && (!rules.canJump() || rise > 1.25D)) continue;
+                if (-rise > rules.maxFallDistance()) continue;
+                edges.add(new FakeStevePathSearch.Edge<>(next, 1.0D + Math.abs(rise) * 0.55D));
+                break;
+            }
+        }
+        return edges;
+    }
+
+    private record PathResult(ArrayDeque<BlockPos> path, boolean reached) {
     }
 
     /**

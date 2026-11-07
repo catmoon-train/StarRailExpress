@@ -170,6 +170,13 @@ public final class CommandBlockDirector {
                 addDestruction(dead.serverLevel());
             }
         });
+        // 尸体已实际生成后再清除：不会把护盾、免死等被否决的命中算成抹除。
+        io.wifi.starrailexpress.event.OnPlayerDeathWithBody.EVENT.register((victim, killer, reason, body) -> {
+            if (killer != null && killer != victim && body != null
+                    && SREGameWorldComponent.KEY.get(killer.level()).isRole(killer, ModRoles.ENTITY_NULL)) {
+                body.discard();
+            }
+        });
         ServerLivingEntityEvents.ALLOW_DAMAGE.register(CommandBlockCombat::allowDamage);
         UseEntityCallback.EVENT.register((player, world, hand, entity, hit) -> {
             if (player instanceof ServerPlayer serverPlayer && Error404Role.tryControl(serverPlayer, entity)) {

@@ -44,7 +44,7 @@ import net.minecraft.world.phys.AABB;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.scene.MapStatusBarRuntime;
+import org.agmas.noellesroles.client.scene.MapStatusBarRuntime;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;

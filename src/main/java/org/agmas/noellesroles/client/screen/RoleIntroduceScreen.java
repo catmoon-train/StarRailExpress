@@ -1895,6 +1895,11 @@ public class RoleIntroduceScreen extends Screen {
     // ══════════════════════════════════════════════════════════════════
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+        io.wifi.starrailexpress.event.client.ClientGameplayEvents.SCREEN_RENDER.invoker()
+                .render(this, () -> renderReadable(g, mouseX, mouseY, partialTick));
+    }
+
+    private void renderReadable(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         super.render(g, mouseX, mouseY, partialTick);
         renderLeftPanel(g, mouseX, mouseY);
         renderRightPanel(g, mouseX, mouseY);

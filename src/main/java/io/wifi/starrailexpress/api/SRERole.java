@@ -1393,7 +1393,10 @@ public abstract class SRERole extends SREAbstractInfoClass {
      * </ul>
      */
     public void onInit(MinecraftServer server, ServerPlayer serverPlayer) {
-        clearTaskRewardTracking(serverPlayer.getUUID());
+        // 临时能力职业切换不是新的一局，不能重置一次性任务奖励。
+        if (!org.agmas.noellesroles.game.roles.killer.clone_doctor.CloneDoctorSessionManager.isTransitioning(serverPlayer)) {
+            clearTaskRewardTracking(serverPlayer.getUUID());
+        }
     }
 
     /**

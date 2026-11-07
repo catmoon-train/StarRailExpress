@@ -65,6 +65,79 @@ class SteveRoleTest {
         assertFalse(Files.exists(Path.of("src/main/resources/assets/noellesroles/models/item/steve_lever.json")));
     }
 
+    @Test
+    void materialsAreVirtualIndependentAndOnlySpentWhenAffordable() {
+        var first = data();
+        var second = data();
+        first.add(SteveMaterial.IRON, 7);
+        first.add(SteveMaterial.DIAMOND, 2);
+        assertEquals(0, second.count(SteveMaterial.IRON));
+        assertFalse(first.take(SteveMaterial.IRON, 8));
+        assertFalse(first.take(SteveMaterial.IRON, 0));
+        assertFalse(first.take(SteveMaterial.IRON, -1));
+        assertEquals(7, first.count(SteveMaterial.IRON));
+        assertTrue(first.take(SteveMaterial.IRON, 5));
+        assertEquals(2, first.count(SteveMaterial.IRON));
+        assertEquals(2, first.count(SteveMaterial.DIAMOND));
+    }
+
+    @Test
+    void materialCountsSyncAndInvalidBalancesNeverGoNegativeOrOverflow() {
+        var first = data();
+        first.add(SteveMaterial.PLANKS, Integer.MAX_VALUE);
+        first.add(SteveMaterial.PLANKS, 1);
+        first.add(SteveMaterial.GOLD, -4);
+        assertEquals(Integer.MAX_VALUE, first.count(SteveMaterial.PLANKS));
+        assertEquals(0, first.count(SteveMaterial.GOLD));
+        var tag = new net.minecraft.nbt.CompoundTag();
+        first.writeToSyncNbt(tag, null);
+        tag.putInt(SteveMaterial.GOLD.key(), -1);
+        var copy = data();
+        copy.readFromSyncNbt(tag, null);
+        assertEquals(Integer.MAX_VALUE, copy.count(SteveMaterial.PLANKS));
+        assertEquals(0, copy.count(SteveMaterial.GOLD));
+    }
+
+    @Test
+    void fortyEquallyLikelyRollsGiveExactlyThirtyPercentEmptyAndEqualMaterials() {
+        int empty = 0;
+        int[] counts = new int[SteveMaterial.values().length];
+        for (int roll = 0; roll < 40; roll++) {
+            SteveMaterial material = SteveMiner.materialDrop(roll);
+            if (material == null) empty++;
+            else counts[material.ordinal()]++;
+        }
+        assertEquals(12, empty);
+        assertArrayEquals(new int[] {7, 7, 7, 7}, counts);
+        assertThrows(IllegalArgumentException.class, () -> SteveMiner.materialDrop(-1));
+        assertThrows(IllegalArgumentException.class, () -> SteveMiner.materialDrop(40));
+    }
+
+    @Test
+    void miningDoesNotCreateStacksAndFailedDeliveryPrecedesMaterialDeduction() throws Exception {
+        String source = Files.readString(Path.of(
+                "src/main/java/org/agmas/noellesroles/game/command_block/SteveMiner.java"));
+        assertFalse(source.contains("getInventory().add(drop)"));
+        assertFalse(source.contains("player.drop("));
+        assertTrue(source.contains("data.add(material, 1)"));
+        assertTrue(source.contains("pick.hurtAndBreak(1"));
+        assertTrue(source.indexOf("insertStackInFreeSlot") < source.indexOf("take(player, cost, amount)"));
+    }
+
+    @Test
+    void nullRemovesOnlyVictimBodiesAndDetonatorCostsFifty() throws Exception {
+        Path root = Path.of("src/main/java/org/agmas/noellesroles/game/command_block");
+        String director = Files.readString(root.resolve("CommandBlockDirector.java"));
+        int hook = director.indexOf("OnPlayerDeathWithBody.EVENT.register");
+        assertTrue(hook >= 0);
+        String bodyHook = director.substring(hook, director.indexOf("ServerLivingEntityEvents.ALLOW_DAMAGE", hook));
+        assertTrue(bodyHook.contains("killer != victim"));
+        assertTrue(bodyHook.contains("ModRoles.ENTITY_NULL"));
+        assertTrue(bodyHook.contains("body.discard()"));
+        assertTrue(Files.readString(root.resolve("Error404Role.java"))
+                .contains("ERROR_DETONATOR.getDefaultInstance(), 50, ShopEntry.Type.TOOL"));
+    }
+
     private JsonObject json(String relative) throws Exception {
         return JsonParser.parseString(Files.readString(Path.of("src/main/resources", relative))).getAsJsonObject();
     }

@@ -40,6 +40,9 @@ public final class SrePackCompatMixinPlugin implements IMixinConfigPlugin {
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         FabricLoader loader = FabricLoader.getInstance();
+        if (mixinClassName.contains(".compat.voicechat.")) {
+            return loader.isModLoaded("voicechat");
+        }
         if (mixinClassName.endsWith(".compat.sre.GeneralModelLookupMixin")) {
             return io.wifi.srepackcompat.startup.SreModelLookupConfig.shouldApply();
         }

@@ -52,9 +52,14 @@ public final class BundledConfigInstaller {
                     checkNoLinks(target);
                     Files.createDirectories(target.getParent());
                     if (Files.isRegularFile(target) && Files.mismatch(file, target) == -1) continue;
+                    byte[] content = Files.readAllBytes(file);
+                    if (source.relativize(file).toString().equals("chloride-client.toml") && Files.isRegularFile(target)) {
+                        content = preserveFullscreenMode(content, Files.readString(target));
+                    }
+                    if (Files.isRegularFile(target) && java.util.Arrays.equals(content, Files.readAllBytes(target))) continue;
                     Path temp = Files.createTempFile(target.getParent(), ".sre-pack-compat-", ".tmp");
                     try {
-                        Files.copy(file, temp, StandardCopyOption.REPLACE_EXISTING);
+                        Files.write(temp, content);
                         try {
                             Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
                         } catch (AtomicMoveNotSupportedException e) {
@@ -68,6 +73,22 @@ public final class BundledConfigInstaller {
             }
         }
         return changed;
+    }
+
+    /** 内置配置继续覆盖受限项，但不重置已开放的窗口模式。 */
+    private static byte[] preserveFullscreenMode(byte[] bundled, String existing) {
+        var section = java.util.regex.Pattern.compile("(?ms)(^\\[fullscreen\\][^\\r\\n]*\\R)(.*?)(?=^\\[|\\z)");
+        var mode = java.util.regex.Pattern.compile("(?m)^\\h*mode\\h*=\\h*\"(WINDOWED|BORDERLESS|FULLSCREEN)\"\\h*(?:#[^\\r\\n]*)?$");
+        var oldSection = section.matcher(existing);
+        if (!oldSection.find()) return bundled;
+        var oldMode = mode.matcher(oldSection.group(2));
+        if (!oldMode.find()) return bundled;
+        String text = new String(bundled, java.nio.charset.StandardCharsets.UTF_8);
+        var newSection = section.matcher(text);
+        if (!newSection.find()) return bundled;
+        String body = mode.matcher(newSection.group(2)).replaceFirst("  mode = \"" + oldMode.group(1) + "\"");
+        return (text.substring(0, newSection.start(2)) + body + text.substring(newSection.end(2)))
+                .getBytes(java.nio.charset.StandardCharsets.UTF_8);
     }
 
     private static void checkNoLinks(Path target) throws IOException {

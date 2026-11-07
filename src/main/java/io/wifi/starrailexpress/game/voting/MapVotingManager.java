@@ -196,7 +196,9 @@ public class MapVotingManager {
     }
 
     public boolean isValidGameMode(String gameMode) {
-        return SREGameModes.GAME_MODES.keySet().stream().anyMatch(a -> a.getPath().equals(gameMode));
+        return SREGameModes.GAME_MODES.keySet().stream()
+                .filter(a -> !a.equals(io.wifi.starrailexpress.training.TrainingGameMode.ID))
+                .anyMatch(a -> a.getPath().equals(gameMode));
     }
 
     public void setPresetGameMode(String gameMode) {

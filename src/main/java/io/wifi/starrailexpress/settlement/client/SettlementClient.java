@@ -55,6 +55,7 @@ public final class SettlementClient {
     static final List<ActorState> actors = new ArrayList<>();
     static final Map<UUID, ActorState> byId = new LinkedHashMap<>();
     private static SettlementPhysics physics = new SettlementPhysics();
+    private static double castHalfWidth = 1;
     private static boolean registered;
 
     private SettlementClient() { }
@@ -188,6 +189,7 @@ public final class SettlementClient {
             var slot = SettlementChoreography.winner(winner, winners.size());
             addActor(actor, slot.x(), slot.y(), slot.z(), winner++);
         }
+        castHalfWidth = actors.stream().mapToDouble(actor -> Math.abs(actor.x) + .6).max().orElse(1);
         for (var actor : value.actors()) if (!actor.winner()) {
             var slot = SettlementChoreography.drop(loser, losers);
             addActor(actor, slot.x(), 0, slot.z(), loser++);
@@ -353,8 +355,33 @@ public final class SettlementClient {
         oldCamera = null; oldPosition = smoothPosition = null; oldCameraType = null;
         title = eventText = Component.empty(); actors.clear(); byId.clear();
         physics = new SettlementPhysics(); lastCameraFrame = 0;
+        castHalfWidth = 1;
         SettlementAudio.clear(); SettlementPostEffect.close();
         // 皮肤布景由各自实现自行清理；本体不持有具体皮肤的静态状态。
+    }
+
+    /** 镜头与投影共用同一段推近曲线，避免缩放和机位各自运动。 */
+    private static double heroFocus(double time) {
+        return smooth((time - 208) / 46) * (1 - smooth((time - 292) / 28));
+    }
+
+    public static double cameraFov(float partialTick) {
+        var window = Minecraft.getInstance().getWindow();
+        double aspect = window.getWidth() / (double) Math.max(1, window.getHeight());
+        double wide = SettlementChoreography.cameraFov(castHalfWidth, aspect);
+        return Mth.lerp(heroFocus(playTick + partialTick), wide, 38);
+    }
+
+    /** 轻量斜构图只作用于世界投影，漫画页边和字幕保持水平可读。 */
+    public static float cameraRoll(float partialTick) {
+        double time = playTick + partialTick;
+        double roll = -1.35 * heroFocus(time) - .65 * (1 - smooth((time - 30) / 115));
+        if (snapshot != null && time >= SettlementSnapshot.INTRO_TICKS && eventIndex >= 0) {
+            int group = eventIndex / Math.max(1, (int) Math.ceil(24.0 / snapshot.eventTicks()));
+            roll = Math.sin(group * 2.399963) * .7 * smooth((time - 320) / 18)
+                    * (1 - smooth((time - snapshot.durationTicks() + 80) / 20));
+        }
+        return (float) Math.toRadians(roll);
     }
 
     /** 每帧平滑一次，交由独立高优先级 Camera.setup 注入调用。 */
@@ -365,25 +392,40 @@ public final class SettlementClient {
             return;
         }
         double t = playTick + (isPlaying() ? partialTick : 0);
-        double focus = smooth((t - 210) / 55) * (1 - smooth((t - 300) / 20));
+        double focus = heroFocus(t);
         ActorState mvp = byId.get(snapshot.mvp());
         double targetX = mvp == null ? 0 : mvp.x;
-        double targetY = 1.45, targetZ = mvp == null ? -.35 : mvp.z;
+        double targetY = 1.25, targetZ = mvp == null ? -.35 : mvp.z;
         if (t >= SettlementSnapshot.INTRO_TICKS && eventIndex >= 0) {
             var event = snapshot.events().get(eventIndex);
             ActorState source = byId.get(event.source()), target = byId.get(event.target());
-            ActorState selected = source != null ? source : target;
+            ActorState selected = source != null && source.fact.winner() ? source
+                    : target != null && target.fact.winner() ? target : source != null ? source : target;
             if (selected != null) {
                 targetX = selected.body.active ? selected.body.nodes[1].x : selected.x;
-                targetY = selected.body.active ? selected.body.nodes[1].y + .7 : selected.y + 1.4;
+                targetY = selected.body.active ? selected.body.nodes[1].y + .5 : selected.y + 1.25;
                 targetZ = selected.body.active ? selected.body.nodes[1].z : selected.z;
-                focus = selected.body.active ? .12 : .3;
+                focus = selected.body.active ? .10 : .26;
             }
         }
-        double wideDistance = 9;
-        // 事件回放时把注视点抬高一点，让角色落在画面中上部，底部留给字幕。
+        var window = Minecraft.getInstance().getWindow();
+        double aspect = window.getWidth() / (double) Math.max(1, window.getHeight());
+        double wideDistance = SettlementChoreography.cameraDistance(castHalfWidth, aspect);
         boolean replaying = t >= SettlementSnapshot.INTRO_TICKS && eventIndex >= 0;
-        double lift = replaying ? .55 : 0;
+        double lift = replaying ? .22 : 0;
+        // 开场由左向中横移；MVP 推近时走一小段弧线，回放分镜则交替从左右取景。
+        double reveal = 1 - smooth((t - 30) / 115);
+        double orbit = Math.sin(smooth((t - 208) / 105) * Math.PI) * .85;
+        double strafe = -1.1 * reveal + orbit * heroFocus(t);
+        double push = 0;
+        if (replaying) {
+            int ticks = snapshot.eventTicks();
+            int group = eventIndex / Math.max(1, (int) Math.ceil(24.0 / ticks));
+            double age = t - SettlementSnapshot.INTRO_TICKS - eventIndex * ticks;
+            // 前几帧定格，再缓慢推入；短事件不做高频大幅切镜。
+            push = smooth((age - 4) / Math.max(1, ticks - 4)) * .35;
+            strafe = Math.sin(group * 2.399963) * .65;
+        }
         // 皮肤可要求额外抬高机位（例如给高空盘旋的背景生物留构图）。
         // 本体不知道那是龙还是别的什么，只把抬升量加进来。
         SettlementSkin cameraSkin = SettlementSkins.byId(snapshot.mvpSkin());
@@ -394,10 +436,10 @@ public final class SettlementClient {
                 SRE.LOGGER.warn("结算皮肤镜头回调失败: {}", snapshot.mvpSkin(), error);
             }
         }
-        Vec3 desired = new Vec3(snapshot.x() + .5 + targetX * focus,
-                snapshot.y() + 1 + Mth.lerp(focus, 5.0, targetY + 1.1) + lift,
-                snapshot.z() + .5 - Mth.lerp(focus, wideDistance, 4.8));
-        Vec3 look = new Vec3(snapshot.x() + .5 + targetX * focus,
+        Vec3 desired = new Vec3(snapshot.x() + .5 + targetX * focus + strafe,
+                snapshot.y() + 1 + Mth.lerp(focus, 3.35, targetY + .65) + lift,
+                snapshot.z() + .5 - Mth.lerp(focus, wideDistance + reveal * .6, 4.35) + push);
+        Vec3 look = new Vec3(snapshot.x() + .5 + targetX * focus - heroFocus(t) * .48,
                 snapshot.y() + 1 + targetY + lift, snapshot.z() + .5 + targetZ);
         long now = System.nanoTime();
         double dt = lastCameraFrame == 0 ? 1 : Math.min(.1, (now - lastCameraFrame) / 1e9);

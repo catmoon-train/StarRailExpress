@@ -21,7 +21,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -32,9 +31,9 @@ import org.agmas.noellesroles.content.item.DreamAxeItem;
 import org.agmas.noellesroles.content.item.DreamDiamondSwordItem;
 import org.agmas.noellesroles.content.item.DreamMaceItem;
 import org.agmas.noellesroles.content.item.KatanaItem;
-import org.agmas.noellesroles.katana.KatanaCombat;
+import org.agmas.noellesroles.content.item.katana.KatanaCombat;
 import org.agmas.noellesroles.role_data.killer.DreamRoleData;
-import org.agmas.noellesroles.spear.SpearCombat;
+import org.agmas.noellesroles.content.item.spear.SpearCombat;
 
 /**
  * 把会打死或打伤玩家的近战武器，转到列车假人的虚拟血量和护盾上。

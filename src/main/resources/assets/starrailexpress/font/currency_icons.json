@@ -1,0 +1,18 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "wathe:font/coin.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": ["\uF6A8"]
+    },
+    {
+      "type": "bitmap",
+      "file": "starrailexpress:item/minigame_coin.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": ["\uF6A9"]
+    }
+  ]
+}

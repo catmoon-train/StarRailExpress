@@ -84,10 +84,6 @@ public class RevivalSelectionHandler {
             }
             // 主人即将被复活的尸体不可交互
             if (PlayerBodyEntityComponent.KEY.get(body).nonInteractable) {
-                player.displayClientMessage(
-                        Component.translatable("message.noellesroles.corpse.pending_revive")
-                                .withStyle(ChatFormatting.RED),
-                        true);
                 return InteractionResult.CONSUME;
             }
             if (!gameWorldComponent.isSkillAvailable) {
@@ -189,10 +185,6 @@ public class RevivalSelectionHandler {
             }
             // 主人即将被复活的尸体不可交互
             if (PlayerBodyEntityComponent.KEY.get(body).nonInteractable) {
-                player.displayClientMessage(
-                        Component.translatable("message.noellesroles.corpse.pending_revive")
-                                .withStyle(ChatFormatting.RED),
-                        true);
                 return InteractionResult.CONSUME;
             }
             if (!gameWorldComponent.isSkillAvailable) {

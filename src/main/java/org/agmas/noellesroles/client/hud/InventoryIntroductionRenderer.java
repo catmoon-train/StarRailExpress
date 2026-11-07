@@ -1,0 +1,204 @@
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+package org.agmas.noellesroles.client.hud;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
+import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.noellesroles.utils.RoleUtils;
+import io.wifi.starrailexpress.event.client.LimitedInventoryScreenEvents;
+import net.fabricmc.fabric.api.event.Event;
+import net.minecraft.resources.ResourceLocation;
+import org.agmas.noellesroles.Noellesroles;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+
+public class InventoryIntroductionRenderer {
+   public static void register() {
+      ResourceLocation phase = Noellesroles.id("inventory_introduction");
+      LimitedInventoryScreenEvents.RENDER_TAIL.addPhaseOrdering(Event.DEFAULT_PHASE, phase);
+      InventoryIntroductionRenderer renderer = new InventoryIntroductionRenderer();
+      LimitedInventoryScreenEvents.RENDER_TAIL.register(phase,
+            (screen, context, mouseX, mouseY, delta) -> renderer.render(context, mouseX, mouseY, delta));
+   }
+
+   private float getScare(int height) {
+      if (height <= 300) {
+         return 0.4f;
+      }
+      if (height <= 400) {
+         return 0.6f;
+      }
+      if (height >= 600) {
+         return 1f;
+      }
+      return 0.8f;
+   }
+
+   public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+      LocalPlayer player = Minecraft.getInstance().player;
+      if (player != null) {
+         SREGameWorldComponent gameWorldComponent = SREClient.gameComponent;
+         if (gameWorldComponent != null) {
+            // Role
+            float scale = getScare(context.guiHeight());
+            SRERole role = gameWorldComponent.getRole(player);
+            Font font = Minecraft.getInstance().font;
+            final int MAX_WIDTH = (int) (context.guiWidth() / scale / 3);
+
+            if (role != null) {
+
+               int x = 10;
+               int y = 10;
+               Component roleNameComponent;
+               Component roleInfoComponent;
+
+               roleNameComponent = RoleUtils.getRoleName(role).withStyle(ChatFormatting.BOLD);
+               roleInfoComponent = RoleUtils.getRoleSimpleDescription(role);
+
+               PoseStack poseStack = context.pose();
+               poseStack.pushPose();
+               poseStack.scale(scale, scale, 1.0F);
+               float scaledX = (float) x / scale;
+               float scaledY = (float) y / scale;
+               this.renderScaledTextWithShadow(context, font, roleNameComponent, scaledX, scaledY, scale, 16777215,
+                     4210752);
+               Objects.requireNonNull(font);
+               int roleNameHeight = (int) (9.0F * scale);
+               int currentY = y + roleNameHeight + 2;
+               List<FormattedCharSequence> infoLines = font.split(roleInfoComponent, MAX_WIDTH);
+               int i = 0;
+               int maxInfoWidth = 0;
+
+               final var moreInfo = Component.translatable("info.screen.role.see_more")
+                     .withStyle(ChatFormatting.GRAY);
+               for (FormattedCharSequence line : infoLines) {
+                  i++;
+                  float lineY = (float) currentY / scale;
+                  if (currentY >= (float) context.guiHeight() / 3) {
+                     maxInfoWidth = Math.max(maxInfoWidth, font.width(moreInfo));
+                     // context.drawString(font, moreInfo, (int) scaledX, (int) lineY, 11184810);
+                     break;
+                  }
+                  maxInfoWidth = Math.max(maxInfoWidth, font.width(line));
+                  context.drawString(font, line, (int) scaledX, (int) lineY, 11184810);
+                  currentY += (int) (9.0F * scale) + 2;
+               }
+               {
+                  float lineY = (float) currentY / scale;
+                  maxInfoWidth = Math.max(maxInfoWidth, font.width(moreInfo));
+                  context.drawString(font, moreInfo, (int) scaledX, (int) lineY, 11184810);
+                  i++;
+               }
+               poseStack.popPose();
+               int infoLineCount = i;
+               Objects.requireNonNull(font);
+               int var10000 = (int) (9.0F * scale);
+               int totalHeight = var10000 + infoLineCount * (int) (9.0F * scale) + infoLineCount * 2 + 2;
+               int scaledNameWidth = (int) ((float) font.width(roleNameComponent) * scale);
+               int maxWidth = Math.max(scaledNameWidth, (int) (maxInfoWidth * scale));
+               this.drawScaledBackground(context, x, y, maxWidth, totalHeight);
+
+            }
+            // Modifier
+            WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(player.level());
+            if (worldModifierComponent != null) {
+               var modifiers = worldModifierComponent.getDisplayableModifiers(player);
+               if (modifiers != null && modifiers.size() > 0) {
+                  int x = 10;
+                  int y = (int) ((float) context.guiHeight()) - 10;
+                  for (var modifier : modifiers) {
+                     Component modifierNameComponent = modifier.getName(false)
+                           .withStyle(ChatFormatting.BOLD);
+                     Component modifierInfoComponent = RoleUtils.getModifierSimpleDescription(modifier);
+                     PoseStack poseStack = context.pose();
+                     poseStack.pushPose();
+                     poseStack.scale(scale, scale, 1.0F);
+                     float scaledX = (float) x / scale;
+                     float scaledY = (float) y / scale;
+
+                     Objects.requireNonNull(font);
+                     int modifierNameHeight = (int) (9.0F * scale);
+                     int currentY = y + modifierNameHeight + 2;
+                     List<FormattedCharSequence> infoLines = font.split(modifierInfoComponent, MAX_WIDTH);
+
+                     int infoLineCount = infoLines.size();
+                     int var10000 = (int) (9.0F * scale);
+                     int totalHeight = var10000 + infoLineCount * (int) (9.0F * scale) + infoLineCount * 2 + 2;
+                     int scaledNameWidth = (int) ((float) font.width(modifierNameComponent) * scale);
+                     int maxInfoWidth = infoLines.stream().mapToInt((component) -> {
+                        return (int) ((float) font.width(component) * scale);
+                     }).max().orElse(0);
+                     int maxWidth = Math.max(scaledNameWidth, maxInfoWidth);
+                     this.renderScaledTextWithShadow(context, font, modifierNameComponent, scaledX,
+                           scaledY - totalHeight / scale, scale,
+                           16777215,
+                           4210752);
+                     for (Iterator<FormattedCharSequence> var22 = infoLines.iterator(); var22
+                           .hasNext(); currentY += (int) (9.0F * scale) + 2) {
+                        FormattedCharSequence line = var22.next();
+                        float lineY = (float) currentY / scale;
+                        context.drawString(font, line, (int) (scaledX), (int) (lineY - totalHeight / scale), 11184810);
+                     }
+                     poseStack.popPose();
+
+                     this.drawScaledBackground(context, x, y - totalHeight, maxWidth, totalHeight);
+                     y -= (totalHeight + 10);
+                  }
+               }
+            }
+         }
+      }
+
+   }
+
+   private void renderScaledTextWithShadow(GuiGraphics context, Font font, Component text, float x, float y,
+         float scale, int textColor, int shadowColor) {
+      PoseStack poseStack = context.pose();
+      poseStack.pushPose();
+      context.drawString(font, text, (int) (x + 1.0F / scale), (int) (y + 1.0F / scale), shadowColor);
+      context.drawString(font, text, (int) x, (int) y, textColor);
+      poseStack.popPose();
+   }
+
+   private void drawScaledBackground(GuiGraphics context, int x, int y, int width, int height) {
+      int padding = 3;
+      int borderThickness = 1;
+      int bgX = x - padding;
+      int bgY = y - padding;
+      int bgWidth = width + padding * 2;
+      int bgHeight = height + padding * 2;
+      int backgroundColor = Integer.MIN_VALUE;
+      context.fill(bgX, bgY, bgX + bgWidth, bgY + bgHeight, backgroundColor);
+      int borderColor = -10066330;
+      context.fill(bgX, bgY, bgX + bgWidth, bgY + borderThickness, borderColor);
+      context.fill(bgX, bgY + bgHeight - borderThickness, bgX + bgWidth, bgY + bgHeight, borderColor);
+      context.fill(bgX, bgY, bgX + borderThickness, bgY + bgHeight, borderColor);
+      context.fill(bgX + bgWidth - borderThickness, bgY, bgX + bgWidth, bgY + bgHeight, borderColor);
+   }
+}

@@ -38,7 +38,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.content.block.scene.LoopingMirrorBlock;
-import org.agmas.noellesroles.scene.VerticalLoopingMirrorLoop;
+import org.agmas.noellesroles.client.scene.VerticalLoopingMirrorLoop;
 import org.joml.Matrix4f;
 
 import java.util.ArrayList;

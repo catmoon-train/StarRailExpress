@@ -36,7 +36,7 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.agmas.noellesroles.scene.SceneTaskManager;
+import org.agmas.noellesroles.client.scene.SceneTaskManager;
 
 /**
  * 灰尘（场景任务「清理灰尘」）：用原版刷子右键逐次清理，刷净后灰尘变干净但方块保留（活板门厚度）。

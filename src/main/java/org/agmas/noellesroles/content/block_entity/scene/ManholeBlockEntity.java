@@ -26,10 +26,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import org.agmas.noellesroles.init.ModSceneBlocks;
-import org.agmas.noellesroles.scene.ManholeRegistry;
-import org.agmas.noellesroles.scene.SceneEventManager;
-import org.agmas.noellesroles.scene.SceneParticles;
-import org.agmas.noellesroles.scene.SceneRoleAccess;
+import org.agmas.noellesroles.client.scene.ManholeRegistry;
+import org.agmas.noellesroles.client.scene.SceneEventManager;
+import org.agmas.noellesroles.client.scene.SceneParticles;
+import org.agmas.noellesroles.client.scene.SceneRoleAccess;
 
 import java.util.List;
 

@@ -28,8 +28,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.agmas.noellesroles.content.block.scene.DebrisPileBlock;
 import org.agmas.noellesroles.init.ModSceneBlocks;
-import org.agmas.noellesroles.scene.DebrisPileRegistry;
-import org.agmas.noellesroles.scene.SceneEventManager;
+import org.agmas.noellesroles.client.scene.DebrisPileRegistry;
+import org.agmas.noellesroles.client.scene.SceneEventManager;
 
 import java.util.HashSet;
 import java.util.Set;

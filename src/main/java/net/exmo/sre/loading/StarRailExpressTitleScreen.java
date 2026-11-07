@@ -26,6 +26,8 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.index.TMMSounds;
+import io.wifi.starrailexpress.training.client.TrainingClient;
+import io.wifi.starrailexpress.training.client.TrainingWorldLauncher;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
@@ -188,6 +190,7 @@ public class StarRailExpressTitleScreen extends Screen {
 
     // ── 菜单项列表 ───────────────────────────────────────────────────
     private final List<MenuEntry> menuEntries = new ArrayList<>();
+    private MenuEntry trainingEntry;
 
     // ─────────────────────────────────────────────────────────────────
     // 构造函数
@@ -333,6 +336,8 @@ public class StarRailExpressTitleScreen extends Screen {
         this.menuEntries.add(new MenuEntry(
                 Component.translatable("menu.sre.singleplayer"),
                 () -> this.minecraft.setScreen(new SelectWorldScreen(this))));
+        this.trainingEntry = new MenuEntry(TrainingClient.buttonLabel(), () -> TrainingClient.openEntry(this));
+        this.menuEntries.add(this.trainingEntry);
         this.menuEntries.add(new MenuEntry(
                 Component.translatable("menu.sre.join_qq"),
                 () -> Util.getPlatform().openUri(QQ_GROUP_URL)));
@@ -388,6 +393,10 @@ public class StarRailExpressTitleScreen extends Screen {
 
     @Override
     public void tick() {
+        if (trainingEntry != null) {
+            trainingEntry.text = TrainingClient.buttonLabel();
+            trainingEntry.enabled = !TrainingWorldLauncher.isBusy();
+        }
         if (realmsNotificationsEnabled())
             this.realmsNotificationsScreen.tick();
 
@@ -545,11 +554,11 @@ public class StarRailExpressTitleScreen extends Screen {
         // Hover：同时要求鼠标在视口内
         boolean hovered = mouseX >= drawX && mouseX <= drawX + textWidth + 12
                 && mouseY >= drawY - 2 && mouseY <= drawY + 11
-                && mouseY >= menuViewportTop && mouseY <= menuViewportBottom;
+                && mouseY >= menuViewportTop && mouseY <= menuViewportBottom && entry.enabled;
 
         entry.hoverAnim += ((hovered ? 1.0F : 0.0F) - entry.hoverAnim) * 0.22F;
 
-        int baseColor = lerpColor(entry.hoverAnim, 0xE8D5A8, 0xFFF4DC);
+        int baseColor = entry.enabled ? lerpColor(entry.hoverAnim, 0xE8D5A8, 0xFFF4DC) : 0x9E8B6E;
         int accentColor = lerpColor(entry.hoverAnim, 0xC9A84C, 0xD4AF37);
 
         // 左侧装饰竖线
@@ -863,7 +872,7 @@ public class StarRailExpressTitleScreen extends Screen {
 
         // ── 菜单项点击（需在视口范围内） ─────────────────────────────
         for (MenuEntry entry : this.menuEntries) {
-            if (mouseX >= entry.renderX && mouseX <= entry.renderX + entry.renderWidth
+            if (entry.enabled && mouseX >= entry.renderX && mouseX <= entry.renderX + entry.renderWidth
                     && mouseY >= entry.renderY - 2 && mouseY <= entry.renderY + entry.renderHeight
                     && mouseY >= menuViewportTop && mouseY <= menuViewportBottom) {
                 playClick();
@@ -1044,7 +1053,8 @@ public class StarRailExpressTitleScreen extends Screen {
     }
 
     private static class MenuEntry {
-        final Component text;
+        Component text;
+        boolean enabled = true;
         final Runnable onPress;
         int x, y, index;
         float hoverAnim = 0.0F;

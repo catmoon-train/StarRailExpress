@@ -3,6 +3,7 @@ package org.agmas.noellesroles.spear;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
+import org.agmas.noellesroles.content.item.spear.SpearAnim;
 import org.agmas.noellesroles.mixin.client.roles.nature_spirit.HumanoidModelBambooSpearMixin;
 import org.agmas.noellesroles.content.entity.BambooSpearEntity;
 import org.junit.jupiter.api.Test;

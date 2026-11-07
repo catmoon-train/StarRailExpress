@@ -30,8 +30,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.content.block.scene.LoopingMirrorBlock;
-import org.agmas.noellesroles.scene.LoopingMirrorLoop;
-import org.agmas.noellesroles.scene.LoopingMirrorPlane;
+import org.agmas.noellesroles.client.scene.LoopingMirrorLoop;
+import org.agmas.noellesroles.client.scene.LoopingMirrorPlane;
 
 import java.util.HashMap;
 import java.util.Iterator;

@@ -15,20 +15,34 @@ public final class SettlementChoreography {
 
     public record Slot(double x, double y, double z) { }
 
-    /** 单人站位间距；比之前更松，避免角色挤成一团。 */
+    /** 常规人数下保持完整人物间距，不再随总人数直接压缩。 */
     public static final double WINNER_SPACING = 1.35;
 
     /**
-     * 胜方站位：存活者居中、已死亡者排到两侧。
-     * <p>索引 0 视为 MVP（站在正中），其余按 {@link #winnerOrder} 排出的顺序依次向外铺开。</p>
+     * 胜方使用错位的两排合照；MVP 正中、同伴向两侧铺开，后排插在前排的空隙中。
+     * <p>两排都落在真实地板上，不通过悬空半格假装抬台。超大阵容仍限制在舞台内。</p>
      */
     public static Slot winner(int index, int count) {
         if (count < 1 || index < 0 || index >= count) throw new IllegalArgumentException("无效胜方序号");
-        double spacing = Math.min(WINNER_SPACING, 12.0 / Math.max(1, count - 1));
-        double x = spread(index) * spacing;
-        // 人数多时只把最外侧的人放到后排，保证仍最多两排。
-        boolean back = count > 9 && Math.abs(x) > spacing * 2.6;
-        return new Slot(x, back ? .5 : 0, back ? 1.25 : -.35);
+        int front = count <= 9 ? count : (((count + 1) / 2) | 1);
+        int back = count - front;
+        double spacing = Math.min(WINNER_SPACING, 22.0 / Math.max(1, Math.max(front - 1, back)));
+        if (index < front) return new Slot(spread(index) * spacing, 0, -.35);
+        int rear = index - front;
+        double x = (rear / 2 + .5) * (rear % 2 == 0 ? -1 : 1) * spacing;
+        return new Slot(x, 0, 1.45);
+    }
+
+    /** 根据演员实际宽度和屏幕比例取景，给姓名、侧边墨线留出安全空间。 */
+    public static double cameraDistance(double halfWidth, double aspect) {
+        double distance = Math.max(6.5, 6.2 + halfWidth * .25);
+        return Math.min(13.0, Math.max(distance, (halfWidth + .9) / Math.max(.5, aspect)));
+    }
+
+    public static double cameraFov(double halfWidth, double aspect) {
+        double distance = cameraDistance(halfWidth, aspect);
+        return Math.max(44, Math.min(110, Math.toDegrees(2 * Math.atan(
+                (halfWidth + .9) / (distance * Math.max(.5, aspect))))));
     }
 
     /**
@@ -51,7 +65,7 @@ public final class SettlementChoreography {
      */
     private static double spread(int index) {
         if (index == 0) return 0;
-        double ring = (index + 1) / 2.0;
+        double ring = (index + 1) / 2;
         return index % 2 == 1 ? -ring : ring;
     }
 

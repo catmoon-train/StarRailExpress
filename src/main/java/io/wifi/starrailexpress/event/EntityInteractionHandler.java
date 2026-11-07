@@ -182,7 +182,8 @@ public class EntityInteractionHandler {
         // player.sendSystemMessage(Component.literal("执行命令: " + command));
         player.getServer().getCommands().performPrefixedCommand(
                 player.createCommandSourceStack()
-                        .withPermission(SREConfig.instance().entityInteractionBlockEntityPlayerPermission),
+                        .withPermission(io.wifi.starrailexpress.game.ElevatedBlockCommandPermission.resolve(
+                                SREConfig.instance().entityInteractionBlockEntityPlayerPermission)),
                 command);
     }
 

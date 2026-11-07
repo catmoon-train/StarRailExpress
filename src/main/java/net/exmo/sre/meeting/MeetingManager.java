@@ -346,6 +346,7 @@ public final class MeetingManager {
      */
     public static boolean startMeeting(ServerLevel serverLevel, ServerPlayer reporter, @Nullable String victim,
             boolean emergency) {
+        if (io.wifi.starrailexpress.training.TrainingRules.isTrainingWorld(serverLevel)) return false;
         // 亡命徒期间（难民触发）：无论如何都无法启用/发起会议
         if (RefugeeComponent.KEY.get(serverLevel).isAnyRevivals
                 || !SREGameWorldComponent.getInstance(serverLevel).isSkillAvailable) {

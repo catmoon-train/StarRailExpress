@@ -50,7 +50,8 @@ public class GameModeArgumentType implements ArgumentType<ResourceLocation> {
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
         return context.getSource() instanceof SharedSuggestionProvider
-                ? SharedSuggestionProvider.suggestResource(SREGameModes.GAME_MODES.keySet().stream().toList(), builder)
+                ? SharedSuggestionProvider.suggestResource(SREGameModes.GAME_MODES.keySet().stream()
+                        .filter(id -> !id.equals(io.wifi.starrailexpress.training.TrainingGameMode.ID)).toList(), builder)
                 : Suggestions.empty();
     }
 

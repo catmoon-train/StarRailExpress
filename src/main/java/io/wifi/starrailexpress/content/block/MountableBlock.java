@@ -58,6 +58,7 @@ public abstract class MountableBlock extends Block {
     @Override
     public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player,
             BlockHitResult hit) {
+        player = io.wifi.starrailexpress.event.GameplayExtensionEvents.MOUNT_PLAYER.invoker().apply(state, world, pos, player, hit);
         float radius = 1;
         if (!player.isShiftKeyDown()
                 && (player.position().subtract(pos.getCenter()).length() <= 1.4f

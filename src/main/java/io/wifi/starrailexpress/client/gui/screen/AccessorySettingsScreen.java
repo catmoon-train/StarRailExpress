@@ -138,13 +138,13 @@ public class AccessorySettingsScreen extends Screen {
         // ── 仅显示自己的饰品（本地）─────────────────────────────────────
         SettingToggle ownOnly = new SettingToggle(innerX, rowY, innerWidth, 18,
                 Component.translatable("screen.sre.skins.accessory_settings.own_only"),
-                config.hideAllHats && config.showOwnHatOnly && config.showOwnPetOnly,
+                !config.hideAllHats && config.showOwnHatOnly && !config.hideAllPets && config.showOwnPetOnly,
                 v -> {
                     config.hideAllHats = false;
                     config.showOwnHatOnly = v;
                     config.hideAllPets = false;
                     config.showOwnPetOnly = v;
-                    config.reload();
+                    config.save();
                 });
         ownOnly.setTooltip(Tooltip.create(
                 Component.translatable("screen.sre.skins.accessory_settings.own_only.tip")));
@@ -155,7 +155,7 @@ public class AccessorySettingsScreen extends Screen {
         this.listX = innerX;
         this.listY = rowY + 12;
         this.listWidth = innerWidth;
-        this.listHeight = panelY + panelHeight - 12 - listY;
+        this.listHeight = panelY + panelHeight - 40 - listY;
 
         List<String> visibleTypes = new ArrayList<>();
         for (String type : HIDEABLE_TYPES) {

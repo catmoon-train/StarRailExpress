@@ -34,6 +34,21 @@ public class AbstractContainerMenuMixin {
     @Inject(method = "doClick", at = @At("HEAD"), cancellable = true)
     public void doClick(int i, int j, ClickType clickType, Player player, CallbackInfo ci) {
         final var echoMenu = (AbstractContainerMenu) (Object) this;
+        // 克隆职业初始物品仅能在自己的普通背包中整理，不能放入容器或扩展装备槽。
+        var cloneSlot = i >= 0 && i < echoMenu.slots.size() ? echoMenu.slots.get(i) : null;
+        boolean temporary = org.agmas.noellesroles.game.roles.killer.clone_doctor.CloneDoctorSessionManager
+                .isTemporary(echoMenu.getCarried())
+                || cloneSlot != null && org.agmas.noellesroles.game.roles.killer.clone_doctor.CloneDoctorSessionManager
+                        .isTemporary(cloneSlot.getItem())
+                || clickType == ClickType.SWAP && j >= 0 && j < player.getInventory().getContainerSize()
+                        && org.agmas.noellesroles.game.roles.killer.clone_doctor.CloneDoctorSessionManager
+                                .isTemporary(player.getInventory().getItem(j));
+        if (temporary && (clickType == ClickType.THROW || clickType == ClickType.QUICK_MOVE
+                || cloneSlot == null || cloneSlot.container != player.getInventory())) {
+            if (player instanceof net.minecraft.server.level.ServerPlayer) echoMenu.sendAllDataToRemote();
+            ci.cancel();
+            return;
+        }
         if (org.agmas.noellesroles.game.modes.echo.content.EchoResourceItem.active(player)) {
             var slot = i >= 0 && i < echoMenu.slots.size() ? echoMenu.slots.get(i) : null;
             int inventorySlot = slot != null && slot.container == player.getInventory() ? slot.getContainerSlot() : -1;

@@ -1,16 +1,22 @@
 package io.wifi.starrailexpress.settlement.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.joml.Matrix4f;
 
-/** GameRenderer 尾部唯一绘制点，覆盖 Screen/LoadingOverlay，不依赖可被取消的 HUD 回调。 */
+/** GameRenderer 尾部唯一绘制点；漫画分镜不依赖可被取消的普通 HUD。 */
 public final class SettlementOverlay {
-    private static final int GOLD = 0xFFD4AF37, GOLD_DIM = 0xFF8B6914, TEXT = 0xFFFFF4DC,
-            MUTED = 0xFF9E8B6E, CREAM = 0xFFF5E8C8;
+    private static final int INK = 0xFF171719, PAPER = 0xFFF3EDDD, RED = 0xFFC34D43, MUTED = 0xFF827D73;
     private SettlementOverlay() { }
 
     public static void render(float partialTick) {
@@ -36,11 +42,9 @@ public final class SettlementOverlay {
                 RenderSystem.disableScissor(); RenderSystem.enableBlend(); RenderSystem.defaultBlendFunc();
                 RenderSystem.setShaderColor(1, 1, 1, 1);
                 GuiGraphics g = new GuiGraphics(mc, mc.renderBuffers().bufferSource());
-                if (SettlementClient.isBlack() || mc.screen != null || mc.getOverlay() != null) {
+                if (SettlementClient.isBlack() || mc.screen != null || mc.getOverlay() != null)
                     g.fill(0, 0, w, h, 0xFF000000);
-                } else {
-                    draw(g, w, h, partialTick);
-                }
+                else draw(g, w, h, partialTick);
                 g.flush();
             } finally {
                 RenderSystem.getModelViewStack().popMatrix(); RenderSystem.applyModelViewMatrix();
@@ -53,190 +57,226 @@ public final class SettlementOverlay {
         var snapshot = SettlementClient.snapshot();
         if (snapshot == null) { g.fill(0, 0, w, h, 0xFF000000); return; }
         double time = SettlementClient.tick() + partial;
-        int letterbox = Math.max(6, h / 26);
-        g.fill(0, 0, w, letterbox, 0xFF080603);
-        g.fill(0, h - letterbox, w, h, 0xFF080603);
+        float ui = Mth.clamp(Math.min(w / 640f, h / 360f), .65f, 1.4f);
+        int edge = Math.max(3, Math.round(5 * ui)), margin = Math.max(12, Math.round(w * .055f));
+        boolean closing = time >= snapshot.durationTicks() - 80;
 
-        // 片名：只在开场出现，两行居中，上下各一条极细金线，不使用实心面板。
-        if (time >= 62 && time < 210) {
-            float fade = (float) (SettlementClient.smooth((time - 62) / 26)
-                    * (1 - SettlementClient.smooth((time - 180) / 30)));
-            if (fade > .01f) {
-                int alpha = (int) (fade * 255) << 24;
-                int cx = w / 2, top = letterbox + Math.max(14, h / 12);
-                Component subtitle = Component.translatable("settlement.starrailexpress.subtitle");
-                int titleW = Math.min(w - 40, Minecraft.getInstance().font.width(SettlementClient.title()) + 28);
-                ornament(g, cx, top - 9, titleW / 2, (alpha & 0xFF000000) | (GOLD & 0xFFFFFF));
-                fit(g, SettlementClient.title(), cx - titleW / 2, top, titleW, (alpha & 0xFF000000) | (CREAM & 0xFFFFFF), true);
-                fit(g, subtitle, cx - titleW / 2, top + 14, titleW, (alpha & 0xFF000000) | (MUTED & 0xFFFFFF), true);
-                ornament(g, cx, top + 26, titleW / 2, (alpha & 0xFF000000) | (GOLD_DIM & 0xFFFFFF));
-            }
+        // 纸白页边与墨线取代红帘；舞台中部保持干净，不给皮肤覆盖整屏网点。
+        g.fill(0, 0, w, edge, PAPER); g.fill(0, h - edge, w, h, PAPER);
+        g.fill(0, edge, edge, h - edge, PAPER); g.fill(w - edge, edge, w, h - edge, PAPER);
+        g.renderOutline(edge, edge, w - edge * 2, h - edge * 2, INK);
+        g.fillGradient(edge + 1, edge + 1, w - edge - 1, edge + Math.round(54 * ui), 0x66000000, 0);
+        g.fillGradient(edge + 1, h - edge - Math.round(58 * ui), w - edge - 1, h - edge, 0, 0x88000000);
+        float pageAlpha = (float) SettlementClient.smooth((time - 68) / 22);
+        text(g, Component.translatable("settlement.starrailexpress.comic.running"), margin,
+                edge + Math.round(8 * ui), Math.round(w * .65f), .72f * ui, tint(PAPER, pageAlpha), false);
+        g.fill(w - margin - Math.round(23 * ui), edge + Math.round(9 * ui), w - margin,
+                edge + Math.round(12 * ui), tint(RED, pageAlpha));
+
+        double impact = pulse(time, 132, 15) * .65 + pulse(time, 218, 19);
+        if (!closing && time >= 320 && SettlementClient.eventIndex() >= 0) {
+            int ticks = snapshot.eventTicks();
+            int index = SettlementClient.eventIndex();
+            var event = snapshot.events().get(index);
+            // 密集事件只在分镜组首帧、且是动作事件时强调，避免连续闪动。
+            boolean action = event.source() != null || event.target() != null;
+            int group = Math.max(1, (int) Math.ceil(24.0 / ticks));
+            if (action && index % group == 0)
+                impact = Math.max(impact, pulse(time, 320 + index * ticks, Math.min(12, ticks)) * .65);
+        }
+        if (!closing) speedLines(g, w, h, (float) Math.min(1, impact), ui);
+
+        if (time >= 54 && time < 208) {
+            float fade = envelope(time, 54, 17, 186, 22);
+            int x = margin - Math.round((1 - fade) * 18 * ui);
+            int y = Math.round(h * .13f), pw = Math.min(w - margin * 2, Math.round(265 * ui));
+            paperPanel(g, x, y, pw, Math.round(74 * ui), fade, ui);
+            int pad = Math.round(11 * ui);
+            text(g, Component.translatable("settlement.starrailexpress.comic.chapter"), x + pad, y + Math.round(9 * ui),
+                    pw - pad * 2, .78f * ui, tint(RED, fade), false);
+            text(g, SettlementClient.title().copy().withStyle(style -> style.withColor(INK & 0xFFFFFF).withBold(true)),
+                    x + pad, y + Math.round(26 * ui), pw - pad * 2, 1.8f * ui, tint(INK, fade), false);
+            text(g, Component.translatable("settlement.starrailexpress.subtitle"), x + pad, y + Math.round(55 * ui),
+                    pw - pad * 2, .8f * ui, tint(MUTED, fade), false);
         }
 
-        // MVP 聚焦：大数字 + 小标签，浮在舞台下方，无面板遮挡。
         if (time >= 212 && time < 320) {
             var mvp = SettlementClient.byId.get(snapshot.mvp());
-            float fade = (float) (SettlementClient.smooth((time - 212) / 22)
-                    * (1 - SettlementClient.smooth((time - 300) / 20)));
-            if (mvp != null && fade > .01f) {
-                int alpha = (int) (fade * 255) << 24;
-                double count = SettlementClient.smooth((time - 214) / 90);
-                // MVP 数据放在画面上方的空区，绝不压住舞台人物。
-                int baseY = letterbox + Math.max(34, h / 9);
-                Component name = Component.translatable("settlement.starrailexpress.mvp_name", mvp.fact.name());
-                fit(g, name, w / 2 - 120, baseY - 16, 240, (alpha & 0xFF000000) | (GOLD & 0xFFFFFF), true);
-                stat(g, w / 2 - 74, baseY + 2, (int) (mvp.fact.kills() * count),
-                        Component.translatable("settlement.starrailexpress.hud.kills"), alpha);
-                stat(g, w / 2, baseY + 2, (int) (mvp.fact.tasks() * count),
-                        Component.translatable("settlement.starrailexpress.hud.tasks"), alpha);
-                stat(g, w / 2 + 74, baseY + 2, (int) (mvp.fact.score() * count),
-                        Component.translatable("settlement.starrailexpress.hud.score"), alpha);
+            float fade = envelope(time, 212, 18, 298, 22);
+            if (mvp != null) {
+                // 数据卡居左，镜头将 MVP 留在画面偏右，不把人物压在面板下面。
+                int pw = Math.min(Math.round(218 * ui), Math.round(w * .40f));
+                int x = margin - Math.round((1 - fade) * 15 * ui), y = Math.round(h * .15f);
+                int pad = Math.round(11 * ui);
+                paperPanel(g, x, y, pw, Math.round(108 * ui), fade, ui);
+                g.fill(x, y, x + Math.round(74 * ui), y + Math.round(18 * ui), tint(RED, fade));
+                text(g, Component.translatable("settlement.starrailexpress.mvp"), x + Math.round(7 * ui),
+                        y + Math.round(5 * ui), Math.round(62 * ui), .85f * ui, tint(PAPER, fade), false);
+                text(g, Component.literal(mvp.fact.name()).withStyle(ChatFormatting.BOLD), x + pad,
+                        y + Math.round(28 * ui), pw - pad * 2, 1.35f * ui, tint(INK, fade), false);
+                g.fill(x + pad, y + Math.round(51 * ui), x + pw - pad, y + Math.round(52 * ui), tint(INK, fade * .22f));
+                double count = SettlementClient.smooth((time - 218) / 62);
+                String[] keys = {"kills", "tasks", "score"};
+                int[] values = {mvp.fact.kills(), mvp.fact.tasks(), mvp.fact.score()};
+                int column = (pw - pad * 2) / 3;
+                for (int i = 0; i < 3; i++) {
+                    int cx = x + pad + column * i + column / 2;
+                    text(g, Component.literal(Long.toString(Math.round(values[i] * count))).withStyle(ChatFormatting.BOLD),
+                            cx - column / 2, y + Math.round(61 * ui), column, 1.7f * ui, tint(INK, fade), true);
+                    text(g, Component.translatable("settlement.starrailexpress.hud." + keys[i]), cx - column / 2,
+                            y + Math.round(86 * ui), column, .78f * ui, tint(MUTED, fade), true);
+                }
             }
         }
 
-        // 事件字幕：底部两行居中，只留一条细金线和序号，不画面板。
-        if (time >= 320 && SettlementClient.eventIndex() >= 0) {
+        if (!closing && time >= 320 && SettlementClient.eventIndex() >= 0) {
             var event = snapshot.events().get(SettlementClient.eventIndex());
             long seconds = Math.max(0, event.time()) / 1000;
-            // 事件字幕贴近画面下缘，但停在跳过提示之上，二者不重叠。
-            // 字幕整体位于角色下方（角色脚尖之上仍留白），不与人物身体重叠。
-            int baseY = h - letterbox - Math.max(38, h / 9);
-            Component stamp = Component.translatable("settlement.starrailexpress.event",
-                    SettlementClient.eventIndex() + 1, snapshot.events().size(),
-                    String.format(java.util.Locale.ROOT, "%02d:%02d", seconds / 60, seconds % 60));
-            fit(g, stamp, w / 2 - 120, baseY, 240, MUTED, true);
-            ornament(g, w / 2, baseY + 11, Math.min(120, w / 3), GOLD_DIM);
-            wrapped(g, SettlementClient.eventText(), w / 2 - Math.min(190, w / 2 - 18),
-                    baseY + 16, Math.min(380, w - 36), Math.max(18, h / 12));
+            int pw = Math.min(w - margin * 2, Math.round(428 * ui));
+            int ph = Math.round(66 * ui), x = (w - pw) / 2, y = h - edge - Math.round(31 * ui) - ph;
+            // 回放原文含职业颜色，放在墨色字幕格内保持原有颜色的可读性。
+            g.fill(x + 3, y + 3, x + pw + 3, y + ph + 3, 0x88000000);
+            g.fill(x, y, x + pw, y + ph, 0xED171719);
+            g.renderOutline(x, y, pw, ph, 0xB8F3EDDD);
+            g.fill(x, y, x + Math.round(3 * ui), y + ph, RED);
+            Component stamp = Component.translatable("settlement.starrailexpress.event", SettlementClient.eventIndex() + 1,
+                    snapshot.events().size(), String.format(java.util.Locale.ROOT, "%02d:%02d", seconds / 60, seconds % 60));
+            text(g, stamp, x + 12, y + Math.round(8 * ui), pw - 24, .75f * ui, 0xFFB9B2A4, true);
+            wrapped(g, SettlementClient.eventText(), x + 12, y + Math.round(25 * ui), pw - 24,
+                    ph - Math.round(31 * ui), ui);
+            float progress = (float) (time - 320) / Math.max(1, snapshot.events().size() * snapshot.eventTicks());
+            g.fill(x, y + ph - 2, x + Math.round(pw * Mth.clamp(progress, 0, 1)), y + ph, RED);
         }
 
-        // 跳过提示：可跳过后出现，闭幕段收起（此时已无跳过意义，也避免压住谢幕字幕）。
-        boolean closingSoon = time >= snapshot.durationTicks() - 80;
-        if (time >= 100 && !closingSoon) {
-            int y = h - letterbox - 9;
-            Component skip = Component.translatable("settlement.starrailexpress.skip");
-            int textW = Minecraft.getInstance().font.width(skip);
-            fit(g, skip, w / 2 - textW / 2, y, textW, MUTED, true);
-            int barW = Math.min(70, w / 5);
+        if (time >= 100 && !closing) {
+            float fade = (float) SettlementClient.smooth((time - 100) / 15);
+            int pw = Math.min(w - margin * 2, Math.round(180 * ui));
+            int y = h - edge - Math.round(17 * ui), x = w - margin - pw;
+            text(g, Component.translatable("settlement.starrailexpress.hud.skip"), x, y, pw, .76f * ui,
+                    tint(PAPER, fade * .78f), false);
             float held = Math.min(1, SettlementClient.holdTicks() / 30f);
-            int bx = w / 2 - barW / 2;
-            g.fill(bx, y + 11, bx + barW, y + 12, 0x40FFE8C0);
-            if (held > 0) g.fill(bx, y + 11, bx + (int) (barW * held), y + 12, GOLD);
+            if (held > 0) g.fill(x, y + Math.round(11 * ui), x + Math.round(pw * held), y + Math.round(13 * ui), RED);
         }
 
-        curtains(g, w, h, time);
-        // 闭幕：帘布回拢 → 谢幕字幕 → 收灯，最后才整体压黑。
-        closing(g, w, h, time, snapshot.durationTicks(), letterbox);
-        float black = (float) (1 - SettlementClient.smooth(time / 40));
-        black = Math.max(black, (float) SettlementClient.smooth((time - snapshot.durationTicks() + 26) / 26));
-        if (black > 0) g.fill(0, 0, w, h, ((int) (255 * black) << 24));
+        shutters(g, w, h, time, snapshot.durationTicks());
+        if (closing) {
+            float fade = envelope(time, snapshot.durationTicks() - 58, 18, snapshot.durationTicks() - 22, 22);
+            int pw = Math.min(w - margin * 2, Math.round(286 * ui)), ph = Math.round(73 * ui);
+            int x = (w - pw) / 2, y = (h - ph) / 2;
+            paperPanel(g, x, y, pw, ph, fade, ui);
+            text(g, Component.translatable("settlement.starrailexpress.hud.curtain_call").withStyle(ChatFormatting.BOLD),
+                    x + 10, y + Math.round(17 * ui), pw - 20, 1.55f * ui, tint(INK, fade), true);
+            text(g, Component.translatable("settlement.starrailexpress.closing"), x + 10, y + Math.round(46 * ui),
+                    pw - 20, .8f * ui, tint(MUTED, fade), true);
+        }
+        float black = (float) (1 - SettlementClient.smooth(time / 28));
+        black = Math.max(black, (float) SettlementClient.smooth((time - snapshot.durationTicks() + 20) / 20));
+        if (black > 0) g.fill(0, 0, w, h, tint(0xFF000000, black));
     }
 
-    /**
-     * 闭幕段：谢幕字幕淡入，灯光收束到舞台中央，再由 {@link #draw} 整体压黑。
-     * <p>只在最后 80 tick 生效，与开场片名、MVP 聚焦互不重叠。</p>
-     */
-    private static void closing(GuiGraphics g, int w, int h, double time, int duration, int letterbox) {
-        double start = duration - 80;
-        if (time < start) return;
-        float fade = (float) SettlementClient.smooth((time - start) / 18);
-        float out = (float) SettlementClient.smooth((time - (duration - 26)) / 26);
-        float alpha = fade * (1 - out);
+    /** 纸片、错位墨影与局部网点构成分镜标题块；每个元素共享淡入透明度。 */
+    private static void paperPanel(GuiGraphics g, int x, int y, int w, int h, float alpha, float ui) {
         if (alpha <= .01f) return;
-
-        // 收灯：一圈圈同心渐暗，中央留暖光，避免出现硬边黑色矩形。
-        int cx = w / 2, cy = (int) (h * .42);
-        int rings = 14;
-        int maxR = (int) (Math.hypot(w, h) * .62);
-        for (int i = rings; i >= 1; i--) {
-            int r = maxR * i / rings;
-            int shade = (int) (alpha * 18 * (rings - i + 1) / (float) rings);
-            if (shade <= 0) continue;
-            g.fill(cx - r, cy - r, cx + r, cy + r, shade << 24);
+        int shift = Math.max(2, Math.round(4 * ui));
+        g.fill(x + shift, y + shift, x + w + shift, y + h + shift, tint(INK, alpha * .8f));
+        g.fill(x, y, x + w, y + h, tint(PAPER, alpha * .97f));
+        g.renderOutline(x, y, w, h, tint(INK, alpha));
+        int step = Math.max(4, Math.round(6 * ui)), dot = Math.max(1, Math.round(ui));
+        // 网点只放在卡片右侧的小三角内，固定采样，不随帧随机闪烁。
+        for (int row = 0; row < 6; row++) for (int col = 0; col < 6 - row; col++) {
+            int px = x + w - 5 - col * step, py = y + 5 + row * step;
+            if (px > x && py + dot < y + h)
+                g.fill(px, py, px + dot, py + dot, tint(INK, alpha * .12f));
         }
-
-        // 字幕压在台口下方、贴近画面底缘，绝不与角色身体重叠。
-        int baseY = h - letterbox - Math.max(30, h / 12);
-        int a = (int) (alpha * 255) << 24;
-        Component curtainCall = Component.translatable("settlement.starrailexpress.hud.curtain_call");
-        int lineW = Math.min(200, w / 2);
-        ornament(g, cx, baseY - 10, lineW / 2, (a & 0xFF000000) | (GOLD & 0xFFFFFF));
-        fit(g, curtainCall, cx - lineW, baseY, lineW * 2, (a & 0xFF000000) | (CREAM & 0xFFFFFF), true);
-        fit(g, Component.translatable("settlement.starrailexpress.closing"), cx - lineW, baseY + 16,
-                lineW * 2, (a & 0xFF000000) | (MUTED & 0xFFFFFF), true);
-        ornament(g, cx, baseY + 30, lineW / 2, (a & 0xFF000000) | (GOLD_DIM & 0xFFFFFF));
     }
 
-    /** 一条两端渐隐的金线，中心一颗菱形，替代厚重边框。 */
-    private static void ornament(GuiGraphics g, int cx, int y, int halfWidth, int color) {
-        int alpha = color >>> 24;
-        for (int i = 0; i < halfWidth; i++) {
-            float t = i / (float) Math.max(1, halfWidth);
-            int a = (int) (alpha * (1 - t) * .85f) << 24;
-            g.fill(cx - i - 1, y, cx - i, y + 1, a | (color & 0xFFFFFF));
-            g.fill(cx + i, y, cx + i + 1, y + 1, a | (color & 0xFFFFFF));
-        }
-        g.fill(cx - 2, y - 2, cx + 2, y + 3, color);
-        g.fill(cx - 1, y - 1, cx + 1, y + 2, 0xFFFFE6A1);
+    /** 斜切黑页从两侧揭开/合上，不再保留与场景割裂的剧场侧帘。 */
+    private static void shutters(GuiGraphics g, int w, int h, double time, int duration) {
+        double opened = SettlementClient.smooth((time - 12) / 65)
+                * (1 - SettlementClient.smooth((time - duration + 66) / 46));
+        float side = (float) (w * .65 * (1 - opened));
+        if (side < .5f) return;
+        float skew = (float) (w * .045 * (1 - opened));
+        g.flush();
+        RenderSystem.disableDepthTest(); RenderSystem.depthMask(false);
+        RenderSystem.enableBlend(); RenderSystem.defaultBlendFunc();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        BufferBuilder b = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        Matrix4f m = g.pose().last().pose();
+        quad(b, m, 0, 0, 0, h, side - skew, h, side + skew, 0, INK);
+        quad(b, m, w - side - skew, 0, w - side + skew, h, w, h, w, 0, INK);
+        quad(b, m, side + skew - 3, 0, side - skew - 3, h, side - skew, h, side + skew, 0, PAPER);
+        quad(b, m, w - side - skew, 0, w - side + skew, h, w - side + skew + 3, h, w - side - skew + 3, 0, PAPER);
+        BufferUploader.drawWithShader(b.buildOrThrow());
     }
 
-    private static void stat(GuiGraphics g, int cx, int y, int value, Component label, int alpha) {
+    /** 仅边缘出现短促放射线；合批绘制，不覆盖人物中央，不做整屏爆闪。 */
+    private static void speedLines(GuiGraphics g, int w, int h, float strength, float ui) {
+        if (strength <= .02f) return;
+        g.flush();
+        RenderSystem.disableDepthTest(); RenderSystem.depthMask(false);
+        RenderSystem.enableBlend(); RenderSystem.defaultBlendFunc();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        BufferBuilder b = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        Matrix4f m = g.pose().last().pose();
+        float cx = w * .56f, cy = h * .50f, radius = (float) Math.hypot(w, h);
+        for (int i = 0; i < 28; i++) {
+            double angle = i * Math.PI * 2 / 28 + .035 * Math.sin(i * 7.3);
+            float dx = (float) Math.cos(angle), dy = (float) Math.sin(angle);
+            float innerX = cx + dx * w * (.32f + .04f * (i % 3));
+            float innerY = cy + dy * h * (.34f + .03f * (i % 4));
+            float outerX = cx + dx * radius, outerY = cy + dy * radius;
+            float thick = (2 + i % 3) * ui * strength;
+            quad(b, m, innerX - dy * .3f, innerY + dx * .3f, outerX - dy * thick, outerY + dx * thick,
+                    outerX + dy * thick, outerY - dx * thick, innerX + dy * .3f, innerY - dx * .3f,
+                    tint(PAPER, strength * .55f));
+        }
+        BufferUploader.drawWithShader(b.buildOrThrow());
+    }
+
+    private static void quad(BufferBuilder b, Matrix4f m, float x0, float y0, float x1, float y1,
+                             float x2, float y2, float x3, float y3, int color) {
+        b.addVertex(m, x0, y0, 0).setColor(color); b.addVertex(m, x1, y1, 0).setColor(color);
+        b.addVertex(m, x2, y2, 0).setColor(color); b.addVertex(m, x3, y3, 0).setColor(color);
+    }
+
+    private static float envelope(double time, double start, double in, double end, double out) {
+        return (float) (SettlementClient.smooth((time - start) / in) * (1 - SettlementClient.smooth((time - end) / out)));
+    }
+
+    private static double pulse(double time, double start, double duration) {
+        if (time < start || time > start + duration) return 0;
+        return (1 - SettlementClient.smooth((time - start) / duration));
+    }
+
+    private static int tint(int color, float alpha) {
+        return Math.round(Mth.clamp(alpha, 0, 1) * 255) << 24 | color & 0xFFFFFF;
+    }
+
+    private static void text(GuiGraphics g, Component text, int x, int y, int width, float preferredScale,
+                             int color, boolean center) {
+        if ((color >>> 24) < 4 || width <= 0) return;
         var font = Minecraft.getInstance().font;
-        String number = Integer.toString(value);
-        float scale = 1.7f;
-        g.pose().pushPose();
-        g.pose().translate(cx, y, 0); g.pose().scale(scale, scale, 1);
-        g.drawString(font, number, -font.width(number) / 2, 0, (alpha & 0xFF000000) | (GOLD & 0xFFFFFF), false);
-        g.pose().popPose();
-        fit(g, label, cx - 34, y + 19, 68, (alpha & 0xFF000000) | (MUTED & 0xFFFFFF), true);
-    }
-
-    private static void curtains(GuiGraphics g, int w, int h, double time) {
-        double opened = SettlementClient.smooth((time - 20) / 70);
-        // 闭幕阶段帘布重新合拢，把舞台盖回去。
-        double closed = SettlementClient.smooth((time - (SettlementClient.snapshot().durationTicks() - 70)) / 55);
-        opened *= (1 - closed);
-        int side = (int) ((w / 2.0) * (1 - opened));
-        // 帷幕移出后仍保留侧帷；褶皱与金色流苏全部本地绘制。
-        side = Math.max(Math.max(4, w / 60), side);
-        for (int x = 0; x < side; x += 3) {
-            double fold = .5 + .5 * Math.cos(x * .23);
-            int red = 65 + (int) (fold * 55), green = 8 + (int) (fold * 9), blue = 18 + (int) (fold * 8);
-            int color = 0xFF000000 | red << 16 | green << 8 | blue;
-            g.fill(x, 0, Math.min(side, x + 3), h, color);
-            g.fill(w - Math.min(side, x + 3), 0, w - x, h, color);
-        }
-        g.fill(side - 2, 0, side, h, 0xFFC9A84C);
-        g.fill(w - side, 0, w - side + 2, h, 0xFFC9A84C);
-        int valance = Math.max(8, h / 26);
-        for (int x = 0; x < w; x += 4) {
-            int drop = valance + (int) ((.5 + .5 * Math.cos(x * Math.PI * 8 / Math.max(1, w))) * 7);
-            g.fill(x, 0, x + 4, drop, 0xFF570B18);
-            g.fill(x, drop - 1, x + 4, drop + 1, 0xFF8B6914);
-        }
-    }
-
-    private static void fit(GuiGraphics g, Component text, int x, int y, int width, int color, boolean center) {
-        var font = Minecraft.getInstance().font;
-        float scale = Math.min(1, width / (float) Math.max(1, font.width(text)));
+        float scale = Math.min(preferredScale, width / (float) Math.max(1, font.width(text)));
         g.pose().pushPose();
         g.pose().translate(center ? x + width / 2f : x, y, 0); g.pose().scale(scale, scale, 1);
         g.drawString(font, text, center ? -font.width(text) / 2 : 0, 0, color, false);
         g.pose().popPose();
     }
 
-    private static void wrapped(GuiGraphics g, Component text, int x, int y, int width, int height) {
+    private static void wrapped(GuiGraphics g, Component text, int x, int y, int width, int height, float ui) {
         var font = Minecraft.getInstance().font;
-        float scale = 1;
-        var lines = font.split(text, Math.max(1, width));
-        if (lines.size() * 10 > height) {
-            scale = Mth.clamp((float) Math.sqrt(height / (double) (lines.size() * 10)), .15f, 1);
+        float scale = ui;
+        var lines = font.split(text, Math.max(1, (int) (width / scale)));
+        if (lines.size() * 11 * scale > height) {
+            scale *= (float) Math.sqrt(height / (double) (lines.size() * 11 * scale));
             lines = font.split(text, Math.max(1, (int) (width / scale)));
-            scale = Math.min(scale, height / (float) Math.max(1, lines.size() * 10));
+            scale = Math.min(scale, height / (float) Math.max(1, lines.size() * 11));
         }
         g.enableScissor(x, y, x + width, y + height);
-        g.pose().pushPose(); g.pose().translate(x, y, 0); g.pose().scale(scale, scale, 1);
-        for (int i = 0; i < lines.size(); i++) g.drawString(font, lines.get(i), 0, i * 10, TEXT, false);
+        g.pose().pushPose(); g.pose().translate(x + width / 2f, y, 0); g.pose().scale(scale, scale, 1);
+        for (int i = 0; i < lines.size(); i++)
+            g.drawString(font, lines.get(i), -font.width(lines.get(i)) / 2, i * 11, PAPER, false);
         g.pose().popPose(); g.disableScissor();
     }
 }

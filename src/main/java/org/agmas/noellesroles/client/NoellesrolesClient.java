@@ -98,6 +98,7 @@ import org.agmas.noellesroles.client.blood.particle.BloodParticle;
 import org.agmas.noellesroles.client.commands.SREClientCommand;
 import org.agmas.noellesroles.client.event.MutableComponentResult;
 import org.agmas.noellesroles.client.event.OnMessageBelowMoneyRenderer;
+import org.agmas.noellesroles.client.gunfx.*;
 import org.agmas.noellesroles.client.hud.CommonClientHudRenderer;
 
 import org.agmas.noellesroles.client.renderer.BreakingBridgeBlockEntityRenderer;
@@ -242,6 +243,7 @@ public class NoellesrolesClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        org.agmas.noellesroles.client.events.ClientRoleEventHandlers.register();
         org.agmas.noellesroles.game.command_block.SteveMiner.clientTaskBlock =
                 pos -> taskBlocks.containsKey(pos) || TaskBlockOverlayRenderer.RoomDoorPositions.contains(pos);
         org.agmas.noellesroles.game.modes.echo.client.EchoInputClient.initialize();
@@ -254,6 +256,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         DynamiclightsEntry.registerClientEvents();
         // 注册各职业的背包界面扩展（旧版 ScreenMixin 的替代：SRERole 钩子，客户端注册）
         RoleScreenRegister.register();
+        IdentityScannerClient.register();
         NoellesrolesClientAmbientSounds.register();
         // Dream（Dream）：颤抖视角漂移 + 虚拟血量条（准星指向受伤玩家时显示）
         org.agmas.noellesroles.game.roles.killer.dream.client.DreamClientHandler.register();
@@ -566,9 +569,9 @@ public class NoellesrolesClient implements ClientModInitializer {
             TaskBlockOverlayRenderer.render(renderContext);
             TwoDimensionalTaskArrowRenderer.render(renderContext);
             PointerGuidanceRenderer.render(renderContext);
-            org.agmas.noellesroles.gunfx.GunTracerRenderer.render(renderContext);
-            org.agmas.noellesroles.gunfx.StalkerDashTrailRenderer.render(renderContext);
-            org.agmas.noellesroles.gunfx.StalkerPierceFxRenderer.render(renderContext);
+            GunTracerRenderer.render(renderContext);
+            StalkerDashTrailRenderer.render(renderContext);
+            StalkerPierceFxRenderer.render(renderContext);
             DreadlordClientFx.renderSouls(renderContext);
             DreadlordClientFx.renderFloats(renderContext);
             // 确定性地绘制所有透视线条（相机矩阵仍有效、地形已完成）
@@ -621,14 +624,14 @@ public class NoellesrolesClient implements ClientModInitializer {
         });
         // 枪械射击轨迹
         ClientPlayNetworking.registerGlobalReceiver(
-                org.agmas.noellesroles.gunfx.GunTracerS2CPacket.ID, (payload, context) -> context.client()
-                        .execute(() -> org.agmas.noellesroles.gunfx.GunTracerRenderer.onPacket(payload)));
+                GunTracerS2CPacket.ID, (payload, context) -> context.client()
+                        .execute(() -> GunTracerRenderer.onPacket(payload)));
         ClientPlayNetworking.registerGlobalReceiver(
-                org.agmas.noellesroles.gunfx.StalkerDashTrailS2CPacket.ID, (payload, context) -> context.client()
-                        .execute(() -> org.agmas.noellesroles.gunfx.StalkerDashTrailRenderer.onPacket(payload)));
+                StalkerDashTrailS2CPacket.ID, (payload, context) -> context.client()
+                        .execute(() -> StalkerDashTrailRenderer.onPacket(payload)));
         ClientPlayNetworking.registerGlobalReceiver(
-                org.agmas.noellesroles.gunfx.StalkerPierceFxS2CPacket.ID, (payload, context) -> context.client()
-                        .execute(() -> org.agmas.noellesroles.gunfx.StalkerPierceFxRenderer.onPacket(payload)));
+                StalkerPierceFxS2CPacket.ID, (payload, context) -> context.client()
+                        .execute(() -> StalkerPierceFxRenderer.onPacket(payload)));
 
         // 建筑师墙数据S2C包
         ClientPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.BuilderWallS2CPacket.ID,

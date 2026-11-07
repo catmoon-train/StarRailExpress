@@ -52,6 +52,7 @@ public class AutoStartComponent implements AutoSyncedComponent, CommonTickingCom
 
     @Override
     public void tick() {
+        if (io.wifi.starrailexpress.training.TrainingRules.isTrainingWorld(world)) return;
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(this.world);
         if (gameWorldComponent.isRunning())
             return;

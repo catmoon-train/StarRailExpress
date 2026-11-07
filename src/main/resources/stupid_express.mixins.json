@@ -5,16 +5,10 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "modifier.allergist.AllergistEatMixin",
-    "general.StuckGameExitMixin",
     "modifier.split_personality.SplitPersonalityServerInputBlockMixin",
-    "modifier.taskmaster.TaskmasterGiveCoinsMixin",
-    "modifier.twin_children.TwinChildrenShareQuestMixin",
-    "modifier.twin_children.TwinChildrenShareMinigameMixin",
     "modifier.twin_children.TwinChildrenAttachMixin",
     "modifier.twin_children.TwinChildrenPlayerMixin",
-    "modifier.twin_children.TwinChildrenTeleportMixin",
-    "modifier.twin_children.TwinChildrenMountableMixin",
-    "modifier.twin_children.TwinChildrenToiletMixin"
+    "modifier.twin_children.TwinChildrenTeleportMixin"
   ],
   "injectors": {
     "defaultRequire": 1

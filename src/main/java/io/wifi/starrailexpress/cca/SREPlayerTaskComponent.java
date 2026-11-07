@@ -43,7 +43,7 @@ import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.ModifierEffects;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
-import org.agmas.noellesroles.scene.SceneTaskManager;
+import org.agmas.noellesroles.client.scene.SceneTaskManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -156,7 +156,10 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
         if (!gameWorldComponent.isRunning() || !GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(this.player))
             return;
         boolean shouldSync = false;
-        this.nextTaskTimer--;
+        // 原 FIELD ordinal=0 / AFTER 位于自减的首次 GETFIELD 后；保留先读取、再 hook、再写回的顺序。
+        int previousNextTaskTimer = this.nextTaskTimer;
+        io.wifi.starrailexpress.event.GameplayExtensionEvents.BEFORE_TASK_TIMER_DECREMENT.invoker().accept(this);
+        this.nextTaskTimer = previousNextTaskTimer - 1;
         if (this.nextTaskTimer <= 0) {
             // 小游戏任务轮换模式：刷满 2~3 个普通任务后，本次刷新槽位替换为派发一个小游戏任务
 

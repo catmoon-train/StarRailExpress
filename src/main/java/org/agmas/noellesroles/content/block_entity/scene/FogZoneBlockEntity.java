@@ -30,8 +30,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.client.scene.SceneParticles;
 import org.agmas.noellesroles.init.ModSceneBlocks;
-import org.agmas.noellesroles.scene.SceneRoleAccess;
+import org.agmas.noellesroles.client.scene.SceneRoleAccess;
 
 import java.util.HashMap;
 import java.util.List;
@@ -88,10 +89,10 @@ public class FogZoneBlockEntity extends BlockEntity {
             }
         }
 
-        AABB box = org.agmas.noellesroles.scene.SceneParticles.sceneRegion(pos);
+        AABB box = SceneParticles.sceneRegion(pos);
         // 区域内迷雾粒子（覆盖 3×3×4 范围）
         if (currentTick % 2 == 0) {
-            org.agmas.noellesroles.scene.SceneParticles.regionScatter(serverLevel, box,
+            SceneParticles.regionScatter(serverLevel, box,
                     net.minecraft.core.particles.ParticleTypes.CLOUD, 5);
         }
         List<Player> players = serverLevel.getEntitiesOfClass(Player.class, box,

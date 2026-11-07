@@ -90,6 +90,7 @@ public class HatSkinGridPanel extends AbstractWidget {
     private String searchQuery = "";
     /** 是否只显示 3D 皮肤（由父界面的筛选按钮控制） */
     private boolean only3d = false;
+    private ItemSkinManager.QualityColor qualityFilter;
 
     public void setFrameDelta(float frameDelta) {
         this.frameDelta = frameDelta;
@@ -141,9 +142,17 @@ public class HatSkinGridPanel extends AbstractWidget {
      * 「未装备 / 随机」两张伪卡片不参与搜索过滤，始终钉在最前面。
      */
     public final void rebuild(String filter, boolean only3d) {
+        rebuild(filter, only3d, qualityFilter);
+    }
+
+    /** 搜索、3D 与品质条件可同时生效；null 表示全部品质。 */
+    public final void rebuild(String filter, boolean only3d, ItemSkinManager.QualityColor quality) {
+        String nextQuery = ItemSkinSearch.normalize(filter);
+        boolean changed = !nextQuery.equals(searchQuery) || this.only3d != only3d || qualityFilter != quality;
+        this.qualityFilter = quality;
         cards.clear();
         this.only3d = only3d;
-        this.searchQuery = ItemSkinSearch.normalize(filter);
+        this.searchQuery = nextQuery;
         this.equippedHat = skinsComponent.getEquippedSkin(skinType);
 
         cards.add(new HatCard("default", null, 0xFF9AA0AA, true));
@@ -170,6 +179,9 @@ public class HatSkinGridPanel extends AbstractWidget {
             if (only3d && !is3dSkin(name)) {
                 continue;
             }
+            if (quality != null && (entry.getValue() == null || entry.getValue().getColor() != quality.getColor())) {
+                continue;
+            }
             // 搜索过滤：匹配分 0 表示不命中（输入为空时恒为满分，不过滤）
             if (!searchQuery.isEmpty() && scoreOf(name) <= ItemSkinSearch.SCORE_NONE) {
                 continue;
@@ -181,8 +193,14 @@ public class HatSkinGridPanel extends AbstractWidget {
 
         int columns = columns();
         contentHeight = PADDING * 2f + (float) Math.ceil(cards.size() / (double) columns) * (CARD_HEIGHT + CARD_GAP);
-        targetScroll = Mth.clamp(targetScroll, 0, maxScroll());
-        scroll = Mth.clamp(scroll, 0, maxScroll());
+        if (changed) {
+            draggingScrollbar = false;
+            targetScroll = 0;
+            scroll = 0;
+        } else {
+            targetScroll = Mth.clamp(targetScroll, 0, maxScroll());
+            scroll = Mth.clamp(scroll, 0, maxScroll());
+        }
     }
 
     /** 当前皮肤名对应的匹配分（按中文名 / 拼音 / 首字母 / ID 综合打分）。 */

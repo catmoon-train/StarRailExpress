@@ -38,7 +38,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.game.roles.killer.clone_doctor.CloneDoctorRole;
 import org.jetbrains.annotations.Nullable;
+import io.wifi.starrailexpress.event.GameplayExtensionEvents;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 
 /**
@@ -79,6 +81,21 @@ public class RoleMethodDispatcher {
      * 调用玩家角色的 onFinishQuest 方法（带连击奖励和并列任务支持）
      */
     public static void callOnFinishQuest(Player player, String quest, int taskStreak, boolean isParallelTask) {
+        if (CloneDoctorRole.isCivilianCopy(player)) {
+            // 固定总额，不叠加连击、并列倍率、目标职业或修饰符的任务金币。
+            int reward = 35;
+            org.agmas.noellesroles.game.economy.MoneyFlow.recordIncome(player,
+                    org.agmas.noellesroles.game.economy.MoneyFlow.IncomeType.TASK, reward);
+            SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
+            shop.addToBalance(reward);
+            shop.runWithoutIncome(() -> finishQuest(player, quest, taskStreak, isParallelTask, true));
+        } else {
+            finishQuest(player, quest, taskStreak, isParallelTask, false);
+        }
+    }
+
+    private static void finishQuest(Player player, String quest, int taskStreak, boolean isParallelTask,
+            boolean fixedMoneyReward) {
         SRERole role = getCurrentRole(player);
         ProgressionDataManager.onRoundQuestFinished(player, quest);
         if (role != null) {
@@ -95,19 +112,20 @@ public class RoleMethodDispatcher {
                 }
             }
             // 平民/中立完成任务：本人获得金币，并以此喂养场上所有杀手（任务驱动收入）
-            if (grantDefaultMoney && (role.isInnocent() || role.isNeutrals())) {
+            if (!fixedMoneyReward && grantDefaultMoney && (role.isInnocent() || role.isNeutrals())) {
                 SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
                 int reward = (int) ((SREConfig.instance().civilianTaskReward + streakBonus) * rewardMultiplier);
+                reward = GameplayExtensionEvents.QUEST_REWARD.invoker().apply(player, quest, taskStreak, isParallelTask, reward);
                 // 金币账本：完成任务收入（必须先于余额变动登记，供兜底认领）
                 org.agmas.noellesroles.game.economy.MoneyFlow.recordIncome(player,
                         org.agmas.noellesroles.game.economy.MoneyFlow.IncomeType.TASK, reward);
                 shopComponent.addToBalance(reward);
-            } else if (grantDefaultMoney && role.isKiller() && !role.isNeutrals() && !role.isInnocent()) {
+            } else if (!fixedMoneyReward && grantDefaultMoney && role.isKiller() && !role.isNeutrals() && !role.isInnocent()) {
                 // 任意杀手完成一个任务 -> 每个杀手获得 killerTaskIncome
                 int killerGain = (int) (SREConfig.instance().killerTaskIncome * rewardMultiplier);
                 if (killerGain > 0) {
                     player.level().players().forEach(a -> {
-                        SRERole aRole = getCurrentRole(a);
+                        SRERole aRole = SREGameWorldComponent.KEY.get(a.level()).getAllegianceRole(a);
                         if (aRole != null && aRole.canUseKiller() && !aRole.isNeutrals() && !aRole.isInnocent()) {
                             // 金币账本：杀手任务收入
                             org.agmas.noellesroles.game.economy.MoneyFlow.recordIncome(a,
@@ -120,6 +138,7 @@ public class RoleMethodDispatcher {
             // 杀手自己的伪装任务不再产生收入（防止杀手互刷）
             role.onFinishQuest(player, quest);
         }
+        GameplayExtensionEvents.AFTER_QUEST.invoker().accept(player, quest, taskStreak, isParallelTask);
     }
 
     /**

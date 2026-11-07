@@ -51,6 +51,8 @@ public final class MapRuleIntroHud {
     }
 
     public static void start(String id) {
+        if (!io.wifi.starrailexpress.event.client.ClientGameplayEvents.ALLOW_MAP_INTRO.invoker().allow(id))
+            return;
         if (id == null || id.isBlank())
             return;
         if (id.equals(mapId) && shownAt > 0L)

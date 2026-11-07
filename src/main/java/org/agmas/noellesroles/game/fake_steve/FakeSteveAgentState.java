@@ -71,6 +71,17 @@ public final class FakeSteveAgentState {
     public int pathSearchVisited;
     /** 当前 A* 路线（已做共线合并）。{@link #pathReached} 为 false 时只是「最接近目标的一段」。 */
     public final ArrayDeque<BlockPos> path = new ArrayDeque<>();
+    /** 实际规划的终点，与持续更新的追踪目标分开保存。 */
+    public BlockPos plannedGoal;
+    public BlockPos navigationNode;
+    public long navigationProgressTick;
+    public double navigationBestDistance = Double.MAX_VALUE;
+    public final Map<BlockPos, Long> unreachableGoals = new java.util.HashMap<>();
+    public UUID unreachableTarget;
+    public long unreachableTargetUntil;
+    public long nextSocialTick;
+    public long patrolUntilTick;
+    public long nextPerceptionTick;
     public BlockPos lastWanderGoal;
     public long motionSequence;
     public FakeSteveMotionPolicy.Lease motionLease;
@@ -101,6 +112,8 @@ public final class FakeSteveAgentState {
     public float crowdStrafe;
     public int idleTicks;
     public long sprintUntilTick;
+    public BlockPos fleeDestination;
+    public long fleeUntilTick;
     public long nextDialogueTick;
     public boolean directedReplyPending;
     public long nextShopTick;

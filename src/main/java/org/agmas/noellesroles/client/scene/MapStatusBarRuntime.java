@@ -1,0 +1,559 @@
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+package org.agmas.noellesroles.client.scene;
+
+import io.wifi.starrailexpress.progression.ProgressionDataManager;
+
+import io.wifi.starrailexpress.cca.AreasWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.game.GameConstants;
+import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.data.MapStatusBarType;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.index.tag.TMMBlockTags;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.*;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
+import org.agmas.noellesroles.content.block.scene.StoveBlock;
+import org.agmas.noellesroles.game.roles.innocence.tailor.TailorClothesHandler;
+import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.init.ModSceneBlocks;
+import org.agmas.noellesroles.packet.MapStatusBarSyncS2CPacket;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
+
+public final class MapStatusBarRuntime {
+    public static final int MAX_VALUE = 20;
+    private static final Map<UUID, State> STATES = new HashMap<>();
+
+    private MapStatusBarRuntime() {
+    }
+
+    public static void tick(ServerLevel level) {
+        MapStatusBarType type = currentStatusBar(level);
+        if (!isGameRunning(level) || type == MapStatusBarType.NONE) {
+            clear(level);
+            return;
+        }
+
+        for (ServerPlayer player : level.players()) {
+            if (!shouldTrack(player)) {
+                remove(player);
+                continue;
+            }
+            State state = STATES.computeIfAbsent(player.getUUID(), id -> new State(type));
+            if (state.type != type) {
+                state.reset(type);
+            }
+            // 污染值初始为0
+            if (type == MapStatusBarType.POLLUTION && state.value == MAX_VALUE && state.lastSyncedValue == -1) {
+                state.set(0);
+            }
+            tickPlayer(level, player, state);
+            if (level.getGameTime() % 20 == 0) {
+                state.sync(player);
+            }
+        }
+
+        Iterator<UUID> iterator = STATES.keySet().iterator();
+        while (iterator.hasNext()) {
+            UUID id = iterator.next();
+            if (level.getServer().getPlayerList().getPlayer(id) == null) {
+                iterator.remove();
+            }
+        }
+    }
+
+    public static void clear(ServerLevel level) {
+        if (STATES.isEmpty()) {
+            return;
+        }
+        for (ServerPlayer player : level.players()) {
+            if (STATES.remove(player.getUUID()) != null) {
+                ServerPlayNetworking.send(player,
+                        new MapStatusBarSyncS2CPacket(MapStatusBarType.NONE, MAX_VALUE, MAX_VALUE));
+            }
+        }
+    }
+
+    public static void addWarmth(ServerPlayer player, int delta) {
+        add(player, MapStatusBarType.WARMTH, delta);
+    }
+
+    public static void addThirst(ServerPlayer player, int delta) {
+        add(player, MapStatusBarType.THIRST, delta);
+    }
+
+    public static void addHunger(ServerPlayer player, int delta) {
+        add(player, MapStatusBarType.HUNGER, delta);
+    }
+
+    public static void addPollution(ServerPlayer player, int delta) {
+        add(player, MapStatusBarType.POLLUTION, delta);
+    }
+
+    // ==================== 指令读写（/sre:state） ====================
+
+    /**
+     * 当前地图配置使用的状态条类型。
+     *
+     * @return 未配置或非服务端时返回 {@link MapStatusBarType#NONE}
+     */
+    public static MapStatusBarType getMapStatusBarType(Level level) {
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return MapStatusBarType.NONE;
+        }
+        return currentStatusBar(serverLevel);
+    }
+
+    /**
+     * 该玩家当前实际使用的状态条类型（运行时追踪的那个）。
+     *
+     * <p>
+     * 玩家还没被追踪时回退到当前地图配置的类型，因此「无论当前处于何种状态」都能拿到一个目标，
+     * 是否真的能读写再由 {@link #getValue} / {@link #setValue} 的返回值判定。
+     */
+    public static MapStatusBarType getTrackedType(ServerPlayer player) {
+        State state = STATES.get(player.getUUID());
+        return state != null ? state.type : getMapStatusBarType(player.level());
+    }
+
+    /**
+     * 读取状态条数值。
+     *
+     * @param type 目标状态条类型
+     * @return 该玩家当前没有此类型的状态条时返回 {@code null}
+     */
+    public static Integer getValue(ServerPlayer player, MapStatusBarType type) {
+        State state = stateOf(player, type);
+        return state == null ? null : state.value;
+    }
+
+    /**
+     * 设置状态条数值（自动夹取到 {@code 0..MAX_VALUE}）并立即同步给客户端。
+     *
+     * <p>
+     * 降到 0 时的死亡判定仍由 {@link #tick(ServerLevel)} 里原有的规则处理，指令不额外做特殊处理。
+     *
+     * @return 该玩家当前没有此类型的状态条时返回 {@code false}
+     */
+    public static boolean setValue(ServerPlayer player, MapStatusBarType type, int value) {
+        State state = stateOf(player, type);
+        if (state == null) {
+            return false;
+        }
+        state.set(value);
+        state.sync(player);
+        return true;
+    }
+
+    /**
+     * 增减状态条数值（超出范围会夹取）并立即同步给客户端。
+     *
+     * @return 该玩家当前没有此类型的状态条时返回 {@code false}
+     */
+    public static boolean addValue(ServerPlayer player, MapStatusBarType type, int delta) {
+        State state = stateOf(player, type);
+        if (state == null) {
+            return false;
+        }
+        state.change(delta);
+        state.sync(player);
+        return true;
+    }
+
+    /** 取该玩家指定类型的状态；类型不符或玩家未被追踪时返回 {@code null}。 */
+    private static State stateOf(ServerPlayer player, MapStatusBarType type) {
+        if (player == null || type == null || type == MapStatusBarType.NONE) {
+            return null;
+        }
+        State state = STATES.get(player.getUUID());
+        return state != null && state.type == type ? state : null;
+    }
+
+    public static void onFinishUsingItem(ItemStack stack, Level level, LivingEntity user) {
+        if (level.isClientSide || !(user instanceof ServerPlayer player)) {
+            return;
+        }
+        if (FoodDrinkGlowComponent.isDrink(stack)) {
+            // 一瓶水恢复10点口渴值，其他饮料恢复4点
+            int amount = stack.is(ModItems.A_BOTTLE_OF_WATER) ? 10 : 4;
+            add(player, MapStatusBarType.THIRST, amount);
+        }
+        FoodProperties food = stack.get(DataComponents.FOOD);
+        if (food != null) {
+            add(player, MapStatusBarType.HUNGER, Math.max(1, food.nutrition()));
+        }
+    }
+
+    private static void add(ServerPlayer player, MapStatusBarType type, int delta) {
+        ServerLevel level = (ServerLevel) player.level();
+        if (!isGameRunning(level) || currentStatusBar(level) != type || !shouldTrack(player)) {
+            return;
+        }
+        State state = STATES.computeIfAbsent(player.getUUID(), id -> new State(type));
+        if (state.type != type) {
+            state.reset(type);
+        }
+        state.change(delta);
+        ProgressionDataManager.onStatusBarRestored(player, type.name(), delta);
+        if (state.value <= 0 && type != MapStatusBarType.POLLUTION) {
+            killByStatus(player, type);
+            STATES.remove(player.getUUID());
+            return;
+        }
+        state.sync(player);
+    }
+
+    private static void tickPlayer(ServerLevel level, ServerPlayer player, State state) {
+        switch (state.type) {
+            case WARMTH -> tickWarmth(level, player, state);
+            case THIRST -> tickThirst(player, state);
+            case HUNGER -> tickHunger(player, state);
+            case POLLUTION -> tickPollution(level, player, state);
+            default -> {
+            }
+        }
+        if (state.value <= 0 && state.type != MapStatusBarType.POLLUTION) {
+            killByStatus(player, state.type);
+            STATES.remove(player.getUUID());
+        }
+    }
+
+    private static void tickWarmth(ServerLevel level, ServerPlayer player, State state) {
+        if (nearLitStove(level, player.blockPosition())) {
+            state.set(MAX_VALUE);
+            state.clearTimers();
+            return;
+        }
+
+        int leatherPieces = leatherArmorPieces(player);
+        boolean protectedFromCold = leatherPieces >= 3;
+        // 身着「裁缝的衣服」时保暖值不再自然下降（恢复照旧）
+        boolean tailorProtected = TailorClothesHandler.isWearingTailorClothes(player);
+        int skyColdInterval = 20 * 20 * Math.max(1, leatherPieces + 1);
+        int groundColdInterval = 15 * 20 * Math.max(1, leatherPieces + 1);
+        boolean canSeeSky = level.canSeeSky(player.blockPosition());
+        boolean inPowderSnow = level.getBlockState(player.blockPosition()).is(Blocks.POWDER_SNOW);
+
+        // 看得见天空: 每20秒下降1点（皮甲会减速）
+        if (canSeeSky && !protectedFromCold && !tailorProtected) {
+            if (++state.skyTicks >= skyColdInterval) {
+                state.skyTicks = 0;
+                state.change(-1);
+            }
+            state.indoorTicks = 0;
+        } else if (!canSeeSky) {
+            state.skyTicks = 0;
+            if (++state.indoorTicks >= 10 * 20) {
+                state.indoorTicks = 0;
+                state.change(1);
+            }
+        }
+
+        if (inPowderSnow && leatherPieces == 0 && !tailorProtected) {
+            if (++state.powderSnowTicks >= 2 * 20) {
+                state.powderSnowTicks = 0;
+                state.change(-1);
+            }
+        } else {
+            state.powderSnowTicks = 0;
+        }
+
+        // 站在冰/蓝冰/浮冰/雪/雪块上: 每15秒下降1点（皮甲会减速，3件以上免疫）
+        if (isColdGround(level.getBlockState(player.blockPosition().below())) && !protectedFromCold && !tailorProtected) {
+            if (++state.blockTicks >= groundColdInterval) {
+                state.blockTicks = 0;
+                state.change(-1);
+            }
+        } else {
+            state.blockTicks = 0;
+        }
+    }
+
+    private static void tickThirst(ServerPlayer player, State state) {
+        // 露天下: 每25秒下降1点（会积累）
+        if (player.level().canSeeSky(player.blockPosition())) {
+            if (++state.skyTicks >= 25 * 20) {
+                state.skyTicks = 0;
+                state.change(-1);
+            }
+        } else {
+            state.skyTicks = 0;
+        }
+        // 疾跑消耗: 每30秒下降1点
+        if (isSpendingSprint(player)) {
+            if (++state.sprintTicks >= 30 * 20) {
+                state.sprintTicks = 0;
+                state.change(-1);
+            }
+        } else {
+            state.sprintTicks = 0;
+        }
+        // 在水中恢复口渴值
+        if (player.isInWater() || player.isUnderWater()) {
+            if (++state.waterTicks >= 20 * 20) {
+                state.waterTicks = 0;
+                state.change(1);
+            }
+        } else {
+            state.waterTicks = 0;
+        }
+    }
+
+    private static void tickHunger(ServerPlayer player, State state) {
+        if (++state.passiveTicks >= 90 * 20) {
+            state.passiveTicks = 0;
+            state.change(-2);
+        }
+        if (isSpendingSprint(player)) {
+            if (++state.sprintTicks >= 20 * 20) {
+                state.sprintTicks = 0;
+                state.change(-2);
+            }
+        } else {
+            state.sprintTicks = 0;
+        }
+    }
+
+    private static void tickPollution(ServerLevel level, ServerPlayer player, State state) {
+        // 污染值从0开始，逐渐增长（与口渴/保暖值方向相反）
+        boolean inWater = player.isInWater() || player.isUnderWater();
+        // 下雨时：列车内部也有顶棚，canSeeSky 会恒为 false 导致雨天污染从不增加，
+        // 因此这里只判断世界是否处于下雨状态，让雨天污染正常累积。
+        boolean inRain = level.isRaining();
+
+        // 泡在水中: 每15秒增加1点
+        if (inWater) {
+            if (++state.waterTicks >= 15 * 20) {
+                state.waterTicks = 0;
+                state.change(1);
+            }
+        } else {
+            state.waterTicks = 0;
+        }
+        // 下雨时: 每8秒增加1点
+        if (inRain) {
+            if (++state.skyTicks >= 8 * 20) {
+                state.skyTicks = 0;
+                state.change(1);
+            }
+        } else {
+            state.skyTicks = 0;
+        }
+        // 站在淋浴头下: 每2.5秒降低1点
+        if (isNearSprinkler(level, player)) {
+            if (++state.blockTicks >= 50) { // 2.5秒 = 50tick
+                state.blockTicks = 0;
+                state.change(-1);
+            }
+        } else {
+            state.blockTicks = 0;
+        }
+
+        // 污染值满时效果
+        if (state.value >= MAX_VALUE) {
+            // 每秒降低0.05心情值（仅真实心情角色；假心情不受影响）
+            if (++state.indoorTicks >= 20) {
+                state.indoorTicks = 0;
+                var game = SREGameWorldComponent.KEY.get(level);
+                var role = game.getRole(player);
+                if (role != null && role.getMoodType() == SRERole.MoodType.REAL) {
+                    var mood = SREPlayerMoodComponent.KEY.get(player);
+                    if (mood != null) {
+                        mood.setMood(Math.max(0, mood.getMood() - 0.05f));
+                    }
+                }
+            }
+            // 每5秒检查并施加缓慢1 + 失明2（效果持续6秒，保证不中断）
+            if (++state.passiveTicks >= 100) {
+                state.passiveTicks = 0;
+                player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 120, 0, false, false, true));
+                player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 120, 1, false, false, true));
+            }
+        } else {
+            state.indoorTicks = 0;
+            state.passiveTicks = 0;
+        }
+    }
+
+    private static boolean shouldTrack(ServerPlayer player) {
+        if (!GameUtils.isPlayerAliveAndSurvival(player)
+                || player.gameMode.getGameModeForPlayer() != GameType.ADVENTURE) {
+            return false;
+        }
+        // 污染值：杀手阵营不追踪
+        MapStatusBarType type = currentStatusBar((ServerLevel) player.level());
+        if (type == MapStatusBarType.POLLUTION) {
+            var game = SREGameWorldComponent.KEY.get(player.level());
+            if (game != null && game.isKillerTeam(player.getUUID())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static void remove(ServerPlayer player) {
+        if (STATES.remove(player.getUUID()) != null) {
+            ServerPlayNetworking.send(player,
+                    new MapStatusBarSyncS2CPacket(MapStatusBarType.NONE, MAX_VALUE, MAX_VALUE));
+        }
+    }
+
+    private static MapStatusBarType currentStatusBar(ServerLevel level) {
+        var areas = AreasWorldComponent.KEY.get(level);
+        if (areas == null) return MapStatusBarType.NONE;
+        MapStatusBarType type = areas.areasSettings.mapStatusBar;
+        return type == null ? MapStatusBarType.NONE : type;
+    }
+
+    private static boolean isGameRunning(ServerLevel level) {
+        return SREGameWorldComponent.KEY.get(level).isRunning();
+    }
+
+    private static boolean isColdGround(BlockState state) {
+        return state.is(Blocks.ICE) || state.is(Blocks.PACKED_ICE) || state.is(Blocks.BLUE_ICE)
+                || state.is(Blocks.SNOW) || state.is(Blocks.SNOW_BLOCK);
+    }
+
+    private static int leatherArmorPieces(ServerPlayer player) {
+        int count = 0;
+        if (player.getItemBySlot(EquipmentSlot.HEAD).is(Items.LEATHER_HELMET))
+            count++;
+        if (player.getItemBySlot(EquipmentSlot.CHEST).is(Items.LEATHER_CHESTPLATE))
+            count++;
+        if (player.getItemBySlot(EquipmentSlot.LEGS).is(Items.LEATHER_LEGGINGS))
+            count++;
+        if (player.getItemBySlot(EquipmentSlot.FEET).is(Items.LEATHER_BOOTS))
+            count++;
+        return count;
+    }
+
+    private static boolean nearLitStove(ServerLevel level, BlockPos center) {
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        for (int x = -3; x <= 3; x++) {
+            for (int y = -2; y <= 2; y++) {
+                for (int z = -3; z <= 3; z++) {
+                    pos.set(center.getX() + x, center.getY() + y, center.getZ() + z);
+                    BlockState state = level.getBlockState(pos);
+                    if (state.is(ModSceneBlocks.STOVE) && state.hasProperty(StoveBlock.LIT)
+                            && state.getValue(StoveBlock.LIT)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean isSpendingSprint(ServerPlayer player) {
+        Vec3 movement = player.getDeltaMovement();
+        return player.isSprinting() && movement.x * movement.x + movement.z * movement.z > 0.01D;
+    }
+
+    /** 检查玩家是否在淋浴头下方（参考洗澡任务的检测方式） */
+    private static boolean isNearSprinkler(ServerLevel level, ServerPlayer player) {
+        BlockPos playerPos = player.blockPosition();
+        for (int y = 0; y < 4; y++) {
+            if (level.getBlockState(playerPos.above(y)).is(TMMBlockTags.SPRINKLERS)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void killByStatus(ServerPlayer player, MapStatusBarType type) {
+        switch (type) {
+            case WARMTH -> GameUtils.forceKillPlayer(player, true, null, GameConstants.DeathReasons.FROZEN);
+            case THIRST -> GameUtils.forceKillPlayer(player, true, null, GameConstants.DeathReasons.THIRST);
+            case HUNGER -> GameUtils.forceKillPlayer(player, true, null, GameConstants.DeathReasons.STARVED);
+            default -> {
+            }
+        }
+    }
+
+    private static final class State {
+        private MapStatusBarType type;
+        private int value = MAX_VALUE;
+        private int lastSyncedValue = -1;
+        private MapStatusBarType lastSyncedType = null;
+        private int skyTicks;
+        private int blockTicks;
+        private int indoorTicks;
+        private int powderSnowTicks;
+        private int passiveTicks;
+        private int sprintTicks;
+        private int waterTicks;
+
+        private State(MapStatusBarType type) {
+            this.type = type;
+        }
+
+        private void reset(MapStatusBarType type) {
+            this.type = type;
+            this.value = type == MapStatusBarType.POLLUTION ? 0 : MAX_VALUE;
+            this.lastSyncedValue = -1;
+            this.lastSyncedType = null;
+            clearTimers();
+        }
+
+        private void clearTimers() {
+            skyTicks = 0;
+            blockTicks = 0;
+            indoorTicks = 0;
+            powderSnowTicks = 0;
+            passiveTicks = 0;
+            sprintTicks = 0;
+            waterTicks = 0;
+        }
+
+        private void change(int delta) {
+            set(value + delta);
+        }
+
+        private void set(int value) {
+            this.value = Math.max(0, Math.min(MAX_VALUE, value));
+        }
+
+        private void sync(ServerPlayer player) {
+            if (lastSyncedType == type && lastSyncedValue == value) {
+                return;
+            }
+            lastSyncedType = type;
+            lastSyncedValue = value;
+            ServerPlayNetworking.send(player, new MapStatusBarSyncS2CPacket(type, value, MAX_VALUE));
+        }
+    }
+}

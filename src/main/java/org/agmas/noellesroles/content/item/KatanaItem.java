@@ -3,12 +3,10 @@ package org.agmas.noellesroles.content.item;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.item.UseAnim;
@@ -20,9 +18,9 @@ import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import org.agmas.noellesroles.katana.KatanaCombat;
-import org.agmas.noellesroles.katana.KatanaState;
-import org.agmas.noellesroles.katana.KatanaState;
+import org.agmas.noellesroles.content.item.katana.client.KatanaClientState;
+import org.agmas.noellesroles.content.item.katana.KatanaCombat;
+import org.agmas.noellesroles.content.item.katana.KatanaState;
 
 import java.util.List;
 
@@ -93,7 +91,7 @@ public class KatanaItem extends Item
         }
         if (level.isClientSide) {
             // 客户端：根据服务端同步的格挡内置冷却预判（实体事件 120/121）
-            if (org.agmas.noellesroles.katana.client.KatanaClientState.isOnBlockCooldown(player)) {
+            if (KatanaClientState.isOnBlockCooldown(player)) {
                 return InteractionResultHolder.fail(stack);
             }
         } else {

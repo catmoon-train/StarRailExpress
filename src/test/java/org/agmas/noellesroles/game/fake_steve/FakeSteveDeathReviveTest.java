@@ -9,17 +9,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FakeSteveDeathReviveTest {
     @Test
-    void waitsThirtyFiveSecondsAndHasExactlyFifteenPercentChance() {
+    void waitsThirtyFiveSecondsAndHasExactlyTenPercentChance() {
         assertEquals(700L, FakeSteveRules.DEATH_REVIVE_DELAY_TICKS);
-        assertEquals(15, FakeSteveRules.DEATH_REVIVE_CHANCE_PERCENT);
+        assertEquals(10, FakeSteveRules.DEATH_REVIVE_CHANCE_PERCENT);
         int successes = 0;
         for (int roll = 0; roll < 100; roll++) {
             if (FakeSteveRules.shouldReviveAfterDeath(roll)) successes++;
         }
-        assertEquals(15, successes);
+        assertEquals(10, successes);
         assertFalse(FakeSteveRules.shouldReviveAfterDeath(-1));
-        assertTrue(FakeSteveRules.shouldReviveAfterDeath(14));
-        assertFalse(FakeSteveRules.shouldReviveAfterDeath(15));
+        assertTrue(FakeSteveRules.shouldReviveAfterDeath(9));
+        assertFalse(FakeSteveRules.shouldReviveAfterDeath(10));
         assertFalse(FakeSteveRules.shouldReviveAfterDeath(100));
     }
 

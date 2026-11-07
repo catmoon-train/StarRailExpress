@@ -26,10 +26,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.content.entity.YouluSmokeBallEntity;
-import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.YouluCamPosC2SPacket;
 import org.agmas.noellesroles.packet.YouluFreeCamCancelC2SPacket;
 
@@ -46,8 +43,6 @@ import org.agmas.noellesroles.packet.YouluFreeCamCancelC2SPacket;
  *   <li>每 4 tick 向服务端上报当前相机位置，供第二次按 G 生成球烟。</li>
  * </ul>
  *
- * <p>另外维护「本地玩家是否处于某个球烟内」的每 tick 缓存，供雾色染黑 mixin 查询
- * （见 {@code YouluFogColorMixin}）。
  */
 @Environment(EnvType.CLIENT)
 public final class YouluFreeCamClient {
@@ -63,8 +58,6 @@ public final class YouluFreeCamClient {
     private static Vec3 camPos = Vec3.ZERO;
     private static int reportTimer = 0;
 
-    /** 本地玩家当前是否处于球烟内（每 tick 刷新，供雾色 mixin 查询）。 */
-    private static boolean insideSmokeBall = false;
 
     private YouluFreeCamClient() {
     }
@@ -73,10 +66,9 @@ public final class YouluFreeCamClient {
         return active;
     }
 
-    /** 供雾色 mixin 查询：本地玩家处于球烟内且带视野迷雾时，雾变为黑色。 */
+    /** 供雾色与事件光照查询：以相机位置实时判定幽露实体烟。 */
     public static boolean shouldBlackenFog() {
-        Minecraft client = Minecraft.getInstance();
-        return insideSmokeBall && client.player != null && client.player.hasEffect(ModEffects.VISION_FOG);
+        return YouluSmokeClient.isCameraInsideSmoke();
     }
 
     /** 服务端通知进入自由摄像机。 */
@@ -98,7 +90,6 @@ public final class YouluFreeCamClient {
 
     /** 客户端每 tick 调用（注册于 NoellesrolesClient 的 client tick）。 */
     public static void tick(Minecraft client) {
-        tickSmokeBallCache(client);
         if (!active) return;
         LocalPlayer player = client.player;
         if (player == null || client.level == null) {
@@ -164,18 +155,4 @@ public final class YouluFreeCamClient {
         return InputConstants.isKeyDown(client.getWindow().getWindow(), key.getValue());
     }
 
-    /** 刷新「本地玩家是否处于球烟内」缓存。 */
-    private static void tickSmokeBallCache(Minecraft client) {
-        insideSmokeBall = false;
-        if (client.player == null || client.level == null) return;
-        Vec3 eye = client.player.getEyePosition();
-        double scan = 12.0D;
-        var box = client.player.getBoundingBox().inflate(scan);
-        for (YouluSmokeBallEntity ball : client.level.getEntitiesOfClass(YouluSmokeBallEntity.class, box)) {
-            if (ball.contains(eye)) {
-                insideSmokeBall = true;
-                return;
-            }
-        }
-    }
 }

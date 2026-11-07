@@ -28,7 +28,7 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import org.agmas.noellesroles.scene.MapStatusBarRuntime;
+import org.agmas.noellesroles.client.scene.MapStatusBarRuntime;
 
 import java.util.Arrays;
 import java.util.Collection;

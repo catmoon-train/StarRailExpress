@@ -31,7 +31,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import org.agmas.noellesroles.content.block.scene.FlamethrowerBlock;
 import org.agmas.noellesroles.init.ModSceneBlocks;
-import org.agmas.noellesroles.scene.SceneEventManager;
+import org.agmas.noellesroles.client.scene.SceneEventManager;
 
 import java.util.List;
 

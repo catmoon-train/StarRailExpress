@@ -40,7 +40,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.spear.SpearAnim;
+import org.agmas.noellesroles.content.item.spear.SpearAnim;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;

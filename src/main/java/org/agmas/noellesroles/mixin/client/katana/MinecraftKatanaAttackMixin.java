@@ -3,7 +3,7 @@ package org.agmas.noellesroles.mixin.client.katana;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.katana.client.KatanaClientState;
+import org.agmas.noellesroles.content.item.katana.client.KatanaClientState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;

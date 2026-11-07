@@ -344,7 +344,9 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
     }
 
     public boolean stopPsycho() {
-        return stopPsycho(true);
+        boolean result = stopPsycho(true);
+        io.wifi.starrailexpress.event.GameplayExtensionEvents.PSYCHO_STOPPED.invoker().accept(getPlayer());
+        return result;
     }
 
     public boolean stopPsycho(boolean refresh) {
@@ -377,6 +379,7 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
         }
         if (refresh)
             gameWorldComponent.refreshPsychoCount(true);
+        io.wifi.starrailexpress.event.GameplayExtensionEvents.PSYCHO_STOPPED.invoker().accept(getPlayer());
         return true;
     }
 

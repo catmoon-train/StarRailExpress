@@ -28,6 +28,7 @@ import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.event.AllowPlayerWin;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.event.OnKillPlayerTriggered;
+import io.wifi.starrailexpress.event.OnRoleSkillUse;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
@@ -45,6 +46,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
@@ -85,6 +87,9 @@ public final class FakeSteveDirector {
 
         OnGameEnd.EVENT.register((level, game) -> clear(level));
         ServerTickEvents.END_WORLD_TICK.register(FakeSteveDirector::tick);
+        // 手控只开放身体，不把原职业技能还给玩家（包括忽略技能禁用效果的调用路径）。
+        OnRoleSkillUse.BEFORE.register((player, role) -> !isReplaced(player)
+                || !(player instanceof ServerPlayer serverPlayer) || !isManualControl(serverPlayer));
 
         OnKillPlayerTriggered.EVENT.register((victim, spawnBody, killer, reason, force) -> {
             if (!(victim instanceof ServerPlayer serverPlayer)) {
@@ -103,17 +108,27 @@ public final class FakeSteveDirector {
             return TrueFalseResult.PASS;
         });
 
-        // 最终死亡回调才登记，避免护盾拦截或假死触发；每名玩家每局只给一次机会。
+        // 只在最终真实死亡后排队；不可在死亡调用栈中复活，后续仍可能写回死亡状态。
         OnPlayerDeathWithKiller.FINAL_EVENT.register((victim, killer, reason) -> {
-            if (!(victim instanceof ServerPlayer player) || !isReallyDead(player) || isReplaced(player)) {
+            if (!(victim instanceof ServerPlayer player) || !isReallyDead(player)) {
                 return;
             }
             ServerLevel level = player.serverLevel();
             Session session = session(level);
-            if (session != null && session.active && !session.victoryDeclared
-                    && canGenerate(level) && isRoundAcceptingCommands(level)
-                    && SREGameWorldComponent.KEY.get(level).getRole(player) != null
-                    && session.deathReviveAttempted.add(player.getUUID())) {
+            if (session == null) return;
+            if (isReplaced(player)) {
+                finishManualControl(player, session, true);
+                return;
+            }
+            if (!session.active || session.victoryDeclared || !canGenerate(level)
+                    || !isRoundAcceptingCommands(level)
+                    || SREGameWorldComponent.KEY.get(level).getRole(player) == null) return;
+            if (killer != null && killer != player && killer.level() == level && isReplaced(killer)) {
+                session.pendingDeathRevives.remove(player.getUUID());
+                session.deathReviveAttempted.add(player.getUUID());
+                session.pendingInfections.putIfAbsent(player.getUUID(),
+                        new PendingInfection(player, player.position(), level.getGameTime() + 1L));
+            } else if (session.deathReviveAttempted.add(player.getUUID())) {
                 session.pendingDeathRevives.put(player.getUUID(),
                         level.getGameTime() + FakeSteveRules.DEATH_REVIVE_DELAY_TICKS);
             }
@@ -123,6 +138,10 @@ public final class FakeSteveDirector {
             Session session = session(level);
             if (session == null || !session.active || session.victoryDeclared) {
                 return GameUtils.WinStatus.NOT_MODIFY;
+            }
+            // 给下一 tick 的感染转换留下机会；超时结算仍可正常结束本局。
+            if (!session.pendingInfections.isEmpty() && proposed != GameUtils.WinStatus.TIME) {
+                return GameUtils.WinStatus.NONE;
             }
             if (!session.huntPhase && shouldStartHunt(level, session)) {
                 startHunt(level, session);
@@ -196,11 +215,13 @@ public final class FakeSteveDirector {
     /** 按当前存活人数重建本局的 {@link Session}（未激活），返回新实例。 */
     private static Session resetSession(ServerLevel level) {
         int startingPlayers = (int) level.getPlayers((p) -> GameUtils.isPlayerAliveAndSurvival(p)).stream().count();
-        Session session = new Session(startingPlayers);
+        Session session = new Session(level, startingPlayers);
         Session previous = SESSIONS.put(level.dimension().location(), session);
         if (previous != null) {
             previous.pendingDeathRevives.clear();
             previous.deathReviveAttempted.clear();
+            previous.pendingInfections.clear();
+            clearSessionControls(level, previous);
         }
         return session;
     }
@@ -225,6 +246,20 @@ public final class FakeSteveDirector {
     public static boolean isHuntPhase(ServerLevel level) {
         Session session = session(level);
         return session != null && session.huntPhase;
+    }
+
+    /** 最终狩猎中伪人对人类的有效攻击统一强杀，AI 与手控共用。 */
+    public static boolean isForcedHuntAttack(Player attacker, Player victim) {
+        if (!(attacker instanceof ServerPlayer fake) || !(victim instanceof ServerPlayer human)
+                || fake == human || fake.serverLevel() != human.serverLevel()
+                || !GameUtils.isPlayerAliveAndSurvival(fake) || !GameUtils.isPlayerAliveAndSurvival(human)
+                || !isReplaced(fake) || isReplaced(human)) {
+            return false;
+        }
+        ServerLevel level = fake.serverLevel();
+        Session session = session(level);
+        return session != null && session.active && session.huntPhase && !session.victoryDeclared
+                && canGenerate(level) && isRoundAcceptingCommands(level) && !MeetingManager.isActive();
     }
 
     public static boolean activate(ServerLevel level, ActivationSource source) {
@@ -307,6 +342,8 @@ public final class FakeSteveDirector {
         // 不再依赖 A*（见 FakeSteveAi#driveTrail），也就不会再卡在原地转圈。
         FakeSteveTrailRecorder.capture(player, agentState);
         session.agents.put(player.getUUID(), agentState);
+        session.manualControls.put(player.getUUID(), new FakeSteveManualControl());
+        player.sendSystemMessage(Component.translatable("message.noellesroles.fake_steve.control.hint"));
         applyControl(player);
         checkVictory(player.serverLevel(), session);
         return true;
@@ -315,6 +352,75 @@ public final class FakeSteveDirector {
     public static boolean isReplaced(Player player) {
         return player != null && WorldModifierComponent.KEY.get(player.level())
                 .isModifier(player, NRModifiers.FAKE_STEVE_REPLACED);
+    }
+
+    /** 服务端唯一的手控放行条件；网络输入不能靠客户端效果或自报状态取得控制权。 */
+    public static boolean isManualControl(ServerPlayer player) {
+        Session session = session(player.serverLevel());
+        FakeSteveManualControl control = session == null ? null : session.manualControls.get(player.getUUID());
+        return session != null && session.active && !session.victoryDeclared
+                && canGenerate(player.serverLevel()) && isRoundAcceptingCommands(player.serverLevel())
+                && !MeetingManager.isActive() && GameUtils.isPlayerAliveAndSurvival(player)
+                && isReplaced(player) && control != null && control.isActive(player.serverLevel().getGameTime());
+    }
+
+    /** 返回 true 表示已消费伪人的技能输入，失败、冷却中或死亡时也不得落到原职业技能。 */
+    public static boolean handleAbilityInput(ServerPlayer player) {
+        if (!isReplaced(player)) return false;
+        ServerLevel level = player.serverLevel();
+        Session session = session(level);
+        if (session == null || !session.active || session.victoryDeclared || !canGenerate(level)
+                || !isRoundAcceptingCommands(level) || MeetingManager.isActive()
+                || !GameUtils.isPlayerAliveAndSurvival(player) || !session.agents.containsKey(player.getUUID())) {
+            player.displayClientMessage(Component.translatable("message.noellesroles.fake_steve.control.unavailable"), true);
+            return true;
+        }
+        long now = level.getGameTime();
+        FakeSteveManualControl control = session.manualControls.get(player.getUUID());
+        if (control == null) return true;
+        if (control.hasControl() && !control.isActive(now)) finishManualControl(player, session, false);
+        if (control.isActive(now)) {
+            player.displayClientMessage(Component.translatable("message.noellesroles.fake_steve.control.active",
+                    (control.remainingTicks(now) + 19L) / 20L), true);
+        } else if (!control.start(now)) {
+            player.displayClientMessage(Component.translatable("message.noellesroles.fake_steve.control.cooldown",
+                    (control.cooldownTicks(now) + 19L) / 20L), true);
+        } else {
+            FakeSteveMotionController.clear(player, session.agents.get(player.getUUID()));
+            applyManualControl(player);
+            player.displayClientMessage(Component.translatable("message.noellesroles.fake_steve.control.started"), true);
+        }
+        return true;
+    }
+
+    private static void finishManualControl(ServerPlayer player, Session session, boolean cancelled) {
+        FakeSteveManualControl control = session.manualControls.get(player.getUUID());
+        long now = session.level.getGameTime();
+        if (control == null || !control.finish(now)) return;
+        FakeSteveAgentState state = session.agents.get(player.getUUID());
+        FakeSteveMotionController.clear(player, state);
+        if (state != null) {
+            state.path.clear();
+            state.pathGoal = null;
+            state.nextPathTick = now;
+            FakeSteveAi.resetStuckTracking(player, state, now);
+        }
+        if (GameUtils.isPlayerAliveAndSurvival(player) && player.serverLevel() == session.level) applyControl(player);
+        else removeControl(player);
+        player.displayClientMessage(Component.translatable(cancelled
+                ? "message.noellesroles.fake_steve.control.cancelled"
+                : "message.noellesroles.fake_steve.control.ended"), true);
+    }
+
+    /** 仅身体交还给玩家；技能禁用保留，以阻断原职业的专用发包入口。 */
+    private static void applyManualControl(ServerPlayer player) {
+        player.removeEffect(ModEffects.MOVE_BANED);
+        player.removeEffect(ModEffects.USED_BANED);
+        player.removeEffect(ModEffects.INVENTORY_BANED);
+        player.removeEffect(ModEffects.TURN_BANED);
+        player.removeEffect(ModEffects.VOICE_SILENCE);
+        player.removeEffect(ModEffects.CHAT_BAN);
+        addControl(player, ModEffects.SKILL_BANED);
     }
 
     public static int pendingEvents(ServerLevel level) {
@@ -351,6 +457,33 @@ public final class FakeSteveDirector {
         return player.isSpectator() && !GameUtils.isPlayerAliveAndSurvival(player);
     }
 
+    /** 当前局下一 tick 在死亡位置复活并感染，AI 与手控击杀共用同一最终死亡入口。 */
+    private static void tickInfections(ServerLevel level, Session session) {
+        if (session(level) != session || !session.active || session.victoryDeclared
+                || !canGenerate(level) || !isRoundAcceptingCommands(level) || MeetingManager.isActive()) {
+            session.pendingInfections.clear();
+            return;
+        }
+        for (UUID id : Set.copyOf(session.pendingInfections.keySet())) {
+            PendingInfection pending = session.pendingInfections.get(id);
+            ServerPlayer player = level.getServer().getPlayerList().getPlayer(id);
+            if (player != pending.player() || player.serverLevel() != level || !isReallyDead(player)
+                    || isReplaced(player) || SREGameWorldComponent.KEY.get(level).getRole(player) == null) {
+                session.pendingInfections.remove(id);
+                continue;
+            }
+            if (level.getGameTime() < pending.dueTick()) continue;
+            session.pendingInfections.remove(id);
+            Vec3 pos = pending.position();
+            GameUtils.revivePlayer(player, pos.x, pos.y, pos.z);
+            if (session(level) != session || session.victoryDeclared || !isRoundAcceptingCommands(level)
+                    || !GameUtils.isPlayerAliveAndSurvival(player)) continue;
+            clearPlayerBodies(level, player);
+            if (replace(player, ReplacementCause.INFECTION)) {
+                player.sendSystemMessage(Component.translatable("message.noellesroles.fake_steve.infected"));
+            }
+        }
+    }
     /** 仅推进当前局的计时；提前复活、离线或换世界即作废，结算后不重复掷骰。 */
     private static void tickDeathRevives(ServerLevel level, Session session) {
         if (session(level) != session || !session.active || session.victoryDeclared
@@ -372,10 +505,10 @@ public final class FakeSteveDirector {
         }
     }
 
-    /** 35 秒后仍真正死亡时按 15% 概率在自己房间复活并被伪人夺舍；上下文变化均取消。 */
+    /** 35 秒后仍真正死亡时按 10% 概率在自己房间复活并被伪人夺舍；上下文变化均取消。 */
     private static void tryReviveDeadPlayer(ServerLevel level, Session session, ServerPlayer player) {
         if (session(level) != session || !session.active || session.victoryDeclared
-                || !canGenerate(level) || !isRoundAcceptingCommands(level)
+                || !canGenerate(level) || !isRoundAcceptingCommands(level) || MeetingManager.isActive()
                 || player.serverLevel() != level || !isReallyDead(player) || isReplaced(player)
                 || SREGameWorldComponent.KEY.get(level).getRole(player) == null) {
             return;
@@ -417,14 +550,19 @@ public final class FakeSteveDirector {
             session.pendingEvents = 0;
             // 事件已不可生成：丢弃待处理的死亡复活计时，避免跨局残留。
             session.pendingDeathRevives.clear();
+            session.pendingInfections.clear();
             FakeSteveApparitions.cancelAll(level);
         }
         if (!generating || !session.active || session.victoryDeclared
                 || SREGameWorldComponent.KEY.get(level).getGameStatus() != SREGameWorldComponent.GameStatus.ACTIVE) {
             // 本局尚未开始或已经结束：计时器一律作废。
             session.pendingDeathRevives.clear();
+            session.pendingInfections.clear();
+            clearSessionControls(level, session);
             return;
         }
+        tickInfections(level, session);
+        if (session(level) != session || session.victoryDeclared || !isRoundAcceptingCommands(level)) return;
         tickDeathRevives(level, session);
 
         if (generating) {
@@ -437,8 +575,18 @@ public final class FakeSteveDirector {
         }
         for (UUID id : Set.copyOf(session.agents.keySet())) {
             ServerPlayer player = level.getServer().getPlayerList().getPlayer(id);
+            FakeSteveManualControl control = session.manualControls.get(id);
             if (player == null || player.serverLevel() != level) {
+                if (control != null && control.hasControl()) {
+                    if (player != null) finishManualControl(player, session, true);
+                    else control.finish(level.getGameTime());
+                }
                 continue;
+            }
+            if (control != null && control.hasControl()
+                    && (!control.isActive(level.getGameTime()) || MeetingManager.isActive()
+                            || !GameUtils.isPlayerAliveAndSurvival(player))) {
+                finishManualControl(player, session, control.isActive(level.getGameTime()));
             }
             if (GameUtils.isPlayerAliveAndSurvival(player)) {
                 // 会议期间：伪人作为参会者坐在自己的席位上，AI 完全暂停（不移动、不行为、
@@ -446,20 +594,24 @@ public final class FakeSteveDirector {
                 if (MeetingManager.isActive()) {
                     applyControl(player);
                     FakeSteveMotionController.clear(player, session.agents.get(id));
-                    // 卡住追踪每 tick 重置：坐在位置上不动不该被累计成卡住，
-                    // 也不会在散会瞬间因为「一整场会议没动」触发保底传送。
+                    // 会议静止不计入 AI 卡住时长，散会后重新开始追踪。
                     FakeSteveAi.resetStuckTracking(player, session.agents.get(id), level.getGameTime());
                     continue;
                 }
                 if (session.huntPhase) {
                     enforcePermanentPsycho(player);
                 }
+                if (isManualControl(player)) {
+                    applyManualControl(player);
+                    if (level.getGameTime() % 20L == 0L) {
+                        player.displayClientMessage(Component.translatable("message.noellesroles.fake_steve.control.active",
+                                (control.remainingTicks(level.getGameTime()) + 19L) / 20L), true);
+                    }
+                    continue;
+                }
                 applyControl(player);
                 FakeSteveMotionController.applyServerMotion(player, session.agents.get(id));
                 FakeSteveAi.tick(level, player, session.agents.get(id));
-                // 最后一层保底：连续 12 秒位置都没变化超过 2 格，直接传送回可用的记录路径点。
-                // 放在 tick 之后，这样无论本 tick 走的是哪条行为分支都会被覆盖。
-                FakeSteveAi.rescueIfStuck(level, player, session.agents.get(id));
             } else {
                 FakeSteveMotionController.clear(player, session.agents.get(id));
                 removeControl(player);
@@ -506,6 +658,8 @@ public final class FakeSteveDirector {
         if (removed != null) {
             removed.pendingDeathRevives.clear();
             removed.deathReviveAttempted.clear();
+            removed.pendingInfections.clear();
+            removed.manualControls.clear();
             for (UUID id : removed.agents.keySet()) {
                 ServerPlayer player = level.getServer().getPlayerList().getPlayer(id);
                 if (player != null) {
@@ -515,6 +669,19 @@ public final class FakeSteveDirector {
                         player.removeEffect(MobEffects.MOVEMENT_SPEED);
                     }
                 }
+            }
+        }
+    }
+
+    private static void clearSessionControls(ServerLevel level, Session session) {
+        if (session.manualControls.isEmpty()) return;
+        session.manualControls.clear();
+        for (UUID id : session.agents.keySet()) {
+            ServerPlayer player = level.getServer().getPlayerList().getPlayer(id);
+            if (player != null) {
+                FakeSteveMotionController.clear(player, session.agents.get(id));
+                removeControl(player);
+                if (session.huntPhase) player.removeEffect(MobEffects.MOVEMENT_SPEED);
             }
         }
     }
@@ -537,11 +704,12 @@ public final class FakeSteveDirector {
                 count++;
             }
         }
-        return new Session(count);
+        return new Session(level, count);
     }
 
     private static Session session(ServerLevel level) {
-        return level == null ? null : SESSIONS.get(level.dimension().location());
+        Session session = level == null ? null : SESSIONS.get(level.dimension().location());
+        return session != null && session.level == level ? session : null;
     }
 
     private static int livingFakeCount(ServerLevel level) {
@@ -596,7 +764,7 @@ public final class FakeSteveDirector {
     }
 
     private static void checkVictory(ServerLevel level, Session session) {
-        if (session.victoryDeclared) {
+        if (session.victoryDeclared || !session.pendingInfections.isEmpty()) {
             return;
         }
         if (!session.huntPhase && shouldStartHunt(level, session)) {
@@ -703,8 +871,13 @@ public final class FakeSteveDirector {
                 java.util.OptionalInt.of(ModRoles.FAKE_STEVE.color()));
     }
 
+    private record PendingInfection(ServerPlayer player, Vec3 position, long dueTick) {
+    }
     private static final class Session {
         private final int startingPlayers;
+        private final ServerLevel level;
+        private final Map<UUID, FakeSteveManualControl> manualControls = new HashMap<>();
+        private final Map<UUID, PendingInfection> pendingInfections = new HashMap<>();
         private final Map<UUID, FakeSteveAgentState> agents = new HashMap<>();
         /** 只属于当前 Session，局末/重开丢弃，不能跨局执行。 */
         private final Map<UUID, Long> pendingDeathRevives = new HashMap<>();
@@ -716,7 +889,8 @@ public final class FakeSteveDirector {
         private int pendingEvents;
         private ActivationSource activationSource;
 
-        private Session(int startingPlayers) {
+        private Session(ServerLevel level, int startingPlayers) {
+            this.level = level;
             this.startingPlayers = Math.max(0, startingPlayers);
         }
     }

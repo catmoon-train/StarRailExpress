@@ -17,6 +17,7 @@ package io.wifi.starrailexpress.util;
 
 import io.wifi.starrailexpress.cca.SREPlayerMinigameTaskComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.event.ShopEvents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
@@ -110,6 +111,7 @@ public class ShopEntry extends dev.doctor4t.wathe.util.ShopEntry {
     }
 
     public boolean canBuy(@NotNull Player player) {
+        if (!ShopEvents.ALLOW_BUY.invoker().allow(player, this)) return false;
         if (this.stack().isEmpty())
             return false;
         return true;
@@ -143,7 +145,7 @@ public class ShopEntry extends dev.doctor4t.wathe.util.ShopEntry {
 
             @Override
             public String iconText() {
-                return "\uE781";
+                return "\uF6A8";
             }
         },
         MINIGAME_TOKEN("minigame_token", "gui.vendingmachine.minigame_token_display",
@@ -155,7 +157,7 @@ public class ShopEntry extends dev.doctor4t.wathe.util.ShopEntry {
 
             @Override
             public String iconText() {
-                return "\uE782";
+                return "\uF6A9";
             }
 
             @Override

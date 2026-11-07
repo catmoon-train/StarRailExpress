@@ -73,6 +73,9 @@ public class ModItems {
     public static final Item FLASHLIGHT = register(
             new FlashlightItem(new Item.Properties().stacksTo(1)),
             "flashlight", TOOLS_GROUP);
+    public static final Item PORTABLE_IDENTITY_SCANNER = register(
+            new PortableIdentityScannerItem(new Item.Properties().stacksTo(1)),
+            "portable_identity_scanner", TOOLS_GROUP);
     public static final Item COOKED_FOOD = register(
             new ChefFoodItem(new Item.Properties().stacksTo(1)), "cooked_food",
             CONSUMABLES_GROUP);

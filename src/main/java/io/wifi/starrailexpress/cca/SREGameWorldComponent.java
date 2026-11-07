@@ -18,6 +18,7 @@ package io.wifi.starrailexpress.cca;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.AreasSettings.BackgroundAmbienceSound;
 import io.wifi.starrailexpress.event.OnGameServerTick;
+import io.wifi.starrailexpress.event.RoleAllegianceEvents;
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
@@ -538,6 +539,20 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         return roleWorldComponent.getRole(uuid);
     }
 
+    /** 查询玩家实际阵营身份，不改变当前能力职业；具体身份规则由业务模块覆盖。 */
+    public @Nullable SRERole getAllegianceRole(@Nullable Player player) {
+        if (player == null) return null;
+        SRERole override = RoleAllegianceEvents.OVERRIDE.invoker().resolve(player.level(), player.getUUID());
+        return override != null ? override : getRole(player);
+    }
+
+    /** 按 UUID 查询实际阵营，支持离线身份及世界修饰符，不依赖在线玩家实例。 */
+    public @Nullable SRERole getAllegianceRole(@Nullable UUID uuid) {
+        if (uuid == null) return null;
+        SRERole override = RoleAllegianceEvents.OVERRIDE.invoker().resolve(world, uuid);
+        return override != null ? override : getRole(uuid);
+    }
+
     /**
      * No Neutrals!
      * 
@@ -850,7 +865,8 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                             playerEnvironmentDetection(player, areas, this);
                         }
                         if (world.getGameTime() % 40 == 0) {
-                            if (GameUtils.isPlayerInLobby(player)) {
+                            if (!io.wifi.starrailexpress.training.TrainingRules.isTrainingWorld(serverWorld)
+                                    && GameUtils.isPlayerInLobby(player)) {
                                 SRE.LOGGER.info("Found a wrong player in lobby. Send it back to its houses: {}",
                                         player.getScoreboardName());
                                 GameUtils.teleportBackToRoom(player);

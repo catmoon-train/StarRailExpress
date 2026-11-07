@@ -69,6 +69,7 @@ public class YouluSmokeWaveEntity extends Entity {
     public YouluSmokeWaveEntity(EntityType<? extends YouluSmokeWaveEntity> entityType, Level level) {
         super(entityType, level);
         this.noPhysics = true;
+        this.noCulling = true; // 烟雾半径远大于实体碰撞箱，不能按碰撞箱裁剪。
     }
 
     public void setup(UUID ownerUuid, Vec3 direction, double speed, double rangeBlocks,
@@ -138,7 +139,8 @@ public class YouluSmokeWaveEntity extends Entity {
         AABB box = new AABB(getX() - r, getY() - r, getZ() - r, getX() + r, getY() + r, getZ() + r);
         for (ServerPlayer p : serverLevel.getEntitiesOfClass(ServerPlayer.class, box,
                 GameUtils::isPlayerAliveAndSurvival)) {
-            if (ownerUuid != null && ownerUuid.equals(p.getUUID())) continue;
+            if (SREGameWorldComponent.KEY.get(level()).isRole(p, org.agmas.noellesroles.role.ModRoles.YOULU)
+                    || ownerUuid != null && ownerUuid.equals(p.getUUID())) continue;
             if (p.getEyePosition().distanceTo(position()) > r
                     && p.position().distanceTo(position()) > r) continue;
             p.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, blindTicks, 0, false, false, true));

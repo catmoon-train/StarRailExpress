@@ -178,6 +178,7 @@ public class GameManagementScreen extends Screen {
         {
             var section = game.section("screen.game_manage.section.start", 0xFF5577CC);
             for (var gameMode : SREGameModes.GAME_MODES.keySet()) {
+                if (gameMode.equals(io.wifi.starrailexpress.training.TrainingGameMode.ID)) continue;
                 section.add(Entry.button(MapVoteCommand.getLocalizedGameModeName(gameMode.getPath()),
                         "tmm:start " + gameMode.toString(),
                         0xFF440000 | random.nextInt(0, 128) | random.nextInt(0, 128) << 8));

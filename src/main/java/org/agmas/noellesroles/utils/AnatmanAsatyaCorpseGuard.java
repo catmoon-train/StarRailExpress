@@ -20,8 +20,6 @@ import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameUtils;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -109,19 +107,13 @@ public final class AnatmanAsatyaCorpseGuard {
     }
 
     /**
-     * 交互入口的通用拦截：尸体处于待复活状态时提示并拒绝交互。
+     * 交互入口的通用拦截：静默拒绝交互，不向玩家泄露尸体的复活状态。
      *
      * @return true 表示本次交互应当被取消
      */
     public static boolean denyInteraction(PlayerBodyEntity body, @Nullable Player actor) {
         if (body == null || !body.isNonInteractable()) {
             return false;
-        }
-        if (actor instanceof ServerPlayer serverPlayer) {
-            serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.corpse.pending_revive")
-                            .withStyle(ChatFormatting.RED),
-                    true);
         }
         return true;
     }

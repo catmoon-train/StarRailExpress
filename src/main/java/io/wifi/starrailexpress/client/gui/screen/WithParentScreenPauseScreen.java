@@ -16,6 +16,8 @@
 package io.wifi.starrailexpress.client.gui.screen;
 
 import io.wifi.ConfigCompact.ui.SettingMenuScreen;
+import io.wifi.starrailexpress.training.client.TrainingClient;
+import io.wifi.starrailexpress.training.client.TrainingWorldLauncher;
 import net.exmo.sre.loading.StarRailExpressTitleScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -48,6 +50,7 @@ import java.util.Objects;
 public class WithParentScreenPauseScreen extends PauseScreen {
     public Screen parent;
     public boolean shouldHideBackground = false;
+    private Button trainingButton;
     public static final Component ROLE_INTRODUCTION = Component.translatable("menu.sre.role_introduction");
     public static final Component FEEDBACK_TRAIN = Component.translatable("menu.sre.feedback_train_bug");
     public static final Component SETTINGS = Component.translatable("menu.sre.train_options");
@@ -71,6 +74,10 @@ public class WithParentScreenPauseScreen extends PauseScreen {
     }
 
     public void render(GuiGraphics guiGraphics, int i, int j, float f) {
+        if (trainingButton != null) {
+            trainingButton.setMessage(TrainingClient.buttonLabel());
+            trainingButton.active = !TrainingWorldLauncher.isBusy();
+        }
         super.render(guiGraphics, i, j, f);
     }
 
@@ -101,6 +108,7 @@ public class WithParentScreenPauseScreen extends PauseScreen {
         rowHelper.addChild(Button.builder(RETURN_TO_GAME, (button) -> {
             this.minecraft.setScreen((Screen) parent);
         }).width(204).build(), 2, gridLayout.newCellSettings().paddingTop(50));
+        this.trainingButton = rowHelper.addChild(TrainingClient.createEntryButton(this, 204), 2);
         rowHelper.addChild(this.openScreenButton(ROLE_INTRODUCTION,
                 () -> new RoleIntroduceScreen(this)));
         rowHelper.addChild(this.openScreenButton(SETTINGS, () -> new SettingMenuScreen(this, this.parent == null)));

@@ -126,6 +126,10 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
         RenderType bodyRenderLayer = this.getRenderType(livingEntity, bl, bl2, bl3);
 
         render(livingEntity, f, g, matrixStack, vertexConsumerProvider, light, this.model, bodyRenderLayer, 1f, alpha);
+        if (io.wifi.starrailexpress.event.client.ClientGameplayEvents.BODY_RENDER_TAIL.invoker()
+                .cancel(livingEntity, f, g, matrixStack, vertexConsumerProvider, light, alpha)) {
+            return;
+        }
     }
 
     public void renderSkeleton(PlayerBodyEntity livingEntity, float f, float g, PoseStack matrixStack,
@@ -247,6 +251,10 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
     @Override
     protected void setupRotations(PlayerBodyEntity livingEntity, PoseStack poseStack, float animationProgress,
             float bodyYaw, float tickDelta, float scale) {
+        if (io.wifi.starrailexpress.event.client.ClientGameplayEvents.BODY_ROTATIONS.invoker()
+                .apply(livingEntity, poseStack, animationProgress, bodyYaw, tickDelta, scale)) {
+            return;
+        }
         int animTickEnd = 20;
         float t = Math.min(livingEntity.tickCount + tickDelta, animTickEnd) / animTickEnd;
         float animProgress = Easing.BOUNCE_OUT.ease(t, 0, 1, 1);
@@ -262,6 +270,8 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
     protected void scale(PlayerBodyEntity entity, PoseStack matrices, float amount) {
         float g = 0.9375F;
         matrices.scale(g, g, g);
+        io.wifi.starrailexpress.event.client.ClientGameplayEvents.BODY_SCALE.invoker()
+                .apply(entity, matrices, amount);
     }
 
     @Override

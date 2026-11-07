@@ -69,7 +69,7 @@ public class CustomWinnerClass {
         for (var player : serverLevel.players()) {
             if (GameUtils.isPlayerAliveAndSurvival(player)) {
                 alivePlayerCount++;
-                SRERole role = gameComponent.getRole(player);
+                SRERole role = gameComponent.getAllegianceRole(player);
                 if (role != null) {
                     if (role instanceof CustomWinnerRoleInterface cwr) {
                         WinStatus resultWinStatus = cwr.checkWin(player, winStatus);
@@ -85,16 +85,16 @@ public class CustomWinnerClass {
                         }
                     }
                 }
-                if (gameComponent.isRole(player, ModRoles.THIEF)) {
+                if (role == ModRoles.THIEF) {
                     hasThiefAlive = true;
                 }
-                if (gameComponent.isRole(player, THRedHouseRoles.FURANDORU)) {
+                if (role == THRedHouseRoles.FURANDORU) {
                     hasFurandoru = true;
                 }
-                if (gameComponent.isRole(player, ModRoles.PELICAN)) {
+                if (role == ModRoles.PELICAN) {
                     hasPelicanAlive = true;
                 }
-                if (gameComponent.isRole(player, ModRoles.MONOKUMA)) {
+                if (role == ModRoles.MONOKUMA) {
                     hasMonokumaAlive = true;
                 }
             }

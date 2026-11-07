@@ -58,6 +58,10 @@ public abstract class PlateTrayBlockEntity extends BlockEntity {
     }
 
     public static <T extends BlockEntity> void clientTick(Level world, BlockPos pos, BlockState state, T blockEntity) {
+        if (blockEntity instanceof PlateTrayBlockEntity tray) {
+            io.wifi.starrailexpress.event.ItemGameplayEvents.PLATE_TRAY_CLIENT_TICK.invoker()
+                    .tick(world, pos, state, tray);
+        }
     }
 
     public List<ItemStack> getStoredItems() {

@@ -424,15 +424,28 @@ public abstract class GameMode {
      */
     public void killPlayer(Player victim, boolean spawnBody, @Nullable Player _killer,
             ResourceLocation deathReason, boolean forceDeath) {
-        Player trueKiller = EarlyKillPlayer.FIND_KILLER_EVENT.invoker().findTrueKiller(victim, _killer, deathReason,
-                forceDeath);
+        if (!GameplayExtensionEvents.ALLOW_KILL_ENTRY.invoker().allow(victim, spawnBody, _killer, deathReason, forceDeath)) {
+            return;
+        }
+        var earlyKillerEvent = EarlyKillPlayer.FIND_KILLER_EVENT.invoker();
+        Player trueKiller = GameplayExtensionEvents.ALLOW_KILLER_RESOLUTION.invoker()
+                .allow(victim, spawnBody, _killer, deathReason, forceDeath)
+                        ? earlyKillerEvent.findTrueKiller(victim, _killer, deathReason, forceDeath) : null;
         Player killer;
         if (trueKiller != null)
             killer = trueKiller;
         else
             killer = _killer;
+        // 克隆博士的10秒隐身窗口禁止任何有归因的伤害，先于事件、护盾和强制击杀。
+        if (org.agmas.noellesroles.game.roles.killer.clone_doctor.CloneDoctorSessionManager.blocksDamage(killer)) {
+            return;
+        }
         _killer = killer;
         {
+            if (!GameplayExtensionEvents.ALLOW_KILL_AFTER_ATTRIBUTION.invoker()
+                    .allow(victim, spawnBody, killer, deathReason, forceDeath)) {
+                return;
+            }
             var c = OnKillPlayerTriggered.EVENT.invoker().onKillPlayerTriggered(victim, spawnBody, killer, deathReason,
                     forceDeath);
             if (c != null && c.isFalse() && (!forceDeath))
@@ -575,7 +588,10 @@ public abstract class GameMode {
 
         // 弱效护盾拦截检查
         SREWeakArmorPlayerComponent weakArmorComponent = SREWeakArmorPlayerComponent.KEY.get(victim);
-        if (weakArmorComponent != null && weakArmorComponent.getWeakArmor() > 0) {
+        Integer weakArmorOverride = weakArmorComponent != null
+                ? GameplayExtensionEvents.WEAK_ARMOR_OVERRIDE.invoker().get(victim) : null;
+        if (weakArmorComponent != null && (weakArmorOverride != null
+                ? weakArmorOverride : weakArmorComponent.getWeakArmor()) > 0) {
             if (weakArmorComponent.canBlockDeathReason(deathReason)) {
                 weakArmorComponent.consumeWeakArmor();
                 victim.displayClientMessage(Component.translatable("message.bartender.weak_armor_broke_self")
@@ -690,34 +706,35 @@ public abstract class GameMode {
 
             SRERole killerRole = gameWorldComponent.getRole(serverKiller);
             if (killerRole != null) {
+                SRERole killerAllegiance = gameWorldComponent.getAllegianceRole(serverKiller);
                 killerRole.onKill(victim, spawnBody, killer, deathReason);
                 if (shouldRecordPlayerStats()) {
                     killerStats.getOrCreateRoleStats(killerRole.identifier()).incrementKillsAsRole();
                     // 更新阵营击杀数
-                    if (killerRole.isVigilanteTeam()) {
+                    if (killerAllegiance.isVigilanteTeam()) {
                         killerStats.incrementTotalSheriffKills();
-                    } else if (killerRole.canUseKiller()) {
+                    } else if (killerAllegiance.canUseKiller()) {
                         killerStats.incrementTotalKillerKills();
-                    } else if (killerRole.isNeutrals()) {
+                    } else if (killerAllegiance.isNeutrals()) {
                         killerStats.incrementTotalNeutralKills();
-                    } else if (killerRole.isInnocent() && !killerRole.isVigilanteTeam()) {
+                    } else if (killerAllegiance.isInnocent() && !killerAllegiance.isVigilanteTeam()) {
                         killerStats.incrementTotalCivilianKills();
                     }
                 }
 
                 // 检测是否为友军击杀
                 if (victim instanceof ServerPlayer serverVictim) {
-                    SRERole victimRole = gameWorldComponent.getRole(serverVictim);
+                    SRERole victimRole = gameWorldComponent.getAllegianceRole(serverVictim);
                     if (victimRole != null) {
                         boolean isTeamKill = false;
                         // 杀手击杀杀手
-                        if (killerRole.canUseKiller() && victimRole.canUseKiller()) {
+                        if (killerAllegiance.canUseKiller() && victimRole.canUseKiller()) {
                             isTeamKill = true;
                             OnTeammateKilledTeammate.EVENT.invoker().playerKilled(serverVictim, serverKiller, false,
                                     deathReason);
                         }
                         // 无辜者击杀无辜者
-                        else if (killerRole.isInnocent() && victimRole.isInnocent()) {
+                        else if (killerAllegiance.isInnocent() && victimRole.isInnocent()) {
                             isTeamKill = true;
                             OnTeammateKilledTeammate.EVENT.invoker().playerKilled(serverVictim, serverKiller, true,
                                     deathReason);
@@ -830,7 +847,8 @@ public abstract class GameMode {
                 var killerRole = RoleUtils.getPlayerRole(killer);
                 if (killerRole != null) {
 
-                    if (shouldGiveKillerBalance(victim, killer, deathReason)) {
+                    if (GameplayExtensionEvents.ALLOW_BASE_KILL_COINS.invoker().allow(victim, killer, deathReason)
+                            && shouldGiveKillerBalance(victim, killer, deathReason)) {
                         int gift = OnGiveKillerBalance.EVENT.invoker().onGiveKillerBalance(victim, killer, deathReason);
                         gift += GameConstants.getMoneyPerKill();
                         // 金币账本：击杀玩家收入（必须先于余额变动登记，供兜底认领）
@@ -840,7 +858,9 @@ public abstract class GameMode {
                     }
                     {
                         // 获取额外金币
-                        killerRole.grantKillCoin(killer);
+                        if (GameplayExtensionEvents.ALLOW_EXTRA_KILL_COINS.invoker().allow(victim, killer, deathReason)) {
+                            killerRole.grantKillCoin(killer);
+                        }
                     }
                 }
             }
@@ -889,6 +909,7 @@ public abstract class GameMode {
      */
 
     public void addKillRewardTime(SREGameTimeComponent gameTimeComponent) {
+        if (GameplayExtensionEvents.HANDLE_KILL_REWARD_TIME.invoker().handle(gameTimeComponent)) return;
         if (gameTimeComponent.getTime() < gameTimeComponent.getResetTime()) {
             gameTimeComponent.addKillRewardTime(GameConstants.TIME_ON_CIVILIAN_KILL);
         }

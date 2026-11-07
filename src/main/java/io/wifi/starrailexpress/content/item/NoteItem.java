@@ -45,6 +45,7 @@ public class NoteItem extends SkinableItem implements AdventureUsable {
 
     @Override
     public InteractionResultHolder<ItemStack> use(@NotNull Level world, Player user, InteractionHand hand) {
+        io.wifi.starrailexpress.event.ItemGameplayEvents.BEFORE_USE.invoker().onUse(this, world, user, hand);
         return super.use(world, user, hand);
     }
 

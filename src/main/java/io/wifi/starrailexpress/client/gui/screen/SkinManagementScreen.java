@@ -148,6 +148,7 @@ public class SkinManagementScreen extends Screen {
     /** 「仅显示 3D 皮肤」筛选：切页签时保留，跨面板共享 */
     private boolean only3dFilter = false;
     private ToggleCheckbox only3dCheck;
+    private ItemSkinManager.QualityColor qualityFilter;
 
     // ─── 动画状态 ───────────────────────────────────────────────────────────
     private long openTimeMs = -1L;
@@ -196,7 +197,7 @@ public class SkinManagementScreen extends Screen {
         int searchHeight = categoryHeight;
         int gapBelowCategory = isCompact ? 5 : 8;
         this.listTop = titleMarginT + titleHeight + categoryMarginT + categoryHeight
-                + searchGap + searchHeight + gapBelowCategory;
+                + searchGap + searchHeight * 2 + 4 + gapBelowCategory;
         int bottomPadding = isCompact ? 30 : 48;
         this.listHeight = this.height - listTop - bottomPadding;
 
@@ -337,15 +338,12 @@ public class SkinManagementScreen extends Screen {
      * 仍保留可输入宽度（最小 80 px）。
      */
     private void initSearchBox(int searchHeight, int searchY) {
-        // 「仅显示 3D 皮肤」按钮：文案较长，按字号实测宽度并夹在当前面板宽度内
         Component filterLabel = Component.translatable("screen.sre.skins.only_3d");
-        int boxSize = Math.min(12, Math.max(8, searchHeight - 2));
-        int filterWidth = Math.min(leftPanelWidth / 2, font.width(filterLabel) + boxSize + 16);
         int gap = 4;
-        int searchWidth = Math.max(80, leftPanelWidth - filterWidth - gap);
-
+        int filterWidth = (leftPanelWidth - gap) / 2;
+        int filterY = searchY + searchHeight + gap;
         int searchX = contentX;
-        searchBox = new EditBox(font, searchX, searchY, searchWidth, searchHeight,
+        searchBox = new EditBox(font, searchX, searchY, leftPanelWidth, searchHeight,
                 Component.translatable("screen.sre.skins.search"));
         searchBox.setMaxLength(50);
         searchBox.setBordered(true);
@@ -362,12 +360,34 @@ public class SkinManagementScreen extends Screen {
         addRenderableWidget(searchBox);
 
         // 紧跟搜索框右侧：一键只看当前类别下的 3D 皮肤
-        only3dCheck = new ToggleCheckbox(searchX + searchWidth + gap, searchY,
+        only3dCheck = new ToggleCheckbox(searchX, filterY,
                 filterWidth, searchHeight, filterLabel, only3dFilter, v -> {
                     only3dFilter = v;
                     applySearchFilter();
                 });
         addRenderableWidget(only3dCheck);
+        Button qualityButton = Button.builder(qualityFilterLabel(), b -> {
+            ItemSkinManager.QualityColor[] qualities = ItemSkinManager.QualityColor.values();
+            qualityFilter = qualityFilter == null ? qualities[0]
+                    : qualityFilter.ordinal() + 1 < qualities.length ? qualities[qualityFilter.ordinal() + 1] : null;
+            b.setMessage(qualityFilterLabel());
+            applySearchFilter();
+        }).pos(searchX + filterWidth + gap, filterY)
+                .size(leftPanelWidth - filterWidth - gap, searchHeight).build();
+        qualityButton.setTooltip(Tooltip.create(Component.translatable("screen.sre.skins.quality.tip")));
+        boolean skinTab = !categories.isEmpty() && !categories.get(selectedCategory).isNameTagTab();
+        only3dCheck.active = skinTab;
+        qualityButton.active = skinTab;
+        addRenderableWidget(qualityButton);
+    }
+
+    private Component qualityFilterLabel() {
+        Component qualityName = Component.translatable("screen.sre.skins.quality."
+                + (qualityFilter == null ? "all" : qualityFilter.name().toLowerCase(java.util.Locale.ROOT)));
+        if (qualityFilter != null) {
+            qualityName = qualityName.copy().withColor(qualityFilter.getColor());
+        }
+        return Component.translatable("screen.sre.skins.quality", qualityName);
     }
 
     private void selectCategory(int index) {
@@ -398,6 +418,7 @@ public class SkinManagementScreen extends Screen {
         if (selectedTab.isGridTab()) {
             hatGrid = new HatSkinGridPanel(contentX, listTop, leftPanelWidth, listHeight,
                     skinsComponent, selectedTab.id, this::equipGridSkin, searchFilter, only3dFilter);
+            if (qualityFilter != null) hatGrid.rebuild(searchFilter, only3dFilter, qualityFilter);
             addRenderableWidget(hatGrid);
             return;
         }
@@ -417,6 +438,7 @@ public class SkinManagementScreen extends Screen {
                 skinName -> ClientPlayNetworking.send(
                         new UpdateSkinSelectedPayload(ItemSkinManager.getItemTypeName(itemStack), skinName)),
                 searchFilter, only3dFilter);
+        if (qualityFilter != null) skinList.rebuild(searchFilter, only3dFilter, qualityFilter);
         addRenderableWidget(skinList);
 
         addRenderableWidget(new ItemInfoPanel(rightPanelX, listTop - 25, rightPanelWidth, 20, itemStack));
@@ -792,11 +814,11 @@ public class SkinManagementScreen extends Screen {
      */
     private void applySearchFilter() {
         if (skinList != null) {
-            skinList.rebuild(searchFilter, only3dFilter);
+            skinList.rebuild(searchFilter, only3dFilter, qualityFilter);
             return;
         }
         if (hatGrid != null) {
-            hatGrid.rebuild(searchFilter, only3dFilter);
+            hatGrid.rebuild(searchFilter, only3dFilter, qualityFilter);
             return;
         }
         if (nameTagList != null) {
@@ -980,7 +1002,7 @@ public class SkinManagementScreen extends Screen {
 
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            if (button == 0 && isMouseOver(mouseX, mouseY)) {
+            if (active && visible && button == 0 && isMouseOver(mouseX, mouseY)) {
                 toggled = !toggled;
                 Minecraft.getInstance().getSoundManager().play(
                         net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
@@ -1059,6 +1081,7 @@ public class SkinManagementScreen extends Screen {
         public void rebuild(String filter) {
             clearEntries();
             List<String> tags = parentScreen.getNameTags();
+            setScrollAmount(0);
             String current = parentScreen.getCurrentNameTag();
             String f = filter != null ? filter.toLowerCase() : "";
             for (String tag : tags) {

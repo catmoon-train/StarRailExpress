@@ -132,6 +132,14 @@ public class StatusBarHUD {
      * 渲染所有状态条
      */
     public void render(GuiGraphics guiGraphics, float partialTicks) {
+        io.wifi.starrailexpress.event.client.ClientGameplayEvents.STATUS_BAR_RENDER_HEAD.invoker()
+                .render(guiGraphics, partialTicks);
+        renderStatusBars(guiGraphics, partialTicks);
+        io.wifi.starrailexpress.event.client.ClientGameplayEvents.STATUS_BAR_RENDER_RETURN.invoker()
+                .render(guiGraphics, partialTicks);
+    }
+
+    private void renderStatusBars(GuiGraphics guiGraphics, float partialTicks) {
         if (statusBars.isEmpty())
             return;
 

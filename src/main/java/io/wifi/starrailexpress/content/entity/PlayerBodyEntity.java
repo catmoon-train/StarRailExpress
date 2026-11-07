@@ -24,7 +24,6 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -356,12 +355,6 @@ public class PlayerBodyEntity extends LivingEntity {
     public InteractionResult interactAt(Player player, Vec3 vec3, InteractionHand hand) {
         // 不可交互标记：主人即将被复活的尸体不能被打开物品栏（含殡仪员）
         if (isNonInteractable()) {
-            if (player instanceof ServerPlayer serverPlayer) {
-                serverPlayer.displayClientMessage(
-                        Component.translatable("message.noellesroles.corpse.pending_revive")
-                                .withStyle(ChatFormatting.RED),
-                        true);
-            }
             return InteractionResult.FAIL;
         }
         if (player instanceof ServerPlayer serverPlayer

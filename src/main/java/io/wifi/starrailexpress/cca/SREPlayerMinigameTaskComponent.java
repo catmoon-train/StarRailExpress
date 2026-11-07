@@ -372,6 +372,8 @@ public class SREPlayerMinigameTaskComponent implements RoleComponent, ServerTick
         }
         ProgressionDataManager.onMinigameTaskComplete(sp, blockMinigameId);
         this.sync();
+        io.wifi.starrailexpress.event.GameplayExtensionEvents.MINIGAME_COMPLETED.invoker()
+                .accept(sp, pos, reward, blockMinigameId);
         return true;
     }
 

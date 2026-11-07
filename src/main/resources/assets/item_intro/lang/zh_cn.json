@@ -1,4 +1,6 @@
 {
+  "item.noellesroles.portable_identity_scanner.desc": "右键瞄准5格内的真实尸体，免费查看死者姓名与死亡时职业。道具不消耗，成功后按使用者冷却120秒；换同类道具不能绕过。扫描结果仅自己可见。",
+  "block.noellesroles.identity_scanner.desc": "右键打开公开终端，所有人均可查看本机历史。点击扫描花费50金币，随机公开一名死者的姓名和死亡时职业；每名玩家本局跨机器不重复，冷却为每台机器独立30秒。无候选或失败不扣费。",
   "item.noellesroles.halloween_pumpkin_president.desc": "万圣节道具。右键地面放置南瓜据点，所有存活玩家均可右键进入，体型缩至正常的6%，速度变为正常的5%；进入者能看到橙色据点边界。走出范围、跳出或再次右键可退出并恢复。主人潜行右键可回收为一个道具，内部玩家会安全退出；背包满时不回收。仅在启用万圣节活动的谋杀模式地图生效。",
   "item.noellesroles.halloween_blood_saw.desc": "万圣节武器，8 点耐久。主手右键瞄准 3 格内玩家胸口，双方锁定 0.5 秒后尝试击杀，仍受护盾和免死保护。启动消耗 1 点耐久，受伤等情况会中断。成功锯杀后，默认 15 秒在尸体处掉落心脏；死者已复活则取消。仅活动内生效。",
   "item.noellesroles.halloween_heart.desc": "万圣节消耗品。右键消耗一颗心脏，立即获得 50 金币。仅在启用万圣节活动的谋杀模式地图生效。",
@@ -267,8 +269,8 @@
   "item.noellesroles.summon_rolling_stone.desc": "一次性道具。右键在身前召唤一颗滚石，碾过的人记在石头人头上。使用后冷却 1 秒。",
   "item.noellesroles.him_fireball.desc": "右键投出火球。命中后燃烧 0.5 秒再死亡。冷却 30 秒。只能杀死正看着你、且你没有隐身的人。",
   "item.noellesroles.dream_diamond_sword.desc": "与原版钻石剑一致，对玩家造成虚拟血量伤害，虚拟血量归零时击杀。耐久 12，每次有效命中消耗 1 点。",
-  "item.noellesroles.steve_pickaxe.desc": "Steve 开局获得的铁镐。按住左键挖掘任务点，每过 1 秒完成一次开采。每次等概率获得 1 个木板、铁锭、金锭或钻石，并消耗 1 点耐久；开采 32 次后损坏。",
-  "item.noellesroles.steve_diamond_pickaxe.desc": "Steve 材料商店：3 钻石。只能开采任务点，每次随机获得 1 个木板、铁锭、金锭或钻石。每 0.5 秒完成一次开采 ，128 点耐久，用尽损坏。",
+  "item.noellesroles.steve_pickaxe.desc": "Steve 开局获得的铁镐。按住左键挖掘任务点，每过 1 秒完成一次开采。每次有 30% 概率无产出，否则等概率获得 1 份木板、铁锭、金锭或钻石虚拟材料，显示在右上角、不占背包；空挖也消耗 1 点耐久；开采 32 次后损坏。",
+  "item.noellesroles.steve_diamond_pickaxe.desc": "Steve 材料商店：3 钻石。只能开采任务点，每次有 30% 概率无产出，否则获得 1 份随机虚拟材料，显示在右上角、不占背包；空挖也耗耐久。每 0.5 秒完成一次开采 ，128 点耐久，用尽损坏。",
   "item.noellesroles.steve_boat.desc": "Steve 材料商店：5 木板。右键在有足够空间的位置处放置原版橡木船，再次右键可以乘坐。",
   "item.noellesroles.steve_minecart.desc": "Steve 材料商店：5 铁锭。右键铁轨放置可乘坐矿车。",
   "item.noellesroles.steve_golden_apple.desc": "Steve 材料商店：8 金锭。按住右键食用，获得 20 秒仅能抵挡刀的弱效护盾。",
@@ -290,7 +292,7 @@
   "item.noellesroles.candle_snip.desc": "烛影的剪。只能击杀处于发光状态且没看着你的人，距离 3.5 格。成功后冷却 12 秒。落空不进冷却。",
   "item.noellesroles.reaper_scythe.desc": "恐惧魔王的镰刀。只有杀戮形态能用。按住右键蓄满后向前挥出，0.25 秒后处决弧线上的人。冷却 8.5 秒。黑暗游走、被硬直或对方离开范围则挥空。",
   "item.noellesroles.error_terminal.desc": "404开局自带，丢失可免费补领。仅高维时可打开；选择傀儡后右键地图移动、左键玩家追击，可停驻、消耗引爆器远程自爆或消耗芯片加速同化。ESC隐藏不退出高维。",
-  "item.noellesroles.error_detonator.desc": "100金币的一次性道具。高维中引爆自己的已完成傀儡；可在终端二次确认引爆，或选中目标后右键道具。成功消耗一枚，失败不消耗。",
+  "item.noellesroles.error_detonator.desc": "50金币的一次性道具。高维中引爆自己的已完成傀儡；可在终端二次确认引爆，或选中目标后右键道具。成功消耗一枚，失败不消耗。",
   "item.noellesroles.error_accelerator.desc": "80金币的一次性芯片。对自己的未完成同化目标缩短5秒；终端可精确选定目标，地面右键优先使用已选目标，否则使用一个正在同化的目标。成功才消耗。",
   "item.noellesroles.echo_card_proxy.desc": "回声托运站固定卡牌终端，位于快捷栏第2格，不可移动或交换。物资已整合至第4–9格，直接选择卡牌并右键地面、信标、核心门或玩家即可使用，无需先装备；两点卡连续右键两个落点。按背包键可在同一界面查看物资、拆包、合成和交易。终端兼容已装备卡牌，但不保存资源身份或数量；服务器校验实例、阵营、阶段、距离与视线，失败不扣卡。",
   "item.noellesroles.echo_skill_token.desc": "回声托运站专长信物，固定在快捷栏第3格，不占六格背包。右键释放当前专长的主动技能：稳健搬运、迅捷拾取、锁定、过载涌动、暗舱或中间人交易。技能冷却按比赛 tick 计算，暂停不推进；一次性技能只有真正生效时才被消耗，窗口过期不会退还冷却。倒地、被控或不在行动阶段时无法释放，且失败不进入冷却。信物本身不保存专长、冷却或数值，服务器每 tick 重新校验阵营、专长与阶段。"

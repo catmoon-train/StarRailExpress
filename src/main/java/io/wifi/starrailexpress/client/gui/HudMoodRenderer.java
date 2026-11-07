@@ -288,6 +288,10 @@ public class HudMoodRenderer {
     }
 
     private static void renderKiller(@NotNull Font textRenderer, @NotNull FakeGuiGraphics context, int color, SRERole role) {
+        if (io.wifi.starrailexpress.event.client.ClientGameplayEvents.KILLER_MOOD_RENDER.invoker()
+                .render(textRenderer, context, color, role)) {
+            return;
+        }
         if (moodRender < 0)
             moodRender = 0;
         

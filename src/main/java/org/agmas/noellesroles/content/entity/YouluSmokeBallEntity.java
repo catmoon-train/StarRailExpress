@@ -39,9 +39,8 @@ import java.util.UUID;
  * 幽露「球烟」实体：G 键技能在自由摄像机位置生成的黑色烟雾球。
  *
  * <p>悬浮在生成位置（无重力），持续 20s（可配置）。内部的存活玩家（拥有者除外）
- * 每 0.5s 刷新一次视野迷雾 1 级（{@link ModEffects#VISION_FOG}）；处于球内的玩家
- * 客户端雾色会被渲染为黑色（见 {@code YouluFogColorMixin}）。
- * 渲染为自制的半透明暗色球体（见 {@code YouluSmokeBallRenderer}）。
+ * 每 0.5s 刷新一次视野迷雾 1 级（{@link ModEffects#VISION_FOG}）；幽露角色免疫。
+ * 客户端以实心暗色球体遮挡，非幽露玩家进入烟内后完全遮蔽世界画面。
  */
 public class YouluSmokeBallEntity extends Entity {
 
@@ -68,6 +67,7 @@ public class YouluSmokeBallEntity extends Entity {
     public YouluSmokeBallEntity(EntityType<? extends YouluSmokeBallEntity> entityType, Level level) {
         super(entityType, level);
         this.noPhysics = true;
+        this.noCulling = true; // 烟雾半径远大于实体碰撞箱，不能按碰撞箱裁剪。
     }
 
     public void setup(UUID ownerUuid, float radius, int lifetimeTicks) {
@@ -88,6 +88,11 @@ public class YouluSmokeBallEntity extends Entity {
 
     public float getRadius() {
         return this.entityData.get(RADIUS);
+    }
+
+    /** 野人共用此实体，但不使用幽露的实心遮蔽规则。 */
+    public boolean isBarbarianSmoke() {
+        return this.entityData.get(BARBARIAN_SMOKE);
     }
 
     public UUID getOwnerUuid() {
@@ -137,7 +142,9 @@ public class YouluSmokeBallEntity extends Entity {
         AABB box = new AABB(getX() - r, getY() - r, getZ() - r, getX() + r, getY() + r, getZ() + r);
         for (ServerPlayer p : serverLevel.getEntitiesOfClass(ServerPlayer.class, box,
                 GameUtils::isPlayerAliveAndSurvival)) {
-            if (!this.entityData.get(BARBARIAN_SMOKE) && owner != null && owner.equals(p.getUUID())) continue;
+            if (!isBarbarianSmoke() && (SREGameWorldComponent.KEY.get(level()).isRole(p,
+                    org.agmas.noellesroles.role.ModRoles.YOULU)
+                    || owner != null && owner.equals(p.getUUID()))) continue;
             if (p.getEyePosition().distanceTo(position()) > r) continue;
             if (this.entityData.get(BARBARIAN_SMOKE)) {
                 p.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, EFFECT_DURATION, 0,

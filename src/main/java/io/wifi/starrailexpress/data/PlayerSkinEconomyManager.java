@@ -71,6 +71,7 @@ public final class PlayerSkinEconomyManager {
     }
 
     public static void addLootChance(Player player, int delta) {
+        if (io.wifi.starrailexpress.training.TrainingRules.isTrainingWorld(player.level())) return;
         Entry entry = get(player.getUUID());
         entry.state.lootChance = Math.max(0, entry.state.lootChance + delta);
         markDirty(player, entry);
@@ -79,6 +80,7 @@ public final class PlayerSkinEconomyManager {
 
     // 请注意这个不是游戏内的金币，游戏内的金币是SREPlayerShopComponent在管理！
     public static void addCoinNum(Player player, int delta) {
+        if (io.wifi.starrailexpress.training.TrainingRules.isTrainingWorld(player.level())) return;
         Entry entry = get(player.getUUID());
         entry.state.coinNum = Math.max(0, entry.state.coinNum + delta);
         markDirty(player, entry);
@@ -299,7 +301,8 @@ public final class PlayerSkinEconomyManager {
     }
 
     private static boolean isDatabaseEnabled() {
-        return SREConfig.instance().mysqlPlayerSyncEnabled && MysqlPlayerDataStore.isAvailable();
+        return !io.wifi.starrailexpress.training.TrainingRules.isIsolated()
+                && SREConfig.instance().mysqlPlayerSyncEnabled && MysqlPlayerDataStore.isAvailable();
     }
 
     private static String itemType(ItemStack stack) {
