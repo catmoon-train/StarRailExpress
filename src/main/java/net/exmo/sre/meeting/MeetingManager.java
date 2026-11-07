@@ -267,6 +267,10 @@ public final class MeetingManager {
         if (!GameUtils.isPlayerAliveAndSurvival(reporter)) {
             return false;
         }
+        // 待复活尸体（如无我/无妄搭档仍存活时）不能被报告发起会议
+        if (org.agmas.noellesroles.utils.AnatmanAsatyaCorpseGuard.denyInteraction(body, reporter)) {
+            return false;
+        }
         // 伪装尸体（咸鱼晒咸鱼、亡语杀手假扮尸体）不代表真实死亡，不可用于召开会议
         if (DisguisedBodyUtils.isUnreportableDisguisedBody(body)) {
             return false;

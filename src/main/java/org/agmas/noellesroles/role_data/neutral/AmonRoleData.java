@@ -35,6 +35,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -736,6 +737,8 @@ public class AmonRoleData extends SimpleRoleData {
         applyGlow(amon);
         stealItems(amon, level);
         broadcastFinale(level, true);
+        // 回放记录：阿蒙时刻触发
+        ReplayEventLog.record("replay.event.moment.amon", ReplayEventLog.player(amon));
         sync();
     }
 

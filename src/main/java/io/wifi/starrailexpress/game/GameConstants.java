@@ -371,7 +371,10 @@ public class GameConstants {
         public static ResourceLocation STONE_SPEAR = Noellesroles.id("stone_spear");
         /** 摘星者「星之光环」/「星之引力」召唤的星星砸中致死 */
         public static ResourceLocation STAR = Noellesroles.id("star");
-
+        /** 雪傀儡：靠近炉灶或身上着火，把虚拟生命耗尽而「融化」 */
+        public static ResourceLocation MELT = Noellesroles.id("melt");
+        /** 雪傀儡推出的雪球把玩家的虚拟生命撞空 */
+        public static ResourceLocation SNOWBALL_CRUSH = Noellesroles.id("snowball_crush");
         private static ResourceLocation itemId(Item item) {
             return BuiltInRegistries.ITEM.getKey(item);
         }

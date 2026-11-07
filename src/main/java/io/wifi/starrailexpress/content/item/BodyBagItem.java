@@ -20,6 +20,7 @@ import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.core.registries.BuiltInRegistries;
+import org.agmas.noellesroles.utils.AnatmanAsatyaCorpseGuard;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -42,6 +43,9 @@ public class BodyBagItem extends SkinableItem {
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player user, LivingEntity entity, InteractionHand hand) {
         if (entity instanceof PlayerBodyEntity body) {
+            // 待复活尸体（如无我/无妄的搭档仍存活时）不允许被收走
+            if (AnatmanAsatyaCorpseGuard.denyInteraction(body, user))
+                return InteractionResult.FAIL;
             body.discard();
             if (!user.level().isClientSide) {
                 user.level().playSound(null, body.getX(), body.getY() + .1f, body.getZ(), SoundEvents.BUNDLE_INSERT, SoundSource.PLAYERS, 0.5f, 1f + user.level().random.nextFloat() * .1f - .05f);

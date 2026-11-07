@@ -40,6 +40,8 @@ public final class HalloweenPactRole extends NormalRole implements CustomWinnerR
         setCanUseInstinctAndNightVision(false);
         setCanAutoAddMoney(false);
         setRoleData(Data::new);
+        // 魂契亡灵仅在启用了万圣节配置的地图中生成（与南瓜精一致，通过 setCanSpawnInMap 把关）。
+        setCanSpawnInMap((map, settings) -> settings != null && settings.halloweenEventEnabled);
     }
 
     /** 双端初始化阶段调用；不写入中央职业清单。 */

@@ -101,6 +101,7 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
+import org.agmas.noellesroles.utils.AnatmanAsatyaCorpseGuard;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
@@ -829,6 +830,8 @@ public class NRDeathEvents {
                 // （时间回溯 / 有复活进行中时那次复核还会被跳过）。
                 GameUtils.pendingReJudgeSpectatorsPenalty();
             }
+            // 组合里又倒下一人：若搭档也不在了，解除待复活尸体的标记
+            AnatmanAsatyaCorpseGuard.refresh(serverVictim.serverLevel());
         });
 
         // 无我死亡时，无妄叠加一层护盾（最多5层）
@@ -842,6 +845,8 @@ public class NRDeathEvents {
                 // 同上：无我倒下后立刻重判旁观者的死亡惩罚（两人全死 → 解除永久惩罚）。
                 GameUtils.pendingReJudgeSpectatorsPenalty();
             }
+            // 组合里又倒下一人：若搭档也不在了，解除待复活尸体的标记
+            AnatmanAsatyaCorpseGuard.refresh(serverVictim.serverLevel());
         });
 
         OnPlayerDeath.EVENT.register((victim, deathReason) -> {

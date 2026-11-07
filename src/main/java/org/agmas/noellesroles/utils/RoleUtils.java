@@ -35,6 +35,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import io.wifi.starrailexpress.index.IntroMobEffect;
 import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.index.TermIntroEntry;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
 import io.wifi.starrailexpress.stats.PlayerStats;
@@ -714,6 +715,8 @@ public class RoleUtils extends MCItemsUtils {
             return java.awt.Color.CYAN.getRGB();
         } else if (role instanceof AreasSettings) {
             return java.awt.Color.WHITE.getRGB();
+        } else if (role instanceof TermIntroEntry) {
+            return TermIntroEntry.CATEGORY_COLOR;
         }
         return java.awt.Color.WHITE.getRGB();
     }
@@ -749,6 +752,8 @@ public class RoleUtils extends MCItemsUtils {
         } else if (selectedRole instanceof AreasSettings) {
             return Component.translatable("screen.roleintroduce.detail.map_areas_settings")
                     .withStyle(ChatFormatting.GREEN);
+        } else if (selectedRole instanceof TermIntroEntry term) {
+            return term.getNameWithColor();
         } else {
             return getRoleOrModifierNameWithColor(selectedRole);
         }
@@ -759,6 +764,8 @@ public class RoleUtils extends MCItemsUtils {
             return effect.getColor();
         } else if (obj instanceof Item) {
             return (ChatFormatting.WHITE.getColor());
+        } else if (obj instanceof TermIntroEntry) {
+            return TermIntroEntry.CATEGORY_COLOR;
         } else {
             return getRoleOrModifierColor(obj);
         }
@@ -777,6 +784,8 @@ public class RoleUtils extends MCItemsUtils {
                 return ResourceLocation.fromNamespaceAndPath("areas", a);
             }
             return ResourceLocation.fromNamespaceAndPath("areas", "areas_settings");
+        } else if (selectedRole instanceof TermIntroEntry term) {
+            return term.identifier();
         } else {
             return getRoleOrModifierIdentifier(selectedRole);
         }
@@ -789,6 +798,8 @@ public class RoleUtils extends MCItemsUtils {
             return it.getDescription().copy();
         } else if (selectedRole instanceof AreasSettings) {
             return Component.translatable("screen.roleintroduce.detail.map_areas_settings");
+        } else if (selectedRole instanceof TermIntroEntry term) {
+            return term.getName();
         } else {
             return getRoleOrModifierName(selectedRole);
         }
@@ -801,13 +812,17 @@ public class RoleUtils extends MCItemsUtils {
             return Component.translatable("display.type.item");
         } else if (role instanceof AreasSettings) {
             return Component.translatable("screen.roleintroduce.detail.map_areas_settings");
+        } else if (role instanceof TermIntroEntry) {
+            return Component.translatable("term_intro.type");
         } else {
             return getRoleOrModifierTypeName(role);
         }
     }
 
     public static MutableComponent getRoleOrModifierOrItemSimpleDescription(Object selectedRole) {
-        if (selectedRole instanceof IntroMobEffect effect) {
+        if (selectedRole instanceof TermIntroEntry term) {
+            return term.getSimpleDescription();
+        } else if (selectedRole instanceof IntroMobEffect effect) {
             return getEffectDescription(effect);
         } else if (selectedRole instanceof Item it) {
             String key = it.getDescriptionId() + ".desc.simple";
@@ -826,7 +841,9 @@ public class RoleUtils extends MCItemsUtils {
     }
 
     public static MutableComponent getRoleOrModifierOrItemDescription(Object selectedRole) {
-        if (selectedRole instanceof IntroMobEffect effect) {
+        if (selectedRole instanceof TermIntroEntry term) {
+            return term.getDescription();
+        } else if (selectedRole instanceof IntroMobEffect effect) {
             return getEffectDescription(effect);
         } else if (selectedRole instanceof Item it) {
             String key = it.getDescriptionId() + ".desc";

@@ -10,6 +10,7 @@ import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -210,6 +211,9 @@ public final class PriestHeavenManager {
 
         RoleUtils.changeRole(clockmaker, ModRoles.PRIEST, true, true, false, false, true);
         applyMobility(clockmaker);
+        // 回放记录：神的使命修饰符被触发
+        ReplayEventLog.record("replay.event.modifier.gods_mission",
+                ReplayEventLog.player(clockmaker));
 
         // 转职音效由 SOUND_TRANSFORM 在客户端播放，避免空自定义音效槽和双响
         Component title = Component.translatable("message.noellesroles.priest.transform.title")

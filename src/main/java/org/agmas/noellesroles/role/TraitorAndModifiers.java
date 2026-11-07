@@ -30,6 +30,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -518,6 +519,8 @@ public class TraitorAndModifiers {
 
                     // 移除起义军修饰符
                     modifiers.removeModifier(player.getUUID(), REBEL);
+                    // 回放记录：起义军修饰符被触发
+                    ReplayEventLog.record("replay.event.modifier.rebel", ReplayEventLog.player(player));
 
                     // 向所有玩家发送广播消息
                     for (ServerPlayer targetPlayer : serverLevel.getServer().getPlayerList().getPlayers()) {

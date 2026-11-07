@@ -25,6 +25,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
@@ -67,6 +68,8 @@ public class BomberRoleData extends SimpleRoleData {
             if (!RoleUtils.insertStackInFreeSlot(player, bombStack)) {
                 player.drop(bombStack, false);
             }
+            // 回放记录：炸弹客使用技能购买炸弹
+            ReplayEventLog.record("replay.event.bomber.buy_bomb", ReplayEventLog.player(player));
         } else {
             player.displayClientMessage(Component.translatable("message.noellesroles.insufficient_funds"), true);
             if (player instanceof ServerPlayer serverPlayer) {

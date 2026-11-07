@@ -23,6 +23,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -286,6 +287,9 @@ public class AccountantRoleData extends SimpleRoleData {
                 Component.translatable("message.noellesroles.accountant.income.report",
                         target.getName(), source).withStyle(ChatFormatting.GREEN),
                 true);
+        // 回放记录：xxx 查询了 xxx 的收入，结果为 xxx
+        ReplayEventLog.record("replay.event.accountant.query_income",
+                ReplayEventLog.player(serverPlayer), ReplayEventLog.name(target), source);
         return true;
     }
 
@@ -316,6 +320,9 @@ public class AccountantRoleData extends SimpleRoleData {
                 Component.translatable("message.noellesroles.accountant.expense.marked", target.getName(),
                         EXPENSE_QUERY_TIME_RANGE / 20).withStyle(ChatFormatting.AQUA),
                 true);
+        // 回放记录：xxx 查询了 xxx 的支出状况
+        ReplayEventLog.record("replay.event.accountant.query_expense",
+                ReplayEventLog.player(serverPlayer), ReplayEventLog.name(target));
 
         sync();
         return true;

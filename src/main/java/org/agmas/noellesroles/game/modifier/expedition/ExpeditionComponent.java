@@ -23,6 +23,7 @@ import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
@@ -138,6 +139,9 @@ public class ExpeditionComponent implements RoleComponent, ServerTickingComponen
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorld.isRole(player, ModRoles.GHOST)) { // 确保不是小透明
             RoleUtils.changeRole(player, ModRoles.BETTER_VIGILANTE);
+            // 回放记录：远征队修饰符被触发
+            ReplayEventLog.record("replay.event.modifier.expedition",
+                    ReplayEventLog.player(serverPlayer));
 
             // 播放音效
             player.level().playSound(null, player.blockPosition(),

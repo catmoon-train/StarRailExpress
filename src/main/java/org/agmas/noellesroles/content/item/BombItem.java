@@ -24,6 +24,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -238,6 +239,23 @@ public class BombItem extends Item {
             }
             // Transfer bomb
             ItemStack newStack = stack.copy();
+            if (!level.isClientSide) {
+                // 用炸弹自身的 NBT 记住上一组传递玩家：两人连续互相传递时不重复记录
+                CompoundTag tag = newStack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+                boolean hasLastPair = tag.hasUUID("lastFrom") && tag.hasUUID("lastTo");
+                UUID lastFrom = hasLastPair ? tag.getUUID("lastFrom") : null;
+                UUID lastTo = hasLastPair ? tag.getUUID("lastTo") : null;
+                boolean repeatedPair = hasLastPair
+                        && ((lastFrom.equals(player.getUUID()) && lastTo.equals(target.getUUID()))
+                                || (lastFrom.equals(target.getUUID()) && lastTo.equals(player.getUUID())));
+                if (!repeatedPair) {
+                    ReplayEventLog.record("replay.event.bomb.pass",
+                            ReplayEventLog.player(player), ReplayEventLog.name(target));
+                }
+                tag.putUUID("lastFrom", player.getUUID());
+                tag.putUUID("lastTo", target.getUUID());
+                newStack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+            }
             stack.shrink(1);
 
             if (!target.getInventory().add(newStack)) {

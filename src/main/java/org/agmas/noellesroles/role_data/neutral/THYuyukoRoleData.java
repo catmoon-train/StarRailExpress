@@ -130,6 +130,10 @@ public class THYuyukoRoleData extends SimpleRoleData {
         if (body.isRemoved()) {
             return false;
         }
+        // 待复活尸体不能被食用
+        if (org.agmas.noellesroles.utils.AnatmanAsatyaCorpseGuard.denyInteraction(body, player)) {
+            return false;
+        }
         // 咸鱼「晒咸鱼」的假尸体不是真实尸体，不能拿来进食计数
         if (SaltedFishRoleData.isSaltedFishFakeBody(body)) {
             return false;

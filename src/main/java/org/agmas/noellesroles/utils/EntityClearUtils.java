@@ -115,6 +115,7 @@ public class EntityClearUtils {
                 entity instanceof WheelchairEntity ||
                 entity instanceof AnglerRodMountEntity ||
                 entity instanceof RainbowHorseEntity ||
+                entity instanceof SnowballRollEntity ||
                 entity instanceof io.wifi.starrailexpress.content.entity.AbstractPurpleMonsterEntity ||
                 entity instanceof KuiXiPuppetEntity ||
                 entity instanceof NoteEntity ||

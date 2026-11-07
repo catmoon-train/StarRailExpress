@@ -266,6 +266,10 @@ public class WayfarerRoleData extends SimpleRoleData {
                     return InteractionResult.SUCCESS;
 
                 // 检查是否是葬仪伪造的尸体，不能与伪造的尸体交互
+                // 待复活尸体不能被旅人读取信息
+                if (org.agmas.noellesroles.utils.AnatmanAsatyaCorpseGuard.denyInteraction(be, player)) {
+                    return InteractionResult.FAIL;
+                }
                 PlayerBodyEntityComponent bodyDeathReasonComponent = (PlayerBodyEntityComponent) PlayerBodyEntityComponent.KEY
                         .get(be);
                 if (bodyDeathReasonComponent.isFakeBody) {

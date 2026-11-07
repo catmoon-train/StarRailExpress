@@ -28,6 +28,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.IntroMobEffect;
 import io.wifi.starrailexpress.index.TMMDescEffects;
 import io.wifi.starrailexpress.index.TMMDescItems;
+import io.wifi.starrailexpress.index.TermIntroEntry;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -178,6 +179,9 @@ public class RoleIntroduceScreen extends Screen {
                 item -> (item instanceof Item it
                         && io.wifi.starrailexpress.client.data.ClientSponsorCache.isSponsorPlush(it))
                         || item instanceof AreasSettings));
+        // 专有名词：条目与文案全部来自独立语言文件夹 assets/term_intro/lang
+        CATEGORIES.add(new RoleCategory("term_intro.category", TermIntroEntry.CATEGORY_COLOR,
+                item -> item instanceof TermIntroEntry));
     }
 
     static {
@@ -529,6 +533,16 @@ public class RoleIntroduceScreen extends Screen {
                     || BuiltInRegistries.ITEM.getKey(item).toString().contains(searchContent.toLowerCase())
                     || PinYinUtils.contains(searchContent, name))
                 filteredItems.add(item);
+        }
+        // 专有名词：与对局无关，任何模式下都可在「所有」与「专有名词」类别中查阅
+        for (TermIntroEntry term : TermIntroEntry.ALL) {
+            if (!cat.filter.test(term))
+                continue;
+            String name = term.getName().getString();
+            if (searchContent == null || name.toLowerCase().contains(searchContent.toLowerCase())
+                    || term.identifier().toString().contains(searchContent.toLowerCase())
+                    || PinYinUtils.contains(searchContent, name))
+                filteredItems.add(term);
         }
         // 所有列表视图都按统一的「大阵营顺序 + 中立细分顺序」排序：
         // 平民 → 警长 → 杀手 → 中立（偏好→杀手方→事件→特殊→独立胜利）→ 其它（修饰符/物品等）
@@ -1638,6 +1652,8 @@ public class RoleIntroduceScreen extends Screen {
                     lines.addAll(font.split(RoleUtils.getEffectCategoryName(effect), textW));
                 } else if (selectedRole instanceof SREModifier mod) {
                     lines.addAll(font.split(mod.getName(), textW));
+                } else if (selectedRole instanceof TermIntroEntry term) {
+                    lines.addAll(font.split(term.getName(), textW));
                 }
 
                 // 分割线 + 标签
@@ -1661,6 +1677,13 @@ public class RoleIntroduceScreen extends Screen {
                             .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD), textW));
                     lines.addAll(font.split(Component.literal(dashes).withStyle(ChatFormatting.DARK_GRAY), textW));
                     lines.addAll(font.split(RoleUtils.getRoleOrModifierOrItemDescription(item)
+                            .copy().withStyle(ChatFormatting.WHITE), textW));
+                } else if (selectedRole instanceof TermIntroEntry) {
+                    lines.add(FormattedCharSequence.EMPTY);
+                    lines.addAll(font.split(Component.translatable("screen.roleintroduce.detail.simple_description")
+                            .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD), textW));
+                    lines.addAll(font.split(Component.literal(dashes).withStyle(ChatFormatting.DARK_GRAY), textW));
+                    lines.addAll(font.split(RoleUtils.getRoleOrModifierOrItemSimpleDescription(selectedRole)
                             .copy().withStyle(ChatFormatting.WHITE), textW));
                 }
 
@@ -1862,6 +1885,8 @@ public class RoleIntroduceScreen extends Screen {
             return "modifier";
         if (it instanceof SRERole)
             return "role";
+        if (it instanceof TermIntroEntry)
+            return "term";
         return "unknown";
     }
 

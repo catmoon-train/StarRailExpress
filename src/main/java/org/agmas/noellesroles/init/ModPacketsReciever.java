@@ -106,6 +106,8 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.role.bouns.roles.ProgrammerRole;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
+import org.agmas.noellesroles.utils.AnatmanAsatyaCorpseGuard;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.agmas.noellesroles.voice.HeliumBuzzPlayerComponent;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
@@ -810,8 +812,12 @@ public class ModPacketsReciever {
               return playerBodyEntity.getUUID().equals(payload.playerBody());
             }));
         if (!playerBodyEntities.isEmpty()) {
+          PlayerBodyEntity vultureTarget = playerBodyEntities.getFirst();
+          // 待复活尸体（如无我/无妄的搭档仍存活时）不允许被食用
+          if (AnatmanAsatyaCorpseGuard.denyInteraction(vultureTarget, player))
+            return;
           PlayerBodyEntityComponent bodyDeathReasonComponent = PlayerBodyEntityComponent.KEY
-              .get(playerBodyEntities.getFirst());
+              .get(vultureTarget);
           if (!bodyDeathReasonComponent.vultured) {
             abilityPlayerComponent.cooldown = GameConstants.getInTicks(0,
                 NoellesRolesConfig.HANDLER.instance().vultureEatCooldown);
@@ -1627,6 +1633,10 @@ public class ModPacketsReciever {
           comp.voiceSwapCooldown =
               org.agmas.noellesroles.game.roles.killer.embalmer.EmbalmerVoiceSwapManager.COOLDOWN_TICKS;
           comp.sync();
+          // 回放记录：xxx 交换了 xxx 和 xxx 的声带
+          ReplayEventLog.record("replay.event.embalmer.voice_swap",
+              ReplayEventLog.player(player), ReplayEventLog.name(first),
+              ReplayEventLog.name(second));
 
           player.displayClientMessage(
               Component.translatable("message.noellesroles.embalmer.voice_swap.done", first.getName(),
@@ -1665,7 +1675,8 @@ public class ModPacketsReciever {
           io.wifi.starrailexpress.content.entity.PlayerBodyEntity body = null;
           for (io.wifi.starrailexpress.content.entity.PlayerBodyEntity b : player.serverLevel().getEntitiesOfClass(
               io.wifi.starrailexpress.content.entity.PlayerBodyEntity.class, player.getBoundingBox().inflate(3.0D))) {
-            if (b.getPlayerUuid() != null && !b.getPlayerUuid().equals(player.getUUID())) {
+            if (b.getPlayerUuid() != null && !b.getPlayerUuid().equals(player.getUUID())
+                && !b.isNonInteractable()) {
               body = b;
               break;
             }

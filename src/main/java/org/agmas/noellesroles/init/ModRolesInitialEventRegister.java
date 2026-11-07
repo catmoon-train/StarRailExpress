@@ -540,6 +540,19 @@ public class ModRolesInitialEventRegister {
                         .announceToSelf(false)
                         .build());
 
+        // 雪傀儡【推出雪球】：把正在推的雪球猛地推出去。
+        // 冷却 30 秒，由默认技能 HUD（showOnHud）在客户端显示冷却；
+        // handler 返回 false（没有雪球可推）时不消耗冷却，见 RoleSkill 的 used 判定。
+        RoleSkill.register(ModRoles.SNOW_GOLEM,
+                RoleSkill.skill(SRE.id("snow_golem_push_snowball"),
+                        "skill.noellesroles.snow_golem.push_snowball",
+                        context -> org.agmas.noellesroles.game.roles.neutral.snow_golem.SnowGolemRole
+                                .launchSnowball(context.player()))
+                        .cooldownSeconds(30)
+                        .showOnHud(true)
+                        .announceToSelf(false)
+                        .build());
+
         RoleSkill.register(ModRoles.LIN_FAMILY,
                 RoleSkill.skill(SRE.id("lin_family_generosity"),
                         "skill.noellesroles.lin_family.generosity",

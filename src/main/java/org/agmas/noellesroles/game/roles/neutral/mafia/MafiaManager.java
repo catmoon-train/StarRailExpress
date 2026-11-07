@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.game.roles.neutral.mafia;
 
+import org.agmas.noellesroles.utils.ReplayEventLog;
+
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -150,6 +152,9 @@ public final class MafiaManager {
             RoleUtils.changeRole(tgt, newRole);
             comp.recruitCooldownUntil = now + comp.recruitCooldownSeconds * 20L;
             comp.sync();
+            // 回放记录：xxx 招募了 xxx
+            ReplayEventLog.record("replay.event.godfather.recruit",
+                    ReplayEventLog.player(player), ReplayEventLog.name(tgt));
 
             // 被招募者：发送欢迎报幕
             RoleUtils.sendWelcomeAnnouncement(tgt, newRole);

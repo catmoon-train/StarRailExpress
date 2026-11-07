@@ -44,7 +44,7 @@ import org.jetbrains.annotations.NotNull;
  * <li>还魂：消耗100金币使无我复活（冷却120秒）</li>
  * </ul>
  * 当无我死亡时，自身叠加一层护盾（最多5层），护盾可抵挡致命伤害（每层消耗1层）。
- * 当无我与无妄在乘客/时间/杀手胜利结算时均存活，则取得联合独立胜利。
+ * 当无我与无妄存活到最后，且场上存活人数不超过开局玩家数的三分之一（含两人自己）时，取得联合独立胜利。
  */
 public class AsatyaRoleData extends SimpleRoleData {
 

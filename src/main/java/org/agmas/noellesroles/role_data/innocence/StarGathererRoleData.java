@@ -27,6 +27,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -316,6 +317,9 @@ public class StarGathererRoleData extends SimpleRoleData {
                 if (stack.isEmpty() || !isMetalItem(stack))
                     continue;
                 other.getInventory().setItem(slot, ItemStack.EMPTY);
+                // 回放记录：xxx 吸引了 xxx 背包中的 xx
+                ReplayEventLog.record("replay.event.star_gatherer.gravity_pull",
+                        ReplayEventLog.player(sp), ReplayEventLog.name(other), stack.getHoverName());
                 // 同类只留一件；已经有一件的话就直接丢弃
                 if (SREItemUtils.countItem(sp, stack.getItem()) > 0 || !SREItemUtils.insertStackInFreeSlot(sp, stack.copy())) {
                     // 丢弃：掉在原地，不进入任何人的背包
@@ -389,6 +393,9 @@ public class StarGathererRoleData extends SimpleRoleData {
                 .translatable("message.noellesroles.star_gatherer.alms_used", target.getName(),
                         hand.getHoverName())
                 .withStyle(ChatFormatting.AQUA), true);
+        // 回放记录：xxx 给予了 xxx xx
+        ReplayEventLog.record("replay.event.star_gatherer.alms",
+                ReplayEventLog.player(sp), ReplayEventLog.name(target), hand.getHoverName());
         return true;
     }
 

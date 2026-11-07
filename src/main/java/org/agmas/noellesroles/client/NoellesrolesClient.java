@@ -474,6 +474,8 @@ public class NoellesrolesClient implements ClientModInitializer {
                 org.agmas.noellesroles.client.render.RollingStoneRenderer::new);
         EntityRendererRegistry.register(ModEntities.ROLLING_LOG,
                 org.agmas.noellesroles.client.render.RollingLogRenderer::new);
+        EntityRendererRegistry.register(ModEntities.SNOWBALL_ROLL,
+                org.agmas.noellesroles.client.render.SnowballRollRenderer::new);
         EntityRendererRegistry.register(ModEntities.PIGEON,
                 org.agmas.noellesroles.client.render.PigeonRenderer::new);
         EntityRendererRegistry.register(ModEntities.MECHANICAL_BIRD,

@@ -34,6 +34,7 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.harpymodloader.events.ResetPlayerEvent;
 import org.agmas.noellesroles.api.time.TimeRewindPlayback;
+import org.agmas.noellesroles.utils.AnatmanAsatyaCorpseGuard;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.component.DefibrillatorComponent;
 import org.agmas.noellesroles.component.InfectedPlayerComponent;
@@ -340,6 +341,8 @@ public class GameUtils {
             if (DefibrillatorComponent.KEY.get(victim).isDead) {
                 bodycca.setNonInteractable(true, false);
             }
+            // 无我/无妄一方存活、另一方死亡时，死者还能被还魂复活，尸体同样标记为待复活
+            AnatmanAsatyaCorpseGuard.onBodySpawned(body, victim);
             // 最后统一同步一次
             bodycca.sync();
         }

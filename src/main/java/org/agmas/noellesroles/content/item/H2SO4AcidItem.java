@@ -38,6 +38,9 @@ public class H2SO4AcidItem extends Item {
             return InteractionResult.PASS;
         }
         if (entity instanceof PlayerBodyEntity body) {
+            // 待复活尸体不能被溶解
+            if (org.agmas.noellesroles.utils.AnatmanAsatyaCorpseGuard.denyInteraction(body, user))
+                return InteractionResult.FAIL;
             body.discard();
             if (!user.level().isClientSide) {
                 user.level().playSound(null, body.getX(), body.getY() + 0.10000000149011612, body.getZ(),

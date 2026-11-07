@@ -37,6 +37,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -315,6 +316,8 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
                     true);
         });
         isAnyRevivals = true;
+        // 回放记录：难民修饰符触发亡命徒时刻
+        ReplayEventLog.record("replay.event.moment.refugee", ReplayEventLog.player(player));
         var gameWorldComponent = SREGameWorldComponent.KEY.get(this.level);
         // 给所有鹈鹕玩家施加技能禁用效果，持续时间与亡命徒时刻一致（3000 ticks = 150秒）
         for (var p : serverLevel.players()) {
