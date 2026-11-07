@@ -1,5 +1,7 @@
 # DashLoader 5.1.0-beta.8 / Minecraft 1.21.1 加载兼容
 
+> 当前实现已迁移至独立客户端子项目 [sre-pack-compat](../sre-pack-compat/README.md)。下文保留历史验证记录；现在需同时发布拆分后的 SRE 核心和兼容 JAR，不能只把新包加到仍内置旧补丁的核心旁边。
+
 ## 范围与证据
 
 目标版本为 SRE4.3 已安装的 `dashloader-5.1.0-beta.8+1.21.1`。没有新增运行时依赖，也未改模组版本、启动器、代理鉴权或服务器安全策略。
@@ -152,3 +154,19 @@ Supplementaries 4.0.2 的黑板模型使用 `supplementaries:blackboard` 加载�
 在保留全部原有模组的 SRE4.3 / Fabric 0.20.1 实例中，验证器仅在渲染线程读取模型并执行两次正常资源重载。初始加载及两次重载各检查 8 个状态：均保留 `BlackboardBakedModel`，粒子贴图均为 `supplementaries:block/blackboard_side`，三次签名相同；最后一次确认 `cacheLoad=true`，结果 `ok=true, hotCacheVerified=true`。启动后再次校验实例 JAR 哈希与上述修复产物一致。
 
 本次停在主菜单验证资源链路，没有把它描述成已在新包下重新完成多人对局或全部 Iris 光影外观验收。永久更新配置仍未修改，远端更新源同步限制仍然存在。
+
+## Supplementaries 不参与模型缓存预热
+
+按用户要求，新增 `DashModelCacheExclusionsMixin`：仅排除模型 ID 命名空间严格等于 `supplementaries` 的方块、物品和额外模型，不写入 DashLoader 模型缓存，也不将该命名空间的旧缓存模型注入 ModelBakery。其他命名空间模型缓存仍然启用。DashLoader 本版没有按模组独立关闭全部“预热”的配置，此策略不关闭共享纹理图集，也不跳过锦致装饰的正常资源读取与模型烘焙。
+
+保存时过滤独立模型快照，不修改正在使用的烘焙模型表；DashLoader 继续把被排除方块状态记录为缺失缓存项。加载时防御性移除旧缓存中的 Supplementaries 模型，并从注册表补齐该命名空间全部方块状态，复用现有按方块去重的 JSON 回退正常烘焙，避免仅排除缓存却造成紫黑缺失模型。原有 Moonlight 嵌套模型兼容仍保留。当前共 19 个 DashLoader 兼容 Mixin，仍由安装检查控制，无新依赖或版本号修改。
+
+验证：
+
+- `./gradlew test --tests 'io.wifi.starrailexpress.client.resource.*' remapJar --offline --console=plain` 成功，资源相关 **70 项通过**，0 失败／错误／跳过；新增排除规则 6 项，覆盖严格命名空间、方块／物品／额外模型、独立快照、旧缓存回退及幂等性。
+- 隔离 MC 1.21.1／DashLoader 5.1.0-beta.8／Supplementaries 4.0.2／Moonlight 3.7.2 客户端，冷加载保存→实际 LOAD→强制刷新通过。在生产 LOAD 防御过滤之前读取缓存表，确认 `cachedSupplementaries=0`、`cachedOther=61905`、`fallbackSupplementariesStates=18557`，说明写入排除真正生效，其他模型缓存未全局禁用。
+- 黑板 8 个状态在冷／热／强制刷新三阶段的几何、动态绘图与 GPU 像素一致，输出 `SRE_BLACKBOARD_COLD_WARM_FRESH_PASS checks=10769`，客户端正常退出。临时缓存探针不在正式 JAR。
+
+产物 `build/libs/starrailexpress.jar`，24,213,973 字节，SHA-256：`a4335a9b3d5bbd589f6af09b30edadaebed26f583b4b6df951ed0b3efcaff74a`。确认实例未运行、旧核心仍为预期的 `f91c13...` 后，已原子替换 SRE4.3 的 `mods/star_rail_express-4.3.0.jar` 并复核哈希。旧核心备份至 `D:/StarRailHarpyExpress/versions/SRE4.3/PCL/supplementaries-cache-exclusion-20261106-193752/`；未改实际实例配置、删除缓存或修改远端更新源。
+
+本轮运行验证为隔离客户端，未将它描述成替换后又完成完整实例的启动／联机验收。正常更新源仍可能恢复旧 JAR，永久交付仍需按正常流程同步产物和哈希。

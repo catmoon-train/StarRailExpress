@@ -67,6 +67,7 @@ public abstract class WorldRendererMixin {
                 float start = org.agmas.noellesroles.game.night.NightRoundState.fogStart(RenderSystem.getShaderFogStart(), end);
                 tmm$doFog(start, end);
             }
+            io.wifi.starrailexpress.client.render.ShaderPackFog.refreshCapturedFog();
         }
     }
 
@@ -81,6 +82,7 @@ public abstract class WorldRendererMixin {
             return;
         }
         if (VerticalLoopingMirrorClient.applyBottomFog(camera)) {
+            io.wifi.starrailexpress.client.render.ShaderPackFog.capture();
             return;
         }
         float echoRadius=EchoHunterFogClient.radius(camera);
@@ -176,6 +178,7 @@ public abstract class WorldRendererMixin {
         RenderSystem.setShaderFogStart(fogData.start);
         RenderSystem.setShaderFogEnd(fogData.end);
         RenderSystem.setShaderFogShape(fogData.shape);
+        io.wifi.starrailexpress.client.render.ShaderPackFog.capture();
     }
 
 }

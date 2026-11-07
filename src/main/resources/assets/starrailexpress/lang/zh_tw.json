@@ -1483,7 +1483,7 @@
   "hud.sre.entitydisguise.form.tomato": "番茄頭",
   "hud.sre.entitydisguise.morph.texture": "皮膚變形",
   "skill.sre.custom_role.ability": "技能",
-  "hud.sre.game_token": "%s",
+  "hud.sre.game_token": "%s",
   "hud.sre.skill_cast": "%s 使用了技能",
   "tooltip.starrailexpress.item.shift_more": "按住 [%s] 顯示更多資訊",
   "tooltip.starrailexpress.item.shop_header": "出現在以下職業商店：",

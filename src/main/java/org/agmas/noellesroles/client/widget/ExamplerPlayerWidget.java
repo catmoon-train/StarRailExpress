@@ -120,7 +120,7 @@ public class ExamplerPlayerWidget extends Button {
             context.setColor(1f, 1f, 1f, 1f);
             context.drawString(Minecraft.getInstance().font,
                     Component.translatable("%s %s", 100 - shopComponent.balance,
-                            Component.literal("\uE781").withStyle(ChatFormatting.WHITE)),
+                            Component.literal("\uE000").withStyle(ChatFormatting.WHITE)),
                     this.getX(), this.getY(), Color.YELLOW.getRGB(), true);
         }
 

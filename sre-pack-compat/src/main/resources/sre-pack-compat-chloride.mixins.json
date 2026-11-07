@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.wifi.srepackcompat.mixin.chloride",
+  "plugin": "io.wifi.srepackcompat.SrePackCompatMixinPlugin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "ChlorideConfigMixin",
+    "ChlorideOptionBuilderMixin",
+    "ChlorideOptionBindingMixin",
+    "ChlorideParticleToggleMixin"
+  ],
+  "injectors": { "defaultRequire": 1 }
+}

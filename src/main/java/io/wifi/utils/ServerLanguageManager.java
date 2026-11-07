@@ -66,10 +66,13 @@ public final class ServerLanguageManager {
     /** 防止重复触发下载（如配置热重载时）。 */
     private static final AtomicBoolean VANILLA_DOWNLOADING = new AtomicBoolean(false);
 
-    private static final HttpClient HTTP = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(10))
-            .followRedirects(HttpClient.Redirect.NORMAL)
-            .build();
+    /** 仅在后台确实需要下载时初始化，避免客户端启动无谓加载 HTTP/TLS。 */
+    private static final class HttpClientHolder {
+        private static final HttpClient INSTANCE = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(10))
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .build();
+    }
 
     private ServerLanguageManager() {
     }
@@ -368,7 +371,7 @@ public final class ServerLanguageManager {
                     .header("User-Agent", USER_AGENT)
                     .GET()
                     .build();
-            HttpResponse<String> response = HTTP.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = HttpClientHolder.INSTANCE.send(request, HttpResponse.BodyHandlers.ofString());
             // 非 200 也会带回响应体（错误页），一样算进收到的字节。
             TrafficRecorder.httpServer("GET", url, null, response.body());
             if (response.statusCode() != 200) {

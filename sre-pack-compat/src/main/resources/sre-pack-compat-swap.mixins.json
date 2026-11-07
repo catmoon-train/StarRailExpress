@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.wifi.srepackcompat.mixin.swap",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "KeyboardSwapMixin",
+    "ContainerScreenAccessor",
+    "CreativeScreenAccessor",
+    "MouseHandlerAccessor",
+    "LimitedHandledSwapMixin"
+  ],
+  "injectors": { "defaultRequire": 1 }
+}

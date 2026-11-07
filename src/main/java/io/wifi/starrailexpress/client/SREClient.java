@@ -308,6 +308,7 @@ public class SREClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        io.wifi.starrailexpress.client.render.ShaderPackFog.register();
         io.wifi.starrailexpress.settlement.client.SettlementClient.register();
         LetterNewspaperBuilder.init();
         RhythmMapManager.registerEvents();

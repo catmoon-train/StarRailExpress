@@ -1,0 +1,20 @@
+{
+  "options": {
+    "CACHE_ATLASES": true,
+    "CACHE_FONT": true,
+    "CACHE_MODEL_LOADER": true,
+    "CACHE_SHADER": true,
+    "CACHE_SPLASH_TEXT": true,
+    "CACHE_SPRITE_CONTENT": true,
+    "CACHE_SPRITE_STITCHING": true,
+    "FAST_MODEL_IDENTIFIER_EQUALS": true,
+    "FAST_WALL_BLOCK": true,
+    "UNSAFE_MIPMAP_GENERATION": true
+  },
+  "compression": 4,
+  "maxCaches": 5,
+  "customSplashLines": [],
+  "addDefaultSplashLines": true,
+  "singleThreadedReading": false,
+  "showCachingToast": true
+}

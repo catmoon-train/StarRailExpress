@@ -1,0 +1,14 @@
+{
+  "blend": {"func": "add", "srcrgb": "srcalpha", "dstrgb": "1-srcalpha"},
+  "vertex": "starrailexpress:shader_pack_fog",
+  "fragment": "starrailexpress:shader_pack_fog",
+  "attributes": ["Position"],
+  "samplers": [{"name": "DepthSampler"}],
+  "uniforms": [
+    {"name": "InverseProjection", "type": "matrix4x4", "count": 16, "values": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]},
+    {"name": "InverseModelView", "type": "matrix4x4", "count": 16, "values": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]},
+    {"name": "FogRange", "type": "float", "count": 2, "values": [0, 1]},
+    {"name": "FogShape", "type": "int", "count": 1, "values": [0]},
+    {"name": "FogColor", "type": "float", "count": 3, "values": [0, 0, 0]}
+  ]
+}

@@ -110,7 +110,7 @@ public class HudStoreRenderer {
         public void render(Font renderer, @NotNull FakeGuiGraphics context, int x, int y, int colour, float delta) {
             context.pose().pushPose();
             context.pose().translate(x, y, 0);
-            context.drawString(renderer, "\uE781", 0, 0, colour);
+            context.drawString(renderer, "\uE000", 0, 0, colour);
             int offset = -8;
             for (ScrollingDigit digit : this.digits) {
                 context.pose().pushPose();
@@ -127,7 +127,7 @@ public class HudStoreRenderer {
         }
 
         public int getWidth(Font renderer) {
-            int iconWidth = renderer.width("\uE781");
+            int iconWidth = renderer.width("\uE000");
             int digitWidth = this.digits.size() * 8;
             return iconWidth + digitWidth;
         }

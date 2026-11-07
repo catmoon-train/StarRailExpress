@@ -1501,7 +1501,7 @@
     "hud.sre.entitydisguise.form.tomato": "Tomato Head",
     "hud.sre.entitydisguise.morph.texture": "Skin Morph",
     "skill.sre.custom_role.ability": "Skill",
-    "hud.sre.game_token": "%s",
+    "hud.sre.game_token": "%s",
     "hud.sre.skill_cast": "%s used a skill",
     "tooltip.starrailexpress.item.shift_more": "Hold [%s] for more info",
     "tooltip.starrailexpress.item.shop_header": "Available in these role shops:",

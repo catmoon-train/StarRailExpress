@@ -322,8 +322,11 @@ public final class MysqlPlayerDataStore {
                     }
                 }
             }
+            // Read while our write locks are still held. A post-commit SELECT can
+            // observe a website grant and incorrectly bless our stale payload.
+            Map<RecordKey, Long> committedRevisions = readWrittenRevisions(connection, playerUuid, payloads.keySet());
             connection.commit();
-            refreshKnownRevisions(connection, playerUuid, payloads.keySet());
+            KNOWN_REVISIONS.putAll(committedRevisions);
             tracked.record();
             clearFastFail();
             return true;
@@ -370,11 +373,12 @@ public final class MysqlPlayerDataStore {
         return revision;
     }
 
-    private static void refreshKnownRevisions(Connection connection, UUID playerUuid, Collection<String> dataKeys)
+    private static Map<RecordKey, Long> readWrittenRevisions(Connection connection, UUID playerUuid, Collection<String> dataKeys)
             throws SQLException {
+        Map<RecordKey, Long> revisions = new LinkedHashMap<>();
         List<String> normalizedKeys = normalizeKeys(dataKeys);
         if (normalizedKeys.isEmpty()) {
-            return;
+            return revisions;
         }
         String placeholders = String.join(",", Collections.nCopies(normalizedKeys.size(), "?"));
         String sql = "SELECT data_key, record_version FROM " + tableName
@@ -394,14 +398,16 @@ public final class MysqlPlayerDataStore {
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     String dataKey = resultSet.getString("data_key");
-                    KNOWN_REVISIONS.put(
-                            new RecordKey(playerUuid, dataKey),
-                            resultSet.getLong("record_version"));
+                    revisions.put(new RecordKey(playerUuid, dataKey), resultSet.getLong("record_version"));
                     tracked.result(dataKey).numbers(1);
                 }
                 tracked.record();
             }
         }
+        if (revisions.size() != normalizedKeys.size()) {
+            throw new SQLException("Missing revision for written player data");
+        }
+        return revisions;
     }
 
     private static void rollbackQuietly(Connection connection, UUID playerUuid) {

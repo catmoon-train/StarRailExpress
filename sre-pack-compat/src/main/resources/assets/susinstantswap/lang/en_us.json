@@ -1,0 +1,20 @@
+{
+  "description.susinstantswap": "Hold the inventory key and release to swap with the selected hotbar slot. A short press opens the inventory normally.",
+  "key.susinstantswap.swap_in_gui": "Swap in GUI",
+  "key.categories.susinstantswap": "Su's Instant Swap",
+  "config.susinstantswap.title": "Su's Instant Swap Config",
+  "config.susinstantswap.modEnabled": "Enable Instant Swap",
+  "config.susinstantswap.modEnabled.tooltip": "Master switch. When off, the inventory key behaves normally.",
+  "config.susinstantswap.holdThresholdMs": "Long Press Threshold (ms)",
+  "config.susinstantswap.holdThresholdMs.tooltip": "Range: 50–1000ms. Default: 200ms.",
+  "config.susinstantswap.soundEnabled": "Swap Sound",
+  "config.susinstantswap.soundEnabled.tooltip": "Play a sound when swapping items.",
+  "config.susinstantswap.mouseReposition": "Mouse Reposition",
+  "config.susinstantswap.mouseReposition.tooltip": "Move the cursor to the bottom-right when opening a vanilla container or inventory.",
+  "config.susinstantswap.guiSwapEnabled": "GUI Swap",
+  "config.susinstantswap.guiSwapEnabled.tooltip": "Swap and close using the GUI swap key. Uses the inventory key if unbound. Disabled by default.",
+  "config.susinstantswap.emptySlotSwapEnabled": "Empty Slot Swap",
+  "config.susinstantswap.emptySlotSwapEnabled.tooltip": "Allow swapping with an empty slot.",
+  "config.susinstantswap.debug": "Debug Logging",
+  "config.susinstantswap.debug.tooltip": "Log the menu, slot and hotbar indices when swapping."
+}

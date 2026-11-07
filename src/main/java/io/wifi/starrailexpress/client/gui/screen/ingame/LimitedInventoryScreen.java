@@ -859,12 +859,12 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
                 effectivePrice = DynamicShopComponent.KEY.get(clientPlayer)
                         .effectivePrice(liveEntry.stack(), basePrice);
             }
-            // 价格按条目货币类型显示：默认金币（\uE781 图标）；游戏代币用对应翻译键（带代币图标字形）
+            // 价格按条目货币类型显示：默认金币（\uE000 图标）；游戏代币用对应翻译键（带代币图标字形）
             ShopEntry.Currency currency = liveEntry.currency() == null
                     ? ShopEntry.Currency.MONEY
                     : liveEntry.currency();
             MutableComponent price = currency == ShopEntry.Currency.MONEY
-                    ? Component.literal(effectivePrice + "\uE781")
+                    ? Component.literal(effectivePrice + "\uE000")
                     : Component.translatable(currency.priceTranslationKey(), effectivePrice)
                             .withColor(currency.color());
             int displayX = this.getX() - 4 - this.screen.font.width(price) / 2;

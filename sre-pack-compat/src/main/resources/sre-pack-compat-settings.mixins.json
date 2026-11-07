@@ -1,0 +1,9 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.wifi.srepackcompat.mixin.settings",
+  "plugin": "io.wifi.srepackcompat.SrePackCompatMixinPlugin",
+  "compatibilityLevel": "JAVA_21",
+  "client": ["SodiumSettingsPagesMixin", "SodiumOptionIdAccessor"],
+  "injectors": { "defaultRequire": 1 }
+}

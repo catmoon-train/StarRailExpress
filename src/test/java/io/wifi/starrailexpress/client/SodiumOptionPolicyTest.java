@@ -14,12 +14,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SodiumOptionPolicyTest {
-    @ParameterizedTest @ValueSource(strings = {"sodium:general.gamma", "sodium:quality.weather", "sodium:quality.particles", "sodium:quality.leaves", "sodium:quality.ao", "sodium:quality.clouds", "sodium:quality.vignette", "sodium-extra:particles_all", "sodium-extra:particle.options.particles.minecraft.smoke", "sodium-extra:fog_start.options.dimensions.minecraft.overworld", "sodium-extra:cloud_fog.options.dimensions.minecraft.overworld", "sodium-extra:fog_shape", "sodium-extra:fog_shape.options.dimensions.minecraft.overworld", "sodium-extra:advanced_fog_settings", "sodium-extra:light_updates", "sodium-extra:piston", "sodium-extra:rain_snow", "sodium-extra:panini_projection", "sodium-extra:instant_sneak"})
+    @ParameterizedTest @ValueSource(strings = {"sodium:general.gamma", "sodium:quality.entity_distance", "sodium:quality.clouds", "sodium-extra:particles_all", "sodium-extra:particle.options.particles.minecraft.smoke", "sodium-extra:fog_start.options.dimensions.minecraft.overworld", "sodium-extra:cloud_fog.options.dimensions.minecraft.overworld", "sodium-extra:fog_shape", "sodium-extra:fog_shape.options.dimensions.minecraft.overworld", "sodium-extra:advanced_fog_settings", "sodium-extra:light_updates", "sodium-extra:piston", "sodium-extra:rain_snow", "sodium-extra:panini_projection", "sodium-extra:instant_sneak"})
     void gameplayVisibilityControlsAreLocked(String id) {
         assertTrue(SodiumOptionPolicy.isLocked(ResourceLocation.parse(id)));
     }
 
-    @ParameterizedTest @ValueSource(strings = {"sodium:general.render_distance", "sodium:general.framerate_limit", "sodium:general.fullscreen", "sodium:general.vsync", "sodium:performance.chunk_update_threads", "sodium:performance.use_entity_culling", "sodium-extra:show_fps", "sodium-extra:overlay_corner", "sodium-extra:toasts", "another_mod:particles_all"})
+    @ParameterizedTest @ValueSource(strings = {"sodium:quality.weather", "sodium:quality.particles", "sodium:quality.leaves", "sodium:quality.ao", "sodium:quality.vignette", "sodium:general.render_distance", "sodium:general.framerate_limit", "sodium:general.fullscreen", "sodium:general.vsync", "sodium:performance.chunk_update_threads", "sodium:performance.use_entity_culling", "sodium-extra:show_fps", "sodium-extra:overlay_corner", "sodium-extra:toasts", "another_mod:particles_all"})
     void unrelatedAndPerformanceControlsAreNotLocked(String id) {
         assertFalse(SodiumOptionPolicy.isLocked(ResourceLocation.parse(id)));
     }
@@ -47,17 +47,66 @@ class SodiumOptionPolicyTest {
         assertEquals("VANILLA", binding.load());
     }
 
-    @Test void sodiumConfigRestoresWeatherLeavesAndVignetteOnly() {
+    @Test void sodiumConfigPreservesUserWeatherLeavesAndVignette() {
         var options = SodiumOptions.defaults();
         options.quality.weatherQuality = SodiumOptions.WeatherQuality.FAST;
         options.quality.leavesQuality = SodiumOptions.LeavesQuality.FAST;
         options.quality.enableVignette = false;
         var performance = options.performance;
         assertSame(options, SodiumOptionPolicy.enforce(options));
-        assertEquals(SodiumOptions.WeatherQuality.FANCY, options.quality.weatherQuality);
-        assertEquals(SodiumOptions.LeavesQuality.FANCY, options.quality.leavesQuality);
-        assertTrue(options.quality.enableVignette);
+        assertEquals(SodiumOptions.WeatherQuality.FAST, options.quality.weatherQuality);
+        assertEquals(SodiumOptions.LeavesQuality.FAST, options.quality.leavesQuality);
+        assertFalse(options.quality.enableVignette);
         assertSame(performance, options.performance);
+    }
+
+    @Test void entityDistanceBindingRejectsProposalsAndReadsAlwaysOneHundredPercent() {
+        var stored = new AtomicReference<>(500);
+        var binding = SodiumOptionPolicy.binding(ResourceLocation.parse("sodium:quality.entity_distance"), new OptionBinding<Integer>() {
+            public void save(Integer value) { stored.set(value); }
+            public Integer load() { return stored.get(); }
+        });
+        assertEquals(100, binding.load());
+        for (int value : new int[]{50, 125, 500, -1}) {
+            binding.save(value);
+            assertEquals(100, stored.get());
+            stored.set(value); // 模拟配置重载或外部直接修改。
+            assertEquals(100, binding.load());
+        }
+    }
+
+    @ParameterizedTest @ValueSource(strings = {"weather", "particles", "leaves", "ao", "vignette"})
+    void unlockedQualityBindingsKeepOriginalReadAndWrite(String path) {
+        var stored = new AtomicReference<>("before");
+        OptionBinding<String> original = new OptionBinding<>() {
+            public void save(String value) { stored.set(value); }
+            public String load() { return stored.get(); }
+        };
+        var binding = SodiumOptionPolicy.binding(ResourceLocation.parse("sodium:quality." + path), original);
+        assertSame(original, binding);
+        binding.save("after");
+        assertEquals("after", binding.load());
+    }
+
+    @Test void preventShadersIsHiddenAndLockedOffForBindingsAndRuntimeConfig() {
+        var id = ResourceLocation.parse("sodium-extra:prevent_shaders");
+        assertTrue(SodiumOptionPolicy.isLocked(id));
+        assertTrue(SodiumOptionPolicy.isHidden(id));
+        assertEquals(false, SodiumOptionPolicy.lockedValue(id));
+        assertFalse(SodiumOptionPolicy.isHidden(ResourceLocation.parse("sodium-extra:show_fps")));
+        assertFalse(SodiumOptionPolicy.isHidden(ResourceLocation.parse("another_mod:prevent_shaders")));
+        var stored = new AtomicReference<>(true);
+        var binding = SodiumOptionPolicy.binding(id, new OptionBinding<Boolean>() {
+            public void save(Boolean value) { stored.set(value); }
+            public Boolean load() { return stored.get(); }
+        });
+        assertFalse(binding.load());
+        binding.save(true);
+        assertFalse(stored.get());
+        var options = new SodiumExtraGameOptions();
+        options.extraSettings.preventShaders = true;
+        SodiumExtraOptionPolicy.enforce(options);
+        assertFalse(options.extraSettings.preventShaders);
     }
 
     @Test void extraRestoresEveryGameplayBooleanWithoutReplacingReferences() throws Exception {
