@@ -73,12 +73,12 @@ public final class MeetingReportClientHandler {
                     }
                     reportedBodies = Set.copyOf(payload.reportedBodies());
                 }));
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-            clear();
-        });
-        ClientPlayConnectionEvents.JOIN.register((a, b, c) -> {
-            clear();
-        });
+        // 这两个事件在客户端网络线程触发，而 clear() 会改摄像机类型（options.setCameraType），
+        // 必须切回主线程执行，否则会和渲染线程抢状态。
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> client.execute(
+                MeetingReportClientHandler::clear));
+        ClientPlayConnectionEvents.JOIN.register((a, b, client) -> client.execute(
+                MeetingReportClientHandler::clear));
         ClientTickEvents.END_CLIENT_TICK.register(MeetingReportClientHandler::tick);
         OnRenderRoleName.RENDER_END.register(MeetingReportClientHandler::renderBodyHint);
         OnRenderRoleName.RENDER_END.register(MeetingReportClientHandler::renderBellHint);

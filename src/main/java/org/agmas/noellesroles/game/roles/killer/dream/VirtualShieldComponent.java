@@ -107,7 +107,9 @@ public class VirtualShieldComponent implements RoleComponent {
 
     @Override
     public void init() {
-        if (shield == 0) {
+        // 自己已经是 0，但观察者手里可能还留着护盾数据（例如数据包直接改 shield
+        // 或用别的方式绕过 applyShield），这时仍要补发一次复位包，否则护盾条不消失。
+        if (shield == 0 && !this.syncGate.hasSyncedViewers()) {
             return;
         }
         shield = 0;

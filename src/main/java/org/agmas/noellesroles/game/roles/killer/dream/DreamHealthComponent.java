@@ -164,10 +164,13 @@ public class DreamHealthComponent implements RoleComponent {
         // （见 shouldSyncWith），其余人直接跳过。
         baseHealth = maxHealth();
         lastHurtGameTime = 0;
-        if (sync)
+        if (sync) {
             sync();
-        // sync() 已经补发过复位包，记录不再需要
-        this.syncGate.clear();
+            // sync() 已经补发过复位包，记录不再需要
+            this.syncGate.clear();
+        }
+        // sync == false 时不能清记录：观察者手里还留着残血数据，
+        // 清掉就再也没有机会给他们补发复位包了（应由调用方随后自行 sync()）。
     }
 
     @Override

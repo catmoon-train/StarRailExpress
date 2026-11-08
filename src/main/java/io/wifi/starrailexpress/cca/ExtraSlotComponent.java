@@ -128,9 +128,14 @@ public class ExtraSlotComponent implements RoleComponent, ServerTickingComponent
         syncMode = false;
         // 只有这里能拿到 recipient：记录本次发出去的是默认态还是真实数据，
         // 状态回落默认时才能给「拿到过数据」的观察者补发一次复位包。
-        // 判定用 SLOTS.isEmpty()：客户端 readFromSyncNbt 的最终结果就等于 SLOTS
-        // （fullSync 时先 remove_all 再整体重填），所以「空」才是客户端的默认态。
-        this.syncGate.recordSent(recipient, this.SLOTS.isEmpty());
+        //
+        // 判定必须用「客户端是否真的被复位」而不是「SLOTS 是否为空」：
+        //   fullSync=true  → tag 带 remove_all，客户端会 clear() 再重填 → 真复位；
+        //   fullSync=false → 空的 SLOTS 只会写出一个空 tag，客户端 readFromSyncNbt
+        //                    什么都不做，等于没复位。
+        // 注意 sync() 是在 KEY.sync() 之后才把 fullSync 置回 false，所以这里读到的
+        // 仍是本次发包用的那个值。
+        this.syncGate.recordSent(recipient, this.SLOTS.isEmpty() && this.fullSync);
     }
 
     @Override
