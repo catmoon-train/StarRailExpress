@@ -50,13 +50,24 @@ import org.agmas.noellesroles.init.ModSceneBlocks;
 import org.agmas.noellesroles.packet.MapStatusBarSyncS2CPacket;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public final class MapStatusBarRuntime {
     public static final int MAX_VALUE = 20;
     private static final Map<UUID, State> STATES = new HashMap<>();
+    /**
+     * 保暖值恒为满值的玩家（雪傀儡）。
+     *
+     * <p>
+     * 雪傀儡不参与保暖值结算：它的保暖值一旦按普通玩家那样掉到 0，就会被
+     * {@link #killByStatus} 判成「冻死」（开局清 0 会直接秒杀）。所以这里单独记一份名单：
+     * 名单里的玩家每 tick 强制回满，且忽略一切保暖值扣减（药水 / 雪球 / 指令都一样）。
+     */
+    private static final Set<UUID> WARMTH_LOCKED = new HashSet<>();
 
     private MapStatusBarRuntime() {
     }
@@ -81,6 +92,15 @@ public final class MapStatusBarRuntime {
             if (type == MapStatusBarType.POLLUTION && state.value == MAX_VALUE && state.lastSyncedValue == -1) {
                 state.set(0);
             }
+            // 雪傀儡：保暖值恒为满值，不参与保暖值结算（否则会因 0 值被判「冻死」）
+            if (type == MapStatusBarType.WARMTH && isWarmthLocked(player)) {
+                state.set(MAX_VALUE);
+                state.clearTimers();
+                if (level.getGameTime() % 20 == 0) {
+                    state.sync(player);
+                }
+                continue;
+            }
             tickPlayer(level, player, state);
             if (level.getGameTime() % 20 == 0) {
                 state.sync(player);
@@ -97,6 +117,8 @@ public final class MapStatusBarRuntime {
     }
 
     public static void clear(ServerLevel level) {
+        // 锁定的保暖值只在「本局」有效，开局 / 结束都要清空，避免 UUID 跨局残留
+        WARMTH_LOCKED.clear();
         if (STATES.isEmpty()) {
             return;
         }
@@ -106,6 +128,48 @@ public final class MapStatusBarRuntime {
                         new MapStatusBarSyncS2CPacket(MapStatusBarType.NONE, MAX_VALUE, MAX_VALUE));
             }
         }
+    }
+
+    // ==================== 保暖值锁定（雪傀儡） ====================
+
+    /**
+     * 把该玩家的保暖值锁定为满值（{@link #MAX_VALUE}）。
+     *
+     * <p>
+     * 锁定后：每 tick 强制回满、忽略一切保暖值扣减（自然降温 / 药水 / 雪球 / 指令），
+     * 因此永远不会被 {@link #killByStatus} 判成「冻死」。用于雪傀儡这类
+     * 「根本没有保暖值，但地图状态条仍是 WARMTH」的职业。
+     */
+    public static void lockWarmth(ServerPlayer player) {
+        if (player == null) {
+            return;
+        }
+        WARMTH_LOCKED.add(player.getUUID());
+        forceMaxWarmth(player);
+    }
+
+    /** 解除保暖值锁定（转职 / 局末）。 */
+    public static void unlockWarmth(ServerPlayer player) {
+        if (player == null) {
+            return;
+        }
+        WARMTH_LOCKED.remove(player.getUUID());
+    }
+
+    /** 该玩家的保暖值是否被锁定为满值。 */
+    public static boolean isWarmthLocked(ServerPlayer player) {
+        return player != null && WARMTH_LOCKED.contains(player.getUUID());
+    }
+
+    /** 立刻把保暖值补满并同步给客户端（没被追踪时静默忽略）。 */
+    private static void forceMaxWarmth(ServerPlayer player) {
+        State state = stateOf(player, MapStatusBarType.WARMTH);
+        if (state == null) {
+            return;
+        }
+        state.set(MAX_VALUE);
+        state.clearTimers();
+        state.sync(player);
     }
 
     public static void addWarmth(ServerPlayer player, int delta) {
@@ -174,7 +238,12 @@ public final class MapStatusBarRuntime {
         if (state == null) {
             return false;
         }
-        state.set(value);
+        // 锁定保暖值的玩家（雪傀儡）不接受任何非满值设置
+        if (type == MapStatusBarType.WARMTH && isWarmthLocked(player)) {
+            state.set(MAX_VALUE);
+        } else {
+            state.set(value);
+        }
         state.sync(player);
         return true;
     }
@@ -189,7 +258,12 @@ public final class MapStatusBarRuntime {
         if (state == null) {
             return false;
         }
-        state.change(delta);
+        // 锁定保暖值的玩家（雪傀儡）永远保持满值，任何增减都不生效
+        if (type == MapStatusBarType.WARMTH && isWarmthLocked(player)) {
+            state.set(MAX_VALUE);
+        } else {
+            state.change(delta);
+        }
         state.sync(player);
         return true;
     }
@@ -223,11 +297,20 @@ public final class MapStatusBarRuntime {
         if (!isGameRunning(level) || currentStatusBar(level) != type || !shouldTrack(player)) {
             return;
         }
+        // 保暖值被锁定的玩家（雪傀儡）忽略一切扣减：它的保暖值必须恒为满值
+        if (type == MapStatusBarType.WARMTH && delta < 0 && isWarmthLocked(player)) {
+            forceMaxWarmth(player);
+            return;
+        }
         State state = STATES.computeIfAbsent(player.getUUID(), id -> new State(type));
         if (state.type != type) {
             state.reset(type);
         }
         state.change(delta);
+        if (type == MapStatusBarType.WARMTH && isWarmthLocked(player)) {
+            // 增量为正时也直接夹回满值，避免出现「满值 + 溢出」的中间态
+            state.set(MAX_VALUE);
+        }
         ProgressionDataManager.onStatusBarRestored(player, type.name(), delta);
         if (state.value <= 0 && type != MapStatusBarType.POLLUTION) {
             killByStatus(player, type);

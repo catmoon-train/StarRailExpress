@@ -44,7 +44,8 @@ import org.jetbrains.annotations.Nullable;
  * 特性一览（注册见 {@code ModRoles.SNOW_GOLEM}）：
  * <ul>
  * <li>常态伪装成原版雪傀儡（同骷髅伪装成原版骷髅的写法）；</li>
- * <li>不再拥有保暖值，也不会被保暖值结算冻死；</li>
+ * <li>保暖值恒为满值（{@link MapStatusBarRuntime#lockWarmth}）：状态条仍会显示，但数值永远拉满，
+ * 不参与保暖值结算，也不会因为保暖值归零被判「冻死」（<b>注意不能清 0</b>：0 会直接触发冻死）；</li>
  * <li>靠近点着的炉灶 3 格内、或身上着火时，每秒扣 1 点虚拟生命，归零时死因为「融化」
  * （着火致死时击杀者为当初点燃他的人）；</li>
  * <li>在雪/雪块上每移动 4 格推出一颗大雪球，之后每 4 格把雪球撑大 0.1（上限 6）；</li>
@@ -104,12 +105,15 @@ public class SnowGolemRole extends NormalRole {
         return areas.areasSettings.mapStatusBar == MapStatusBarType.WARMTH;
     }
 
-    /** 保暖值地图里不该有保暖值：把该玩家的保暖值清掉。 */
-    private static void clearWarmth(ServerPlayer player) {
-        var type = MapStatusBarRuntime.getTrackedType(player);
-        if (type == MapStatusBarType.WARMTH) {
-            MapStatusBarRuntime.setValue(player, MapStatusBarType.WARMTH, 0);
-        }
+    /**
+     * 雪傀儡没有保暖值：把状态条锁在满值。
+     *
+     * <p>
+     * 这里<b>不能</b>清 0：状态条归零会被 {@code MapStatusBarRuntime} 直接判成「冻死」，
+     * 开局清 0 等于开局秒杀。锁定后该玩家不参与保暖值结算，也不会被雪球 / 降温药水扣减。
+     */
+    public static void keepWarmthFull(ServerPlayer player) {
+        MapStatusBarRuntime.lockWarmth(player);
     }
 
     /** 玩家脚下是否是雪 / 雪块（能推出雪球的地面）。 */
@@ -131,7 +135,7 @@ public class SnowGolemRole extends NormalRole {
     public void onInit(MinecraftServer server, ServerPlayer serverPlayer) {
         super.onInit(server, serverPlayer);
         applySnowGolemDisguise(serverPlayer);
-        clearWarmth(serverPlayer);
+        keepWarmthFull(serverPlayer);
         // 职业刚分配时身上可能还挂着上一轮刷出的「取暖」任务，立刻拿掉
         dropWarmthTask(serverPlayer);
     }
@@ -143,6 +147,8 @@ public class SnowGolemRole extends NormalRole {
         EntityDisguise.clear(player);
         // 立刻松开正在推的雪球：否则雪球会保留 ownerId，新职业接手后会继续被推着走
         releaseHeldBall(player);
+        // 转职后不再享受「保暖值恒满」，交还给普通保暖值结算
+        MapStatusBarRuntime.unlockWarmth(player);
     }
 
     /** 让该玩家正在推的雪球原地停下（转职 / 退出时调用）。 */
@@ -371,7 +377,7 @@ public class SnowGolemRole extends NormalRole {
             return TrueFalseResult.PASS;
         });
 
-        // 开局：清掉上一局残留的雪球，并给雪傀儡补上伪装 / 清保暖值
+        // 开局：清掉上一局残留的雪球，并给雪傀儡补上伪装 / 锁定保暖值
         OnGameInitialized.EVENT.register(serverLevel -> {
             clearSnowballs(serverLevel);
             if (!isWarmthMap(serverLevel)) {
@@ -384,7 +390,7 @@ public class SnowGolemRole extends NormalRole {
             for (ServerPlayer player : serverLevel.players()) {
                 if (gameWorldComponent.isRole(player, ModRoles.SNOW_GOLEM)) {
                     applySnowGolemDisguise(player);
-                    clearWarmth(player);
+                    keepWarmthFull(player);
                     dropWarmthTask(player);
                 }
             }
