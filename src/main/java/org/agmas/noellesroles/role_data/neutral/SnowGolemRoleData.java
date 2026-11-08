@@ -62,6 +62,8 @@ public class SnowGolemRoleData extends SimpleRoleData {
         }
         // 掉线重连 / 开局重置会丢伪装状态，这里每 tick 兜底补上（同骷髅）
         SnowGolemRole.applySnowGolemDisguise(serverPlayer);
+        // 保暖值必须恒为满值：这里每 tick 重新登记一次锁定，兜底掉线重连 / 状态重建
+        SnowGolemRole.keepWarmthFull(serverPlayer);
         SnowGolemRole.tickMelt(serverPlayer);
         SnowGolemRole.tickSnowballPush(serverPlayer);
         // 兜底：万一「取暖」任务还是被别的路径塞进来了（回溯 / 场景任务自愈），直接拿掉
