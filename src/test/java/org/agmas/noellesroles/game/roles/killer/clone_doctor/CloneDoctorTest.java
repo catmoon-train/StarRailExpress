@@ -57,6 +57,21 @@ class CloneDoctorTest {
     }
 
     @Test
+    void rainbowIsRestrictedToKillerAndKillerNeutralObservers() throws Exception {
+        String client = Files.readString(Path.of("src/main/java/org/agmas/noellesroles/client/CloneDoctorClient.java"));
+        int start = client.indexOf("public static java.util.OptionalInt applyOutlineColor");
+        String method = client.substring(start, client.indexOf("\n    }", start));
+        assertTrue(method.contains("!SREClient.gameComponent.isKillerTeam(client.player)) return permittedColor;"));
+        assertTrue(method.indexOf("isKillerTeam(client.player)") < method.indexOf("CloneDoctorRole.isClone(player)"));
+        String world = Files.readString(Path.of("src/main/java/io/wifi/starrailexpress/cca/SREGameWorldComponent.java"));
+        int teamStart = world.indexOf("public boolean isKillerTeam(UUID player)");
+        String team = world.substring(teamStart, world.indexOf("\n    }", teamStart));
+        assertTrue(team.contains("getAllegianceRole(player)"));
+        assertTrue(team.contains("role.canUseKiller()"));
+        assertTrue(team.contains("role.isNeutralForKiller()"));
+    }
+
+    @Test
     void transformedHudShowsAbilityRoleAndReturnTimeAndRestorationUsesSubtitleHud() throws Exception {
         Path root = Path.of("src/main/java/org/agmas/noellesroles");
         String client = Files.readString(root.resolve("client/CloneDoctorClient.java"));

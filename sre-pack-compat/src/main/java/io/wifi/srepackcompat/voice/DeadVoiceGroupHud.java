@@ -32,7 +32,7 @@ public final class DeadVoiceGroupHud {
         if (speakers.isEmpty()) return true;
 
         // 人数较多时整体缩放，保证所有发言者仍在屏幕内。
-        float scale = Math.min(VoicechatClient.CLIENT_CONFIG.groupHudIconScale.get().floatValue(),
+        float scale = Math.min(VoicechatClient.CLIENT_CONFIG.groupHudIconScale.get().floatValue() * 0.6F,
                 (graphics.guiHeight() - 16F) / (speakers.size() * 20F));
         if (scale <= 0F) return true;
         boolean showNames = Screen.hasAltDown();

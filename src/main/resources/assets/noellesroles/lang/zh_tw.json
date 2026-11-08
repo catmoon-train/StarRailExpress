@@ -37,7 +37,7 @@
   "hud.noellesroles.clone_doctor.copy_cooldown": "職業克隆冷卻：%s秒",
   "hud.noellesroles.clone_doctor.substitute_cooldown": "製作替身冷卻：%s秒",
   "message.noellesroles.clone_doctor.cooldown": "技能尚未冷卻完成。",
-  "message.noellesroles.clone_doctor.invalid_target": "請瞄準16格內的存活玩家。",
+  "message.noellesroles.clone_doctor.invalid_target": "請瞄準26格內的存活玩家。",
   "message.noellesroles.clone_doctor.invalid_role": "目標必須為非中立，且職業允許被其他職業隨機獲得。",
   "message.noellesroles.clone_doctor.interrupted": "克隆中斷：目標、距離、視線或技能狀態已發生變化。",
   "message.noellesroles.clone_doctor.copied": "已克隆職業：%s，60秒後返回；前10秒隱身且無法造成傷害。",

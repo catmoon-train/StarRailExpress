@@ -37,7 +37,7 @@
   "hud.noellesroles.clone_doctor.copy_cooldown": "Role Clone cooldown: %ss",
   "hud.noellesroles.clone_doctor.substitute_cooldown": "Substitute cooldown: %ss",
   "message.noellesroles.clone_doctor.cooldown": "This ability is still on cooldown.",
-  "message.noellesroles.clone_doctor.invalid_target": "Aim at a living player within 16 blocks.",
+  "message.noellesroles.clone_doctor.invalid_target": "Aim at a living player within 26 blocks.",
   "message.noellesroles.clone_doctor.invalid_role": "The target must be non-neutral and their role must allow random selection by other roles.",
   "message.noellesroles.clone_doctor.interrupted": "Cloning interrupted: target, range, line of sight, or ability status changed.",
   "message.noellesroles.clone_doctor.copied": "Copied %s for 60 seconds. Invisible and unable to deal damage for the first 10 seconds.",
