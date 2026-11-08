@@ -65,7 +65,7 @@ DashLoader、Moonlight、Particle Core 和 Dynamic Surroundings 均是可选目�
 - Mod Menu → SRE Pack Compat → 配置，或客户端命令 `/sreinstantswap` 打开设置。沿用 `config/susinstantswap.json`，已有配置无需迁移。
 - 「界面中更换」默认未绑定。开启 GUI 交换后，不单独绑定就复用背包键；也可在控制设置中绑定独立按键。输入框有焦点时不抢占文字输入。
 - 支持 SRE 的 `LimitedInventoryScreen` / `LimitedHandledScreen`：长按背包键松开交换，或开启 GUI 交换后直接按交换键；仅命中实际显示的快捷栏槽位。复用原界面的缩放、偏移和点击处理，同时检查交换双方的禁止取物谓词。不移动隐藏背包、装备或商店物品，回声面板隐藏原槽位时不参与交换，搜索框输入保持原行为。不主动打开原版背包，不绕过核心按键和服务端槽位限制；核心未安装时此桥接自动跳过。
-- **必须移除原 `Sus_InstantSwap` JAR**，本包已声明与 `susinstantswap` 冲突，防止重复处理输入。版本号未修改。
+- 当前元数据不再声明与 `susinstantswap` 的硬冲突，但本包仍内置交换功能；同时安装原 `Sus_InstantSwap` 可能重复处理输入，整合包应只保留一套交换实现。版本号未修改。
 
 来源为用户提供的 `Sus_InstantSwap-2.0.0-Fabric1.21.1.jar`；原作者 Su_Crispy，项目 https://github.com/SuCrispy/Sus-InstantSwap ，原许可证 LGPL-3.0。输入和槽位处理已适配重写；上游许可文本随 JAR 的 `licenses/` 发布。翻译键继续使用 `susinstantswap` 命名空间以兼容已有按键配置。Mod Menu 仅复用根项目已有版本作为可选编译依赖，不新增运行时硬依赖。
 
@@ -99,7 +99,7 @@ Chloride 的 68 项设置同时受运行策略、Sodium 控件/binding/默认值
 
 ## Sodium 设置入口隐藏
 
-隐藏 BBE、Chloride、Gnetum、LambDynamicLights、Reese's 及 Cullify 自身设置页，Sodium Extra 只隐藏动画、细节、显示，保留“粒子效果”和“其他”；保留 Sodium 自身及 Iris 光影入口。仅过滤 `Config.getModOptions()` 的展示副本，不删内部选项注册、依赖或覆盖，不关闭模组及其优化。粒子原有锁定、Chloride 锁定、内置配置及 preLaunch 覆盖保持不变。
+隐藏 BBE、Chloride、Gnetum、LambDynamicLights、Reese's 及 Cullify 自身设置页，Sodium Extra 只隐藏动画、细节、显示，保留“粒子效果”和“其他”；保留 Sodium 自身及 Iris 光影入口。仅过滤 `Config.getModOptions()` 的展示副本，不删内部选项注册、依赖或覆盖，不关闭模组及其优化。粒子选项保持开放，Chloride 锁定、内置配置及 preLaunch 覆盖保持不变。
 
 配套核心同时开放天气、树叶、粒子、平滑光照、暗角及全部声音分类，实体渲染距离固定 100%。这部分在核心而非兼容包，更新时需要同时替换两个 JAR。
 

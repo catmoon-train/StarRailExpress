@@ -22,9 +22,10 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class CurrencyGlyphResourcesTest {
 
-    /** 代码里硬编码的货币字形码位，必须与 font/default.json 的注册一致。 */
-    private static final String MONEY_GLYPH = "\uE781";
-    private static final String TOKEN_GLYPH = "\uE782";
+    /** 使用生产代码中的码位，避免字体迁移后测试仍检查已弃用的字符。 */
+    private static final String MONEY_GLYPH = ShopEntry.Currency.MONEY.iconText();
+    private static final String TOKEN_GLYPH = ShopEntry.Currency.MINIGAME_TOKEN.iconText();
+    private static final String[] FONTS = {"assets/minecraft/font/default.json", "assets/starrailexpress/font/currency_icons.json"};
 
     /** 价格/金额类翻译键：文案里只允许出现占位符，不允许出现货币字形。 */
     private static final String[][] AMOUNT_KEYS = {
@@ -40,11 +41,29 @@ class CurrencyGlyphResourcesTest {
 
     @Test
     void fontRegistersTheHardcodedCurrencyGlyphs() throws Exception {
-        List<String> chars = registeredBitmapChars("assets/minecraft/font/default.json");
-        assertTrue(chars.contains(MONEY_GLYPH),
-                "font/default.json 必须把金币图标注册到 \\uE781，实际: " + chars);
-        assertTrue(chars.contains(TOKEN_GLYPH),
-                "font/default.json 必须把代币图标注册到 \\uE782，实际: " + chars);
+        for (String font : FONTS) {
+            List<String> chars = registeredBitmapChars(font);
+            assertTrue(chars.contains(MONEY_GLYPH), font + " 缺少生产代码使用的金币图标，实际: " + chars);
+            assertTrue(chars.contains(TOKEN_GLYPH), font + " 缺少生产代码使用的代币图标，实际: " + chars);
+        }
+    }
+
+    @Test
+    void currencyCodepointsAndBothFontProvidersMatchCurrentContract() throws Exception {
+        assertEquals("\uF6A8", MONEY_GLYPH);
+        assertEquals("\uF6A9", TOKEN_GLYPH);
+        JsonArray expected = null;
+        for (String font : FONTS) {
+            JsonArray providers;
+            try (var reader = new InputStreamReader(resource(font), StandardCharsets.UTF_8)) {
+                providers = JsonParser.parseReader(reader).getAsJsonObject().getAsJsonArray("providers");
+            }
+            assertEquals(2, providers.size(), font);
+            if (expected == null) expected = providers;
+            else assertEquals(expected, providers, "默认与 ModernUI 独立字体必须映射同一组贴图与码位");
+            assertEquals("wathe:font/coin.png", providers.get(0).getAsJsonObject().get("file").getAsString());
+            assertEquals("starrailexpress:item/minigame_coin.png", providers.get(1).getAsJsonObject().get("file").getAsString());
+        }
     }
 
     @Test

@@ -39,9 +39,16 @@
 
 ## 设置页入口精简（兼容包）
 
-按用户截图隐藏 BBE（`betterblockentities`）、Chloride、Gnetum、LambDynamicLights、Reese's 自身的全部设置页；Sodium Extra 隐藏动画、粒子、细节、显示四页，保留“其他”。Sodium 自身及 Iris 光影入口保留。
+按用户截图隐藏 BBE（`betterblockentities`）、Chloride、Gnetum、LambDynamicLights、Reese's 自身的全部设置页；Sodium Extra 隐藏动画、细节、显示三页，保留“粒子效果”和“其他”。Sodium 自身及 Iris 光影入口保留。
 
 兼容包在 Sodium `Config.getModOptions()` 返回展示副本，内部完整配置列表仍用于选项收集、覆盖及依赖校验，锁定/运行功能不变。Extra 按页面中稳定选项 ID 识别，不按语言相关显示文本匹配。Chloride 原有 68 项锁定和 preLaunch 内置配置覆盖继续保留。安装本次功能需要同时更新核心和兼容包，版本号未改。
+
+## 当前契约回归修正
+
+- 粒子选项测试改为验证当前已开放的行为：总粒子、雨溅、破坏/挖掘和逐类型粒子 binding 保留原对象，允许用户读写；运行策略保留所有粒子布尔设置及逐类型覆盖表。仍检查动画、雾、光照等受限项及分组引用不变，未恢复旧粒子锁定。
+- 金币/代币资源测试从生产 `Currency.iconText()` 获取码位，并校验当前 `F6A8/F6A9` 契约、默认/独立字体 provider 与贴图映射一致；保留翻译占位符和禁用翻译内私有区字形检查。未修改字体资源或生产代码。
+- 兼容包元数据测试同步当前空 `breaks` 策略，对 `susinstantswap` 不再要求已移除的硬冲突；原模组功能选择和 Mixin 插件注册测试仍保留。取消元数据硬冲突不等于保证两套交换输入可以同时启用。
+- `./gradlew test remapJar --console=plain` 成功：核心 940 项（938 通过、2 项因 Windows 符号链接权限跳过），兼容包 205 项全部通过；合计 **1143 通过、0 失败/错误、2 跳过**。本次未进行游戏内视觉或双交换模组共存验收。
 
 ## 历史验证（以下数字对应此前实现，不代表本次重新执行）
 

@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SodiumOptionPolicyTest {
-    @ParameterizedTest @ValueSource(strings = {"sodium:general.gamma", "sodium:quality.entity_distance", "sodium:quality.clouds", "sodium-extra:particles_all", "sodium-extra:particle.options.particles.minecraft.smoke", "sodium-extra:fog_start.options.dimensions.minecraft.overworld", "sodium-extra:cloud_fog.options.dimensions.minecraft.overworld", "sodium-extra:fog_shape", "sodium-extra:fog_shape.options.dimensions.minecraft.overworld", "sodium-extra:advanced_fog_settings", "sodium-extra:light_updates", "sodium-extra:piston", "sodium-extra:rain_snow", "sodium-extra:panini_projection", "sodium-extra:instant_sneak"})
+    @ParameterizedTest @ValueSource(strings = {"sodium:general.gamma", "sodium:quality.entity_distance", "sodium:quality.clouds", "sodium-extra:fog_start.options.dimensions.minecraft.overworld", "sodium-extra:cloud_fog.options.dimensions.minecraft.overworld", "sodium-extra:fog_shape", "sodium-extra:fog_shape.options.dimensions.minecraft.overworld", "sodium-extra:advanced_fog_settings", "sodium-extra:light_updates", "sodium-extra:piston", "sodium-extra:rain_snow", "sodium-extra:panini_projection", "sodium-extra:instant_sneak"})
     void gameplayVisibilityControlsAreLocked(String id) {
         assertTrue(SodiumOptionPolicy.isLocked(ResourceLocation.parse(id)));
     }
@@ -22,6 +22,24 @@ class SodiumOptionPolicyTest {
     @ParameterizedTest @ValueSource(strings = {"sodium:quality.weather", "sodium:quality.particles", "sodium:quality.leaves", "sodium:quality.ao", "sodium:quality.vignette", "sodium:general.render_distance", "sodium:general.framerate_limit", "sodium:general.fullscreen", "sodium:general.vsync", "sodium:performance.chunk_update_threads", "sodium:performance.use_entity_culling", "sodium-extra:show_fps", "sodium-extra:overlay_corner", "sodium-extra:toasts", "another_mod:particles_all"})
     void unrelatedAndPerformanceControlsAreNotLocked(String id) {
         assertFalse(SodiumOptionPolicy.isLocked(ResourceLocation.parse(id)));
+    }
+
+    @ParameterizedTest @ValueSource(strings = {"particles_all", "rain_splash_particles", "block_break_particles",
+            "block_breaking_particles", "particle.options.particles.minecraft.smoke"})
+    void extraParticleControlsKeepOriginalBindingsAndAcceptUserValues(String path) {
+        var id = ResourceLocation.fromNamespaceAndPath("sodium-extra", path);
+        assertFalse(SodiumOptionPolicy.isLocked(id));
+        assertFalse(SodiumOptionPolicy.isHidden(id));
+        assertNull(SodiumOptionPolicy.lockedValue(id));
+        var stored = new AtomicReference<>(true);
+        OptionBinding<Boolean> original = new OptionBinding<>() {
+            public void save(Boolean value) { stored.set(value); }
+            public Boolean load() { return stored.get(); }
+        };
+        var binding = SodiumOptionPolicy.binding(id, original);
+        assertSame(original, binding);
+        binding.save(false); assertFalse(binding.load()); assertFalse(stored.get());
+        binding.save(true); assertTrue(binding.load()); assertTrue(stored.get());
     }
 
     @Test void restrictedBindingEnforcesLoadAndSave() {
@@ -109,9 +127,11 @@ class SodiumOptionPolicyTest {
         assertFalse(options.extraSettings.preventShaders);
     }
 
-    @Test void extraRestoresEveryGameplayBooleanWithoutReplacingReferences() throws Exception {
+    @Test void extraRestoresRestrictedGameplayBooleansWithoutReplacingReferences() throws Exception {
         var options = new SodiumExtraGameOptions();
-        Object[] enabledGroups = {options.animationSettings, options.particleSettings, options.detailSettings, options.renderSettings};
+        Object[] enabledGroups = {options.animationSettings, options.detailSettings, options.renderSettings};
+        var particleSettings = options.particleSettings;
+        var particleOverrides = particleSettings.otherMap;
         for (Object group : enabledGroups) {
             for (var field : group.getClass().getFields()) {
                 if (field.getType() == boolean.class && !Modifier.isStatic(field.getModifiers())) field.setBoolean(group, false);
@@ -136,7 +156,11 @@ class SodiumOptionPolicyTest {
             }
         }
         assertSame(enabledGroups[0], options.animationSettings);
-        assertTrue(options.particleSettings.otherMap.isEmpty());
+        assertSame(enabledGroups[1], options.detailSettings);
+        assertSame(enabledGroups[2], options.renderSettings);
+        assertSame(particleSettings, options.particleSettings);
+        assertSame(particleOverrides, options.particleSettings.otherMap);
+        assertEquals(Boolean.FALSE, particleOverrides.get(ResourceLocation.parse("minecraft:smoke")));
         assertFalse(options.renderSettings.fogSettings.advanced);
         assertFalse(options.renderSettings.fogSettings.multiDimensionFogControl);
         assertTrue(options.renderSettings.fogSettings.dimensionOverrides.isEmpty());
@@ -147,5 +171,30 @@ class SodiumOptionPolicyTest {
         assertFalse(options.extraSettings.cloudHeightOverride);
         assertFalse(options.extraSettings.instantSneak);
         assertTrue(options.extraSettings.showFps);
+    }
+    @Test void extraPreservesEveryParticleBooleanAndPerTypeOverrideAcrossRepeatedEnforcement() throws Exception {
+        var options = new SodiumExtraGameOptions();
+        var particles = options.particleSettings;
+        var overrides = particles.otherMap;
+        overrides.put(ResourceLocation.parse("minecraft:smoke"), false);
+        overrides.put(ResourceLocation.parse("minecraft:flame"), true);
+        var expected = new java.util.LinkedHashMap<java.lang.reflect.Field, Boolean>();
+        for (var field : particles.getClass().getFields()) {
+            if (field.getType() == boolean.class && !Modifier.isStatic(field.getModifiers())) {
+                boolean value = expected.size() % 2 == 0;
+                field.setBoolean(particles, value);
+                expected.put(field, value);
+            }
+        }
+        assertFalse(expected.isEmpty(), "必须实际覆盖粒子布尔配置");
+        for (int tick = 0; tick < 3; tick++) {
+            SodiumExtraOptionPolicy.enforce(options);
+            assertSame(particles, options.particleSettings);
+            assertSame(overrides, options.particleSettings.otherMap);
+            assertEquals(2, overrides.size());
+            assertEquals(Boolean.FALSE, overrides.get(ResourceLocation.parse("minecraft:smoke")));
+            assertEquals(Boolean.TRUE, overrides.get(ResourceLocation.parse("minecraft:flame")));
+            for (var entry : expected.entrySet()) assertEquals(entry.getValue(), entry.getKey().getBoolean(particles), entry.getKey().getName());
+        }
     }
 }

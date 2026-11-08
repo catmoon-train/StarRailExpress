@@ -48,8 +48,8 @@ class RuntimeFeatureSelectionTest {
     void metadataAllowsOriginalModsAndRegistersTheGuard() throws Exception {
         try (var reader = new InputStreamReader(getClass().getResourceAsStream("/fabric.mod.json"), StandardCharsets.UTF_8)) {
             var breaks = JsonParser.parseReader(reader).getAsJsonObject().getAsJsonObject("breaks");
-            for (String mod : List.of("framepacer", "skin-unlocker", "gpumemleakfix")) assertFalse(breaks.has(mod));
-            assertTrue(breaks.has("susinstantswap"));
+            for (String mod : List.of("framepacer", "skin-unlocker", "gpumemleakfix", "susinstantswap"))
+                assertFalse(breaks.has(mod), "当前元数据不得重新引入已移除的硬冲突: " + mod);
         }
         try (var reader = new InputStreamReader(getClass().getResourceAsStream("/sre-pack-compat-runtime.mixins.json"), StandardCharsets.UTF_8)) {
             var config = JsonParser.parseReader(reader).getAsJsonObject();
