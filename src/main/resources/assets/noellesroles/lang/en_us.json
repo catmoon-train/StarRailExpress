@@ -4561,6 +4561,7 @@
     "message.noellesroles.nitori_exchange.failed.noitem": "You have nothing in your hand",
     "message.noellesroles.nitori_exchange.failed.nomoney": "The trade target does not have 200 coins",
     "message.noellesroles.nitori_exchange.success": "Trade successful! You exchanged %s for 200 coins.",
+    "replay.noellesroles.nitori_forced_trade": "§e💰§r %s forced a trade with %s",
     "skill.noellesroles.marisa_magic": "Love Sign \"Master Spark\"",
     "skill.noellesroles.shikieiki.instinct": "Instinct Kill",
     "skill.noellesroles.komachi_pull": "Pull",

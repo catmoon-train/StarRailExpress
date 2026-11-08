@@ -18,6 +18,7 @@ package org.agmas.noellesroles.handler;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.TrainWeapon;
 import io.wifi.starrailexpress.event.*;
@@ -545,6 +546,13 @@ public class TouhouHandlers {
             context.player().setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
             context.player().displayClientMessage(Component.translatable(
                 "message.noellesroles.nitori_exchange.success", it.getDisplayName()), true);
+            // 回放记录：荷官商人对玩家强制交易成功（技能本身未开启 recordReplay，避免重复记录）
+            if (SRE.REPLAY_MANAGER != null) {
+              SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable(
+                  "replay.noellesroles.nitori_forced_trade",
+                  GameReplayUtils.getReplayPlayerDisplayText(context.player(), true),
+                  GameReplayUtils.getReplayPlayerDisplayText(target, true)));
+            }
             return true;
           }
           return false;

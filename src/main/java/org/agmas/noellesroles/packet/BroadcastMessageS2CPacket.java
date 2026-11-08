@@ -24,13 +24,24 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.noellesroles.Noellesroles;
 
-public record BroadcastMessageS2CPacket(Component content, boolean overlay) implements CustomPacketPayload {
+/**
+ * 顶部广播消息。
+ *
+ * @param content       正文
+ * @param overlay       兼容字段（当前恒为 true，见 {@link #overlay()}）
+ * @param durationTicks 显示时长（tick）。&lt;= 0 表示用客户端配置的默认时长；
+ *                      职业入场播报会传入安全时间剩余时长，让播报一直留到安全时间结束。
+ */
+public record BroadcastMessageS2CPacket(Component content, boolean overlay, int durationTicks)
+        implements CustomPacketPayload {
     public static final ResourceLocation BROADCAST_MESSAGE_PAYLOAD_ID = ResourceLocation
             .fromNamespaceAndPath(Noellesroles.MOD_ID, "broadcast_message");
     public static final Type<BroadcastMessageS2CPacket> ID = new Type<>(BROADCAST_MESSAGE_PAYLOAD_ID);
     public static final StreamCodec<RegistryFriendlyByteBuf, BroadcastMessageS2CPacket> CODEC = StreamCodec.composite(
-            ComponentSerialization.TRUSTED_STREAM_CODEC, BroadcastMessageS2CPacket::content, ByteBufCodecs.BOOL,
-            BroadcastMessageS2CPacket::overlay, BroadcastMessageS2CPacket::new);
+            ComponentSerialization.TRUSTED_STREAM_CODEC, BroadcastMessageS2CPacket::content,
+            ByteBufCodecs.BOOL, BroadcastMessageS2CPacket::overlay,
+            ByteBufCodecs.VAR_INT, BroadcastMessageS2CPacket::durationTicks,
+            BroadcastMessageS2CPacket::new);
 
     public Component content() {
         return this.content;
@@ -45,12 +56,13 @@ public record BroadcastMessageS2CPacket(Component content, boolean overlay) impl
         return ID;
     }
 
+    /** 使用客户端配置的默认显示时长。 */
     public BroadcastMessageS2CPacket(Component content) {
-        this(content, true);
+        this(content, true, 0);
     }
 
+    /** 使用客户端配置的默认显示时长。 */
     public BroadcastMessageS2CPacket(Component content, boolean overlay) {
-        this.content = content;
-        this.overlay = overlay;
+        this(content, overlay, 0);
     }
 }

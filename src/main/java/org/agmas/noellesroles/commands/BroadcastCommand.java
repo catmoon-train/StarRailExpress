@@ -52,8 +52,18 @@ public class BroadcastCommand {
   }
 
   public static void BroadcastMessage(ServerPlayer serverPlayer, Component message) {
+    BroadcastMessage(serverPlayer, message, 0);
+  }
+
+  /**
+   * 向单个玩家发送顶部广播。
+   *
+   * @param durationTicks 显示时长（tick）。&lt;= 0 表示沿用客户端配置的默认时长；
+   *                      &gt; 0 表示至少显示这么久（客户端会取与自身配置的较大值）。
+   */
+  public static void BroadcastMessage(ServerPlayer serverPlayer, Component message, int durationTicks) {
     org.agmas.noellesroles.packet.BroadcastMessageS2CPacket packet = new org.agmas.noellesroles.packet.BroadcastMessageS2CPacket(
-        message);
+        message, true, durationTicks);
     net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
         .send(serverPlayer, packet);
   }

@@ -787,7 +787,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                 if (client.player != null) {
                     // if (!isPlayerInAdventureMode(client.player))
                     // return;
-                    showBroadcastMessage(payload.content());
+                    showBroadcastMessage(payload.content(), payload.durationTicks());
                 }
             });
         });
@@ -1868,13 +1868,24 @@ public class NoellesrolesClient implements ClientModInitializer {
     }
 
     public static void showBroadcastMessage(Component message) {
+        showBroadcastMessage(message, 0);
+    }
+
+    /**
+     * 顶部广播消息入队。
+     *
+     * @param durationTicks 显示时长（tick）。&lt;= 0 时用客户端配置的
+     *                      {@code broadcasterMessageDuration}；&gt; 0 时以传入时长为准，
+     *                      并且不会短于客户端配置（避免服务端给的时长把玩家自己的偏好压掉）。
+     */
+    public static void showBroadcastMessage(Component message, int durationTicks) {
         var client = Minecraft.getInstance();
-        if (client == null)
+        if (client == null || client.level == null)
             return;
         long timer = client.level.getGameTime();
-        currentBroadcastMessage
-                .add(new BroadcastMessageInfo(message, timer + GameConstants.getInTicks(0,
-                        SREClientConfig.HANDLER.instance().broadcasterMessageDuration)));
+        int configured = GameConstants.getInTicks(0, SREClientConfig.HANDLER.instance().broadcasterMessageDuration);
+        int duration = durationTicks > 0 ? Math.max(durationTicks, configured) : configured;
+        currentBroadcastMessage.add(new BroadcastMessageInfo(message, timer + duration));
     }
 
     private static final Item[] ANGLER_DESC_ITEMS = {

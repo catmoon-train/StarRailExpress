@@ -4340,6 +4340,7 @@
   "message.noellesroles.nitori_exchange.failed.noitem": "你的手上沒有東西",
   "message.noellesroles.nitori_exchange.failed.nomoney": "交易對象沒有200金幣",
   "message.noellesroles.nitori_exchange.success": "交易成功！你用%s交換了200金幣。",
+  "replay.noellesroles.nitori_forced_trade": "§e💰§r %s 與 %s 進行了強制交易",
   "skill.noellesroles.marisa_magic": "戀符「Master Spark」",
   "skill.noellesroles.shikieiki.instinct": "直覺殺人",
   "skill.noellesroles.komachi_pull": "拉人",
