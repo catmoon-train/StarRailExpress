@@ -32,5 +32,11 @@ final class SettlementNameplateLayout {
         return result;
     }
 
+    /** 淘汰不在本镜头显示名单中的旧槽位，但保留仍可见姓名的位置。 */
+    void retain(List<UUID> visible) {
+        slots.keySet().retainAll(visible);
+        hidden.retainAll(visible);
+    }
+
     void clear() { slots.clear(); hidden.clear(); shot=null; }
 }

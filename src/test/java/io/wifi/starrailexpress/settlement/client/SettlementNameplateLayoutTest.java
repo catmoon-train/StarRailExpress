@@ -53,4 +53,15 @@ class SettlementNameplateLayoutTest {
         layout.begin("next",640,360);
         assertNotNull(layout.place(ID,300,150,120,27,SCREEN,List.of(),8,true));
     }
+
+    @Test void changingFocusReleasesOldNamesWithoutMovingTheMvp() {
+        var layout=new SettlementNameplateLayout();layout.begin("replay/mvp",640,360);
+        Rect mvp=layout.place(ID,400,120,78,12,SCREEN,List.of(),4,false);
+        Rect old=layout.place(OTHER,200,120,78,12,SCREEN,List.of(),4,false);
+        assertNotNull(mvp);assertNotNull(old);
+        UUID next=new UUID(0,3);
+        layout.retain(List.of(ID,next));
+        assertSame(mvp,layout.place(ID,450,180,78,12,SCREEN,List.of(),4,false));
+        assertEquals(old,layout.place(next,200,120,78,12,SCREEN,List.of(),4,false),"新事件姓名可复用离场角色的空位");
+    }
 }
