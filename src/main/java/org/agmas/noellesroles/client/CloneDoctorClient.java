@@ -37,10 +37,13 @@ public final class CloneDoctorClient {
     private CloneDoctorClient() {
     }
 
-    /** 在最终颜色出口调用，保留原有显示权限，且不依赖博士当前复制的职业。 */
+    /** 仅杀手及杀手方中立观察者看到彩虹色；其他人保留原色和原有透视权限。 */
     public static java.util.OptionalInt applyOutlineColor(net.minecraft.world.entity.Entity target,
             java.util.OptionalInt permittedColor) {
         if (permittedColor.isEmpty()) return permittedColor;
+        Minecraft client = Minecraft.getInstance();
+        if (client.player == null || SREClient.gameComponent == null
+                || !SREClient.gameComponent.isKillerTeam(client.player)) return permittedColor;
         boolean clonedPerson = target instanceof net.minecraft.world.entity.player.Player player
                 && org.agmas.noellesroles.game.roles.killer.clone_doctor.CloneDoctorRole.isClone(player);
         return org.agmas.noellesroles.game.roles.killer.clone_doctor.CloneDoctorOutlineColor.recolor(

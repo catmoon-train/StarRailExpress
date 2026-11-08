@@ -15,8 +15,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -100,7 +98,7 @@ public final class CloneDoctorSessionManager {
         if (now(player) < state.copyReadyAt) return fail(player, "cooldown");
         var hit = ProjectileUtil.getHitResultOnViewVector(player,
                 entity -> entity instanceof ServerPlayer other && other != player
-                        && GameUtils.isPlayerAliveAndSurvival(other), 16.0D);
+                        && GameUtils.isPlayerAliveAndSurvival(other), 26.0D);
         if (!(hit instanceof EntityHitResult result) || !(result.getEntity() instanceof ServerPlayer target)
                 || requestedTarget != null && target != requestedTarget) return fail(player, "invalid_target");
         SRERole role = game(player).getRole(target);
@@ -110,8 +108,6 @@ public final class CloneDoctorSessionManager {
         state.beginCast(now(player));
         player.displayClientMessage(Component.translatable("message.noellesroles.clone_doctor.casting",
                 target.getDisplayName()), true);
-        player.serverLevel().playSound(null, player.blockPosition(), SoundEvents.BREWING_STAND_BREW,
-                SoundSource.PLAYERS, 1.0F, 0.8F);
         sync(player, state);
         return true;
     }
@@ -134,7 +130,7 @@ public final class CloneDoctorSessionManager {
         state.pendingRole = null;
         if (target == null || target.level() != player.level() || !GameUtils.isPlayerAliveAndSurvival(target)
                 || game(player).getRole(target) != expected || !canCopy(expected)
-                || !player.hasLineOfSight(target) || player.distanceToSqr(target) > 16 * 16
+                || !player.hasLineOfSight(target) || player.distanceToSqr(target) > 26 * 26
                 || player.hasEffect(ModEffects.SKILL_BANED) || player.hasEffect(ModEffects.SAFE_TIME)) {
             fail(player, "interrupted");
             sync(player, state);

@@ -23,7 +23,7 @@ import java.util.Objects;
 
 /** GameRenderer 尾部唯一绘制点；漫画分镜不依赖可被取消的普通 HUD。 */
 public final class SettlementOverlay {
-    private static final int INK = 0xFF171719, PAPER = 0xFFF3EDDD, RED = 0xFFC34D43, MUTED = 0xFF827D73;
+    private static final int INK=0xFF171719, PAPER=0xFFE6DCC5, SURFACE=0xFFB8AA8C, RED=0xFF6C2323, MUTED=0xFF413C32;
     private static final SettlementNameplateLayout nameplates=new SettlementNameplateLayout();
     static void clear() { nameplates.clear(); }
     private SettlementOverlay() { }
@@ -69,11 +69,11 @@ public final class SettlementOverlay {
         var layout=SettlementClient.layout(partial);
         double time=frame.time(); float ui=layout.ui();
         int edge=Math.max(3,Math.round(4*ui)),margin=Math.round(22*ui);
-        g.fill(0,0,w,edge,PAPER);g.fill(0,h-edge,w,h,PAPER);
-        g.fill(0,edge,edge,h-edge,PAPER);g.fill(w-edge,edge,w,h-edge,PAPER);
+        g.fill(0,0,w,edge,SURFACE);g.fill(0,h-edge,w,h,SURFACE);
+        g.fill(0,edge,edge,h-edge,SURFACE);g.fill(w-edge,edge,w,h-edge,SURFACE);
         g.renderOutline(edge,edge,w-edge*2,h-edge*2,INK);
-        // 页眉本身是一条纸白信息带，扩展皮肤的深色布景也有足够文字对比。
-        g.fill(edge+1,edge+1,w-edge-1,Math.round(25*ui),PAPER);
+        // 深纸色信息带与浅色文字分开定义，压暗大面积底色而不连带压暗字幕。
+        g.fill(edge+1,edge+1,w-edge-1,Math.round(25*ui),SURFACE);
         text(g,Component.translatable("settlement.starrailexpress.comic.running"),margin,Math.round(11*ui),
                 w-margin*2,.72f*ui,MUTED,false);
         Component chapter=Component.translatable(frame.closing()?"settlement.starrailexpress.comic.next":"settlement.starrailexpress.comic.issue");
@@ -97,8 +97,8 @@ public final class SettlementOverlay {
 
         if(time>=100 && !frame.closing()) {
             int pw=Math.round(155*ui),x=w-margin-pw,y=h-Math.round(16*ui);
-            // 小型纸白跳过签，不依赖舞台地面是深色还是浅色。
-            g.fill(x-4,y-3,w-margin+4,y+Math.round(10*ui),0xDDF3EDDD);
+            // 跳过签沿用深纸色，避免画面下沿保留一整条刺眼的米白。
+            g.fill(x-4,y-3,w-margin+4,y+Math.round(10*ui),tint(SURFACE,.87f));
             text(g,Component.translatable("settlement.starrailexpress.hud.skip"),x,y,pw,.72f*ui,MUTED,true);
             float held=Math.min(1,SettlementClient.holdTicks()/30f);
             if(held>0) g.fill(x,y+Math.round(10*ui),x+Math.round(pw*held),y+Math.round(12*ui),RED);
@@ -124,8 +124,8 @@ public final class SettlementOverlay {
         g.enableScissor(edge,edge,w-edge,h-edge);
         g.fill(edge,edge,w-edge,h-edge,tint(0xFF101E28,fade));
         int top=(int)(h*.145),bottom=(int)(h*.91);
-        g.fill(edge,top,w-edge,bottom,tint(0xFFF02C50,fade));
-        g.fillGradient(edge,top,w-edge,bottom,tint(0x00C71B3B,0),tint(0xFFB82040,fade*.35f));
+        g.fill(edge,top,w-edge,bottom,tint(0xFFB92140,fade));
+        g.fillGradient(edge,top,w-edge,bottom,tint(0x006B1930,0),tint(0xFF6B1930,fade*.45f));
         // 巨幅字是背景版式，不是再给场上每个人套一块浮动面板。
         var font=Minecraft.getInstance().font;
         g.pose().pushPose();g.pose().translate(w*.16-(1-SettlementPresentation.easeOut((time-204)/14))*w*.12,h*.19,0);
@@ -133,7 +133,7 @@ public final class SettlementOverlay {
         g.drawString(font,Component.literal("MVP").withStyle(ChatFormatting.BOLD),0,0,tint(PAPER,fade*.13f),false);
         g.pose().popPose();
         text(g,Component.translatable("settlement.starrailexpress.hero.banner"),Math.round(w*.055f),Math.round(h*.175f),
-                Math.round(w*.72f),.82f*ui,tint(0xFF78182E,fade),false);
+                Math.round(w*.72f),.82f*ui,tint(PAPER,fade*.8f),false);
         // 确定性的印刷网点，避免随机闪烁和高频动画噪点。
         int step=Math.max(8,Math.round(11*ui));
         for(int y=top+step*3;y<bottom;y+=step) for(int x=w/2;x<w-edge;x+=step)
@@ -243,7 +243,7 @@ public final class SettlementOverlay {
         }
         for(var p:placed) {
             var r=p.box();int x=(int)r.x(),y=(int)r.y(),w=(int)r.w(),h=(int)r.h();
-            g.fill(x+2,y+2,x+w+2,y+h+2,0x33272B29);g.fill(x,y,x+w,y+h,0xF3F3EDDD);
+            g.fill(x+2,y+2,x+w+2,y+h+2,0x33272B29);g.fill(x,y,x+w,y+h,tint(SURFACE,.95f));
             g.fill(x,y,x+2,y+h,p.mvp()?RED:p.label().actor().fact.color()|0xFF000000);
             var actor=p.label().actor();
             String name=(SettlementClient.isDeathMarked(actor)?"× ":"")+actor.fact.name();
@@ -267,8 +267,8 @@ public final class SettlementOverlay {
         if (alpha <= .01f) return;
         int shift=Math.max(2,Math.round(3*ui)),cut=Math.max(4,Math.round(7*ui));
         g.fill(x+shift,y+shift,x+w+shift,y+h+shift,tint(INK,alpha*.20f));
-        g.fill(x,y+cut,x+w,y+h,tint(PAPER,alpha*.98f));
-        g.fill(x,y,x+w-cut,y+cut,tint(PAPER,alpha*.98f));
+        g.fill(x,y+cut,x+w,y+h,tint(SURFACE,alpha*.98f));
+        g.fill(x,y,x+w-cut,y+cut,tint(SURFACE,alpha*.98f));
         g.fill(x,y,x+w-cut,y+1,tint(INK,alpha*.75f));
         g.fill(x,y,x+2,y+h,tint(INK,alpha*.85f));
         g.fill(x,y+h-2,x+w,y+h,tint(INK,alpha*.80f));
@@ -276,7 +276,7 @@ public final class SettlementOverlay {
         g.flush();RenderSystem.disableDepthTest();RenderSystem.depthMask(false);
         RenderSystem.enableBlend();RenderSystem.defaultBlendFunc();RenderSystem.setShader(GameRenderer::getPositionColorShader);
         BufferBuilder bevel=Tesselator.getInstance().begin(VertexFormat.Mode.QUADS,DefaultVertexFormat.POSITION_COLOR);
-        quad(bevel,g.pose().last().pose(),x+w-cut,y,x+w-cut,y+cut,x+w,y+cut,x+w-cut,y,tint(PAPER,alpha*.98f));
+        quad(bevel,g.pose().last().pose(),x+w-cut,y,x+w-cut,y+cut,x+w,y+cut,x+w-cut,y,tint(SURFACE,alpha*.98f));
         quad(bevel,g.pose().last().pose(),x+w-cut,y,x+w-cut-1,y+1,x+w-1,y+cut+1,x+w,y+cut,tint(INK,alpha*.75f));
         BufferUploader.drawWithShader(bevel.buildOrThrow());
         int step = Math.max(4, Math.round(6 * ui)), dot = Math.max(1, Math.round(ui));
