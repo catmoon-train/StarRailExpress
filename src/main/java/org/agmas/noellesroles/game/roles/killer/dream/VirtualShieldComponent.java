@@ -74,10 +74,13 @@ public class VirtualShieldComponent implements RoleComponent {
     private final Player player;
     /** 当前剩余虚拟护盾值；0 = 没有护盾（此时 HUD 不渲染护盾条）。 */
     public int shield;
+    /** 默认无盾态时不向观察者发包，见 {@link io.wifi.starrailexpress.cca.DefaultStateSyncGate}。 */
+    private final io.wifi.starrailexpress.cca.DefaultStateSyncGate syncGate;
 
     public VirtualShieldComponent(Player player) {
         this.player = player;
         this.shield = 0;
+        this.syncGate = new io.wifi.starrailexpress.cca.DefaultStateSyncGate(player);
     }
 
     @Override
@@ -89,7 +92,13 @@ public class VirtualShieldComponent implements RoleComponent {
     public boolean shouldSyncWith(ServerPlayer p) {
         // 护盾条与虚拟血量条共用同一套可见性门禁（护士 / canUseSpVanillaWeapon），
         // 但数据本身仍需对全员同步：可见性判定在客户端做。
-        return true;
+        // 默认无盾态的包对观察者没有任何信息量，只同步给本人与「拿到过护盾数据」的观察者。
+        return this.syncGate.shouldSyncWith(p, isDefaultSyncState());
+    }
+
+    /** 是否处于「没有护盾」的默认态（此时空包对观察者没有任何意义）。 */
+    public boolean isDefaultSyncState() {
+        return this.shield == 0;
     }
 
     public void sync() {
@@ -103,6 +112,8 @@ public class VirtualShieldComponent implements RoleComponent {
         }
         shield = 0;
         sync();
+        // sync() 已经补发过复位包，记录不再需要
+        this.syncGate.clear();
     }
 
     @Override
@@ -181,6 +192,15 @@ public class VirtualShieldComponent implements RoleComponent {
     }
 
     // ── NBT 同步 ───────────────────────────────────────────────
+
+    @Override
+    public void writeToSyncNbtWithPlayer(@NotNull CompoundTag tag, HolderLookup.Provider lookup,
+            ServerPlayer recipient) {
+        writeToSyncNbt(tag, lookup);
+        // 只有这里能拿到 recipient：记录本次发出去的是默认态还是真实护盾值，
+        // 护盾清空后才能给「拿到过护盾数据」的观察者补发一次复位包。
+        this.syncGate.recordSent(recipient, isDefaultSyncState());
+    }
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider lookup) {

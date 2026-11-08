@@ -112,10 +112,13 @@ public class DreamHealthComponent implements RoleComponent {
     public int baseHealth;
     /** 最后一次被 Dream 打伤的游戏时间；0 = 本局尚未受伤。 */
     public long lastHurtGameTime;
+    /** 默认满血态时不向观察者发包，见 {@link DefaultStateSyncGate}。 */
+    private final io.wifi.starrailexpress.cca.DefaultStateSyncGate syncGate;
 
     public DreamHealthComponent(Player player) {
         this.player = player;
         this.baseHealth = maxHealth();
+        this.syncGate = new io.wifi.starrailexpress.cca.DefaultStateSyncGate(player);
     }
 
     public void initWhenNecessary() {
@@ -140,8 +143,15 @@ public class DreamHealthComponent implements RoleComponent {
 
     @Override
     public boolean shouldSyncWith(ServerPlayer p) {
-        // 血量条对所有人可见（"在所有人眼中玩家默认都有20滴血"）
-        return true;
+        // 血量条对所有人可见（"在所有人眼中玩家默认都有20滴血"），
+        // 但默认满血态的包对观察者没有任何信息量：CCA 在开始追踪 / 玩家登录时会对
+        // 每个组件无脑 sync，本组件挂在所有玩家身上，不门控就是「玩家数 × 观察者数」个空包。
+        return this.syncGate.shouldSyncWith(p, isDefaultSyncState());
+    }
+
+    /** 是否处于「满血且本局从未受伤」的默认态（此时空包对观察者没有任何意义）。 */
+    public boolean isDefaultSyncState() {
+        return this.baseHealth == maxHealth() && this.lastHurtGameTime == 0;
     }
 
     public void sync() {
@@ -150,15 +160,14 @@ public class DreamHealthComponent implements RoleComponent {
 
     public void init(boolean sync) {
         // 本组件挂在所有玩家身上且对全员同步，开局对每人无脑 sync 是 N² 个包；
-        // 绝大多数玩家本来就处于默认满血态，只有状态真正变化时才广播。
-        int max = maxHealth();
-        // if (baseHealth == max && lastHurtGameTime == 0) {
-        //     return;
-        // }
-        baseHealth = max;
+        // 复位到默认满血态后，sync() 只会向「拿到过非默认数据」的观察者补发一次复位包
+        // （见 shouldSyncWith），其余人直接跳过。
+        baseHealth = maxHealth();
         lastHurtGameTime = 0;
         if (sync)
             sync();
+        // sync() 已经补发过复位包，记录不再需要
+        this.syncGate.clear();
     }
 
     @Override
@@ -431,6 +440,15 @@ public class DreamHealthComponent implements RoleComponent {
     }
 
     // ── NBT 同步 ───────────────────────────────────────────────
+
+    @Override
+    public void writeToSyncNbtWithPlayer(@NotNull CompoundTag tag, HolderLookup.Provider lookup,
+            ServerPlayer recipient) {
+        writeToSyncNbt(tag, lookup);
+        // 只有这里能拿到 recipient：记录本次发出去的是默认态还是真实血量，
+        // 血量回落满值后才能给「拿到过残血数据」的观察者补发一次复位包。
+        this.syncGate.recordSent(recipient, isDefaultSyncState());
+    }
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider lookup) {

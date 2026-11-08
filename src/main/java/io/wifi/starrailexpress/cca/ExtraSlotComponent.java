@@ -52,6 +52,8 @@ public class ExtraSlotComponent implements RoleComponent, ServerTickingComponent
     public final boolean SAVE_FLAG = false;
     public boolean fullSync = false;
     public final HashMap<ResourceLocation, Boolean> needSync = new HashMap<>();
+    /** 默认态（没有任何槽位数据）时不向观察者发包，见 {@link DefaultStateSyncGate}。 */
+    private final DefaultStateSyncGate syncGate;
 
     public static ItemStack hurtAndBreak(Player player, ItemStack stack, int damage, ResourceLocation slot) {
         return KEY.get(player).hurtAndBreak(stack, damage, slot);
@@ -79,6 +81,7 @@ public class ExtraSlotComponent implements RoleComponent, ServerTickingComponent
 
     public ExtraSlotComponent(Player player) {
         this.player = player;
+        this.syncGate = new DefaultStateSyncGate(player);
     }
 
     @Override
@@ -123,6 +126,11 @@ public class ExtraSlotComponent implements RoleComponent, ServerTickingComponent
         this.writeToSyncNbt(tag, buf.registryAccess());
         buf.writeNbt(tag);
         syncMode = false;
+        // 只有这里能拿到 recipient：记录本次发出去的是默认态还是真实数据，
+        // 状态回落默认时才能给「拿到过数据」的观察者补发一次复位包。
+        // 判定用 SLOTS.isEmpty()：客户端 readFromSyncNbt 的最终结果就等于 SLOTS
+        // （fullSync 时先 remove_all 再整体重填），所以「空」才是客户端的默认态。
+        this.syncGate.recordSent(recipient, this.SLOTS.isEmpty());
     }
 
     @Override
@@ -157,7 +165,14 @@ public class ExtraSlotComponent implements RoleComponent, ServerTickingComponent
 
     @Override
     public boolean shouldSyncWith(ServerPlayer sp) {
-        return true;
+        // 没有槽位数据时只同步给本人：CCA 在开始追踪 / 玩家登录时会对每个组件无脑 sync，
+        // 本组件挂在所有玩家身上，不门控就是「玩家数 × 观察者数」个空包。
+        return this.syncGate.shouldSyncWith(sp, isDefaultSyncState());
+    }
+
+    /** 是否处于「没有任何槽位数据」的默认态（此时空包对观察者没有任何意义）。 */
+    public boolean isDefaultSyncState() {
+        return this.SLOTS.isEmpty() && !this.fullSync;
     }
 
     public Player getPlayer() {
@@ -199,9 +214,20 @@ public class ExtraSlotComponent implements RoleComponent, ServerTickingComponent
     }
 
     public void clear() {
+        // 本来就没有任何槽位数据、也没有观察者拿到过数据时，这次 sync 只会给所有人
+        // 发一个 remove_all 空包（开局 / 局末对每个玩家都会 clear 一次 → N² 个包），
+        // 直接跳过：客户端本来就是空槽位态。
+        if (this.SLOTS.isEmpty() && !this.syncGate.hasSyncedViewers()) {
+            this.fullSync = false;
+            this.syncGate.clear();
+            return;
+        }
         this.SLOTS.clear();
-        fullSync = true;
+        this.fullSync = true;
         sync();
+        // sync() 发出的是 remove_all，观察者客户端已被整体复位，
+        // 不再需要 DefaultStateSyncGate 给他们补发空包。
+        this.syncGate.clear();
     }
 
     public void syncWith(ServerPlayer sp) {

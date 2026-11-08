@@ -799,6 +799,11 @@ public interface RoleComponent extends AutoSyncedComponent {
   Store end-timestamps instead of decrementing countdowns each tick.
 - 如需倒计时，在客户端本地模拟计算，服务端约 10 秒同步一次。  
   For countdowns, simulate locally on client; sync from server roughly every 10 seconds.
+- 需要对全员同步的组件，请用 `io.wifi.starrailexpress.cca.DefaultStateSyncGate` 做「默认态门控」：
+  CCA 在实体开始被追踪 / 玩家登录时会对**每个**组件无脑 `syncWith`，`shouldSyncWith` 恒为 `true`
+  会发出「玩家数 × 观察者数」个负载为默认值的空包。门控后默认态只发给本人与「拿到过非默认数据」的观察者，
+  状态回落默认时仍会给他们补发一次复位包，功能不变。
+  For components synced to everyone, use `DefaultStateSyncGate` to skip default-state packets.
 
 ---
 
