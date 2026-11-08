@@ -226,14 +226,14 @@ public final class MeetingClientHandler {
             stopOverride();
             return;
         }
-        if (phase == MeetingManager.PHASE_NONE) {
-            stopOverride();
-        }
-        boolean participant = participants.contains(player.getUUID());
+        boolean inMeeting = phase != MeetingManager.PHASE_NONE;
+        // 没有会议时参会者列表也必须是空的。这里双保险：clear() 已清空列表，但状态包若因
+        // 时序问题把旧列表带回来，下面的 contains 仍会命中，相机会被永久锁在会议机位上。
+        boolean participant = inMeeting && participants.contains(player.getUUID());
 
         // 分号键 — 会议中：发言（讨论阶段）或跳过（开场/讨论阶段）；会议外：上报尸体
         while (speakKey.consumeClick()) {
-            if (phase == MeetingManager.PHASE_NONE) {
+            if (!inMeeting) {
                 // 会议外 → 上报尸体
 
                 if (player.hasEffect(ModEffects.USED_BANED)) {
@@ -264,6 +264,7 @@ public final class MeetingClientHandler {
             }
         }
 
+        // 会议外 / 非参会者一律交还视角，绝不驱动相机。
         if (!participant) {
             stopOverride();
             return;
@@ -368,7 +369,31 @@ public final class MeetingClientHandler {
         return new int[] { (w - bw) / 2, h - 70, bw, bh };
     }
 
+    /**
+     * 断开 / 重连时彻底清空会议镜像状态。
+     * <p>
+     * 只把 {@code phase} 置空是不够的：{@code participants} / {@code center} 残留时，下一 tick 仍会
+     * 判定为参会者并绕残留的中心点驱动相机，玩家就会一直卡在会议视角里。这里把状态连同相机
+     * override 一起清掉（2D 视角自己每 tick 重设 override，不受影响）。
+     */
     public static void clear() {
         phase = MeetingManager.PHASE_NONE;
+        lastPhase = MeetingManager.PHASE_NONE;
+        participants = List.of();
+        speakers = List.of();
+        center = Vec3.ZERO;
+        phaseEndGameTime = 0;
+        phaseChangeMillis = 0;
+        reporterName = "";
+        victimName = "";
+        speakingToggled = false;
+        showVoteResult = false;
+        voteResultExpelledName = "";
+        voteResultEntries = List.of();
+        skipVoted = false;
+        skipCount = 0;
+        skipAliveCount = 0;
+        overriding = false;
+        AdvancedCameraDirector.clearFixedOverride();
     }
 }
