@@ -907,13 +907,19 @@ public class FakeSteveAi {
 
     private static boolean openDoorAt(ServerLevel level, ServerPlayer body,
                                       BlockPos pos, net.minecraft.world.level.block.state.BlockState blockState) {
+        // 统一先归一到下半格：模组小门/列车门的方块实体只挂在下半格，上半格没有实体。
+        BlockPos lower = FakeSteveDoorAccess.lowerHalf(blockState, pos);
         if (blockState.getBlock() instanceof SmallDoorBlock door) {
-            BlockPos lower = door.getLowerHalfPos(blockState, pos);
             if (level.getBlockEntity(lower) instanceof SmallDoorBlockEntity entity) {
                 var lowerState = level.getBlockState(lower);
+                // 已经打开（含动画进行中）就不要反复按：列车门有 10 tick 交互冷却，
+                // 每 tick 都按会一直吃 FAIL，把门卡在「开一半」。
+                if (FakeSteveDoorAccess.isPassableNow(level, lower, lowerState)) return false;
                 boolean hardLocked = entity.isJammed() || entity.isBlasted() || hasExternalDoorLock(lower);
                 if (FakeStevePathPolicy.shouldAutoOpenSmallDoor(
-                        lowerState.getValue(DoorBlock.OPEN), hardLocked)) {
+                        FakeSteveDoorAccess.isOpen(lowerState), hardLocked)) {
+                    // 传下半格的状态与位置：TrainDoorBlock/PlaneSmallDoorBlock 的 toggleDoor
+                    // 都靠 state.getValue(FACING) 找联动门，传上半格会拿错朝向。
                     door.toggleDoor(lowerState, level, entity, lower);
                     body.swing(InteractionHand.MAIN_HAND, true);
                     return true;
@@ -921,7 +927,7 @@ public class FakeSteveAi {
                 return false;
             }
         }
-        if (FakeSteveDoorAccess.isOpen(blockState)) {
+        if (FakeSteveDoorAccess.isPassableNow(level, pos, blockState)) {
             return false;
         }
         BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, false);

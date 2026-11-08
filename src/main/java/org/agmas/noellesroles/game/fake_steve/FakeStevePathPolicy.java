@@ -24,6 +24,16 @@ package org.agmas.noellesroles.game.fake_steve;
  */
 final class FakeStevePathPolicy {
     /** 原版玩家不需要跳跃输入就能迈上去的最大高度（0.6 格）。 */
+    /**
+     * 薄地板覆盖物的碰撞高度上限。
+     *
+     * <p>
+     * 压力板（未按下 1/16 格、按下 0.5/16 格）、地毯、铁轨、雪层都落在这个区间里。
+     * 它们不是墙，真人可以直接踩过去，寻路的「有没有地板」判定必须穿过它们继续往下看。
+     */
+    static final double THIN_COVER_HEIGHT = 0.15D;
+    /** 可以作为「地面」的碰撞高度下限：低于它的方块踩不住。 */
+    static final double SOLID_FLOOR_HEIGHT = 0.45D;
     static final double STEP_HEIGHT = 0.6D;
     /**
      * 同一水平坐标上尝试落脚的高度顺序：同层 → 上一层 → 下一层。
@@ -161,5 +171,35 @@ final class FakeStevePathPolicy {
     static boolean canTrackPlayer(boolean alive, boolean spectator, boolean creative,
                                   boolean survivalParticipant) {
         return alive && !spectator && !creative && survivalParticipant;
+    }
+
+    /**
+     * 薄覆盖物（压力板、地毯、铁轨、雪层）能否被直接踩过去。
+     *
+     * <p>
+     * 原版 {@code PressurePlateBlock} 未按下时碰撞箱只有 1/16 格、按下时 0.5/16 格，
+     * 玩家踩上去既不会被挡住也不会被抬起来。寻路如果把它当成「实心地板」，会出现两个错误：
+     * <ul>
+     * <li>它<b>挡不住</b>人，却让下面的真地板被当成「没地板」，整块区域被误判为不可站；</li>
+     * <li>抬升判定把它算成 0.0625 格的高差，导致路线上多出一堆无意义的台阶节点。</li>
+     * </ul>
+     *
+     * @param collisionMaxY 该格的碰撞箱最高点相对格底的偏移
+     * @param stepBlock     是否为楼梯/半砖（那些要按台阶处理，不能当薄覆盖物）
+     */
+    static boolean walkableCover(double collisionMaxY, boolean stepBlock) {
+        return !stepBlock && collisionMaxY <= THIN_COVER_HEIGHT;
+    }
+
+    /**
+     * 门实体（{@code DoorBlockEntity}）是否处于打开状态。
+     *
+     * <p>
+     * 列车门/小门的实体用 {@code open} 字段记录动画目标，方块状态 {@code OPEN} 在
+     * {@code toggleBlocks()} 里才同步。两者在动画期间可能不一致，只要<b>任一</b>为真就按打开处理：
+     * 伪人刚按下去、门正在滑动时，寻路不该再认为门板挡路。
+     */
+    static boolean isOpenByStateOrEntity(boolean stateOpen, boolean entityOpen) {
+        return stateOpen || entityOpen;
     }
 }

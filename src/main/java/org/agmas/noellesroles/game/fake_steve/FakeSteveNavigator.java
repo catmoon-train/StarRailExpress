@@ -97,6 +97,8 @@ final class FakeSteveNavigator {
     private static final double DETOUR_FACTOR = 1.6D;
     /** 最大路径距离的附加余量，保证「贴脸目标」也有足够余量绕过一格厚的墙。 */
     private static final double DETOUR_SLACK = 8.0D;
+    /** 需要伪人自己动手开的门，每跨一格加收的代价。 */
+    static final double DOOR_OPEN_COST = 1.5D;
     /**
      * 同一水平坐标上尝试落脚的高度顺序：同层 → 上一层 → 下一层 → 更深两层。
      *
@@ -651,13 +653,56 @@ final class FakeSteveNavigator {
             boolean water = water(feet) || water(feet.above());
             if (water && !rules.canSwim()) return false;
             boolean climbing = climbable(feet);
-            VoxelShape below = shape(feet.below());
-            VoxelShape own = shape(feet);
-            boolean supported = !below.isEmpty() && below.max(Direction.Axis.Y) >= 0.45D
-                    || !own.isEmpty() && y > feet.getY()
-                            && (stepBlock(feet) || y - feet.getY() >= 0.4D);
+            double standingHeight = standingY(feet);
+            boolean supported = supportedBy(feet)
+                    || standingHeight > feet.getY() && (stepBlock(feet) || standingHeight - feet.getY() >= 0.4D);
             return (water || climbing || supported)
-                    && clear(box(feet.getX() + 0.5D, y, feet.getZ() + 0.5D));
+                    && clear(box(feet.getX() + 0.5D, standingHeight, feet.getZ() + 0.5D));
+        }
+
+        /**
+         * 这一格下方是否有能踩住的地板，对应原版 {@code NodeEvaluator#getBlockPathType} 里
+         * 「向下找到第一个可站立方块」的那一步。
+         *
+         * <p>
+         * 关键在于<b>穿透薄覆盖物</b>：压力板（未按下 1/16 格、按下 0.5/16 格）、地毯、铁轨、
+         * 雪层都不是墙。旧实现只看 {@code feet.below()} 一格的碰撞高度是否 ≥ 0.45，
+         * 于是「石地板 + 压力板」的地面被判成没有支撑——伪人会认为铺了压力板的整条走廊不能走。
+         *
+         * <p>
+         * 现在最多向下看两层，跳过高度 ≤ {@link FakeStevePathPolicy#THIN_COVER_HEIGHT} 的覆盖物。
+         */
+        private boolean supportedBy(BlockPos feet) {
+            if (grid != null) return true;
+            for (int dy = 1; dy <= 2; dy++) {
+                BlockPos below = feet.below(dy);
+                VoxelShape shape = shape(below);
+                if (shape.isEmpty()) continue;
+                double top = shape.max(Direction.Axis.Y);
+                if (top >= FakeStevePathPolicy.SOLID_FLOOR_HEIGHT) return true;
+                if (!FakeStevePathPolicy.walkableCover(top, stepBlock(below))) return false;
+            }
+            return false;
+        }
+
+        /** 门格是否还需要伪人自己动手打开（已开的门不加代价）。 */
+        private boolean needsOpening(BlockPos feet) {
+            if (grid != null) return false;
+            return !FakeSteveDoorAccess.isPassableNow(level, feet, level.getBlockState(feet));
+        }
+
+        /**
+         * 门格：不能「站」（会掉下去或卡在门里），但可以「通过」。
+         *
+         * <p>
+         * 原版把门当成 {@code DOOR_OPEN}/{@code DOOR_CLOSED} 节点：<b>可以走进门格并穿过</b>，
+         * 但不会把门格当成停留点。旧实现只做了 {@code passage(pos) → continue}（让门板不挡路），
+         * 没有把门格本身当成可走节点——于是列车门这种「两格厚、中间就是门槛」的门，
+         * 路线会被切成「站到门外 → 站到门内」，中间那格永远过不去。
+         */
+        private boolean doorStep(BlockPos feet) {
+            if (grid != null) return false;
+            return passage(feet) && !standable(feet);
         }
 
         /**
@@ -710,7 +755,10 @@ final class FakeSteveNavigator {
                     if (dx == 0 && dz == 0) continue;
                     for (int dy : verticalOffsets) {
                         BlockPos next = current.offset(dx, dy, dz);
-                        if (!inRange(next) || !standable(next)) continue;
+                        if (!inRange(next)) continue;
+                        // 门格可以「通过」但不能「停留」：原版同样是 DOOR_OPEN/DOOR_CLOSED 节点。
+                        boolean throughDoor = doorStep(next);
+                        if (!throughDoor && !standable(next)) continue;
                         Vec3 target = point(next);
                         double rise = target.y - from.y;
                         if (!canStep(current, next, rise, wet, climbing)) continue;
@@ -726,10 +774,12 @@ final class FakeSteveNavigator {
                         // 是整条搜索里最贵的一环，且对相邻移动完全冗余。
                         // corridor 仍然保留给运行时（FakeSteveNavigation）与跨格校验。
                         double length = dx != 0 && dz != 0 ? Math.sqrt(2.0D) : 1.0D;
+                        // 需要自己动手开的门加一点代价，让 A* 优先选已经开着的门。
+                        double doorCost = throughDoor && needsOpening(next) ? DOOR_OPEN_COST : 0.0D;
                         result.add(new FakeStevePathSearch.Edge<>(next.immutable(),
                                 length + Math.abs(rise) * 0.35D
                                         + (water(next) ? 0.4D : 0.0D) + crowdCost(target)
-                                        + neighbourMalus(next),
+                                        + neighbourMalus(next) + doorCost,
                                 length + Math.abs(rise)));
                         break;
                     }
@@ -815,12 +865,25 @@ final class FakeSteveNavigator {
             return true;
         }
 
-        /** 门是否真的能打开：锁住、卡死、被炸变形、以及铁门都不算通路。 */
+        /**
+         * 这一格是否「可以走过去」的门。
+         *
+         * <p>
+         * 两种情形都算通路，但理由不同：
+         * <ul>
+         * <li><b>关着但能开</b>：伪人走到门口会按下去（{@code FakeSteveAi#openDoorsOnApproach}），
+         * 所以 A* 可以把它当成通路规划；锁死/卡死/炸变形/铁门例外。</li>
+         * <li><b>已经打开</b>：门板被动画推开了，真人能直接过。旧实现这里无条件
+         * {@code return false}（理由是「打开的门仍有实体门板」），结果伪人自己把门打开之后
+         * 反而认为门不通——列车门尤其明显，因为它是双格门 + 侧滑动画。</li>
+         * </ul>
+         */
         boolean passage(BlockPos pos) {
             return passageCache.computeIfAbsent(pos.immutable(), p -> {
                 BlockState state = level.getBlockState(p);
                 if (!FakeSteveDoorAccess.isOpenablePassage(state)) return false;
-                if (FakeSteveDoorAccess.isOpen(state)) return false; // 打开的门仍有实体门板，按碰撞体绕开。
+                // 已经打开（含动画中、连锁门、上下半门）：直接当通路，不再看门板形状。
+                if (FakeSteveDoorAccess.isPassableNow(level, p, state)) return true;
                 if (state.is(Blocks.IRON_DOOR) || state.is(Blocks.IRON_TRAPDOOR)) return false;
                 if (state.getBlock() instanceof SmallDoorBlock door) {
                     BlockPos lower = door.getLowerHalfPos(state, p);

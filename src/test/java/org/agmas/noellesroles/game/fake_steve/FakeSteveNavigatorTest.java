@@ -353,6 +353,49 @@ class FakeSteveNavigatorTest {
                 "远离岩浆不应加代价");
     }
 
+    // ---------------------------------------------------------------- 门与压力板
+
+    /**
+     * 压力板/地毯/铁轨这类薄覆盖物不是墙，必须能踩过去。
+     *
+     * <p>
+     * 原版 {@code PressurePlateBlock} 未按下时碰撞箱只有 1/16 格（0.0625），按下时 0.5/16 格。
+     * 寻路若把它当成「实心地板」，会认为它下面的石地板「没有支撑」，整条铺了压力板的走廊不可走。
+     */
+    @Test
+    void thinCoverIsWalkableAndNotAStep() {
+        assertTrue(FakeStevePathPolicy.walkableCover(1.0D / 16.0D, false),
+                "未按下的压力板（1/16 格）必须能踩过去");
+        assertTrue(FakeStevePathPolicy.walkableCover(0.5D / 16.0D, false),
+                "按下的压力板（0.5/16 格）同样能踩过去");
+        assertTrue(FakeStevePathPolicy.walkableCover(0.0625D, false), "地毯/铁轨同属薄覆盖物");
+        assertFalse(FakeStevePathPolicy.walkableCover(0.5D, false),
+                "半砖不是薄覆盖物：它有真实高度，要按台阶处理");
+        assertFalse(FakeStevePathPolicy.walkableCover(1.0D / 16.0D, true),
+                "带台阶语义的方块即使很薄也不能被当成覆盖物跳过");
+        // 真地板必须仍被认成地板。
+        assertTrue(1.0D >= FakeStevePathPolicy.SOLID_FLOOR_HEIGHT);
+        assertTrue(FakeStevePathPolicy.SOLID_FLOOR_HEIGHT > FakeStevePathPolicy.THIN_COVER_HEIGHT);
+    }
+
+    /**
+     * 上下半门必须归一到同一格：模组门的方块实体只挂在下半格。
+     *
+     * <p>
+     * 这里只断言纯规则（{@link FakeStevePathPolicy}），不构造真实方块状态——
+     * 测试环境没有启动 Minecraft 的方块注册表，{@code Blocks.OAK_DOOR} 会初始化失败。
+     * 真实方块状态下的行为由编译期类型检查与游戏内验证覆盖。
+     */
+    @Test
+    void doorOpeningUsesStateOrEntity() {
+        // 只按方块状态：打开就是打开。
+        assertTrue(FakeStevePathPolicy.isOpenByStateOrEntity(true, false));
+        // 只有实体 open（列车门动画进行中、方块状态尚未同步）：同样必须算打开。
+        assertTrue(FakeStevePathPolicy.isOpenByStateOrEntity(false, true));
+        // 两者都为假才算关闭。
+        assertFalse(FakeStevePathPolicy.isOpenByStateOrEntity(false, false));
+    }
+
     private static FakeSteveNavigator.SearchWorld searchWorld(GridWorld world, FakeSteveNavRules rules) {
         return new FakeSteveNavigator.SearchWorld(world, rules);
     }

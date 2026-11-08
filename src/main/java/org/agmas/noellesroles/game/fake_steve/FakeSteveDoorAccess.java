@@ -16,11 +16,15 @@
 package org.agmas.noellesroles.game.fake_steve;
 
 import io.wifi.starrailexpress.content.block.SmallDoorBlock;
+import io.wifi.starrailexpress.content.block_entity.DoorBlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.FenceGateBlock;
 import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 
 /** Identifies blocks that the possessed body may open while following a route. */
 final class FakeSteveDoorAccess {
@@ -64,4 +68,48 @@ final class FakeSteveDoorAccess {
         double distanceZ = doorZ - closestZ;
         return distanceX * distanceX + distanceZ * distanceZ <= 1.0D;
     }
+
+    /**
+     * 门当前是否<b>真的</b>能让人通过。
+     *
+     * <p>
+     * 判据顺序刻意从「便宜」到「昂贵」：
+     * <ol>
+     * <li>方块状态 {@code OPEN}（原版门、栅栏门、活板门都靠它）</li>
+     * <li>模组门实体的 {@code open} 字段——列车门/小门的动画目标是先写在实体里的，
+     * 方块状态要等 {@code toggleBlocks()} 才同步，只看方块状态会在「刚按下、门正在滑开」
+     * 的那几刻误判成关闭</li>
+     * <li>上下半门任一打开即算打开（实体只挂在下半部分）</li>
+     * </ol>
+     *
+     * @param level 服务端世界；为 {@code null} 时只看方块状态（网格测试用）
+     */
+    static boolean isPassableNow(Level level, BlockPos pos, BlockState state) {
+        if (!isOpenablePassage(state)) return false;
+        boolean stateOpen = state.hasProperty(BlockStateProperties.OPEN)
+                && state.getValue(BlockStateProperties.OPEN);
+        if (level == null) return stateOpen;
+        if (stateOpen) return true;
+        BlockPos lower = lowerHalf(state, pos);
+        if (level.getBlockEntity(lower) instanceof DoorBlockEntity entity) {
+            return FakeStevePathPolicy.isOpenByStateOrEntity(false, entity.isOpen());
+        }
+        return false;
+    }
+
+    /**
+     * 门这一格对应的「下半部分」位置：模组小门的方块实体只挂在下半格。
+     *
+     * <p>
+     * {@link SmallDoorBlock#getLowerHalfPos} 需要 {@code SmallDoorBlock} 实例，而列车门/平面门
+     * 都继承自它，所以这里直接按 {@code HALF} 属性判断，省掉一次 instanceof。
+     */
+    static BlockPos lowerHalf(BlockState state, BlockPos pos) {
+        if (state.hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF)
+                && state.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF) == DoubleBlockHalf.UPPER) {
+            return pos.below();
+        }
+        return pos;
+    }
+
 }
