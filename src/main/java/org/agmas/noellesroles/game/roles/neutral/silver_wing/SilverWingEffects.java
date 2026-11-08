@@ -22,9 +22,13 @@ import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.event.OnShieldBroken;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.index.TMMSounds;
+import io.wifi.starrailexpress.network.BreakArmorPayload;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -87,7 +91,9 @@ public final class SilverWingEffects {
 
         SREArmorPlayerComponent armor = SREArmorPlayerComponent.KEY.get(target);
         if (armor.hasArmor() && SilverWingRules.shouldBreakShield(random.nextFloat())) {
+            // hasArmor() 已经保证至少有一层可被消耗的护盾，这里消耗后必定触发破盾反馈
             armor.triggerAndRemoveArmor(1);
+            playShieldBreakFeedback(target, owner);
             OnShieldBroken.EVENT.invoker().onShieldBroken(target, owner);
         }
 
@@ -101,5 +107,17 @@ public final class SilverWingEffects {
         target.push(knock[0], SilverWingRules.BIRD_KNOCKBACK_Y, knock[1]);
         target.hurtMarked = true;
         target.connection.send(new ClientboundSetEntityMotionPacket(target.getId(), target.getDeltaMovement()));
+    }
+
+    /**
+     * 破盾反馈：与 {@link io.wifi.starrailexpress.api.GameMode} 的破盾流程保持一致 ——
+     * 受害者本人听到破盾音效，破盾者收到 {@link BreakArmorPayload}（音效 + 屏幕提示）。
+     */
+    private static void playShieldBreakFeedback(ServerPlayer victim, Player breaker) {
+        victim.playNotifySound(TMMSounds.ITEM_PSYCHO_ARMOUR, SoundSource.MASTER, 5.0F, 1.0F);
+        if (breaker instanceof ServerPlayer serverBreaker && serverBreaker != victim) {
+            ServerPlayNetworking.send(serverBreaker,
+                    new BreakArmorPayload(victim.getX(), victim.getY(), victim.getZ()));
+        }
     }
 }
