@@ -9,6 +9,10 @@ import java.util.UUID;
 
 /** 漫画分镜的纯计算层：语义、镜头、排版共用同一时钟，不依赖客户端注册表。 */
 public final class SettlementPresentation {
+    public static final int ENTRANCE_START=26, ENTRANCE_TICKS=30, ENTRANCE_STAGGER=6;
+    public static final int ENTRANCE_END=ENTRANCE_START+ENTRANCE_TICKS+ENTRANCE_STAGGER;
+    public static final double ENTRANCE_HEIGHT=3.8;
+    public static final int MAX_NAME_MARKERS=3, NAME_MARKER_WIDTH=78, NAME_MARKER_HEIGHT=12;
     public enum Action { STILL, PURCHASE, INTERACT, STRIKE, THROW, CAST, TRANSFORM }
     public enum Category { PURCHASE, INTERACTION, CONFLICT, CHANGE, STORY }
     public record Cue(int tick, UUID primary, UUID secondary, Category category) { }
@@ -25,7 +29,7 @@ public final class SettlementPresentation {
         public Rect grow(double pad) { return new Rect(x - pad, y - pad, w + pad * 2, h + pad * 2); }
         public boolean contains(Rect r) { return r.x >= x && r.y >= y && r.right() <= right() && r.bottom() <= bottom(); }
     }
-    public record Layout(int width, int height, float ui, Rect safe, Rect caption, Rect data, boolean stacked) { }
+    public record Layout(int width, int height, float ui, Rect safe, Rect caption, Rect identity, Rect data, boolean stacked) { }
     public record HeroLayout(Rect portrait, Rect info, boolean stacked) { }
     public record HeroText(Rect award, Rect name, Rect role, Rect stats, Rect statLabels, Rect victory,
                            float roleScale, float victoryScale) { }
@@ -98,14 +102,43 @@ public final class SettlementPresentation {
         return id != null && snapshot.actors().stream().anyMatch(a -> a.winner() && a.id().equals(id));
     }
 
+    /** 职业信息只跟随当前事件两人；无参与者时回落焦点/MVP，不随总人数扩展。 */
+    public static List<UUID> identityActors(SettlementSnapshot snapshot,Frame frame,SettlementSnapshot.Event event) {
+        List<UUID> result=new ArrayList<>(2);
+        if(event!=null) {
+            addIdentity(result,snapshot,event.source(),2,false);
+            addIdentity(result,snapshot,event.target(),2,false);
+        }
+        if(result.isEmpty()) {
+            addIdentity(result,snapshot,frame.primary(),2,false);
+            addIdentity(result,snapshot,frame.secondary(),2,false);
+        }
+        if(result.isEmpty()) addIdentity(result,snapshot,snapshot.mvp(),2,false);
+        return List.copyOf(result);
+    }
+
+    /** 场上仅显示 MVP 与事件参与胜者的姓名，最多三个，不再逐人展示职业面板。 */
+    public static List<UUID> nameActors(SettlementSnapshot snapshot,Frame frame,SettlementSnapshot.Event event) {
+        if(frame.hero()>.01 || frame.closing()) return List.of();
+        List<UUID> result=new ArrayList<>(MAX_NAME_MARKERS);
+        addIdentity(result,snapshot,snapshot.mvp(),MAX_NAME_MARKERS,true);
+        for(UUID id:identityActors(snapshot,frame,event)) addIdentity(result,snapshot,id,MAX_NAME_MARKERS,true);
+        return List.copyOf(result);
+    }
+
+    private static void addIdentity(List<UUID> result,SettlementSnapshot snapshot,UUID id,int limit,boolean winnersOnly) {
+        if(id==null || result.size()>=limit || result.contains(id)) return;
+        if(snapshot.actors().stream().anyMatch(a -> a.id().equals(id) && (!winnersOnly || a.winner()))) result.add(id);
+    }
+
     public static Frame frame(SettlementSnapshot snapshot, List<Cue> cues, double time) {
         boolean closing = time >= snapshot.durationTicks() - 80;
         double hero = smooth((time-202)/14) * (1-smooth((time-304)/16));
         double detail = time < 320 ? hero : .94;
         UUID primary = snapshot.mvp(), secondary = null;
         Category category = Category.STORY;
-        double impact = pulse(time,132,13)*.45 + pulse(time,220,16)*.90;
-        double orbit = -.16*(1-smooth((time-35)/105)) + .12*hero*(1-smooth((time-230)/16));
+        double impact = pulse(time,ENTRANCE_END,13)*.45 + pulse(time,220,16)*.90;
+        double orbit = -.13*(1-smooth((time-18)/65)) + .12*hero*(1-smooth((time-230)/16));
         double roll = -.018*hero;
         // 二分查找，不在每帧遍历大量回放。
         int low = 0, high = cues.size();
@@ -172,24 +205,27 @@ public final class SettlementPresentation {
     /** 正文字号固定，旁白高度按行数增长并封顶，超出部分由调用方裁剪滚动。 */
     public static Layout layout(int width, int height, boolean hero, boolean replay, int lines) {
         float ui = (float) clamp(Math.min(width/720.0, height/405.0), .72, 1.5);
-        double margin = Math.max(10, 22*ui), top = (hero||replay?32:104)*ui, footer = 22*ui;
+        double margin = Math.max(10, 22*ui), top = (hero||replay?32:62)*ui, footer = 22*ui;
         double captionW = Math.min(width-margin*2, 580*ui);
-        double captionH = replay ? Math.min(height*.20, (24+Math.max(1, lines)*12)*ui) : 0;
+        double captionH = replay ? Math.min(height*.16, (24+Math.max(1, lines)*12)*ui) : 0;
         Rect caption = new Rect((width-captionW)/2, height-footer-captionH, captionW, captionH);
+        double identityW=Math.min(width-margin*2,420*ui),identityH=18*ui;
+        Rect identity=new Rect((width-identityW)/2,
+                (replay?caption.y-5*ui:height-footer)-identityH,identityW,identityH);
         boolean stacked = width/(double)Math.max(1,height) < 1.4 || width < 420;
         double dataW = stacked ? Math.min(width-margin*2, 300*ui) : Math.min(width*.30, 220*ui);
         double dataH = (stacked ? 82 : 140)*ui;
         Rect data = new Rect(stacked ? (width-dataW)/2 : margin,
                 stacked ? height-footer-dataH : height*.30, dataW, dataH);
         double safeLeft = hero && !stacked ? data.right()+18*ui : margin;
-        double safeBottom = hero && stacked ? data.y-12*ui : replay ? caption.y-10*ui : height-footer-8*ui;
+        double safeBottom = hero && stacked ? data.y-12*ui : hero ? height-footer-8*ui : identity.y-8*ui;
         return new Layout(width,height,ui,new Rect(safeLeft,top,width-margin-safeLeft,
-                Math.max(30,safeBottom-top)),caption,data,stacked);
+                Math.max(30,safeBottom-top)),caption,identity,data,stacked);
     }
 
     /** 镜头和渲染共用吊线入场高度，避免按落地包围盒拍摄还在上空的人物。 */
     public static double winnerLift(double time, int order) {
-        return 5.4 * (1 - smooth((time - 65 - Math.min(12, Math.max(0, order) * 2)) / 65));
+        return ENTRANCE_HEIGHT*(1-smooth((time-ENTRANCE_START-Math.min(ENTRANCE_STAGGER,Math.max(0,order)))/ENTRANCE_TICKS));
     }
 
     public static Bounds winnerBounds(double x, double z, int order, double time) {
@@ -212,8 +248,8 @@ public final class SettlementPresentation {
             extentY=Math.max(extentY,Math.abs(d.dot(up)));
             depth=Math.max(depth,Math.abs(d.dot(forward)));
         }
-        // 取景边距给名签和镜头缓动留下空间；特写人物约占安全画格高度的 60%。
-        double safeW=layout.safe.w/layout.width*.83, safeH=layout.safe.h/layout.height*.78;
+        // 取消大片职业面板预留，人物更充分填充实际安全画格。
+        double safeW=layout.safe.w/layout.width*.90, safeH=layout.safe.h/layout.height*.86;
         double fov=lerp(frame.detail,46,32), tan=Math.tan(Math.toRadians(fov/2));
         double distance=Math.max(3.3,depth+Math.max(extentX/(tan*aspect*safeW),extentY/(tan*safeH)));
         double maxDistance=Math.min(14.0,(center.z+13.5)/forward.z);

@@ -416,7 +416,7 @@ public final class SettlementClient {
         float partial = isPlaying() ? partialTick : 0;
         var frame = presentation(partial);
         var all = castBounds == null ? new SettlementPresentation.Bounds(-1,0,-1,1,2.5,1) : castBounds;
-        if (frame.time() < 142) {
+        if(frame.time()<SettlementPresentation.ENTRANCE_END) {
             SettlementPresentation.Bounds entering = null;
             for (var actor : actors) if (actor.fact.winner()) {
                 var animated = bounds(actor, frame.time());
@@ -444,7 +444,8 @@ public final class SettlementClient {
         boolean first = lastCameraFrame == 0;
         double dt = first ? 1 : Math.min(.1,(now-lastCameraFrame)/1e9);
         lastCameraFrame=now;
-        double alpha = first ? 1 : 1-Math.exp(-dt*9);
+        double damping=frame.time()<SettlementPresentation.ENTRANCE_END+8?14:9;
+        double alpha=first?1:1-Math.exp(-dt*damping);
         smoothPosition = smoothPosition == null ? desired : smoothPosition.lerp(desired,alpha);
         smoothLook = smoothLook == null ? look : smoothLook.lerp(look,alpha);
         smoothFov += (shot.fov()-smoothFov)*alpha;

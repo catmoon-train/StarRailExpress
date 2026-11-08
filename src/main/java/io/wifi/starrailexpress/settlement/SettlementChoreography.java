@@ -9,7 +9,7 @@ public final class SettlementChoreography {
     /** 尸体直接堆在舞台黑地板上，不额外抬台。 */
     public static final double REAR_FLOOR = 0;
     public static final double PILE_Z = 6.0;
-    /** 胜方约在 130 tick 全部落地并摆好动作，尸体随后才开始下落。 */
+    /** 后台尸体在胜方完成吊线下降并开始庆祝后入场。 */
     public static final int DROP_START = 150;
     private SettlementChoreography() { }
 

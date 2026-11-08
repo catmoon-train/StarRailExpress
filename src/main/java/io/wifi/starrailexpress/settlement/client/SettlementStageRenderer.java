@@ -133,8 +133,8 @@ public final class SettlementStageRenderer {
                 pose.mulPose(Axis.YP.rotation((float) actor.body.twist));
                 pose.translate(0, -.9, 0);
             } else {
-                pose.mulPose(Axis.ZP.rotationDegrees((float) (Math.sin(time * .055 + actor.order) * 2
-                        * (1 - SettlementClient.smooth((time - 125) / 30)))));
+                pose.mulPose(Axis.ZP.rotationDegrees((float)(Math.sin(time*.055+actor.order)*1.4
+                        *(1-SettlementClient.smooth((time-SettlementPresentation.ENTRANCE_END)/18)))));
             }
             // 此模型坐标朝 -Z，恰好面向舞台正面相机。
             pose.scale(-1, -1, 1); pose.translate(0, -1.501, 0);
@@ -147,8 +147,8 @@ public final class SettlementStageRenderer {
             renderActor(pose, buffer, model, actor, skin, tint, mvp, partial, true);
             pose.popPose();
 
-            if (actor.fact.winner() && time < 160) {
-                float alpha = (float) (1 - SettlementClient.smooth((time - 135) / 25));
+            if(actor.fact.winner() && time<SettlementPresentation.ENTRANCE_END+18) {
+                float alpha=(float)(1-SettlementClient.smooth((time-SettlementPresentation.ENTRANCE_END-2)/16));
                 VertexConsumer lines = buffer.getBuffer(RenderType.lines());
                 line(pose, lines, x - .22, y + 1.45, z, x - .4, 12.8, z, .8f, .72f, .52f, alpha);
                 line(pose, lines, x + .22, y + 1.45, z, x + .4, 12.8, z, .8f, .72f, .52f, alpha);
@@ -225,8 +225,9 @@ public final class SettlementStageRenderer {
         model.setAllVisible(true); model.young = false; model.crouching = false; model.riding = false;
         model.attackTime = 0; model.swimAmount = 0;
         double phase = actor.order * .67;
-        float ceremony = (float) SettlementClient.smooth((time - 140 - actor.order % 5 * 2) / 25);
-        float wave = (float) Math.sin((time - 140) * .14 + phase);
+        double celebrationAt=SettlementPresentation.ENTRANCE_END+6;
+        float ceremony=(float)SettlementClient.smooth((time-celebrationAt-actor.order%5)/16);
+        float wave=(float)Math.sin((time-celebrationAt)*.14+phase);
         float celebration = (float) (1 - SettlementClient.smooth((time - 205) / 65));
         model.head.xRot = -.035f; model.head.yRot = (float) Math.sin(time * .025 + phase) * .05f;
         model.leftArm.zRot = -.08f; model.rightArm.zRot = .08f;
@@ -245,7 +246,7 @@ public final class SettlementStageRenderer {
             model.leftArm.yRot = .08f * ceremony; model.rightArm.yRot = -.08f * ceremony;
             model.leftArm.zRot = -.10f * ceremony; model.rightArm.zRot = .12f * ceremony;
         } else if (neutralRole(actor)) {
-            float bow = (float) Math.sin(SettlementClient.smooth((time - 145 - actor.order % 4 * 3) / 55) * Math.PI) * ceremony;
+            float bow=(float)Math.sin(SettlementClient.smooth((time-celebrationAt-actor.order%4*2)/45)*Math.PI)*ceremony;
             model.body.xRot = .42f * bow; model.head.xRot = .08f * bow;
             model.leftArm.xRot = model.rightArm.xRot = -.18f * bow;
         } else {

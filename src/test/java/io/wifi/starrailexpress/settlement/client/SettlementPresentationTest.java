@@ -172,21 +172,21 @@ class SettlementPresentationTest {
             double previous=Double.POSITIVE_INFINITY;
             for (int tick=0;tick<=160;tick++) {
                 double lift=winnerLift(tick,order);
-                assertTrue(lift>=0 && lift<=5.4);
+                assertTrue(lift>=0 && lift<=ENTRANCE_HEIGHT);
                 assertTrue(lift<=previous+1e-9);
                 var b=winnerBounds(1.35,-.35,order,tick);
                 assertEquals(lift,b.y0());assertEquals(lift+2.5,b.y1());
                 assertTrue(b.y1()<SettlementBackdropRenderer.CEILING_Y);
                 previous=lift;
             }
-            assertEquals(0,winnerLift(142,order),1e-9);
+            assertEquals(0,winnerLift(ENTRANCE_END,order),1e-9);
         }
     }
 
     @Test void descendingWinnersStayInFrameAndCameraStaysInsidePaperShell() {
         var s=snapshot(List.of());
         for (int count:new int[]{1,2,8,24,32}) for(int[] size:new int[][]{{320,180},{480,360},{854,480},{1280,540},{360,480}})
-            for(int tick:new int[]{0,45,65,90,115,130,142}) {
+            for(int tick:new int[]{0,20,26,36,48,56,62,80}) {
                 Bounds b=null;
                 for(int i=0;i<count;i++) {
                     var slot=SettlementChoreography.winner(i,count);
@@ -251,5 +251,63 @@ class SettlementPresentationTest {
             previous=rise;
         }
         assertTrue(SettlementBackdropRenderer.BACK_Z-SettlementBackdropRenderer.FRONT_Z>=.30f);
+    }
+
+    @Test void identitiesHaveHardLimitsEvenWithHundredsOfRoles() {
+        for(int count:new int[]{1,2,8,24,32,128,512}) {
+            List<SettlementSnapshot.Actor> actors=new ArrayList<>();
+            for(int i=1;i<=count;i++) actors.add(new SettlementSnapshot.Actor(new UUID(0,i),
+                    "very_long_player_name_"+i,"custom:very_long_role_name_"+i,0x448866,true,false,false,0,0));
+            var snapshot=new SettlementSnapshot("minecraft:overworld",0,0,0,"{}",MVP,actors,List.of(event("TASK_COMPLETE")));
+            var event=new SettlementSnapshot.Event(1000,"PLAYER_KILL",actors.get(Math.min(1,count-1)).id(),
+                    actors.get(Math.min(2,count-1)).id(),"{}",null,null,null);
+            var frame=frame(snapshot,List.of(),330);
+            var identities=identityActors(snapshot,frame,event);var names=nameActors(snapshot,frame,event);
+            assertTrue(identities.size()<=2,"职业只显示当前事件两人");
+            assertTrue(names.size()<=MAX_NAME_MARKERS,"姓名不能随总人数铺满场景");
+            assertEquals(identities.size(),new java.util.HashSet<>(identities).size());
+            assertEquals(names.size(),new java.util.HashSet<>(names).size());
+            assertTrue(names.contains(MVP));
+            assertEquals(List.of(MVP),identityActors(snapshot,frame,null),"全景只保留 MVP 焦点信息");
+            assertTrue(nameActors(snapshot,frame(snapshot,List.of(),250),event).isEmpty(),"海报段不叠加姓名条");
+        }
+    }
+
+    @Test void identityFallbackHandlesUnknownAndNonWinningParticipants() {
+        UUID loser=new UUID(0,3),unknown=new UUID(0,999);
+        var snapshot=new SettlementSnapshot("minecraft:overworld",0,0,0,"{}",MVP,List.of(
+                new SettlementSnapshot.Actor(MVP,"mvp","a:b",0,true,false,false,0,0),
+                new SettlementSnapshot.Actor(loser,"loser","a:c",0,false,true,true,0,0)),List.of(event("GAME_START")));
+        var frame=frame(snapshot,List.of(),330);
+        var event=new SettlementSnapshot.Event(0,"PLAYER_KILL",loser,MVP,"{}",null,null,null);
+        assertEquals(List.of(loser,MVP),identityActors(snapshot,frame,event),"职业栏保留实际事件双方身份");
+        assertEquals(List.of(MVP),nameActors(snapshot,frame,event),"后台死者不叠加场上姓名");
+        assertEquals(List.of(MVP),identityActors(snapshot,frame,new SettlementSnapshot.Event(0,"UNKNOWN",unknown,unknown,"{}",null,null,null)));
+    }
+
+    @Test void identityFootprintIsBoundedAndOutsideTheActorSafeArea() {
+        for(int[] size:new int[][]{{320,180},{480,360},{640,360},{854,480},{1280,540},{360,480},{1920,1080}})
+            for(boolean replay:new boolean[]{false,true}) for(int lines:new int[]{1,2,40}) {
+                var l=layout(size[0],size[1],false,replay,lines);var rail=l.identity();
+                assertTrue(new Rect(0,0,size[0],size[1]).contains(rail));
+                assertFalse(l.safe().overlaps(rail));assertFalse(rail.overlaps(l.caption()));
+                double names=MAX_NAME_MARKERS*NAME_MARKER_WIDTH*NAME_MARKER_HEIGHT*l.ui()*l.ui();
+                assertTrue(rail.w()*rail.h()+names<size[0]*size[1]*.10,
+                        "职业栏与姓名最大占用须低于画面 10%，不能回到满屏名片");
+                if(replay) assertTrue(l.safe().bottom()<rail.y() && rail.bottom()<l.caption().y());
+            }
+        var cast=layout(854,480,false,false,1);
+        assertTrue(cast.safe().y()<480*.20,"紧凑标题不再吃掉大半个上半画面");
+    }
+
+    @Test void fastEntranceFinishesWithinThreePointOneSeconds() {
+        assertEquals(62,ENTRANCE_END);assertEquals(30,ENTRANCE_TICKS);
+        for(int order:new int[]{0,1,8,31,511}) {
+            assertEquals(ENTRANCE_HEIGHT,winnerLift(ENTRANCE_START,order),1e-9);
+            assertTrue(winnerLift(48,order)<ENTRANCE_HEIGHT*.65);
+            assertEquals(0,winnerLift(62,order),1e-9);
+            assertEquals(0,winnerLift(120,order),1e-9);
+        }
+        assertTrue(ENTRANCE_END<SettlementChoreography.DROP_START,"仍先让胜者落地，再安排后台尸体");
     }
 }
