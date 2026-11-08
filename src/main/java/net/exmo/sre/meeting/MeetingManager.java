@@ -222,10 +222,11 @@ public final class MeetingManager {
             refreshVoiceMuted();
         });
         // 重连兜底：服务器崩溃 / 旧存档会让玩家带着会议的无限时长限制重新上线，
-        // 而此时会议早已不存在，直接摘掉，避免重连后仍然被冻结。
+        // 而参会名单是开会那一刻定死的、掉线时已被摘除，所以重连进来的人一定不是参会者 ——
+        // 此时他身上若还挂着会议的限制，就只能是残留，直接清掉。
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             ServerPlayer player = handler.getPlayer();
-            if (!isActive() && hasStaleMeetingRestriction(player)) {
+            if (!participants.containsKey(player.getUUID()) && hasStaleMeetingRestriction(player)) {
                 clearMeetingRestrictions(player);
             }
         });
