@@ -122,6 +122,8 @@ public class AmonRoleData extends SimpleRoleData {
     public int finaleTicks;
     /** 备用能力（续命/逃脱）剩余次数 = 回归的寄宿体数。 */
     public int reserveLives;
+    /** 难民亡命徒时刻临时离场；不写入回溯节点。 */
+    private boolean refugeeSuspended;
 
     // ===== 客户端镜像（仅用于 HUD 显示）=====
     public int clientSeeds;
@@ -147,6 +149,7 @@ public class AmonRoleData extends SimpleRoleData {
 
     @Override
     public void init() {
+        refugeeSuspended = false;
         seeds.clear();
         maturedHosts.clear();
         disguiseTarget = null;
@@ -171,6 +174,7 @@ public class AmonRoleData extends SimpleRoleData {
 
     @Override
     public void clear() {
+        refugeeSuspended = false;
         clearDisguise();
         // 若附身进行中被重置，清掉隐身/无敌表现。
         if (possessTarget != null && player instanceof ServerPlayer amon) {
@@ -229,6 +233,8 @@ public class AmonRoleData extends SimpleRoleData {
         }
         if (!game.isRunning())
             return;
+        if (refugeeSuspended)
+            return;
         boolean alive = GameUtils.isPlayerAliveAndSurvival(amon);
 
         // 终幕阶段：驱动倒计时、发光与胜利判定（结束不再潜伏新虫）。
@@ -242,7 +248,7 @@ public class AmonRoleData extends SimpleRoleData {
 
         // 安全网：若游戏本应结束（平民或杀手胜利）但 handleGameEnd 未能触发终幕，
         // 由服务端 tick 兜底启动，确保持有成熟宿主的阿蒙不会因时序问题错过终幕。
-        // 亡命徒时刻期间 startFinale() 会拒绝启动，此时不要提前 return，继续正常潜伏逻辑。
+        // 亡命徒时刻期间 startFinale() 会拒绝启动；临时离场由 refugeeSuspended 暂停。
         if (!maturedHosts.isEmpty() && isGameEnding(amon, game) && startFinale()) {
             return;
         }
@@ -941,6 +947,79 @@ public class AmonRoleData extends SimpleRoleData {
                 || s.getItem() instanceof HoneyBottleItem
                 || s.is(FOOD_DRINK_TAG)
                 || s.is(SEItems.DRINKS);
+    }
+
+    /** 保存节点后临时旁观，不走死亡链，也不消耗宿主或备用生命。 */
+    public void suspendForRefugee() {
+        if (!(player instanceof ServerPlayer amon) || refugeeSuspended)
+            return;
+        refugeeSuspended = true;
+        if (possessTarget != null)
+            clearPossessionEffects(amon);
+        clearDisguise();
+        if (finalePhase)
+            broadcastFinale(amon.serverLevel(), false);
+        amon.setCamera(amon);
+        amon.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
+        io.wifi.starrailexpress.compat.TrainVoicePlugin.resetPlayer(amon.getUUID());
+        sync();
+    }
+
+    /** 全体玩家恢复后再恢复外观，避免先于宿主复活而误取消附身。 */
+    public void resumeAfterRefugee(CompoundTag state) {
+        readFromRewindNbt(state, player.registryAccess());
+        refugeeSuspended = false;
+        if (player instanceof ServerPlayer amon) {
+            if (possessTarget != null) {
+                refreshPossessionEffects(amon);
+                // 完整节点已包含缩形属性；兼容旧版局部恢复时也恢复缩形。
+                if (!Double.isNaN(prePossessionScale) && amon.getAttribute(Attributes.SCALE) != null)
+                    amon.getAttribute(Attributes.SCALE).setBaseValue(prePossessionScale * 0.45D);
+            }
+            setDisguise(disguiseTarget);
+            if (finalePhase)
+                broadcastFinale(amon.serverLevel(), true);
+        }
+        sync();
+    }
+
+    /** 回溯必须保存服务端权威数据，不能仅保存供 HUD 使用的虫子计数。 */
+    @Override
+    public void writeToRewindNbt(CompoundTag tag, HolderLookup.Provider provider) {
+        writeToSyncNbt(tag, provider);
+        CompoundTag incubation = new CompoundTag();
+        seeds.forEach((uuid, ticks) -> incubation.putInt(uuid.toString(), ticks));
+        tag.put("Incubation", incubation);
+        if (disguiseTarget != null)
+            tag.putUUID("Disguise", disguiseTarget);
+        tag.putInt("PossessTicks", possessTicks);
+        if (homePos != null) {
+            tag.putDouble("HomeX", homePos.x);
+            tag.putDouble("HomeY", homePos.y);
+            tag.putDouble("HomeZ", homePos.z);
+        }
+        tag.putFloat("HomeYRot", homeYRot);
+        tag.putDouble("PrePossessionScale", prePossessionScale);
+    }
+
+    /** 恢复虫子进度、宿主、附身、伪装及终幕资源，不触发夺舍或重新窃取物品。 */
+    @Override
+    public void readFromRewindNbt(CompoundTag tag, HolderLookup.Provider provider) {
+        readFromSyncNbt(tag, provider);
+        seeds.clear();
+        CompoundTag incubation = tag.getCompound("Incubation");
+        for (String uuid : incubation.getAllKeys())
+            seeds.put(UUID.fromString(uuid), incubation.getInt(uuid));
+        maturedHosts.clear();
+        maturedHosts.addAll(clientMaturedHosts);
+        disguiseTarget = tag.hasUUID("Disguise") ? tag.getUUID("Disguise") : null;
+        possessTarget = clientPossessTarget;
+        possessTicks = tag.getInt("PossessTicks");
+        homePos = tag.contains("HomeX")
+                ? new Vec3(tag.getDouble("HomeX"), tag.getDouble("HomeY"), tag.getDouble("HomeZ")) : null;
+        homeYRot = tag.getFloat("HomeYRot");
+        prePossessionScale = tag.contains("PrePossessionScale")
+                ? tag.getDouble("PrePossessionScale") : Double.NaN;
     }
 
     @Override

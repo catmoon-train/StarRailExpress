@@ -5,6 +5,7 @@
   "plugin": "io.wifi.srepackcompat.SrePackCompatMixinPlugin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "client.WorldOpenFlowsAdviceMixin",
     "compat.dashloader.DashLoaderModelBakeryMixin",
     "compat.dashloader.DashLoaderModelResourceLocationMixin",
     "compat.dashloader.DashCacheLifecycleMixin",

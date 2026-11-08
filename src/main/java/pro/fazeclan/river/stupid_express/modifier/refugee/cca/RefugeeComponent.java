@@ -16,6 +16,7 @@
 package pro.fazeclan.river.stupid_express.modifier.refugee.cca;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;
@@ -57,6 +58,7 @@ import org.agmas.noellesroles.content.item.GroselleJourneyManager;
 import org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager;
 import org.agmas.noellesroles.game.roles.killer.warlock.WarlockDomainManager;
 import org.agmas.noellesroles.role_data.neutral.MonokumaRoleData;
+import org.agmas.noellesroles.role_data.neutral.AmonRoleData;
 import org.agmas.noellesroles.api.time.TimeRewind;
 import org.agmas.noellesroles.api.time.TimeRewindAreaResult;
 import org.agmas.noellesroles.api.time.TimeRewindAreaSnapshot;
@@ -91,6 +93,8 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
     public HashMap<UUID, PlayerStatsBeforeRefugee> players_stats = new HashMap<>();
     /** Full snapshots replacing the old partial loose-end rewind. */
     private final HashMap<UUID, TimeRewindSnapshot> playerTimeRewindSnapshots = new HashMap<>();
+    /** 阿蒙专用兜底节点：完整回溯失败时也不能丢失服务端职业数据。 */
+    private final HashMap<UUID, CompoundTag> suspendedAmons = new HashMap<>();
     private TimeRewindAreaSnapshot areaTimeRewindSnapshot;
     private final Level level;
 
@@ -105,6 +109,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         this.isPendingRestore = false;
         this.players_stats.clear();
         this.playerTimeRewindSnapshots.clear();
+        this.suspendedAmons.clear();
         this.areaTimeRewindSnapshot = null;
     }
 
@@ -336,6 +341,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         List<ServerPlayer> players = serverLevel.getServer().getPlayerList().getPlayers();
         players_stats.clear();
         playerTimeRewindSnapshots.clear();
+        suspendedAmons.clear();
         for (var player : players) {
             boolean isAlive = GameUtils.isPlayerAliveAndSurvival(player);
             if (isAlive) {
@@ -350,6 +356,12 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
                     srePlayerShopComponent.sync();
                 }
                 players_stats.put(player.getUUID(), PlayerStatsBeforeRefugee.SaveFromPlayer(player, true));
+                AmonRoleData amon = RoleData.getNullable(AmonRoleData.class, player);
+                if (amon != null) {
+                    CompoundTag state = new CompoundTag();
+                    amon.writeToRewindNbt(state, player.registryAccess());
+                    suspendedAmons.put(player.getUUID(), state);
+                }
                 try {
                     playerTimeRewindSnapshots.put(player.getUUID(), TimeRewind.capture(player));
                 } catch (RuntimeException exception) {
@@ -364,6 +376,14 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         } catch (RuntimeException exception) {
             areaTimeRewindSnapshot = null;
             StupidExpress.LOGGER.error("Failed to capture loose-end game-area rewind", exception);
+        }
+        // 所有人（含宿主）的节点保存完毕后才旁观，不能将旁观模式写进恢复节点。
+        for (var player : players) {
+            if (suspendedAmons.containsKey(player.getUUID())) {
+                AmonRoleData amon = RoleData.getNullable(AmonRoleData.class, player);
+                if (amon != null)
+                    amon.suspendForRefugee();
+            }
         }
         SREGameWorldComponent.KEY.get(level).sync();
     }
@@ -384,13 +404,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
             }
         }
         WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(this.level);
-        var pendingSmoothRestores = new java.util.concurrent.atomic.AtomicInteger();
-        var schedulingFinished = new AtomicBoolean(false);
-        Runnable finishWhenReady = () -> {
-            if (schedulingFinished.get() && pendingSmoothRestores.get() == 0) {
-                finishLooseEndRestore(serverLevel, capturedArea, bodies);
-            }
-        };
+        // 当前使用同步 TimeRewind.restore，无异步回调需要等待。
         // 给予 2 tick 的deathPenalty
         for (var player : players) {
             {
@@ -424,7 +438,6 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
 
                 if (snapshot != null) {
                     PlayerStatsBeforeRefugee.invokeBeforeLoad(player);
-                    pendingSmoothRestores.incrementAndGet();
                     TimeRewindResult result = TimeRewind.restore(player, snapshot);
                     finishLooseEndPlayer(player, r, data, wasAlive, true, result,
                             gameWorldComponent, worldModifierComponent, bodies);
@@ -437,8 +450,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
             }
         }
         SREGameWorldComponent.getInstance(serverLevel).refreshPsychoCount(true);
-        schedulingFinished.set(true);
-        finishWhenReady.run();
+        finishLooseEndRestore(serverLevel, capturedArea, bodies);
     }
 
     private void finishLooseEndPlayer(ServerPlayer player, io.wifi.starrailexpress.api.SRERole role,
@@ -503,6 +515,16 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
                 StupidExpress.LOGGER.error("Failed to restore loose-end game-area rewind", exception);
             }
         }
+        // 所有宿主及区域都已复原，再恢复阿蒙的附身/伪装/终幕表现。
+        for (var entry : suspendedAmons.entrySet()) {
+            ServerPlayer player = serverLevel.getServer().getPlayerList().getPlayer(entry.getKey());
+            if (player == null || !SREGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.AMON))
+                continue;
+            AmonRoleData amon = RoleData.getNullable(AmonRoleData.class, player);
+            if (amon != null)
+                amon.resumeAfterRefugee(entry.getValue());
+        }
+        suspendedAmons.clear();
         SREGameWorldComponent.KEY.get(level).sync();
         bodies.clear();
         ModEventsRegister.reJudgeSpectatorsPenalty(level);
@@ -708,11 +730,8 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
     }
 
     public void reset() {
-        this.players_stats.clear();
+        this.clear();
         this.isAnyRevivals = false;
-        this.pendingRevivals.clear();
-        this.isPendingRestore = false;
-        this.pendingWho = null;
         this.sync();
     }
 

@@ -201,6 +201,13 @@ public class SREAbilityPlayerComponent
         return this.cooldown > 0;
     }
 
+    /** 是否存在统一或任一独立技能冷却，供外部刷新时避免空闲同步。 */
+    public boolean hasAnyCooldown() {
+        if (this.cooldown > 0) return true;
+        for (SkillState state : skillStates.values()) if (state.cooldown > 0) return true;
+        return false;
+    }
+
     public int getSelectedSkill() {
         return selectedSkill;
     }

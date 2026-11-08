@@ -30,6 +30,7 @@ import io.wifi.starrailexpress.event.OnGameInitialized;
 import io.wifi.starrailexpress.event.OnGameStarted;
 import io.wifi.starrailexpress.network.SyncMapConfigPayload;
 import io.wifi.starrailexpress.util.SREItemUtils;
+import io.wifi.starrailexpress.training.TrainingRules;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
@@ -70,6 +71,12 @@ public class PlayerJoinUtils {
 
         SyncMapConfigPayload.sendToPlayer(serverPlayer);
         SREGameWorldComponent.KEY.syncWith(serverPlayer, (ComponentProvider) serverPlayer.level());
+        // 训练会话独占出生、模式与复活，不能排入普通对局的延迟旁观/位置修正。
+        if (TrainingRules.isTrainingWorld(serverPlayer.level())) {
+            pendingJoins.remove(serverPlayer.getUUID());
+            positionCheckPending.remove(serverPlayer.getUUID());
+            return;
+        }
         pendingJoins.put(serverPlayer.getUUID(), System.currentTimeMillis());
         positionCheckPending.put(serverPlayer.getUUID(), System.currentTimeMillis());
     }
@@ -116,6 +123,7 @@ public class PlayerJoinUtils {
      * @return
      */
     public static boolean isPlayerPositionRight(ServerPlayer player) {
+        if (TrainingRules.isTrainingWorld(player.level())) return true;
         Vec3 playerPos = player.position();
         final var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
 
@@ -143,6 +151,8 @@ public class PlayerJoinUtils {
     }
 
     public static void adjustPlayerPosition(ServerPlayer serverPlayer) {
+        // 同时拦截已经排队的延迟检查，避免初始化后再被当成中途加入的旁观者。
+        if (TrainingRules.isTrainingWorld(serverPlayer.level())) return;
         final var gameWorldComponent = SREGameWorldComponent.KEY.get(serverPlayer.level());
 
         // MapVotingComponent mapVotingComponent =

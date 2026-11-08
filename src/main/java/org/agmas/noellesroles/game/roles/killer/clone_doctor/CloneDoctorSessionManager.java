@@ -108,6 +108,8 @@ public final class CloneDoctorSessionManager {
         state.target = target.getUUID();
         state.pendingRole = role;
         state.beginCast(now(player));
+        player.displayClientMessage(Component.translatable("message.noellesroles.clone_doctor.casting",
+                target.getDisplayName()), true);
         player.serverLevel().playSound(null, player.blockPosition(), SoundEvents.BREWING_STAND_BREW,
                 SoundSource.PLAYERS, 1.0F, 0.8F);
         sync(player, state);
@@ -209,11 +211,18 @@ public final class CloneDoctorSessionManager {
         state.snapshot = null;
         state.copiedRole = null;
         state.copySession = null;
-        state.stopCopy();
+        state.stopCopy(now(player));
         state.pendingRole = null;
         SREAbilityPlayerComponent.KEY.get(player).setSkillCooldown(CloneDoctorRole.COPY_SKILL,
                 remaining(state.copyReadyAt, now(player)));
         sync(player, state);
+        // 只在真正恢复本体之后报幕；死亡、断线清理不向玩家误报主动返回。
+        if (!player.hasDisconnected() && game(player).isRunning() && GameUtils.isPlayerAliveAndSurvival(player)) {
+            io.wifi.starrailexpress.util.SRENetworkMessageUtils.sendCODSubtitleToPlayerTop(player,
+                    Component.translatable("message.noellesroles.clone_doctor.returned")
+                            .withColor(0x69C6A1),
+                    Component.translatable("message.noellesroles.clone_doctor.returned_detail"), 60);
+        }
     }
 
     /** 由统一转职入口调用，外部转职只清理会话，不触发第二次转职。 */

@@ -25,6 +25,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -133,9 +134,27 @@ public class OutsideSoundManager {
     }
 
     public static boolean isInside(Minecraft client) {
-        return client.player != null
-                && SREClient.gameComponent != null
-                && !SRE.isSkyVisible(client.player);
+        if (client.player == null || SREClient.gameComponent == null) {
+            return false;
+        }
+        if (!SRE.isSkyVisible(client.player)) {
+            return true;
+        }
+        // 天空光可以穿过玻璃、半砖等车顶，连接处也可能留有窄缝。
+        // 仅列车车外音效启用结构兜底，不改变其他环境音或任务的判定。
+        if (SREClient.areaComponent == null || SREClient.areaComponent.areasSettings == null
+                || SREClient.areaComponent.areasSettings.sceneOutsideSound != BackgroundAmbienceSound.train) {
+            return false;
+        }
+        var level = client.player.level();
+        BlockPos eyePos = BlockPos.containing(client.player.getEyePosition());
+        BlockPos.MutableBlockPos sample = new BlockPos.MutableBlockPos();
+        return TrainInteriorDetection.isCovered((x, y, z) -> {
+            sample.set(eyePos.getX() + x, eyePos.getY() + y, eyePos.getZ() + z);
+            // 不为音效查询加载区块；边界尚未加载时优先避免车外噪声漏入。
+            return !level.hasChunkAt(sample)
+                    || !level.getBlockState(sample).getCollisionShape(level, sample).isEmpty();
+        });
     }
 
     /** 音效的存活条件（不再需要自引用） */

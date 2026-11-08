@@ -22,7 +22,7 @@ public final class SettlementPostEffect {
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
             @Override public ResourceLocation getFabricId() { return SRE.id("settlement_filter"); }
             @Override public void onResourceManagerReload(ResourceManager manager) {
-                Runnable reload = () -> { close(); failed = false; SettlementStageRenderer.invalidate(); };
+                Runnable reload = () -> { close(); failed = false; SettlementStageRenderer.invalidate(); SettlementHeroRenderer.close(); SettlementOverlay.clear(); };
                 if (RenderSystem.isOnRenderThread()) reload.run(); else RenderSystem.recordRenderCall(reload::run);
             }
         });

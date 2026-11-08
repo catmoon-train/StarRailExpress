@@ -13,10 +13,19 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.joml.Matrix4f;
+import net.minecraft.resources.ResourceLocation;
+import org.agmas.noellesroles.utils.RoleUtils;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
 /** GameRenderer 尾部唯一绘制点；漫画分镜不依赖可被取消的普通 HUD。 */
 public final class SettlementOverlay {
     private static final int INK = 0xFF171719, PAPER = 0xFFF3EDDD, RED = 0xFFC34D43, MUTED = 0xFF827D73;
+    private static final SettlementNameplateLayout nameplates=new SettlementNameplateLayout();
+    static void clear() { nameplates.clear(); }
     private SettlementOverlay() { }
 
     public static void render(float partialTick) {
@@ -54,133 +63,222 @@ public final class SettlementOverlay {
     }
 
     private static void draw(GuiGraphics g, int w, int h, float partial) {
-        var snapshot = SettlementClient.snapshot();
-        if (snapshot == null) { g.fill(0, 0, w, h, 0xFF000000); return; }
-        double time = SettlementClient.tick() + partial;
-        float ui = Mth.clamp(Math.min(w / 640f, h / 360f), .65f, 1.4f);
-        int edge = Math.max(3, Math.round(5 * ui)), margin = Math.max(12, Math.round(w * .055f));
-        boolean closing = time >= snapshot.durationTicks() - 80;
+        var snapshot=SettlementClient.snapshot();
+        if(snapshot==null) { g.fill(0,0,w,h,0xFF000000);return; }
+        var frame=SettlementClient.presentation(partial);
+        var layout=SettlementClient.layout(partial);
+        double time=frame.time(); float ui=layout.ui();
+        int edge=Math.max(3,Math.round(4*ui)),margin=Math.round(22*ui);
+        g.fill(0,0,w,edge,PAPER);g.fill(0,h-edge,w,h,PAPER);
+        g.fill(0,edge,edge,h-edge,PAPER);g.fill(w-edge,edge,w,h-edge,PAPER);
+        g.renderOutline(edge,edge,w-edge*2,h-edge*2,INK);
+        // 页眉本身是一条纸白信息带，扩展皮肤的深色布景也有足够文字对比。
+        g.fill(edge+1,edge+1,w-edge-1,Math.round(25*ui),PAPER);
+        text(g,Component.translatable("settlement.starrailexpress.comic.running"),margin,Math.round(11*ui),
+                w-margin*2,.72f*ui,MUTED,false);
+        Component chapter=Component.translatable(frame.closing()?"settlement.starrailexpress.comic.next":"settlement.starrailexpress.comic.issue");
+        text(g,chapter,w-Math.round(150*ui)-margin,Math.round(11*ui),Math.round(150*ui),.72f*ui,INK,true);
+        g.fill(margin,Math.round(25*ui),w-margin,Math.round(25*ui)+1,0x332F3432);
 
-        // 纸白页边与墨线取代红帘；舞台中部保持干净，不给皮肤覆盖整屏网点。
-        g.fill(0, 0, w, edge, PAPER); g.fill(0, h - edge, w, h, PAPER);
-        g.fill(0, edge, edge, h - edge, PAPER); g.fill(w - edge, edge, w, h - edge, PAPER);
-        g.renderOutline(edge, edge, w - edge * 2, h - edge * 2, INK);
-        g.fillGradient(edge + 1, edge + 1, w - edge - 1, edge + Math.round(54 * ui), 0x66000000, 0);
-        g.fillGradient(edge + 1, h - edge - Math.round(58 * ui), w - edge - 1, h - edge, 0, 0x88000000);
-        float pageAlpha = (float) SettlementClient.smooth((time - 68) / 22);
-        text(g, Component.translatable("settlement.starrailexpress.comic.running"), margin,
-                edge + Math.round(8 * ui), Math.round(w * .65f), .72f * ui, tint(PAPER, pageAlpha), false);
-        g.fill(w - margin - Math.round(23 * ui), edge + Math.round(9 * ui), w - margin,
-                edge + Math.round(12 * ui), tint(RED, pageAlpha));
-
-        double impact = pulse(time, 132, 15) * .65 + pulse(time, 218, 19);
-        if (!closing && time >= 320 && SettlementClient.eventIndex() >= 0) {
-            int ticks = snapshot.eventTicks();
-            int index = SettlementClient.eventIndex();
-            var event = snapshot.events().get(index);
-            // 密集事件只在分镜组首帧、且是动作事件时强调，避免连续闪动。
-            boolean action = event.source() != null || event.target() != null;
-            int group = Math.max(1, (int) Math.ceil(24.0 / ticks));
-            if (action && index % group == 0)
-                impact = Math.max(impact, pulse(time, 320 + index * ticks, Math.min(12, ticks)) * .65);
+        speedLines(g,w,h,(float)frame.impact(),ui);
+        if(time>=45 && time<202) {
+            float fade=envelope(time,45,18,179,23);
+            int x=margin-Math.round((1-fade)*12*ui),y=Math.round(39*ui);
+            int pw=Math.min(w-margin*2,Math.round(280*ui));
+            paperPanel(g,x,y,pw,Math.round(57*ui),fade,ui);
+            text(g,Component.translatable("settlement.starrailexpress.comic.chapter"),x+Math.round(10*ui),y+Math.round(7*ui),
+                    pw-Math.round(20*ui),.70f*ui,tint(RED,fade),false);
+            text(g,Component.literal(SettlementClient.title().getString()).withStyle(ChatFormatting.BOLD),x+Math.round(10*ui),
+                    y+Math.round(22*ui),pw-Math.round(20*ui),1.65f*ui,tint(INK,fade),false);
         }
-        if (!closing) speedLines(g, w, h, (float) Math.min(1, impact), ui);
+        if(time>=202 && time<320) drawMvp(g,layout,(float)frame.hero(),time);
+        if(!frame.closing() && time>=320 && SettlementClient.eventIndex()>=0) drawCaption(g,layout,time);
+        if(time>145 && !frame.closing() && frame.hero()<.02) drawLabels(g,layout,frame);
 
-        if (time >= 54 && time < 208) {
-            float fade = envelope(time, 54, 17, 186, 22);
-            int x = margin - Math.round((1 - fade) * 18 * ui);
-            int y = Math.round(h * .13f), pw = Math.min(w - margin * 2, Math.round(265 * ui));
-            paperPanel(g, x, y, pw, Math.round(74 * ui), fade, ui);
-            int pad = Math.round(11 * ui);
-            text(g, Component.translatable("settlement.starrailexpress.comic.chapter"), x + pad, y + Math.round(9 * ui),
-                    pw - pad * 2, .78f * ui, tint(RED, fade), false);
-            text(g, SettlementClient.title().copy().withStyle(style -> style.withColor(INK & 0xFFFFFF).withBold(true)),
-                    x + pad, y + Math.round(26 * ui), pw - pad * 2, 1.8f * ui, tint(INK, fade), false);
-            text(g, Component.translatable("settlement.starrailexpress.subtitle"), x + pad, y + Math.round(55 * ui),
-                    pw - pad * 2, .8f * ui, tint(MUTED, fade), false);
+        if(time>=100 && !frame.closing()) {
+            int pw=Math.round(155*ui),x=w-margin-pw,y=h-Math.round(16*ui);
+            // 小型纸白跳过签，不依赖舞台地面是深色还是浅色。
+            g.fill(x-4,y-3,w-margin+4,y+Math.round(10*ui),0xDDF3EDDD);
+            text(g,Component.translatable("settlement.starrailexpress.hud.skip"),x,y,pw,.72f*ui,MUTED,true);
+            float held=Math.min(1,SettlementClient.holdTicks()/30f);
+            if(held>0) g.fill(x,y+Math.round(10*ui),x+Math.round(pw*held),y+Math.round(12*ui),RED);
         }
+        shutters(g,w,h,time,snapshot.durationTicks());
+        if(frame.closing()) {
+            float fade=envelope(time,snapshot.durationTicks()-58,18,snapshot.durationTicks()-22,22);
+            int pw=Math.min(w-margin*2,Math.round(264*ui)),ph=Math.round(72*ui),x=(w-pw)/2,y=(h-ph)/2;
+            paperPanel(g,x,y,pw,ph,fade,ui);
+            text(g,Component.translatable("settlement.starrailexpress.hud.curtain_call").withStyle(ChatFormatting.BOLD),
+                    x+10,y+Math.round(17*ui),pw-20,1.55f*ui,tint(INK,fade),true);
+            text(g,Component.translatable("settlement.starrailexpress.comic.next"),x+10,y+Math.round(45*ui),pw-20,.8f*ui,tint(MUTED,fade),true);
+        }
+        float black=(float)Math.max(1-SettlementClient.smooth(time/28),SettlementClient.smooth((time-snapshot.durationTicks()+20)/20));
+        if(black>0) g.fill(0,0,w,h,tint(0xFF000000,black));
+    }
 
-        if (time >= 212 && time < 320) {
-            var mvp = SettlementClient.byId.get(snapshot.mvp());
-            float fade = envelope(time, 212, 18, 298, 22);
-            if (mvp != null) {
-                // 数据卡居左，镜头将 MVP 留在画面偏右，不把人物压在面板下面。
-                int pw = Math.min(Math.round(218 * ui), Math.round(w * .40f));
-                int x = margin - Math.round((1 - fade) * 15 * ui), y = Math.round(h * .15f);
-                int pad = Math.round(11 * ui);
-                paperPanel(g, x, y, pw, Math.round(108 * ui), fade, ui);
-                g.fill(x, y, x + Math.round(74 * ui), y + Math.round(18 * ui), tint(RED, fade));
-                text(g, Component.translatable("settlement.starrailexpress.mvp"), x + Math.round(7 * ui),
-                        y + Math.round(5 * ui), Math.round(62 * ui), .85f * ui, tint(PAPER, fade), false);
-                text(g, Component.literal(mvp.fact.name()).withStyle(ChatFormatting.BOLD), x + pad,
-                        y + Math.round(28 * ui), pw - pad * 2, 1.35f * ui, tint(INK, fade), false);
-                g.fill(x + pad, y + Math.round(51 * ui), x + pw - pad, y + Math.round(52 * ui), tint(INK, fade * .22f));
-                double count = SettlementClient.smooth((time - 218) / 62);
-                String[] keys = {"kills", "tasks", "score"};
-                int[] values = {mvp.fact.kills(), mvp.fact.tasks(), mvp.fact.score()};
-                int column = (pw - pad * 2) / 3;
-                for (int i = 0; i < 3; i++) {
-                    int cx = x + pad + column * i + column / 2;
-                    text(g, Component.literal(Long.toString(Math.round(values[i] * count))).withStyle(ChatFormatting.BOLD),
-                            cx - column / 2, y + Math.round(61 * ui), column, 1.7f * ui, tint(INK, fade), true);
-                    text(g, Component.translatable("settlement.starrailexpress.hud." + keys[i]), cx - column / 2,
-                            y + Math.round(86 * ui), column, .78f * ui, tint(MUTED, fade), true);
-                }
+    private static void drawMvp(GuiGraphics g,SettlementPresentation.Layout layout,float fade,double time) {
+        var mvp=SettlementClient.byId.get(SettlementClient.snapshot().mvp());
+        if(mvp==null||fade<.01f) return;
+        int w=layout.width(),h=layout.height(),edge=Math.max(4,Math.round(5*layout.ui()));
+        float ui=layout.ui();var poster=SettlementPresentation.heroLayout(w,h);
+        g.enableScissor(edge,edge,w-edge,h-edge);
+        g.fill(edge,edge,w-edge,h-edge,tint(0xFF101E28,fade));
+        int top=(int)(h*.145),bottom=(int)(h*.91);
+        g.fill(edge,top,w-edge,bottom,tint(0xFFF02C50,fade));
+        g.fillGradient(edge,top,w-edge,bottom,tint(0x00C71B3B,0),tint(0xFFB82040,fade*.35f));
+        // 巨幅字是背景版式，不是再给场上每个人套一块浮动面板。
+        var font=Minecraft.getInstance().font;
+        g.pose().pushPose();g.pose().translate(w*.16-(1-SettlementPresentation.easeOut((time-204)/14))*w*.12,h*.19,0);
+        g.pose().scale(w*.78f/Math.max(1,font.width("MVP")),h*.57f/font.lineHeight,1);
+        g.drawString(font,Component.literal("MVP").withStyle(ChatFormatting.BOLD),0,0,tint(PAPER,fade*.13f),false);
+        g.pose().popPose();
+        text(g,Component.translatable("settlement.starrailexpress.hero.banner"),Math.round(w*.055f),Math.round(h*.175f),
+                Math.round(w*.72f),.82f*ui,tint(0xFF78182E,fade),false);
+        // 确定性的印刷网点，避免随机闪烁和高频动画噪点。
+        int step=Math.max(8,Math.round(11*ui));
+        for(int y=top+step*3;y<bottom;y+=step) for(int x=w/2;x<w-edge;x+=step)
+            if((x/step+y/step)%3==0) g.fill(x,y,x+1,y+1,tint(PAPER,fade*.14f));
+        g.fill(Math.round(w*.055f),top-2,Math.round(w*.29f),top,tint(PAPER,fade));
+        text(g,Component.translatable("settlement.starrailexpress.comic.running"),Math.round(w*.055f),Math.round(h*.066f),
+                Math.round(w*.62f),.82f*ui,tint(PAPER,fade*.8f),false);
+        g.flush();
+        SettlementHeroRenderer.render(g,mvp,poster.portrait(),time,fade,ui);
+        var r=poster.info();var copy=SettlementPresentation.heroText(poster,ui);
+        int x=(int)r.x(),y=(int)r.y(),width=(int)r.w(),statsY=(int)copy.stats().y();
+        if(poster.stacked()) g.fill(x-6,y-6,x+width+6,(int)r.bottom()+2,tint(0xFF101E28,fade*.93f));
+        text(g,Component.translatable("settlement.starrailexpress.hero.award").withStyle(ChatFormatting.BOLD),
+                (int)copy.award().x(),(int)copy.award().y(),(int)copy.award().w(),
+                (poster.stacked()?1f:2.65f)*ui,tint(PAPER,fade),false);
+        labelText(g,mvp.fact.name(),(int)copy.name().x(),(int)copy.name().y(),(int)copy.name().w(),
+                (poster.stacked()?1.05f:1.7f)*ui,tint(PAPER,fade));
+        ResourceLocation role=ResourceLocation.tryParse(mvp.fact.role());
+        String roleName=role==null?Component.translatable("settlement.starrailexpress.unknown_role").getString():RoleUtils.getRoleName(role).getString();
+        text(g,Component.literal(roleName).withStyle(ChatFormatting.BOLD),(int)copy.role().x(),(int)copy.role().y(),
+                (int)copy.role().w(),copy.roleScale(),tint(PAPER,fade),false);
+        if(!poster.stacked()) g.fill(x,statsY-Math.round(10*ui),x+width,statsY-Math.round(9*ui),tint(PAPER,fade*.45f));
+        text(g,Component.literal(SettlementClient.title().getString()).withStyle(ChatFormatting.BOLD),
+                (int)copy.victory().x(),(int)copy.victory().y(),(int)copy.victory().w(),copy.victoryScale(),tint(PAPER,fade),false);
+        int[] values={mvp.fact.score(),mvp.fact.kills(),mvp.fact.tasks()};String[] keys={"score","kills","tasks"};
+        int col=width/3;double count=SettlementPresentation.easeOut((time-222)/30);
+        for(int i=0;i<3;i++) {
+            int left=x+i*col;float a=fade*(float)SettlementPresentation.smooth((time-218-i*4)/10);
+            text(g,Component.literal(Long.toString(Math.round(values[i]*count))).withStyle(ChatFormatting.BOLD),left,statsY,col,
+                    (poster.stacked()?1.35f:2.1f)*ui,tint(PAPER,a),false);
+            text(g,Component.translatable("settlement.starrailexpress.hud."+keys[i]),left,
+                    (int)copy.statLabels().y(),col,.72f*ui,tint(PAPER,a*.8f),false);
+        }
+        g.disableScissor();
+    }
+
+    private static void drawCaption(GuiGraphics g,SettlementPresentation.Layout layout,double time) {
+        var snapshot=SettlementClient.snapshot(); int index=SettlementClient.eventIndex();
+        var event=snapshot.events().get(index); var r=layout.caption(); float ui=layout.ui();
+        int x=(int)r.x(),y=(int)r.y(),w=(int)r.w(),h=(int)r.h(),pad=Math.round(11*ui);
+        g.fill(x+2,y+3,x+w+2,y+h+3,0x33272B29);
+        g.fill(x,y,x+w,y+h,0xF22B302E);
+        g.fill(x,y,x+Math.max(2,Math.round(3*ui)),y+h,RED);
+        g.fill(x,y,x+w,y+1,0x66F3EDDD);
+        var category=SettlementPresentation.category(event.type());
+        Component label=Component.translatable("settlement.starrailexpress.comic.category."+category.name().toLowerCase(Locale.ROOT));
+        long seconds=Math.max(0,event.time())/1000;
+        Component stamp=Component.literal(String.format(Locale.ROOT,"%02d:%02d   /   %02d · %02d",seconds/60,seconds%60,index+1,snapshot.events().size()));
+        text(g,label,x+pad,y+Math.round(5*ui),Math.round(110*ui),.70f*ui,0xFFE4B79D,false);
+        text(g,stamp,x+w-Math.round(170*ui)-pad,y+Math.round(5*ui),Math.round(170*ui),.65f*ui,0xFFB9BDAF,true);
+        int top=y+Math.round(19*ui),visible=h-Math.round(24*ui);
+        var lines=SettlementClient.captionLines();
+        double age=time-320-index*snapshot.eventTicks();
+        double scroll=SettlementPresentation.scroll(age,snapshot.eventTicks(),lines.size()*12*ui,visible);
+        g.enableScissor(x+pad,top,x+w-pad,top+visible);
+        g.pose().pushPose();g.pose().translate(x+pad,top-scroll,0);g.pose().scale(ui,ui,1);
+        for(int i=0;i<lines.size();i++) g.drawString(Minecraft.getInstance().font,lines.get(i),0,i*12,PAPER,false);
+        g.pose().popPose();g.disableScissor();
+        float progress=(float)(time-320)/Math.max(1,snapshot.events().size()*snapshot.eventTicks());
+        g.fill(x,y+h-1,x+Math.round(w*Mth.clamp(progress,0,1)),y+h,RED);
+    }
+
+    private record Placed(SettlementStageRenderer.Label label,SettlementPresentation.Rect box,boolean mvp,boolean side) { }
+
+    /** 所有头部先登记为禁入区，再按 MVP/事件/配角优先级放置名签。 */
+    private static void drawLabels(GuiGraphics g,SettlementPresentation.Layout layout,SettlementPresentation.Frame frame) {
+        if(SettlementStageRenderer.labelsAt!=SettlementClient.tick() || SettlementStageRenderer.labelsWidth!=layout.width()
+                || SettlementStageRenderer.labelsHeight!=layout.height()) return;
+        float ui=layout.ui(); var snapshot=SettlementClient.snapshot();
+        List<SettlementPresentation.Rect> occupied=new ArrayList<>();
+        for(var l:SettlementStageRenderer.labels) {
+            if(!l.actor().fact.winner() && frame.detail()>.4) continue;
+            occupied.add(l.head().grow(4*ui));
+        }
+        if(SettlementClient.eventIndex()>=0) occupied.add(layout.caption().grow(4*ui));
+        var screen=new SettlementPresentation.Rect(12*ui,30*ui,layout.width()-24*ui,layout.height()-52*ui);
+        // 按演员身份固定排序；同一镜头段保持原槽位，不再每帧按 active 状态重排。
+        Object shot=frame.time()<202?"cast":"replay/"+frame.primary();
+        nameplates.begin(shot,layout.width(),layout.height());
+        var sorted=new ArrayList<>(SettlementStageRenderer.labels);
+        sorted.sort(Comparator.comparingInt(l -> l.actor().fact.winner()?l.actor().order:1000+l.actor().order));
+        List<Placed> placed=new ArrayList<>();
+        for(var l:sorted) {
+            boolean mvp=Objects.equals(l.actor().fact.id(),snapshot.mvp());
+            if(!l.actor().fact.winner()) continue;
+            boolean close=frame.detail()>.5;
+            if(close && !mvp && !Objects.equals(l.actor().fact.id(),frame.primary()) && !Objects.equals(l.actor().fact.id(),frame.secondary())) continue;
+            boolean side=close;
+            double width=(side?128:92)*ui,height=27*ui;
+            double ax=side?l.head().right()+8*ui:l.x(),ay=side?l.y():l.head().y()-15*ui;
+            var box=nameplates.place(l.actor().fact.id(),ax,ay,width,height,screen,occupied,8*ui,side);
+            if(box==null) continue;
+            placed.add(new Placed(l,box,mvp,side));
+        }
+        // 引导线在一批内画完，随后绘制纸签，不对每个像素提交绘制。
+        if(!placed.isEmpty()) {
+            g.flush();RenderSystem.disableDepthTest();RenderSystem.depthMask(false);
+            RenderSystem.enableBlend();RenderSystem.defaultBlendFunc();RenderSystem.setShader(GameRenderer::getPositionColorShader);
+            BufferBuilder b=Tesselator.getInstance().begin(VertexFormat.Mode.QUADS,DefaultVertexFormat.POSITION_COLOR);
+            for(var p:placed) {
+                var r=p.box();float ax=(float)p.label().x(),ay=(float)p.label().y();
+                float bx=(float)SettlementPresentation.clamp(ax,r.x(),r.right()),by=(float)SettlementPresentation.clamp(ay,r.y(),r.bottom());
+                float dx=bx-ax,dy=by-ay,len=Math.max(1,(float)Math.hypot(dx,dy)),nx=-dy/len*.55f,ny=dx/len*.55f;
+                quad(b,g.pose().last().pose(),ax+nx,ay+ny,bx+nx,by+ny,bx-nx,by-ny,ax-nx,ay-ny,0xAA343A35);
             }
+            BufferUploader.drawWithShader(b.buildOrThrow());
         }
+        for(var p:placed) {
+            var r=p.box();int x=(int)r.x(),y=(int)r.y(),w=(int)r.w(),h=(int)r.h();
+            g.fill(x+2,y+2,x+w+2,y+h+2,0x33272B29);g.fill(x,y,x+w,y+h,0xF3F3EDDD);
+            g.fill(x,y,x+2,y+h,p.mvp()?RED:p.label().actor().fact.color()|0xFF000000);
+            var actor=p.label().actor();
+            String name=(SettlementClient.isDeathMarked(actor)?"× ":"")+actor.fact.name();
+            int badge=p.mvp()?Math.round(25*ui):0;
+            labelText(g,name,x+Math.round(7*ui),y+Math.round(5*ui),w-Math.round(14*ui)-badge,.84f*ui,INK);
+            ResourceLocation role=ResourceLocation.tryParse(actor.role);
+            String roleName=role==null?Component.translatable("settlement.starrailexpress.unknown_role").getString():RoleUtils.getRoleName(role).getString();
+            labelText(g,roleName,x+Math.round(7*ui),y+Math.round(16*ui),w-Math.round(14*ui),.70f*ui,MUTED);
+            if(p.mvp()) text(g,Component.literal("MVP").withStyle(ChatFormatting.BOLD),x+w-badge,y+Math.round(5*ui),badge-2,.65f*ui,RED,false);
+        }
+    }
 
-        if (!closing && time >= 320 && SettlementClient.eventIndex() >= 0) {
-            var event = snapshot.events().get(SettlementClient.eventIndex());
-            long seconds = Math.max(0, event.time()) / 1000;
-            int pw = Math.min(w - margin * 2, Math.round(428 * ui));
-            int ph = Math.round(66 * ui), x = (w - pw) / 2, y = h - edge - Math.round(31 * ui) - ph;
-            // 回放原文含职业颜色，放在墨色字幕格内保持原有颜色的可读性。
-            g.fill(x + 3, y + 3, x + pw + 3, y + ph + 3, 0x88000000);
-            g.fill(x, y, x + pw, y + ph, 0xED171719);
-            g.renderOutline(x, y, pw, ph, 0xB8F3EDDD);
-            g.fill(x, y, x + Math.round(3 * ui), y + ph, RED);
-            Component stamp = Component.translatable("settlement.starrailexpress.event", SettlementClient.eventIndex() + 1,
-                    snapshot.events().size(), String.format(java.util.Locale.ROOT, "%02d:%02d", seconds / 60, seconds % 60));
-            text(g, stamp, x + 12, y + Math.round(8 * ui), pw - 24, .75f * ui, 0xFFB9B2A4, true);
-            wrapped(g, SettlementClient.eventText(), x + 12, y + Math.round(25 * ui), pw - 24,
-                    ph - Math.round(31 * ui), ui);
-            float progress = (float) (time - 320) / Math.max(1, snapshot.events().size() * snapshot.eventTicks());
-            g.fill(x, y + ph - 2, x + Math.round(pw * Mth.clamp(progress, 0, 1)), y + ph, RED);
-        }
-
-        if (time >= 100 && !closing) {
-            float fade = (float) SettlementClient.smooth((time - 100) / 15);
-            int pw = Math.min(w - margin * 2, Math.round(180 * ui));
-            int y = h - edge - Math.round(17 * ui), x = w - margin - pw;
-            text(g, Component.translatable("settlement.starrailexpress.hud.skip"), x, y, pw, .76f * ui,
-                    tint(PAPER, fade * .78f), false);
-            float held = Math.min(1, SettlementClient.holdTicks() / 30f);
-            if (held > 0) g.fill(x, y + Math.round(11 * ui), x + Math.round(pw * held), y + Math.round(13 * ui), RED);
-        }
-
-        shutters(g, w, h, time, snapshot.durationTicks());
-        if (closing) {
-            float fade = envelope(time, snapshot.durationTicks() - 58, 18, snapshot.durationTicks() - 22, 22);
-            int pw = Math.min(w - margin * 2, Math.round(286 * ui)), ph = Math.round(73 * ui);
-            int x = (w - pw) / 2, y = (h - ph) / 2;
-            paperPanel(g, x, y, pw, ph, fade, ui);
-            text(g, Component.translatable("settlement.starrailexpress.hud.curtain_call").withStyle(ChatFormatting.BOLD),
-                    x + 10, y + Math.round(17 * ui), pw - 20, 1.55f * ui, tint(INK, fade), true);
-            text(g, Component.translatable("settlement.starrailexpress.closing"), x + 10, y + Math.round(46 * ui),
-                    pw - 20, .8f * ui, tint(MUTED, fade), true);
-        }
-        float black = (float) (1 - SettlementClient.smooth(time / 28));
-        black = Math.max(black, (float) SettlementClient.smooth((time - snapshot.durationTicks() + 20) / 20));
-        if (black > 0) g.fill(0, 0, w, h, tint(0xFF000000, black));
+    private static void labelText(GuiGraphics g,String value,int x,int y,int width,float scale,int color) {
+        var font=Minecraft.getInstance().font;
+        if(font.width(value)*scale>width) value=font.plainSubstrByWidth(value,Math.max(1,(int)(width/scale)-font.width("…")))+"…";
+        text(g,Component.literal(value),x,y,width,scale,color,false);
     }
 
     /** 纸片、错位墨影与局部网点构成分镜标题块；每个元素共享淡入透明度。 */
     private static void paperPanel(GuiGraphics g, int x, int y, int w, int h, float alpha, float ui) {
         if (alpha <= .01f) return;
-        int shift = Math.max(2, Math.round(4 * ui));
-        g.fill(x + shift, y + shift, x + w + shift, y + h + shift, tint(INK, alpha * .8f));
-        g.fill(x, y, x + w, y + h, tint(PAPER, alpha * .97f));
-        g.renderOutline(x, y, w, h, tint(INK, alpha));
+        int shift=Math.max(2,Math.round(3*ui)),cut=Math.max(4,Math.round(7*ui));
+        g.fill(x+shift,y+shift,x+w+shift,y+h+shift,tint(INK,alpha*.20f));
+        g.fill(x,y+cut,x+w,y+h,tint(PAPER,alpha*.98f));
+        g.fill(x,y,x+w-cut,y+cut,tint(PAPER,alpha*.98f));
+        g.fill(x,y,x+w-cut,y+1,tint(INK,alpha*.75f));
+        g.fill(x,y,x+2,y+h,tint(INK,alpha*.85f));
+        g.fill(x,y+h-2,x+w,y+h,tint(INK,alpha*.80f));
+        g.fill(x+w-1,y+cut,x+w,y+h,tint(INK,alpha*.65f));
+        g.flush();RenderSystem.disableDepthTest();RenderSystem.depthMask(false);
+        RenderSystem.enableBlend();RenderSystem.defaultBlendFunc();RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        BufferBuilder bevel=Tesselator.getInstance().begin(VertexFormat.Mode.QUADS,DefaultVertexFormat.POSITION_COLOR);
+        quad(bevel,g.pose().last().pose(),x+w-cut,y,x+w-cut,y+cut,x+w,y+cut,x+w-cut,y,tint(PAPER,alpha*.98f));
+        quad(bevel,g.pose().last().pose(),x+w-cut,y,x+w-cut-1,y+1,x+w-1,y+cut+1,x+w,y+cut,tint(INK,alpha*.75f));
+        BufferUploader.drawWithShader(bevel.buildOrThrow());
         int step = Math.max(4, Math.round(6 * ui)), dot = Math.max(1, Math.round(ui));
         // 网点只放在卡片右侧的小三角内，固定采样，不随帧随机闪烁。
         for (int row = 0; row < 6; row++) for (int col = 0; col < 6 - row; col++) {
@@ -244,10 +342,6 @@ public final class SettlementOverlay {
         return (float) (SettlementClient.smooth((time - start) / in) * (1 - SettlementClient.smooth((time - end) / out)));
     }
 
-    private static double pulse(double time, double start, double duration) {
-        if (time < start || time > start + duration) return 0;
-        return (1 - SettlementClient.smooth((time - start) / duration));
-    }
 
     private static int tint(int color, float alpha) {
         return Math.round(Mth.clamp(alpha, 0, 1) * 255) << 24 | color & 0xFFFFFF;
@@ -264,19 +358,4 @@ public final class SettlementOverlay {
         g.pose().popPose();
     }
 
-    private static void wrapped(GuiGraphics g, Component text, int x, int y, int width, int height, float ui) {
-        var font = Minecraft.getInstance().font;
-        float scale = ui;
-        var lines = font.split(text, Math.max(1, (int) (width / scale)));
-        if (lines.size() * 11 * scale > height) {
-            scale *= (float) Math.sqrt(height / (double) (lines.size() * 11 * scale));
-            lines = font.split(text, Math.max(1, (int) (width / scale)));
-            scale = Math.min(scale, height / (float) Math.max(1, lines.size() * 11));
-        }
-        g.enableScissor(x, y, x + width, y + height);
-        g.pose().pushPose(); g.pose().translate(x + width / 2f, y, 0); g.pose().scale(scale, scale, 1);
-        for (int i = 0; i < lines.size(); i++)
-            g.drawString(font, lines.get(i), -font.width(lines.get(i)) / 2, i * 11, PAPER, false);
-        g.pose().popPose(); g.disableScissor();
-    }
 }

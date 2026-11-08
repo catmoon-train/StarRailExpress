@@ -34,6 +34,8 @@ import io.wifi.starrailexpress.event.client.LimitedInventoryScreenEvents;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.network.original.StoreBuyPayload;
 import io.wifi.starrailexpress.util.ShopEntry;
+import io.wifi.starrailexpress.client.gui.widget.SreButton;
+import io.wifi.starrailexpress.training.client.TrainingClient;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -42,6 +44,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
@@ -83,6 +86,7 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
     private RoleInventoryScreenExtension roleExtension = null;
     /** 回声模式直接使用本屏幕，不再通过按钮打开第二份背包。 */
     private org.agmas.noellesroles.game.modes.echo.client.EchoInventoryPanel echoPanel;
+    private SreButton trainingButton;
 
     public LimitedInventoryScreen(@NotNull LocalPlayer player) {
         super(player.inventoryMenu, player.getInventory(), Component.empty());
@@ -339,6 +343,71 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
             roleExtension.onInventoryScreenInitTail(this);
         }
         LimitedInventoryScreenEvents.INIT_TAIL.invoker().onInit(this);
+        initTrainingEntry();
+    }
+
+    /** 训练入口独立于菜单；优先紧邻背包，避开可见控件、整块背包与真实槽位。 */
+    private void initTrainingEntry() {
+        trainingButton = null;
+        if (!TrainingClient.isTraining() || echoPanel != null) return;
+        trainingButton = new SreButton(Component.translatable("training.sre.ui.inventory_entry"),
+                b -> TrainingClient.openPanel(this));
+        trainingButton.setTooltipText(Component.translatable("training.sre.ui.inventory_hint"));
+        addRenderableWidget(trainingButton);
+        layoutTrainingEntry();
+    }
+
+    private void layoutTrainingEntry() {
+        if (trainingButton == null) return;
+        trainingButton.visible = TrainingClient.isTraining() && echoPanel == null;
+        trainingButton.active = trainingButton.visible;
+        if (!trainingButton.visible) return;
+        int left = isGameActive() ? this.x : panelLeft();
+        int top = isGameActive() ? this.y : panelTop();
+        int right = left + (isGameActive() ? backgroundWidth : scaled(PANEL_W));
+        int bottom = top + (isGameActive() ? backgroundHeight : scaled(PANEL_H));
+        if (trainingEntryFits(trainingButton.getX(), trainingButton.getY(), trainingButton.getWidth(), left, top, right, bottom)) return;
+        int preferredWidth = Math.min(104, Math.max(24, Math.max(left - 8, width - right - 8)));
+        for (int buttonWidth : new int[]{preferredWidth, 24}) {
+            for (int side : new int[]{right + 4, left - buttonWidth - 4}) {
+                for (int buttonY = Math.min(height - 24, bottom - 20); buttonY >= 4; buttonY -= 24) {
+                    if (trainingEntryFits(side, buttonY, buttonWidth, left, top, right, bottom)) {
+                        trainingButton.setX(side); trainingButton.setY(buttonY);
+                        trainingButton.setWidth(buttonWidth); trainingButton.setHeight(20);
+                        return;
+                    }
+                }
+            }
+            for (int buttonY = height - 24; buttonY >= 4; buttonY -= 24) {
+                for (int buttonX = 4; buttonX + buttonWidth <= width - 4; buttonX += 24) {
+                    if (trainingEntryFits(buttonX, buttonY, buttonWidth, left, top, right, bottom)) {
+                        trainingButton.setX(buttonX); trainingButton.setY(buttonY);
+                        trainingButton.setWidth(buttonWidth); trainingButton.setHeight(20);
+                        return;
+                    }
+                }
+            }
+        }
+        // 非标准扩展占满屏幕时不覆盖其按钮；正常最小 GUI 的背包两侧有独立入口空间。
+        trainingButton.visible = false;
+        trainingButton.active = false;
+    }
+
+    private boolean trainingEntryFits(int bx, int by, int bw, int left, int top, int right, int bottom) {
+        if (bx < 4 || by < 4 || bx + bw > width - 4 || by + 20 > height - 4) return false;
+        if (bx < right + 2 && bx + bw > left - 2 && by < bottom + 2 && by + 20 > top - 2) return false;
+        for (var child : children()) {
+            if (child instanceof AbstractWidget widget && widget != trainingButton && widget.visible
+                    && bx < widget.getRight() + 2 && bx + bw > widget.getX() - 2
+                    && by < widget.getBottom() + 2 && by + 20 > widget.getY() - 2) return false;
+        }
+        for (Slot slot : handler.slots) {
+            if (slot.index < 36 || slot.index > 44) continue;
+            int sx = this.x + getSlotRenderX(slot), sy = this.y - getYOffset() + getSlotRenderY(slot);
+            int size = Math.round(18 * getSlotRenderScale(slot));
+            if (bx < sx + size && bx + bw > sx && by < sy + size && by + 20 > sy) return false;
+        }
+        return true;
     }
 
     /** 创建等待面板中的便捷菜单格子按钮与翻页按钮（复用 GameMenuEntries 的同一组动作）。 */
@@ -657,6 +726,13 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
             super.render(context, mouseX, mouseY, delta);
             echoPanel.render(context, mouseX, mouseY);
             return;
+        }
+        if (trainingButton == null && TrainingClient.isTraining()) initTrainingEntry();
+        layoutTrainingEntry();
+        if (trainingButton != null) {
+            Component label = Component.translatable(trainingButton.getWidth() < 44
+                    ? "training.sre.ui.inventory_short" : "training.sre.ui.inventory_entry");
+            if (!trainingButton.getMessage().equals(label)) trainingButton.setMessage(label);
         }
         LimitedInventoryScreenEvents.RENDER.invoker().onRender(this, context, mouseX, mouseY, delta);
         if (roleExtension != null) {

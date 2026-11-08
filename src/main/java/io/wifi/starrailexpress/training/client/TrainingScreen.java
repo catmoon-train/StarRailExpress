@@ -1,16 +1,18 @@
 package io.wifi.starrailexpress.training.client;
 
 import io.wifi.starrailexpress.client.gui.SREPanelStyle;
-import io.wifi.starrailexpress.client.gui.screen.CustomEditorScreen;
-import io.wifi.starrailexpress.client.gui.screen.EditorLayout;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapUiGraphics;
 import io.wifi.starrailexpress.client.gui.widget.SreButton;
+import io.wifi.starrailexpress.client.gui.widget.SreSwitchButton;
+import io.wifi.starrailexpress.client.gui.widget.SwitchState;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -18,20 +20,24 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.function.BooleanSupplier;
-import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-/** 原生训练控制台：复用现有编辑器的折行布局、滚动裁剪、焦点高亮和三态控件。 */
+/** 原生训练操作台：固定导航、分页目录、即时权威配置；只有职业介绍独立滚动。 */
 @Environment(EnvType.CLIENT)
-public final class TrainingScreen extends CustomEditorScreen {
-    private static final String P = "training.sre.ui";
+public final class TrainingScreen extends Screen {
+    private static final String P = "training.sre.ui.";
     private static final String[] TABS = {"items", "roles", "enemies", "settings"};
     private static final String[] CATEGORIES = {"all", "weapons", "ammo", "consumables", "functional", "role"};
     private static final String[] TEAMS = {"all", "killer", "innocent", "sheriff", "neutral"};
@@ -39,624 +45,693 @@ public final class TrainingScreen extends CustomEditorScreen {
     private static final String[] EQUIPMENT = {"knife", "gun"};
     private static final String[] AREAS = {"range", "arena", "train"};
     private final Screen parent;
-    private CompoundTag state;
-    private CompoundTag draft;
-    private boolean dirty;
-    private boolean awaiting;
-    private boolean requestedCatalogue;
-    private long sentAt;
-    private long stateRevision = -1;
-    private String localMessage = "";
-    private String countText;
-    private String delayText;
-    private String itemSearch = "", roleSearch = "", botSearch = "";
-    private String category = "all", team = "all";
-    private String selectedItem = "", selectedRole = "";
-    private int selectedSlot = -1;
-    private CompoundTag botDraft = new CompoundTag();
-    private boolean botEdited;
-    private String pickingRole = "";
+    private CompoundTag state = new CompoundTag();
+    private long revision = -1;
     private final List<CatalogueItem> items = new ArrayList<>();
     private final List<CompoundTag> roles = new ArrayList<>();
-    private final List<Control> guarded = new ArrayList<>();
-    private final List<AbstractWidget> contentControls = new ArrayList<>();
-    private final List<NumericControl> numbers = new ArrayList<>();
+    private final Map<String, EditBox> searches = new HashMap<>();
+    private final Map<String, Integer> pages = new HashMap<>();
+    private final Map<String, AbstractWidget> keyed = new LinkedHashMap<>();
+    private final List<Runnable> bindings = new ArrayList<>();
+    private final List<Label> labels = new ArrayList<>();
+    private final List<Rect> cards = new ArrayList<>();
+    private final Map<String, Pager> pagers = new LinkedHashMap<>();
+    private int tab, enemyTab, settingsTab;
+    private String category = "all", team = "all", selectedRole = "", selectedItem = "";
+    private String picker = "";
+    private int selectedSlot = -1;
+    private boolean roleDetail, botDetail, rebuild;
+    private boolean awaiting, uncertain;
+    private String localMessage = "";
+    private long sentAt;
+    private CompoundTag expected = new CompoundTag();
+    private String expectedTarget = "";
+    private int expectedSlot = -1;
+    private Rect panel, body;
 
     public TrainingScreen(Screen parent) {
         super(tr("title"));
         this.parent = parent;
-        state = TrainingClient.state();
-        readDraft();
-    }
-
-    @Override protected String translationPrefix() { return P; }
-    @Override protected String[] tabKeys() { return TABS; }
-    @Override protected EditorLayout.Config layoutConfig() {
-        return EditorLayout.Config.defaults().labelColumn(120).headerExtra(24);
     }
 
     @Override protected void init() {
-        if (stateRevision != TrainingClient.revision()) syncState();
-        super.init();
-        updateControls();
-        if (!TrainingClient.hasCatalogue() && !requestedCatalogue) {
-            requestedCatalogue = true;
-            onOpenManage();
-        }
-    }
-
-    void acceptState() {
         syncState();
-        requestRebuild();
+        build();
+        if (!TrainingClient.hasCatalogue() && !awaiting) refresh();
     }
 
+    void acceptState() { syncState(); }
+
+    /** 快照只刷新绑定值；目录或槽位数量变化才重排，输入框实例与翻页位置始终保留。 */
     private void syncState() {
-        state = TrainingClient.state();
-        stateRevision = TrainingClient.revision();
-        awaiting = false;
-        localMessage = "";
-        // 批量应用只提交部分字段时，不能把另一页未提交的草稿一起抹掉。
-        if (validDraft() && matches(state.getCompound("settings"), draft)) dirty = false;
-        CompoundTag selected = bot(selectedSlot);
-        if (selected == null) { selectedSlot = -1; botEdited = false; }
-        else {
-            if (matches(selected, botDraft)) botEdited = false;
-            if (!botEdited) botDraft = botConfiguration(selected);
+        CompoundTag incoming = TrainingClient.state();
+        boolean catalogueChanged = !incoming.getList("items", Tag.TAG_COMPOUND).equals(state.getList("items", Tag.TAG_COMPOUND))
+                || !incoming.getList("roles", Tag.TAG_COMPOUND).equals(state.getList("roles", Tag.TAG_COMPOUND));
+        boolean rosterChanged = incoming.getList("bots", Tag.TAG_COMPOUND).size() != state.getList("bots", Tag.TAG_COMPOUND).size();
+        state = incoming;
+        revision = TrainingClient.revision();
+        if (catalogueChanged) readCatalogues();
+        if (catalogueChanged && localMessage.equals("loading")) localMessage = "";
+        if (bot(selectedSlot) == null) { selectedSlot = -1; botDetail = false; }
+        if (awaiting) {
+            CompoundTag actual = expectedTarget.equals("settings") ? settings()
+                    : expectedTarget.equals("bot") ? bot(expectedSlot) : null;
+            if (expected.isEmpty() || error(state.getString("message")) || matches(actual, expected)) {
+                awaiting = false;
+                uncertain = false;
+                localMessage = "";
+            }
         }
-        if (!dirty) readDraft();
-    }
-
-    private static boolean matches(CompoundTag actual, CompoundTag expected) {
-        for (String key : expected.getAllKeys()) {
-            if (!expected.get(key).equals(actual.get(key))) return false;
-        }
-        return true;
-    }
-
-    private void readDraft() {
-        draft = new CompoundTag();
-        CompoundTag actual = state.getCompound("settings");
-        for (String key : new String[]{"enemyCount", "enemyRole", "behavior", "equipment", "area", "paused", "autoRespawn", "respawnDelay", "friendlyFirePenalty"}) {
-            if (actual.contains(key)) draft.put(key, actual.get(key).copy());
-        }
-        if (!draft.contains("enemyCount")) draft.putInt("enemyCount", 5);
-        if (!draft.contains("enemyRole")) draft.putString("enemyRole", "trainmurdermystery:killer");
-        if (!draft.contains("behavior")) draft.putString("behavior", "stationary");
-        if (!draft.contains("equipment")) draft.putString("equipment", "knife");
-        if (!draft.contains("area")) draft.putString("area", "range");
-        if (!draft.contains("autoRespawn")) draft.putBoolean("autoRespawn", true);
-        if (!draft.contains("respawnDelay")) draft.putInt("respawnDelay", 3);
-        countText = Integer.toString(draft.getInt("enemyCount"));
-        delayText = Integer.toString(draft.getInt("respawnDelay"));
-        dirty = false;
-    }
-
-    @Override protected void buildTab(int tab) {
-        guarded.clear();
-        contentControls.clear();
-        numbers.clear();
-        readCatalogues();
-        switch (tab) {
-            case 0 -> buildItems();
-            case 1 -> buildRoles();
-            case 2 -> { if (pickingRole.isEmpty()) buildEnemies(); else buildRolePicker(); }
-            default -> buildSettings();
-        }
+        if (catalogueChanged || rosterChanged) rebuild = true;
     }
 
     private void readCatalogues() {
         items.clear();
         roles.clear();
         for (Tag value : state.getList("items", Tag.TAG_COMPOUND)) {
-            CompoundTag tag = (CompoundTag) value;
+            CompoundTag entry = (CompoundTag) value;
             ItemStack stack = ItemStack.EMPTY;
-            if (minecraft.level != null) {
-                try { stack = ItemStack.parseOptional(minecraft.level.registryAccess(), tag.getCompound("stack")); }
-                catch (RuntimeException ignored) { /* 损坏条目保持可见并禁用，不能阻断整个面板。 */ }
+            if (minecraft != null && minecraft.level != null) {
+                try { stack = ItemStack.parseOptional(minecraft.level.registryAccess(), entry.getCompound("stack")); }
+                catch (RuntimeException ignored) { /* 单个损坏物品不应阻断目录。 */ }
             }
-            Component name = stack.isEmpty() ? Component.literal(tag.getString("name").isBlank()
-                    ? tag.getString("key") : tag.getString("name")) : stack.getHoverName();
-            items.add(new CatalogueItem(tag.getString("key"), tag.getString("category"), stack, name));
+            Component name = stack.isEmpty() ? Component.literal(entry.getString("name").isBlank()
+                    ? entry.getString("key") : entry.getString("name")) : stack.getHoverName();
+            items.add(new CatalogueItem(entry.getString("key"), entry.getString("category"), stack, name));
         }
         for (Tag value : state.getList("roles", Tag.TAG_COMPOUND)) roles.add((CompoundTag) value);
     }
 
-    private int search(int r, String label, String value, Consumer<String> setter) {
-        return field(r, P + "." + label, value, LIMIT_NAME, SREPanelStyle.hint(tr("search_hint")), v -> {
-            setter.accept(v);
-            resetScroll();
-            requestRebuild();
-        });
-    }
-
-    private int filters(int r, String prefix, String[] options, String selected, Consumer<String> setter) {
-        List<Cell> cells = new ArrayList<>();
-        for (String option : options) {
-            SelectionButton button = new SelectionButton(tr(prefix + "." + option), option.equals(selected), () -> {
-                setter.accept(option);
-                resetScroll();
-                requestRebuild();
+    private void build() {
+        String focus = keyed.entrySet().stream().filter(e -> e.getValue() == getFocused()).map(Map.Entry::getKey).findFirst().orElse("");
+        setFocused(null);
+        clearWidgets();
+        keyed.clear(); bindings.clear(); labels.clear(); cards.clear(); pagers.clear();
+        int w = Math.max(1, Math.min(980, width - 16));
+        panel = new Rect((width - w) / 2, 8, w, Math.max(1, height - 16));
+        Rect inner = new Rect(panel.x + 8, panel.y + 8, Math.max(1, w - 16), panel.h - 16);
+        int backW = Math.min(72, inner.w / 4), refreshW = Math.min(76, inner.w / 4);
+        label(new Rect(inner.x, inner.y + 5, inner.w - backW - refreshW - 12, 12), () -> title, SREPanelStyle.GOLD);
+        button("refresh", new Rect(inner.right() - backW - refreshW - 4, inner.y, refreshW, 20), () -> tr("manage"), tr("refresh_hint"),
+                () -> TrainingClient.isTraining() && !awaiting && !TrainingWorldLauncher.isBusy(), this::refresh, false);
+        button("close", new Rect(inner.right() - backW, inner.y, backW, 20), () -> tr("cancel"), null, () -> true, this::onClose, false);
+        Rect nav = new Rect(inner.x, inner.y + 24, inner.w, 20);
+        for (int i = 0; i < TABS.length; i++) {
+            int index = i;
+            select("tab" + i, cell(nav, i, TABS.length), () -> tr("tab." + TABS[index]), null, () -> tab == index, () -> {
+                tab = index; picker = ""; rebuild = true;
             });
-            cells.add(cell(button, Math.min(100, Math.max(48, font.width(button.getMessage()) + 14)), 0, 1F));
         }
-        return cluster(r, null, cells.toArray(Cell[]::new));
+        Rect common = new Rect(inner.x, inner.y + 48, inner.w, 20);
+        action("heal", cell(common, 0, 3), "heal", "heal_hint", () -> send("heal"));
+        action("cooldown", cell(common, 1, 3), "cooldown", "cooldown_hint", () -> send("cooldown"));
+        action("money", cell(common, 2, 3), "money", "money_hint", () -> send("money"));
+        body = new Rect(inner.x, inner.y + 72, inner.w, Math.max(1, panel.bottom() - 24 - (inner.y + 72)));
+        if (!picker.isEmpty()) buildRoles(body, true);
+        else switch (tab) {
+            case 0 -> buildItems(body);
+            case 1 -> buildRoles(body, false);
+            case 2 -> buildEnemies(body);
+            default -> buildSettings(body);
+        }
+        rebuild = false;
+        updateBindings();
+        AbstractWidget target = keyed.get(focus);
+        if (target != null && target.visible) { setFocused(target); target.setFocused(true); }
     }
 
-    private void buildItems() {
-        int r = search(0, "search", itemSearch, v -> itemSearch = v);
-        r = filters(r, "category", CATEGORIES, category, v -> category = v);
-        r = cluster(r, null,
-                action("kit.melee", "kit_hint", () -> send("kit", string("id", "melee"))),
-                action("kit.ranged", "kit_hint", () -> send("kit", string("id", "ranged"))),
-                action("kit.utility", "kit_hint", () -> send("kit", string("id", "utility"))));
-        CatalogueItem selected = items.stream().filter(i -> i.key.equals(selectedItem)).findFirst().orElse(null);
-        if (selected != null) {
-            r = section(r, P + ".selected_item");
-            r = note(r, selected.name, SREPanelStyle.TEXT, 8);
-            r = note(r, Component.literal(selected.key), SREPanelStyle.MUTED, 4);
-            if (selected.stack.isEmpty()) r = note(r, P + ".invalid_item", SREPanelStyle.RED);
-            r = cluster(r, null,
-                    action(tr("give_one"), tr("give_hint"), () -> !selected.stack.isEmpty(), () -> give(selected, 1)),
-                    action(tr("give_stack", Math.max(1, selected.stack.getMaxStackSize())), tr("give_hint"),
-                            () -> !selected.stack.isEmpty(), () -> give(selected, selected.stack.getMaxStackSize())));
+    private void buildItems(Rect r) {
+        search("items", new Rect(r.x, r.y, r.w, 20));
+        filter(new Rect(r.x, r.y + 24, r.w, 20), "category", CATEGORIES, () -> category, value -> {
+            category = value; pages.put("items", 0); rebuild = true;
+        });
+        Rect kits = new Rect(r.x, r.y + 48, r.w, 20);
+        String[] ids = {"melee", "ranged", "utility"};
+        for (int i = 0; i < ids.length; i++) {
+            String id = ids[i];
+            action("kit" + id, cell(kits, i, 3), "kit." + id, "kit_hint", () -> send("kit", string("id", id)));
         }
-        r = section(r, P + ".catalogue");
-        int found = 0;
-        for (CatalogueItem item : items) {
-            String id = item.stack.isEmpty() ? "" : BuiltInRegistries.ITEM.getKey(item.stack.getItem()).toString();
-            if ((!category.equals("all") && !category.equals(item.category))
-                    || !contains(itemSearch, item.name.getString(), item.key, id)) continue;
-            MutableComponent tooltip = item.name.copy().append("\n").append(item.key);
-            if (!item.stack.isEmpty()) {
-                for (Component line : Screen.getTooltipFromItem(minecraft, item.stack)) tooltip.append("\n").append(line);
+        Rect list = new Rect(r.x, r.y + 72, r.w, Math.max(1, r.h - 72));
+        List<CatalogueItem> filtered = items.stream().filter(item -> (category.equals("all") || category.equals(item.category))
+                && contains(query("items"), item.name.getString(), item.key,
+                item.stack.isEmpty() ? "" : BuiltInRegistries.ITEM.getKey(item.stack.getItem()).toString())).toList();
+        int columns = list.w >= 700 ? 2 : 1;
+        int rows = Math.max(1, (list.h - 24) / 24), capacity = rows * columns;
+        int start = page("items", filtered.size(), capacity) * capacity;
+        for (int i = start; i < Math.min(filtered.size(), start + capacity); i++) {
+            CatalogueItem item = filtered.get(i);
+            int local = i - start;
+            Rect row = cell(new Rect(list.x, list.y + (local / columns) * 24, list.w, 20), local % columns, columns);
+            int giveW = Math.min(54, row.w / 5);
+            Rect name = new Rect(row.x, row.y, row.w - giveW * 2 - 8, 20);
+            select("item" + item.key, name, () -> item.name, itemTooltip(item), () -> selectedItem.equals(item.key), () -> selectedItem = item.key);
+            for (int n = 0; n < 2; n++) {
+                int count = n == 0 ? 1 : Math.max(1, item.stack.getMaxStackSize());
+                button("give" + item.key + n, new Rect(name.right() + 4 + n * (giveW + 4), row.y, giveW, 20), () -> tr("give_short", count),
+                        tr(n == 0 ? "give_one" : "give_stack", count), () -> !item.stack.isEmpty(), () -> give(item, count), true);
             }
-            r = cluster(r, null, selection(item.name, tooltip, item.key.equals(selectedItem), () -> {
-                selectedItem = item.key;
-                resetScroll();
-                requestRebuild();
-            }));
-            found++;
         }
-        empty(r, found);
+        empty(list, filtered.size(), false);
+        pager("items", new Rect(list.x, list.bottom() - 20, list.w, 20), filtered.size(), capacity);
     }
 
     private void give(CatalogueItem item, int count) {
-        CompoundTag data = string("key", item.key);
-        data.putInt("count", Math.max(1, count));
-        send("give", data);
+        CompoundTag data = string("key", item.key); data.putInt("count", count); send("give", data);
     }
 
-    private void buildRoles() {
-        int r = note(0, tr("current_role", roleName(state.getString("myRole"))), SREPanelStyle.GOLD, 4);
-        r = cluster(r, null,
-                action("apply_role", "apply_role_hint", () -> send("role", string("id", selectedRole)), () -> role(selectedRole) != null),
-                action("reset_self", "reset_self_hint", () -> send("reset_self")),
-                action("heal", "heal_hint", () -> send("heal")),
-                action("money", "money_hint", () -> send("money")));
-        CompoundTag selected = role(selectedRole);
-        if (selected != null) r = roleDetails(r, selected);
-        r = search(r, "search", roleSearch, v -> roleSearch = v);
-        r = filters(r, "team", TEAMS, team, v -> team = v);
-        int found = 0;
-        for (CompoundTag entry : roles) {
-            if (!matchesRole(entry)) continue;
-            String id = entry.getString("id");
-            r = cluster(r, null, selection(roleLabel(entry), roleTooltip(entry), id.equals(selectedRole), () -> {
-                selectedRole = id;
-                resetScroll();
-                requestRebuild();
-            }));
-            found++;
-        }
-        empty(r, found);
-    }
-
-    private int roleDetails(int r, CompoundTag role) {
-        r = section(r, P + ".role_details");
-        r = note(r, roleLabel(role), teamColor(role.getString("team")), 8);
-        r = note(r, Component.literal(role.getString("id")), SREPanelStyle.MUTED, 4);
-        String description = role.getString("description");
-        r = note(r, description.isBlank() ? tr("no_description") : Component.translatable(description), SREPanelStyle.BODY, 64);
-        if (role.getBoolean("restricted")) r = note(r, P + ".restricted_hint", SREPanelStyle.RED, 16);
-        return r;
-    }
-
-    private void buildEnemies() {
-        int r = note(0, P + ".ai_hint", SREPanelStyle.BODY, 8);
-        r = section(r, P + ".batch");
-        r = numeric(r, "enemy_count", countText, 0, 32, v -> { countText = v; draft.putInt("enemyCount", validNumber(v, 0, 32) ? Integer.parseInt(v) : 5); });
-        r = cluster(r, P + ".enemy_role", pickerButton(roleName(draft.getString("enemyRole")), "batch"));
-        r = choice(r, "behavior", draft, "behavior", BEHAVIORS, true);
-        r = choice(r, "equipment", draft, "equipment", EQUIPMENT, true);
-        r = choice(r, "area", draft, "area", AREAS, true);
-        r = cluster(r, null, action(tr("apply_batch"), tr("batch_hint"), this::validDraft, this::applyBatch),
-                action(tr("discard"), tr("unsaved"), () -> dirty, this::discardDraft));
-        if (dirty) r = note(r, P + ".unsaved", SREPanelStyle.GOLD);
-        CompoundTag selected = bot(selectedSlot);
-        if (selected != null) {
-            r = section(r, P + ".bot_details");
-            r = note(r, P + ".bot_apply_hint", botEdited ? SREPanelStyle.GOLD : SREPanelStyle.MUTED, 8);
-            r = note(r, botLabel(selected), SREPanelStyle.TEXT, 8);
-            r = note(r, Component.literal(selected.getString("uuid")), SREPanelStyle.MUTED, 4);
-            if (!selected.getString("error").isBlank()) r = note(r, Component.translatable(selected.getString("error")), SREPanelStyle.RED, 12);
-            r = cluster(r, P + ".enemy_role", pickerButton(roleName(botDraft.getString("role")), "bot"));
-            r = choice(r, "behavior", botDraft, "behavior", BEHAVIORS, false);
-            r = choice(r, "equipment", botDraft, "equipment", EQUIPMENT, false);
-            r = cluster(r, null,
-                    action(tr("apply_bot"), tr("bot_apply_hint"), () -> !selected.getBoolean("pending"), () -> botAction("configure")),
-                    action(tr("revive"), tr("revive_hint"), () -> !selected.getBoolean("pending") && !selected.getBoolean("alive"), () -> botAction("revive")),
-                    action("remove", "remove_hint", () -> botAction("remove")));
-        }
-        r = section(r, P + ".roster");
-        r = search(r, "search", botSearch, v -> botSearch = v);
-        int found = 0;
-        for (Tag value : state.getList("bots", Tag.TAG_COMPOUND)) {
-            CompoundTag entry = (CompoundTag) value;
-            if (!contains(botSearch, entry.getString("name"), entry.getString("uuid"), Integer.toString(entry.getInt("slot")))) continue;
-            r = cluster(r, null, selection(botLabel(entry), botTooltip(entry), selectedSlot == entry.getInt("slot"), () -> {
-                selectedSlot = entry.getInt("slot");
-                botDraft = botConfiguration(entry);
-                botEdited = false;
-                resetScroll();
-                requestRebuild();
-            }));
-            found++;
-        }
-        if (found == 0) note(r, P + (botSearch.isBlank() ? ".no_bots" : ".empty"), SREPanelStyle.MUTED, 8);
-    }
-
-    private Cell pickerButton(Component name, String target) {
-        return action(tr("choose_role", name), tr("choose_role_hint"), () -> TrainingClient.hasCatalogue(), () -> {
-            pickingRole = target;
-            roleSearch = "";
-            team = "all";
-            resetScroll();
-            requestRebuild();
+    private void buildRoles(Rect r, boolean picking) {
+        boolean wide = r.w >= 560 && r.h >= 192;
+        if (!wide && roleDetail) { buildRoleDetail(r, picking, true); return; }
+        String searchId = picking ? "picker" : "roles";
+        search(searchId, new Rect(r.x, r.y, r.w, 20));
+        filter(new Rect(r.x, r.y + 24, r.w, 20), "team", TEAMS, () -> team, value -> {
+            team = value; pages.put(searchId, 0); rebuild = true;
         });
-    }
-
-    private void buildRolePicker() {
-        int r = cluster(0, null, button(tr("back_to_bots"), () -> {
-            pickingRole = "";
-            resetScroll();
-            requestRebuild();
-        }));
-        r = note(r, P + (pickingRole.equals("batch") ? ".pick_batch_role" : ".pick_bot_role"), SREPanelStyle.GOLD, 8);
-        r = search(r, "search", roleSearch, v -> roleSearch = v);
-        r = filters(r, "team", TEAMS, team, v -> team = v);
-        int found = 0;
-        for (CompoundTag entry : roles) {
-            if (!matchesRole(entry)) continue;
-            String id = entry.getString("id");
-            String current = pickingRole.equals("batch") ? draft.getString("enemyRole") : botDraft.getString("role");
-            r = cluster(r, null, selection(roleLabel(entry), roleTooltip(entry), current.equals(id), () -> {
-                if (pickingRole.equals("batch")) { draft.putString("enemyRole", id); dirty = true; }
-                else { botDraft.putString("role", id); botEdited = true; }
-                pickingRole = "";
-                resetScroll();
-                requestRebuild();
-            }));
-            found++;
+        Rect heading = new Rect(r.x, r.y + 48, r.w, 20);
+        if (picking) {
+            button("pickerBack", cell(heading, 0, 2), () -> tr("back_to_bots"), null, () -> true, () -> { picker = ""; rebuild = true; }, false);
+            label(cell(heading, 1, 2), () -> tr(picker.equals("batch") ? "pick_batch_role" : "pick_bot_role"), SREPanelStyle.GOLD);
+        } else {
+            label(cell(heading, 0, 2), () -> tr("current_role", roleName(state.getString("myRole"))), SREPanelStyle.BODY);
+            action("resetSelf", cell(heading, 1, 2), "reset_self", "reset_self_hint", () -> send("reset_self"));
         }
-        empty(r, found);
-    }
-
-    private void buildSettings() {
-        int r = note(0, P + ".real_rules", SREPanelStyle.BODY, 8);
-        r = section(r, P + ".session_settings");
-        r = settingToggle(r, "paused");
-        r = settingToggle(r, "autoRespawn");
-        r = numeric(r, "respawn_delay", delayText, 1, 30, v -> { delayText = v; draft.putInt("respawnDelay", validNumber(v, 1, 30) ? Integer.parseInt(v) : 3); });
-        r = settingToggle(r, "friendlyFirePenalty");
-        r = cluster(r, null, action(tr("apply_settings"), tr("apply_settings_hint"), () -> dirty && validDraft(), this::onSave),
-                action(tr("discard"), tr("unsaved"), () -> dirty, this::discardDraft));
-        if (dirty) r = note(r, P + ".unsaved", SREPanelStyle.GOLD);
-        r = section(r, P + ".teleports");
-        List<Cell> teleports = new ArrayList<>();
-        for (String area : new String[]{"lobby", "range", "arena", "train"}) {
-            teleports.add(action("area." + area, "teleport_hint", () -> send("teleport", string("area", area))));
+        Rect content = new Rect(r.x, r.y + 72, r.w, Math.max(1, r.h - 72));
+        Rect list = wide ? new Rect(content.x, content.y, content.w * 2 / 5, content.h) : content;
+        if (wide || !roleDetail) {
+            List<CompoundTag> filtered = roles.stream().filter(entry -> (team.equals("all") || team.equals(entry.getString("team")))
+                    && contains(query(searchId), roleName(entry.getString("id")).getString(), entry.getString("id"), entry.getString("name"))).toList();
+            int capacity = Math.max(1, (list.h - 24) / 24);
+            int start = page(searchId, filtered.size(), capacity) * capacity;
+            for (int i = start; i < Math.min(filtered.size(), start + capacity); i++) {
+                CompoundTag entry = filtered.get(i); String id = entry.getString("id");
+                select("role" + id, new Rect(list.x, list.y + (i - start) * 24, list.w, 20), () -> roleName(id), roleTooltip(entry),
+                        () -> selectedRole.equals(id), () -> { selectedRole = id; roleDetail = true; rebuild = true; });
+            }
+            empty(list, filtered.size(), false);
+            pager(searchId, new Rect(list.x, list.bottom() - 20, list.w, 20), filtered.size(), capacity);
         }
-        r = cluster(r, null, teleports.toArray(Cell[]::new));
-        r = section(r, P + ".maintenance");
-        r = cluster(r, null,
-                action("cooldown", "cooldown_hint", () -> send("cooldown")),
-                action("cleanup", "cleanup_hint", () -> send("cleanup")));
-        r = cluster(r, null,
-                action("reset", "reset_hint", () -> confirm("reset_confirm", () -> send("reset"))),
-                action(tr("rebuild"), tr(TrainingClient.isDedicated() ? "server_rebuild" : "rebuild_hint"),
-                        () -> !TrainingClient.isDedicated(), () -> TrainingWorldLauncher.rebuild(this)));
-        note(r, P + (TrainingClient.isDedicated() ? ".server_rebuild" : ".rebuild_hint"), SREPanelStyle.MUTED, 12);
+        if (wide || roleDetail) {
+            Rect detail = wide ? new Rect(list.right() + 8, content.y, content.w - list.w - 8, content.h) : content;
+            // 窄屏详情让出顶部搜索与筛选占用的空间，避免简介只剩一行。
+            if (!wide) detail = new Rect(r.x, r.y, r.w, r.h);
+            buildRoleDetail(detail, picking, !wide);
+        }
     }
 
-    private int settingToggle(int r, String field) {
-        int next = toggle(r, P + "." + field, draft.getBoolean(field), value -> {
-            draft.putBoolean(field, value);
-            dirty = true;
-        });
-        // toggle() 内部同样经由 cell() 注册，最后一枚即本次设置控件。
-        if (!contentControls.isEmpty()) guard(contentControls.getLast(), () -> true);
-        return next;
+    private void buildRoleDetail(Rect r, boolean picking, boolean narrow) {
+        cards.add(r);
+        int y = r.y + 4;
+        if (narrow) {
+            button("roleList", new Rect(r.x + 4, y, r.w - 8, 20), () -> tr("back_to_list"), null, () -> true,
+                    () -> { roleDetail = false; rebuild = true; }, false);
+            y += 24;
+        }
+        CompoundTag entry = role(selectedRole);
+        if (entry == null) { label(new Rect(r.x + 8, y + 4, r.w - 16, 14), () -> tr("select_role"), SREPanelStyle.MUTED); return; }
+        Component name = roleName(selectedRole);
+        label(new Rect(r.x + 8, y + 3, r.w - 16, 12), () -> name, teamColor(entry.getString("team")));
+        y += 16;
+        button("applyRole", new Rect(r.x + 4, y, r.w - 8, 20), () -> tr(picking ? "use_role" : "apply_role"), roleTooltip(entry),
+                () -> !picking || !picker.equals("bot") || bot(selectedSlot) != null && !bot(selectedSlot).getBoolean("pending"), () -> {
+                    if (!picking) send("role", string("id", selectedRole));
+                    else {
+                        boolean sent = picker.equals("batch") ? configure(string("enemyRole", selectedRole))
+                                : botConfigure(string("role", selectedRole));
+                        if (sent) { picker = ""; roleDetail = false; rebuild = true; }
+                    }
+                }, true);
+        y += 24;
+        Component description = Component.translatable(entry.getString("description").isBlank() ? P + "no_description" : entry.getString("description"));
+        if (entry.getBoolean("restricted")) description = tr("restricted_hint").append("\n\n").append(description);
+        if (r.bottom() - y >= 12) {
+            String key = "description:" + selectedRole;
+            ScrollText text = new ScrollText(new Rect(r.x + 8, y, r.w - 16, r.bottom() - y - 4), description, key);
+            add(key, text);
+        }
     }
 
-    private int numeric(int r, String label, String value, int min, int max, Consumer<String> setter) {
-        EditBox box = editBox(value, 2, 64, SREPanelStyle.hint(tr("number_hint", min, max)), v -> {
-            setter.accept(v);
-            dirty = true;
-        });
-        box.setFilter(v -> v.matches("[0-9]{0,2}"));
-        box.setTextColor(validNumber(value, min, max) ? SREPanelStyle.TEXT : SREPanelStyle.RED);
-        guard(box, () -> true);
-        numbers.add(new NumericControl(box, min, max));
-        r = cluster(r, P + "." + label, cell(box, 64, 100, 1F), tag(tr("bounds", min, max)));
-        if (!validNumber(value, min, max)) r = note(r, tr("number_hint", min, max), SREPanelStyle.RED);
-        return r;
+    private void buildEnemies(Rect r) {
+        boolean narrowDetail = (r.w < 560 || r.h < 212) && enemyTab == 1 && botDetail && bot(selectedSlot) != null;
+        int y = r.y;
+        if (!narrowDetail) {
+            Rect count = new Rect(r.x, y, r.w, 20);
+            if (enemyTab == 1) search("bots", count);
+            else {
+                int[] presets = {0, 1, 5, 10, 32};
+                button("countMinus", cell(count, 0, 8), () -> Component.literal("−"), tr("enemy_count"), () -> settings().getInt("enemyCount") > 0,
+                        () -> configure(integer("enemyCount", settings().getInt("enemyCount") - 1)), true);
+                button("countValue", cell(count, 1, 8), () -> tr("count_value", settings().getInt("enemyCount")), tr("number_hint", 0, 32), () -> false, () -> {}, false);
+                button("countPlus", cell(count, 2, 8), () -> Component.literal("+"), tr("enemy_count"), () -> settings().getInt("enemyCount") < 32,
+                        () -> configure(integer("enemyCount", settings().getInt("enemyCount") + 1)), true);
+                for (int i = 0; i < presets.length; i++) {
+                    int value = presets[i];
+                    button("preset" + value, cell(count, i + 3, 8), () -> Component.literal(Integer.toString(value)), tr("count_preset", value),
+                            () -> settings().getInt("enemyCount") != value, () -> configure(integer("enemyCount", value)), true);
+                }
+            }
+            y += 24;
+            Rect quick = new Rect(r.x, y, r.w, 20);
+            toggle("paused", cell(quick, 0, 3)); toggle("autoRespawn", cell(quick, 1, 3));
+            action("reviveAll", cell(quick, 2, 3), "revive_all", "revive_all_hint", () -> send("revive_bots"));
+            y += 24;
+        }
+        Rect nav = new Rect(r.x, y, r.w, 20);
+        select("batchTab", cell(nav, 0, 2), () -> tr("batch"), tr("batch_hint"), () -> enemyTab == 0,
+                () -> { enemyTab = 0; botDetail = false; rebuild = true; });
+        select("rosterTab", cell(nav, 1, 2), () -> tr(narrowDetail ? "back_to_list" : "roster"), tr("ai_hint"), () -> enemyTab == 1,
+                () -> { enemyTab = 1; botDetail = false; rebuild = true; });
+        Rect content = new Rect(r.x, y + 24, r.w, Math.max(1, r.bottom() - y - 24));
+        if (enemyTab == 0) {
+            List<FormRow> rows = new ArrayList<>();
+            rows.add(new FormRow("enemyRole", tr("batch_hint"), () -> tr("field_value", tr("enemy_role"), roleName(settings().getString("enemyRole"))), () -> openPicker("batch")));
+            rows.add(choiceRow("behavior", "behavior", BEHAVIORS, false));
+            rows.add(choiceRow("equipment", "equipment", EQUIPMENT, false));
+            rows.add(choiceRow("area", "area", AREAS, false));
+            form("batch", content, rows);
+        } else buildRoster(content, narrowDetail);
     }
 
-    private int choice(int r, String label, CompoundTag target, String field, String[] values, boolean batch) {
-        SreButton button = new SreButton(font, tr(label + "." + target.getString(field)), b -> {
-            String old = target.getString(field);
+    private void buildRoster(Rect r, boolean narrowDetail) {
+        boolean wide = !narrowDetail && r.w >= 560 && r.h >= 140;
+        Rect list = wide ? new Rect(r.x, r.y, r.w * 2 / 5, r.h) : r;
+        if (!narrowDetail) {
+            List<CompoundTag> bots = new ArrayList<>();
+            for (Tag value : state.getList("bots", Tag.TAG_COMPOUND)) {
+                CompoundTag entry = (CompoundTag) value;
+                if (contains(query("bots"), botLabel(entry).getString(), entry.getString("name"), entry.getString("uuid"),
+                        Integer.toString(entry.getInt("slot") + 1))) bots.add(entry);
+            }
+            int capacity = Math.max(1, (list.h - 24) / 24), start = page("bots", bots.size(), capacity) * capacity;
+            for (int i = start; i < Math.min(bots.size(), start + capacity); i++) {
+                int slot = bots.get(i).getInt("slot");
+                select("bot" + slot, new Rect(list.x, list.y + (i - start) * 24, list.w, 20), () -> botLabel(bot(slot)), null,
+                        () -> selectedSlot == slot, () -> { selectedSlot = slot; botDetail = true; rebuild = true; });
+                SreButton row = (SreButton) keyed.get("bot" + slot);
+                bindings.add(() -> row.setTooltipText(botTooltip(bot(slot))));
+            }
+            empty(list, bots.size(), true);
+            pager("bots", new Rect(list.x, list.bottom() - 20, list.w, 20), bots.size(), capacity);
+        }
+        if (wide || narrowDetail) {
+            Rect detail = wide ? new Rect(list.right() + 8, r.y, r.w - list.w - 8, r.h) : r;
+            buildBotDetail(detail);
+        }
+    }
+
+    private void buildBotDetail(Rect r) {
+        cards.add(r);
+        if (bot(selectedSlot) == null) { label(r, () -> tr("select_bot"), SREPanelStyle.MUTED); return; }
+        Rect heading = new Rect(r.x + 4, r.y + 3, r.w - 8, 12);
+        label(heading, () -> botLabel(bot(selectedSlot)), SREPanelStyle.GOLD);
+        Rect actions = new Rect(r.x + 4, r.y + 18, r.w - 8, 20);
+        button("revive", cell(actions, 0, 3), () -> tr("revive"), tr("revive_hint"),
+                () -> botReady() && !bot(selectedSlot).getBoolean("alive"), () -> botAction("revive", new CompoundTag()), true);
+        button("retry", cell(actions, 1, 3), () -> tr("retry"), tr("retry_hint"),
+                () -> botReady() && !bot(selectedSlot).getString("error").isBlank(), () -> botAction("retry", new CompoundTag()), true);
+        button("remove", cell(actions, 2, 3), () -> tr("remove"), tr("remove_hint"), () -> bot(selectedSlot) != null,
+                () -> botAction("remove", new CompoundTag()), true);
+        List<FormRow> rows = new ArrayList<>();
+        rows.add(new FormRow("botRole", tr("choose_role_hint"), () -> tr("field_value", tr("enemy_role"), roleName(botString("role"))), () -> openPicker("bot")));
+        rows.add(choiceRow("behavior", "behavior", BEHAVIORS, true));
+        rows.add(choiceRow("equipment", "equipment", EQUIPMENT, true));
+        Rect fields = new Rect(r.x + 4, r.y + 42, r.w - 8, Math.max(1, r.h - 46));
+        form("botFields", fields, rows);
+        // 错误全文也在假人短名的 tooltip；不把 UUID 或内部账号放进布局轨道。
+    }
+
+    private FormRow choiceRow(String label, String field, String[] values, boolean single) {
+        return new FormRow((single ? "bot" : "batch") + field, tr(single ? "instant_hint" : "batch_hint"),
+                () -> tr("field_value", tr(label), tr(label + "." + (single ? botString(field) : settings().getString(field)))), () -> {
+            String current = single ? botString(field) : settings().getString(field);
             int index = 0;
-            for (int i = 0; i < values.length; i++) if (values[i].equals(old)) index = i;
-            target.putString(field, values[(index + 1) % values.length]);
-            if (batch) dirty = true;
-            else botEdited = true;
-            b.setMessage(tr(label + "." + target.getString(field)));
+            for (int i = 0; i < values.length; i++) if (values[i].equals(current)) index = i;
+            CompoundTag change = string(field, values[(index + 1) % values.length]);
+            if (single) botConfigure(change); else configure(change);
         });
-        button.setTooltipText(tr("cycle_hint"));
-        guard(button, () -> true);
-        return cluster(r, P + "." + label, cell(button, 100, 0, 1F));
     }
 
-    private void applyBatch() {
-        if (!validDraft()) return;
-        CompoundTag data = new CompoundTag();
-        for (String key : new String[]{"enemyCount", "enemyRole", "behavior", "equipment", "area"}) data.put(key, draft.get(key).copy());
-        configure(data);
+    private void openPicker(String target) {
+        if (!TrainingClient.hasCatalogue()) { localMessage = "loading"; return; }
+        picker = target; selectedRole = target.equals("batch") ? settings().getString("enemyRole") : botString("role");
+        roleDetail = false; rebuild = true;
     }
 
-    @Override protected void onSave() {
-        if (!dirty || !validDraft()) return;
-        CompoundTag changes = new CompoundTag();
-        CompoundTag actual = state.getCompound("settings");
-        for (String key : draft.getAllKeys()) {
-            if (!draft.get(key).equals(actual.get(key))) changes.put(key, draft.get(key).copy());
+    private void buildSettings(Rect r) {
+        String[] sections = {"session_settings", "teleports", "maintenance"};
+        Rect nav = new Rect(r.x, r.y, r.w, 20);
+        for (int i = 0; i < sections.length; i++) {
+            int index = i;
+            select("settingsTab" + i, cell(nav, i, 3), () -> tr(sections[index]), null, () -> settingsTab == index,
+                    () -> { settingsTab = index; rebuild = true; });
         }
-        // 仅提交改变的字段：暂停 AI 不应顺带覆盖逐个假人的职业设置。
-        if (changes.isEmpty()) { dirty = false; requestRebuild(); }
-        else configure(changes);
-    }
-
-    private void configure(CompoundTag settings) {
-        send("configure", settings);
-    }
-
-    private void discardDraft() {
-        readDraft();
-        requestRebuild();
-    }
-
-    @Override protected void onOpenManage() {
-        CompoundTag data = new CompoundTag();
-        data.putBoolean("full", true);
-        send("snapshot", data);
-    }
-
-    private void botAction(String operation) {
-        CompoundTag data = botDraft.copy();
-        data.putInt("slot", selectedSlot);
-        data.putString("operation", operation);
-        send("bot", data);
-    }
-
-    private void send(String action) { send(action, new CompoundTag()); }
-
-    private boolean send(String action, CompoundTag data) {
-        if (awaiting) return false;
-        if (!TrainingClient.send(action, data)) {
-            localMessage = "unavailable";
-            return false;
+        Rect content = new Rect(r.x, r.y + 24, r.w, Math.max(1, r.h - 24));
+        if (settingsTab == 0) {
+            List<FormRow> rows = new ArrayList<>();
+            for (String field : new String[]{"unlimitedStamina", "speedBoost", "noCooldown", "paused", "autoRespawn", "friendlyFirePenalty"})
+                rows.add(new FormRow("toggle:" + field, tr(toggleHint(field)), () -> tr(field), () -> {}));
+            rows.add(new FormRow("delay", tr("number_hint", 1, 30), () -> tr("delay_value", settings().getInt("respawnDelay")), () -> {}));
+            form("rules", content, rows);
+        } else {
+            List<FormRow> rows = new ArrayList<>();
+            if (settingsTab == 1) {
+                for (String area : new String[]{"lobby", "range", "arena", "train"})
+                    rows.add(new FormRow("area" + area, tr("teleport_hint"), () -> tr("area." + area), () -> send("teleport", string("area", area))));
+            } else {
+                rows.add(new FormRow("cleanup", tr("cleanup_hint"), () -> tr("cleanup"), () -> send("cleanup")));
+                rows.add(new FormRow("reset", tr("reset_hint"), () -> tr("reset"), () -> confirm("reset_confirm", () -> send("reset"))));
+                rows.add(new FormRow("rebuild", tr(TrainingClient.isDedicated() ? "server_rebuild" : "rebuild_hint"), () -> tr("rebuild"),
+                        () -> { if (!TrainingClient.isDedicated()) TrainingWorldLauncher.rebuild(this); }));
+            }
+            form("settings" + settingsTab, content, rows);
         }
-        awaiting = true;
-        sentAt = Util.getMillis();
-        localMessage = "waiting";
-        updateControls();
-        return true;
+    }
+
+    /** 固定轨道分页：最小 GUI 高度也不会把配置按钮推到页脚或依靠裁剪掩盖重叠。 */
+    private void form(String id, Rect r, List<FormRow> rows) {
+        int columns = r.w >= 480 ? 2 : 1;
+        int fullCapacity = Math.max(1, r.h / 24) * columns;
+        boolean paginate = rows.size() > fullCapacity;
+        int capacity = paginate ? Math.max(1, (r.h - 24) / 24) * columns : fullCapacity;
+        int start = page(id, rows.size(), capacity) * capacity;
+        for (int i = start; i < Math.min(rows.size(), start + capacity); i++) {
+            FormRow row = rows.get(i); int local = i - start;
+            Rect pos = cell(new Rect(r.x, r.y + (local / columns) * 24, r.w, 20), local % columns, columns);
+            if (row.id.startsWith("toggle:")) toggle(row.id.substring(7), pos);
+            else if (row.id.equals("delay")) {
+                button("delayMinus", new Rect(pos.x, pos.y, 24, 20), () -> Component.literal("−"), row.hint,
+                        () -> settings().getInt("respawnDelay") > 1, () -> configure(integer("respawnDelay", settings().getInt("respawnDelay") - 1)), true);
+                button("delayValue", new Rect(pos.x + 28, pos.y, pos.w - 56, 20), row.text, row.hint, () -> false, () -> {}, false);
+                button("delayPlus", new Rect(pos.right() - 24, pos.y, 24, 20), () -> Component.literal("+"), row.hint,
+                        () -> settings().getInt("respawnDelay") < 30, () -> configure(integer("respawnDelay", settings().getInt("respawnDelay") + 1)), true);
+            } else button(row.id, pos, row.text, row.hint,
+                    () -> (!row.id.equals("rebuild") || !TrainingClient.isDedicated()) && (!id.equals("botFields") || botReady()), row.run, true);
+        }
+        if (paginate) pager(id, new Rect(r.x, r.bottom() - 20, r.w, 20), rows.size(), capacity);
+    }
+
+    private static String toggleHint(String field) {
+        if (field.equals("noCooldown")) return "no_cooldown_hint";
+        return field.equals("unlimitedStamina") || field.equals("speedBoost") ? "self_effects_hint" : "instant_hint";
+    }
+
+    private void toggle(String field, Rect r) {
+        SreSwitchButton widget = new SreSwitchButton(font, tr(field), () -> SwitchState.of(settings().getBoolean(field)), null,
+                b -> { CompoundTag data = new CompoundTag(); data.putBoolean(field, !settings().getBoolean(field)); configure(data); });
+        widget.setTooltipText(tr(toggleHint(field)));
+        widget.at(r.x, r.y, r.w, r.h);
+        add("toggle" + field, widget);
+        bindings.add(() -> widget.active = canAct());
+    }
+
+    private void search(String id, Rect r) {
+        EditBox box = searches.get(id);
+        if (box == null) {
+            box = new EditBox(font, r.x, r.y, r.w, r.h, tr("search"));
+            box.setMaxLength(256);
+            box.setTextColor(SREPanelStyle.TEXT);
+            box.setResponder(value -> { pages.put(id, 0); rebuild = true; });
+            searches.put(id, box);
+        }
+        box.setX(r.x); box.setY(r.y); box.setWidth(r.w); box.setHeight(r.h);
+        box.setHint(SREPanelStyle.hint(Component.literal(MapUiGraphics.clip(font, tr("search_hint").getString(), r.w - 12))));
+        box.setTooltip(Tooltip.create(tr("search_hint")));
+        add("search" + id, box);
+    }
+
+    private void filter(Rect r, String prefix, String[] values, Supplier<String> value, java.util.function.Consumer<String> change) {
+        for (int i = 0; i < values.length; i++) {
+            String option = values[i];
+            select("filter" + option, cell(r, i, values.length), () -> tr(prefix + "." + option), null,
+                    () -> value.get().equals(option), () -> change.accept(option));
+        }
+    }
+
+    private int page(String id, int count, int capacity) {
+        int result = Math.max(0, Math.min(pages.getOrDefault(id, 0), Math.max(0, (count - 1) / capacity)));
+        pages.put(id, result); return result;
+    }
+
+    private void pager(String id, Rect r, int count, int capacity) {
+        int total = Math.max(1, (count + capacity - 1) / capacity), current = page(id, count, capacity);
+        pagers.put(id, new Pager(new Rect(r.x, body.y, r.w, r.bottom() - body.y), count, capacity));
+        button("prev" + id, new Rect(r.x, r.y, 32, 20), () -> Component.literal("‹"), tr("previous_page"), () -> current > 0,
+                () -> { pages.put(id, current - 1); rebuild = true; }, false);
+        label(new Rect(r.x + 36, r.y + 6, r.w - 72, 12), () -> tr("page", current + 1, total, count), SREPanelStyle.MUTED);
+        button("next" + id, new Rect(r.right() - 32, r.y, 32, 20), () -> Component.literal("›"), tr("next_page"), () -> current + 1 < total,
+                () -> { pages.put(id, current + 1); rebuild = true; }, false);
+    }
+
+    private void empty(Rect r, int count, boolean bots) {
+        if (count != 0) return;
+        label(new Rect(r.x + 4, r.y + 5, r.w - 8, Math.max(12, r.h - 28)),
+                () -> tr(bots && state.getList("bots", Tag.TAG_COMPOUND).isEmpty() ? "no_bots" : TrainingClient.hasCatalogue() ? "empty" : "loading"), SREPanelStyle.MUTED);
+    }
+
+    private void action(String id, Rect r, String name, String hint, Runnable run) {
+        button(id, r, () -> tr(name), tr(hint), () -> true, run, true);
+    }
+
+    private void button(String id, Rect r, Supplier<Component> text, Component hint, BooleanSupplier enabled, Runnable run, boolean authority) {
+        SreButton widget = new FocusButton(text.get(), run, () -> false);
+        widget.setX(r.x); widget.setY(r.y); widget.setWidth(Math.max(1, r.w)); widget.setHeight(Math.max(1, r.h));
+        widget.setTooltipText(hint);
+        add(id, widget);
+        bindings.add(() -> {
+            Component value = text.get();
+            if (!widget.getMessage().equals(value)) widget.setMessage(value);
+            widget.active = enabled.getAsBoolean() && (!authority || canAct());
+        });
+    }
+
+    private void select(String id, Rect r, Supplier<Component> text, Component hint, BooleanSupplier selected, Runnable run) {
+        FocusButton widget = new FocusButton(text.get(), run, selected);
+        widget.setX(r.x); widget.setY(r.y); widget.setWidth(Math.max(1, r.w)); widget.setHeight(Math.max(1, r.h));
+        widget.setTooltipText(hint); add(id, widget);
+        bindings.add(() -> { Component value = text.get(); if (!widget.getMessage().equals(value)) widget.setMessage(value); });
+    }
+
+    private <T extends AbstractWidget> T add(String id, T widget) { keyed.put(id, widget); return addRenderableWidget(widget); }
+    private void label(Rect r, Supplier<Component> text, int color) { labels.add(new Label(r, text, color)); }
+    private void updateBindings() { for (Runnable binding : bindings) binding.run(); }
+    private boolean canAct() { return TrainingClient.isTraining() && !awaiting && !uncertain && !TrainingWorldLauncher.isBusy(); }
+    private boolean botReady() { CompoundTag bot = bot(selectedSlot); return bot != null && !bot.getBoolean("pending"); }
+    private String botString(String field) { CompoundTag bot = bot(selectedSlot); return bot == null ? "" : bot.getString(field); }
+    private CompoundTag settings() { return state.getCompound("settings"); }
+    private String query(String id) { EditBox box = searches.get(id); return box == null ? "" : box.getValue(); }
+
+    private void refresh() { CompoundTag data = new CompoundTag(); data.putBoolean("full", true); send("snapshot", data); }
+    private boolean configure(CompoundTag change) { return request("configure", change, "settings", change, -1); }
+    private boolean botConfigure(CompoundTag change) { return botAction("configure", change); }
+    private boolean botAction(String operation, CompoundTag change) {
+        CompoundTag data = change.copy(); data.putInt("slot", selectedSlot); data.putString("operation", operation);
+        return request("bot", data, operation.equals("configure") ? "bot" : "", change, selectedSlot);
+    }
+    private boolean send(String action) { return send(action, new CompoundTag()); }
+    private boolean send(String action, CompoundTag data) { return request(action, data, "", new CompoundTag(), -1); }
+    private boolean request(String action, CompoundTag data, String target, CompoundTag changes, int slot) {
+        if (awaiting || uncertain && !action.equals("snapshot")) return false;
+        if (!TrainingClient.send(action, data)) { localMessage = "unavailable"; return false; }
+        awaiting = true; expectedTarget = target; expected = changes.copy(); expectedSlot = slot;
+        sentAt = Util.getMillis(); localMessage = "waiting"; updateBindings(); return true;
     }
 
     private void confirm(String key, Runnable yes) {
         minecraft.setScreen(new ConfirmScreen(result -> {
             minecraft.setScreen(this);
-            if (result && TrainingClient.isTraining()) yes.run();
+            if (result && canAct()) yes.run();
         }, tr("confirm_title"), tr(key)));
     }
 
     @Override public void onClose() {
-        if (dirty || botEdited) {
-            minecraft.setScreen(new ConfirmScreen(result -> {
-                if (result) minecraft.setScreen(TrainingClient.isTraining() ? parent : null);
-                else minecraft.setScreen(this);
-            }, tr("confirm_title"), tr("discard_confirm")));
-        } else minecraft.setScreen(TrainingClient.isTraining() ? parent : null);
+        if (!picker.isEmpty()) {
+            if (roleDetail && (body.w < 560 || body.h < 192)) roleDetail = false;
+            else { picker = ""; roleDetail = false; }
+            rebuild = true; return;
+        }
+        if (tab == 1 && roleDetail && (body.w < 560 || body.h < 192)) { roleDetail = false; rebuild = true; return; }
+        if (tab == 2 && botDetail && (body.w < 560 || body.h < 212)) { botDetail = false; rebuild = true; return; }
+        minecraft.setScreen(TrainingClient.isTraining() ? parent : null);
     }
-
     @Override public boolean isPauseScreen() { return false; }
-
     @Override public void tick() {
-        if (awaiting && Util.getMillis() - sentAt > 10_000L) {
-            awaiting = false;
-            localMessage = "timeout";
-        }
-        updateControls();
-    }
-
-    private void updateControls() {
-        boolean enabled = TrainingClient.isTraining() && !awaiting && !TrainingWorldLauncher.isBusy();
-        for (Control control : guarded) control.widget.active = enabled && control.enabled.getAsBoolean();
-        for (var child : children()) {
-            if (!(child instanceof SreButton button)) continue;
-            if (button.getMessage().equals(tr("save"))) {
-                button.active = enabled && dirty && validDraft();
-                button.setTooltipText(tr(validDraft() ? "save_hint" : "invalid_numbers"));
-            } else if (button.getMessage().equals(tr("manage"))) {
-                button.active = enabled;
-                button.setTooltipText(tr("refresh_hint"));
-            }
-        }
-        for (NumericControl control : numbers) {
-            control.box.setTextColor(validNumber(control.box.getValue(), control.min, control.max) ? SREPanelStyle.TEXT : SREPanelStyle.RED);
-        }
+        if (revision != TrainingClient.revision()) syncState();
+        if (awaiting && Util.getMillis() - sentAt >= 10_000L) { awaiting = false; uncertain = true; localMessage = "timeout"; }
+        updateBindings();
     }
 
     @Override public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        updateControls();
+        if (rebuild) build();
+        updateBindings();
         super.render(g, mouseX, mouseY, partialTick);
-        if (mouseX >= layout().contentX() && mouseX < layout().contentRight()
-                && mouseY >= layout().headerTop() && mouseY < layout().headerBottom()) {
-            g.renderTooltip(font, status().copy().append("\n").append(tr("summary", state.getInt("alive"), state.getInt("pending"), roleName(state.getString("myRole")))), mouseX, mouseY);
+        for (Label label : labels) {
+            int y = label.rect.y;
+            for (FormattedCharSequence line : font.split(label.text.get(), Math.max(1, label.rect.w))) {
+                if (y + font.lineHeight > label.rect.bottom()) break;
+                g.drawString(font, line, label.rect.x, y, label.color, false); y += 11;
+            }
         }
+        Component feedback = status();
+        int color = !TrainingClient.isTraining() || uncertain || localMessage.equals("unavailable") || error(state.getString("message")) || hasBotError()
+                ? SREPanelStyle.RED : awaiting ? SREPanelStyle.GOLD : SREPanelStyle.GREEN;
+        String shown = MapUiGraphics.clip(font, feedback.getString(), panel.w - 24);
+        g.drawString(font, shown, panel.x + 12, panel.bottom() - 15, color, false);
+        if (mouseY >= panel.bottom() - 22 && mouseY <= panel.bottom() && mouseX >= panel.x && mouseX <= panel.right())
+            g.renderTooltip(font, feedback.copy().append("\n").append(tr("summary", state.getInt("alive"), state.getInt("pending"), roleName(state.getString("myRole")))), mouseX, mouseY);
+        for (Label label : labels) if (label.rect.contains(mouseX, mouseY)
+                && font.wordWrapHeight(label.text.get(), Math.max(1, label.rect.w)) > label.rect.h)
+            g.renderTooltip(font, label.text.get(), mouseX, mouseY);
     }
 
     @Override public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        super.renderBackground(g, mouseX, mouseY, partialTick);
-        int y = layout().headerTop() + 1;
-        Component summary = tr("summary", state.getInt("alive"), state.getInt("pending"), roleName(state.getString("myRole")));
-        g.drawString(font, MapUiGraphics.clip(font, summary.getString(), layout().textW()), layout().contentX(), y, SREPanelStyle.MUTED, false);
-        int color = !TrainingClient.isTraining() || !validDraft() || localMessage.equals("timeout") || localMessage.equals("unavailable")
-                || state.getString("message").contains(".error.") ? SREPanelStyle.RED
-                : awaiting || dirty || botEdited ? SREPanelStyle.GOLD : SREPanelStyle.GREEN;
-        g.drawString(font, MapUiGraphics.clip(font, status().getString(), layout().textW()), layout().contentX(), y + 12, color, false);
+        g.fillGradient(0, 0, width, height, SREPanelStyle.SCREEN_BG_TOP, SREPanelStyle.SCREEN_BG_BOTTOM);
+        if (panel == null) return;
+        SREPanelStyle.drawPanel(g, panel.x, panel.y, panel.w, panel.h);
+        g.fill(panel.x + 8, panel.bottom() - 22, panel.right() - 8, panel.bottom() - 21, SREPanelStyle.BORDER);
+        for (Rect card : cards) SREPanelStyle.drawPanel(g, card.x, card.y, card.w, card.h);
     }
 
     private Component status() {
         if (!TrainingClient.isTraining()) return tr("not_training");
-        if (!localMessage.isEmpty()) return tr(localMessage);
-        if (!validDraft()) return tr("invalid_numbers");
+        if (!localMessage.isBlank()) return tr(localMessage);
+        if (hasBotError()) return Component.translatable(botString("error"));
         String message = state.getString("message");
-        if (message.isBlank()) return tr(dirty || botEdited ? "unsaved" : "ready");
-        MutableComponent feedback = Component.translatable(message);
-        return dirty || botEdited ? feedback.append(" · ").append(tr("unsaved")) : feedback;
+        return message.isBlank() ? tr("ready") : Component.translatable(message);
     }
 
-    /** 覆盖编辑器的「仅输入框循环」：Tab 可到达页签、按钮与屏幕外的列表项。 */
     @Override public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (keyCode == GLFW.GLFW_KEY_TAB) {
-            List<AbstractWidget> controls = new ArrayList<>();
-            // 导航栏/页脚优先，长目录不应阻挡切换页签。
-            for (var child : children()) if (child instanceof AbstractWidget w && !contentControls.contains(w) && w.active) controls.add(w);
-            for (AbstractWidget w : contentControls) if (w.active) controls.add(w);
-            if (!controls.isEmpty()) {
-                int current = controls.indexOf(getFocused());
-                int index = current < 0 ? (hasShiftDown() ? controls.size() - 1 : 0)
-                        : Math.floorMod(current + (hasShiftDown() ? -1 : 1), controls.size());
-                AbstractWidget target = controls.get(index);
-                if (contentControls.contains(target)) {
-                    int delta = target.getY() < layout().contentY() ? target.getY() - layout().contentY()
-                            : Math.max(0, target.getBottom() - layout().contentBottom());
-                    if (delta != 0) super.mouseScrolled(layout().contentX() + 1, layout().contentY() + 1, 0, -delta / (double) EditorLayout.ROW_H);
-                }
-                setFocused(target);
-                target.setFocused(true);
-            }
-            return true;
+            List<AbstractWidget> controls = keyed.values().stream().filter(w -> w.active && w.visible).toList();
+            if (controls.isEmpty()) return true;
+            int index = controls.indexOf(getFocused());
+            AbstractWidget next = controls.get(index < 0 ? (hasShiftDown() ? controls.size() - 1 : 0)
+                    : Math.floorMod(index + (hasShiftDown() ? -1 : 1), controls.size()));
+            setFocused(next); next.setFocused(true); return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
-    @Override protected Cell cell(AbstractWidget widget, int minWidth, int maxWidth, float weight) {
-        contentControls.add(widget);
-        return super.cell(widget, minWidth, maxWidth, weight);
+    private boolean hasBotError() { return tab == 2 && picker.isEmpty() && enemyTab == 1 && !botString("error").isBlank(); }
+
+    @Override public boolean mouseScrolled(double mx, double my, double horizontal, double vertical) {
+        if (super.mouseScrolled(mx, my, horizontal, vertical)) return true;
+        if (vertical == 0) return false;
+        for (var entry : pagers.entrySet()) if (entry.getValue().rect.contains(mx, my)) {
+            Pager pager = entry.getValue();
+            int current = page(entry.getKey(), pager.count, pager.capacity);
+            int next = Math.max(0, Math.min(current + (vertical > 0 ? -1 : 1), Math.max(0, (pager.count - 1) / pager.capacity)));
+            if (current != next) { pages.put(entry.getKey(), next); rebuild = true; }
+            return true;
+        }
+        return false;
     }
 
-    private Cell action(String label, String hint, Runnable run) { return action(label, hint, run, () -> true); }
-    private Cell action(String label, String hint, Runnable run, BooleanSupplier enabled) { return action(tr(label), tr(hint), enabled, run); }
-    private Cell action(Component label, Component hint, BooleanSupplier enabled, Runnable run) {
-        SreButton button = new SreButton(font, label, b -> run.run());
-        button.setTooltipText(hint);
-        guard(button, enabled);
-        return cell(button, Math.min(140, Math.max(64, font.width(label) + 12)), 0, 1F);
-    }
-
-    private Cell selection(Component label, Component hint, boolean selected, Runnable run) {
-        SelectionButton button = new SelectionButton(label, selected, run);
-        button.setTooltipText(hint);
-        return cell(button, 100, 0, 1F);
-    }
-
-    private void guard(AbstractWidget widget, BooleanSupplier enabled) { guarded.add(new Control(widget, enabled)); }
-    private boolean validDraft() { return validNumber(countText, 0, 32) && validNumber(delayText, 1, 30); }
-    private static boolean validNumber(String value, int min, int max) {
-        try { int n = Integer.parseInt(value); return n >= min && n <= max; }
-        catch (NumberFormatException e) { return false; }
-    }
-    private void empty(int r, int count) {
-        if (count == 0) note(r, P + (TrainingClient.hasCatalogue() ? ".empty" : ".loading"), SREPanelStyle.MUTED, 8);
-    }
-    private boolean matchesRole(CompoundTag entry) {
-        return (team.equals("all") || team.equals(entry.getString("team")))
-                && contains(roleSearch, roleName(entry.getString("id")).getString(), entry.getString("id"), entry.getString("name"));
+    private Component itemTooltip(CatalogueItem item) {
+        MutableComponent tip = item.name.copy().append("\n").append(item.key);
+        if (item.stack.isEmpty()) tip.append("\n").append(tr("invalid_item"));
+        else for (Component line : Screen.getTooltipFromItem(minecraft, item.stack)) tip.append("\n").append(line);
+        return tip;
     }
     private CompoundTag role(String id) { return roles.stream().filter(r -> r.getString("id").equals(id)).findFirst().orElse(null); }
     private CompoundTag bot(int slot) {
-        for (Tag tag : state.getList("bots", Tag.TAG_COMPOUND)) if (((CompoundTag) tag).getInt("slot") == slot) return (CompoundTag) tag;
+        for (Tag value : state.getList("bots", Tag.TAG_COMPOUND)) if (((CompoundTag) value).getInt("slot") == slot) return (CompoundTag) value;
         return null;
     }
     private Component roleName(String id) {
         var registered = RoleUtils.getRole(id);
         if (registered != null) return registered.getName();
         CompoundTag entry = role(id);
-        return Component.literal(entry == null || entry.getString("name").isBlank() ? id : entry.getString("name"));
-    }
-    private Component roleLabel(CompoundTag entry) {
-        return tr("role_line", roleName(entry.getString("id")), tr("team." + entry.getString("team")),
-                entry.getBoolean("restricted") ? tr("restricted") : Component.empty()).withColor(teamColor(entry.getString("team")));
+        return entry != null && !entry.getString("name").isBlank() ? Component.literal(entry.getString("name")) : tr("unknown_role");
     }
     private Component roleTooltip(CompoundTag entry) {
-        MutableComponent tip = roleLabel(entry).copy().append("\n").append(entry.getString("id"));
-        if (!entry.getString("description").isBlank()) tip.append("\n").append(Component.translatable(entry.getString("description")));
+        MutableComponent tip = roleName(entry.getString("id")).copy().append(" · ").append(tr("team." + entry.getString("team")))
+                .append("\n").append(entry.getString("id"));
         if (entry.getBoolean("restricted")) tip.append("\n").append(tr("restricted_hint"));
         return tip;
     }
     private Component botLabel(CompoundTag entry) {
+        if (entry == null) return tr("select_bot");
         String status = !entry.getString("error").isBlank() ? "failed" : entry.getBoolean("pending") ? "pending" : entry.getBoolean("alive") ? "alive" : "dead";
-        return tr("bot_line", entry.getInt("slot"), entry.getString("name"), tr("bot_status." + status));
+        return tr("bot_short", entry.getInt("slot") + 1, tr("bot_status." + status));
     }
     private Component botTooltip(CompoundTag entry) {
+        if (entry == null) return tr("select_bot");
         MutableComponent tip = botLabel(entry).copy().append("\n").append(roleName(entry.getString("role")))
-                .append("\n").append(tr("behavior." + entry.getString("behavior")))
-                .append(" / ").append(tr("equipment." + entry.getString("equipment")));
+                .append("\n").append(tr("behavior." + entry.getString("behavior"))).append(" / ").append(tr("equipment." + entry.getString("equipment")));
         if (!entry.getString("error").isBlank()) tip.append("\n").append(Component.translatable(entry.getString("error")));
-        return tip;
+        return tip.append("\n").append(entry.getString("name")).append("\n").append(entry.getString("uuid"));
     }
-    private static int teamColor(String team) {
-        return switch (team) { case "killer" -> 0xFFCC2233; case "innocent" -> 0xFF44BB66; case "sheriff" -> 0xFF22BBCC; default -> 0xFFCCAA22; };
+    private static boolean matches(CompoundTag actual, CompoundTag expected) {
+        if (actual == null) return false;
+        for (String key : expected.getAllKeys()) if (!expected.get(key).equals(actual.get(key))) return false;
+        return true;
     }
+    private static boolean error(String message) { return message.contains(".error.") || message.startsWith("training.error."); }
     private static boolean contains(String search, String... values) {
         String query = search.strip().toLowerCase(Locale.ROOT);
         for (String value : values) if (value.toLowerCase(Locale.ROOT).contains(query)) return true;
         return false;
     }
-    private static CompoundTag botConfiguration(CompoundTag bot) {
-        CompoundTag config = new CompoundTag();
-        for (String field : new String[]{"role", "behavior", "equipment"}) config.putString(field, bot.getString(field));
-        return config;
+    private static int teamColor(String team) {
+        return switch (team) { case "killer" -> 0xFFCC2233; case "innocent" -> 0xFF44BB66; case "sheriff" -> 0xFF22BBCC; default -> 0xFFCCAA22; };
     }
-    private record NumericControl(EditBox box, int min, int max) { }
     private static CompoundTag string(String key, String value) { CompoundTag tag = new CompoundTag(); tag.putString(key, value); return tag; }
-    private static MutableComponent tr(String key, Object... args) { return Component.translatable(P + "." + key, args); }
-
+    private static CompoundTag integer(String key, int value) { CompoundTag tag = new CompoundTag(); tag.putInt(key, value); return tag; }
+    private static MutableComponent tr(String key, Object... args) { return Component.translatable(P + key, args); }
+    private static Rect cell(Rect row, int i, int count) {
+        int start = row.w * i / count, end = row.w * (i + 1) / count;
+        return new Rect(row.x + start, row.y, Math.max(1, end - start - (i + 1 == count ? 0 : 4)), row.h);
+    }
+    private record Rect(int x, int y, int w, int h) {
+        int right() { return x + w; } int bottom() { return y + h; }
+        boolean contains(double mx, double my) { return mx >= x && mx < right() && my >= y && my < bottom(); }
+    }
+    private record Pager(Rect rect, int count, int capacity) { }
     private record CatalogueItem(String key, String category, ItemStack stack, Component name) { }
-    private record Control(AbstractWidget widget, BooleanSupplier enabled) { }
+    private record FormRow(String id, Component hint, Supplier<Component> text, Runnable run) { }
+    private record Label(Rect rect, Supplier<Component> text, int color) { }
 
-    private final class SelectionButton extends SreButton {
-        private final boolean selected;
-        SelectionButton(Component label, boolean selected, Runnable run) {
-            super(TrainingScreen.this.font, label, b -> run.run());
-            this.selected = selected;
+    private final class FocusButton extends SreButton {
+        private final BooleanSupplier selected;
+        FocusButton(Component text, Runnable run, BooleanSupplier selected) {
+            super(TrainingScreen.this.font, text, b -> run.run()); this.selected = selected;
         }
-        @Override protected void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-            super.renderWidget(g, mouseX, mouseY, partialTick);
-            if (selected || isFocused()) g.renderOutline(getX(), getY(), getWidth(), getHeight(), SREPanelStyle.GOLD);
-            if (selected) g.fill(getX() + 1, getY() + 1, getX() + 3, getBottom() - 1, SREPanelStyle.GOLD);
+        @Override protected void renderWidget(GuiGraphics g, int mx, int my, float delta) {
+            super.renderWidget(g, mx, my, delta);
+            if (isFocused() || selected.getAsBoolean()) g.renderOutline(getX(), getY(), getWidth(), getHeight(), SREPanelStyle.GOLD);
+            if (selected.getAsBoolean()) g.fill(getX() + 1, getBottom() - 3, getRight() - 1, getBottom() - 1, SREPanelStyle.GOLD);
         }
+    }
+
+    /** 简介拥有独立滚动与键盘焦点；快照更新不重建它，也不重置阅读位置。 */
+    private final class ScrollText extends AbstractWidget {
+        private final List<FormattedCharSequence> lines;
+        private final String id;
+        private final int visibleLines;
+        ScrollText(Rect r, Component text, String id) {
+            super(r.x, r.y, r.w, Math.max(12, r.h), text);
+            this.id = id; lines = font.split(text, Math.max(1, r.w - 10)); visibleLines = Math.max(1, getHeight() / 11);
+        }
+        private int offset() { return Math.max(0, Math.min(pages.getOrDefault(id, 0), Math.max(0, lines.size() - visibleLines))); }
+        private void scroll(int delta) { pages.put(id, Math.max(0, Math.min(offset() + delta, Math.max(0, lines.size() - visibleLines)))); }
+        @Override protected void renderWidget(GuiGraphics g, int mx, int my, float partialTick) {
+            g.enableScissor(getX(), getY(), getRight(), getBottom());
+            int start = offset();
+            for (int i = start; i < Math.min(lines.size(), start + visibleLines); i++) g.drawString(font, lines.get(i), getX(), getY() + (i - start) * 11, SREPanelStyle.BODY, false);
+            if (lines.size() > visibleLines) {
+                g.fill(getRight() - 4, getY(), getRight() - 1, getBottom(), SREPanelStyle.SCROLL_TRACK);
+                int thumb = Math.min(getHeight(), Math.max(8, getHeight() * visibleLines / lines.size()));
+                int y = getY() + (getHeight() - thumb) * start / Math.max(1, lines.size() - visibleLines);
+                g.fill(getRight() - 4, y, getRight() - 1, y + thumb, SREPanelStyle.GOLD);
+            }
+            g.disableScissor();
+            if (isFocused()) g.renderOutline(getX() - 1, getY() - 1, getWidth() + 2, getHeight() + 2, SREPanelStyle.GOLD);
+        }
+        @Override public boolean mouseScrolled(double mx, double my, double horizontal, double vertical) { scroll(vertical > 0 ? -3 : 3); return true; }
+        @Override public boolean keyPressed(int key, int scan, int modifiers) {
+            if (key == GLFW.GLFW_KEY_UP || key == GLFW.GLFW_KEY_PAGE_UP) { scroll(key == GLFW.GLFW_KEY_UP ? -1 : -visibleLines); return true; }
+            if (key == GLFW.GLFW_KEY_DOWN || key == GLFW.GLFW_KEY_PAGE_DOWN) { scroll(key == GLFW.GLFW_KEY_DOWN ? 1 : visibleLines); return true; }
+            return super.keyPressed(key, scan, modifiers);
+        }
+        @Override protected void updateWidgetNarration(NarrationElementOutput output) { defaultButtonNarrationText(output); }
     }
 }

@@ -1,0 +1,16 @@
+{
+  "blend": {"func": "add", "srcrgb": "srcalpha", "dstrgb": "1-srcalpha", "srcalpha": "1", "dstalpha": "1-srcalpha"},
+  "vertex": "starrailexpress:settlement_portrait",
+  "fragment": "starrailexpress:settlement_portrait",
+  "attributes": ["Position", "UV0", "Color"],
+  "samplers": [{"name": "Sampler0"}],
+  "uniforms": [
+    {"name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},
+    {"name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},
+    {"name": "ColorModulator", "type": "float", "count": 4, "values": [1,1,1,1]},
+    {"name": "TexelSize", "type": "float", "count": 2, "values": [0.001,0.001]},
+    {"name": "OutlineWidth", "type": "float", "count": 1, "values": [3]},
+    {"name": "Opacity", "type": "float", "count": 1, "values": [1]},
+    {"name": "Shadow", "type": "float", "count": 1, "values": [0]}
+  ]
+}

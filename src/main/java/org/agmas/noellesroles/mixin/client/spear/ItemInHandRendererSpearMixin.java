@@ -138,11 +138,29 @@ public class ItemInHandRendererSpearMixin {
     }
 
     /** 第三人称（其他玩家 / 自己身上的物品）：直刺与举矛姿态。 */
-    @Inject(method = "renderItem(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;ZLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At("HEAD"))
+    @Inject(method = "renderItem(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;ZLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At("HEAD"), cancellable = true)
     private void spear$renderThirdPerson(LivingEntity entity, ItemStack stack, ItemDisplayContext context,
             boolean leftHanded, PoseStack poseStack, MultiBufferSource buffer, int light, CallbackInfo ci) {
         if (!SpearConfig.isSpear(stack) && !(stack.getItem() instanceof BambooSpearItem)) {
             return;
+        }
+        // 攻击实体已经绘制整根竹枪，双视角都不能在手里再画出第二根。
+        if (stack.getItem() instanceof BambooSpearItem && entity instanceof Player player) {
+            boolean inHand = context == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND
+                    || context == ItemDisplayContext.FIRST_PERSON_LEFT_HAND
+                    || context == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND
+                    || context == ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
+            if (inHand) {
+                boolean right = context == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND
+                        || context == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
+                InteractionHand renderedHand = right == (entity.getMainArm() == HumanoidArm.RIGHT)
+                        ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+                BambooSpearEntity active = BambooSpearEntity.getClientActiveSpear(player);
+                if (active != null && active.getAttackHand() == renderedHand) {
+                    ci.cancel();
+                    return;
+                }
+            }
         }
         if (context != ItemDisplayContext.THIRD_PERSON_RIGHT_HAND
                 && context != ItemDisplayContext.THIRD_PERSON_LEFT_HAND) {

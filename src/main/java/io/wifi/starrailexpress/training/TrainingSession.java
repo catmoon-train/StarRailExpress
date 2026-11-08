@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.MapManager;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -41,6 +42,7 @@ public final class TrainingSession {
     private final Path settingsPath;
     private final TrainingCatalogue catalogue = new TrainingCatalogue();
     private final CarpetTrainingBots bots;
+    private final TrainingAssistance assistance = new TrainingAssistance();
     private TrainingSettings settings;
     private boolean dirty;
     private boolean closed;
@@ -149,6 +151,7 @@ public final class TrainingSession {
 
     /** 先执行旧职业移除，再走统一重置和新职业分配，避免旧 RoleData 残留。 */
     public void assign(ServerPlayer player, String id, boolean bot) {
+        if (!bot) assistance.clear(level().getGameTime());
         var game = SREGameWorldComponent.KEY.get(player.level());
         var old = game.getRole(player);
         if (old != null) ModdedRoleRemoved.EVENT.invoker().removeModdedRole(player, old);
@@ -167,25 +170,44 @@ public final class TrainingSession {
         if (!bot) SREPlayerShopComponent.KEY.get(player).setBalance(1000);
         player.getInventory().setChanged();
         player.containerMenu.broadcastChanges();
+        if (!bot) updateAssistance();
     }
 
-    public ServerPlayer revive(ServerPlayer player, int slot) {
-        if (player instanceof carpet.patches.EntityPlayerMPFake old
-                && (player.isRemoved() || server.getPlayerList().getPlayer(player.getUUID()) != player)) {
-            var fake = carpet.patches.EntityPlayerMPFake.respawnFake(server, level(), old.getGameProfile(), old.clientInformation());
-            server.getPlayerList().placeNewPlayer(new carpet.patches.FakeClientConnection(net.minecraft.network.protocol.PacketFlow.SERVERBOUND), fake,
-                    new net.minecraft.server.network.CommonListenerCookie(fake.getGameProfile(), 0, fake.clientInformation(), false));
-            fake.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.STEP_HEIGHT).setBaseValue(0.6D);
-            player = fake;
-        } else if (player.isDeadOrDying()) {
-            player = server.getPlayerList().respawn(player, false, Entity.RemovalReason.KILLED);
-        }
-        Vec3 pos = slot < 0 ? TrainingLayout.get().area("lobby").spawn() : area().botSpawn(slot);
+    /** 复用仍在线的假玩家；与 tmm:game revive 使用同一复活 API，不重新登录。 */
+    void reviveBot(ServerPlayer player, int slot) {
+        if (closed || !authorized() || slot < 0 || slot >= settings.enemyCount || !bots.owns(player)
+                || server.getPlayerList().getPlayer(player.getUUID()) != player || player.isRemoved())
+            throw new IllegalStateException("Cannot revive an unowned or disconnected training bot");
+        Vec3 pos = area().botSpawn(slot);
         move(player, pos, area().yaw());
         GameUtils.revivePlayer(player, pos.x, pos.y, pos.z);
-        assign(player, slot < 0 ? settings.myRole : settings.bot(slot).role, slot >= 0);
-        if (slot < 0) { ownerDeathAt = -1; changed(); }
+        assign(player, settings.bot(slot).role, true);
+        if (!TrainingRules.isAlive(player)) throw new IllegalStateException("Training bot revival did not complete");
+        // 只扫描本营已加载实体；按死者 UUID 删除所有旧尸体，不清理其他人的尸体。
+        List<PlayerBodyEntity> bodies = new ArrayList<>();
+        for (var entity : level().getAllEntities()) {
+            if (entity instanceof PlayerBodyEntity body && player.getUUID().equals(body.getPlayerUuid())) bodies.add(body);
+        }
+        bodies.forEach(Entity::discard);
+    }
+
+    private ServerPlayer reviveOwner(ServerPlayer player) {
+        assistance.clear(level().getGameTime());
+        if (player.isDeadOrDying()) player = server.getPlayerList().respawn(player, false, Entity.RemovalReason.KILLED);
+        var lobby = TrainingLayout.get().area("lobby");
+        Vec3 pos = lobby.spawn();
+        move(player, pos, lobby.yaw());
+        GameUtils.revivePlayer(player, pos.x, pos.y, pos.z);
+        assign(player, settings.myRole, false);
+        ownerDeathAt = -1;
+        changed();
         return player;
+    }
+
+    private void updateAssistance() {
+        var owner = owner();
+        assistance.update(!closed && authorized() && owner != null && owner.serverLevel() == level() ? owner : null,
+                settings, level().getGameTime());
     }
 
     private void move(ServerPlayer player, Vec3 pos, float yaw) {
@@ -198,14 +220,15 @@ public final class TrainingSession {
     public void tick() {
         if (closed) return;
         ServerPlayer owner = owner();
-        if (owner == null) return;
+        if (owner == null) { assistance.clear(level().getGameTime()); return; }
         if (owner.serverLevel() != level() || owner.getY() < 55 || !TrainingLayout.box(TrainingLayout.get().bounds).inflate(8).contains(owner.position()))
             move(owner, TrainingLayout.get().area("lobby").spawn(), 0);
         if (!TrainingRules.isAlive(owner)) {
             if (ownerDeathAt < 0) { ownerDeathAt = level().getGameTime(); changed(); }
             if (settings.autoRespawn && level().getGameTime() - ownerDeathAt >= settings.respawnDelay * 20L)
-                revive(owner, -1);
+                reviveOwner(owner);
         } else ownerDeathAt = -1;
+        updateAssistance();
         bots.tick();
         if (level().getGameTime() - lastCleanup >= 600) { cleanup(false); lastCleanup = level().getGameTime(); }
         if (dirty && level().getGameTime() % 5 == 0) { snapshot(false); dirty = false; }
@@ -236,19 +259,20 @@ public final class TrainingSession {
                 if (key == null || !TMMRoles.ROLES.containsKey(key)) { error("training.sre.error.role"); break; }
                 settings.myRole = id; assign(actor, id, false);
             }
-            case "reset_self" -> { actor = revive(actor, -1); }
+            case "reset_self" -> { actor = reviveOwner(actor); }
             case "heal" -> {
-                if (!TrainingRules.isAlive(actor)) actor = revive(actor, -1);
+                if (!TrainingRules.isAlive(actor)) actor = reviveOwner(actor);
                 actor.setHealth(actor.getMaxHealth()); actor.getFoodData().eat(20, 1);
                 SREPlayerPoisonComponent.KEY.get(actor).clear();
                 SREPlayerMoodComponent.KEY.get(actor).setMood(1.0F);
             }
-            case "money" -> SREPlayerShopComponent.KEY.get(actor).setBalance(1000);
-            case "cooldown" -> {
-                SREAbilityPlayerComponent.KEY.get(actor).resetAllCooldowns();
-                for (var item : new HashSet<>(actor.getCooldowns().cooldowns.keySet())) actor.getCooldowns().removeCooldown(item);
+            case "money" -> {
+                var shop = SREPlayerShopComponent.KEY.get(actor);
+                shop.setBalance(addTrainingCoins(shop.balance));
             }
+            case "cooldown" -> TrainingAssistance.resetCooldowns(actor);
             case "configure" -> configure(data);
+            case "revive_bots" -> bots.reviveAll();
             case "bot" -> {
                 int slot = data.getInt("slot");
                 if (slot < 0 || slot >= settings.enemyCount) return false;
@@ -269,11 +293,16 @@ public final class TrainingSession {
             }
             case "cleanup" -> cleanup(true);
             case "reset" -> {
-                bots.reset(); cleanup(true); revive(actor, -1); bots.reconcile();
+                bots.reset(); cleanup(true); reviveOwner(actor); bots.reconcile();
             }
             default -> { return false; }
         }
         save(); changed(); return true;
+    }
+
+    /** 训练金币只累加，不把较高余额重设为初始值；饱和加法避免整数溢出。 */
+    static int addTrainingCoins(int balance) {
+        return (int) Math.min(Integer.MAX_VALUE, (long) balance + 1000L);
     }
 
     private void configure(CompoundTag data) {
@@ -288,6 +317,10 @@ public final class TrainingSession {
         if (data.contains("autoRespawn")) settings.autoRespawn = data.getBoolean("autoRespawn");
         if (data.contains("respawnDelay")) settings.respawnDelay = data.getInt("respawnDelay");
         if (data.contains("friendlyFirePenalty")) settings.friendlyFirePenalty = data.getBoolean("friendlyFirePenalty");
+        if (data.contains("unlimitedStamina")) settings.unlimitedStamina = data.getBoolean("unlimitedStamina");
+        if (data.contains("speedBoost")) settings.speedBoost = data.getBoolean("speedBoost");
+        if (data.contains("noCooldown")) settings.noCooldown = data.getBoolean("noCooldown");
+        updateAssistance();
         settings.normalize();
         if (batch) settings.overrides.clear();
         bots.reconcile();
@@ -320,6 +353,8 @@ public final class TrainingSession {
         t.putString("behavior", settings.behavior); t.putString("equipment", settings.equipment); t.putString("area", settings.area);
         t.putBoolean("paused", settings.paused); t.putBoolean("autoRespawn", settings.autoRespawn);
         t.putInt("respawnDelay", settings.respawnDelay); t.putBoolean("friendlyFirePenalty", settings.friendlyFirePenalty);
+        t.putBoolean("unlimitedStamina", settings.unlimitedStamina); t.putBoolean("speedBoost", settings.speedBoost);
+        t.putBoolean("noCooldown", settings.noCooldown);
         return t;
     }
     public void snapshot(boolean full) {
@@ -337,6 +372,7 @@ public final class TrainingSession {
     public void close() {
         if (closed) return;
         save(); bots.close();
+        assistance.clear(level().getGameTime());
         if (lastOwner != null) clearRole(lastOwner);
         if (dedicated) cleanupCampEntities(); else cleanup(true);
         SREGameWorldComponent.KEY.get(level()).setGameStatus(SREGameWorldComponent.GameStatus.INACTIVE);

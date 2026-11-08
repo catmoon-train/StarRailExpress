@@ -55,7 +55,14 @@ public final class SettlementClient {
     static final List<ActorState> actors = new ArrayList<>();
     static final Map<UUID, ActorState> byId = new LinkedHashMap<>();
     private static SettlementPhysics physics = new SettlementPhysics();
-    private static double castHalfWidth = 1;
+    private static List<SettlementPresentation.Cue> cues = List.of();
+    private static SettlementPresentation.Bounds castBounds;
+    private static Vec3 smoothLook;
+    private static double smoothFov = 46, smoothRoll;
+    private static int layoutWidth, layoutHeight, layoutEvent = -2;
+    private static boolean layoutHero;
+    private static SettlementPresentation.Layout cachedLayout;
+    private static List<net.minecraft.util.FormattedCharSequence> captionLines = List.of();
     private static boolean registered;
 
     private SettlementClient() { }
@@ -80,6 +87,7 @@ public final class SettlementClient {
         });
         WorldRenderEvents.AFTER_ENTITIES.register(SettlementStageRenderer::render);
         SettlementPostEffect.register();
+        SettlementHeroRenderer.register();
     }
 
     private static void receive(SettlementPayload payload) {
@@ -189,7 +197,9 @@ public final class SettlementClient {
             var slot = SettlementChoreography.winner(winner, winners.size());
             addActor(actor, slot.x(), slot.y(), slot.z(), winner++);
         }
-        castHalfWidth = actors.stream().mapToDouble(actor -> Math.abs(actor.x) + .6).max().orElse(1);
+        castBounds = null;
+        for (var actor : actors) castBounds = castBounds == null ? bounds(actor) : castBounds.union(bounds(actor));
+        cues = SettlementPresentation.cues(value);
         for (var actor : value.actors()) if (!actor.winner()) {
             var slot = SettlementChoreography.drop(loser, losers);
             addActor(actor, slot.x(), 0, slot.z(), loser++);
@@ -303,10 +313,10 @@ public final class SettlementClient {
     }
 
     private static void showEvent(SettlementSnapshot.Event event) {
-        eventText = parse(event.textJson());
+        eventText = SettlementCaption.readable(parse(event.textJson()));
         ActorState source = byId.get(event.source()), target = byId.get(event.target());
-        if (source != null) source.actionAt = playTick;
-        if (target != null) target.actionAt = playTick;
+        if (source != null) { source.actionAt = playTick; source.actionEvent = event; }
+        if (target != null) { target.actionAt = playTick; target.actionEvent = event; }
         // 回放只驱动动作/职业，不改写舞台已冻结的死亡事实；尸堆始终保留在后台。
         // 两个字段分别属于 source/target 的事件时职业，不将 targetRole 误当作 source 的新职业。
         if (source != null && event.sourceRole() != null && !event.sourceRole().isBlank()) source.role = event.sourceRole();
@@ -355,104 +365,94 @@ public final class SettlementClient {
         oldCamera = null; oldPosition = smoothPosition = null; oldCameraType = null;
         title = eventText = Component.empty(); actors.clear(); byId.clear();
         physics = new SettlementPhysics(); lastCameraFrame = 0;
-        castHalfWidth = 1;
+        castBounds = null; cues = List.of(); smoothLook = null; smoothFov = 46; smoothRoll = 0;
+        cachedLayout = null; captionLines = List.of(); layoutEvent = -2;
+        SettlementStageRenderer.clearLabels();
+        SettlementOverlay.clear();
+        SettlementHeroRenderer.close();
         SettlementAudio.clear(); SettlementPostEffect.close();
         // 皮肤布景由各自实现自行清理；本体不持有具体皮肤的静态状态。
     }
 
-    /** 镜头与投影共用同一段推近曲线，避免缩放和机位各自运动。 */
-    private static double heroFocus(double time) {
-        return smooth((time - 208) / 46) * (1 - smooth((time - 292) / 28));
+    static SettlementPresentation.Frame presentation(float partial) {
+        return SettlementPresentation.frame(snapshot, cues, playTick + partial);
     }
 
-    public static double cameraFov(float partialTick) {
-        var window = Minecraft.getInstance().getWindow();
-        double aspect = window.getWidth() / (double) Math.max(1, window.getHeight());
-        double wide = SettlementChoreography.cameraFov(castHalfWidth, aspect);
-        return Mth.lerp(heroFocus(playTick + partialTick), wide, 38);
-    }
-
-    /** 轻量斜构图只作用于世界投影，漫画页边和字幕保持水平可读。 */
-    public static float cameraRoll(float partialTick) {
-        double time = playTick + partialTick;
-        double roll = -1.35 * heroFocus(time) - .65 * (1 - smooth((time - 30) / 115));
-        if (snapshot != null && time >= SettlementSnapshot.INTRO_TICKS && eventIndex >= 0) {
-            int group = eventIndex / Math.max(1, (int) Math.ceil(24.0 / snapshot.eventTicks()));
-            roll = Math.sin(group * 2.399963) * .7 * smooth((time - 320) / 18)
-                    * (1 - smooth((time - snapshot.durationTicks() + 80) / 20));
+    /** 同一份正文换行结果同时决定字幕高度和镜头安全区，只在文本/窗口变化时重排。 */
+    static SettlementPresentation.Layout layout(float partial) {
+        var mc = Minecraft.getInstance(); var window = mc.getWindow();
+        int w = window.getGuiScaledWidth(), h = window.getGuiScaledHeight();
+        boolean hero = playTick + partial >= 202 && playTick + partial < 320;
+        if (cachedLayout == null || layoutWidth != w || layoutHeight != h || layoutEvent != eventIndex || layoutHero != hero) {
+            var probe = SettlementPresentation.layout(w,h,hero,eventIndex >= 0,1);
+            captionLines = mc.font.split(eventText, Math.max(1,(int)((probe.caption().w()-24*probe.ui())/probe.ui())));
+            cachedLayout = SettlementPresentation.layout(w,h,hero,eventIndex >= 0,captionLines.size());
+            layoutWidth=w; layoutHeight=h; layoutEvent=eventIndex; layoutHero=hero;
         }
-        return (float) Math.toRadians(roll);
+        return cachedLayout;
     }
 
-    /** 每帧平滑一次，交由独立高优先级 Camera.setup 注入调用。 */
+    static List<net.minecraft.util.FormattedCharSequence> captionLines() { return captionLines; }
+
+    private static SettlementPresentation.Bounds bounds(ActorState actor) {
+        // 包含举臂、正常手持道具与皇冠的完整范围，不只拟合身体宽度。
+        return new SettlementPresentation.Bounds(actor.x-.82,0,actor.z-.65,actor.x+.82,2.5,actor.z+.65);
+    }
+
+    private static SettlementPresentation.Bounds bounds(ActorState actor, double time) {
+        return actor.fact.winner() ? SettlementPresentation.winnerBounds(actor.x,actor.z,actor.order,time) : bounds(actor);
+    }
+
+    public static double cameraFov(float partialTick) { return smoothFov; }
+    public static float cameraRoll(float partialTick) { return (float)smoothRoll; }
+
+    /** 所有镜头参数在同一帧一起积分，世界投影和 UI 共用分镜时钟。 */
     public static void applyCamera(Camera camera, float partialTick) {
         if (!active) return;
         if (snapshot == null) {
             if (oldPosition != null) { camera.setPosition(oldPosition); camera.setRotation(oldYaw, oldPitch); }
             return;
         }
-        double t = playTick + (isPlaying() ? partialTick : 0);
-        double focus = heroFocus(t);
-        ActorState mvp = byId.get(snapshot.mvp());
-        double targetX = mvp == null ? 0 : mvp.x;
-        double targetY = 1.25, targetZ = mvp == null ? -.35 : mvp.z;
-        if (t >= SettlementSnapshot.INTRO_TICKS && eventIndex >= 0) {
-            var event = snapshot.events().get(eventIndex);
-            ActorState source = byId.get(event.source()), target = byId.get(event.target());
-            ActorState selected = source != null && source.fact.winner() ? source
-                    : target != null && target.fact.winner() ? target : source != null ? source : target;
-            if (selected != null) {
-                targetX = selected.body.active ? selected.body.nodes[1].x : selected.x;
-                targetY = selected.body.active ? selected.body.nodes[1].y + .5 : selected.y + 1.25;
-                targetZ = selected.body.active ? selected.body.nodes[1].z : selected.z;
-                focus = selected.body.active ? .10 : .26;
+        float partial = isPlaying() ? partialTick : 0;
+        var frame = presentation(partial);
+        var all = castBounds == null ? new SettlementPresentation.Bounds(-1,0,-1,1,2.5,1) : castBounds;
+        if (frame.time() < 142) {
+            SettlementPresentation.Bounds entering = null;
+            for (var actor : actors) if (actor.fact.winner()) {
+                var animated = bounds(actor, frame.time());
+                entering = entering == null ? animated : entering.union(animated);
             }
+            if (entering != null) all = entering;
         }
-        var window = Minecraft.getInstance().getWindow();
-        double aspect = window.getWidth() / (double) Math.max(1, window.getHeight());
-        double wideDistance = SettlementChoreography.cameraDistance(castHalfWidth, aspect);
-        boolean replaying = t >= SettlementSnapshot.INTRO_TICKS && eventIndex >= 0;
-        double lift = replaying ? .22 : 0;
-        // 开场由左向中横移；MVP 推近时走一小段弧线，回放分镜则交替从左右取景。
-        double reveal = 1 - smooth((t - 30) / 115);
-        double orbit = Math.sin(smooth((t - 208) / 105) * Math.PI) * .85;
-        double strafe = -1.1 * reveal + orbit * heroFocus(t);
-        double push = 0;
-        if (replaying) {
-            int ticks = snapshot.eventTicks();
-            int group = eventIndex / Math.max(1, (int) Math.ceil(24.0 / ticks));
-            double age = t - SettlementSnapshot.INTRO_TICKS - eventIndex * ticks;
-            // 前几帧定格，再缓慢推入；短事件不做高频大幅切镜。
-            push = smooth((age - 4) / Math.max(1, ticks - 4)) * .35;
-            strafe = Math.sin(group * 2.399963) * .65;
+        if (frame.time() >= 150 && actors.size() > actors.stream().filter(a -> a.fact.winner()).count())
+            all = all.union(new SettlementPresentation.Bounds(-1.5,0,4.5,1.5,3.6,7.5));
+        ActorState primary = byId.get(frame.primary()), secondary = byId.get(frame.secondary());
+        var subject = primary == null ? all : bounds(primary,frame.time());
+        if (secondary != null) subject = subject.union(bounds(secondary,frame.time()));
+        var shot = SettlementPresentation.camera(all.blend(subject,frame.detail()),layout(partial),frame);
+        double lift = 0;
+        SettlementSkin skin = SettlementSkins.byId(snapshot.mvpSkin());
+        if (skin != null) {
+            try { lift = skin.cameraLift(frame.time()); }
+            catch (RuntimeException error) { SRE.LOGGER.warn("结算皮肤镜头回调失败: {}",snapshot.mvpSkin(),error); }
         }
-        // 皮肤可要求额外抬高机位（例如给高空盘旋的背景生物留构图）。
-        // 本体不知道那是龙还是别的什么，只把抬升量加进来。
-        SettlementSkin cameraSkin = SettlementSkins.byId(snapshot.mvpSkin());
-        if (cameraSkin != null) {
-            try {
-                lift += cameraSkin.cameraLift(t);
-            } catch (RuntimeException error) {
-                SRE.LOGGER.warn("结算皮肤镜头回调失败: {}", snapshot.mvpSkin(), error);
-            }
-        }
-        Vec3 desired = new Vec3(snapshot.x() + .5 + targetX * focus + strafe,
-                snapshot.y() + 1 + Mth.lerp(focus, 3.35, targetY + .65) + lift,
-                snapshot.z() + .5 - Mth.lerp(focus, wideDistance + reveal * .6, 4.35) + push);
-        Vec3 look = new Vec3(snapshot.x() + .5 + targetX * focus - heroFocus(t) * .48,
-                snapshot.y() + 1 + targetY + lift, snapshot.z() + .5 + targetZ);
+        Vec3 origin = new Vec3(snapshot.x()+.5,snapshot.y()+1+lift,snapshot.z()+.5);
+        double jolt=frame.impact()*Math.sin(frame.time()*2.4)*.028;
+        Vec3 desired = origin.add(shot.eye().x+jolt,shot.eye().y+jolt*.35,shot.eye().z);
+        Vec3 look = origin.add(shot.look().x,shot.look().y,shot.look().z);
         long now = System.nanoTime();
-        double dt = lastCameraFrame == 0 ? 1 : Math.min(.1, (now - lastCameraFrame) / 1e9);
-        lastCameraFrame = now;
-        double alpha = 1 - Math.exp(-dt * 5);
-        smoothPosition = smoothPosition == null ? desired : smoothPosition.lerp(desired, alpha);
-        Vec3 delta = look.subtract(smoothPosition);
-        float yaw = (float) Math.toDegrees(Math.atan2(-delta.x, delta.z));
-        float pitch = (float) -Math.toDegrees(Math.atan2(delta.y, Math.sqrt(delta.x * delta.x + delta.z * delta.z)));
-        if (dt == 1) { smoothYaw = yaw; smoothPitch = pitch; }
-        else { smoothYaw += Mth.wrapDegrees(yaw - smoothYaw) * (float) alpha;
-            smoothPitch += (pitch - smoothPitch) * (float) alpha; }
-        camera.setPosition(smoothPosition); camera.setRotation(smoothYaw, smoothPitch);
+        boolean first = lastCameraFrame == 0;
+        double dt = first ? 1 : Math.min(.1,(now-lastCameraFrame)/1e9);
+        lastCameraFrame=now;
+        double alpha = first ? 1 : 1-Math.exp(-dt*9);
+        smoothPosition = smoothPosition == null ? desired : smoothPosition.lerp(desired,alpha);
+        smoothLook = smoothLook == null ? look : smoothLook.lerp(look,alpha);
+        smoothFov += (shot.fov()-smoothFov)*alpha;
+        smoothRoll += (shot.roll()-smoothRoll)*alpha;
+        Vec3 delta=smoothLook.subtract(smoothPosition);
+        smoothYaw=(float)Math.toDegrees(Math.atan2(-delta.x,delta.z));
+        smoothPitch=(float)-Math.toDegrees(Math.atan2(delta.y,Math.hypot(delta.x,delta.z)));
+        camera.setPosition(smoothPosition); camera.setRotation(smoothYaw,smoothPitch);
     }
 
     /** 同帧重申最终姿态，不再次积分平滑时钟。 */
@@ -477,6 +477,7 @@ public final class SettlementClient {
         boolean dead;
         float blackness;
         int actionAt = -1000;
+        SettlementSnapshot.Event actionEvent;
         ActorState(SettlementSnapshot.Actor fact, double x, double y, double z, int order) {
             this.fact = fact; this.x = x; this.y = y; this.z = z; this.order = order;
             initialRole = role = fact.role(); dead = fact.dead();

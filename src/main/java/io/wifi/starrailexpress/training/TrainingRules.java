@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.training;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -86,6 +87,18 @@ public final class TrainingRules {
                         ? InteractionResult.FAIL : InteractionResult.PASS);
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((target, source, amount) ->
                 !(source.getEntity() instanceof ServerPlayer actor) || canInteract(actor, target));
+        // Carpet 的原版 die 会断开连接；本会话的训练假人改走正常游戏死亡/旁观，等待原地复活。
+        ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, amount) -> {
+            if (!(entity instanceof ServerPlayer bot) || !isTrainingServer(bot.getServer()) || !isManagedBot(bot)) return true;
+            TrainingSession own = session(bot);
+            if (own == null || !own.authorized() || !own.owns(bot) || bot.serverLevel() != own.level()) return true;
+            boolean wasSpectator = bot.isSpectator();
+            bot.setHealth(bot.getMaxHealth());
+            if (!wasSpectator) GameUtils.killPlayer(bot, true,
+                    source.getEntity() instanceof net.minecraft.world.entity.player.Player killer ? killer : null,
+                    GameConstants.DeathReasons.GENERIC);
+            return false;
+        });
         ServerTickEvents.START_SERVER_TICK.register(server -> {
             if (isDedicatedTrainingServer(server)) {
                 for (Camp camp : new ArrayList<>(camps.values())) confine(camp);

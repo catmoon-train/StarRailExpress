@@ -111,8 +111,9 @@ class TrainingCampWorldsResourceTest {
         try (var stream = getClass().getResourceAsStream(BASE + "training/layout.json")) {
             assertNotNull(stream);
             byte[] bytes = stream.readAllBytes();
-            assertArrayEquals(streamEntry("layout.json"), bytes);
             var layout = JsonParser.parseString(new String(bytes, StandardCharsets.UTF_8)).getAsJsonObject();
+            // Git 的 Windows 检出可转换换行符，ZIP 保持 LF；只要求布局语义完全相同。
+            assertEquals(JsonParser.parseString(new String(streamEntry("layout.json"), StandardCharsets.UTF_8)), layout);
             for (var value : layout.getAsJsonArray("areas")) {
                 var area = value.getAsJsonObject();
                 clearPoint(template, area.getAsJsonArray("spawn"));

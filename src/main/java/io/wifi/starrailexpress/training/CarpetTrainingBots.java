@@ -1,6 +1,9 @@
 package io.wifi.starrailexpress.training;
 
 import carpet.patches.EntityPlayerMPFake;
+import carpet.patches.FakeClientConnection;
+import com.mojang.authlib.GameProfile;
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -8,8 +11,14 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
+import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ClientInformation;
+import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
@@ -22,6 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /** 训练会话独占的 Carpet 玩家；所有入口仅在服务器线程调用。 */
 public final class CarpetTrainingBots implements AutoCloseable {
@@ -30,7 +40,7 @@ public final class CarpetTrainingBots implements AutoCloseable {
     private static final Map<MinecraftServer, Set<CarpetTrainingBots>> ACTIVE = new IdentityHashMap<>();
 
     static {
-        // 常量注册一次。会话关闭后仍追踪异步回调，不依赖已被丢弃的 session.tick()。
+        // 常量注册一次；关闭后仍回收已提交但尚未被槽位接收的假人。
         ServerTickEvents.START_SERVER_TICK.register(server -> {
             var sessions = ACTIVE.get(server);
             if (sessions != null) for (var bots : new ArrayList<>(sessions)) {
@@ -100,13 +110,19 @@ public final class CarpetTrainingBots implements AutoCloseable {
         reconcile();
         long now = now();
         int creates = 0;
+        int revives = 0;
+        int joins = 0;
         for (Entry entry : slots.values()) {
             if (!carpet) continue;
             if (entry.state.pending != null) {
                 var attempt = entry.state.pending;
+                if (entry.profile != null && entry.profile.isDone() && joins < 2) {
+                    if (entry.state.canSubmit(attempt, generation)) { spawn(entry, attempt); joins++; }
+                }
                 ServerPlayer found = session.server().getPlayerList().getPlayerByName(attempt.name);
                 if (found != null) {
-                    if (!(found instanceof EntityPlayerMPFake)) fail(entry, "training.error.bot_name_conflict");
+                    if (!(found instanceof EntityPlayerMPFake) || !attempt.matches(found.getGameProfile().getName(), found.getUUID(), true))
+                        fail(entry, "training.error.bot_name_conflict");
                     else if (entry.state.accept(attempt, found.getUUID(), generation)) {
                         entry.reservation = attempt;
                         entry.player = found;
@@ -125,9 +141,12 @@ public final class CarpetTrainingBots implements AutoCloseable {
             if (!alive) {
                 stop(entry);
                 if (entry.deadAt < 0) { entry.deadAt = now; session.changed(); }
-                if (session.settings().autoRespawn && !session.settings().paused && entry.reviveFailures < 3
-                        && now >= Math.max(entry.deadAt + session.settings().respawnDelay * 20L, entry.reviveAt)) revive(entry);
+                if (revives < 2 && (entry.reviveRequested || entry.state.canAutoRespawn(session.settings().autoRespawn, entry.applied != null)
+                        && entry.reviveFailures < 3 && now >= Math.max(entry.deadAt + session.settings().respawnDelay * 20L, entry.reviveAt))) {
+                    revive(entry); revives++;
+                }
             } else {
+                if (entry.reviveRequested && revives < 2) { revive(entry); revives++; continue; }
                 if (entry.deadAt >= 0) { entry.deadAt = -1; entry.reviveFailures = 0; session.changed(); }
                 if (bot.serverLevel() != session.level() || bot.getY() < 55
                         || !TrainingLayout.box(TrainingLayout.get().bounds).inflate(8).contains(bot.position())) {
@@ -136,14 +155,14 @@ public final class CarpetTrainingBots implements AutoCloseable {
                 entry.player = bot;
                 if (!entry.state.error.isEmpty()) { stop(entry); continue; }
                 try { entry.controller.tick(session, bot, session.settings().bot(entry.state.slot), now); }
-                catch (RuntimeException ex) { stop(entry); setError(entry, "training.error.bot_control_failed"); }
+                catch (RuntimeException ex) { stop(entry); logFailure(entry, "control", ex); setError(entry, "training.error.bot_control_failed"); }
             }
         }
     }
 
     private void create(Entry entry) {
         Map<String, TrainingBotSlot.Attempt> reserved = reservations(session.server());
-        if (reserved.values().stream().filter(a -> a.submitted && !a.observed).count() >= MAX_UNRESOLVED
+        if (reserved.values().stream().filter(a -> !a.cancelled && !a.observed).count() >= MAX_UNRESOLVED
                 || serial >= 36 * 36 * 36 * 36 - 8) {
             entry.state.attempts = TrainingBotSlot.MAX_ATTEMPTS;
             setError(entry, "training.error.bot_pending_limit");
@@ -161,17 +180,48 @@ public final class CarpetTrainingBots implements AutoCloseable {
         var attempt = entry.state.begin(name, now());
         issued.add(attempt);
         reserved.put(name, attempt);
-        Vec3 spawn = session.area().botSpawn(entry.state.slot);
         try {
-            // 此版本返回 boolean，不返回 future。true 仅表示排队，必须按保留名字轮询。
-            attempt.submitted = true;
-            boolean accepted = EntityPlayerMPFake.createFake(name, session.server(), spawn, session.area().yaw(), 0,
-                    session.level().dimension(), GameType.ADVENTURE, false);
-            if (!accepted) { attempt.submitted = false; fail(entry, "training.error.bot_spawn_failed"); }
+            // 不调用 Carpet.createFake：它会先同步 GameProfileCache.get 再进入异步皮肤查询。
+            // 查询 future 不持有会话/世界，也不会在完成回调中直接生成实体。
+            entry.profile = TrainingBotProfiles.resolve(name);
         } catch (RuntimeException | LinkageError ex) {
+            logFailure(entry, "profile", ex);
             fail(entry, "training.error.bot_spawn_failed");
         }
         session.changed();
+    }
+
+    /** 仅由服务器 tick 消费已完成的档案结果，保持每 tick 最多两次真实入服。 */
+    private void spawn(Entry entry, TrainingBotSlot.Attempt attempt) {
+        try {
+            GameProfile profile = entry.profile.getNow(null); // 已完成才读取，绝不等待网络。
+            entry.profile = null;
+            if (profile == null || !attempt.name.equalsIgnoreCase(profile.getName())
+                    || session.server().getPlayerList().getPlayerByName(attempt.name) != null
+                    || session.server().getPlayerList().getPlayer(profile.getId()) != null)
+                throw new IllegalStateException("Training profile is invalid or its identity is already online");
+            Vec3 spawn = session.area().botSpawn(entry.state.slot);
+            float yaw = session.area().yaw();
+            // respawnFake 只构造 Carpet 玩家，不执行档案查询，也不重新连接任何旧实例。
+            var fake = EntityPlayerMPFake.respawnFake(session.server(), session.level(), profile, ClientInformation.createDefault());
+            fake.fixStartingPosition = () -> fake.moveTo(spawn.x, spawn.y, spawn.z, yaw, 0);
+            attempt.uuid = profile.getId();
+            attempt.submitted = true;
+            session.server().getPlayerList().placeNewPlayer(new FakeClientConnection(PacketFlow.SERVERBOUND), fake,
+                    new CommonListenerCookie(profile, 0, fake.clientInformation(), false));
+            attempt.observed = true;
+            fake.teleportTo(session.level(), spawn.x, spawn.y, spawn.z, yaw, 0);
+            fake.setHealth(fake.getMaxHealth());
+            var step = fake.getAttribute(Attributes.STEP_HEIGHT);
+            if (step != null) step.setBaseValue(0.6D);
+            fake.setGameMode(GameType.ADVENTURE);
+            fake.setYHeadRot(yaw);
+            session.server().getPlayerList().broadcastAll(new ClientboundRotateHeadPacket(fake, (byte) (yaw * 256 / 360)), session.level().dimension());
+            session.server().getPlayerList().broadcastAll(new ClientboundTeleportEntityPacket(fake), session.level().dimension());
+        } catch (RuntimeException | LinkageError ex) {
+            logFailure(entry, "spawn", ex);
+            fail(entry, "training.error.bot_spawn_failed");
+        }
     }
 
     private void configure(Entry entry, ServerPlayer bot) {
@@ -185,7 +235,7 @@ public final class CarpetTrainingBots implements AutoCloseable {
             entry.state.error = "";
             entry.controller = new TrainingBotController(entry.state.slot);
             session.changed();
-        } catch (RuntimeException ex) { setError(entry, "training.error.bot_config_failed"); }
+        } catch (RuntimeException ex) { logFailure(entry, "configure", ex); setError(entry, "training.error.bot_config_failed"); }
     }
 
     /** 只在初始化/重置/重配调用，绝不每 tick 补充耐久或弹药。保留职业道具。 */
@@ -208,34 +258,47 @@ public final class CarpetTrainingBots implements AutoCloseable {
         bot.containerMenu.broadcastChanges();
     }
 
+    /** 仍在线时复用同一假玩家；只有连接确实丢失时才走异步补建。 */
     private void revive(Entry entry) {
-        ServerPlayer old = online(entry);
-        if (old == null) old = entry.player; // Carpet 原版死亡会断开连接，仍交给父会话处理旧实例。
-        if (old == null) { retry(entry); return; }
-        stop(entry);
+        if (entry.state.pending != null && !entry.state.pending.cancelled) return;
+        entry.reviveRequested = false;
         try {
-            ServerPlayer revived = session.revive(old, entry.state.slot);
-            if (!(revived instanceof EntityPlayerMPFake) || !old.getUUID().equals(revived.getUUID())
-                    || !entry.reservation.name.equals(revived.getGameProfile().getName())
-                    || revived.isRemoved() || !TrainingRules.isAlive(revived)
-                    || session.server().getPlayerList().getPlayer(revived.getUUID()) != revived)
-                throw new IllegalStateException("Training revive did not return a connected owned fake");
-            entry.player = revived;
-            entry.state.uuid = revived.getUUID();
+            ServerPlayer bot = online(entry);
+            if (bot == null || bot.isRemoved()) { retry(entry); return; }
+            stop(entry);
+            var connection = bot.connection;
+            session.reviveBot(bot, entry.state.slot);
+            Config config = Config.of(session.settings().bot(entry.state.slot));
+            equip(bot, config.equipment);
+            if (online(entry) != bot || bot.connection != connection || !TrainingRules.isAlive(bot)
+                    || !entry.state.revived(entry.reservation, bot.getUUID(), generation))
+                throw new IllegalStateException("In-place training revival changed the owned identity or connection");
+            entry.player = bot;
+            entry.applied = config;
+            entry.attempted = config;
             entry.deadAt = -1;
             entry.reviveFailures = 0;
-            moveToSpawn(entry, revived);
-            // 父会话 revive 已执行完整职业重置；这里只应用该槽位的武器，避免重复 onInit。
-            Config config = Config.of(session.settings().bot(entry.state.slot));
-            equip(revived, config.equipment);
-            entry.applied = config;
-            entry.state.error = "";
+            entry.reviveAt = 0;
             entry.controller = new TrainingBotController(entry.state.slot);
             session.changed();
         } catch (RuntimeException ex) {
             entry.reviveFailures++;
             entry.reviveAt = now() + 40L * entry.reviveFailures;
+            logFailure(entry, "revive", ex);
             setError(entry, "training.error.bot_revive_failed");
+        }
+    }
+
+    /** 仅排队死亡/失败槽位；已连接假人的原地复活每 tick 最多两个。 */
+    public void reviveAll() {
+        if (closed) return;
+        reconcile();
+        for (Entry entry : slots.values()) {
+            if (entry.state.pending != null) continue;
+            ServerPlayer bot = online(entry);
+            if (bot == null || !TrainingRules.isAlive(bot) || !entry.state.error.isEmpty()) {
+                requestRevive(entry);
+            }
         }
     }
 
@@ -279,9 +342,7 @@ public final class CarpetTrainingBots implements AutoCloseable {
                 reconcile();
             }
             case "revive", "retry", "reset" -> {
-                entry.reviveFailures = 0;
-                if (entry.state.uuid == null) retry(entry);
-                else revive(entry);
+                requestRevive(entry);
             }
             case "inherit" -> {
                 session.settings().overrides.remove(slot);
@@ -304,14 +365,40 @@ public final class CarpetTrainingBots implements AutoCloseable {
         session.changed();
     }
 
+    private void requestRevive(Entry entry) {
+        if (entry.state.pending != null && !entry.state.pending.cancelled) return;
+        entry.reviveFailures = 0;
+        if (entry.state.uuid == null) retry(entry);
+        else entry.reviveRequested = true;
+        session.changed();
+    }
+
     private void retry(Entry entry) {
+        stop(entry);
+        cancelProfile(entry);
+        cancel(entry.state.pending);
+        cancel(entry.reservation);
+        cleanupDisconnected(entry);
+        // 先同步移除精确拥有的旧实体，再释放槽位；晚到的回调仍由全局保留项回收。
+        sweep(session.server());
+        if (online(entry) != null) throw new IllegalStateException("Previous training fake is still connected; refusing replacement");
         cancel(entry.state.retry(now()));
-        entry.state.uuid = null;
-        entry.state.error = "";
+        entry.reservation = null;
+        entry.player = null;
         entry.deadAt = -1;
+        entry.reviveFailures = 0;
+        entry.reviveAt = 0;
+        entry.reviveRequested = false;
         entry.applied = null;
         entry.attempted = null;
+        entry.controller = new TrainingBotController(entry.state.slot);
         session.changed();
+    }
+
+    private void logFailure(Entry entry, String operation, Throwable error) {
+        SRE.LOGGER.warn("训练假人操作失败: owner={}, slot={}, operation={}, attempt={}",
+                session.owner() == null ? "offline" : session.owner().getUUID(), entry.state.slot,
+                operation, entry.state.attempts, error);
     }
 
     public ListTag snapshot() {
@@ -376,7 +463,7 @@ public final class CarpetTrainingBots implements AutoCloseable {
         if (entry.state.uuid == null) return null;
         ServerPlayer bot = session.server().getPlayerList().getPlayer(entry.state.uuid);
         return bot instanceof EntityPlayerMPFake && entry.reservation != null
-                && entry.reservation.name.equals(bot.getGameProfile().getName()) ? bot : null;
+                && entry.reservation.matches(bot.getGameProfile().getName(), bot.getUUID(), true) ? bot : null;
     }
 
     private void moveToSpawn(Entry entry, ServerPlayer bot) {
@@ -395,6 +482,7 @@ public final class CarpetTrainingBots implements AutoCloseable {
     }
 
     private void fail(Entry entry, String key) {
+        cancelProfile(entry);
         cancel(entry.state.fail(key, now()));
         session.error(key);
         session.changed();
@@ -402,8 +490,30 @@ public final class CarpetTrainingBots implements AutoCloseable {
 
     private void retire(Entry entry) {
         stop(entry);
+        cancelProfile(entry);
         cancel(entry.state.cancel());
         cancel(entry.reservation);
+        cleanupDisconnected(entry);
+    }
+
+    private void cleanupDisconnected(Entry entry) {
+        if (entry.player instanceof EntityPlayerMPFake fake && entry.reservation != null
+                && entry.reservation.matches(fake.getGameProfile().getName(), fake.getUUID(), true)
+                && session.server().getPlayerList().getPlayer(fake.getUUID()) != fake) clearBotRole(fake);
+    }
+
+    private static void clearBotRole(EntityPlayerMPFake fake) {
+        TrainingBotController.actions(fake).stopAll();
+        var game = io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY.get(fake.level());
+        var role = game.getRole(fake);
+        if (role != null) org.agmas.harpymodloader.events.ModdedRoleRemoved.EVENT.invoker().removeModdedRole(fake, role);
+        org.agmas.noellesroles.utils.RoleUtils.removeAllModifiers(fake);
+        game.removeRole(fake);
+        io.wifi.starrailexpress.game.GameUtils.resetPlayer(fake);
+    }
+
+    private static void cancelProfile(Entry entry) {
+        if (entry.profile != null) { entry.profile.cancel(false); entry.profile = null; }
     }
 
     private static void cancel(TrainingBotSlot.Attempt attempt) {
@@ -416,7 +526,7 @@ public final class CarpetTrainingBots implements AutoCloseable {
         return RESERVATIONS.computeIfAbsent(server, ignored -> new HashMap<>());
     }
 
-    /** 无 future 句柄的 Carpet 版本：未观察到回调的取消保留项必须留到停服。 */
+    /** 未提交的查询取消后可直接丢弃；已入服的精确保留项继续回收，不产生晚到实体。 */
     private static void sweep(MinecraftServer server) {
         var reserved = RESERVATIONS.get(server);
         if (reserved == null) return;
@@ -429,13 +539,7 @@ public final class CarpetTrainingBots implements AutoCloseable {
             if (player instanceof EntityPlayerMPFake fake && attempt.matches(fake.getGameProfile().getName(), fake.getUUID(), true)) {
                 attempt.uuid = fake.getUUID();
                 attempt.observed = true;
-                TrainingBotController.actions(fake).stopAll();
-                var game = io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY.get(fake.level());
-                var role = game.getRole(fake);
-                if (role != null) org.agmas.harpymodloader.events.ModdedRoleRemoved.EVENT.invoker().removeModdedRole(fake, role);
-                org.agmas.noellesroles.utils.RoleUtils.removeAllModifiers(fake);
-                game.removeRole(fake);
-                io.wifi.starrailexpress.game.GameUtils.resetPlayer(fake);
+                clearBotRole(fake);
                 // Carpet 的 duplicate_login 分支同步移除，不把 kill 排队到下一轮复活之后。
                 fake.kill(Component.translatable("multiplayer.disconnect.duplicate_login"));
             } else if (attempt.canForget(player != null)) iterator.remove();
@@ -455,11 +559,13 @@ public final class CarpetTrainingBots implements AutoCloseable {
         final TrainingBotSlot state;
         TrainingBotSlot.Attempt reservation;
         TrainingBotController controller;
+        CompletableFuture<GameProfile> profile;
         ServerPlayer player;
         Config applied;
         Config attempted;
         long deadAt = -1;
         long reviveAt;
+        boolean reviveRequested;
         int reviveFailures;
 
         Entry(int slot, long generation) {

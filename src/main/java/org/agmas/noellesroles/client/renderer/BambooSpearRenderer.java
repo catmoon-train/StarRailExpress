@@ -24,6 +24,8 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
@@ -35,32 +37,16 @@ import org.agmas.noellesroles.content.entity.BambooSpearEntity;
 import org.agmas.noellesroles.init.ModEffects;
 
 /**
- * 竹刀渲染：整根竹杆<b>压在持有者的视线射线上</b>，朝向恒等于持有者的当前朝向。
- * <p>
- * <b>起点 = 眼睛沿视线前推一点（与服务端共用的 {@link BambooSpearEntity#poleBase}），
- * 方向 = 视线</b>。因为杆根就落在视线上，画出来的这条杆与枪械射线
- * （{@code ProjectileUtil#getHitResultOnViewVector}）是同一条轨道：
- * 第一人称杆身正压在准星上笔直往前长，第三人称也是从身前朝准星方向刺出去，
- * 不会再出现「杆被平移到视线一侧、近处偏得厉害」的错位。
- * 手臂姿态由 {@code HumanoidModelBambooSpearMixin} 抬到视线高度配合。
- * <p>
- * 眼睛与视线按下面四层取，顺序不能调：
- * <ol>
- * <li><b>本地持有者</b>：第一人称用相机视线（零帧延迟），第三人称用玩家自己的视线向量
- * （相机在前视角下是反的，不能直接拿来当视线）。</li>
- * <li><b>别的玩家在用</b>：取<b>他本人</b>在本客户端上的眼睛 / 视线。这样竹杆是贴着他长出来的，
- * 指的就是他自己准星的方向（也就是他那边真正伸出、真正结算伤害的那条射线）；
- * 用服务端快照的话，画面上的玩家模型和快照的眼睛位置会差出网络延迟那一段，看着像杆子飘在脸外面。</li>
- * <li><b>兜底一</b>：持有者不在这边的客户端里（超出追踪范围）时，退回服务端每 tick 同步的
- * 权威眼睛 / 视线，并在客户端按 partialTick 插值，否则会看到 20Hz 的跳动。</li>
- * <li><b>兜底二</b>：发射瞬间的实体朝向（同步还没到位的第一帧）。</li>
- * </ol>
+ * 竹枪直刺：固定长度的枪身整体向前移动，不能再从眼睛处逐段长出竹杆。
+ * 枪尖跟随原有同步距离，和服务端命中射线重合；枪尾向持枪手一侧倾斜，
+ * 避免第一人称只看到正对相机的截面。攻击期间的手持物品模型由 spear mixin 隐藏。
+ * 本地第一人称使用相机视线，第三人称与远端使用持有者视线，
+ * 持有者不在追踪范围内时仍退回服务端同步的眼睛和方向。
  */
 public class BambooSpearRenderer extends EntityRenderer<BambooSpearEntity> {
 
     private static final float RADIUS = 0.08F;
     private static final float TIP_LENGTH = 0.38F;
-    private static final float MIN_LENGTH = 0.08F;
 
     public BambooSpearRenderer(EntityRendererProvider.Context context) {
         super(context);
@@ -111,16 +97,21 @@ public class BambooSpearRenderer extends EntityRenderer<BambooSpearEntity> {
         }
         view = view.normalize();
 
-        // 起点 = 杆根（服务端结算用的是同一个 poleBase，都在视线上），方向 = 视线方向。
-        Vec3 origin = BambooSpearEntity.poleBase(eye, view);
-        // length 本身就是「从杆根沿视线量出去的杆长」，服务端也是这么算命中点的。
-        float drawLength = Math.max(MIN_LENGTH, length);
+        float yaw = owner != null ? Mth.rotLerp(partialTick, owner.yRotO, owner.getYRot())
+                : (float) Math.toDegrees(Math.atan2(-view.x, view.z));
+        HumanoidArm mainArm = owner != null ? owner.getMainArm() : HumanoidArm.RIGHT;
+        HumanoidArm attackArm = entity.getAttackHand() == InteractionHand.MAIN_HAND
+                ? mainArm : mainArm.getOpposite();
+        BambooSpearVisualPose pose = BambooSpearVisualPose.at(BambooSpearEntity.poleBase(eye, view), view,
+                length, yaw, attackArm == HumanoidArm.RIGHT);
+        Vec3 origin = pose.tail();
 
         Vec3 entityPos = entity.getPosition(partialTick);
         poseStack.pushPose();
         poseStack.translate(origin.x - entityPos.x, origin.y - entityPos.y, origin.z - entityPos.z);
-        BambooPoleGeometry.orient(poseStack, view);
-        BambooPoleGeometry.render(poseStack, bufferSource, packedLight, 0.0F, drawLength, RADIUS, TIP_LENGTH);
+        BambooPoleGeometry.orient(poseStack, pose.direction());
+        BambooPoleGeometry.render(poseStack, bufferSource, packedLight, 0.0F,
+                BambooSpearVisualPose.POLE_LENGTH, RADIUS, TIP_LENGTH);
         poseStack.popPose();
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }

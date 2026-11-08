@@ -20,6 +20,8 @@ final class SettlementCrown {
         VertexConsumer vertices = buffers.getBuffer(RenderType.debugQuads());
         // 玩家模型坐标以 1/16 方块为一像素，头顶在 y=-8 像素。
         pose.scale(1/16f,1/16f,1/16f);
+        // 环带仍贴合原版头围，仅压低齿冠高度，减少大金块遮住眉眼与名签的感觉。
+        pose.translate(0,-8,0); pose.scale(.96f,.65f,.96f); pose.translate(0,8,0);
         box(pose,vertices,-4.6f,-8.65f,-4.6f,4.6f,-7.5f,-3.95f,GOLD);
         box(pose,vertices,-4.6f,-8.65f,3.95f,4.6f,-7.5f,4.6f,GOLD);
         box(pose,vertices,-4.6f,-8.65f,-3.95f,-3.95f,-7.5f,3.95f,GOLD);

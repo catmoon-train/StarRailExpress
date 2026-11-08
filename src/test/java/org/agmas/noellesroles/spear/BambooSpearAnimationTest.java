@@ -3,6 +3,8 @@ package org.agmas.noellesroles.spear;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.client.renderer.BambooSpearVisualPose;
 import org.agmas.noellesroles.content.item.spear.SpearAnim;
 import org.agmas.noellesroles.mixin.client.roles.nature_spirit.HumanoidModelBambooSpearMixin;
 import org.agmas.noellesroles.content.entity.BambooSpearEntity;
@@ -73,6 +75,50 @@ class BambooSpearAnimationTest {
             assertTrue(progress >= previous && progress <= 1.0F);
             assertTrue(Float.isFinite(SpearAnim.thirdPersonArmPitch(progress)));
             previous = progress;
+        }
+    }
+
+    @Test
+    void wholePoleMovesWithoutChangingLengthOrHitPosition() {
+        Vec3 base = new Vec3(2.0, 65.0, 3.0);
+        Vec3 view = new Vec3(0.0, 0.0, 1.0);
+        for (int step = 0; step <= 200; step++) {
+            float reach = (step <= 100 ? step : 200 - step) / 10.0F;
+            BambooSpearVisualPose pose = BambooSpearVisualPose.at(base, view, reach, 0.0F, true);
+            assertEquals(BambooSpearVisualPose.POLE_LENGTH, pose.tail().distanceTo(pose.tip()), 0.000001);
+            assertEquals(0.0, pose.tip().distanceTo(base.add(view.scale(reach))), 0.000001);
+            assertEquals(0.0, pose.tail().add(pose.direction().scale(BambooSpearVisualPose.POLE_LENGTH))
+                    .distanceTo(pose.tip()), 0.000001);
+        }
+        var start = BambooSpearVisualPose.at(base, view, 0.0F, 0.0F, true);
+        var end = BambooSpearVisualPose.at(base, view, 10.0F, 0.0F, true);
+        assertEquals(10.0, start.tail().distanceTo(end.tail()), 0.000001);
+    }
+
+    @Test
+    void mirrorsGripButNotTipForLeftHand() {
+        Vec3 view = new Vec3(0.0, 0.0, 1.0);
+        var right = BambooSpearVisualPose.at(Vec3.ZERO, view, 1.0F, 0.0F, true);
+        var left = BambooSpearVisualPose.at(Vec3.ZERO, view, 1.0F, 0.0F, false);
+        assertEquals(right.tip(), left.tip());
+        assertEquals(-right.tail().x, left.tail().x, 0.000001);
+        assertEquals(right.tail().y, left.tail().y, 0.000001);
+        assertEquals(right.tail().z, left.tail().z, 0.000001);
+        assertNotEquals(0.0, right.tail().x);
+    }
+
+    @Test
+    void aimsAtHitPositionEvenWhenLookingStraightUpOrDown() {
+        for (float yaw : new float[]{0.0F, 90.0F, 180.0F, -90.0F}) {
+            for (float pitch : new float[]{-90.0F, -45.0F, 0.0F, 45.0F, 90.0F}) {
+                Vec3 view = Vec3.directionFromRotation(pitch, yaw);
+                for (boolean rightHand : new boolean[]{true, false}) {
+                    var pose = BambooSpearVisualPose.at(Vec3.ZERO, view, 10.0F, yaw, rightHand);
+                    assertEquals(BambooSpearVisualPose.POLE_LENGTH, pose.tail().distanceTo(pose.tip()), 0.000001);
+                    assertEquals(0.0, pose.tip().distanceTo(view.normalize().scale(10.0)), 0.000001);
+                    assertEquals(1.0, pose.direction().length(), 0.000001);
+                }
+            }
         }
     }
 

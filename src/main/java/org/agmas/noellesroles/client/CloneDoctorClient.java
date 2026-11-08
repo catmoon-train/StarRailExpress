@@ -32,11 +32,24 @@ public final class CloneDoctorClient {
     private static CloneDoctorStateS2CPacket state = EMPTY;
     private static LimitedInventoryScreen returnScreen;
     private static Button returnButton;
+    private static boolean registered;
 
     private CloneDoctorClient() {
     }
 
+    /** 在最终颜色出口调用，保留原有显示权限，且不依赖博士当前复制的职业。 */
+    public static java.util.OptionalInt applyOutlineColor(net.minecraft.world.entity.Entity target,
+            java.util.OptionalInt permittedColor) {
+        if (permittedColor.isEmpty()) return permittedColor;
+        boolean clonedPerson = target instanceof net.minecraft.world.entity.player.Player player
+                && org.agmas.noellesroles.game.roles.killer.clone_doctor.CloneDoctorRole.isClone(player);
+        return org.agmas.noellesroles.game.roles.killer.clone_doctor.CloneDoctorOutlineColor.recolor(
+                permittedColor, clonedPerson, net.minecraft.Util.getMillis());
+    }
+
     public static void register() {
+        if (registered) return;
+        registered = true;
         ModRoles.CLONE_DOCTOR.setInventoryScreenExtensionFactory(CloneDoctorRoleScreenExtension::new);
         ClientPlayNetworking.registerGlobalReceiver(CloneDoctorStateS2CPacket.ID,
                 (packet, context) -> context.client().execute(() -> {
@@ -108,28 +121,10 @@ public final class CloneDoctorClient {
         }
     }
 
-    /** 优先底边空白，再尝试顶边；避开已有控件，保留中央的复制职业界面与物品栏。 */
+    /** 固定底部居中，不再移到可能覆盖修饰符说明的顶部区域。 */
     private static void positionReturnButton(LimitedInventoryScreen screen) {
-        for (int y : new int[] { screen.height - 24, 4 }) {
-            for (int x = 4; x + returnButton.getWidth() <= screen.width - 4; x += 4) {
-                boolean occupied = false;
-                for (var child : screen.children()) {
-                    if (child instanceof AbstractWidget widget && widget != returnButton && widget.visible
-                            && x < widget.getX() + widget.getWidth() + 2
-                            && x + returnButton.getWidth() + 2 > widget.getX()
-                            && y < widget.getY() + widget.getHeight() + 2 && y + 22 > widget.getY()) {
-                        occupied = true;
-                        break;
-                    }
-                }
-                if (!occupied) {
-                    returnButton.setPosition(x, y);
-                    return;
-                }
-            }
-        }
-        returnButton.visible = false;
-        returnButton.active = false;
+        returnButton.setPosition((screen.width - returnButton.getWidth()) / 2,
+                Math.max(4, screen.height - returnButton.getHeight() - 6));
     }
 
     private static void tick(Minecraft client) {
@@ -166,16 +161,57 @@ public final class CloneDoctorClient {
             return;
         }
         int y = Math.max(4, graphics.guiHeight() / 2 - 48);
-        if (state.castTicks() > 0) y = drawTimer(graphics, "cast", state.castTicks(), y);
-        if (state.transformTicks() > 0) y = drawTimer(graphics, "transformed", state.transformTicks(), y);
+        if (state.castTicks() > 0) renderCastProgress(graphics);
+        if (state.transformTicks() > 0) y = renderTransformationStatus(graphics, y);
         y = drawTimer(graphics, "copy_cooldown", state.copyCooldown(), y);
         drawTimer(graphics, "substitute_cooldown", state.substituteCooldown(), y);
     }
 
+    /** 当前能力职业与恢复倒计时合并展示，不依赖复制职业自己的HUD。 */
+    private static int renderTransformationStatus(GuiGraphics graphics, int y) {
+        Minecraft client = Minecraft.getInstance();
+        var role = SREClient.gameComponent.getRole(client.player);
+        Component roleName = role == null
+                ? Component.translatable("hud.noellesroles.clone_doctor.syncing_role")
+                : org.agmas.noellesroles.utils.RoleUtils.getRoleName(role);
+        Component title = Component.translatable(KEY + "current_role", roleName);
+        Component timer = Component.translatable(KEY + "return_in", (state.transformTicks() + 19) / 20);
+        int width = Math.min(260, graphics.guiWidth() - 12);
+        var lines = client.font.split(title, width - 12);
+        int lineHeight = client.font.lineHeight + 2;
+        int height = (lines.size() + 1) * lineHeight + 10;
+        graphics.fill(4, y - 4, 4 + width, y - 4 + height, 0xCC071813);
+        graphics.fill(4, y - 4, 6, y - 4 + height, 0xFF69C6A1);
+        int textY = y;
+        for (var line : lines) {
+            graphics.drawString(client.font, line, 10, textY, 0xFF9FF4D6, true);
+            textY += lineHeight;
+        }
+        graphics.drawString(client.font, timer, 10, textY, 0xFFFFF4DC, true);
+        return y - 4 + height + 4;
+    }
+
+    /** 前摇提示放在准星下方，避免被左侧其它职业HUD或聊天提示淹没。 */
+    private static void renderCastProgress(GuiGraphics graphics) {
+        var font = Minecraft.getInstance().font;
+        int width = Math.min(180, graphics.guiWidth() - 16);
+        int x = (graphics.guiWidth() - width) / 2;
+        int y = graphics.guiHeight() / 2 + 24;
+        Component label = Component.translatable(KEY + "cast", (state.castTicks() + 19) / 20);
+        graphics.fill(x - 5, y - 4, x + width + 5, y + font.lineHeight + 14, 0xCC071813);
+        graphics.drawCenteredString(font, label, graphics.guiWidth() / 2, y, 0xFF9FF4D6);
+        int barY = y + font.lineHeight + 4;
+        graphics.fill(x, barY, x + width, barY + 4, 0xFF234A3D);
+        int elapsed = Math.clamp(20 - state.castTicks(), 0, 20);
+        graphics.fill(x, barY, x + width * elapsed / 20, barY + 4, 0xFF69C6A1);
+    }
+
     private static int drawTimer(GuiGraphics graphics, String key, int ticks, int y) {
         var font = Minecraft.getInstance().font;
-        Component text = Component.translatable(KEY + key, ticks / 20 + (ticks % 20 > 0 ? 1 : 0));
-        graphics.drawString(font, text, 6, y, 0xFFFFF4DC, true);
+        Component text = ticks <= 0
+                ? Component.translatable(KEY + key.replace("_cooldown", "_ready"))
+                : Component.translatable(KEY + key, ticks / 20 + (ticks % 20 > 0 ? 1 : 0));
+        graphics.drawString(font, text, 6, y, ticks <= 0 ? 0xFF9FF4D6 : 0xFFFFF4DC, true);
         return y + font.lineHeight + 2;
     }
 

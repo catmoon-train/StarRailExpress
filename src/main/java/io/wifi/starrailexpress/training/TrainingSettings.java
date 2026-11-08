@@ -16,6 +16,9 @@ public final class TrainingSettings {
     public boolean autoRespawn = true;
     public int respawnDelay = 3;
     public boolean friendlyFirePenalty;
+    public boolean unlimitedStamina;
+    public boolean speedBoost;
+    public boolean noCooldown;
     public Map<Integer, BotSettings> overrides = new LinkedHashMap<>();
 
     public void normalize() {

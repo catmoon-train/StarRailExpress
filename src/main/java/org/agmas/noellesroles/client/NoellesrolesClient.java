@@ -256,6 +256,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         DynamiclightsEntry.registerClientEvents();
         // 注册各职业的背包界面扩展（旧版 ScreenMixin 的替代：SRERole 钩子，客户端注册）
         RoleScreenRegister.register();
+        CloneDoctorClient.register();
         IdentityScannerClient.register();
         NoellesrolesClientAmbientSounds.register();
         // Dream（Dream）：颤抖视角漂移 + 虚拟血量条（准星指向受伤玩家时显示）

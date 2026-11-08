@@ -14,6 +14,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -77,11 +78,10 @@ public final class SettlementManager {
             // hidden 是回放的公开边界，不能在结算时泄漏内部诊断/私密事件。
             if (event.hidden()) continue;
             var actor = event.actor(); var target = event.target();
-            Component text = event.text() == null
-                    ? Component.translatable("sre.replay.event." + event.type().name().toLowerCase(Locale.ROOT)) : event.text();
-            // 事件涉及的物品：击杀记凶器，使用/释放技能记所用物品；其余为空。
-            String item = raw == null ? null : raw.itemUsed;
-            if (item != null && (item.isBlank() || "minecraft:air".equals(item))) item = null;
+            Component text = SettlementEventText.resolve(event, raw,
+                    id -> BuiltInRegistries.ITEM.getOptional(id).map(item -> item.getDescription()).orElse(null));
+            // 购买记录的数量后缀只用于文本，Event.item 仍保存可解析的纯物品 ID。
+            String item = SettlementEventText.item(event, raw);
             events.add(new SettlementSnapshot.Event(Math.max(0,event.relativeTimestamp()), event.type().name(),
                     actor == null ? null : actor.uuid(), target == null ? null : target.uuid(),
                     Component.Serializer.toJson(text, world.registryAccess()),

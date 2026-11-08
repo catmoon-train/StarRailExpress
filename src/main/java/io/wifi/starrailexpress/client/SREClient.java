@@ -1528,7 +1528,8 @@ public class SREClient implements ClientModInitializer {
     public static OptionalInt getCachedInstinctHighlight(Entity target) {
         OptionalInt cached = cachedHighLightMap.get(target.getUUID());
         if (cached != null) {
-            return cached;
+            // 仅动态改色，仍复用缓存的轮廓可见性，避免彩虹色随缓存冻结。
+            return org.agmas.noellesroles.client.CloneDoctorClient.applyOutlineColor(target, cached);
         }
         if (!isInstinctHighlightCandidate(target)) {
             return OptionalInt.empty();
@@ -1573,7 +1574,8 @@ public class SREClient implements ClientModInitializer {
      * @return
      */
     public static OptionalInt getInstinctHighlight(Entity target) {
-        return InstinctManager.getInstinctHighlight(target);
+        return org.agmas.noellesroles.client.CloneDoctorClient.applyOutlineColor(target,
+                InstinctManager.getInstinctHighlight(target));
     }
 
     static Predicate<Player> isHoldSpecialItem = (player) -> {

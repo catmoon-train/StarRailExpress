@@ -603,19 +603,23 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
     }
 
     public boolean isNeutralForKiller(@NotNull Player player) {
-        return getRole(player) != null && getRole(player).isNeutralForKiller();
+        var role = getAllegianceRole(player);
+        return role != null && role.isNeutralForKiller();
     }
 
     public boolean canUseKillerFeatures(@NotNull Player player) {
-        return getRole(player) != null && getRole(player).canUseKiller();
+        var role = getAllegianceRole(player);
+        return role != null && role.canUseKiller();
     }
 
     public boolean isInnocent(@NotNull UUID player) {
-        return getRole(player) != null && getRole(player).isInnocent();
+        var role = getAllegianceRole(player);
+        return role != null && role.isInnocent();
     }
 
     public boolean isInnocent(@NotNull Player player) {
-        return getRole(player) != null && getRole(player).isInnocent();
+        var role = getAllegianceRole(player);
+        return role != null && role.isInnocent();
     }
 
     public void clearRoleMap(boolean sync) {
@@ -1364,7 +1368,8 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
     }
 
     public boolean canSeeKillerTeammate(Player player) {
-        return getRole(player) != null && getRole(player).canSeeTeammateKillerRole();
+        var role = getAllegianceRole(player);
+        return role != null && role.canSeeTeammateKillerRole();
     }
 
     public boolean isKillerTeamRole(SRERole role) {
@@ -1379,7 +1384,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
 
     public boolean isKillerTeam(UUID player) {
         if (player != null) {
-            var role = this.getRole(player);
+            var role = this.getAllegianceRole(player);
             if (role == null)
                 return false;
             if (role.canUseKiller())
@@ -1446,7 +1451,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
 
     public boolean isInnocentTeam(UUID player) {
         if (player != null) {
-            return isInnocentTeamRoleStatic(this.getRole(player));
+            return isInnocentTeamRoleStatic(this.getAllegianceRole(player));
         }
         return false;
     }
@@ -1557,7 +1562,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
             if (!SREPlayerUtils.isPlayerAlive(this.world, p)) {
                 continue;
             }
-            SRERole role = roleWorldComponent.getRole(p);
+            SRERole role = getAllegianceRole(p);
             if (role == null) {
                 continue;
             }
@@ -1631,7 +1636,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
     }
 
     public boolean canIncreaseSurvivingInnocents(Player player) {
-        var role = getRole(player);
+        var role = getAllegianceRole(player);
         if (role == null)
             return false;
         if (isDualCountDeadlock(role)) {
@@ -1641,7 +1646,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
     }
 
     public boolean canIncreaseSurvivingKillers(ServerPlayer player) {
-        var role = getRole(player);
+        var role = getAllegianceRole(player);
         if (role == null)
             return false;
         if (isDualCountDeadlock(role)) {
@@ -1674,7 +1679,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
             if (!(p instanceof ServerPlayer sp) || !GameUtils.isPlayerAliveAndSurvival(sp)) {
                 continue;
             }
-            var r = getRole(sp);
+            var r = getAllegianceRole(sp);
             if (r == null || !r.canIncreaseSurvivingInnocents() || !r.canIncreaseSurvivingKillers()) {
                 return false;
             }
