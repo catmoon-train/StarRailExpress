@@ -29,6 +29,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithBody;
 import org.agmas.noellesroles.game.roles.innocence.nurse.NurseRole;
+import org.agmas.noellesroles.game.roles.innocence.central_control.CentralControlRole;
 import org.agmas.noellesroles.game.roles.killer.boom_maniac.BoomManiacRole;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.SREItemUtils;
@@ -906,6 +907,32 @@ public class ModRolesInitialEventRegister {
                     return true; // 进入冷却
                 }).cooldownSeconds(120)
                         .showOnHud(true).build());
+
+        // ==================== 中控员技能注册 ====================
+        // 多技能：按技能切换键（V/Y）循环选择，按技能键（G）释放当前选中的技能。
+        // 每个技能的冷却 / 次数都由统一技能系统按 skillId 单独记录，因此这里各写各的冷却。
+        // - 一技能 动态模块：冷却 20 秒，不花钱
+        // - 二技能 红外线扫描仪：花 150 金币，冷却 90 秒
+        // - 三技能 激光模块：花 200 金币，一局仅 1 次（charges(1)）
+        // 注意：RoleSkill.register 是整体覆盖，所以三个技能必须在同一次调用里注册完。
+        // 中控员有自己的 HUD（CentralControlHud），所以这里一律 showOnHud(false)，
+        // 不占用统一技能 HUD 的位置。
+        RoleSkill.register(ModRoles.CENTRAL_CONTROL,
+                RoleSkill.skill(SRE.id("central_control_dynamic_module"),
+                        "skill.noellesroles.central_control.dynamic_module",
+                        context -> CentralControlRole.installDynamicModule(context.player()))
+                        .cooldownSeconds(CentralControlRole.DYNAMIC_MODULE_COOLDOWN_SECONDS)
+                        .announceToSelf(false).showOnHud(false).build(),
+                RoleSkill.skill(SRE.id("central_control_infrared_scanner"),
+                        "skill.noellesroles.central_control.infrared_scanner",
+                        context -> CentralControlRole.installInfraredScanner(context.player()))
+                        .cooldownSeconds(CentralControlRole.INFRARED_SCANNER_COOLDOWN_SECONDS)
+                        .announceToSelf(false).showOnHud(false).build(),
+                RoleSkill.skill(SRE.id("central_control_laser_module"),
+                        "skill.noellesroles.central_control.laser_module",
+                        context -> CentralControlRole.installLaserModule(context.player()))
+                        .charges(1)
+                        .announceToSelf(false).showOnHud(false).build());
 
         // 幻音师技能注册：花费100金币传送到30格外随机一人的身边
         RoleSkill.register(ModRoles.PHANTOM_MUSICIAN, context -> {

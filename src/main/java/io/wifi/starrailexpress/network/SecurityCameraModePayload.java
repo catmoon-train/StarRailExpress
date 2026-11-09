@@ -54,6 +54,8 @@ public record SecurityCameraModePayload(boolean enable, BlockPos cameraPos, floa
                     SecurityCameraClientState.setSecurityMode(true);
                     // 设置初始视角角度
                     SecurityCameraClientState.setCurrentYaw(payload.yaw());
+                    // 换摄像头时动态模块偏移归零，避免带着上一台摄像头的视角
+                    SecurityCameraClientState.resetViewOffset();
                     SecurityCameraClientState.lastCameraId = payload.cameraId();
                     Minecraft.getInstance().options.setCameraType(CameraType.THIRD_PERSON_BACK);
                 } else {
@@ -63,6 +65,7 @@ public record SecurityCameraModePayload(boolean enable, BlockPos cameraPos, floa
                     SecurityCameraClientState.setCurrentCameraPos(null);
                     // 重置视角角度
                     SecurityCameraClientState.setCurrentYaw(0.0f);
+                    SecurityCameraClientState.resetViewOffset();
                     SecurityCameraClientState.lastCameraId = -1;
                 }
             });

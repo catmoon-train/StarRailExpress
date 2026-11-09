@@ -1041,6 +1041,18 @@ public class ModPacketsReciever {
         RoleSkill.selectSkill(context.player(), payload.slot());
       }
     });
+    // 中控员：监控页面按技能键发射激光（薄转发到职业类）
+    ServerPlayNetworking.registerGlobalReceiver(
+        org.agmas.noellesroles.packet.CentralControlLaserC2SPacket.ID,
+        (payload, context) -> context.server().execute(() ->
+            org.agmas.noellesroles.game.roles.innocence.central_control.CentralControlRole
+                .fireLaser(context.player(), payload.cameraPos(), payload.lookYaw(), payload.lookPitch())));
+    // 中控员：监控画面拖动鼠标时同步镜头方向（红外线扫描仪跟着视角照亮）
+    ServerPlayNetworking.registerGlobalReceiver(
+        org.agmas.noellesroles.packet.CameraViewLookC2SPacket.ID,
+        (payload, context) -> context.server().execute(() ->
+            org.agmas.noellesroles.game.roles.innocence.central_control.CentralControlRole
+                .updateViewerLook(context.player(), payload.cameraPos(), payload.lookYaw(), payload.lookPitch())));
     ServerPlayNetworking.registerGlobalReceiver(AbilityWithTargetC2SPacket.ID, (payload, context) -> {
       if (org.agmas.noellesroles.game.fake_steve.FakeSteveDirector.handleAbilityInput(context.player())) return;
       RoleSkill.beginUseShiftedWithTarget(context.player(), payload.target());

@@ -188,6 +188,11 @@ public class SecurityMonitorBlock extends BaseEntityBlock implements TaskInstinc
         // 重置视角为新摄像头的初始视角
         currentYaw = 0.0f;
         // currentPitch = 0.0f;
+        // 切换摄像头后，红外线扫描仪要立刻跟着切到新镜头（旧镜头的观察登记作废）
+        if (player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+            org.agmas.noellesroles.game.roles.innocence.central_control.CentralControlRole
+                    .onCameraViewed(serverPlayer, currentCameraPos);
+        }
 
         // 获取摄像头的朝向信息
         if (player.level() != null) {
@@ -237,6 +242,10 @@ public class SecurityMonitorBlock extends BaseEntityBlock implements TaskInstinc
         // 发送网络包到客户端以更新视角
         ServerPlayNetworking.send(player,
                 new SecurityCameraModePayload(true, currentCameraPos, currentYaw, lastCameraId));
+        // 服务端登记「谁正在看哪台摄像头」：红外线扫描仪只对正在被观看的摄像头生效。
+        // 必须按玩家分别记录——上面的 currentCameraPos 是全局静态字段，多人同时看监控会互相覆盖。
+        org.agmas.noellesroles.game.roles.innocence.central_control.CentralControlRole
+                .onCameraViewed(player, currentCameraPos);
     }
 
     public static void exitSecurityMode(net.minecraft.server.level.ServerPlayer player) {
@@ -248,6 +257,9 @@ public class SecurityMonitorBlock extends BaseEntityBlock implements TaskInstinc
         player.displayClientMessage(Component.literal("已退出监控模式").withStyle(ChatFormatting.RED), true);
 
         // 发送网络包到客户端以更新视角
+        // 退出监控：把自己从红外线扫描仪的观察者名册里摘掉
+        org.agmas.noellesroles.game.roles.innocence.central_control.CentralControlRole
+                .onCameraViewStopped(player);
         PacketTracker.sendToClient(player,
                 new SecurityCameraModePayload(false, BlockPos.ZERO, currentYaw, -1));
     }
@@ -268,10 +280,11 @@ public class SecurityMonitorBlock extends BaseEntityBlock implements TaskInstinc
         return currentMonitorPos;
     }
 
+    /** 谁能透视到监控控制台：滞时鬼（拆监控）与中控员（找监控台看画面）。 */
     @Override
     public boolean shouldRenderTaskInstinct(Level level, BlockState state, BlockPos pos, Player player) {
         var roleCCA = SRERoleWorldComponent.KEY.get(level);
-        return roleCCA.isRole(player, ModRoles.DELAYER);
+        return roleCCA.isRole(player, ModRoles.DELAYER) || roleCCA.isRole(player, ModRoles.CENTRAL_CONTROL);
     }
 
     @Override

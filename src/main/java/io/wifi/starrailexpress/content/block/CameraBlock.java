@@ -134,17 +134,28 @@ public class CameraBlock extends BaseEntityBlock implements TaskInstinctShowable
         if (blockEntity instanceof CameraBlockEntity cbe) {
             cbe.reset();
         }
+        // 红外线扫描仪的「区域发光」登记表也要跟着重置，否则会残留上一局的白点位
+        org.agmas.noellesroles.game.roles.innocence.central_control.CentralControlRole.onCameraReset(level, pos);
         return new BlockEntityInfo(blockEntity.saveCustomOnly(level.registryAccess()), blockEntity.components());
     }
 
+    /**
+     * 谁能透视到摄像头位置：滞时鬼（拆摄像头）与中控员（改造摄像头）。
+     * 与 {@code SecurityMonitorBlock#shouldRenderTaskInstinct} 的判定保持一致。
+     */
     @Override
     public boolean shouldRenderTaskInstinct(Level level,BlockState state, BlockPos pos, Player player) {
         var roleCCA = SRERoleWorldComponent.KEY.get(level);
-        return roleCCA.isRole(player, ModRoles.DELAYER);
+        return roleCCA.isRole(player, ModRoles.DELAYER) || roleCCA.isRole(player, ModRoles.CENTRAL_CONTROL);
     }
 
     @Override
     public Color taskInstinctRenderColor(BlockState state, BlockPos pos, Player player) {
+        var roleCCA = SRERoleWorldComponent.KEY.get(player.level());
+        if (roleCCA.isRole(player, ModRoles.CENTRAL_CONTROL)) {
+            // 中控员的改造目标是青色，与滞时鬼的品红区分开
+            return java.awt.Color.CYAN;
+        }
         return java.awt.Color.MAGENTA;
     }
 }

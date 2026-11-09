@@ -37,6 +37,8 @@ public class NREventRegister {
         // 注册 Mafia 系统
         org.agmas.noellesroles.game.roles.neutral.mafia.MafiaManager.register();
 
+        // 中控员：红外线扫描仪的区域发光（全局 tick，不为每个玩家注册）
+        org.agmas.noellesroles.game.roles.innocence.central_control.CentralControlTicker.register();
         // 注册事件处理器
         ModEventsRegister.registerEvents();
         org.agmas.noellesroles.content.item.SealedArtifactHandler.register();

@@ -111,6 +111,7 @@ public class OtherRolesHudRegister {
         AsatyaHud.register();
         PoolerHud.register();
         StarGathererHud.register();
+        CentralControlHud.register();
         // 自定义职业HUD
         CustomRoleHud.register();
     }

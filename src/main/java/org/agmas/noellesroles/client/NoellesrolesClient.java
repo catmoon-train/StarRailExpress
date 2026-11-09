@@ -267,6 +267,25 @@ public class NoellesrolesClient implements ClientModInitializer {
         // 区域地图物品：客户端扫描 playArea 生成地图纹理 + 手持时 HUD 小地图
         org.agmas.noellesroles.client.map.AreaMapManager.register();
         org.agmas.noellesroles.client.map.AreaMapHud.register();
+        // 中控员：激光模块的客户端粒子形状（服务端只发一个自定义形状包）
+        org.agmas.noellesroles.client.fx.CentralControlLaserClientFx.register();
+        // 中控员：红外线扫描仪让监控画面变亮（覆盖环境亮度，不改 io/wifi 的渲染代码）
+        io.wifi.starrailexpress.event.RenderClientLightLevel.EVENT.register((instance, other, partialTick) -> {
+            if (!io.wifi.starrailexpress.client.SecurityCameraClientState.isInSecurityMode()) {
+                return -1.0F;
+            }
+            var minecraft = Minecraft.getInstance();
+            if (minecraft.level == null) {
+                return -1.0F;
+            }
+            var cameraPos = io.wifi.starrailexpress.client.SecurityCameraClientState.getCurrentCameraPos();
+            if (cameraPos == null
+                    || !org.agmas.noellesroles.game.roles.innocence.central_control.CentralControlRole
+                            .hasNightVision(minecraft.level, cameraPos)) {
+                return -1.0F;
+            }
+            return org.agmas.noellesroles.game.roles.innocence.central_control.CentralControlRole.INFRARED_GAMMA;
+        });
         // 阿蒙终幕「阿蒙时刻」：全屏稍偏灰滤镜。
         org.agmas.noellesroles.client.event.CommonHudRenderCallback.EVENT.register((g, dt) -> {
             if (org.agmas.noellesroles.client.ClientAmonState.finaleActive) {
@@ -1414,6 +1433,15 @@ public class NoellesrolesClient implements ClientModInitializer {
             boolean abilityPressed = abilityBind.consumeClick();
             if (nextAbilityBind.consumeClick()) {
                 ClientAbilityHandler.selectNextSkill(client);
+            }
+            if (abilityPressed && org.agmas.noellesroles.client.hud.roles.CentralControlHud
+                    .isMonitorHandlingAbilityKey(client)) {
+                // 监控页面里技能键被激光模块接管：上报摄像头位置 + 画面当前朝向，射线检测交给服务端
+                var viewCamera = client.gameRenderer.getMainCamera();
+                ClientPlayNetworking.send(new org.agmas.noellesroles.packet.CentralControlLaserC2SPacket(
+                        io.wifi.starrailexpress.client.SecurityCameraClientState.getCurrentCameraPos(),
+                        viewCamera.getYRot(), viewCamera.getXRot()));
+                abilityPressed = false;
             }
             ClientAbilityHandler.tickContinuousInput(client);
             if (client.player.isCreative()) {

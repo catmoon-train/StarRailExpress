@@ -26,6 +26,7 @@ import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.item.StalkerKnifeItem;
 import org.agmas.noellesroles.game.roles.innocence.adventurer.AdventurerRole;
+import org.agmas.noellesroles.game.roles.innocence.central_control.CentralControlRole;
 import org.agmas.noellesroles.game.roles.innocence.cake_maker.CakeMakerRole;
 import org.agmas.noellesroles.game.roles.innocence.great_detective.GreatDetectiveRole;
 import org.agmas.noellesroles.game.roles.innocence.mortician.MorticianRole;
@@ -342,6 +343,8 @@ public class ModRoles {
     public static final ResourceLocation ADMIRER_ID = Noellesroles.id("admirer");
     public static final ResourceLocation PUPPETEER_ID = Noellesroles.id("puppeteer");
     public static final ResourceLocation MONITOR_ID = Noellesroles.id("monitor");
+    /** 中控员：平民阵营，可改造监控摄像头。 */
+    public static final ResourceLocation CENTRAL_CONTROL_ID = Noellesroles.id("central_control");
     public static final ResourceLocation COMMANDER_ID = Noellesroles.id("commander");
     public static final ResourceLocation RECORDER_ID = Noellesroles.id("recorder");
     public static ResourceLocation VULTURE_ID = Noellesroles.id("vulture");
@@ -3058,6 +3061,31 @@ public class ModRoles {
             false // 不显示计分板
     ).setRoleData(MonitorRoleData::new).setCanSeeCoin(true))
             .setDefaultEnableChance(7500);
+
+    /**
+     * 中控员角色
+     * - 平民阵营（isInnocent = true），没有杀手能力
+     * - 真实心情、标准冲刺时间、显示计分板
+     * - 任务点透视：可以透视场上所有监控摄像头与控制台的位置（与滞时鬼一致）
+     * - 商店：100 金币的远程监控终端（与保安商店中的一致）
+     * - 三个技能共用技能切换键：动态模块 / 红外线扫描仪 / 激光模块
+     * - 改造只影响摄像头监控画面与监控区域，不改动摄像头本身的位置
+     * - 职业相关规则全部集中在 CentralControlRole 里
+     */
+    public static SRERole CENTRAL_CONTROL = TMMRoles.registerRole(new CentralControlRole(
+            CENTRAL_CONTROL_ID,
+            new Color(64, 196, 214).getRGB(), // 青色 - 代表监控与线路
+            true, // isInnocent = 平民阵营
+            false, // canUseKiller = 没有杀手能力
+            SRERole.MoodType.REAL,
+            TMMRoles.CIVILIAN.getMaxSprintTime(),
+            false // 不隐藏计分板
+    ).setRoleData(CentralControlRoleData::new))
+            .setCanSeeCoin(true)
+            .setCanUseInstinctAndNightVision(false)
+            .setDefaultEnableChance(8000)
+            .setDefaultMax(1)
+            .setAddedVersion("4.5");
 
     /**
      * 记录员角色

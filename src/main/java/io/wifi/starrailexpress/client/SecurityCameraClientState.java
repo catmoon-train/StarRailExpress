@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.client;
 
 import io.wifi.starrailexpress.content.block.CameraBlock;
+import io.wifi.starrailexpress.content.block_entity.CameraBlockEntity;
 import io.wifi.starrailexpress.network.SecurityCameraExitRequestPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Camera;
@@ -24,6 +25,7 @@ import net.minecraft.client.player.Input;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
@@ -39,6 +41,17 @@ import org.lwjgl.glfw.GLFW;
  * 服务端的写入会直接污染腐竹客户端的渲染/输入逻辑。
  */
 public final class SecurityCameraClientState {
+    /**
+     * 动态模块允许的最大视角偏移（度），水平与俯仰共用。
+     * <p>
+     * 偏移只存在客户端：视角完全由本机计算，不需要服务端知道，也就不会被服务端同步
+     * （例如激光冷却每秒一次）覆盖掉。
+     */
+    public static final float MAX_VIEW_OFFSET = 90.0F;
+
+    /** 向服务端上报镜头方向的最小间隔（tick）：约每 100ms 一次，足够让红外发光跟手。 */
+    private static final int LOOK_REPORT_INTERVAL_TICKS = 2;
+
     private static boolean isInSecurityMode = false;
     private static BlockPos currentCameraPos = null;
     private static float currentYaw = 0.0f;
@@ -47,7 +60,9 @@ public final class SecurityCameraClientState {
     public static float yawIncrease;
     public static float pitchIncrease;
     public static int lastCameraId = -1;
-
+    /** 动态模块累加出来的视角偏移（相对摄像头方块朝向）。 */
+    private static float viewYawOffset = 0.0F;
+    private static float viewPitchOffset = 0.0F;
     private static boolean preventShiftTillNextKeyUp = false;
 
     private SecurityCameraClientState() {
@@ -136,34 +151,33 @@ public final class SecurityCameraClientState {
         if (!isInSecurityMode())
             return false;
         BlockPos cameraPos = getCurrentCameraPos();
+        if (cameraPos == null)
+            return false;
 
-        float targetXRot;
-        // currentPitch = 0f;
-
-        // 获取监控控制台的位置（用于获取监控方块朝向）
-        // BlockPos monitorPos = getCurrentMonitorPos();
+        // 基础角度来自摄像头方块的朝向；动态模块在此基础上叠加玩家自己转出来的偏移。
+        float targetYaw = currentYaw;
+        float targetPitch = 0.0F;
 
         if (level != null) {
-            BlockState monitorState = level.getBlockState(cameraPos);
-            if (monitorState.getBlock() instanceof CameraBlock) {
-                Direction monitorFacing = monitorState.getValue(CameraBlock.FACING);
-
-                // 根据监控控制台方向计算基础旋转角度
-                float baseYaw = getBaseYawFromDirection(monitorFacing);
-                // 计算目标视角：基础角度 + 玩家调整的偏移量
-                targetXRot = baseYaw;
+            BlockState cameraState = level.getBlockState(cameraPos);
+            if (cameraState.getBlock() instanceof CameraBlock) {
+                Direction cameraFacing = cameraState.getValue(CameraBlock.FACING);
+                float baseYaw = getBaseYawFromDirection(cameraFacing);
                 currentYaw = baseYaw;
-
-            } else {
-                // 如果无法获取监控方块，使用默认值
-                targetXRot = currentYaw;
+                targetYaw = baseYaw;
+                // 只有在装了动态模块（且摄像头没失灵）时，模块偏移才生效。
+                if (level.getBlockEntity(cameraPos) instanceof CameraBlockEntity cbe && cbe.canRotateView()) {
+                    targetYaw = baseYaw + viewYawOffset;
+                    targetPitch = viewPitchOffset;
+                } else if (viewYawOffset != 0.0F || viewPitchOffset != 0.0F) {
+                    // 模块失效 / 被拆掉：偏移作废，画面回到固定视角
+                    viewYawOffset = 0.0F;
+                    viewPitchOffset = 0.0F;
+                }
             }
-        } else {
-            // 如果无法获取世界或监控方块位置，则使用默认行为
-            targetXRot = currentYaw;
         }
 
-        camera.setRotation(targetXRot, 0);
+        camera.setRotation(targetYaw, targetPitch);
         // 设置相机位置到摄像头位置
         Vec3 targetCameraPos = cameraPos.getCenter().add(0, -1.2, 0);
 
@@ -176,6 +190,77 @@ public final class SecurityCameraClientState {
         pitchIncrease = 0;
 
         return true;
+    }
+
+    /**
+     * 监控画面里正常拖动鼠标时调用：把鼠标位移累加到「当前受控摄像头」的动态模块偏移上。
+     *
+     * <p>只在装了动态模块、且摄像头没有失灵时才生效；没装模块时视角固定，
+     * 与保安原来的监控画面表现一致。
+     *
+     * @param yawDelta   水平位移（度，向右为正）
+     * @param pitchDelta 垂直位移（度，向下为正）
+     * @return 是否真的改变了视角
+     */
+    public static boolean applyMouseLookToDynamicModule(float yawDelta, float pitchDelta) {
+        if (!isInSecurityMode())
+            return false;
+        BlockPos cameraPos = getCurrentCameraPos();
+        if (cameraPos == null)
+            return false;
+        var clientLevel = Minecraft.getInstance().level;
+        if (clientLevel == null)
+            return false;
+        if (!(clientLevel.getBlockEntity(cameraPos) instanceof CameraBlockEntity cbe))
+            return false;
+        if (!cbe.canRotateView())
+            return false;
+        float newYaw = Mth.clamp(viewYawOffset + yawDelta, -MAX_VIEW_OFFSET, MAX_VIEW_OFFSET);
+        float newPitch = Mth.clamp(viewPitchOffset + pitchDelta, -MAX_VIEW_OFFSET, MAX_VIEW_OFFSET);
+        if (newYaw == viewYawOffset && newPitch == viewPitchOffset)
+            return false;
+        viewYawOffset = newYaw;
+        viewPitchOffset = newPitch;
+        maybeReportLook(cameraPos, cbe);
+        return true;
+    }
+
+    /** 上次向服务端上报视角的游戏刻，用于节流。 */
+    private static long lastLookReportTick = Long.MIN_VALUE;
+    /** 上次上报的 yaw / pitch，视角没变时不重复发包。 */
+    private static float lastReportedYaw = Float.NaN;
+    private static float lastReportedPitch = Float.NaN;
+
+    /**
+     * 把当前镜头方向同步给服务端（红外线扫描仪靠它决定照亮哪一块区域）。
+     * <p>
+     * 只有该摄像头装了红外线扫描仪时才发——动态模块单独使用时服务端并不需要知道视角。
+     * 每 {@link #LOOK_REPORT_INTERVAL_TICKS} tick 最多一次，且视角没变化就不发。
+     */
+    private static void maybeReportLook(BlockPos cameraPos, CameraBlockEntity cbe) {
+        if (!cbe.hasInfraredScanner())
+            return;
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.level == null)
+            return;
+        long now = minecraft.level.getGameTime();
+        if (lastLookReportTick != Long.MIN_VALUE && now - lastLookReportTick < LOOK_REPORT_INTERVAL_TICKS)
+            return;
+        float yaw = viewYawOffset;
+        float pitch = viewPitchOffset;
+        if (yaw == lastReportedYaw && pitch == lastReportedPitch)
+            return;
+        lastLookReportTick = now;
+        lastReportedYaw = yaw;
+        lastReportedPitch = pitch;
+        net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(
+                new org.agmas.noellesroles.packet.CameraViewLookC2SPacket(cameraPos, yaw, pitch));
+    }
+
+    /** 进入 / 退出监控模式时清零动态模块偏移，避免把上一台摄像头的视角带到下一台。 */
+    public static void resetViewOffset() {
+        viewYawOffset = 0.0F;
+        viewPitchOffset = 0.0F;
     }
 
     /**

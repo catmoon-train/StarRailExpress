@@ -465,5 +465,15 @@ public class ModPackets {
 
         // 注册地图状态栏同步网络包（S2C，客户端接收器在 NoellesrolesClient）
         PayloadTypeRegistry.playS2C().register(MapStatusBarSyncS2CPacket.ID, MapStatusBarSyncS2CPacket.CODEC);
+
+        // 中控员：监控页面按技能键发射激光（C2S）
+        PayloadTypeRegistry.playC2S().register(
+                org.agmas.noellesroles.packet.CentralControlLaserC2SPacket.ID,
+                org.agmas.noellesroles.packet.CentralControlLaserC2SPacket.CODEC);
+
+        // 中控员：监控画面拖动鼠标时同步镜头方向（C2S，用于红外线扫描仪跟着视角照亮）
+        PayloadTypeRegistry.playC2S().register(
+                org.agmas.noellesroles.packet.CameraViewLookC2SPacket.ID,
+                org.agmas.noellesroles.packet.CameraViewLookC2SPacket.CODEC);
     }
 }
