@@ -9,11 +9,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-/** preLaunch 检查内置删除名单；独立清理器就绪后结束当前游戏进程。 */
+/** preLaunch 检查内置删除名单；桌面使用独立清理器，手机在当前进程清理后停止加载。 */
 public final class ObsoleteModRemoval {
     private ObsoleteModRemoval() { }
 
     public static void check() {
+        String restartMessage;
         try {
             var loader = FabricLoader.getInstance();
             var mod = loader.getModContainer("sre_pack_compat").orElseThrow();
@@ -26,12 +27,20 @@ public final class ObsoleteModRemoval {
             protectedFiles.add(Path.of(ObsoleteModRemoval.class.getProtectionDomain().getCodeSource().getLocation().toURI()));
             List<String> matches = ModRemovalWorker.find(mods, names, protectedFiles);
             if (matches.isEmpty()) return;
-            startWorker(mods, matches);
-            System.exit(0);
-            throw new IllegalStateException("游戏进程未能退出，禁止继续加载过时 Mod");
+            if (MobileModRemoval.isAndroidRuntime(System.getenv(),
+                    System.getProperty("java.runtime.name", ""), System.getProperty("java.vm.name", ""))) {
+                restartMessage = MobileModRemoval.removeAndDescribe(mods, matches, protectedFiles);
+                if (restartMessage == null) return;
+            } else {
+                startWorker(mods, matches);
+                System.exit(0);
+                throw new IllegalStateException("游戏进程未能退出，禁止继续加载过时 Mod");
+            }
         } catch (Exception error) {
-            throw new IllegalStateException("无法启动过时 Mod 清理，请检查 obsolete-mods.txt 或手动删除指定文件", error);
+            throw new IllegalStateException("过时 Mod 清理失败，请检查 obsolete-mods.txt 或退出游戏后手动删除指定文件", error);
         }
+        // 手机删除的是已被 Loader 打开的 JAR，必须结束本轮加载，重启后才能刷新模组列表。
+        throw new IllegalStateException(restartMessage);
     }
 
     private static void startWorker(Path mods, List<String> matches) throws Exception {

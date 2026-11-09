@@ -113,9 +113,13 @@ Chloride 的 68 项设置同时受运行策略、Sodium 控件/binding/默认值
 
 ## 自动清理过时 Mod
 
-编辑 `src/main/resources/obsolete-mods.txt`，每行一个精确的 `.jar` 文件名（支持空行及 `#` 注释），重新打包发布。默认空名单。preLaunch 检测当前实例 `mods/` 下的命中文件；没有命中就正常启动。
+编辑 `src/main/resources/obsolete-mods.txt`，每行一个精确的 `.jar` 文件名（支持空行及 `#` 注释），重新打包发布。当前名单以该资源文件为准。preLaunch 检测当前实例 `mods/` 下的命中文件；没有命中就正常启动。
 
 命中时先启动独立 Java 清理窗口，显示“正在删除过时的 Mod，请重启游戏”，确认窗口就绪后退出游戏。清理器等游戏进程退出再删除名单中实际命中的文件，每文件最多重试 15 秒；完成或失败会显示结果。拒绝路径、通配符、符号链接、目录和兼容包自身，不递归删除、不匹配相似名称。临时工作目录保留 `worker.log` / `result.txt` 便于排查。
+
+Android（Pojav/Fold Craft/Zalith 等启动器）不能执行独立 Java 或显示桌面 Swing 窗口，因此按启动器环境标记或 Android JVM 标识切换为当前进程直接删除。仍使用相同的精确文件名、自身保护和链接检查，不启动子进程，不调用桌面窗口。删除后**停止本轮加载并在启动错误信息中列出已删除文件、目录和重启提示**，重新启动才使用新的模组列表；部分删除失败则列出需退出后手动处理的文件，不继续加载旧 Mod。这不是绕过 Android 执行权限，也不保证其他模组的手机端兼容性。
+
+针对性验证：`./gradlew :sre-pack-compat:test --tests '*MobileModRemovalTest' --tests '*ModRemovalWorkerTest' :sre-pack-compat:remapJar --offline --console=plain`。真实 Android 启动需在手机上复测。
 
 此功能在 Loader 的 preLaunch 阶段执行，**不能处理在此之前就导致 Loader 硬依赖/`breaks` 检查失败的旧 Mod**；这类仍需手动或启动器预先移除。没有绕过 Loader、鉴权或自动更新校验。名单之外的文件不删除；启动器若重新下载旧 Mod，应同步修正正常整合包发布清单。
 
