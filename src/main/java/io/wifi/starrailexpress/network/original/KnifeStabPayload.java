@@ -105,7 +105,7 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
                     return;
 
                 // 对傀儡本体造成致命伤害（20点以上确保击杀）
-                bodyEntity.playerHurt(player, GameConstants.DeathReasons.PUPPETEER_BODY_DEATH);
+                bodyEntity.playerHurt(player);
 
                 bodyEntity.playSound(TMMSounds.ITEM_KNIFE_STAB, 1.0f, 1.0f);
                 player.swing(InteractionHand.MAIN_HAND);

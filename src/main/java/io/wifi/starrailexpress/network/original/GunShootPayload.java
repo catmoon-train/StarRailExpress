@@ -280,7 +280,7 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                     // 德林加不在这里补充
 
                     // 对傀儡本体造成致命伤害
-                bodyEntity.playerHurt(player, GameConstants.DeathReasons.PUPPETEER_BODY_DEATH);
+                bodyEntity.playerHurt(player);
                 }
                 OnRevolverUsed.EVENT.invoker().onPlayerShoot(player, target);
             } else {

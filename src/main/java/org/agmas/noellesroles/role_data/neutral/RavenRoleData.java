@@ -45,6 +45,7 @@ import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class RavenRoleData extends SimpleRoleData {
@@ -301,10 +302,13 @@ public class RavenRoleData extends SimpleRoleData {
     /**
      * 本体（玩家傀儡）死亡。
      *
-     * <p>死因一律记为 {@link GameConstants.DeathReasons#PUPPETEER_BODY_DEATH}：
-     * 渡鸦与傀儡师共用同一套"本体死亡"死因，避免出现渡鸦本体死亡/未知等分裂文案。
+     * <p>死因固定在内部，不由调用方传入：渡鸦与傀儡师共用同一个
+     * {@link GameConstants.DeathReasons#PUPPETEER_BODY_DEATH}，
+     * 因此不会出现"渡鸦本体死亡 / 未知"这类分裂文案。
+     *
+     * @param killer 击杀者，可为 {@code null}（生命值归零、本体标记被破坏等无明确凶手的情况）
      */
-    public void onBodyDeath(Player killer, ResourceLocation reason) {
+    public void onBodyDeath(@Nullable Player killer) {
         if (!isHunting() || !(player instanceof ServerPlayer serverPlayer))
             return;
         endHunt(false);

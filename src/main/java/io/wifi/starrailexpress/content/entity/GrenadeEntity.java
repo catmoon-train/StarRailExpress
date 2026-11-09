@@ -135,8 +135,7 @@ public class GrenadeEntity extends NoHeavyWaterInfluencedThrowableItemProjectile
                             GameConstants.DeathReasons.GRENADE);
                 }
                 if (entity instanceof PuppeteerBodyEntity puppeteerBodyEntity) {
-                    puppeteerBodyEntity.playerHurt(attacker,
-                            GameConstants.DeathReasons.GRENADE);
+                    puppeteerBodyEntity.playerHurt(attacker);
                 }
                 count++;
                 if (count >= MAX_KILL_PLAYER_COUNT)

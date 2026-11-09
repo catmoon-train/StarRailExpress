@@ -305,11 +305,11 @@ public class PuppeteerBodyEntity extends LivingEntity {
     /**
      * 玩家（或别的实体）对傀儡本体发起的一次致命攻击。
      *
-     * <p>{@code deathReason} 参数保留只是为了兼容既有调用方，实际不再使用：
-     * 玩家傀儡本体致死一律记为 {@link GameConstants.DeathReasons#PUPPETEER_BODY_DEATH}，
-     * 避免出现"刀刺本体 / 枪击本体 / 未知"这类按凶器分裂的死因。
+     * <p>没有死因参数：玩家傀儡本体致死一律记为
+     * {@link GameConstants.DeathReasons#PUPPETEER_BODY_DEATH}，
+     * 不按凶器区分（刀 / 枪 / 手雷 / 钝器都一样），避免出现"刀刺本体 / 未知"这类分裂死因。
      */
-    public boolean playerHurt(Player player, ResourceLocation deathReason) {
+    public boolean playerHurt(Player player) {
         if (level().isClientSide())
             return false;
         if (org.agmas.noellesroles.game.roles.killer.clone_doctor.CloneDoctorSessionManager.blocksDamage(player))
@@ -320,28 +320,32 @@ public class PuppeteerBodyEntity extends LivingEntity {
         }
         Player owner = getOwner();
         if (owner != null) {
-            notifyBodyDeath(player, GameConstants.DeathReasons.PUPPETEER_BODY_DEATH);
+            notifyBodyDeath(player);
             discard();
         }
         return true;
     }
 
     /**
-     * 统一的本体死亡派发：无论死因从哪条路径进来（刀 / 枪 / 手雷 / 环境伤害 /
-     * 生命值归零），最终都按"本体死亡"结算，绝不把 {@code generic}（未知）传下去。
+     * 统一的本体死亡派发：无论从哪条路径进来（刀 / 枪 / 手雷 / 环境伤害 /
+     * 生命值归零），最终都按"本体死亡"结算。
+     *
+     * <p>死因不在这里传：下发的 {@code onBodyDeath} 内部直接固定为
+     * {@link GameConstants.DeathReasons#PUPPETEER_BODY_DEATH}，
+     * 因此本方法既不可能、也无法把 {@code generic}（未知）带进尸体。
      */
-    private void notifyBodyDeath(@org.jspecify.annotations.Nullable Player killer, ResourceLocation reason) {
+    private void notifyBodyDeath(@org.jspecify.annotations.Nullable Player killer) {
         Player owner = getOwner();
         if (owner == null)
             return;
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(level());
         if (gameWorld.isRole(owner, ModRoles.PUPPETEER)) {
-            ModComponents.PUPPETEER.get(owner).onBodyDeath(killer, reason);
+            ModComponents.PUPPETEER.get(owner).onBodyDeath(killer);
         } else if (gameWorld.isRole(owner, ModRoles.RAVEN)) {
             var ravenData = io.wifi.starrailexpress.api.data.RoleData.getNullable(
                     org.agmas.noellesroles.role_data.neutral.RavenRoleData.class, owner);
             if (ravenData != null) {
-                ravenData.onBodyDeath(killer, reason);
+                ravenData.onBodyDeath(killer);
             }
         } else {
             owner.teleportTo(owner.getX(), owner.getY(), owner.getZ());
@@ -375,8 +379,7 @@ public class PuppeteerBodyEntity extends LivingEntity {
 
         // 如果死亡，通知傀儡师：统一按"本体死亡"结算，击杀者从伤害来源推断
         if (this.isDeadOrDying()) {
-            notifyBodyDeath(source.getEntity() instanceof Player killer ? killer : null,
-                    GameConstants.DeathReasons.PUPPETEER_BODY_DEATH);
+            notifyBodyDeath(source.getEntity() instanceof Player killer ? killer : null);
             discard();
         }
 
@@ -392,8 +395,7 @@ public class PuppeteerBodyEntity extends LivingEntity {
         super.die(damageSource);
 
         // 生命值归零同样走统一的本体死亡结算（此处不再区分角色，避免漏掉渡鸦）
-        notifyBodyDeath(damageSource.getEntity() instanceof Player killer ? killer : null,
-                GameConstants.DeathReasons.PUPPETEER_BODY_DEATH);
+        notifyBodyDeath(damageSource.getEntity() instanceof Player killer ? killer : null);
     }
 
     @Override

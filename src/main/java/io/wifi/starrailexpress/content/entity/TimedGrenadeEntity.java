@@ -165,7 +165,7 @@ public class TimedGrenadeEntity extends NoHeavyWaterInfluencedThrowableItemProje
                 GameUtils.killPlayer(player, true, attacker, GameConstants.DeathReasons.GRENADE);
             }
             if (entity instanceof PuppeteerBodyEntity pbe) {
-                pbe.playerHurt(attacker, GameConstants.DeathReasons.GRENADE);
+                pbe.playerHurt(attacker);
             }
             count++;
             if (count >= MAX_KILL_PLAYER_COUNT) break;

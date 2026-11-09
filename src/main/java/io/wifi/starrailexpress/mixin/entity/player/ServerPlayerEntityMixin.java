@@ -26,7 +26,6 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.util.ServerDropManager;
-import io.wifi.starrailexpress.util.SkinUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -131,7 +130,7 @@ public class ServerPlayerEntityMixin {
                 GameUtils.killPlayer(playerTarget, true, self, GameConstants.DeathReasons.BAT);
             }
             if (target instanceof PuppeteerBodyEntity puppeteerBodyEntity) {
-                puppeteerBodyEntity.playerHurt(self, GameConstants.DeathReasons.BAT);
+                puppeteerBodyEntity.playerHurt(self);
             }
             CrosshairaddonsCompat.onAttack(target);
             self.level().playSound(null, self.blockPosition(), TMMSounds.ITEM_BAT_HIT, SoundSource.PLAYERS, 3f, 1f);
@@ -149,7 +148,7 @@ public class ServerPlayerEntityMixin {
                 original = htit.onServerAttack(self, playerTarget, mainhandItem);
             }
             if (target instanceof PuppeteerBodyEntity puppeteerBodyEntity) {
-                puppeteerBodyEntity.playerHurt(self, SkinUtils.getItemTypeResourceLocation(mainhandItem));
+                puppeteerBodyEntity.playerHurt(self);
             }
             // self.level().playSound(null, self.blockPosition(), TMMSounds.ITEM_BAT_HIT,
             // SoundSource.PLAYERS, 3f, 1f);
