@@ -5906,6 +5906,7 @@
   "hud.noellesroles.central_control.laser.offline": "監控失靈，雷射模組失效",
   "hud.noellesroles.central_control.laser.press_key": "按 %s 釋放雷射",
   "message.noellesroles.central_control.monitor_broken": "監控失靈，模組無法使用。",
+  "message.noellesroles.central_control.camera_broken": "視野內的監控攝影機已經失靈，無法安裝模組。",
   "message.noellesroles.central_control.no_camera": "視野 15 格內沒有可改造的監控攝影機。",
   "message.noellesroles.central_control.dynamic_module.success": "為 %s 台監控攝影機裝上了動態模組。",
   "message.noellesroles.central_control.dynamic_module.already": "視野內的攝影機都已裝有動態模組。",
@@ -5925,5 +5926,5 @@
   "message.noellesroles.central_control.laser.psycho_ended_shooter": "雷射命中 %s，打斷了其瘋狂模式。",
   "replay.event.player.camera_module_install": "%s 為一台監控攝影機安裝上了 %s",
   "replay.event.player.camera_laser_fire": "%s 從監控攝影機射出了一道雷射",
-  "replay.event.player.camera_laser_hit": "%s 的雷射命中了 %s"
+  "replay.event.player.camera_laser_hit": "%s 使用監控的雷射模組命中了 %s"
 }

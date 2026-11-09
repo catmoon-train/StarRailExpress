@@ -5769,6 +5769,7 @@
     "hud.noellesroles.central_control.laser.offline": "Cameras offline, laser module disabled",
     "hud.noellesroles.central_control.laser.press_key": "Press %s to fire the laser",
     "message.noellesroles.central_control.monitor_broken": "The cameras are offline, modules cannot be used.",
+    "message.noellesroles.central_control.camera_broken": "The cameras in view are offline, modules cannot be installed.",
     "message.noellesroles.central_control.no_camera": "No retrofit-able camera within 15 blocks of your view.",
     "message.noellesroles.central_control.dynamic_module.success": "Fitted a Dynamic Module to %s camera(s).",
     "message.noellesroles.central_control.dynamic_module.already": "Every camera in view already has a Dynamic Module.",
@@ -5788,5 +5789,5 @@
     "message.noellesroles.central_control.laser.psycho_ended_shooter": "The laser hit %s and ended their frenzy.",
     "replay.event.player.camera_module_install": "%s installed a %s on a security camera",
     "replay.event.player.camera_laser_fire": "%s fired a laser from a security camera",
-    "replay.event.player.camera_laser_hit": "%s's laser hit %s"
+    "replay.event.player.camera_laser_hit": "%s hit %s with the camera's Laser Module"
 }

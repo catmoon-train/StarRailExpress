@@ -138,30 +138,48 @@ public class CentralControlRole extends NormalRole {
             return fail(player, "message.noellesroles.central_control.no_camera");
         }
         int changed = 0;
+        int broken = 0;
+        // 只把真正装上的摄像头记下来：音效与回放都要按实际改装结果来，不能算上被跳过的
+        List<BlockPos> installed = new ArrayList<>();
         for (BlockPos pos : targets) {
             if (!(level.getBlockEntity(pos) instanceof CameraBlockEntity camera)) {
                 continue;
             }
-            if (camera.isBroken() || camera.hasDynamicModule()) {
+            if (camera.isBroken()) {
+                broken++;
+                continue;
+            }
+            if (camera.hasDynamicModule()) {
                 continue;
             }
             camera.installDynamicModule();
             recordInstall(player, pos, "dynamic_module");
+            installed.add(pos);
             changed++;
         }
         if (changed == 0) {
-            player.displayClientMessage(
-                    Component.translatable("message.noellesroles.central_control.dynamic_module.already")
-                            .withStyle(ChatFormatting.YELLOW),
-                    true);
-            return false;
+            return failNothingInstalled(player, broken,
+                    "message.noellesroles.central_control.dynamic_module.already");
         }
-        playInstallSound(level, player, targets);
+        playInstallSound(level, player, installed);
         player.displayClientMessage(
                 Component.translatable("message.noellesroles.central_control.dynamic_module.success", changed)
                         .withStyle(ChatFormatting.AQUA),
                 true);
         return true;
+    }
+
+    /**
+     * 一台都没装上时的统一提示。
+     * <p>
+     * 若视野里的摄像头其实是「失灵」状态（被滞时鬼用钳子破坏），提示要说清是失灵导致的，
+     * 不能笼统说「都已经装过了」——那是误导。
+     */
+    private static boolean failNothingInstalled(ServerPlayer player, int broken, String alreadyKey) {
+        if (broken > 0) {
+            return fail(player, "message.noellesroles.central_control.camera_broken");
+        }
+        return fail(player, alreadyKey);
     }
 
     // ==================== 二技能：红外线扫描仪 ====================
@@ -192,21 +210,23 @@ public class CentralControlRole extends NormalRole {
         }
         // 先筛出真正能改造的摄像头，避免白白扣钱
         List<BlockPos> installable = new ArrayList<>();
+        int broken = 0;
         for (BlockPos pos : targets) {
             if (!(level.getBlockEntity(pos) instanceof CameraBlockEntity camera)) {
                 continue;
             }
-            if (camera.isBroken() || camera.hasInfraredScanner()) {
+            if (camera.isBroken()) {
+                broken++;
+                continue;
+            }
+            if (camera.hasInfraredScanner()) {
                 continue;
             }
             installable.add(pos);
         }
         if (installable.isEmpty()) {
-            player.displayClientMessage(
-                    Component.translatable("message.noellesroles.central_control.infrared_scanner.already")
-                            .withStyle(ChatFormatting.YELLOW),
-                    true);
-            return false;
+            return failNothingInstalled(player, broken,
+                    "message.noellesroles.central_control.infrared_scanner.already");
         }
         if (!MoneyUtils.cost(player, INFRARED_SCANNER_PRICE)) {
             MoneyUtils.sendNotEnoughtMoneyMessage(player, INFRARED_SCANNER_PRICE);
@@ -261,21 +281,23 @@ public class CentralControlRole extends NormalRole {
             return fail(player, "message.noellesroles.central_control.no_camera");
         }
         List<BlockPos> installable = new ArrayList<>();
+        int broken = 0;
         for (BlockPos pos : targets) {
             if (!(level.getBlockEntity(pos) instanceof CameraBlockEntity camera)) {
                 continue;
             }
-            if (camera.isBroken() || camera.hasLaserModule()) {
+            if (camera.isBroken()) {
+                broken++;
+                continue;
+            }
+            if (camera.hasLaserModule()) {
                 continue;
             }
             installable.add(pos);
         }
         if (installable.isEmpty()) {
-            player.displayClientMessage(
-                    Component.translatable("message.noellesroles.central_control.laser_module.already")
-                            .withStyle(ChatFormatting.YELLOW),
-                    true);
-            return false;
+            return failNothingInstalled(player, broken,
+                    "message.noellesroles.central_control.laser_module.already");
         }
         if (!MoneyUtils.cost(player, LASER_MODULE_PRICE)) {
             MoneyUtils.sendNotEnoughtMoneyMessage(player, LASER_MODULE_PRICE);
@@ -772,7 +794,12 @@ public class CentralControlRole extends NormalRole {
                                 .withStyle(ChatFormatting.AQUA)));
     }
 
-    /** 事件回放：记录激光发射（命中时带上目标）。 */
+    /**
+     * 事件回放：记录激光发射。
+     * <p>
+     * 命中时记录「xxx 使用监控的激光模块命中了 yyy」；没命中时记录「xxx 从监控摄像头射出了一道激光」。
+     * 两种情况都记录，方便回放复盘是谁开的枪、打没打中。
+     */
     private static void recordLaserFire(ServerPlayer player, ServerPlayer target) {
         if (SRE.REPLAY_MANAGER == null) {
             return;

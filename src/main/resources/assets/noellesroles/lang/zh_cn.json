@@ -6014,6 +6014,7 @@
   "hud.noellesroles.central_control.laser.offline": "监控失灵，激光模块失效",
   "hud.noellesroles.central_control.laser.press_key": "按 %s 释放激光",
   "message.noellesroles.central_control.monitor_broken": "监控失灵，模块无法使用。",
+  "message.noellesroles.central_control.camera_broken": "视野内的监控摄像头已经失灵，无法安装模块。",
   "message.noellesroles.central_control.no_camera": "视野 15 格内没有可改造的监控摄像头。",
   "message.noellesroles.central_control.dynamic_module.success": "为 %s 台监控摄像头装上了动态模块。",
   "message.noellesroles.central_control.dynamic_module.already": "视野内的摄像头都已装有动态模块。",
@@ -6033,5 +6034,5 @@
   "message.noellesroles.central_control.laser.psycho_ended_shooter": "激光命中 %s，打断了其疯狂模式。",
   "replay.event.player.camera_module_install": "%s 为一台监控摄像头安装上了 %s",
   "replay.event.player.camera_laser_fire": "%s 从监控摄像头射出了一道激光",
-  "replay.event.player.camera_laser_hit": "%s 的激光命中了 %s"
+  "replay.event.player.camera_laser_hit": "%s 使用监控的激光模块命中了 %s"
 }
