@@ -16,6 +16,7 @@ import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -27,6 +28,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * 恐惧魔王：伪装成乘客。盯住一个人会让所有人看见自己被注视，并打乱皮肤和名牌。
@@ -157,7 +159,13 @@ public class DreadlordRole extends NormalRole {
         List<ShopEntry> shop = new ArrayList<>();
         shop.add(new ShopEntry(ModItems.REAPER_SCYTHE.getDefaultInstance(), 90, ShopEntry.Type.WEAPON));
         shop.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 80, ShopEntry.Type.TOOL));
-        shop.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 150, ShopEntry.Type.TOOL));
+        // 关灯 - 150金币：购买即触发全场关灯（不是发一个关灯物品）
+        shop.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 150, ShopEntry.Type.TOOL) {
+            @Override
+            public boolean onBuy(@NotNull Player player) {
+                return SREPlayerShopComponent.useBlackout(player);
+            }
+        });
         return shop;
     }
 
