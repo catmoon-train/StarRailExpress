@@ -457,12 +457,31 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
     }
 
     /**
-     * 本体死亡处理
-     * 当本体标记被破坏或本体实体死亡时调用
+     * 本体死亡处理。
+     *
+     * <p>无参重载也必须走统一死因：过去这里传 {@code GENERIC}，会让尸体显示"未知"。
      */
     public void onBodyDeath() {
-        this.onBodyDeath(null, GameConstants.DeathReasons.GENERIC);
+        this.onBodyDeath(null, GameConstants.DeathReasons.PUPPETEER_BODY_DEATH);
     }
+
+    public void onBodyDeath(Player killer, ResourceLocation deathReason) {
+        if (!isControllingPuppet)
+            return;
+        if (!(player instanceof ServerPlayer serverPlayer))
+            return;
+
+        // 移除本体标记实体
+        removeBodyMarker();
+
+        // 清除假人状态，玩家真正死亡
+        isControllingPuppet = false;
+        puppetControlTimer = 0;
+        puppetEntityUuid = null;
+        puppetSkinUuid = null;
+        puppetRole = null;
+        // 死因统一为"本体死亡"：调用方传 generic / null / 凶器死因都不影响最终结果
+        GameUtils.killPlayer(serverPlayer, true, killer, GameConstants.DeathReasons.PUPPETEER_BODY_DEATH);
 
     public void onBodyDeath(Player killer, ResourceLocation deathReason) {
         if (!isControllingPuppet)
