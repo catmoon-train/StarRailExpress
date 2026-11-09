@@ -51,24 +51,35 @@ import java.util.List;
 /**
  * 消防斧
  * <p>
- * - 3点耐久
+ * - 5点耐久
  * - Shift+右键：直接撬开门，消耗1点耐久，30秒冷却
- * - 直接右键：像刀一样举起，蓄力2秒，可击杀一名玩家，消耗3点耐久（需满耐久）
+ * - 直接右键：像刀一样举起，蓄力2秒，可击杀一名玩家；
+ *   剩余耐久大于等于3点时才能击杀，击杀消耗3点耐久
  * - 击杀玩家会触发误杀惩罚
  * </p>
  */
 public class FireAxeItem extends Item implements AdventureUsable {
-    private static final int MAX_DURABILITY = 3;
+    public static final int MAX_DURABILITY = 5;
+    /** 击杀玩家所需的最低剩余耐久，同时也是一次击杀消耗的耐久。 */
+    public static final int KILL_DURABILITY_COST = 3;
     private static final int PRY_COOLDOWN = 30 * 20; // 30秒
     private static final int CHARGE_TIME = 2 * 20; // 2秒
-    @SuppressWarnings("unused")
-    private static final int KILL_COOLDOWN = 60 * 20; // 60秒冷却，防止连续使用
 
     // 消防斧死因
     public static final ResourceLocation DEATH_REASON_FIRE_AXE = GameConstants.DeathReasons.FIRE_AXE;
 
     public FireAxeItem(Properties settings) {
         super(settings);
+    }
+
+    /** 当前剩余耐久。 */
+    public static int remainingDurability(ItemStack stack) {
+        return Math.max(0, MAX_DURABILITY - stack.getDamageValue());
+    }
+
+    /** 是否还能用消防斧击杀玩家（剩余耐久 >= 3）。 */
+    public static boolean canKill(ItemStack stack) {
+        return remainingDurability(stack) >= KILL_DURABILITY_COST;
     }
 
     @Override
@@ -86,8 +97,8 @@ public class FireAxeItem extends Item implements AdventureUsable {
             if (entity instanceof DoorBlockEntity door && !door.isBlasted()) {
                 ItemStack stack = context.getItemInHand();
 
-                // 检查耐久（耐久值为3时已损坏，不能使用）
-                if (stack.getDamageValue() >= MAX_DURABILITY) {
+                // 检查耐久（耐久耗尽后不能撬门）
+                if (remainingDurability(stack) <= 0) {
                     if (!world.isClientSide) {
                         player.displayClientMessage(
                                 Component.translatable("item.noellesroles.fire_axe.no_durability")
@@ -140,8 +151,8 @@ public class FireAxeItem extends Item implements AdventureUsable {
             return InteractionResultHolder.pass(stack);
         }
 
-        // 检查耐久是否满
-        if (stack.getDamageValue() > 0) {
+        // 击杀需要剩余耐久至少3点（不要求满耐久）
+        if (!canKill(stack)) {
             if (!world.isClientSide) {
                 player.displayClientMessage(
                         Component.translatable("item.noellesroles.fire_axe.not_full_durability")
@@ -180,8 +191,8 @@ public class FireAxeItem extends Item implements AdventureUsable {
 
     @Override
     public void onUseTick(Level world, LivingEntity user, ItemStack stack, int remainingUseDuration) {
-        // 蓄力过程中检查耐久
-        if (stack.getDamageValue() > 0 && !world.isClientSide) {
+        // 蓄力过程中耐久跌破击杀门槛就中断
+        if (!canKill(stack) && !world.isClientSide) {
             user.stopUsingItem();
         }
     }
@@ -216,7 +227,7 @@ public class FireAxeItem extends Item implements AdventureUsable {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag type) {
         tooltip.add(Component.translatable("item.noellesroles.fire_axe.tooltip.durability",
-                MAX_DURABILITY - stack.getDamageValue(), MAX_DURABILITY)
+                remainingDurability(stack), MAX_DURABILITY)
                 .withStyle(ChatFormatting.GRAY));
         tooltip.add(Component.translatable("item.noellesroles.fire_axe.tooltip.pry")
                 .withStyle(ChatFormatting.AQUA));

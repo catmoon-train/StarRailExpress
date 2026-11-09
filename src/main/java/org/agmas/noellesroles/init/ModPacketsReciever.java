@@ -1114,13 +1114,13 @@ public class ModPacketsReciever {
         return;
       }
 
-      // 检查耐久是否满
-      if (stack.getDamageValue() > 0) {
-        player.displayClientMessage(
-            Component.translatable("item.noellesroles.fire_axe.not_full_durability")
-                .withStyle(ChatFormatting.RED),
-            true);
-        return;
+      // 击杀需要剩余耐久至少3点（与客户端举起条件一致，防止改包绕过）
+      if (!org.agmas.noellesroles.content.item.FireAxeItem.canKill(stack)) {
+          player.displayClientMessage(
+              Component.translatable("item.noellesroles.fire_axe.not_full_durability")
+                  .withStyle(ChatFormatting.RED),
+              true);
+          return;
       }
 
       // 检查冷却
@@ -1132,9 +1132,10 @@ public class ModPacketsReciever {
         return;
       }
 
-      // 消耗耐久
+      // 消耗耐久（一次击杀消耗3点）
       if (!player.isCreative()) {
-        stack.hurtAndBreak(3, player, net.minecraft.world.entity.EquipmentSlot.MAINHAND);
+        stack.hurtAndBreak(org.agmas.noellesroles.content.item.FireAxeItem.KILL_DURABILITY_COST,
+            player, net.minecraft.world.entity.EquipmentSlot.MAINHAND);
       }
 
       // 添加冷却

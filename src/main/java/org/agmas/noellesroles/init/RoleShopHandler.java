@@ -75,6 +75,7 @@ import org.agmas.noellesroles.role_data.killer.WraithAssassinRoleData;
 import org.agmas.noellesroles.role_data.neutral.CandleBearerRoleData;
 import org.agmas.noellesroles.role_data.neutral.MercenaryRoleData;
 import org.agmas.noellesroles.role_data.neutral.PhantomMusicianRoleData;
+import org.agmas.noellesroles.role_data.neutral.ReasonerRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
@@ -1794,13 +1795,14 @@ public class RoleShopHandler {
 
         // ==================== 推理师商店 ====================
         {
-            // 罗盘 - 100金币（游戏时间>=2分钟且没有罗盘时才能购买）
+            // 罗盘 - 100金币（本局严格经过2分钟且没有罗盘时才能购买）
             REASONER_SHOP.add(new ShopEntry(ModItems.REASONER_COMPASS.getDefaultInstance(), 100, ShopEntry.Type.TOOL) {
                 @Override
                 public boolean onBuy(@NotNull Player player) {
-                    var timeComp = io.wifi.starrailexpress.cca.SREGameTimeComponent.KEY.get(player.level());
-                    int elapsed = timeComp.getResetTime() - timeComp.getTime();
-                    if (elapsed < 2 * 60 * 20) {
+                    // 不能用 resetTime - time 反推已过时间：击杀加时会让剩余倒计时回涨，
+                    // 导致「已过时间」倒退/停滞。统一使用与技能冷却同源的严格经过 tick。
+                    long elapsed = ReasonerRoleData.elapsedTicks(player.level());
+                    if (elapsed < ReasonerRoleData.GIVE_COMPASS_TICKS) {
                         player.displayClientMessage(
                                 Component.translatable("message.noellesroles.reasoner.shop.time_not_ready")
                                         .withStyle(ChatFormatting.YELLOW),

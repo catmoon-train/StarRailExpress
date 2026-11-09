@@ -34,6 +34,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModItems;
@@ -51,10 +52,21 @@ public class ReasonerRoleData extends SimpleRoleData {
     public static final int GIVE_COMPASS_TICKS = 2 * 60 * 20;
     public static final int KILLER_QUESTION_TICKS = 3 * 60 * 20;
 
+    /**
+     * 本局「严格经过」的游戏 tick 数，与全职业技能冷却倒计时同源
+     * （SREGameTimeComponent.tickCount / GameUtils.getTicksFromGameStart）。
+     * <p>
+     * 该计数器单调递增，只在游戏时间冻结时暂停，与「剩余倒计时」time、resetTime 完全解耦：
+     * 击杀平民加时、职业改时间、会议冻结等都不会改变它的差值。
+     * 因此罗盘的所有显现时间都不能用 resetTime - time 反推，也不能用世界
+     * level.getGameTime()（那是另一套时钟）。
+     */
+    public static long elapsedTicks(Level level) {
+        return GameUtils.getTicksFromGameStart(level);
+    }
+
 
     private boolean compassGiven;
-    private long compassStartWorldTick = -1;
-    private int activeTicks;
     private UUID roleQuestionTarget;
     private UUID bodyQuestionTarget;
     private UUID taskQuestionTarget;
@@ -74,8 +86,6 @@ public class ReasonerRoleData extends SimpleRoleData {
     @Override
     public void init() {
         compassGiven = false;
-        compassStartWorldTick = -1;
-        activeTicks = 0;
         roleQuestionTarget = null;
         bodyQuestionTarget = null;
         taskQuestionTarget = null;
@@ -104,28 +114,24 @@ public class ReasonerRoleData extends SimpleRoleData {
             return;
         }
 
-        activeTicks++;
         boolean changed = false;
 
-        // 开局基准：无论罗盘是否已发放都记录（稳定的计时基准，不受击杀加时影响）
-        if (compassStartWorldTick < 0) {
-            compassStartWorldTick = ((ServerLevel) player.level()).getGameTime();
+        // 全部显现时间统一取「本局严格经过的 tick」（与技能冷却倒计时同源）。
+        // 不能用 resetTime - time 反推：击杀加时会让剩余倒计时回涨，导致已过时间倒退、停滞；
+        // 也不能用 level.getGameTime()：那是世界时钟，与游戏计时器不同步。
+        long elapsedTicks = elapsedTicks(player.level());
+
+        if (!compassGiven
+                && elapsedTicks >= GIVE_COMPASS_TICKS
+                && player instanceof ServerPlayer serverPlayer) {
+            giveCompass(serverPlayer);
+            compassGiven = true;
             changed = true;
         }
 
-        if (!compassGiven) {
-            if (player.level().getGameTime() - compassStartWorldTick >= GIVE_COMPASS_TICKS
-                    && player instanceof ServerPlayer serverPlayer) {
-                giveCompass(serverPlayer);
-                compassGiven = true;
-                changed = true;
-            }
-        }
-
-        // 「杀手数量」问题：使用 level.getGameTime() 与稳定基准计时；
+        // 「杀手数量」问题同样按严格经过时间显现；
         // 一旦达到解锁时间即永久解锁，直至游戏结束都不会再消失
-        if (!killerQuestionUnlocked
-                && player.level().getGameTime() - compassStartWorldTick >= KILLER_QUESTION_TICKS) {
+        if (!killerQuestionUnlocked && elapsedTicks >= KILLER_QUESTION_TICKS) {
             killerQuestionUnlocked = true;
             changed = true;
         }
@@ -490,14 +496,14 @@ public class ReasonerRoleData extends SimpleRoleData {
 
     /**
      * 拿取罗盘的剩余倒计时（tick）。
-     * 基于 serverLevel.getGameTime() 与开局基准计算，不受击杀加时影响；
-     * 若已发放或尚未开始则返回 0。
+     * 基于本局严格经过的 tick 计算，与服务端发放判定、商店判定使用同一时钟；
+     * 若已发放则返回 0。
      */
     public int getCompassRemainingTicks() {
-        if (compassGiven || compassStartWorldTick < 0) {
+        if (compassGiven) {
             return 0;
         }
-        long elapsed = player.level().getGameTime() - compassStartWorldTick;
+        long elapsed = elapsedTicks(player.level());
         return (int) Math.max(0, GIVE_COMPASS_TICKS - elapsed);
     }
 
@@ -530,8 +536,6 @@ public class ReasonerRoleData extends SimpleRoleData {
     @Override
     public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putBoolean("compassGiven", compassGiven);
-        tag.putLong("compassStartWorldTick", compassStartWorldTick);
-        tag.putInt("activeTicks", activeTicks);
         tag.putBoolean("solvedAliveCount", solvedAliveCount);
         tag.putBoolean("solvedRole", solvedRole);
         tag.putBoolean("solvedDeathReason", solvedDeathReason);
@@ -543,8 +547,6 @@ public class ReasonerRoleData extends SimpleRoleData {
     @Override
     public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         compassGiven = tag.getBoolean("compassGiven");
-        compassStartWorldTick = tag.getLong("compassStartWorldTick");
-        activeTicks = tag.getInt("activeTicks");
         solvedAliveCount = tag.getBoolean("solvedAliveCount");
         solvedRole = tag.getBoolean("solvedRole");
         solvedDeathReason = tag.getBoolean("solvedDeathReason");
