@@ -187,7 +187,8 @@ public class ModRoles {
 
     public static final ResourceLocation CLONE_DOCTOR_ID = Noellesroles.id("clone_doctor");
     public static final SRERole CLONE_DOCTOR = TMMRoles.registerRole(
-            new org.agmas.noellesroles.game.roles.killer.clone_doctor.CloneDoctorRole());
+            new org.agmas.noellesroles.game.roles.killer.clone_doctor.CloneDoctorRole())
+            .setAddedVersion("4.5");
     // ==================== 角色 ID 定义 ====================
     // 建议格式：MOD_ID:role_name
 

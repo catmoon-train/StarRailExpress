@@ -54,7 +54,8 @@ public class NRModifiers {
                 SREGameWorldComponent game, List<ServerPlayer> players, String mapName) {
             return 0;
         }
-    }).setCanSetSpawnInfoInConfig(false).setDefaultEnableChance(0).setDefaultMax(0);
+    }).setCanSetSpawnInfoInConfig(false).setDefaultEnableChance(0).setDefaultMax(0)
+            .setAddedVersion("4.5");
 
     /** 体弱修饰符。拥有此修饰符的无需完成跑步任务：它会自动完成。 */
     public static final SREModifier FRAIL = HMLModifiers.registerModifier(new SREModifier(
