@@ -12,11 +12,11 @@ import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role_data.innocence.CentralControlRoleData;
 import org.agmas.noellesroles.utils.MoneyUtils;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.data.RoleData;
-import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREMonitorWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
@@ -784,14 +784,10 @@ public class CentralControlRole extends NormalRole {
     }
     /** 事件回放：记录「xxx 为一台监控摄像头安装上了 xxx」。 */
     private static void recordInstall(ServerPlayer player, BlockPos pos, String moduleKey) {
-        if (SRE.REPLAY_MANAGER == null) {
-            return;
-        }
-        SRE.REPLAY_MANAGER.recordCustomEvent(
-                Component.translatable("replay.event.player.camera_module_install",
-                        GameReplayUtils.getReplayPlayerDisplayText(player, true),
-                        Component.translatable("camera_module.noellesroles." + moduleKey)
-                                .withStyle(ChatFormatting.AQUA)));
+        ReplayEventLog.record("replay.event.player.camera_module_install",
+                ReplayEventLog.player(player),
+                Component.translatable("camera_module.noellesroles." + moduleKey)
+                        .withStyle(ChatFormatting.AQUA));
     }
 
     /**
@@ -799,20 +795,17 @@ public class CentralControlRole extends NormalRole {
      * <p>
      * 命中时记录「xxx 使用监控的激光模块命中了 yyy」；没命中时记录「xxx 从监控摄像头射出了一道激光」。
      * 两种情况都记录，方便回放复盘是谁开的枪、打没打中。
+     * <p>
+     * 玩家占位符统一用 {@link ReplayEventLog#player(Player)}，与时间线里其它事件保持同样的「名字 + 职业着色」。
      */
     private static void recordLaserFire(ServerPlayer player, ServerPlayer target) {
-        if (SRE.REPLAY_MANAGER == null) {
-            return;
-        }
         if (target == null) {
-            SRE.REPLAY_MANAGER.recordCustomEvent(
-                    Component.translatable("replay.event.player.camera_laser_fire",
-                            GameReplayUtils.getReplayPlayerDisplayText(player, true)));
+            ReplayEventLog.record("replay.event.player.camera_laser_fire",
+                    ReplayEventLog.player(player));
         } else {
-            SRE.REPLAY_MANAGER.recordCustomEvent(
-                    Component.translatable("replay.event.player.camera_laser_hit",
-                            GameReplayUtils.getReplayPlayerDisplayText(player, true),
-                            GameReplayUtils.getReplayPlayerDisplayText(target, true)));
+            ReplayEventLog.record("replay.event.player.camera_laser_hit",
+                    ReplayEventLog.player(player),
+                    ReplayEventLog.player(target));
         }
     }
 
