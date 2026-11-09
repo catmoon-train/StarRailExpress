@@ -16,11 +16,13 @@
 package org.agmas.noellesroles.client;
 
 import io.wifi.starrailexpress.client.PostProcessor;
-import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.PostPass;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.level.material.FogType;
 import org.agmas.noellesroles.init.ModEffects;
 
 import java.util.function.BooleanSupplier;
@@ -103,25 +105,87 @@ public class ImmersiveFilterShader {
         }));
     }
 
-    private PostProcessor.PostPassEntry addPass(Minecraft mc, String passName, net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> effectHolder, float defaultStrength) {
+    /**
+     * 沉浸式滤镜（仙境 / 后世 / 梦核 / 后室）的统一 pass。
+     *
+     * <p>这些滤镜是全屏后处理，会整屏覆盖画面，因此必须<b>让位给原版的屏幕效果</b>：
+     * <ul>
+     *   <li>原版失明 / 黑暗：原版通过 lightmap 压暗画面，后处理滤镜会在压暗之后再覆盖一遍，
+     *       导致失明、黑暗完全看不出来。此处直接把滤镜强度按原版压暗程度衰减到 0，
+     *       让玩家看到的就是原版的黑暗与失明。</li>
+     *   <li>水下：原版有整屏水色叠加 + 水下雾，滤镜在此之上再叠加会出现"越叠越黑"，
+     *       尤其后室/后世本身就很暗，叠加后就是全黑。水下同样淡出滤镜。</li>
+     * </ul>
+     * 淡入淡出用 {@link Mth#approach} 平滑过渡，避免进出水或药水生效的瞬间画面跳变。
+     */
+    private PostProcessor.PostPassEntry addPass(Minecraft mc, String passName,
+            net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> effectHolder, float defaultStrength) {
+        FilterFade fade = new FilterFade();
         return post.addSinglePassEntry(passName, pass -> process(mc.player, () -> {
-            if (!mc.player.hasEffect(effectHolder)) return false;
+            LocalPlayer player = mc.player;
+            if (!player.hasEffect(effectHolder)) {
+                fade.reset();
+                return false;
+            }
+            // 原版屏幕效果优先级更高：失明/黑暗/水下时淡出滤镜
+            boolean vanillaOverlay = hasVanillaDarkOverlay(mc, player);
+            fade.update(vanillaOverlay ? 0.0F : 1.0F);
+            if (fade.value() <= 0.01F) {
+                return false;
+            }
             totalTime += 0.016f;
             var effect = pass.getEffect();
             if (effect == null) return false;
             var strength = effect.safeGetUniform("Strength");
-            if (strength != null) strength.set(defaultStrength);
+            if (strength != null) strength.set(defaultStrength * fade.value());
             var time = effect.safeGetUniform("Time");
             if (time != null) time.set(totalTime);
             var effectTime = effect.safeGetUniform("EffectTime");
             if (effectTime != null) effectTime.set(totalTime);
             var darkness = effect.safeGetUniform("Darkness");
             if (darkness != null) {
-                float value =0.0f;
-                darkness.set(value);
+                darkness.set(0.0f);
             }
             return true;
         }));
+    }
+
+    /**
+     * 原版是否已经给出了"压暗整屏"的屏幕效果。
+     *
+     * <p>失明、黑暗由 lightmap 压暗，水下由 {@code ScreenEffectRenderer} 叠加水色贴图，
+     * 两者都会和全屏后处理滤镜争夺同一块画面。
+     */
+    private static boolean hasVanillaDarkOverlay(Minecraft mc, LocalPlayer player) {
+        if (player.hasEffect(MobEffects.BLINDNESS) || player.hasEffect(MobEffects.DARKNESS)) {
+            return true;
+        }
+        // 眼睛在水里：原版水滤镜 + 水下雾
+        return mc.gameRenderer.getMainCamera().getFluidInCamera() != FogType.NONE;
+    }
+
+    /** 单个滤镜的淡入淡出强度，0 = 完全不绘制，1 = 全强度。 */
+    private static final class FilterFade {
+        private float current;
+        private boolean initialised;
+
+        void update(float target) {
+            if (!initialised) {
+                current = target;
+                initialised = true;
+                return;
+            }
+            current = Mth.approach(current, target, 0.08F);
+        }
+
+        float value() {
+            return current;
+        }
+
+        void reset() {
+            current = 0.0F;
+            initialised = false;
+        }
     }
 
 
