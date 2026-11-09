@@ -21,6 +21,7 @@ import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.SREItemUtils;
@@ -297,11 +298,18 @@ public class RavenRoleData extends SimpleRoleData {
         sync();
     }
 
+    /**
+     * 本体（玩家傀儡）死亡。
+     *
+     * <p>死因一律记为 {@link GameConstants.DeathReasons#PUPPETEER_BODY_DEATH}：
+     * 渡鸦与傀儡师共用同一套"本体死亡"死因，避免出现渡鸦本体死亡/未知等分裂文案。
+     */
     public void onBodyDeath(Player killer, ResourceLocation reason) {
         if (!isHunting() || !(player instanceof ServerPlayer serverPlayer))
             return;
         endHunt(false);
-        GameUtils.forceKillPlayer(serverPlayer, true, killer, reason);
+        GameUtils.forceKillPlayer(serverPlayer, true, killer,
+                GameConstants.DeathReasons.PUPPETEER_BODY_DEATH);
     }
 
     /**

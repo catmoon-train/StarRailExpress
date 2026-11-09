@@ -279,9 +279,15 @@ public class GameConstants {
         public static ResourceLocation HEART_ATTACK = Noellesroles.id("heart_attack");
         public static ResourceLocation CONSPIRACY_BACKFIRE = Noellesroles.id("conspiracy_backfire");
         public static ResourceLocation BOMB_DEATH = Noellesroles.id("bomb_death");
-        public static ResourceLocation PUPPETEER_KNIFE = Noellesroles.id("knife_puppeteer");
-        public static ResourceLocation PUPPETEER_GUN = Noellesroles.id("gun_puppeteer");
-        public static ResourceLocation RAVEN_BODY_DEATH = Noellesroles.id("raven_body_death");
+        /**
+         * 玩家傀儡（傀儡师 / 渡鸦 / 愚者 / 克隆博士替身 / 错误404 等）本体被击杀时的统一死因。
+         *
+         * <p>本体死亡只表达"本体被打死了"这一件事，不区分凶器：旧的
+         * {@code knife_puppeteer} / {@code gun_puppeteer} / {@code raven_body_death}
+         * 等分散死因已全部废弃。所有傀儡本体致死路径都必须落到这一个常量上，
+         * 否则尸体上会显示"未知"死因。
+         */
+        public static final ResourceLocation PUPPETEER_BODY_DEATH = Noellesroles.id("puppeteer_body_death");
         public static ResourceLocation RECORDER_MISTAKE = Noellesroles.id("recorder_mistake");
         public static ResourceLocation GAMBLE_SELF_KILL = Noellesroles.id("gamble_self_kill");
         public static ResourceLocation WAYFARER_ERROR = Noellesroles.id("wayfarer_error");

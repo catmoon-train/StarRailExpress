@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.client.hud;
 
 import io.wifi.starrailexpress.SRE;
+import net.minecraft.resources.ResourceLocation;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.data.RoleData;
@@ -710,20 +711,31 @@ public class CommonClientHudRenderer {
 
       context.drawString(client.font, text, x, y, color);
     });
+    // 破法者 HUD：显示「破法」技能冷却倒计时（客户端按 tick 自减，逐帧刷新）
     RoleHudRenderCallback.EVENT.register(ModRoles.SPELLBREAKER_ID, (context, tickCounter) -> {
       Minecraft client = Minecraft.getInstance();
-      Component text = null;
-      int color = 0xFFFFFFFF;
+      if (client.player == null)
+        return;
+      // 被封印时技能条整体隐藏，避免和「技能被封禁」提示重复
       if (client.player.hasEffect(ModEffects.SKILL_BANED))
         return;
-      SREAbilityPlayerComponent spellbreakerPlayerComponent = SREAbilityPlayerComponent.KEY.get(client.player);
-      if (!spellbreakerPlayerComponent.canUseAbility()) {
+      SREAbilityPlayerComponent ability = SREAbilityPlayerComponent.KEY.get(client.player);
+      // 统一技能系统把冷却存在 skillStates 里（130 秒），旧的 ability.cooldown 字段并不参与判定，
+      // 因此必须读技能自身的 state，否则倒计时永远显示为 0。
+      ResourceLocation skillId = SRE.id("spellbreaker_silence");
+      int cooldownTicks = ability.getSkillState(skillId).cooldown;
+      // 安全时间等外部禁手期间显示"未解锁"，此时不显示倒计时
+      boolean blocked = client.player.hasEffect(ModEffects.SAFE_TIME);
+
+      Component text;
+      int color;
+      if (cooldownTicks > 0) {
+        // 翻译键本身带 "s" 后缀（"破法冷却中，剩余 %ss"），这里只传整数秒
+        text = Component.translatable("gui.noellesroles.spellbreaker.cooldown", (cooldownTicks + 19) / 20);
+        color = 0xFF5555; // 红色
+      } else if (blocked) {
         text = Component.translatable("gui.noellesroles.spellbreaker.locked");
         color = 0xFFFF00; // 黄色
-      } else if (spellbreakerPlayerComponent.cooldown > 0) {
-        int seconds = (spellbreakerPlayerComponent.cooldown) / 20;
-        text = Component.translatable("gui.noellesroles.spellbreaker.cooldown", seconds);
-        color = 0xFF5555; // 红色
       } else {
         text = Component.translatable("gui.noellesroles.spellbreaker.unlocked",
             NoellesrolesClient.abilityBind.getTranslatedKeyMessage());

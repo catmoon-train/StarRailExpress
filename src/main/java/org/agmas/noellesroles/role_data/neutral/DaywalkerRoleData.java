@@ -436,7 +436,8 @@ public class DaywalkerRoleData extends SimpleRoleData {
 
     /**
      * 每完成 {@value #TASKS_PER_MARK} 个任务，记录逐日者当前站位，
-     * 并在 {@value #TASK_MARK_DELAY_TICKS} tick（2.5 秒）后于该位置播放钟声音效。
+     * 并在 {@value #TASK_MARK_DELAY_TICKS} tick（2.5 秒）后于该位置播放
+     * {@code mob.elderguardian.curse}（{@link SoundEvents#ELDER_GUARDIAN_CURSE}）音效。
      *
      * <p>延迟到达时若对局已结束、玩家已死亡或换了职业，则不再播放，
      * 避免死亡/结算后凭空响一声。</p>
@@ -458,9 +459,9 @@ public class DaywalkerRoleData extends SimpleRoleData {
             if (!game.isRunning() || !game.isRole(player, ModRoles.DAYWALKER)) {
                 return;
             }
-            // 钟声：与「逐日」的时间意象契合，在记录的位置向周围播放
+            // 远古守卫者的诅咒音效：在记录的位置向周围播放
             serverLevel.playSound(null, mark.x, mark.y, mark.z,
-                    SoundEvents.BELL_BLOCK, SoundSource.MASTER, 2.0F, 1.0F);
+                    SoundEvents.ELDER_GUARDIAN_CURSE, SoundSource.MASTER, 2.0F, 1.0F);
         }, TASK_MARK_DELAY_TICKS);
     }
 
@@ -535,8 +536,10 @@ public class DaywalkerRoleData extends SimpleRoleData {
             return false;
         }
         timeComp.setTime(newTime);
+        // 只消耗真正用于快进的那部分逐日时刻：撞上 5 秒下限时，没用掉的部分保留下来
+        int usedMoments = Math.min(storedMoments, (drained + 19) / 20);
         spentTicks += drained;
-        storedMoments = 0;
+        storedMoments -= usedMoments;
         skillCooldownTicks = SKILL_COOLDOWN_TICKS;
         sync();
         String drainedSeconds = String.format(java.util.Locale.ROOT, "%.1f", drained / 20.0D);

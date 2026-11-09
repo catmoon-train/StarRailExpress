@@ -17,6 +17,7 @@ package org.agmas.noellesroles.content.entity;
 
 import com.mojang.authlib.GameProfile;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -35,9 +36,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jspecify.annotations.Nullable;
 
@@ -303,6 +302,13 @@ public class PuppeteerBodyEntity extends LivingEntity {
         }
     }
 
+    /**
+     * 玩家（或别的实体）对傀儡本体发起的一次致命攻击。
+     *
+     * <p>{@code deathReason} 参数保留只是为了兼容既有调用方，实际不再使用：
+     * 玩家傀儡本体致死一律记为 {@link GameConstants.DeathReasons#PUPPETEER_BODY_DEATH}，
+     * 避免出现"刀刺本体 / 枪击本体 / 未知"这类按凶器分裂的死因。
+     */
     public boolean playerHurt(Player player, ResourceLocation deathReason) {
         if (level().isClientSide())
             return false;
@@ -314,26 +320,32 @@ public class PuppeteerBodyEntity extends LivingEntity {
         }
         Player owner = getOwner();
         if (owner != null) {
-            // 通知傀儡师组件本体死亡
-            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(level());
-            if (gameWorld.isRole(owner, ModRoles.PUPPETEER)) {
-                PuppeteerPlayerComponent puppeteerComp = ModComponents.PUPPETEER.get(owner);
-                puppeteerComp.onBodyDeath(player, deathReason);
-            } else if (gameWorld.isRole(owner, ModRoles.RAVEN)) {
-                var ravenData = io.wifi.starrailexpress.api.data.RoleData.getNullable(
-                        org.agmas.noellesroles.role_data.neutral.RavenRoleData.class, owner);
-                if (ravenData != null) {
-                    ravenData.onBodyDeath(player, deathReason);
-                }
-            } else {
-                owner.teleportTo(owner.getX(), owner.getY(), owner.getZ());
-                // ModEffects.pierceDeath = true;
-                // GameUtils.killPlayer(owner, true, player, deathReason);
-                // ModEffects.pierceDeath = false;
-            }
+            notifyBodyDeath(player, GameConstants.DeathReasons.PUPPETEER_BODY_DEATH);
             discard();
         }
         return true;
+    }
+
+    /**
+     * 统一的本体死亡派发：无论死因从哪条路径进来（刀 / 枪 / 手雷 / 环境伤害 /
+     * 生命值归零），最终都按"本体死亡"结算，绝不把 {@code generic}（未知）传下去。
+     */
+    private void notifyBodyDeath(@org.jspecify.annotations.Nullable Player killer, ResourceLocation reason) {
+        Player owner = getOwner();
+        if (owner == null)
+            return;
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(level());
+        if (gameWorld.isRole(owner, ModRoles.PUPPETEER)) {
+            ModComponents.PUPPETEER.get(owner).onBodyDeath(killer, reason);
+        } else if (gameWorld.isRole(owner, ModRoles.RAVEN)) {
+            var ravenData = io.wifi.starrailexpress.api.data.RoleData.getNullable(
+                    org.agmas.noellesroles.role_data.neutral.RavenRoleData.class, owner);
+            if (ravenData != null) {
+                ravenData.onBodyDeath(killer, reason);
+            }
+        } else {
+            owner.teleportTo(owner.getX(), owner.getY(), owner.getZ());
+        }
     }
 
     @Override
@@ -361,34 +373,11 @@ public class PuppeteerBodyEntity extends LivingEntity {
         // 调用父类处理伤害
         boolean result = super.hurt(source, amount);
 
-        // 如果死亡，通知傀儡师
+        // 如果死亡，通知傀儡师：统一按"本体死亡"结算，击杀者从伤害来源推断
         if (this.isDeadOrDying()) {
-            Player owner = getOwner();
-            if (owner != null) {
-                // 通知傀儡师组件本体死亡
-                SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(level());
-                if (gameWorld.isRole(owner, ModRoles.PUPPETEER)) {
-                    ModComponents.PUPPETEER.get(owner).onBodyDeath();
-                } else if (gameWorld.isRole(owner, ModRoles.RAVEN)) {
-                    var ravenData = io.wifi.starrailexpress.api.data.RoleData.getNullable(
-                            org.agmas.noellesroles.role_data.neutral.RavenRoleData.class, owner);
-                    if (ravenData != null) {
-                        ravenData.onBodyDeath(null, Noellesroles.id("raven_body_death"));
-                    }
-                } else {
-                    owner.teleportTo(owner.getX(), owner.getY(), owner.getZ());
-                    // ModEffects.pierceDeath = true;
-                    // Player killer = null;
-                    // if (source.getEntity() instanceof Player k) {
-                    // killer = k;
-                    // }
-                    // GameUtils.killPlayer(owner, true, killer,
-                    // GameConstants.DeathReasons.GENERAL_ATTACK);
-                    // ModEffects.pierceDeath = false;
-                    // discard();
-                }
-                discard();
-            }
+            notifyBodyDeath(source.getEntity() instanceof Player killer ? killer : null,
+                    GameConstants.DeathReasons.PUPPETEER_BODY_DEATH);
+            discard();
         }
 
         return result;
@@ -402,20 +391,9 @@ public class PuppeteerBodyEntity extends LivingEntity {
         }
         super.die(damageSource);
 
-        // 确保通知傀儡师
-        Player owner = getOwner();
-        if (owner != null) {
-            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(level());
-            if (gameWorld.isRole(owner, ModRoles.PUPPETEER)) {
-                ModComponents.PUPPETEER.get(owner).onBodyDeath();
-            } else if (gameWorld.isRole(owner, ModRoles.RAVEN)) {
-                var ravenData = io.wifi.starrailexpress.api.data.RoleData.getNullable(
-                        org.agmas.noellesroles.role_data.neutral.RavenRoleData.class, owner);
-                if (ravenData != null) {
-                    ravenData.onBodyDeath(null, Noellesroles.id("raven_body_death"));
-                }
-            }
-        }
+        // 生命值归零同样走统一的本体死亡结算（此处不再区分角色，避免漏掉渡鸦）
+        notifyBodyDeath(damageSource.getEntity() instanceof Player killer ? killer : null,
+                GameConstants.DeathReasons.PUPPETEER_BODY_DEATH);
     }
 
     @Override

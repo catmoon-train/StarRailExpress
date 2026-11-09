@@ -482,23 +482,6 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
         puppetRole = null;
         // 死因统一为"本体死亡"：调用方传 generic / null / 凶器死因都不影响最终结果
         GameUtils.killPlayer(serverPlayer, true, killer, GameConstants.DeathReasons.PUPPETEER_BODY_DEATH);
-
-    public void onBodyDeath(Player killer, ResourceLocation deathReason) {
-        if (!isControllingPuppet)
-            return;
-        if (!(player instanceof ServerPlayer serverPlayer))
-            return;
-
-        // 移除本体标记实体
-        removeBodyMarker();
-
-        // 清除假人状态，玩家真正死亡
-        isControllingPuppet = false;
-        puppetControlTimer = 0;
-        puppetEntityUuid = null;
-        puppetSkinUuid = null;
-        puppetRole = null;
-        GameUtils.killPlayer(serverPlayer, true, killer, deathReason);
         // 发送消息
         serverPlayer.displayClientMessage(
                 Component.translatable("message.noellesroles.puppeteer.body_died")
