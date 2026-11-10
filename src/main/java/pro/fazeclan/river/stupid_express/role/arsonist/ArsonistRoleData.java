@@ -36,6 +36,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.game.economy.MoneyFlow;
 import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.role_data.neutral.CuckooRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
@@ -226,6 +227,9 @@ public class ArsonistRoleData extends SimpleRoleData {
         for (ServerPlayer p : owner.server.getPlayerList().getPlayers()) {
             p.sendSystemMessage(Component.translatable("message.stupid_express.arsonist.moment_start", owner.getDisplayName()));
             p.playNotifySound(SoundEvents.WITHER_SPAWN, SoundSource.PLAYERS, 0.65F, 1.15F);
+            // 与阿蒙时刻一致：在每名玩家所在位置播放，确保全场都能听到。
+            owner.serverLevel().playSound(null, p.getX(), p.getY(), p.getZ(),
+                    NRSounds.ARSONIST, SoundSource.MASTER, 1.0F, 0.8F);
             ServerPlayNetworking.send(p, new ArsonistPackets.MomentS2C(owner.getUUID(), true, momentTicks));
         }
         SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.event.arsonist.moment",
