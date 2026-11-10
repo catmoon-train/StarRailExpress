@@ -16,6 +16,10 @@ public final class ArsonistRules {
     public static final int HEAT_PER_TICK = 5;
     public static final int FUEL_PULSE_TICKS = 2;
     public static final double FLAME_RADIUS = 5.0D;
+    /** 喷火锥半角，与短管霰弹枪一致：总锥角 70°。 */
+    public static final double FLAME_HALF_ANGLE_DEGREES = 35.0D;
+    private static final double FLAME_RANGE_SQ = FLAME_RADIUS * FLAME_RADIUS;
+    private static final double FLAME_COS_HALF_ANGLE = Math.cos(Math.toRadians(FLAME_HALF_ANGLE_DEGREES));
 
     private ArsonistRules() {}
 
@@ -64,9 +68,20 @@ public final class ArsonistRules {
         return Math.max(0, aliveOthers) * 30 * 20;
     }
 
-    /** 前方半球，边界包含在内；实际命中另由服务端检查墙体遮挡。 */
+    /**
+     * 前方 5 格、半角 35° 的三维锥（以视线为轴，抬头/低头时随之倾斜），边界包含在内；
+     * 实际命中另由服务端检查墙体遮挡。
+     *
+     * <p>用平方比较避免开方：dot² &gt;= cos²(半角) · |delta|² · |look|²，同时要求 dot &gt;= 0。
+     */
     public static boolean inFlame(double x, double y, double z, double lookX, double lookY, double lookZ) {
-        return x * x + y * y + z * z <= FLAME_RADIUS * FLAME_RADIUS
-                && x * lookX + y * lookY + z * lookZ >= 0;
+        double distSq = x * x + y * y + z * z;
+        if (distSq > FLAME_RANGE_SQ) return false;
+        if (distSq < 1e-8D) return true;
+        double lookSq = lookX * lookX + lookY * lookY + lookZ * lookZ;
+        if (lookSq < 1e-8D) return false;
+        double dot = x * lookX + y * lookY + z * lookZ;
+        if (dot < 0) return false;
+        return dot * dot >= FLAME_COS_HALF_ANGLE * FLAME_COS_HALF_ANGLE * distSq * lookSq;
     }
 }

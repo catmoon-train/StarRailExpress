@@ -31,6 +31,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.game.economy.MoneyFlow;
@@ -265,26 +266,47 @@ public class ArsonistRoleData extends SimpleRoleData {
         }
     }
 
+    /** 与短管霰弹枪一致的锥形取样：碰撞箱 8 个角 + 中心，任一点进入锥形即算被火焰覆盖。 */
+    private static final double[][] FLAME_SAMPLE_OFFSETS = {
+            {0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0},
+            {1.0, 1.0, 0.0}, {1.0, 0.0, 1.0}, {0.0, 1.0, 1.0}, {1.0, 1.0, 1.0},
+            {0.5, 0.5, 0.5}
+    };
+
+    private static boolean inFlameCone(Vec3 origin, Vec3 look, AABB box) {
+        double sx = box.maxX - box.minX;
+        double sy = box.maxY - box.minY;
+        double sz = box.maxZ - box.minZ;
+        for (double[] offset : FLAME_SAMPLE_OFFSETS) {
+            double dx = box.minX + sx * offset[0] - origin.x;
+            double dy = box.minY + sy * offset[1] - origin.y;
+            double dz = box.minZ + sz * offset[2] - origin.z;
+            if (ArsonistRules.inFlame(dx, dy, dz, look.x, look.y, look.z)) return true;
+        }
+        return false;
+    }
+
     private void spray(ServerPlayer owner) {
         boolean boosted = arsonMoment
                 && org.agmas.noellesroles.game.roles.neutral.leader.LeaderFollowerEffects.isFollowerOfLeader(owner);
         Vec3 origin = owner.getEyePosition();
-        Vec3 look = owner.getLookAngle();
+        Vec3 look = owner.getLookAngle().normalize();
         long now = owner.level().getGameTime();
         boolean fuelPulse = ArsonistRules.shouldConsumeFuel(now, lastPulse);
         if (fuelPulse) {
             lastPulse = now;
             // 特效和火力仍每0.1秒结算，伤害独立在每tick结算。
+            // 参数：yaw、pitch、射程、锥半角；客户端按同一组参数画出与实际命中一致的锥形。
             ParticleFx.sendCustom(owner.serverLevel(), StupidExpress.id("arsonist_flame"), origin, 3,
-                    owner.getYRot(), owner.getXRot(), (float) ArsonistRules.FLAME_RADIUS);
+                    owner.getYRot(), owner.getXRot(), (float) ArsonistRules.FLAME_RADIUS,
+                    (float) ArsonistRules.FLAME_HALF_ANGLE_DEGREES);
             if (owner.tickCount % 10 == 0) owner.serverLevel().playSound(null, owner.blockPosition(),
                     SoundEvents.FIRE_AMBIENT, SoundSource.PLAYERS, 1.0F, 1.1F);
         }
         for (ServerPlayer target : owner.serverLevel().getEntitiesOfClass(ServerPlayer.class,
                 owner.getBoundingBox().inflate(ArsonistRules.FLAME_RADIUS), p -> p != owner && GameUtils.isPlayerAliveAndSurvival(p))) {
             if (!arsonMoment || !GameUtils.isPlayerAliveAndSurvival(owner)) break;
-            Vec3 delta = target.getBoundingBox().getCenter().subtract(origin);
-            if (!ArsonistRules.inFlame(delta.x, delta.y, delta.z, look.x, look.y, look.z) || !owner.hasLineOfSight(target)) continue;
+            if (!inFlameCone(origin, look, target.getBoundingBox()) || !owner.hasLineOfSight(target)) continue;
             int heat = ArsonistRules.heatAfterTick(burnValues.getOrDefault(target.getUUID(), 0),
                     boosted, owner.tickCount % 2 == 0);
             burnValues.put(target.getUUID(), heat);

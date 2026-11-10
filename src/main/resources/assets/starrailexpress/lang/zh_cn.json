@@ -2429,7 +2429,7 @@
   "item.trainmurdermystery.revolver": "左轮手枪",
   "item.trainmurdermystery.revolver.tooltip": "瞄准，右键并射击\n如果你击杀平民会直接掉落",
   "item.trainmurdermystery.scope": "倍镜",
-  "item.trainmurdermystery.scope.tooltip": "用于狙击枪的瞄准镜\n手上拿着狙击枪时按Z键安装到狙击枪（不打开物品栏），再按一次Z键可卸载（按键可在设置里修改）",
+  "item.trainmurdermystery.scope.tooltip": "用于狙击枪的瞄准镜\n手上拿着狙击枪时默认按Z键安装到狙击枪，再按一次Z键可卸载",
   "item.trainmurdermystery.scorpion": "蝎子",
   "item.trainmurdermystery.scorpion.tooltip": "偷偷放入床中，毒害下一个想要休息的人",
   "item.trainmurdermystery.sniper_rifle": "狙击枪",
