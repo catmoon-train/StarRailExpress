@@ -144,8 +144,10 @@ public class SecurityCameraHUD {
         guiGraphics.fill(x, y + feedHeight - 2, x + feedWidth, y + feedHeight, borderColor); // 底边框
         guiGraphics.fill(x + feedWidth - 2, y, x + feedWidth, y + feedHeight, borderColor); // 右边框
 
-        // 绘制摄像头画面内容（模拟效果）
-        guiGraphics.fill(x + 2, y + 2, x + feedWidth - 2, y + feedHeight - 2, 0xFF111111); // 深灰色背景
+        // 监控台自带的正面摄像头画面；离屏帧还没准备好时退回深色底。
+        if (!SecurityMonitorFeedRenderer.draw(guiGraphics, x + 2, y + 2, feedWidth - 4, feedHeight - 4)) {
+            guiGraphics.fill(x + 2, y + 2, x + feedWidth - 2, y + feedHeight - 2, 0xFF111111);
+        }
 
         // 绘制"SECURITY FEED"文字
         Minecraft minecraft = Minecraft.getInstance();

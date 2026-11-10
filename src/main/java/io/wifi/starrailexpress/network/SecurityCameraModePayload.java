@@ -26,11 +26,12 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
-public record SecurityCameraModePayload(boolean enable, BlockPos cameraPos, float yaw, int cameraId) implements CustomPacketPayload {
+public record SecurityCameraModePayload(boolean enable, BlockPos cameraPos, BlockPos monitorPos, float yaw, int cameraId) implements CustomPacketPayload {
     public static final Type<SecurityCameraModePayload> ID = new Type<>(ResourceLocation.fromNamespaceAndPath("starrailexpress", "security_camera_mode"));
     public static final StreamCodec<FriendlyByteBuf, SecurityCameraModePayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.BOOL, SecurityCameraModePayload::enable,
             BlockPos.STREAM_CODEC, SecurityCameraModePayload::cameraPos,
+            BlockPos.STREAM_CODEC, SecurityCameraModePayload::monitorPos,
             ByteBufCodecs.FLOAT, SecurityCameraModePayload::yaw,
             ByteBufCodecs.VAR_INT, SecurityCameraModePayload::cameraId,
             SecurityCameraModePayload::new
@@ -51,6 +52,8 @@ public record SecurityCameraModePayload(boolean enable, BlockPos cameraPos, floa
                 if (payload.enable()) {
                     // 进入监控模式
                     SecurityCameraClientState.setCurrentCameraPos(payload.cameraPos());
+                    // 监控台自身位置：小窗相机的基准点，已由服务端算过相对偏移
+                    SecurityCameraClientState.setCurrentMonitorPos(payload.monitorPos());
                     SecurityCameraClientState.setSecurityMode(true);
                     // 设置初始视角角度
                     SecurityCameraClientState.setCurrentYaw(payload.yaw());
@@ -61,6 +64,7 @@ public record SecurityCameraModePayload(boolean enable, BlockPos cameraPos, floa
                 } else {
                     // 退出监控模式
                     SecurityCameraClientState.setSecurityMode(false);
+                    SecurityCameraClientState.setCurrentMonitorPos(null);
                     Minecraft.getInstance().options.setCameraType(CameraType.FIRST_PERSON);
                     SecurityCameraClientState.setCurrentCameraPos(null);
                     // 重置视角角度

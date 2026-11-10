@@ -241,7 +241,7 @@ public class SecurityMonitorBlock extends BaseEntityBlock implements TaskInstinc
         player.displayClientMessage(Component.literal("已进入监控模式").withStyle(ChatFormatting.GREEN), true);
         // 发送网络包到客户端以更新视角
         ServerPlayNetworking.send(player,
-                new SecurityCameraModePayload(true, currentCameraPos, currentYaw, lastCameraId));
+                new SecurityCameraModePayload(true, currentCameraPos, currentMonitorPos, currentYaw, lastCameraId));
         // 服务端登记「谁正在看哪台摄像头」：红外线扫描仪只对正在被观看的摄像头生效。
         // 必须按玩家分别记录——上面的 currentCameraPos 是全局静态字段，多人同时看监控会互相覆盖。
         org.agmas.noellesroles.game.roles.innocence.central_control.CentralControlRole
@@ -261,7 +261,7 @@ public class SecurityMonitorBlock extends BaseEntityBlock implements TaskInstinc
         org.agmas.noellesroles.game.roles.innocence.central_control.CentralControlRole
                 .onCameraViewStopped(player);
         PacketTracker.sendToClient(player,
-                new SecurityCameraModePayload(false, BlockPos.ZERO, currentYaw, -1));
+                new SecurityCameraModePayload(false, BlockPos.ZERO, BlockPos.ZERO, currentYaw, -1));
     }
 
     @Nullable

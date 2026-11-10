@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client;
 
+import io.wifi.starrailexpress.client.gui.SecurityMonitorFeedRenderer;
 import io.wifi.starrailexpress.content.block.CameraBlock;
 import io.wifi.starrailexpress.content.block_entity.CameraBlockEntity;
 import io.wifi.starrailexpress.network.SecurityCameraExitRequestPayload;
@@ -29,6 +30,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.glfw.GLFW;
 
@@ -49,11 +51,22 @@ public final class SecurityCameraClientState {
      */
     public static final float MAX_VIEW_OFFSET = 90.0F;
 
+    /**
+     * 摄像头与小窗共用的竖向位置偏移：从方块中心下沉到镜头高度。
+     * 两台「摄像头」必须用同一个偏移，否则切换 / 位置偏移后画面高低会不一致。
+     */
+    public static final double CAMERA_Y_OFFSET = -1.2D;
+
+    /** 监控台小窗镜头沿正面方向前移，避免视线被监控台自身的方块挡住。 */
+    private static final double MONITOR_FEED_FORWARD_OFFSET = 0.55D;
+
     /** 向服务端上报镜头方向的最小间隔（tick）：约每 100ms 一次，足够让红外发光跟手。 */
     private static final int LOOK_REPORT_INTERVAL_TICKS = 2;
 
     private static boolean isInSecurityMode = false;
     private static BlockPos currentCameraPos = null;
+    /** 监控台自身的绝对位置（服务端已把绑定时的相对偏移加回去了）。 */
+    private static BlockPos currentMonitorPos = null;
     private static float currentYaw = 0.0f;
     public static float lastCameraYaw;
     public static float lastCameraPitch;
@@ -150,6 +163,10 @@ public final class SecurityCameraClientState {
 
         if (!isInSecurityMode())
             return false;
+        // 小窗离屏渲染：这一帧的主相机改用「监控台本身」的正面镜头。
+        if (SecurityMonitorFeedRenderer.isCapturing()) {
+            return setupMonitorFeedCamera(camera, level);
+        }
         BlockPos cameraPos = getCurrentCameraPos();
         if (cameraPos == null)
             return false;
@@ -178,8 +195,8 @@ public final class SecurityCameraClientState {
         }
 
         camera.setRotation(targetYaw, targetPitch);
-        // 设置相机位置到摄像头位置
-        Vec3 targetCameraPos = cameraPos.getCenter().add(0, -1.2, 0);
+        // 设置相机位置到摄像头位置，竖向偏移与小窗镜头共用同一个常量
+        Vec3 targetCameraPos = cameraPos.getCenter().add(0, CAMERA_Y_OFFSET, 0);
 
         camera.setPosition(targetCameraPos);
 
@@ -190,6 +207,37 @@ public final class SecurityCameraClientState {
         pitchIncrease = 0;
 
         return true;
+    }
+
+    /**
+     * 监控台自带的「小摄像头」：从方块正面朝前看，正好对着站在台前的玩家。
+     *
+     * <p>朝向换算、竖向位置偏移都与 {@link CameraBlock} 用同一套规则；位置直接取服务端
+     * 同步过来的监控台绝对坐标（绑定时的相对偏移已加好），并且每帧重新读方块状态，
+     * 所以监控台 / 摄像头被搬动、转向或偏移变化后，小窗画面都会正确跟着变。
+     */
+    private static boolean setupMonitorFeedCamera(Camera camera, BlockGetter level) {
+        BlockPos monitorPos = currentMonitorPos != null ? currentMonitorPos : currentCameraPos;
+        if (monitorPos == null || level == null) {
+            return false;
+        }
+        BlockState state = level.getBlockState(monitorPos);
+        Direction facing = state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)
+                ? state.getValue(BlockStateProperties.HORIZONTAL_FACING)
+                : Direction.NORTH;
+        camera.setRotation(getBaseYawFromDirection(facing), 0.0F);
+        camera.setPosition(monitorFeedCameraPosition(monitorPos, facing));
+        lastCameraYaw = camera.getYRot();
+        lastCameraPitch = camera.getXRot();
+        return true;
+    }
+
+    /** 小窗相机位置：与摄像头共用竖向偏移，再沿监控台正面方向前移一点避免镜头埋进方块。 */
+    public static Vec3 monitorFeedCameraPosition(BlockPos pos, Direction facing) {
+        return pos.getCenter()
+                .add(0, CAMERA_Y_OFFSET, 0)
+                .add(facing.getStepX() * MONITOR_FEED_FORWARD_OFFSET, 0,
+                        facing.getStepZ() * MONITOR_FEED_FORWARD_OFFSET);
     }
 
     /**
@@ -269,7 +317,7 @@ public final class SecurityCameraClientState {
      * @param direction 摄像头方向
      * @return 对应的基础偏航角
      */
-    private static float getBaseYawFromDirection(Direction direction) {
+    public static float getBaseYawFromDirection(Direction direction) {
         switch (direction) {
             case SOUTH: // -Z方向
                 return 180.0f;
@@ -296,8 +344,19 @@ public final class SecurityCameraClientState {
         currentCameraPos = pos;
     }
 
+    public static BlockPos getCurrentMonitorPos() {
+        return currentMonitorPos;
+    }
+
+    public static void setCurrentMonitorPos(BlockPos pos) {
+        currentMonitorPos = pos;
+    }
+
     public static void setSecurityMode(boolean mode) {
         isInSecurityMode = mode;
+        if (!mode) {
+            SecurityMonitorFeedRenderer.close();
+        }
     }
 
     public static float getCurrentYaw() {

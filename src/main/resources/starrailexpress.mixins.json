@@ -81,6 +81,8 @@
     "client.AdvancedCameraMixin",
     "client.ByteBufferBuilderOverflowMixin",
     "client.CameraPositionMixin",
+    "client.SecurityMonitorFeedMixin",
+    "client.MinecraftRenderTargetAccessor",
     "client.CustomHeadLayerMixin",
     "client.DefaultPlayerSkinMixin",
     "client.DisconnectedScreenMixin",

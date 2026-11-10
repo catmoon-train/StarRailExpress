@@ -10,7 +10,7 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
 /** 在最终 GUI 合成点保存实际 GL 状态，同时通过 RenderSystem 恢复其状态缓存。 */
-final class SettlementRenderState implements AutoCloseable {
+public final class SettlementRenderState implements AutoCloseable {
     private final boolean depth = GL11.glIsEnabled(GL11.GL_DEPTH_TEST), blend = GL11.glIsEnabled(GL11.GL_BLEND),
             cull = GL11.glIsEnabled(GL11.GL_CULL_FACE), scissor = GL11.glIsEnabled(GL11.GL_SCISSOR_TEST),
             depthMask = GL11.glGetBoolean(GL11.GL_DEPTH_WRITEMASK);
@@ -27,7 +27,7 @@ final class SettlementRenderState implements AutoCloseable {
             blendEquationAlpha = GL11.glGetInteger(GL20.GL_BLEND_EQUATION_ALPHA);
     private final java.nio.ByteBuffer mask = org.lwjgl.BufferUtils.createByteBuffer(4);
 
-    SettlementRenderState() {
+    public SettlementRenderState() {
         GL11.glGetIntegerv(GL11.GL_VIEWPORT, viewport); GL11.glGetIntegerv(GL11.GL_SCISSOR_BOX, scissorBox);
         GL11.glGetBooleanv(GL11.GL_COLOR_WRITEMASK, mask);
         for (int i = 0; i < bindings.length; i++) {
