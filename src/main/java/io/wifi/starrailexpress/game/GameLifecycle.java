@@ -175,6 +175,8 @@ final class GameLifecycle {
     }
 
     public static void stopGame(ServerLevel world) {
+        // 游戏结束流程一启动就立即撤销远距离监控摄像头的强加载票据，不等结算/回放阶段跑完。
+        SecurityCameraChunkTickets.release(world);
         world.players().forEach(serverPlayer -> {
             serverPlayer.addEffect(new MobEffectInstance(ModEffects.INVINCIBLE, 80, 0, false, false, false));
             serverPlayer.addEffect(new MobEffectInstance(ModEffects.USED_BANED, 80, 0, false, false, false));

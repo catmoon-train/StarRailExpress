@@ -33,6 +33,7 @@ import io.wifi.starrailexpress.content.vote.VoteManager;
 import io.wifi.starrailexpress.event.*;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.PlayerMountainHandler;
+import io.wifi.starrailexpress.game.SecurityCameraChunkTickets;
 import io.wifi.starrailexpress.game.data.ServerMapConfig;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import io.wifi.starrailexpress.game.modes.funny.SRERoleRotationGameMode;
@@ -66,6 +67,10 @@ public class SREEventRegister {
         PlayerMountainHandler.register();
         io.wifi.starrailexpress.game.modes.funny.mob.MobRiotRules.registerEvents();
         registerRoleEventEnableHandlers();
+
+        // 远距离监控摄像头：开局按游玩区域强加载其视野区块，结束时立即撤销票据（release 可重复调用）。
+        OnGameStarted.EVENT.register(SecurityCameraChunkTickets::onGameStarted);
+        OnGameEnd.EVENT.register((level, game) -> SecurityCameraChunkTickets.release(level));
 
         // 游戏开始：通知客户端（驱动 OnGameStartedClient 事件），并向本局玩家播放默认开场镜头
         net.exmo.sre.planecrash.PlaneCrashManager.register();

@@ -24,7 +24,6 @@ import io.wifi.starrailexpress.customitem.CustomItemLoader;
 import io.wifi.starrailexpress.customitem.CustomItemRuntime;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.original.CustomItemFirePayload;
-import io.wifi.starrailexpress.network.original.SniperShootPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
@@ -138,39 +137,12 @@ public class MouseHandlerMixin {
                 return;
             }
             
-            // 检查是否按下 Shift
-            boolean isShiftKeyDown = player.isShiftKeyDown();
-            
-            // 检查冷却
+            // 倍镜装填/卸载已改为独立按键（默认 Z），左键始终只负责射击。
             if (player.getCooldowns().isOnCooldown(TMMItems.SNIPER_RIFLE)) {
                 return;
             }
-            
-            if (isShiftKeyDown) {
-                // Shift + 左键：安装/卸载倍镜
-                if (SniperRifleItem.hasScopeAttached(mainHandStack)) {
-                    ClientPlayNetworking.send(new SniperShootPayload(SniperShootPayload.Action.UNINSTALL_SCOPE, player.getId()));
-                    player.getCooldowns().addCooldown(TMMItems.SNIPER_RIFLE, 20);
-                    ci.cancel();
-                } else {
-                    boolean hasScope = false;
-                    for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-                        if (player.getInventory().getItem(i).is(TMMItems.SCOPE)) {
-                            hasScope = true;
-                            break;
-                        }
-                    }
-                    if (hasScope) {
-                        ClientPlayNetworking.send(new SniperShootPayload(SniperShootPayload.Action.INSTALL_SCOPE, player.getId()));
-                        player.getCooldowns().addCooldown(TMMItems.SNIPER_RIFLE, 20);
-                        ci.cancel();
-                    }
-                }
-            } else {
-                // 左键：射击
-                SniperRifleItem.tryShootFromKeybind(player);
-                ci.cancel();
-            }
+            SniperRifleItem.tryShootFromKeybind(player);
+            ci.cancel();
         }
     }
 }

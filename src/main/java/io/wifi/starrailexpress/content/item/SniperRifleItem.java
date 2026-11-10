@@ -83,6 +83,33 @@ public class SniperRifleItem extends Item implements HeldLikeRevolver {
         ScopeOverlayRenderer.setInScopeView(false);
     }
 
+    /**
+     * 从独立按键触发装填 / 卸载倍镜（客户端）。
+     * 只发一个「切换」语义的包，具体装还是卸由服务端按权威数据决定，避免客户端 DataComponent
+     * 与服务端不同步时把倍镜装反。没有可用倍镜时不发无效包。
+     */
+    public static void tryToggleScopeFromKeybind(Player user) {
+        ItemStack stack = user.getMainHandItem();
+        if (!stack.is(TMMItems.SNIPER_RIFLE)) return;
+        if (user.isSpectator()) return;
+        if (user.getCooldowns().isOnCooldown(stack.getItem())) return;
+
+        if (!hasScopeAttached(stack)) {
+            boolean hasScope = false;
+            for (int i = 0; i < user.getInventory().getContainerSize(); i++) {
+                if (user.getInventory().getItem(i).is(TMMItems.SCOPE)) {
+                    hasScope = true;
+                    break;
+                }
+            }
+            if (!hasScope) return;
+        }
+
+        net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(
+                new SniperShootPayload(SniperShootPayload.Action.TOGGLE_SCOPE, user.getId()));
+        user.getCooldowns().addCooldown(TMMItems.SNIPER_RIFLE, 20);
+    }
+
     /** 从按键绑定触发装弹（客户端） */
     public static void tryReloadFromKeybind(Player user) {
         ItemStack stack = user.getMainHandItem();
