@@ -59,6 +59,7 @@
     "death_reason.starrailexpress.failed_ignite": "Failed to ignite",
     "death_reason.stupid_express.ignited": "Consumed by flames",
     "effect.stupid_express.arsonist_burning": "Burning",
+    "effect.stupid_express.extinguisher_immunity": "Fire Immunity",
     "death_reason.stupid_express.loose_end": "Loose End failed",
     "death_reason.starrailexpress.ignited": "Consumed by flames",
     "announcement.star.goals.stupid_express.necromancer": "Raise the dead and make them serve you",

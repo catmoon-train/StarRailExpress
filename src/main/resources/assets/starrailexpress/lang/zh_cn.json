@@ -4176,6 +4176,7 @@
   "replay.event.agent.inspect_inventory": "§9🔍§r %s 审查了 %s 的物品栏",
   "replay.event.voice_changer.voice": "§d🎤§r %s 对 %s 释放了 %s 级 %s 变声",
   "replay.event.arsonist.ignite": "§c🔥§r %s 点燃了所有被泼油的玩家",
+  "replay.event.arsonist.moment": "§c🔥§r %s 进入了纵火犯时刻",
   "replay.event.adventurer.recall": "§9📖§r %s 从游记中召回了 %s",
   "replay.event.diviner.divination": "§d🔮§r %s 成功占卜了一具尸体",
   "replay.event.money_grubber.take": "§b💰§r %s 被 %s 敛财了 %s 金币",

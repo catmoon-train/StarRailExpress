@@ -117,7 +117,7 @@
     "item.noellesroles.dream_wine.desc": "Wine brewed by Dream's winemaking skill. Drinking it makes you invisible for 10 seconds; during this time you cannot attack or be hurt.",
     "item.noellesroles.throwing_knife.desc": "Press Q to throw. Right-click to raise the throwing knife and deal a kill.",
     "item.noellesroles.rope.desc": "The Rescuer's exclusive item. Right-click to pull one person within a straight line in front of you.",
-    "item.noellesroles.extinguisher.desc": "The Firefighter's exclusive item. Has 5 durability. Right-click or hold right-click to spray at a player; the sprayed player gains Slowness and Blindness, and it removes gasoline poured on them by an Arsonist.",
+    "item.noellesroles.extinguisher.desc": "The Firefighter's exclusive item with 60 durability. Right-click immediately uses 1 durability; hold to keep spraying a white cloud over a 5-block cone in front of you, using 1 more durability each second. Sprayed players gain Slowness and Blindness, have Arsonist gasoline and the ignition effect washed off, are immune to ignition for 5 seconds, and lose 20 heat per second.",
     "item.noellesroles.passbook.desc": "The Accountant's exclusive item. Right-click to deposit the coins on you into the passbook (at most 300 coins). When the Accountant dies, the passbook is passed to a nearby good player; the passbook can be dropped.",
     "item.noellesroles.alchemy_material.desc": "The Alchemist's exclusive item, used to brew potions.",
     "item.noellesroles.signature_paper.desc": "The Star's exclusive item. Right-click to sign; sneak + right-click to sign a life-and-death contract. See the Star role introduction for details.",

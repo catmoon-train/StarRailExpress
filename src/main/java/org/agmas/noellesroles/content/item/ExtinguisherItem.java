@@ -18,14 +18,18 @@ package org.agmas.noellesroles.content.item;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.util.AdventureUsable;
+import io.wifi.starrailexpress.util.ParticleFx;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -34,26 +38,32 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEEffects;
+import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRoleData;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 灭火器
+ * 灭火器：60点耐久的蓄力喷雾道具。
  * <p>
- * - 5点耐久
- * - 右键对人喷射：每使用一次消耗1点耐久
- * - 长按右键持续喷射：最多持续5秒，持续消耗耐久
- * - 对人喷射效果：缓慢 + 失明（持续1.5秒）
- * - 持续喷射同一人会刷新效果时间
- * - 如果被喷射的人被纵火犯浇湿，则清除浇湿状态
+ * - 右键立即消耗1点耐久并喷雾一次
+ * - 蓄力期间每秒再消耗1点耐久，持续对前方5格圆锥内的所有玩家喷雾
+ * - 喷雾施加缓慢与失明（1.5秒），清除纵火犯浇的汽油与点燃效果
+ * - 被喷到的玩家5秒内免疫纵火犯的燃烧效果，燃烧值每秒降低20点
+ * - 蓄力期间持续播放 entity.breeze.slide，并由客户端生成白色喷雾粒子
  * </p>
  */
 public class ExtinguisherItem extends Item implements AdventureUsable {
-    private static final int MAX_DURABILITY = 5;
-    private static final int MAX_USE_DURATION = 5 * 20; // 5秒
-    private static final int EFFECT_DURATION = 30; // 1.5秒（30 ticks）
-    private static final int SPRAY_RANGE = 2; // 喷射范围2格
+    private static final int MAX_DURABILITY = 60;
+    private static final int MAX_USE_DURATION = MAX_DURABILITY * 20;
+    private static final int EFFECT_DURATION = 30;
+    private static final int IMMUNITY_DURATION = 5 * 20;
+    private static final int SPRAY_RANGE = 5;
+    private static final double CONE_DOT = 0.5D;
+    private static final int HEAT_REDUCTION = 20;
 
     public ExtinguisherItem(Properties settings) {
         super(settings);
@@ -62,35 +72,18 @@ public class ExtinguisherItem extends Item implements AdventureUsable {
     @Override
     public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-
-        // 检查耐久
         if (stack.getDamageValue() >= MAX_DURABILITY) {
             if (!world.isClientSide) {
                 player.displayClientMessage(
                         Component.translatable("item.noellesroles.extinguisher.empty")
-                                .withStyle(ChatFormatting.RED),
-                        true);
+                                .withStyle(ChatFormatting.RED), true);
             }
             return InteractionResultHolder.fail(stack);
         }
-
-        // 查找前方的玩家
-        Player target = findTargetPlayer(world, player);
-
-        if (target == null) {
-            // 没有目标，直接喷射不开始蓄力
-            return InteractionResultHolder.pass(stack);
-        }
-
-        // 单次右键喷射
         if (!world.isClientSide) {
-            spray(player, target, stack);
-        } else {
-            // 客户端生成粒子效果
-            spawnCloudParticles(player, target);
+            spray(player, stack);
+            sendSprayParticles(player);
         }
-
-        // 开始持续喷射
         player.startUsingItem(hand);
         return InteractionResultHolder.consume(stack);
     }
@@ -107,137 +100,85 @@ public class ExtinguisherItem extends Item implements AdventureUsable {
 
     @Override
     public void onUseTick(Level world, LivingEntity user, ItemStack stack, int remainingUseDuration) {
-        if (!(user instanceof Player player)) {
+        if (!(user instanceof Player player) || world.isClientSide) {
             return;
         }
-
-        // 每秒喷射一次（20 ticks）
         int ticksPassed = MAX_USE_DURATION - remainingUseDuration;
-        if (ticksPassed % 20 == 0 && ticksPassed > 0) {
-            // 检查耐久
-            if (stack.getDamageValue() >= MAX_DURABILITY) {
-                user.stopUsingItem();
-                return;
-            }
-
-            // 查找目标
-            Player target = findTargetPlayer(world, player);
-            if (target != null) {
-                // 服务端处理逻辑
-                if (!world.isClientSide) {
-                    spray(player, target, stack);
-                } else {
-                    // 客户端生成粒子效果
-                    spawnCloudParticles(player, target);
-                }
-            }
+        if (ticksPassed > 0 && ticksPassed % 4 == 0) {
+            sendSprayParticles(player);
         }
+        if (ticksPassed > 0 && ticksPassed % 10 == 0) {
+            playSpraySound(world, player);
+        }
+        if (ticksPassed <= 0 || ticksPassed % 20 != 0) {
+            return;
+        }
+        if (stack.isEmpty() || stack.getDamageValue() >= MAX_DURABILITY) {
+            user.stopUsingItem();
+            return;
+        }
+        spray(player, stack);
+        if (stack.isEmpty()) user.stopUsingItem();
     }
 
-    /**
-     * 查找前方喷射范围内的玩家
-     */
-    private Player findTargetPlayer(Level world, Player player) {
-        Player closestPlayer = null;
-        double closestDistance = Double.MAX_VALUE;
-
-        // 获取玩家视线方向
-        var viewVector = player.getViewVector(1.0f);
-
-        for (Player target : world.players()) {
-            // 跳过自己
-            if (target == player) continue;
-
-            // 跳过不在生存模式的玩家
-            if (!GameUtils.isPlayerAliveAndSurvival(target)) continue;
-
-            // 计算距离
-            double distance = player.distanceTo(target);
-            if (distance > SPRAY_RANGE) continue;
-
-            // 计算向量到目标的向量
-            var toTarget = target.position().subtract(player.position());
-
-            // 计算向量点积，判断是否在前方视野内
-            double dotProduct = viewVector.dot(toTarget.normalize());
-
-            // 如果目标在前方（点积 > 0.5，大约60度角内）
-            if (dotProduct > 0.5) {
-                if (distance < closestDistance) {
-                    closestDistance = distance;
-                    closestPlayer = target;
-                }
-            }
-        }
-
-        return closestPlayer;
-    }
-
-    /**
-     * 喷射目标玩家（服务端逻辑）
-     */
-    private void spray(Player player, Player target, ItemStack stack) {
+    /** 一次喷雾结算：消耗耐久、处理圆锥内玩家、播放音效并广播白色喷雾特效。 */
+    private void spray(Player player, ItemStack stack) {
         Level world = player.level();
-
-        // 记录物品使用
         if (SRE.REPLAY_MANAGER != null) {
-            SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(),
-                    BuiltInRegistries.ITEM.getKey(stack.getItem()));
+            SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(), BuiltInRegistries.ITEM.getKey(stack.getItem()));
         }
-
-        // 播放声音
-        world.playSound(null, player.getX(), player.getY(), player.getZ(),
-                SoundEvents.BUBBLE_COLUMN_WHIRLPOOL_INSIDE, SoundSource.PLAYERS, 1.0f, 1.2f);
-
-        // 消耗耐久
+        playSpraySound(world, player);
         if (!player.isCreative()) {
             stack.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
         }
 
-        // 给目标添加效果
-        target.addEffect(new net.minecraft.world.effect.MobEffectInstance(
-                net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN,
-                EFFECT_DURATION, 0, false, false));
-
-        target.addEffect(new net.minecraft.world.effect.MobEffectInstance(
-                net.minecraft.world.effect.MobEffects.BLINDNESS,
-                EFFECT_DURATION, 0, false, false));
-        target.removeEffect(SEEffects.BURNING);
-
-        // 如果目标被纵火犯浇湿，清除浇湿状态
-        try {
-            var arsonist = pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRoleData.find(world);
-            if (arsonist != null && arsonist.isDoused(target.getUUID())) {
-                arsonist.undouse(target.getUUID());
-                if (!world.isClientSide) {
-                    player.displayClientMessage(
-                            Component.translatable("item.noellesroles.extinguisher.cleaned_fuel")
-                                    .withStyle(ChatFormatting.GREEN),
-                            true);
-                }
+        List<Player> targets = findTargets(world, player);
+        ArsonistRoleData arsonist = world instanceof ServerLevel ? ArsonistRoleData.find(world) : null;
+        boolean cleaned = false;
+        for (Player target : targets) {
+            target.addEffect(new MobEffectInstance(
+                    MobEffects.MOVEMENT_SLOWDOWN, EFFECT_DURATION, 0, false, false));
+            target.addEffect(new MobEffectInstance(
+                    MobEffects.BLINDNESS, EFFECT_DURATION, 0, false, false));
+            target.addEffect(new MobEffectInstance(
+                    SEEffects.EXTINGUISH_IMMUNITY, IMMUNITY_DURATION, 0, false, false));
+            if (arsonist != null && target instanceof ServerPlayer serverTarget) {
+                cleaned |= arsonist.extinguish(serverTarget, HEAT_REDUCTION);
             }
-        } catch (Exception e) {
-            // 如果StupidExpress不可用，忽略清除浇湿状态
+        }
+        if (cleaned && player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("item.noellesroles.extinguisher.cleaned_fuel")
+                            .withStyle(ChatFormatting.GREEN), true);
         }
     }
 
-    /**
-     * 生成云粒子效果（客户端）
-     */
-    private void spawnCloudParticles(Player player, Player target) {
-        Level world = player.level();
+    /** 蓄力期间持续广播白色喷雾特效。 */
+    private void sendSprayParticles(Player player) {
+        if (!(player.level() instanceof ServerLevel serverLevel)) return;
+        ParticleFx.sendCustom(serverLevel, StupidExpress.id("extinguisher_spray"),
+                player.getEyePosition(), 1, player.getYRot(), player.getXRot(), (float) SPRAY_RANGE);
+    }
 
-        // 生成云粒子效果
-        for (int i = 0; i < 10; i++) {
-            double offsetX = (world.random.nextDouble() - 0.5) * 0.5;
-            double offsetY = (world.random.nextDouble() - 0.5) * 0.5;
-            double offsetZ = (world.random.nextDouble() - 0.5) * 0.5;
-            world.addParticle(ParticleTypes.CLOUD,
-                    target.getX() + offsetX,
-                    target.getY() + 1.0 + offsetY,
-                    target.getZ() + offsetZ,
-                    0.0, 0.1, 0.0);
+    private void playSpraySound(Level world, Player player) {
+        world.playSound(null, player.getX(), player.getY(), player.getZ(),
+                SoundEvents.BREEZE_SLIDE, SoundSource.PLAYERS, 0.9F, 1.0F);
+    }
+
+    /** 前方5格圆锥内、且未被墙体遮挡的所有存活玩家。 */
+    private List<Player> findTargets(Level world, Player player) {
+        Vec3 origin = player.getEyePosition();
+        Vec3 look = player.getLookAngle();
+        List<Player> result = new ArrayList<>();
+        for (Player target : world.players()) {
+            if (target == player || !GameUtils.isPlayerAliveAndSurvival(target)) continue;
+            Vec3 toTarget = target.getBoundingBox().getCenter().subtract(origin);
+            if (toTarget.length() > SPRAY_RANGE) continue;
+            if (toTarget.normalize().dot(look) < CONE_DOT) continue;
+            if (!player.hasLineOfSight(target)) continue;
+            result.add(target);
         }
+        return result;
     }
 
     @Override
@@ -248,6 +189,8 @@ public class ExtinguisherItem extends Item implements AdventureUsable {
         tooltip.add(Component.translatable("item.noellesroles.extinguisher.tooltip.use")
                 .withStyle(ChatFormatting.AQUA));
         tooltip.add(Component.translatable("item.noellesroles.extinguisher.tooltip.hold")
+                .withStyle(ChatFormatting.AQUA));
+        tooltip.add(Component.translatable("item.noellesroles.extinguisher.tooltip.clean")
                 .withStyle(ChatFormatting.AQUA));
         super.appendHoverText(stack, context, tooltip, type);
     }

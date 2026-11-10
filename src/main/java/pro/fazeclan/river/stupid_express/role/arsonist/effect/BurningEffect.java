@@ -92,7 +92,7 @@ public class BurningEffect extends MobEffect {
             arsonist.setBurningKiller(victim.getUUID(), null);
         }
         victim.getServer().tell(new net.minecraft.server.TickTask(victim.getServer().getTickCount(), () -> {
-            if (!GameUtils.isPlayerAliveAndSurvival(victim)) {
+            if (!GameUtils.isPlayerAliveAndSurvival(victim) || victim.hasEffect(SEEffects.EXTINGUISH_IMMUNITY)) {
                 return;
             }
             ServerPlayer killer = killerId != null && victim.getServer() != null

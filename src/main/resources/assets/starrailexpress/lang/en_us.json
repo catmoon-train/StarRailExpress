@@ -4176,6 +4176,7 @@
     "replay.event.agent.inspect_inventory": "§9🔍§r %s inspected %s's inventory",
     "replay.event.voice_changer.voice": "§d🎤§r %s used a level %s %s voice change on %s",
     "replay.event.arsonist.ignite": "§c🔥§r %s ignited all doused players",
+    "replay.event.arsonist.moment": "§c🔥§r %s entered Arson Moment",
     "replay.event.adventurer.recall": "§9📖§r %s recalled %s from the travelogue",
     "replay.event.diviner.divination": "§d🔮§r %s successfully divined a corpse",
     "replay.event.money_grubber.take": "§b💰§r %s was money-grubbed for %s coins by %s",

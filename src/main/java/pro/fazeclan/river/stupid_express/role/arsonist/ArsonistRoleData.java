@@ -101,8 +101,7 @@ public class ArsonistRoleData extends SimpleRoleData {
         var targets = owner.server.getPlayerList().getPlayers().stream()
                 .filter(p -> p != owner && GameUtils.isPlayerAliveAndSurvival(p)).toList();
         int count = (int) targets.stream().filter(p -> isDoused(p.getUUID())).count();
-        int required = org.agmas.noellesroles.game.roles.neutral.leader.LeaderFollowerEffects
-                .arsonistRequiredDoused(ArsonistRules.requiredDoused(targets.size()), owner);
+        int required = ArsonistRules.requiredDoused(targets.size());
         boolean changed = count != dousedCount || required != ignitionRequired;
         dousedCount = count;
         ignitionRequired = required;
@@ -132,26 +131,27 @@ public class ArsonistRoleData extends SimpleRoleData {
 
     @Nullable public UUID getBurningKiller(UUID victim) { return burningKillers.get(victim); }
 
-    /** 火枪复用左轮射线，不伤害目标、不消耗枪、不掉枪；命中与否均收100金币并冷却30秒。 */
-    public boolean shootFireGun(InteractionHand hand) {
-        if (!(player instanceof ServerPlayer owner) || !canAct() || arsonMoment
-                || !owner.getItemInHand(hand).is(SEItems.FIRE_GUN)
-                || owner.getCooldowns().isOnCooldown(SEItems.FIRE_GUN)) return false;
-        var shop = SREPlayerShopComponent.KEY.get(owner);
+    /** 火枪复用左轮射线，不伤害目标、不消耗枪、不掉枪；命中与否均花费金币并冷却30秒。
+     *  领袖开枪时由 {@code shooter} 支付与冷却，但浇油记到这位纵火犯追随者名下。 */
+    public boolean shootFireGunFor(ServerPlayer shooter, InteractionHand hand) {
+        if (!(player instanceof ServerPlayer) || !canAct() || arsonMoment
+                || !shooter.getItemInHand(hand).is(SEItems.FIRE_GUN)
+                || shooter.getCooldowns().isOnCooldown(SEItems.FIRE_GUN)) return false;
+        var shop = SREPlayerShopComponent.KEY.get(shooter);
         if (shop.balance < ArsonistRules.SHOT_COINS) {
-            owner.displayClientMessage(Component.translatable("message.stupid_express.arsonist.shot_money", ArsonistRules.SHOT_COINS), true);
+            shooter.displayClientMessage(Component.translatable("message.stupid_express.arsonist.shot_money", ArsonistRules.SHOT_COINS), true);
             return false;
         }
-        MoneyFlow.recordExpense(owner, MoneyFlow.ExpenseType.SKILL, ArsonistRules.SHOT_COINS,
+        MoneyFlow.recordExpense(shooter, MoneyFlow.ExpenseType.SKILL, ArsonistRules.SHOT_COINS,
                 Component.translatable("item.stupid_express.fire_gun"));
         shop.addToBalance(-ArsonistRules.SHOT_COINS);
-        owner.getCooldowns().addCooldown(SEItems.FIRE_GUN, ArsonistRules.SHOT_COOLDOWN_TICKS);
-        var hit = SREHitManager.getTarget(owner, HitType.GUN, 20.0D);
+        shooter.getCooldowns().addCooldown(SEItems.FIRE_GUN, ArsonistRules.SHOT_COOLDOWN_TICKS);
+        var hit = SREHitManager.getTarget(shooter, HitType.GUN, 20.0D);
         if (hit instanceof EntityHitResult entityHit && entityHit.getEntity() instanceof ServerPlayer target) douse(target);
-        owner.serverLevel().playSound(null, owner.blockPosition(), SoundEvents.FIREWORK_ROCKET_BLAST,
+        shooter.serverLevel().playSound(null, shooter.blockPosition(), SoundEvents.FIREWORK_ROCKET_BLAST,
                 SoundSource.PLAYERS, 0.9F, 0.7F);
-        ParticleFx.sendCustom(owner.serverLevel(), StupidExpress.id("arsonist_shot"), owner.getEyePosition(), 4,
-                owner.getYRot(), owner.getXRot());
+        ParticleFx.sendCustom(shooter.serverLevel(), StupidExpress.id("arsonist_shot"), shooter.getEyePosition(), 4,
+                shooter.getYRot(), shooter.getXRot());
         return true;
     }
 
@@ -176,7 +176,8 @@ public class ArsonistRoleData extends SimpleRoleData {
         failedIgniteTick = Long.MIN_VALUE;
         int duration = Math.max(20, StupidExpress.CONFIG.rolesSection.arsonistSection.burnDurationSeconds * 20);
         for (ServerPlayer target : owner.server.getPlayerList().getPlayers()) {
-            if (target != owner && GameUtils.isPlayerAliveAndSurvival(target) && isDoused(target.getUUID())) {
+            if (target != owner && GameUtils.isPlayerAliveAndSurvival(target) && isDoused(target.getUUID())
+                    && !target.hasEffect(SEEffects.EXTINGUISH_IMMUNITY)) {
                 setBurningKiller(target.getUUID(), owner.getUUID());
                 timedBurnDurations.put(target.getUUID(), duration);
                 burnValues.put(target.getUUID(), 0);
@@ -227,6 +228,8 @@ public class ArsonistRoleData extends SimpleRoleData {
             p.playNotifySound(SoundEvents.WITHER_SPAWN, SoundSource.PLAYERS, 0.65F, 1.15F);
             ServerPlayNetworking.send(p, new ArsonistPackets.MomentS2C(owner.getUUID(), true, momentTicks));
         }
+        SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.event.arsonist.moment",
+                io.wifi.starrailexpress.api.replay.GameReplayUtils.getReplayPlayerDisplayText(owner, true)));
         sync();
     }
 
@@ -256,6 +259,8 @@ public class ArsonistRoleData extends SimpleRoleData {
     }
 
     private void spray(ServerPlayer owner) {
+        boolean boosted = arsonMoment
+                && org.agmas.noellesroles.game.roles.neutral.leader.LeaderFollowerEffects.isFollowerOfLeader(owner);
         Vec3 origin = owner.getEyePosition();
         Vec3 look = owner.getLookAngle();
         long now = owner.level().getGameTime();
@@ -273,7 +278,8 @@ public class ArsonistRoleData extends SimpleRoleData {
             if (!arsonMoment || !GameUtils.isPlayerAliveAndSurvival(owner)) break;
             Vec3 delta = target.getBoundingBox().getCenter().subtract(origin);
             if (!ArsonistRules.inFlame(delta.x, delta.y, delta.z, look.x, look.y, look.z) || !owner.hasLineOfSight(target)) continue;
-            int heat = ArsonistRules.heatAfterTick(burnValues.getOrDefault(target.getUUID(), 0));
+            int heat = ArsonistRules.heatAfterTick(burnValues.getOrDefault(target.getUUID(), 0),
+                    boosted, owner.tickCount % 2 == 0);
             burnValues.put(target.getUUID(), heat);
             if (heat >= 100) killBurnedPlayer(target);
         }
@@ -290,6 +296,38 @@ public class ArsonistRoleData extends SimpleRoleData {
         target.removeEffect(SEEffects.BURNING);
         GameUtils.killPlayer(target, false, owner, GameConstants.DeathReasons.IGNITED, true);
         forgetTarget(target);
+    }
+
+    /** 灭火器喷雾：清除点燃与浇油状态，并把燃烧值按指定点数降低。 */
+    public boolean extinguish(ServerPlayer target, int heatReduction) {
+        UUID id = target.getUUID();
+        boolean changed = false;
+        if (target.hasEffect(SEEffects.BURNING)) {
+            target.removeEffect(SEEffects.BURNING);
+            target.clearFire();
+            changed = true;
+        }
+        if (burningKillers.remove(id) != null || timedBurnDurations.remove(id) != null) changed = true;
+        if (isDoused(id)) {
+            undouse(id);
+            changed = true;
+        }
+        int heat = burnValues.getOrDefault(id, 0);
+        if (heat > 0) {
+            int reduced = Math.max(0, heat - heatReduction);
+            if (reduced == 0) {
+                burnValues.remove(id);
+                sentHeat.remove(id);
+                ServerPlayNetworking.send(target, new ArsonistPackets.HeatS2C(0));
+            } else {
+                burnValues.put(id, reduced);
+            }
+            dirty = true;
+            changed = true;
+        }
+        if (player instanceof ServerPlayer owner) syncVictims(owner);
+        sync();
+        return changed;
     }
 
     public void forgetTarget(ServerPlayer target) {

@@ -432,11 +432,13 @@ public final class LeaderFollowerEffects {
         giveItem(leader, TMMItems.KNIFE.getDefaultInstance());
     }
 
-    /** 纵火犯：打火机目标 -2 人；领袖释放技能成功后获得一把刀。 */
+    private static final int ARSONIST_COINS = 100;
+
+    /** 纵火犯：追随者立即获得100金币；领袖获得100金币与一把火枪。 */
     private static void applyArsonist(ServerPlayer leader, ServerPlayer follower) {
-        // 打火机目标 -2：见 LeaderEventHandler / LighterItem 联动（LeaderFollowerEffects 提供静态判定）
-        // 领袖对纵火犯释放完技能 → 给予领袖一把刀
-        giveItem(leader, TMMItems.KNIFE.getDefaultInstance());
+        MoneyUtils.addToBalance(follower, ARSONIST_COINS);
+        MoneyUtils.addToBalance(leader, ARSONIST_COINS);
+        giveItem(leader, pro.fazeclan.river.stupid_express.constants.SEItems.FIRE_GUN.getDefaultInstance());
     }
 
     /** 森近霖之助 / 河城荷取：金币依附（无即时效果，didPlayerWin 判定） */
@@ -592,14 +594,16 @@ public final class LeaderFollowerEffects {
         player.addEffect(new MobEffectInstance(effect, -1, amp, true, false, false));
     }
 
-    /**
-     * 纵火犯点燃所需被泼油人数：追随者纵火犯 -2 人，下限 1 人。
-     */
-    public static int arsonistRequiredDoused(int baseRequired, ServerPlayer arsonist) {
-        if (isFollowerOfLeader(arsonist)) {
-            return Math.max(1, baseRequired - 2);
+    /** 该领袖名下的纵火犯追随者；火枪浇上的汽油会记到这位纵火犯名下。 */
+    @Nullable
+    public static ServerPlayer getArsonistFollowerOf(ServerPlayer leader) {
+        LeaderRoleData data = RoleData.getNullable(LeaderRoleData.class, leader);
+        if (data == null) return null;
+        for (UUID id : data.followers) {
+            ServerPlayer player = leader.server.getPlayerList().getPlayer(id);
+            if (player != null && followerRoleIs(player, "arsonist")) return player;
         }
-        return baseRequired;
+        return null;
     }
 
     /**

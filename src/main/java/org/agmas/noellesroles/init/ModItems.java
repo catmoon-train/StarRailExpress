@@ -982,7 +982,7 @@ public class ModItems {
      * - 如果被喷射的人被纵火犯浇湿，则清除浇湿状态
      */
     public static final Item EXTINGUISHER = register(
-            new ExtinguisherItem(new Item.Properties().stacksTo(1).durability(5)),
+            new ExtinguisherItem(new Item.Properties().stacksTo(1).durability(60)),
             "extinguisher");
 
     /**

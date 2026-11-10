@@ -35,6 +35,12 @@ public final class ArsonistRules {
         return Math.min(100, Math.max(0, heat) + HEAT_PER_TICK);
     }
 
+    /** 追随者纵火犯在时刻内每tick积攒1.5倍燃烧值：7与8交替，平均7.5点。 */
+    public static int heatAfterTick(int heat, boolean boosted, boolean extraHalf) {
+        int gain = boosted ? (extraHalf ? 8 : 7) : HEAT_PER_TICK;
+        return Math.min(100, Math.max(0, heat) + gain);
+    }
+
     /** 首次点火失败警告后，3秒内的第二次右键才会点火失败而死。 */
     public static boolean withinFailedIgniteWindow(long now, long warnedAt) {
         return warnedAt != Long.MIN_VALUE && now >= warnedAt && now - warnedAt <= FAILED_IGNITE_WINDOW_TICKS;

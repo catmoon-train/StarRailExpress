@@ -200,6 +200,7 @@ public class StupidExpressClient {
         });
 
         ArsonistFlameClientEffects.register();
+        ExtinguisherSprayClientEffects.register();
         ArsonistClient.register();
     }
 
