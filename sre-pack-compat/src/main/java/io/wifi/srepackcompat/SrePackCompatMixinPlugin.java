@@ -40,6 +40,13 @@ public final class SrePackCompatMixinPlugin implements IMixinConfigPlugin {
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         FabricLoader loader = FabricLoader.getInstance();
+        if (mixinClassName.startsWith("io.wifi.srepackcompat.mixin.cobblemon.")) {
+            return loader.isModLoaded("cobblemon")
+                    && (!mixinClassName.endsWith(".ServerConfigMixin") || loader.isModLoaded("starrailexpress"));
+        }
+        if (mixinClassName.contains(".compat.lightspeed.")) {
+            return loader.isModLoaded("lightspeed") && loader.isModLoaded("starrailexpress");
+        }
         if (mixinClassName.contains(".compat.voicechat.")) {
             return loader.isModLoaded("voicechat");
         }

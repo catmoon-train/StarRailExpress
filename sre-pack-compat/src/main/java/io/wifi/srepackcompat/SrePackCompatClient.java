@@ -15,6 +15,9 @@ public final class SrePackCompatClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        if (FabricLoader.getInstance().isModLoaded("cobblemon")) {
+            io.wifi.srepackcompat.cobblemon.CobblemonClientGate.initialize();
+        }
         if (FabricLoader.getInstance().isModLoaded("voicechat")) {
             ClientTickEvents.END_CLIENT_TICK.register(client ->
                     io.wifi.srepackcompat.voice.VoicechatReconnect.tick());

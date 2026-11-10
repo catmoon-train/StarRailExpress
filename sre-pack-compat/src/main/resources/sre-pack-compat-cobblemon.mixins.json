@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.wifi.srepackcompat.mixin.cobblemon",
+  "plugin": "io.wifi.srepackcompat.SrePackCompatMixinPlugin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "ServerConfigMixin", "KeyMappingAccess", "ScreenAccess", "KeyMappingsMixin", "KeyBindsListMixin", "HeldKeyMixin",
+    "ClientEventsMixin", "ClientHudMixin", "PokedexMixin", "BattleMusicMixin", "MountedCameraMixin",
+    "ScreensMixin", "ToastsMixin", "VisibleToastMixin"
+  ],
+  "injectors": { "defaultRequire": 1 }
+}

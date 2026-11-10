@@ -134,3 +134,17 @@ Android（Pojav/Fold Craft/Zalith 等启动器）不能执行独立 Java 或显�
 ## 死亡语音群组 HUD
 
 仅替换服务端同步的隐藏群组 `Train Spectators`：左侧竖排显示正在说话的成员头像，停止说话后随 Voice Chat 自带说话状态缓存消失。按住左/右 Alt 时在头像右侧显示发言者名字，松开隐藏名字；不会展开未发言成员。沿用 Voice Chat 的 HUD 总开关、头像缩放及显示自己头像设置，普通群组不变。无需新增按键绑定，不改变语音路由或群组成员。
+
+## 方块宝可梦（Cobblemon 1.8.4 / Fabric 1.21.1）
+
+服务端核心的 `config/starrailexpress.json` 新增 `"pokmen": false`（保留该拼写），默认关闭。设为 `true` 后重启服务端，或执行 `/tmm:config reload`（需要 3 级权限）重新加载文件并同步给在线客户端；客户端通过现有 `@ConfigSync` 配置包接收，不能用本地配置自行启用。服务端需更新核心，客户端需更新核心及兼容包，无需给专用服务器安装客户端兼容包。
+
+- 未连接、尚未收到配置、旧服未提供此字段及断线/换服时均关闭；收到服务器 `true` 后启用，无需重启客户端。
+- 关闭时从原版按键设置展示副本及有效输入映射中排除 Cobblemon 按键，不抢占同键的列车/原版操作；注册与玩家保存的绑定值不变。切换时清空残留点击/长按状态。
+- 阻止 Cobblemon GUI（包括服务器请求打开的容器，正常发送关闭包）、队伍/战斗/骑乘 HUD、图鉴扫描 HUD/操作、教程 Toast、客户端 tick/render/tooltip 玩法事件及骑乘镜头接管；关闭时清理已打开的界面、扫描状态和战斗音乐。
+- 登录/退出清理、数据包、存储同步、资源加载、物品实体注册及服务端事件保留，避免损坏存档或联网协议。这个选项控制客户端功能，不等于卸载 Cobblemon，也不关闭服务端世界生成/宝可梦生成。
+- Cobblemon 为可选模组，未安装时所有相关 Mixin 自动跳过；不新增 Cobblemon/Kotlin 硬依赖，不改模组版本号。
+
+针对性验证：`./gradlew :sre-pack-compat:test --tests '*CobblemonPolicyTest' :remapJar :sre-pack-compat:remapJar --offline --console=plain`。
+
+本次验证：核心与兼容包正式 `remapJar` 成功，5 项 `CobblemonPolicyTest` 通过；实际 Cobblemon 1.8.4 + Fabric Loader 0.19.3 的生产命名隔离客户端完成 31 项检查并正常退出（`COBBLEMON_GATE_PASS checks=31`）。覆盖配置接收 Mixin、默认关闭/开启/再次关闭/连接重置、按键冲突与列表即时刷新、GUI、Toast、HUD 入口、图鉴、镜头回退及事件门控。配置接收使用同签名测试桩，未连接真实 SRE 服务器；没有声称完成整包联机或服务端生成验证。临时验证器不包含在正式 JAR 中。

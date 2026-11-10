@@ -100,6 +100,12 @@ public class SREConfig implements ConfigData {
     public String loadServerLanguageId = "";
     // 服务端：为上面的语言从Mojang官方下载原版(vanilla)翻译文件(assets/minecraft/lang/<id>.json)，缓存到游戏根目录sre_lang_cache
     public boolean downloadVanillaLanguageFile = false;
+
+    /** 服务端控制方块宝可梦客户端功能；未同步或关闭时不接管列车输入与界面。 */
+    @ConfigSync(shouldSync = true)
+    @Tooltip
+    public boolean pokmen = false;
+
     // 游戏模式设置
     @ConfigEntry.Category(value = "gamemodes")
     public int defaultStartTimeForMurder = 10;

@@ -6,6 +6,13 @@ import java.net.URI;
 public final class PackArchiveFileUri {
     private PackArchiveFileUri() { }
 
+    /** UnixUriUtils rejects raw non-ASCII paths; ASCII conversion keeps existing escapes intact. */
+    public static URI normalizeFileUri(URI uri) {
+        if (uri == null || !"file".equalsIgnoreCase(uri.getScheme())) return uri;
+        String ascii = uri.toASCIIString();
+        return ascii.equals(uri.toString()) ? uri : URI.create(ascii);
+    }
+
     public static URI resolve(URI root, URI fallback) {
         if (!"jar".equalsIgnoreCase(root.getScheme())) return fallback;
         String raw = root.getRawSchemeSpecificPart();
@@ -13,7 +20,7 @@ public final class PackArchiveFileUri {
         if (end < 0) return fallback;
         try {
             URI archive = URI.create(raw.substring(0, end).replace("[", "%5B").replace("]", "%5D"));
-            return "file".equalsIgnoreCase(archive.getScheme()) ? archive : fallback;
+            return "file".equalsIgnoreCase(archive.getScheme()) ? normalizeFileUri(archive) : fallback;
         } catch (IllegalArgumentException error) {
             return fallback;
         }
