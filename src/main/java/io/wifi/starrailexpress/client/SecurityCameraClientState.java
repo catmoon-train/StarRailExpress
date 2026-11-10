@@ -51,11 +51,11 @@ public final class SecurityCameraClientState {
      */
     public static final float MAX_VIEW_OFFSET = 90.0F;
 
-    /**
-     * 摄像头与小窗共用的竖向位置偏移：从方块中心下沉到镜头高度。
-     * 两台「摄像头」必须用同一个偏移，否则切换 / 位置偏移后画面高低会不一致。
-     */
-    public static final double CAMERA_Y_OFFSET = -1.2D;
+    /** 监控摄像头相对方块中心的竖向偏移：镜头下沉到方块底部附近。 */
+    private static final double CAMERA_Y_OFFSET = -1.2D;
+
+    /** 监控台自带镜头的高度：相对方块中心上移一格，也就是监控台上方那一格。 */
+    private static final double MONITOR_FEED_HEIGHT_OFFSET = 1.0D;
 
     /** 监控台小窗镜头沿正面方向前移，避免视线被监控台自身的方块挡住。 */
     private static final double MONITOR_FEED_FORWARD_OFFSET = 0.55D;
@@ -212,9 +212,8 @@ public final class SecurityCameraClientState {
     /**
      * 监控台自带的「小摄像头」：从方块正面朝前看，正好对着站在台前的玩家。
      *
-     * <p>朝向换算、竖向位置偏移都与 {@link CameraBlock} 用同一套规则；位置直接取服务端
-     * 同步过来的监控台绝对坐标（绑定时的相对偏移已加好），并且每帧重新读方块状态，
-     * 所以监控台 / 摄像头被搬动、转向或偏移变化后，小窗画面都会正确跟着变。
+     * <p>位置直接取服务端同步过来的监控台绝对坐标（绑定时的相对偏移已加好），
+     * 并且每帧重新读方块状态，所以监控台被搬动、转向或偏移变化后，小窗画面都会正确跟着变。
      */
     private static boolean setupMonitorFeedCamera(Camera camera, BlockGetter level) {
         BlockPos monitorPos = currentMonitorPos != null ? currentMonitorPos : currentCameraPos;
@@ -225,17 +224,19 @@ public final class SecurityCameraClientState {
         Direction facing = state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)
                 ? state.getValue(BlockStateProperties.HORIZONTAL_FACING)
                 : Direction.NORTH;
-        camera.setRotation(getBaseYawFromDirection(facing), 0.0F);
+        // getBaseYawFromDirection 给的是「背对传入方向」的 yaw（原本配合 CameraBlock 的放置朝向）；
+        // 监控台的 FACING 指向站在台前的玩家，镜头要顺着正面看出去，因此传它的反方向。
+        camera.setRotation(getBaseYawFromDirection(facing.getOpposite()), 0.0F);
         camera.setPosition(monitorFeedCameraPosition(monitorPos, facing));
         lastCameraYaw = camera.getYRot();
         lastCameraPitch = camera.getXRot();
         return true;
     }
 
-    /** 小窗相机位置：与摄像头共用竖向偏移，再沿监控台正面方向前移一点避免镜头埋进方块。 */
+    /** 小窗相机位置：监控台上方一格，再沿正面方向前移一点，避免镜头埋进方块里。 */
     public static Vec3 monitorFeedCameraPosition(BlockPos pos, Direction facing) {
         return pos.getCenter()
-                .add(0, CAMERA_Y_OFFSET, 0)
+                .add(0, MONITOR_FEED_HEIGHT_OFFSET, 0)
                 .add(facing.getStepX() * MONITOR_FEED_FORWARD_OFFSET, 0,
                         facing.getStepZ() * MONITOR_FEED_FORWARD_OFFSET);
     }
