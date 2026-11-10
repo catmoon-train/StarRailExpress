@@ -23,7 +23,6 @@ public class CavalryRoleData extends SimpleRoleData {
     public boolean mountedShieldActive = false;
     /** 护盾在骑乘期间被击破后，本局不再补充。 */
     public boolean mountedShieldBroken = false;
-    private boolean wasRidingCavalryMount = false;
     private long mountedShieldExpiry = -1L;
 
     public CavalryRoleData(RoleDataContext context) {
@@ -55,29 +54,34 @@ public class CavalryRoleData extends SimpleRoleData {
             return;
         }
 
-        boolean ridingCavalryMount = CavalryRole.isCavalryMount(serverPlayer.getVehicle());
-        if (ridingCavalryMount && !this.mountedShieldBroken && !this.mountedShieldActive) {
-            SREArmorPlayerComponent armor = SREArmorPlayerComponent.KEY.get(serverPlayer);
-            // 用很长的限时护盾覆盖本次骑乘，离开坐骑时按记录的过期时间精确移除。
-            // 这样不会清掉其他职业可能添加的限时护盾。
-            armor.addTimedArmor(1, Integer.MAX_VALUE, true);
-            this.mountedShieldExpiry = armor.timedArmor.lastKey();
-            this.mountedShieldActive = true;
-            this.sync();
-        } else if (!ridingCavalryMount && this.wasRidingCavalryMount && this.mountedShieldActive) {
+        if (CavalryRole.isCavalryMount(serverPlayer.getVehicle())) {
+            // 只要这层上马盾本局没有被打破过，重新上马就重新赋予。
+            if (!this.mountedShieldBroken && !this.mountedShieldActive) {
+                SREArmorPlayerComponent armor = SREArmorPlayerComponent.KEY.get(serverPlayer);
+                // 用很长的限时护盾覆盖本次骑乘，离开坐骑时按记录的过期时间精确移除。
+                // 这样不会清掉其他职业可能添加的限时护盾。
+                armor.addTimedArmor(1, Integer.MAX_VALUE, true);
+                this.mountedShieldExpiry = armor.timedArmor.lastKey();
+                this.mountedShieldActive = true;
+                this.sync();
+            }
+        } else if (this.mountedShieldActive) {
+            // 下马（含坐骑消失 / 被强制卸下）立即解除。
+            // 不再依赖上一 tick 的骑乘状态：一旦该状态丢失，护盾就会永久残留。
             removeMountedShield(serverPlayer);
             this.mountedShieldActive = false;
             this.sync();
         }
-        this.wasRidingCavalryMount = ridingCavalryMount;
     }
 
     /** 只移除骑兵自己添加的限时护盾，不清理其他护盾。 */
     private void removeMountedShield(ServerPlayer serverPlayer) {
         SREArmorPlayerComponent armor = SREArmorPlayerComponent.KEY.get(serverPlayer);
-        if (this.mountedShieldExpiry >= 0 && armor.timedArmor.remove(this.mountedShieldExpiry) != null) {
-            armor.sync();
+        if (this.mountedShieldExpiry >= 0) {
+            armor.timedArmor.remove(this.mountedShieldExpiry);
         }
+        // 即使条目已被消耗或清理，也同步一次，避免客户端继续显示残留护盾。
+        armor.sync();
         this.mountedShieldExpiry = -1L;
     }
 
@@ -104,7 +108,6 @@ public class CavalryRoleData extends SimpleRoleData {
             removeMountedShield(serverPlayer);
         }
         this.mountedShieldActive = false;
-        this.wasRidingCavalryMount = false;
         this.mountedShieldExpiry = -1L;
     }
 }

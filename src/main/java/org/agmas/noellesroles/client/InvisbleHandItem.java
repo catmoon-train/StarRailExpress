@@ -58,12 +58,14 @@ public class InvisbleHandItem {
             }
             return null;
         });
-        // 巡飞弹操控期间相机已经绑定到弹体，隐藏第一人称双手避免遮挡视野。
+        // 巡飞弹操控期间相机已经绑定到弹体；大油罐改为跟随镜头但相机实体仍是玩家，
+        // 这时同样隐藏第一人称手持物品，避免遮挡镜头前方的油罐。
         AllowItemShowInHand.EVENT.register((player, itemStack, mainHand) -> {
             if (Minecraft.getInstance().getCameraEntity() instanceof pro.fazeclan.river.stupid_express.role.arsonist.LargeOilCanEntity
                     || Minecraft.getInstance().getCameraEntity() instanceof NiaoshoushouMissileEntity
                     || Minecraft.getInstance()
-                            .getCameraEntity() instanceof org.agmas.noellesroles.content.entity.MechanicalBirdEntity) {
+                            .getCameraEntity() instanceof org.agmas.noellesroles.content.entity.MechanicalBirdEntity
+                    || pro.fazeclan.river.stupid_express.client.ArsonistClient.getActiveOilCanId() >= 0) {
                 return ItemStack.EMPTY;
             }
             return null;

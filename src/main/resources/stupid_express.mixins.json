@@ -25,6 +25,7 @@
     "client.modifier.split_personality.SplitPersonalityPositionSyncMixin",
     "client.modifier.split_personality.SplitPersonalityVisibilityMixin",
     "client.modifier.twin_children.TwinChildrenLerpMixin",
-    "client.modifier.twin_children.TwinChildrenRenderMixin"
+    "client.modifier.twin_children.TwinChildrenRenderMixin",
+    "client.OilCanCameraMixin"
   ]
 }

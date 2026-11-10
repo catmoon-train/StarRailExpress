@@ -28,6 +28,7 @@ import org.joml.Matrix4f;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
 import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistPackets;
 import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRoleData;
+import pro.fazeclan.river.stupid_express.role.arsonist.LargeOilCanEntity;
 
 import java.util.Locale;
 
@@ -44,10 +45,16 @@ public final class ArsonistClient {
     // 受击者独立收包，不依赖纵火犯实体是否在客户端的追踪距离内。
     private static int localHeat;
     private static int reloadSpanTicks;
-    /** 服务端下发的大油罐实体 id；相机不再绑定到油罐，靠它维持遥控输入。 */
+    /** 服务端下发的大油罐实体 id；相机不绑定到油罐，靠它维持遥控输入与跟随镜头。 */
     private static int activeOilCanId = -1;
+    private static int oilCanMissingTicks;
 
     private ArsonistClient() {
+    }
+
+    /** 供客户端相机 mixin 读取当前受控油罐；-1 表示没有遥控中的油罐。 */
+    public static int getActiveOilCanId() {
+        return activeOilCanId;
     }
 
     public static void register() {
@@ -57,11 +64,14 @@ public final class ArsonistClient {
                 (payload, context) -> context.client().execute(() ->
                         localHeat = Mth.clamp(payload.heat(), 0, 100)));
         ClientPlayNetworking.registerGlobalReceiver(ArsonistPackets.OilCanControlS2C.ID,
-                (payload, context) -> context.client().execute(() ->
-                        activeOilCanId = payload.active() ? payload.entityId() : -1));
+                (payload, context) -> context.client().execute(() -> {
+                    activeOilCanId = payload.active() ? payload.entityId() : -1;
+                    oilCanMissingTicks = 0;
+                }));
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             clear();
             activeOilCanId = -1;
+            oilCanMissingTicks = 0;
         });
         ClientTickEvents.END_CLIENT_TICK.register(ArsonistClient::sendOilCanControl);
         ClientTickEvents.END_CLIENT_TICK.register(ArsonistClient::tick);
@@ -78,7 +88,15 @@ public final class ArsonistClient {
     /** 大油罐不再绑定相机：按服务端下发的实体 id 持续提交按键，玩家视角完全保持自己的。 */
     private static void sendOilCanControl(Minecraft client) {
         if (activeOilCanId < 0 || client.player == null || client.level == null) return;
-        // 实体生成包可能比状态包晚到；服务端会校验实体、归属和距离，客户端无需先拿到实体。
+        // 实体生成包可能比状态包晚到，给 2 秒宽限；之后视为遥控结束，避免状态残留。
+        var can = client.level.getEntity(activeOilCanId);
+        if (can instanceof LargeOilCanEntity && !can.isRemoved()) {
+            oilCanMissingTicks = 0;
+        } else if (++oilCanMissingTicks > 40) {
+            activeOilCanId = -1;
+            oilCanMissingTicks = 0;
+            return;
+        }
         int bits = 0;
         if (client.options.keyUp.isDown()) bits |= MechanicalBirdControlC2SPacket.BIT_FORWARD;
         if (client.options.keyDown.isDown()) bits |= MechanicalBirdControlC2SPacket.BIT_BACK;

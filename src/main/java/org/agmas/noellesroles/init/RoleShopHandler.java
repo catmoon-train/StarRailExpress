@@ -61,6 +61,7 @@ import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.item.ToxinShopEntry;
 import org.agmas.noellesroles.role_data.innocence.SingerRoleData;
+import org.agmas.noellesroles.role_data.innocence.FirefighterRoleData;
 import org.agmas.noellesroles.role_data.killer.ExecutionerRoleData;
 import org.agmas.noellesroles.role_data.killer.MaChenXuRoleData;
 import org.agmas.noellesroles.role_data.innocence.MagicianRoleData;
@@ -1110,41 +1111,55 @@ public class RoleShopHandler {
                     ShopEntry.Type.TOOL));
         }
 
-        // 消防员商店
+        // 消防员商店：与独裁者「独裁之书」一致，用职业数据记录本局购买状态
         {
-            // 消防斧 - 150金币
+            // 消防斧 - 150金币（一局仅能购买一次）
             FIREFIGHTER_SHOP.add(new ShopEntry(
                     ModItems.FIRE_AXE.getDefaultInstance(),
                     150,
                     ShopEntry.Type.TOOL) {
                 @Override
+                public boolean canBuy(Player player) {
+                    FirefighterRoleData data = RoleData.getNullable(FirefighterRoleData.class, player);
+                    return data != null && !data.axePurchased && super.canBuy(player);
+                }
+
+                @Override
                 public boolean onBuy(Player player) {
-                    if (SREItemUtils.countItem(player, Items.CHAIN_COMMAND_BLOCK) > 0) {
+                    FirefighterRoleData data = RoleData.getNullable(FirefighterRoleData.class, player);
+                    if (data == null || data.axePurchased) {
                         return false;
                     }
-                    if (RoleUtils.insertStackInFreeSlot(player, this.stack().copy())) {
-                        player.getInventory().setItem(14, Items.CHAIN_COMMAND_BLOCK.getDefaultInstance());
-                        return true;
+                    if (!super.onBuy(player)) {
+                        return false;
                     }
-                    return false;
+                    data.axePurchased = true;
+                    return true;
                 }
             });
 
-            // 灭火器 - 150金币
+            // 灭火器 - 150金币（一局仅能购买一次）
             FIREFIGHTER_SHOP.add(new ShopEntry(
                     ModItems.EXTINGUISHER.getDefaultInstance(),
                     150,
                     ShopEntry.Type.TOOL) {
                 @Override
+                public boolean canBuy(Player player) {
+                    FirefighterRoleData data = RoleData.getNullable(FirefighterRoleData.class, player);
+                    return data != null && !data.extinguisherPurchased && super.canBuy(player);
+                }
+
+                @Override
                 public boolean onBuy(Player player) {
-                    if (SREItemUtils.countItem(player, Items.REPEATING_COMMAND_BLOCK) > 0) {
+                    FirefighterRoleData data = RoleData.getNullable(FirefighterRoleData.class, player);
+                    if (data == null || data.extinguisherPurchased) {
                         return false;
                     }
-                    if (RoleUtils.insertStackInFreeSlot(player, this.stack().copy())) {
-                        player.getInventory().setItem(15, Items.REPEATING_COMMAND_BLOCK.getDefaultInstance());
-                        return true;
+                    if (!super.onBuy(player)) {
+                        return false;
                     }
-                    return false;
+                    data.extinguisherPurchased = true;
+                    return true;
                 }
             });
         }

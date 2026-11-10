@@ -80,7 +80,7 @@ public class LargeOilCanEntity extends NoHeavyWaterInfluencedThrowableItemProjec
             }
             if (!controlAnnounced) {
                 // 首 tick 才通知客户端，确保客户端先收到实体生成包；不再发送相机包，
-                // 玩家始终使用自己的视角，油罐也能作为普通实体被渲染出来。
+                // 相机实体仍是玩家本体，镜头由客户端 mixin 平滑跟随油罐，朝向始终归玩家控制。
                 ServerPlayNetworking.send(owner, new ArsonistPackets.OilCanControlS2C(getId(), true));
                 controlAnnounced = true;
             }
@@ -146,7 +146,7 @@ public class LargeOilCanEntity extends NoHeavyWaterInfluencedThrowableItemProjec
         finished = true;
         if (getOwner() instanceof ServerPlayer owner) {
             if (!level().isClientSide && !owner.hasDisconnected()) {
-                // 相机始终留在玩家身上，这里只需结束遥控状态，禁止再发相机包改玩家视角。
+                // 相机实体一直是玩家本体，这里只需结束遥控与跟随，禁止再发相机包改玩家视角。
                 ServerPlayNetworking.send(owner, new ArsonistPackets.OilCanControlS2C(getId(), false));
             }
             ArsonistRoleData data = ArsonistRoleData.of(owner);

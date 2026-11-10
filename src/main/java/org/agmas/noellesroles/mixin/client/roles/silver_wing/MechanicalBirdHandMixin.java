@@ -28,7 +28,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * 相机绑在机械小鸟 / 巡飞弹上时，取消第一人称手臂渲染。
+ * 相机绑在机械小鸟 / 巡飞弹上、或大油罐处于跟随镜头时，取消第一人称手臂渲染。
  * 只把物品换成 EMPTY 仍会画出玩家手臂。
  */
 @Mixin(ItemInHandRenderer.class)
@@ -38,7 +38,8 @@ public class MechanicalBirdHandMixin {
             MultiBufferSource.BufferSource bufferSource, LocalPlayer player, int packedLight, CallbackInfo ci) {
         var camera = Minecraft.getInstance().getCameraEntity();
         if (camera instanceof MechanicalBirdEntity || camera instanceof NiaoshoushouMissileEntity
-                || camera instanceof pro.fazeclan.river.stupid_express.role.arsonist.LargeOilCanEntity) {
+                || camera instanceof pro.fazeclan.river.stupid_express.role.arsonist.LargeOilCanEntity
+                || pro.fazeclan.river.stupid_express.client.ArsonistClient.getActiveOilCanId() >= 0) {
             ci.cancel();
         }
     }

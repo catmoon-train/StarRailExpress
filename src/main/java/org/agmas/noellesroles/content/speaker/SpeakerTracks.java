@@ -128,6 +128,12 @@ public final class SpeakerTracks {
         mod(tracks, NRSounds.COMMAND_BLOCK, "command_block");
         mod(tracks, NRSounds.COMMAND_BLOCK_2, "command_block_2");
         mod(tracks, NRSounds.COMMAND_BLOCK_3, "command_block_3");
+        // 补充：已注册但此前未收录进音响的长音乐
+        mod(tracks, NRSounds.FATE, "fate");
+        mod(tracks, NRSounds.ARSONIST, "arsonist");
+        mod(tracks, NRSounds.MUSIC_HALLOWEEN, "halloween_music");
+        mod(tracks, NRSounds.MAFIA, "mafia");
+        mod(tracks, NRSounds.LUNA_TIME_CLOCK, "luna_time_clock");
         return List.copyOf(tracks);
     }
 
