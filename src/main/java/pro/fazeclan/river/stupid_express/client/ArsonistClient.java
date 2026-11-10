@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.wifi.starrailexpress.client.InputHandler;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -46,6 +47,8 @@ public final class ArsonistClient {
     /** 服务端下发的大油罐实体 id；相机不绑定到油罐，靠它维持遥控输入与跟随镜头。 */
     private static int activeOilCanId = -1;
     private static int oilCanMissingTicks;
+    private static java.util.UUID spectatorOwner;
+    private static net.minecraft.client.multiplayer.ClientLevel spectatorLevel;
 
     private ArsonistClient() {
     }
@@ -55,12 +58,29 @@ public final class ArsonistClient {
         return activeOilCanId;
     }
 
+    /** 只对服务端明确指定的时刻死者复用难民匿名外观；不影响原有旁观者。 */
+    public static boolean hasMomentDeathPenalty() {
+        Minecraft client = Minecraft.getInstance();
+        return spectatorOwner != null && spectatorLevel == client.level && client.player != null
+                && client.player.isSpectator() && inMatch(client);
+    }
+
     public static void register() {
         if (registered) return;
         registered = true;
         ClientPlayNetworking.registerGlobalReceiver(ArsonistPackets.HeatS2C.ID,
                 (payload, context) -> context.client().execute(() ->
                         localHeat = Mth.clamp(payload.heat(), 0, 100)));
+        ClientPlayNetworking.registerGlobalReceiver(ArsonistPackets.SpectatorS2C.ID,
+                (payload, context) -> context.client().execute(() -> {
+                    if (payload.active()) {
+                        spectatorOwner = payload.owner();
+                        spectatorLevel = context.client().level;
+                    } else if (payload.owner().equals(spectatorOwner)) {
+                        spectatorOwner = null;
+                        spectatorLevel = null;
+                    }
+                }));
         ClientPlayNetworking.registerGlobalReceiver(ArsonistPackets.OilCanControlS2C.ID,
                 (payload, context) -> context.client().execute(() -> {
                     activeOilCanId = payload.active() ? payload.entityId() : -1;
@@ -70,6 +90,8 @@ public final class ArsonistClient {
             clear();
             activeOilCanId = -1;
             oilCanMissingTicks = 0;
+            spectatorOwner = null;
+            spectatorLevel = null;
         });
         ClientTickEvents.END_CLIENT_TICK.register(ArsonistClient::tick);
         HudRenderCallback.EVENT.register((graphics, delta) ->
@@ -92,6 +114,10 @@ public final class ArsonistClient {
     }
 
     private static void tick(Minecraft client) {
+        if (!inMatch(client) || isLiving(client.player) || spectatorLevel != client.level) {
+            spectatorOwner = null;
+            spectatorLevel = null;
+        }
         if (!inMatch(client) || !isLiving(client.player)) {
             clear();
             return;
@@ -131,7 +157,7 @@ public final class ArsonistClient {
 
     private static void renderRolePanel(GuiGraphics graphics, Minecraft client,
                                        ArsonistRoleData data, float partialTick) {
-        int height = data.arsonMoment ? 112 : 90;
+        int height = data.arsonMoment ? 128 : 112;
         // 始终留在准星右侧，并避开底部快捷栏；小窗口整体缩放，而非遮住屏幕中央。
         float scale = Math.min(1.0F, Math.min((graphics.guiWidth() / 2.0F - 24) / PANEL_WIDTH,
                 (graphics.guiHeight() - 64.0F) / height));
@@ -171,6 +197,9 @@ public final class ArsonistClient {
             label(graphics, font, text("oil_can", decimal(oilCooldown * 60), 60), 10, 69, width, MUTED);
             progress(graphics, 10, 81, width, 1.0F - oilCooldown);
         }
+        int shields = Math.max(0, SREArmorPlayerComponent.KEY.get(client.player).getArmor());
+        label(graphics, font, text("shields", shields), 10, data.arsonMoment ? 111 : 95, width,
+                shields > 0 ? ORANGE : MUTED);
         graphics.pose().popPose();
     }
 

@@ -52,6 +52,15 @@ public final class ArsonistPackets {
         @Override public Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
+    /** 仅向本次时刻死者发送，不公开死亡名单或改写其他旁观者的外观。 */
+    public record SpectatorS2C(java.util.UUID owner, boolean active) implements CustomPacketPayload {
+        public static final Type<SpectatorS2C> ID = new Type<>(StupidExpress.id("arsonist_spectator"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, SpectatorS2C> CODEC = StreamCodec.of(
+                (buf, packet) -> { buf.writeUUID(packet.owner()); buf.writeBoolean(packet.active()); },
+                buf -> new SpectatorS2C(buf.readUUID(), buf.readBoolean()));
+        @Override public Type<? extends CustomPacketPayload> type() { return ID; }
+    }
+
     public record DeathFxS2C() implements CustomPacketPayload {
         public static final Type<DeathFxS2C> ID = new Type<>(StupidExpress.id("arsonist_death_fx"));
         public static final StreamCodec<RegistryFriendlyByteBuf, DeathFxS2C> CODEC = StreamCodec.of(
@@ -75,6 +84,7 @@ public final class ArsonistPackets {
         PayloadTypeRegistry.playS2C().register(OilCanControlS2C.ID, OilCanControlS2C.CODEC);
         PayloadTypeRegistry.playS2C().register(IntroS2C.ID, IntroS2C.CODEC);
         PayloadTypeRegistry.playS2C().register(DeathFxS2C.ID, DeathFxS2C.CODEC);
+        PayloadTypeRegistry.playS2C().register(SpectatorS2C.ID, SpectatorS2C.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(ReloadC2S.ID, (packet, context) ->
                 context.server().execute(() -> {
                     ArsonistRoleData data = ArsonistRoleData.of(context.player());

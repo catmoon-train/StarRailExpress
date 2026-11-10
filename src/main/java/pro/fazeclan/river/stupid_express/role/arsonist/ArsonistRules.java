@@ -15,6 +15,12 @@ public final class ArsonistRules {
     public static final int TITLE_START_TICK = 76;
     public static final int TITLE_STEP_TICKS = 8;
     public static final int FAILED_IGNITE_WINDOW_TICKS = 3 * 20;
+    public static final int LIGHTER_THROW_TICK = 4;
+    public static final int LIGHTER_LAND_TICK = 23;
+    public static final int LIGHTER_SETTLE_TICK = 31;
+    public static final int INTRO_CLOSE_END_TICK = 32;
+    public static final int INTRO_FIRE_LIMIT = 128;
+    public static final int BATTLE_FIRE_LIMIT = 64;
     public static final int FULL_FUEL = 1000;
     public static final int FUEL_PER_PULSE = 15;
     public static final int HEAT_PER_TICK = 5;
@@ -26,6 +32,25 @@ public final class ArsonistRules {
     private static final double FLAME_COS_HALF_ANGLE = Math.cos(Math.toRadians(FLAME_HALF_ANGLE_DEGREES));
 
     private ArsonistRules() {}
+
+    /** 抛出、落地和回弹共用独立过场时钟，不能跟随被冻结的比赛计时。 */
+    public static double lighterFlight(double elapsed) {
+        return Math.clamp((elapsed - LIGHTER_THROW_TICK) / (LIGHTER_LAND_TICK - LIGHTER_THROW_TICK), 0.0, 1.0);
+    }
+
+    /** 两次逐渐减弱的离地回弹，结束后静止贴地，不再悬空旋转。 */
+    public static double lighterBounce(double elapsed) {
+        double age = elapsed - LIGHTER_LAND_TICK;
+        if (age <= 0 || elapsed >= LIGHTER_SETTLE_TICK) return 0;
+        double phase = age < 4 ? age / 4 : (age - 4) / 4;
+        return (age < 4 ? 0.18 : 0.055) * Math.sin(Math.PI * phase);
+    }
+
+    /** 距离和原版粒子设置只影响视觉预算，不参与服务端喷火命中。 */
+    public static int bodyParticleCount(double distanceSquared, int particleSetting) {
+        if (!Double.isFinite(distanceSquared) || distanceSquared < 0 || distanceSquared > 48 * 48 || particleSetting >= 2) return 0;
+        return particleSetting == 1 || distanceSquared > 24 * 24 ? 1 : 3;
+    }
 
     /** -1仅代表原本就是无限时长；有限效果到期必须归零，不能产生永久效果。 */
     public static int remainingEffectTicks(int originalDuration, int elapsedTicks) {

@@ -29,6 +29,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.AABB;
 import org.joml.Matrix4f;
 import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistPackets;
 import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRules;
@@ -43,7 +44,10 @@ import java.util.UUID;
 public final class ArsonistMomentVisuals {
     private static final ResourceLocation FIRE = ResourceLocation.withDefaultNamespace("block/fire_0");
     private static final Map<UUID, Integer> REMAINING = new HashMap<>();
-    private static final Map<BlockPos, Vec3> FLOOR_FIRE = new LinkedHashMap<>();
+    private record FloorFire(Vec3 position, AABB bounds) {
+        FloorFire(Vec3 position) { this(position, new AABB(position.add(-2, 0, -2), position.add(2, 5, 2))); }
+    }
+    private static final Map<BlockPos, FloorFire> FLOOR_FIRE = new LinkedHashMap<>();
     private static ClientLevel lastLevel;
     private static boolean introMapIgnited;
     private static final String STATUS_ID = "ArsonistMoment";
@@ -114,41 +118,46 @@ public final class ArsonistMomentVisuals {
         updateStatusBar();
         if (ArsonistIntroClient.isActive()) {
             introMapIgnited |= ArsonistIntroClient.mapBurnProgress() >= 0.95F;
-            if (client.level.getGameTime() % 4 == 0) updateFloor(client);
+            if (client.level.getGameTime() % 6 == 0) updateFloor(client);
         }
         if (!SREClient.gameComponent.isSkillAvailable || SREGameTimeComponent.KEY.get(client.level).isTimeFrozen()) return;
         REMAINING.replaceAll((id, ticks) -> Math.max(0, ticks - 1));
-        if (client.level.getGameTime() % 2 == 0) {
-            for (UUID id : REMAINING.keySet()) {
-                Player owner = client.level.getPlayerByUUID(id);
-                if (owner == null || owner.isSpectator() || owner.distanceToSqr(client.player) > 64 * 64
-                        || owner == client.player && client.options.getCameraType().isFirstPerson()) continue;
-                // 螺旋环绕全身，只生成本地火焰粒子，不调用setRemainingFireTicks。
-                for (int i = 0; i < 9; i++) {
-                    double angle = client.level.getGameTime() * 0.17 + i * Math.PI * 2 / 3;
-                    double height = (i + 0.5) / 9.0 * owner.getBbHeight();
-                    double radius = owner.getBbWidth() * 0.6;
-                    client.level.addParticle(ParticleTypes.FLAME,
-                            owner.getX() + Math.cos(angle) * radius, owner.getY() + height,
-                            owner.getZ() + Math.sin(angle) * radius, 0, 0.025, 0);
-                }
+        long time = client.level.getGameTime();
+        Vec3 camera = client.gameRenderer.getMainCamera().getPosition();
+        int setting = client.options.particles().get().ordinal();
+        for (UUID id : REMAINING.keySet()) {
+            Player owner = client.level.getPlayerByUUID(id);
+            if (owner == null || owner.isSpectator() || ArsonistIntroClient.hideOwner(owner)
+                    || owner == client.getCameraEntity() && client.options.getCameraType().isFirstPerson()) continue;
+            double distanceSquared = owner.position().distanceToSqr(camera);
+            int count = ArsonistRules.bodyParticleCount(distanceSquared, setting);
+            int interval = distanceSquared > 24 * 24 ? 8 : 4;
+            if (count == 0 || time % interval != 0) continue;
+            for (int i = 0; i < count; i++) {
+                double angle = time * 0.17 + i * Math.PI * 2 / count;
+                double height = (i + 0.5) / count * owner.getBbHeight();
+                double radius = owner.getBbWidth() * 0.6;
+                client.level.addParticle(ParticleTypes.FLAME,
+                        owner.getX() + Math.cos(angle) * radius, owner.getY() + height,
+                        owner.getZ() + Math.sin(angle) * radius, 0, 0.025, 0);
             }
         }
         if (client.level.getGameTime() % 10 == 0) updateFloor(client);
     }
 
-    /** 仅采样已经加载的地面；过场全图最多256处，正常战斗近景最多96处。 */
+    /** 只采样已加载地面；过场最多128处，战斗近景最多64处，渲染另做视锥裁剪。 */
     private static void updateFloor(Minecraft client) {
         Vec3 center = client.player.position();
         var area = ArsonistIntroClient.mapBounds();
         boolean intro = ArsonistIntroClient.isActive() && area != null;
         FLOOR_FIRE.entrySet().removeIf(entry -> !client.level.hasChunkAt(entry.getKey())
-                || !intro && entry.getValue().distanceToSqr(center) > 32 * 32);
-        if (!intro && FLOOR_FIRE.size() > 96) {
+                || !intro && entry.getValue().position().distanceToSqr(center) > 32 * 32);
+        int limit = intro ? ArsonistRules.INTRO_FIRE_LIMIT : ArsonistRules.BATTLE_FIRE_LIMIT;
+        if (FLOOR_FIRE.size() > limit) {
             var iterator = FLOOR_FIRE.keySet().iterator();
-            while (FLOOR_FIRE.size() > 96 && iterator.hasNext()) { iterator.next(); iterator.remove(); }
+            while (FLOOR_FIRE.size() > limit && iterator.hasNext()) { iterator.next(); iterator.remove(); }
         }
-        int targetCount = 6 + (int) ((intro ? 250 : 90) * progress());
+        int targetCount = 6 + (int) ((limit - 6) * progress());
         for (int attempt = 0; attempt < 16 && FLOOR_FIRE.size() < targetCount; attempt++) {
             double x = intro ? area.minX + client.level.random.nextDouble() * area.getXsize()
                     : Math.floor(center.x + client.level.random.nextInt(49) - 24) + 0.5;
@@ -162,7 +171,7 @@ public final class ArsonistMomentVisuals {
             Vec3 position = hit.getLocation().add(0, 0.015, 0);
             BlockPos key = BlockPos.containing(position);
             if (!client.level.getFluidState(key).isEmpty()) continue;
-            FLOOR_FIRE.putIfAbsent(key, position);
+            FLOOR_FIRE.putIfAbsent(key, new FloorFire(position));
         }
     }
 
@@ -178,19 +187,23 @@ public final class ArsonistMomentVisuals {
         VertexConsumer vertices = buffers.getBuffer(type);
         TextureAtlasSprite sprite = fireSprite(client);
         float intensity = progress();
-        for (Vec3 position : FLOOR_FIRE.values()) {
-            drawFire(context, vertices, sprite, position, 0.6F + intensity * (ArsonistIntroClient.isActive() ? 3 : 0.5F),
-                    0.65F + intensity * (ArsonistIntroClient.isActive() ? 4 : 0.65F), 0.75F);
+        boolean intro = ArsonistIntroClient.isActive();
+        for (FloorFire fire : FLOOR_FIRE.values()) {
+            if (context.frustum() != null && !context.frustum().isVisible(fire.bounds())) continue;
+            drawFire(context, vertices, sprite, fire.position(), 0.6F + intensity * (intro ? 3 : 0.5F),
+                    0.65F + intensity * (intro ? 4 : 0.65F), 0.75F);
         }
         float partial = context.tickCounter().getGameTimeDeltaPartialTick(false);
         for (UUID id : REMAINING.keySet()) {
             Player owner = client.level.getPlayerByUUID(id);
-            if (owner == null || owner.isSpectator() || owner.distanceToSqr(client.player) > 64 * 64
-                    || owner == client.player && client.options.getCameraType().isFirstPerson()) continue;
+            if (owner == null || owner.isSpectator() || owner.distanceToSqr(context.camera().getPosition()) > 48 * 48
+                    || ArsonistIntroClient.hideOwner(owner)
+                    || owner == client.getCameraEntity() && client.options.getCameraType().isFirstPerson()
+                    || context.frustum() != null && !context.frustum().isVisible(owner.getBoundingBox().inflate(0.5))) continue;
             Vec3 feet = owner.getPosition(partial);
-            for (int layer = 0; layer < 3; layer++) {
-                drawFire(context, vertices, sprite, feet.add(0, owner.getBbHeight() * layer / 3, 0),
-                        owner.getBbWidth() * 1.6F, owner.getBbHeight() * 0.58F, 0.9F);
+            for (int layer = 0; layer < 2; layer++) {
+                drawFire(context, vertices, sprite, feet.add(0, owner.getBbHeight() * layer / 2, 0),
+                        owner.getBbWidth() * 1.4F, owner.getBbHeight() * 0.65F, 0.82F);
             }
         }
         buffers.endBatch(type);

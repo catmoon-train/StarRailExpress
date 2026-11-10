@@ -127,4 +127,32 @@ class ArsonistRulesTest {
         assertFalse(ArsonistRules.withinFailedIgniteWindow(61, 0));
         assertFalse(ArsonistRules.withinFailedIgniteWindow(59, 60));
     }
+
+    @Test void lighterLandsBouncesAndSettlesBeforeCloseCameraLeaves() {
+        assertEquals(0, ArsonistRules.lighterFlight(0));
+        assertEquals(0, ArsonistRules.lighterFlight(ArsonistRules.LIGHTER_THROW_TICK));
+        assertEquals(1, ArsonistRules.lighterFlight(ArsonistRules.LIGHTER_LAND_TICK));
+        assertEquals(1, ArsonistRules.lighterFlight(64));
+        assertEquals(0, ArsonistRules.lighterBounce(ArsonistRules.LIGHTER_LAND_TICK));
+        assertEquals(0.18, ArsonistRules.lighterBounce(ArsonistRules.LIGHTER_LAND_TICK + 2), 1e-9);
+        assertEquals(0.055, ArsonistRules.lighterBounce(ArsonistRules.LIGHTER_LAND_TICK + 6), 1e-9);
+        assertEquals(0, ArsonistRules.lighterBounce(ArsonistRules.LIGHTER_SETTLE_TICK));
+        assertEquals(0, ArsonistRules.lighterBounce(100));
+        assertTrue(ArsonistRules.LIGHTER_SETTLE_TICK < ArsonistRules.INTRO_CLOSE_END_TICK);
+        assertTrue(ArsonistRules.INTRO_CLOSE_END_TICK < ArsonistRules.TITLE_START_TICK);
+    }
+
+    @Test void bodyParticleBudgetRespectsDistanceSettingsAndBounds() {
+        assertEquals(3, ArsonistRules.bodyParticleCount(0, 0));
+        assertEquals(3, ArsonistRules.bodyParticleCount(24 * 24, 0));
+        assertEquals(1, ArsonistRules.bodyParticleCount(24 * 24 + 0.01, 0));
+        assertEquals(1, ArsonistRules.bodyParticleCount(48 * 48, 0));
+        assertEquals(0, ArsonistRules.bodyParticleCount(48 * 48 + 0.01, 0));
+        assertEquals(1, ArsonistRules.bodyParticleCount(0, 1));
+        assertEquals(0, ArsonistRules.bodyParticleCount(0, 2));
+        assertEquals(0, ArsonistRules.bodyParticleCount(Double.NaN, 0));
+        assertEquals(0, ArsonistRules.bodyParticleCount(-1, 0));
+        assertEquals(128, ArsonistRules.INTRO_FIRE_LIMIT);
+        assertEquals(64, ArsonistRules.BATTLE_FIRE_LIMIT);
+    }
 }

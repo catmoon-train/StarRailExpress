@@ -38,6 +38,7 @@ import org.agmas.noellesroles.game.economy.MoneyFlow;
 import org.agmas.noellesroles.game.moment.MomentManager;
 import org.agmas.noellesroles.game.moment.MomentType;
 import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.role_data.neutral.CuckooRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -80,6 +81,7 @@ public class ArsonistRoleData extends SimpleRoleData {
     private final Set<UUID> pendingIgnition = new LinkedHashSet<>();
     private final Map<UUID, Integer> timedBurnDurations = new HashMap<>();
     private final Map<UUID, Integer> sentHeat = new HashMap<>();
+    private final ArsonistMomentVictims momentVictims = new ArsonistMomentVictims();
     private long lastPulse = Long.MIN_VALUE;
     private long failedIgniteTick = Long.MIN_VALUE;
     private boolean won;
@@ -215,6 +217,7 @@ public class ArsonistRoleData extends SimpleRoleData {
         if (activeOilCan != null && owner.serverLevel().getEntity(activeOilCan) instanceof LargeOilCanEntity can) can.finish();
         arsonMoment = true;
         settlementUnlocked = false;
+        momentVictims.begin(owner.getUUID());
         momentTicks = ArsonistRules.MOMENT_TICKS;
         introTicks = ArsonistRules.INTRO_TICKS;
         fuelUnits = ArsonistRules.FULL_FUEL;
@@ -358,7 +361,7 @@ public class ArsonistRoleData extends SimpleRoleData {
         if (fuelUnits == 0) startReload();
     }
 
-    /** 烧死生成燃烧尸体，由统一事件在3秒后销毁，不再附身或复活。 */
+    /** 烧死沿用统一死亡事件，时刻期间的附身和复活由单次时刻名单管理。 */
     public void killBurnedPlayer(ServerPlayer target) {
         if (!(player instanceof ServerPlayer owner) || !GameUtils.isPlayerAliveAndSurvival(target)) return;
         target.clearFire();
@@ -419,6 +422,35 @@ public class ArsonistRoleData extends SimpleRoleData {
         }
     }
 
+    /** 不论凶手是谁，只记录本次时刻中新死亡的玩家；原有旁观者不加入。 */
+    public void onMomentDeath(ServerPlayer target, net.minecraft.resources.ResourceLocation reason) {
+        if (!(player instanceof ServerPlayer owner) || !arsonMoment || target.serverLevel() != owner.serverLevel()
+                || reason.equals(GameConstants.DeathReasons.DISCONNECT) || GameUtils.isPlayerAliveAndSurvival(target)
+                || !momentVictims.record(target.getUUID())) return;
+        lockMomentSpectator(owner, target);
+        target.sendSystemMessage(Component.translatable("message.stupid_express.arsonist.death_penalty"));
+    }
+
+    /** 重连或外部惩罚重判后，恢复本次时刻死者的相机限制；无需每tick重复同步。 */
+    public void maintainMomentSpectators() {
+        if (!(player instanceof ServerPlayer owner) || !arsonMoment) return;
+        for (UUID id : momentVictims.snapshot()) {
+            ServerPlayer target = owner.server.getPlayerList().getPlayer(id);
+            if (target != null && !GameUtils.isPlayerAliveAndSurvival(target)) lockMomentSpectator(owner, target);
+        }
+    }
+
+    private static void lockMomentSpectator(ServerPlayer owner, ServerPlayer target) {
+        if (target.serverLevel() != owner.serverLevel()) {
+            target.teleportTo(owner.serverLevel(), owner.getX(), owner.getY(), owner.getZ(), target.getYRot(), target.getXRot());
+        }
+        var penalty = DeathPenaltyComponent.KEY.get(target);
+        if (!owner.getUUID().equals(penalty.limitCameraUUID) || !penalty.hasPenalty()) {
+            penalty.setPenaltyWithCameraLimit(-1, owner, true);
+            ServerPlayNetworking.send(target, new ArsonistPackets.SpectatorS2C(owner.getUUID(), true));
+        }
+    }
+
     @Override public void serverTick() {
         if (!(player instanceof ServerPlayer owner)) return;
         var game = SREGameWorldComponent.KEY.get(owner.level());
@@ -461,13 +493,13 @@ public class ArsonistRoleData extends SimpleRoleData {
                 int aliveOthers = aliveOthers(owner);
                 switch (ArsonistRules.momentResult(momentTicks, aliveOthers)) {
                     case VICTORY -> { win(); return; }
-                    case TIMEOUT -> { failMoment(owner, aliveOthers); return; }
+                    case TIMEOUT -> { failMoment(owner); return; }
                     case RUNNING -> { }
                 }
             }
         }
-        if (owner.tickCount % 2 == 0 && dirty || owner.tickCount % 20 == 0) {
-            syncVictims(owner);
+        if (dirty && owner.tickCount % 2 == 0) syncVictims(owner);
+        if (owner.tickCount % 4 == 0 && dirty || owner.tickCount % 20 == 0) {
             sync();
             dirty = false;
         }
@@ -478,20 +510,22 @@ public class ArsonistRoleData extends SimpleRoleData {
                 .filter(p -> p != owner && GameUtils.isPlayerAliveAndSurvival(p)).count();
     }
 
-    /** 时刻超时只恢复普通对局，不为仍有对手的纵火犯宣胜。 */
-    private void failMoment(ServerPlayer owner, int aliveOthers) {
+    /** 超时恢复本次死者后，点火失败强杀纵火犯；不能让其护盾抵消失败。 */
+    private void failMoment(ServerPlayer owner) {
         if (!arsonMoment || SREGameWorldComponent.KEY.get(owner.level()).getGameStatus() != GameStatus.ACTIVE) return;
-        int restoredTicks = ArsonistRules.failedMomentTimeTicks(aliveOthers);
         reset();
         settlementUnlocked = true;
+        int restoredOthers = aliveOthers(owner);
+        int restoredTicks = ArsonistRules.failedMomentTimeTicks(restoredOthers);
         SREGameTimeComponent.KEY.get(owner.level()).setTime(restoredTicks);
         sync();
         var message = Component.translatable("message.stupid_express.arsonist.moment_failed",
-                aliveOthers, restoredTicks / 20);
+                restoredOthers, restoredTicks / 20);
         for (ServerPlayer observer : owner.server.getPlayerList().getPlayers()) {
             org.agmas.noellesroles.commands.BroadcastCommand.BroadcastMessage(observer, message);
             observer.sendSystemMessage(message);
         }
+        GameUtils.forceKillPlayer(owner, true, null, GameConstants.DeathReasons.FAILED_IGNITE);
     }
 
     public void win() {
@@ -499,7 +533,7 @@ public class ArsonistRoleData extends SimpleRoleData {
                 || SREGameWorldComponent.KEY.get(owner.level()).getGameStatus() != GameStatus.ACTIVE) return;
         if (settlementUnlocked || aliveOthers(owner) != 0) return;
         if (introTicks > 0) return;
-        reset();
+        reset(false);
         won = true;
         if (!CuckooRoleData.checkCuckooVictory(owner.serverLevel())) {
             RoleUtils.customWinnerWin(owner.serverLevel(), GameUtils.WinStatus.CUSTOM,
@@ -507,13 +541,18 @@ public class ArsonistRoleData extends SimpleRoleData {
         }
     }
 
-    /** 退出只恢复本体物品和状态；没有任何受害者复活路径。 */
-    public void reset() {
+    /** 失败、提前死亡或换职业时恢复本次死者；胜利及整局结束只解除限制，不复活对手。 */
+    public void reset() { reset(true); }
+
+    public void reset(boolean reviveVictims) {
         if (!(player instanceof ServerPlayer owner)) return;
         if (SREGameWorldComponent.KEY.get(owner.level()).getGameStatus() != GameStatus.ACTIVE) settlementUnlocked = false;
         ArsonistIntroManager.cancel(owner);
         boolean wasMoment = arsonMoment;
         arsonMoment = false;
+        Set<UUID> victims = momentVictims.finish();
+        boolean restoreVictims = reviveVictims && SREGameWorldComponent.KEY.get(owner.level()).getGameStatus() == GameStatus.ACTIVE;
+        if (wasMoment && restoreVictims) settlementUnlocked = true;
         momentTicks = 0;
         introTicks = 0;
         pendingIgnition.clear();
@@ -577,6 +616,7 @@ public class ArsonistRoleData extends SimpleRoleData {
         won = false;
         if (activeOilCan != null && owner.serverLevel().getEntity(activeOilCan) instanceof LargeOilCanEntity can) can.finish();
         activeOilCan = null;
+        ArsonistEvents.releaseMomentVictims(owner, victims, restoreVictims);
         sync();
     }
 

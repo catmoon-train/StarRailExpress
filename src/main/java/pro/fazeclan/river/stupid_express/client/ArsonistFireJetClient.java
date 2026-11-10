@@ -90,6 +90,7 @@ public final class ArsonistFireJetClient {
     public static void emit(ClientLevel level, Vec3 eye, float[] params) {
         if (params.length < 3) return;
         Minecraft client = Minecraft.getInstance();
+        if (eye.distanceToSqr(client.gameRenderer.getMainCamera().getPosition()) > 48 * 48) return;
         Vec3 look = Vec3.directionFromRotation(params[1], params[0]).normalize();
         Vec3 right = look.cross(new Vec3(0, 1, 0)).normalize();
         if (right.lengthSqr() < 0.001) right = new Vec3(1, 0, 0);
@@ -103,9 +104,11 @@ public final class ArsonistFireJetClient {
         double centralRange = clippedRange(level, muzzle, look, range);
         if (JETS.size() >= 32) JETS.remove(0);
         JETS.add(new Jet(muzzle, look, centralRange));
-        for (int i = 0; i < 18; i++) {
+        int setting = client.options.particles().get().ordinal();
+        int count = setting >= 2 ? 0 : setting == 1 ? 5 : 10;
+        for (int i = 0; i < count; i++) {
             double angle = level.random.nextDouble() * Math.PI * 2;
-            double spread = (i < 12 ? 0.06 : 0.16) * Math.sqrt(level.random.nextDouble());
+            double spread = (i < count * 2 / 3 ? 0.06 : 0.16) * Math.sqrt(level.random.nextDouble());
             Vec3 direction = look.add(right.scale(Math.cos(angle) * spread)).add(up.scale(Math.sin(angle) * spread)).normalize();
             double speed = 0.42 + level.random.nextDouble() * 0.16;
             add(new Ember(muzzle, direction, speed, clippedRange(level, muzzle, direction, range), 12));
@@ -113,8 +116,10 @@ public final class ArsonistFireJetClient {
     }
 
     public static void killBurst(ClientLevel level, Vec3 center) {
-        for (int i = 0; i < 42; i++) {
-            double a = i * Math.PI * 2 / 21;
+        int setting = Minecraft.getInstance().options.particles().get().ordinal();
+        int count = setting >= 2 ? 6 : setting == 1 ? 12 : 24;
+        for (int i = 0; i < count; i++) {
+            double a = i * Math.PI * 2 / Math.max(1, count / 2);
             Vec3 direction = new Vec3(Math.cos(a) * 0.7, 0.4 + level.random.nextDouble() * 0.8, Math.sin(a) * 0.7).normalize();
             Vec3 start = center.add(direction.scale(0.25));
             add(new Ember(start, direction, 0.07 + level.random.nextDouble() * 0.07,
@@ -123,7 +128,7 @@ public final class ArsonistFireJetClient {
     }
 
     private static void add(Ember ember) {
-        if (EMBERS.size() >= 256) EMBERS.remove(0);
+        if (EMBERS.size() >= 192) EMBERS.remove(0);
         EMBERS.add(ember);
     }
 
@@ -158,8 +163,8 @@ public final class ArsonistFireJetClient {
             if (side.lengthSqr() < 0.001) side = jet.direction.cross(new Vec3(0, 1, 0)).normalize();
             if (side.lengthSqr() < 0.001) side = new Vec3(1, 0, 0);
             for (int plane = 0; plane < 2; plane++) {
-                for (int i = 0; i < 9; i++) {
-                    double from = jet.length * i / 9, to = jet.length * (i + 1) / 9;
+                for (int i = 0; i < 6; i++) {
+                    double from = jet.length * i / 6, to = jet.length * (i + 1) / 6;
                     Vec3 a = jet.muzzle.add(jet.direction.scale(from)).subtract(camera);
                     Vec3 b = jet.muzzle.add(jet.direction.scale(to)).subtract(camera);
                     double wa = 0.045 + from * 0.05, wb = 0.045 + to * 0.05;

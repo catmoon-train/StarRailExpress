@@ -34,6 +34,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
 import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistPackets;
+import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRules;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +61,7 @@ public final class ArsonistIntroClient {
     private static int ticks;
     private static int sounded;
     private static int shakeAt = -100;
+    private static boolean landingSounded;
     private static float shakeStrength;
     private static ItemStack lighter = ItemStack.EMPTY;
     private static String translatedTitle = "";
@@ -82,6 +84,11 @@ public final class ArsonistIntroClient {
     public static boolean isActive() {
         Minecraft client = Minecraft.getInstance();
         return owner != null && ticks < DURATION && world != null && client.level == world && client.player != null;
+    }
+
+    /** 近景只隐藏本次纵火犯本体，不影响后续俯瞰、战斗或其他玩家。 */
+    public static boolean hideOwner(net.minecraft.world.entity.player.Player target) {
+        return isActive() && ticks < ArsonistRules.INTRO_CLOSE_END_TICK && target.getUUID().equals(owner);
     }
 
     public static float elapsedTicks(float partial) {
@@ -140,8 +147,9 @@ public final class ArsonistIntroClient {
                 var hit = world.clip(new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, client.player));
                 if (hit.getType() != HitResult.Type.MISS) landing = hit.getLocation();
             }
-            landing = landing.add(0, 0.08, 0);
+            landing = landing.add(0, 0.105, 0);
             lighter = SEItems.LIGHTER.getDefaultInstance();
+            landingSounded = ticks >= ArsonistRules.LIGHTER_LAND_TICK;
         }
         // 中途加入/向前校准不补播已经错过的冲击声，也不倒放已经播放的字幕。
         for (int i = 0; i < TITLE_TICKS.length; i++) {
@@ -161,6 +169,12 @@ public final class ArsonistIntroClient {
     }
 
     private static void playCues(Minecraft client) {
+        if (!landingSounded && ticks >= ArsonistRules.LIGHTER_LAND_TICK) {
+            landingSounded = true;
+            SimpleSoundInstance sound = SimpleSoundInstance.forUI(SoundEvents.CHAIN_HIT, 1.45F, 0.35F);
+            SOUNDS.add(sound);
+            client.getSoundManager().play(sound);
+        }
         for (int i = 0; i < TITLE_TICKS.length; i++) {
             if (ticks < TITLE_TICKS[i] || (sounded & (1 << i)) != 0) continue;
             sounded |= 1 << i;
@@ -184,6 +198,7 @@ public final class ArsonistIntroClient {
         ticks = 0;
         yaw = 0;
         sounded = 0;
+        landingSounded = false;
         shakeAt = -100;
         shakeStrength = 0;
         translatedTitle = "";
@@ -194,14 +209,18 @@ public final class ArsonistIntroClient {
         if (!isActive() || context.matrixStack() == null || context.consumers() == null) return;
         float time = elapsedTicks(context.tickCounter().getGameTimeDeltaPartialTick(false));
         if (time >= 64) return;
-        float flight = Mth.clamp((time - 4) / 19, 0, 1);
-        Vec3 at = start.lerp(landing, flight).add(0, 3.6 * flight * (1 - flight), 0);
+        float flight = (float) ArsonistRules.lighterFlight(time);
+        double bounce = ArsonistRules.lighterBounce(time);
+        Vec3 at = start.lerp(landing, flight).add(0, 3.6 * flight * (1 - flight) + bounce, 0);
+        float age = Math.max(0, time - ArsonistRules.LIGHTER_LAND_TICK);
+        float settle = 1 - smooth(age / (ArsonistRules.LIGHTER_SETTLE_TICK - ArsonistRules.LIGHTER_LAND_TICK));
         Vec3 camera = context.camera().getPosition();
         PoseStack poses = context.matrixStack();
         poses.pushPose();
         poses.translate(at.x - camera.x, at.y - camera.y, at.z - camera.z);
         poses.mulPose(Axis.YP.rotationDegrees(-yaw + 360 * flight));
-        poses.mulPose(Axis.XP.rotationDegrees(-20 + 830 * flight));
+        poses.mulPose(Axis.XP.rotationDegrees(-20 + 830 * flight + Mth.sin(age * Mth.HALF_PI) * 14 * settle));
+        poses.mulPose(Axis.ZP.rotationDegrees(Mth.sin(age * Mth.PI) * 8 * settle));
         BlockPos block = BlockPos.containing(at);
         int light = world.hasChunkAt(block) ? LevelRenderer.getLightColor(world, block) : LightTexture.FULL_BRIGHT;
         // 使用与RoadRollerClient相同的无LivingEntity重载，规避空entity物品渲染mixin。

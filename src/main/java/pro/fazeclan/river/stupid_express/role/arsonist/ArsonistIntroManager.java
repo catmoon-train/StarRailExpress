@@ -16,6 +16,8 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
 import org.agmas.noellesroles.init.ModEffects;
 
 import java.util.ArrayList;
@@ -130,18 +132,29 @@ public final class ArsonistIntroManager {
 
     private static AdvancedCameraSequence track(Session s, ServerPlayer p, int elapsed) {
         Vec3 forward = Vec3.directionFromRotation(0, s.yaw);
-        Vec3 right = new Vec3(-forward.z, 0, forward.x);
-        Vec3 focus = s.position.add(forward.scale(1.2)).add(0, 0.5, 0);
-        Vec3 close = s.position.add(right.scale(2.4)).add(forward.scale(-2.2)).add(0, 1.7, 0);
+        Vec3 right = new Vec3(forward.z, 0, -forward.x);
+        Vec3 landing = s.position.add(forward.scale(2.8)).add(right.scale(0.3));
+        var floor = s.owner.serverLevel().clip(new ClipContext(landing.add(0, 2, 0), landing.add(0, -5, 0),
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, s.owner));
+        if (floor.getType() != HitResult.Type.MISS) landing = floor.getLocation();
+        Vec3 focus = landing.add(0, 0.2, 0);
+        // 从落点前侧回看，纵火犯位于落点后方；同时裁剪墙体，避免镜头穿墙。
+        Vec3 close = landing.add(forward.scale(1.6)).add(right.scale(1.5)).add(0, 0.95, 0);
+        var obstruction = s.owner.serverLevel().clip(new ClipContext(focus, close,
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, s.owner));
+        if (obstruction.getType() != HitResult.Type.MISS) {
+            close = obstruction.getLocation().add(focus.subtract(close).normalize().scale(0.15));
+        }
         double framing = Math.hypot(s.area.getXsize(), s.area.getZsize()) / (2 * Math.tan(Math.toRadians(52.5))) * 1.15;
         Vec3 center = new Vec3((s.area.minX + s.area.maxX) / 2, s.position.y + 1, (s.area.minZ + s.area.maxZ) / 2);
         Vec3 overview = center.add(0, Math.max(28, Math.max(s.area.maxY - center.y + 8, framing)), 0.01);
         List<AdvancedCameraNode> nodes = new ArrayList<>();
-        if (elapsed < 24) {
+        int closeEnd = ArsonistRules.INTRO_CLOSE_END_TICK;
+        if (elapsed < closeEnd) {
             nodes.add(new AdvancedCameraNode(0, 0, p.getEyePosition(), null, p.getYRot(), p.getXRot(), 0));
-            nodes.add(new AdvancedCameraNode(Math.min(8, 24 - elapsed), Math.max(0, 16 - elapsed), close, focus, null, null, 58));
+            nodes.add(new AdvancedCameraNode(Math.min(8, closeEnd - elapsed), Math.max(0, closeEnd - 8 - elapsed), close, focus, null, null, 58));
         } else nodes.add(new AdvancedCameraNode(0, 0, overview, center, null, null, 105));
-        if (elapsed < 108) nodes.add(new AdvancedCameraNode(Math.max(0, 64 - Math.max(24, elapsed)),
+        if (elapsed < 108) nodes.add(new AdvancedCameraNode(Math.max(0, 64 - Math.max(closeEnd, elapsed)),
                 108 - Math.max(64, elapsed), overview, center, null, null, 105));
         Viewer original = s.viewers.get(p.getUUID());
         Vec3 eye = original.position().add(0, p.getEyeHeight(), 0);
