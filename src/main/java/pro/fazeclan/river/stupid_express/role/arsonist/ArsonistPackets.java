@@ -25,11 +25,14 @@ public final class ArsonistPackets {
         @Override public Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
-    public record MomentS2C(java.util.UUID owner, boolean active) implements CustomPacketPayload {
+    public record MomentS2C(java.util.UUID owner, boolean active, int remainingTicks) implements CustomPacketPayload {
+        public MomentS2C(java.util.UUID owner, boolean active) {
+            this(owner, active, active ? ArsonistRules.MOMENT_TICKS : 0);
+        }
         public static final Type<MomentS2C> ID = new Type<>(StupidExpress.id("arsonist_moment"));
         public static final StreamCodec<RegistryFriendlyByteBuf, MomentS2C> CODEC = StreamCodec.of(
-                (buf, packet) -> { buf.writeUUID(packet.owner()); buf.writeBoolean(packet.active()); },
-                buf -> new MomentS2C(buf.readUUID(), buf.readBoolean()));
+                (buf, packet) -> { buf.writeUUID(packet.owner()); buf.writeBoolean(packet.active()); buf.writeVarInt(packet.remainingTicks()); },
+                buf -> new MomentS2C(buf.readUUID(), buf.readBoolean(), buf.readVarInt()));
         @Override public Type<? extends CustomPacketPayload> type() { return ID; }
     }
 

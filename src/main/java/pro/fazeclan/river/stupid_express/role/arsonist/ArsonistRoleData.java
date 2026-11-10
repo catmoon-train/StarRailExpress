@@ -183,6 +183,15 @@ public class ArsonistRoleData extends SimpleRoleData {
         return true;
     }
 
+    /** 管理员测试入口：跳过浇油门槛，不预先点燃场上玩家，不重复刷新时刻。 */
+    public boolean forceStartMoment() {
+        if (!(player instanceof ServerPlayer owner) || arsonMoment
+                || SREGameWorldComponent.KEY.get(owner.level()).getGameStatus() != GameStatus.ACTIVE
+                || !GameUtils.isPlayerAliveAndSurvival(owner)) return false;
+        startMoment(owner);
+        return true;
+    }
+
     private void startMoment(ServerPlayer owner) {
         if (activeOilCan != null && owner.serverLevel().getEntity(activeOilCan) instanceof LargeOilCanEntity can) can.finish();
         arsonMoment = true;
@@ -193,7 +202,10 @@ public class ArsonistRoleData extends SimpleRoleData {
         savedMainHand = owner.getMainHandItem().copy();
         owner.stopUsingItem();
         owner.setItemInHand(InteractionHand.MAIN_HAND, SEItems.FLAMETHROWER.getDefaultInstance());
-        SREArmorPlayerComponent.KEY.get(owner).addArmor(1);
+        int alivePlayers = (int) owner.server.getPlayerList().getPlayers().stream()
+                .filter(GameUtils::isPlayerAliveAndSurvival).count();
+        int shields = ArsonistRules.momentShields(alivePlayers);
+        if (shields > 0) SREArmorPlayerComponent.KEY.get(owner).addArmor(shields);
         var previousStamina = owner.getEffect(ModEffects.INFINITE_STAMINA);
         savedStaminaEffect = previousStamina == null ? null : new MobEffectInstance(previousStamina);
         owner.addEffect(new MobEffectInstance(ModEffects.INFINITE_STAMINA, 40, 0, false, false, false));
@@ -202,7 +214,7 @@ public class ArsonistRoleData extends SimpleRoleData {
         for (ServerPlayer p : owner.server.getPlayerList().getPlayers()) {
             p.sendSystemMessage(Component.translatable("message.stupid_express.arsonist.moment_start", owner.getDisplayName()));
             p.playNotifySound(SoundEvents.WITHER_SPAWN, SoundSource.PLAYERS, 0.65F, 1.15F);
-            ServerPlayNetworking.send(p, new ArsonistPackets.MomentS2C(owner.getUUID(), true));
+            ServerPlayNetworking.send(p, new ArsonistPackets.MomentS2C(owner.getUUID(), true, momentTicks));
         }
         sync();
     }
@@ -235,21 +247,27 @@ public class ArsonistRoleData extends SimpleRoleData {
     private void spray(ServerPlayer owner) {
         Vec3 origin = owner.getEyePosition();
         Vec3 look = owner.getLookAngle();
-        // 服务端只发一条形状消息，由客户端生成喷火半球，不逐点发网络粒子。
-        ParticleFx.sendCustom(owner.serverLevel(), StupidExpress.id("arsonist_flame"), origin, 3,
-                owner.getYRot(), owner.getXRot(), (float) ArsonistRules.FLAME_RADIUS);
-        if (owner.tickCount % 10 == 0) owner.serverLevel().playSound(null, owner.blockPosition(),
-                SoundEvents.FIRE_AMBIENT, SoundSource.PLAYERS, 1.0F, 1.1F);
+        long now = owner.level().getGameTime();
+        boolean fuelPulse = ArsonistRules.shouldConsumeFuel(now, lastPulse);
+        if (fuelPulse) {
+            lastPulse = now;
+            // 特效和火力仍每0.1秒结算，伤害独立在每tick结算。
+            ParticleFx.sendCustom(owner.serverLevel(), StupidExpress.id("arsonist_flame"), origin, 3,
+                    owner.getYRot(), owner.getXRot(), (float) ArsonistRules.FLAME_RADIUS);
+            if (owner.tickCount % 10 == 0) owner.serverLevel().playSound(null, owner.blockPosition(),
+                    SoundEvents.FIRE_AMBIENT, SoundSource.PLAYERS, 1.0F, 1.1F);
+        }
         for (ServerPlayer target : owner.serverLevel().getEntitiesOfClass(ServerPlayer.class,
                 owner.getBoundingBox().inflate(ArsonistRules.FLAME_RADIUS), p -> p != owner && GameUtils.isPlayerAliveAndSurvival(p))) {
             if (!arsonMoment || !GameUtils.isPlayerAliveAndSurvival(owner)) break;
             Vec3 delta = target.getBoundingBox().getCenter().subtract(origin);
             if (!ArsonistRules.inFlame(delta.x, delta.y, delta.z, look.x, look.y, look.z) || !owner.hasLineOfSight(target)) continue;
-            int heat = ArsonistRules.heatAfterPulse(burnValues.getOrDefault(target.getUUID(), 0));
+            int heat = ArsonistRules.heatAfterTick(burnValues.getOrDefault(target.getUUID(), 0));
             burnValues.put(target.getUUID(), heat);
             if (heat >= 100) killBurnedPlayer(target);
         }
-        fuelUnits = ArsonistRules.fuelAfterPulse(fuelUnits);
+        if (!arsonMoment || !GameUtils.isPlayerAliveAndSurvival(owner)) return;
+        if (fuelPulse) fuelUnits = ArsonistRules.fuelAfterPulse(fuelUnits);
         dirty = true;
         if (fuelUnits == 0) startReload();
     }
@@ -321,10 +339,7 @@ public class ArsonistRoleData extends SimpleRoleData {
             if (game.isSkillAvailable && !SREGameTimeComponent.KEY.get(owner.level()).isTimeFrozen()) {
                 momentTicks--;
                 if (reloadTicks > 0 && --reloadTicks == 0) { fuelUnits = ArsonistRules.FULL_FUEL; dirty = true; }
-                long now = owner.level().getGameTime();
-                if (canSpray() && owner.isUsingItem() && owner.getUseItem().is(SEItems.FLAMETHROWER)
-                        && (lastPulse == Long.MIN_VALUE || now - lastPulse >= ArsonistRules.PULSE_TICKS)) {
-                    lastPulse = now;
+                if (canSpray() && owner.isUsingItem() && owner.getUseItem().is(SEItems.FLAMETHROWER)) {
                     spray(owner);
                 }
                 if (momentTicks <= 0 || owner.server.getPlayerList().getPlayers().stream()

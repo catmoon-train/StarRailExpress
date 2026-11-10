@@ -13,13 +13,13 @@ class ArsonistRulesTest {
         assertEquals(9, ArsonistRules.requiredDoused(11));
     }
 
-    @Test void twentyPulsesFillHeatWithoutOverflow() {
+    @Test void twentyTicksFillHeatInOneSecondWithoutOverflow() {
         int heat = 0;
-        for (int i = 0; i < 19; i++) heat = ArsonistRules.heatAfterPulse(heat);
+        for (int i = 0; i < 19; i++) heat = ArsonistRules.heatAfterTick(heat);
         assertEquals(95, heat);
-        assertEquals(100, ArsonistRules.heatAfterPulse(heat));
-        assertEquals(100, ArsonistRules.heatAfterPulse(100));
-        assertEquals(2, ArsonistRules.PULSE_TICKS);
+        assertEquals(100, ArsonistRules.heatAfterTick(heat));
+        assertEquals(100, ArsonistRules.heatAfterTick(100));
+        assertEquals(5, ArsonistRules.HEAT_PER_TICK);
     }
 
     @Test void fuelUsesExactOneAndAHalfPercentAndClampsAtEmpty() {
@@ -29,6 +29,7 @@ class ArsonistRulesTest {
         assertEquals(0, ArsonistRules.fuelAfterPulse(fuel));
         assertEquals(0, ArsonistRules.fuelAfterPulse(0));
         assertEquals(200, ArsonistRules.RELOAD_TICKS);
+        assertEquals(2, ArsonistRules.FUEL_PULSE_TICKS);
     }
 
     @Test void flameIsFrontHalfSphereWithFiveBlockBoundary() {
@@ -40,6 +41,33 @@ class ArsonistRulesTest {
         assertFalse(ArsonistRules.inFlame(0, 5.01, 0, 0, 0, 1));
         assertTrue(ArsonistRules.inFlame(0, 4, 0, 0, 1, 0));
         assertFalse(ArsonistRules.inFlame(0, -4, 0, 0, 1, 0));
+    }
+
+    @Test void shieldsUseLivingPopulationInGroupsOfThreeWithFourLayerCap() {
+        assertEquals(0, ArsonistRules.momentShields(-1));
+        assertEquals(0, ArsonistRules.momentShields(0));
+        assertEquals(0, ArsonistRules.momentShields(2));
+        assertEquals(1, ArsonistRules.momentShields(3));
+        assertEquals(1, ArsonistRules.momentShields(5));
+        assertEquals(2, ArsonistRules.momentShields(6));
+        assertEquals(3, ArsonistRules.momentShields(11));
+        assertEquals(4, ArsonistRules.momentShields(12));
+        assertEquals(4, ArsonistRules.momentShields(30));
+    }
+
+    @Test void heatTicksDoNotDoubleFuelConsumption() {
+        int heat = 0;
+        int fuel = ArsonistRules.FULL_FUEL;
+        long lastFuel = Long.MIN_VALUE;
+        for (int tick = 0; tick < 20; tick++) {
+            heat = ArsonistRules.heatAfterTick(heat);
+            if (ArsonistRules.shouldConsumeFuel(tick, lastFuel)) {
+                fuel = ArsonistRules.fuelAfterPulse(fuel);
+                lastFuel = tick;
+            }
+        }
+        assertEquals(100, heat);
+        assertEquals(850, fuel);
     }
 
     @Test void economicsAndMomentMatchTheRoleSpecification() {
