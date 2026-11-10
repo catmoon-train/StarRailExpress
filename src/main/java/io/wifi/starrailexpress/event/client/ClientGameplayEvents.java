@@ -38,6 +38,15 @@ public final class ClientGameplayEvents {
                 return visible;
             });
 
+    /** 匿名外观查询；任一监听器返回true即追加限制，不能解除原有难民惩罚。viewer可能为空。 */
+    public static final Event<AnonymousAppearance> ANONYMOUS_APPEARANCE = EventFactory.createArrayBacked(
+            AnonymousAppearance.class, listeners -> viewer -> {
+                for (AnonymousAppearance listener : listeners) {
+                    if (listener.hideIdentities(viewer)) return true;
+                }
+                return false;
+            });
+
     /** 状态条方法入口；包括本体会提前返回的情况。 */
     public static final Event<StatusBarRender> STATUS_BAR_RENDER_HEAD = statusBarEvent();
     /** 状态条方法正常返回时触发；本体抛异常时不触发，与原 RETURN 注入一致。 */
@@ -123,6 +132,11 @@ public final class ClientGameplayEvents {
     @FunctionalInterface
     public interface TimeVisibility {
         boolean modify(Player player, boolean visible);
+    }
+
+    @FunctionalInterface
+    public interface AnonymousAppearance {
+        boolean hideIdentities(Player viewer);
     }
 
     @FunctionalInterface

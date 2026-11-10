@@ -28,7 +28,6 @@
     "client.modifier.twin_children.TwinChildrenRenderMixin",
     "client.OilCanCameraMixin",
     "client.ArsonistIntroCameraMixin",
-    "client.ArsonistIntroPlayerRenderMixin",
-    "client.ArsonistSpectatorSkinMixin"
+    "client.ArsonistIntroPlayerRenderMixin"
   ]
 }

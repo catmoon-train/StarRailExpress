@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.client.InputHandler;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
+import io.wifi.starrailexpress.event.client.ClientGameplayEvents;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -68,6 +69,7 @@ public final class ArsonistClient {
     public static void register() {
         if (registered) return;
         registered = true;
+        ClientGameplayEvents.ANONYMOUS_APPEARANCE.register(viewer -> hasMomentDeathPenalty());
         ClientPlayNetworking.registerGlobalReceiver(ArsonistPackets.HeatS2C.ID,
                 (payload, context) -> context.client().execute(() ->
                         localHeat = Mth.clamp(payload.heat(), 0, 100)));

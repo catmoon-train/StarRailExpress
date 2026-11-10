@@ -110,3 +110,10 @@
 - 新增三语提示键、占位符、JSON及客户端Mixin注册检查通过。合入最新上游的统一 `MomentManager` 后，由其管理开场音乐与亡命徒插队暂停；不再在玩家循环中额外播放或广播同一首音乐。
 - 90→15颗/秒是近距离全身装饰粒子的生成预算变化，不代表实测FPS提升；未测量整包帧率。
 - 尚未执行真实客户端镜头观感、多玩家强制附身/匿名皮肤、超时与提前死亡复活、离线重连及带盾强杀的游戏内验收；这些仍需配套更新客户端与服务端后联机验证。
+
+## 匿名外观架构修正
+
+- 移除注入项目自有 `SREClient` 的 `ArsonistSpectatorSkinMixin` 及其注册；原实现违反 `GameUtilsRefactorTest.registeredMixinsExistAndDoNotTargetOurOwnClasses` 的结构契约，之前17项职业定向测试未覆盖此约束。
+- 改为静态注册 `ClientGameplayEvents.ANONYMOUS_APPEARANCE`，由核心现有 `getLooseEndPenalty()` 兼容入口合并查询。无监听器时维持原行为，监听器只能追加匿名外观，不能解除原有难民惩罚。
+- 纵火附身判断仍位于 `ArsonistClient`，既有私有附身标志、皮肤/尸体/帽子屏蔽和退出清理保持不变；不修改或放宽原架构测试。
+- 架构修正后执行 `./gradlew :test :remapJar --offline --console=plain`：完整根项目共972项测试，970通过、2跳过、0失败、0错误；原 `registeredMixinsExistAndDoNotTargetOurOwnClasses()` 用例原样通过，正式JAR构建成功。仍未进行多人实机画面验收。

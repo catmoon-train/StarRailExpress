@@ -1521,8 +1521,11 @@ public class SREClient implements ClientModInitializer {
         return cachedRenderVanillaHud;
     }
 
+    /** 保留旧接口名，统一查询难民惩罚及扩展请求的匿名皮肤、尸体和帽子规则。 */
     public static boolean getLooseEndPenalty() {
-        return cachedLooseEndPenalty;
+        return cachedLooseEndPenalty
+                || io.wifi.starrailexpress.event.client.ClientGameplayEvents.ANONYMOUS_APPEARANCE.invoker()
+                        .hideIdentities(Minecraft.getInstance().player);
     }
 
     public static OptionalInt getCachedInstinctHighlight(Entity target) {

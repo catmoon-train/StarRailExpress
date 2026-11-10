@@ -1840,6 +1840,19 @@ Provides placeholder replacement similar to command blocks:
 
 ### 渲染与客户端事件
 
+#### `ClientGameplayEvents.ANONYMOUS_APPEARANCE` — 追加匿名外观限制
+
+**类型：** 客户端查询型；任一监听器返回 `true` 即要求匿名显示，默认 `false`。
+
+核心兼容入口 `SREClient.getLooseEndPenalty()` 返回「原有难民惩罚 **或** 该事件结果」，统一供玩家皮肤、尸体贴图及帽子屏蔽使用。监听器不能解除原有惩罚；`viewer` 是当前观察者，可能为空。
+
+```java
+ClientGameplayEvents.ANONYMOUS_APPEARANCE.register(
+        viewer -> ArsonistClient.hasMomentDeathPenalty());
+```
+
+在客户端初始化时静态注册一次，职业或活动判断留在扩展侧。回调中不要再次调用 `getLooseEndPenalty()`，以免递归。不要通过 Mixin 注入项目自有类来替代此入口。
+
 #### `RenderClientLightLevel` — 客户端光照等级渲染
 
 **类型:** 通知型（客户端）。可自定义光照等级显示。
