@@ -5,7 +5,7 @@ import io.wifi.starrailexpress.event.GameplayExtensionEvents;
 import io.wifi.starrailexpress.game.GameUtils;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 
-/** 与阿蒙一样使用独立终幕计时；纵火犯存活时拦截普通阵营和超时结算。 */
+/** 纵火犯仅杀光对手才能宣胜；时刻失败后放行普通阵营及超时结算。 */
 public final class ArsonistWinChecker {
     private ArsonistWinChecker() {}
 
@@ -16,7 +16,7 @@ public final class ArsonistWinChecker {
             for (var player : level.getPlayers(GameUtils::isPlayerAliveAndSurvival)) {
                 if (!game.isRole(player, SERoles.ARSONIST)) continue;
                 var data = ArsonistRoleData.of(player);
-                if (data == null) continue;
+                if (data == null || data.settlementUnlocked) continue;
                 if (level.getServer().getPlayerList().getPlayers().stream()
                         .noneMatch(p -> p != player && GameUtils.isPlayerAliveAndSurvival(p))) {
                     data.win();

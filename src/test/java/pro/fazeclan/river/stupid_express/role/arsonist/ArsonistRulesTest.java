@@ -70,6 +70,22 @@ class ArsonistRulesTest {
         assertEquals(850, fuel);
     }
 
+    @Test void momentRequiresAllOpponentsDeadAndLastTickKillWins() {
+        assertEquals(ArsonistRules.MomentResult.RUNNING, ArsonistRules.momentResult(1, 1));
+        assertEquals(ArsonistRules.MomentResult.TIMEOUT, ArsonistRules.momentResult(0, 1));
+        assertEquals(ArsonistRules.MomentResult.TIMEOUT, ArsonistRules.momentResult(-1, 5));
+        assertEquals(ArsonistRules.MomentResult.VICTORY, ArsonistRules.momentResult(80, 0));
+        assertEquals(ArsonistRules.MomentResult.VICTORY, ArsonistRules.momentResult(0, 0));
+    }
+
+    @Test void failedMomentSetsThirtySecondsForEachRemainingOpponent() {
+        assertEquals(0, ArsonistRules.failedMomentTimeTicks(0));
+        assertEquals(0, ArsonistRules.failedMomentTimeTicks(-1));
+        assertEquals(30 * 20, ArsonistRules.failedMomentTimeTicks(1));
+        assertEquals(90 * 20, ArsonistRules.failedMomentTimeTicks(3));
+        assertEquals(360 * 20, ArsonistRules.failedMomentTimeTicks(12));
+    }
+
     @Test void economicsAndMomentMatchTheRoleSpecification() {
         assertEquals(10, ArsonistRules.TASK_COINS);
         assertEquals(35, ArsonistRules.MARK_COINS);

@@ -51,6 +51,19 @@ public final class ArsonistRules {
         return Math.min(4, Math.max(0, alivePlayers) / 3);
     }
 
+    public enum MomentResult { RUNNING, VICTORY, TIMEOUT }
+
+    /** 杀光优先于超时，不能仅因撑满80秒宣胜。 */
+    public static MomentResult momentResult(int ticksRemaining, int aliveOthers) {
+        if (aliveOthers == 0) return MomentResult.VICTORY;
+        return ticksRemaining <= 0 ? MomentResult.TIMEOUT : MomentResult.RUNNING;
+    }
+
+    /** 失败后主倒计时直接设为其他存活人数乘30秒，返回单位为tick。 */
+    public static int failedMomentTimeTicks(int aliveOthers) {
+        return Math.max(0, aliveOthers) * 30 * 20;
+    }
+
     /** 前方半球，边界包含在内；实际命中另由服务端检查墙体遮挡。 */
     public static boolean inFlame(double x, double y, double z, double lookX, double lookY, double lookZ) {
         return x * x + y * y + z * z <= FLAME_RADIUS * FLAME_RADIUS
