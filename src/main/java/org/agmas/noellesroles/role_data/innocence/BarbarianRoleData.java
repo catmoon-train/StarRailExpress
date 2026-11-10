@@ -81,7 +81,7 @@ public final class BarbarianRoleData extends SimpleRoleData {
                 return true;
             }
             BarbarianRoleData data = RoleData.getNullable(BarbarianRoleData.class, player);
-            if (data == null || data.isBerserk()) {
+            if (data == null || data.isBerserk() || data.isFinishing()) {
                 return true;
             }
             if (SREPlayerShopComponent.KEY.get(player).balance < barbarianTransformGold) {
@@ -106,6 +106,11 @@ public final class BarbarianRoleData extends SimpleRoleData {
 
     public boolean isBerserk() {
         return berserkTicks > 0;
+    }
+
+    /** 是否正处于魔了形态收尾（死亡结算）中，用于防止重入/重复触发。 */
+    public boolean isFinishing() {
+        return finishing;
     }
 
     private void enterBerserk(ServerPlayer player) {
@@ -149,7 +154,7 @@ public final class BarbarianRoleData extends SimpleRoleData {
         if (psycho.inPsycho()) {
             psycho.stopPsycho();
         }
-        if (GameUtils.isPlayerAliveAndSurvival(player)) {
+        if (GameUtils.isPlayerAliveAndSurvival(player) && !GameUtils.isForcedDeathInProgress()) {
             GameUtils.forceKillPlayer(player, true, null, GameConstants.DeathReasons.TIMEOUT);
         }
         sync();
