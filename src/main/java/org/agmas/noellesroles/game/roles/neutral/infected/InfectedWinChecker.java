@@ -52,6 +52,8 @@ import org.agmas.noellesroles.utils.RoleUtils;
 public class InfectedWinChecker {
 
     private static boolean wasAccelerated = false; // 记录上一个tick的加速状态
+    /** 管理员启动后不再受自然加速条件影响，随时刻结束或对局重置清除。 */
+    private static boolean forcedMoment = false;
     private static int tickCounter = 0; // tick 计数器，用于节流
     private static final int TICK_INTERVAL = 20; // 每20 tick（1秒）执行一次检查（原来每tick执行，减少95%）
 
@@ -197,6 +199,7 @@ public class InfectedWinChecker {
                 }
 
                 // 没有疫使，取消加速
+                forcedMoment = false;
                 if (wasAccelerated) {
                     InfectedPlayerComponent.setSpreadAcceleratedForAll(level, false);
                     wasAccelerated = false;
@@ -206,7 +209,7 @@ public class InfectedWinChecker {
 
             // 检查触发条件：所有杀手已阵亡 且 没有医生 且 不处于亡命时刻 且 不处于安全时间
             boolean killersAllDead = !hasKiller;
-            boolean shouldAccelerate = killersAllDead && !hasDoctor && !hasLooseEnd && !hasSafeTime;
+            boolean shouldAccelerate = forcedMoment || killersAllDead && !hasDoctor && !hasLooseEnd && !hasSafeTime;
             boolean shouldAccelerateIgnoreDoctor = killersAllDead && !hasLooseEnd && !hasSafeTime;
 
             if (shouldAccelerate) {
@@ -219,44 +222,7 @@ public class InfectedWinChecker {
                         }
                         return;
                     }
-                    InfectedPlayerComponent.setSpreadAcceleratedForAll(level, true);
-                    wasAccelerated = true;
-                    // 同步加速状态到疫使玩家自身的组件（供客户端HUD读取）
-                    for (ServerPlayer p : inftectRolePlayers) {
-                        {
-                            InfectedPlayerComponent comp = ModComponents.INFECTED.get(p);
-                            comp.spreadAccelerated = true;
-                            comp.sync();
-                        }
-                    }
-                    // 全场播放疫使时刻音效
-                    for (ServerPlayer p : level.players()) {
-                        level.playSound(null, p.getX(), p.getY(), p.getZ(),
-                                SoundEvents.WITCH_CELEBRATE, SoundSource.MASTER, 1.0F, 1.0F);
-                    }
-                    // 全场广播疫使时刻提示
-                    Component broadcast = Component.translatable("message.noellesroles.infected.time.triggered")
-                            .withStyle(ChatFormatting.DARK_GREEN, ChatFormatting.BOLD);
-                    for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) {
-                        ServerPlayNetworking.send(p, new BroadcastMessageS2CPacket(broadcast));
-                    }
-                    // 回放记录：进入疫使时刻
-                    for (ServerPlayer p : level.getPlayers(GameUtils::isPlayerAliveAndSurvival)) {
-                        if (gameWorldComponent.isRole(p, ModRoles.INFECTED)) {
-                            SRE.REPLAY_MANAGER.recordCustomEvent(
-                                    Component.translatable("replay.event.infected.plague_time",
-                                            GameReplayUtils.getReplayPlayerDisplayText(p, true)));
-                            break;
-                        }
-                    }
-                    // 疫使技能冷却立刻清零（同时重置统一冷却和独立技能状态冷却）
-                    for (ServerPlayer p : inftectRolePlayers) {
-                        {
-                            SREAbilityPlayerComponent abilityComponent = SREAbilityPlayerComponent.KEY.get(p);
-                            abilityComponent.resetAllCooldowns();
-                            abilityComponent.status = 2;
-                        }
-                    }
+                    startMoment(level, inftectRolePlayers);
                 }
                 checkAndTriggerLastInfected(level, inftectRolePlayers);
             } else {
@@ -281,6 +247,77 @@ public class InfectedWinChecker {
                 }
             }
         });
+    }
+
+    /** 管理员强制开启疫使时刻；沿用自然入口的广播、音效、同步和冷却初始化。 */
+    public static boolean forceStartMoment(ServerPlayer target) {
+        ServerLevel level = target.serverLevel();
+        var game = SREGameWorldComponent.KEY.get(level);
+        if (game.getGameStatus() != SREGameWorldComponent.GameStatus.ACTIVE
+                || !game.isRole(target, ModRoles.INFECTED) || !target.isAlive()
+                || !GameUtils.isPlayerAliveAndSurvival(target))
+            return false;
+
+        forcedMoment = true;
+        List<ServerPlayer> infectedPlayers = level.getPlayers(p -> GameUtils.isPlayerAliveAndSurvival(p)
+                && game.isRole(p, ModRoles.INFECTED));
+        if (!wasAccelerated) {
+            startMoment(level, infectedPlayers);
+        } else {
+            // 全局时刻已经开始，仅初始化新转职的目标，不重复广播或刷新其他疫使。
+            InfectedPlayerComponent comp = ModComponents.INFECTED.get(target);
+            comp.spreadAccelerated = true;
+            comp.sync();
+            SREAbilityPlayerComponent ability = SREAbilityPlayerComponent.KEY.get(target);
+            ability.resetAllCooldowns();
+            ability.status = 2;
+            ability.sync();
+        }
+        checkAndTriggerLastInfected(level, infectedPlayers);
+        return true;
+    }
+
+    /** 自然触发与管理员强制触发共用的完整时刻初始化。 */
+    private static void startMoment(ServerLevel level, List<ServerPlayer> inftectRolePlayers) {
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(level);
+        InfectedPlayerComponent.setSpreadAcceleratedForAll(level, true);
+        wasAccelerated = true;
+        // 同步加速状态到疫使玩家自身的组件（供客户端HUD读取）
+        for (ServerPlayer p : inftectRolePlayers) {
+            {
+                InfectedPlayerComponent comp = ModComponents.INFECTED.get(p);
+                comp.spreadAccelerated = true;
+                comp.sync();
+            }
+        }
+        // 全场播放疫使时刻音效
+        for (ServerPlayer p : level.players()) {
+            level.playSound(null, p.getX(), p.getY(), p.getZ(),
+                    SoundEvents.WITCH_CELEBRATE, SoundSource.MASTER, 1.0F, 1.0F);
+        }
+        // 全场广播疫使时刻提示
+        Component broadcast = Component.translatable("message.noellesroles.infected.time.triggered")
+                .withStyle(ChatFormatting.DARK_GREEN, ChatFormatting.BOLD);
+        for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) {
+            ServerPlayNetworking.send(p, new BroadcastMessageS2CPacket(broadcast));
+        }
+        // 回放记录：进入疫使时刻
+        for (ServerPlayer p : level.getPlayers(GameUtils::isPlayerAliveAndSurvival)) {
+            if (gameWorldComponent.isRole(p, ModRoles.INFECTED)) {
+                SRE.REPLAY_MANAGER.recordCustomEvent(
+                        Component.translatable("replay.event.infected.plague_time",
+                                GameReplayUtils.getReplayPlayerDisplayText(p, true)));
+                break;
+            }
+        }
+        // 疫使技能冷却立刻清零（同时重置统一冷却和独立技能状态冷却）
+        for (ServerPlayer p : inftectRolePlayers) {
+            {
+                SREAbilityPlayerComponent abilityComponent = SREAbilityPlayerComponent.KEY.get(p);
+                abilityComponent.resetAllCooldowns();
+                abilityComponent.status = 2;
+            }
+        }
     }
 
     /**
@@ -363,6 +400,7 @@ public class InfectedWinChecker {
         }
 
         if (!hasInfected) {
+            forcedMoment = false;
             if (wasAccelerated) {
                 InfectedPlayerComponent.setSpreadAcceleratedForAll(level, false);
                 wasAccelerated = false;
@@ -371,7 +409,7 @@ public class InfectedWinChecker {
         }
 
         boolean killersAllDead = !hasKiller;
-        boolean shouldAccelerate = killersAllDead && !hasDoctor && !hasLooseEnd && !hasSafeTime;
+        boolean shouldAccelerate = forcedMoment || killersAllDead && !hasDoctor && !hasLooseEnd && !hasSafeTime;
         boolean shouldAccelerateIgnoreDoctor = killersAllDead && !hasLooseEnd && !hasSafeTime;
         ;
 
@@ -447,5 +485,6 @@ public class InfectedWinChecker {
      */
     public static void resetAcceleratedState() {
         wasAccelerated = false;
+        forcedMoment = false;
     }
 }

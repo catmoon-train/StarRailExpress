@@ -24,6 +24,18 @@ public final class ArsonistEvents {
                         ? ArsonistRules.TASK_COINS : reward);
         OnPlayerDeathWithKiller.FINAL_EVENT.register((victim, killer, reason) -> {
             if (!(victim instanceof ServerPlayer target)) return;
+            if (reason.equals(io.wifi.starrailexpress.game.GameConstants.DeathReasons.IGNITED)
+                    && killer instanceof ServerPlayer arsonist
+                    && SREGameWorldComponent.KEY.get(arsonist.level()).isRole(arsonist, SERoles.ARSONIST)) {
+                var message = net.minecraft.network.chat.Component.translatable(
+                        "message.stupid_express.arsonist.burn_kill", arsonist.getDisplayName(), target.getDisplayName());
+                for (ServerPlayer observer : target.server.getPlayerList().getPlayers()) {
+                    org.agmas.noellesroles.commands.BroadcastCommand.BroadcastMessage(observer, message);
+                    observer.sendSystemMessage(message);
+                    observer.playNotifySound(net.minecraft.sounds.SoundEvents.BLAZE_DEATH,
+                            net.minecraft.sounds.SoundSource.PLAYERS, 0.8F, 1.05F);
+                }
+            }
             var own = ArsonistRoleData.of(target);
             if (own != null) own.reset();
             for (var p : target.server.getPlayerList().getPlayers()) {
@@ -48,7 +60,7 @@ public final class ArsonistEvents {
                 if (data != null) {
                     heat = Math.max(heat, data.burnValues.getOrDefault(handler.player.getUUID(), 0));
                     if (data.arsonMoment) ServerPlayNetworking.send(handler.player,
-                            new ArsonistPackets.MomentS2C(p.getUUID(), true));
+                            new ArsonistPackets.MomentS2C(p.getUUID(), true, data.momentTicks));
                 }
             }
             ServerPlayNetworking.send(handler.player, new ArsonistPackets.HeatS2C(heat));

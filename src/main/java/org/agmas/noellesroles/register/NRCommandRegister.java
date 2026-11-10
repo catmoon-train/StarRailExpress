@@ -40,6 +40,7 @@ public class NRCommandRegister {
         GamblerMiracleCommand.register();
         EggClearCommand.register();
         MurderTimeCommand.register();
+        MomentCommand.register();
         TimeRewindCommand.register();
         FakeSteveCommand.register();
         CommandBlockCommand.register();

@@ -22,11 +22,16 @@ public final class ArsonistFlameClientEffects {
     private ArsonistFlameClientEffects() {}
 
     public static void register() {
+        ArsonistMomentVisuals.register();
         ClientPlayNetworking.registerGlobalReceiver(ArsonistPackets.MomentS2C.ID, (packet, context) ->
                 context.client().execute(() -> {
                     if (packet.active()) ACTIVE.add(packet.owner()); else ACTIVE.remove(packet.owner());
+                    ArsonistMomentVisuals.accept(packet);
                 }));
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> ACTIVE.clear());
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+            ACTIVE.clear();
+            ArsonistMomentVisuals.clear();
+        });
         OnGettingPlayerSkin.EVENT.register((player, original) -> ACTIVE.contains(player.getUUID())
                 ? OnGettingPlayerSkin.PlayerSkinResult.playerSkin(SERoles.ARSONIST.getPsychoSkin(player,
                         original.model() == net.minecraft.client.resources.PlayerSkin.Model.SLIM), original.model())

@@ -12,8 +12,8 @@ public final class ArsonistRules {
     public static final int RELOAD_TICKS = 10 * 20;
     public static final int FULL_FUEL = 1000;
     public static final int FUEL_PER_PULSE = 15;
-    public static final int HEAT_PER_PULSE = 5;
-    public static final int PULSE_TICKS = 2;
+    public static final int HEAT_PER_TICK = 5;
+    public static final int FUEL_PULSE_TICKS = 2;
     public static final double FLAME_RADIUS = 5.0D;
 
     private ArsonistRules() {}
@@ -26,8 +26,17 @@ public final class ArsonistRules {
         return Math.max(0, fuel - FUEL_PER_PULSE);
     }
 
-    public static int heatAfterPulse(int heat) {
-        return Math.min(100, Math.max(0, heat) + HEAT_PER_PULSE);
+    public static boolean shouldConsumeFuel(long now, long previousFuelTick) {
+        return previousFuelTick == Long.MIN_VALUE || now - previousFuelTick >= FUEL_PULSE_TICKS;
+    }
+
+    public static int heatAfterTick(int heat) {
+        return Math.min(100, Math.max(0, heat) + HEAT_PER_TICK);
+    }
+
+    /** 按触发时全部存活人数（含本人）计算，每满3人给1层，最多4层。 */
+    public static int momentShields(int alivePlayers) {
+        return Math.min(4, Math.max(0, alivePlayers) / 3);
     }
 
     /** 前方半球，边界包含在内；实际命中另由服务端检查墙体遮挡。 */

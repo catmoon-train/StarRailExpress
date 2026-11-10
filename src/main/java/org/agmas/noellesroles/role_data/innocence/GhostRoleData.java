@@ -287,29 +287,45 @@ public class GhostRoleData extends SimpleRoleData {
         }
     }
 
+    /** 管理员强制开启恶魔之妹时刻，跳过剩余时间与阵营人数条件。 */
+    public boolean forceStartMoment() {
+        if (!(player instanceof ServerPlayer serverPlayer) || lastStandNotified)
+            return false;
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
+        if (gameWorld.getGameStatus() != SREGameWorldComponent.GameStatus.ACTIVE
+                || !gameWorld.isRole(player, THRedHouseRoles.FURANDORU) || !serverPlayer.isAlive()
+                || !GameUtils.isPlayerAliveAndSurvival(player))
+            return false;
+        return startFuranLastStand(gameWorld, true);
+    }
+
     /**
      * 检查最后幸存者状态
      * 当场上只剩furan+单阵营时，将游戏时间设为1分钟（如果当前时间更长）
      * 并广播提示
      */
     public void checkFuranLastStand(SREGameWorldComponent gameWorld) {
+        startFuranLastStand(gameWorld, false);
+    }
+
+    private boolean startFuranLastStand(SREGameWorldComponent gameWorld, boolean forced) {
         if (!(player instanceof ServerPlayer serverPlayer)) {
-            return;
+            return false;
         }
         if (!gameWorld.isSkillAvailable)
-            return;
+            return false;
         if (player.isSpectator())
-            return;
+            return false;
         if (player.isCreative())
-            return;
+            return false;
         if (player.hasEffect(ModEffects.SAFE_TIME))
-            return;
+            return false;
         if (player.hasEffect(ModEffects.SKILL_BANED))
-            return;
+            return false;
 
         SREGameTimeComponent gameTime = SREGameTimeComponent.KEY.get(player.level());
         if (gameTime == null) {
-            return;
+            return false;
         }
 
         // 统计存活的双方阵营玩家
@@ -335,8 +351,8 @@ public class GhostRoleData extends SimpleRoleData {
         // 恶魔之妹时刻激活条件：时间已快进到阈值内，或场上只剩单一阵营+芙兰朵露
         boolean momentActive = gameTime.getTime() <= FURAN_LAST_STAND_TIME
                 || (aliveCivilianCount <= 0 || aliveKillerCount <= 0) && aliveCivilianCount + aliveKillerCount > 0;
-        if (!momentActive) {
-            return;
+        if (!forced && !momentActive) {
+            return false;
         }
 
         if (!lastStandNotified) {
@@ -381,6 +397,7 @@ public class GhostRoleData extends SimpleRoleData {
                     false // showIcon（显示图标）
             ));
         }
+        return true;
     }
 
 }

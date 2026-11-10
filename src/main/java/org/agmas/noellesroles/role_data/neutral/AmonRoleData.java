@@ -735,8 +735,19 @@ public class AmonRoleData extends SimpleRoleData {
      *
      * @return true 表示已进入终幕；false 表示未开启（条件不满足或处于亡命徒时刻）。
      */
+    public boolean forceStartMoment() {
+        if (!(player instanceof ServerPlayer amon))
+            return false;
+        SREGameWorldComponent game = SREGameWorldComponent.KEY.get(amon.level());
+        if (game.getGameStatus() != SREGameWorldComponent.GameStatus.ACTIVE
+                || !game.isRole(amon, ModRoles.AMON) || !amon.isAlive()
+                || !GameUtils.isPlayerAliveAndSurvival(amon) || refugeeSuspended || finalePhase)
+            return false;
+        return startFinale();
+    }
+
     private boolean startFinale() {
-        if (!(player instanceof ServerPlayer amon) || !(amon.level() instanceof ServerLevel level))
+        if (!(player instanceof ServerPlayer amon) || !(amon.level() instanceof ServerLevel level) || finalePhase)
             return false;
         // 亡命徒（难民修饰符变来的）期间禁止触发阿蒙时刻。
         if (isDesperadoMoment(level))
