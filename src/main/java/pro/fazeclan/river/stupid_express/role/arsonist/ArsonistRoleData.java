@@ -54,7 +54,7 @@ import java.util.UUID;
 public class ArsonistRoleData extends SimpleRoleData {
     /** 参照命令方块系列环境音的独立音量常量（CommandBlockAmbientSound.VOLUME = 0.25F），
      *  登场曲与提示音都改成常量并略微调低，避免盖过对局音效。 */
-    private static final float MOMENT_MUSIC_VOLUME = 0.7F;
+    private static final float MOMENT_MUSIC_VOLUME = 0.57F;
     private static final float MOMENT_CUE_VOLUME = 0.5F;
 
     public int dousedCount;
