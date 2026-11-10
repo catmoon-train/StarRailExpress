@@ -1,111 +1,23 @@
-/*
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
 package pro.fazeclan.river.stupid_express.role.arsonist.item;
 
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.game.GameUtils;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import pro.fazeclan.river.stupid_express.StupidExpress;
-import pro.fazeclan.river.stupid_express.constants.SEEffects;
-import pro.fazeclan.river.stupid_express.constants.SERoles;
 import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRoleData;
-import org.agmas.noellesroles.utils.RoleUtils;
 
+/** 打火机没有冷却；条件不足时安全失败，达标才点燃并进入纵火时刻。 */
 public class LighterItem extends Item {
-
-    public LighterItem(Properties properties) {
-        super(properties);
-    }
+    public LighterItem(Properties properties) { super(properties); }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand interactionHand) {
-        SREGameWorldComponent gwc = SREGameWorldComponent.KEY.get(level);
-
-        if (!(level instanceof ServerLevel serverLevel)) {
-            return InteractionResultHolder.pass(player.getItemInHand(interactionHand));
-        }
-        if (!gwc.isRole(player, SERoles.ARSONIST)) {
-            return InteractionResultHolder.pass(player.getItemInHand(interactionHand));
-        }
-        if (player.getCooldowns().isOnCooldown(this)) {
-            return InteractionResultHolder.pass(player.getItemInHand(interactionHand));
-        }
-        if (player.getCooldowns().isOnCooldown(Items.COMMAND_BLOCK_MINECART)) {
-            player.displayClientMessage(Component.translatable("item.stupid_express.lighter.unable_cooldown"), true);
-            return InteractionResultHolder.pass(player.getItemInHand(interactionHand));
-        }
-        var server = player.getServer();
-        var players1 = server.getPlayerList().getPlayers();
-        var alivePlayers = players1.stream().filter(p -> p != player && GameUtils.isPlayerAliveAndSurvival(p)).toList();
-        var arsonist = ArsonistRoleData.of(player);
-        if (arsonist != null && arsonist.updateIgnitionProgress()) arsonist.sync();
-        var dousedCount = arsonist != null ? arsonist.dousedCount : 0;
-        int required = arsonist != null ? arsonist.ignitionRequired : 1;
-        if (dousedCount >= required) {
-            // 点燃所有存活且被泼油的玩家：施加燃烧效果，期间持续着火，效果结束后才死亡
-            int burnTicks = Math.max(20,
-                    StupidExpress.CONFIG.rolesSection.arsonistSection.burnDurationSeconds * 20);
-            for (ServerPlayer target : alivePlayers) {
-                boolean wasDoused = arsonist != null && arsonist.isDoused(target.getUUID());
-                if (wasDoused) {
-                    arsonist.setBurningKiller(target.getUUID(), player.getUUID());
-                    target.addEffect(new MobEffectInstance(SEEffects.BURNING, burnTicks, 0, false, true, true));
-                    target.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, burnTicks + 20, 0, false, false,
-                            false));
-                    target.setRemainingFireTicks(40);
-                }
-            }
-            if (arsonist != null) {
-                arsonist.resetDouses();
-            }
-            // 重置计数器
-            player.playNotifySound(SoundEvents.FLINTANDSTEEL_USE, SoundSource.PLAYERS, 1.0f, 1.0f);
-            player.displayClientMessage(Component.translatable("item.stupid_express.lighter.used"), true);
-            player.playNotifySound(SoundEvents.FIRE_AMBIENT, SoundSource.BLOCKS, 1f, 1f);
-            // 回放记录：纵火犯点燃所有被泼油玩家
-            if (player instanceof ServerPlayer sp) {
-                io.wifi.starrailexpress.SRE.REPLAY_MANAGER.recordCustomEvent(
-                        net.minecraft.network.chat.Component.translatable("replay.event.arsonist.ignite",
-                                io.wifi.starrailexpress.api.replay.GameReplayUtils.getReplayPlayerDisplayText(sp, true)));
-            }
-            var playersLeft = players1.stream().filter(GameUtils::isPlayerAliveAndSurvival).count();
-            if (playersLeft <= 1) {
-                // 纵火犯独立胜利统计：使用 RoleUtils.customWinnerWin
-                RoleUtils.customWinnerWin(serverLevel, GameUtils.WinStatus.CUSTOM,
-                        SERoles.ARSONIST.identifier().getPath(),
-                        java.util.OptionalInt.of(SERoles.ARSONIST.color()));
-            }
-        } else {
-            player.playNotifySound(SoundEvents.FIRE_EXTINGUISH, SoundSource.PLAYERS, 1.0f, 1.0f);
-            GameUtils.killPlayer(player, true, null, StupidExpress.id("failed_ignite"));
-        }
-        player.getCooldowns().addCooldown(Items.COMMAND_BLOCK_MINECART, 20 * 20);
-        return InteractionResultHolder.pass(player.getItemInHand(interactionHand));
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        var data = ArsonistRoleData.of(player);
+        if (data == null || data.arsonMoment) return InteractionResultHolder.fail(stack);
+        if (!level.isClientSide && !data.ignite()) return InteractionResultHolder.fail(stack);
+        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
     }
 }

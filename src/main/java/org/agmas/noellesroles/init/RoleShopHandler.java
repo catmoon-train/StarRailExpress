@@ -2336,7 +2336,10 @@ public class RoleShopHandler {
             var ARSONIST_SHOP = new ArrayList<>(NECROMANCER_SHOP);
             ARSONIST_SHOP.add(new ShopEntry(
                     pro.fazeclan.river.stupid_express.constants.SEItems.LARGE_OIL_CAN.getDefaultInstance(),
-                    250, ShopEntry.Type.TOOL));
+                    pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRules.OIL_CAN_PRICE, ShopEntry.Type.TOOL));
+            ARSONIST_SHOP.add(new ShopEntry(
+                    pro.fazeclan.river.stupid_express.constants.SEItems.FIRE_GUN.getDefaultInstance(),
+                    pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRules.FIRE_GUN_PRICE, ShopEntry.Type.WEAPON));
             ShopContent.customEntries.put(SERoles.ARSONIST.getIdentifier(), ARSONIST_SHOP);
             ShopContent.customEntries.put(BounsRoles.CAT_NECROMANCER.getIdentifier(), NECROMANCER_SHOP);
 

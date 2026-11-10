@@ -39,7 +39,7 @@ public class LargeOilCanItem extends Item {
             return InteractionResultHolder.fail(stack);
         }
         ArsonistRoleData data = ArsonistRoleData.of(owner);
-        if (data == null || data.activeOilCan != null) {
+        if (data == null || data.arsonMoment || data.activeOilCan != null) {
             return InteractionResultHolder.fail(stack);
         }
         LargeOilCanEntity can = new LargeOilCanEntity(ModEntities.LARGE_OIL_CAN, level);

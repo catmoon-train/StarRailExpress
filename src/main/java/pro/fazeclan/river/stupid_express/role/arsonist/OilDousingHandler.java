@@ -76,9 +76,7 @@ public class OilDousingHandler {
                 }
 
                 interacting.getCooldowns().addCooldown(item.getItem(), (int) (cd * 20));
-                if (arsonistData != null && arsonistData.dousedCount >= arsonistData.ignitionRequired) {
-                    interacting.getCooldowns().addCooldown(SEItems.LIGHTER, (int) (cd * 20));
-                }
+
             }
 
             SRE.REPLAY_MANAGER.recordCustomEvent(

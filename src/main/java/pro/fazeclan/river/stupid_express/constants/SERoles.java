@@ -49,14 +49,8 @@ public class SERoles {
             TMMRoles.CIVILIAN.getMaxSprintTime(),
             false)).setPassiveIncome(false).setNeutralForInnocent(true).setDefaultEnableChance(5000).setDefaultEnableNeededPlayerCount(12);
 
-    public static SRERole ARSONIST = registerRole(new NormalRole(
-            StupidExpress.id("arsonist"),
-            0xfc9526,
-            false,
-            false,
-            SRERole.MoodType.FAKE,
-            -1,
-            true)).setCanUseInstinctAndNightVision(true).setDefaultEnableNeededPlayerCount(12)
+    public static SRERole ARSONIST = registerRole(new pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRole())
+            .setCanUseInstinctAndNightVision(true).setDefaultEnableNeededPlayerCount(12)
             .setRoleData(pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRoleData::new);
 
     public static SRERole AVARICIOUS = registerRole(new NormalRole(

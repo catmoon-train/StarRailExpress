@@ -199,35 +199,8 @@ public class StupidExpressClient {
             return AllowOtherCameraType.ReturnCameraType.NO_CHANGE;
         });
 
-        // 注册纵火犯HUD
-        RoleHudRenderCallback.EVENT.register(SERoles.ARSONIST.identifier(), (context, tickCounter) -> {
-            Minecraft client = Minecraft.getInstance();
-            if (client.player == null)
-                return;
-            if (SREClient.gameComponent == null)
-                return;
-            if (!SREClient.isRole(SERoles.ARSONIST))
-                return;
-            if (!SREClient.isPlayerAliveAndInSurvival())
-                return;
-
-            ArsonistRoleData ownComp = ArsonistRoleData.of(client.player);
-            int dousedCount = ownComp != null ? ownComp.dousedCount : 0;
-            // 直接使用服务端同步的实时人数和门槛，不能只统计客户端已加载的玩家。
-            int requiredCount = ownComp != null ? ownComp.ignitionRequired : 1;
-
-            var font = client.font;
-            int xBase = context.guiWidth() - 10;
-            int yBase = context.guiHeight() - font.lineHeight - 10;
-            if (dousedCount >= requiredCount) {
-                Component readyText = Component.translatable("hud.stupid_express.arsonist.ignition_ready");
-                context.drawString(font, readyText, xBase - font.width(readyText), yBase, 0xfc9526);
-            } else {
-                Component douseText = Component.translatable("hud.stupid_express.arsonist.douse_progress",
-                        dousedCount, requiredCount);
-                context.drawString(font, douseText, xBase - font.width(douseText), yBase, 0xfc9526);
-            }
-        });
+        ArsonistFlameClientEffects.register();
+        ArsonistClient.register();
     }
 
     static {

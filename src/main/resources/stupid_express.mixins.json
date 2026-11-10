@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "modifier.allergist.AllergistEatMixin",
+    "arsonist.ArsonistWeaponLockMixin",
     "modifier.split_personality.SplitPersonalityServerInputBlockMixin",
     "modifier.twin_children.TwinChildrenAttachMixin",
     "modifier.twin_children.TwinChildrenPlayerMixin",

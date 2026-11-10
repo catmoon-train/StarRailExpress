@@ -1,0 +1,46 @@
+package pro.fazeclan.river.stupid_express.role.arsonist;
+
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import pro.fazeclan.river.stupid_express.StupidExpress;
+
+/** 客户端只能请求换装；命中与伤害不接受客户端提交。公开包不包含私有浇油名单。 */
+public final class ArsonistPackets {
+    private ArsonistPackets() {}
+
+    public record ReloadC2S() implements CustomPacketPayload {
+        public static final Type<ReloadC2S> ID = new Type<>(StupidExpress.id("arsonist_reload"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, ReloadC2S> CODEC =
+                StreamCodec.of((buf, packet) -> {}, buf -> new ReloadC2S());
+        @Override public Type<? extends CustomPacketPayload> type() { return ID; }
+    }
+
+    public record HeatS2C(int heat) implements CustomPacketPayload {
+        public static final Type<HeatS2C> ID = new Type<>(StupidExpress.id("arsonist_heat"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, HeatS2C> CODEC =
+                StreamCodec.of((buf, packet) -> buf.writeVarInt(packet.heat()), buf -> new HeatS2C(buf.readVarInt()));
+        @Override public Type<? extends CustomPacketPayload> type() { return ID; }
+    }
+
+    public record MomentS2C(java.util.UUID owner, boolean active) implements CustomPacketPayload {
+        public static final Type<MomentS2C> ID = new Type<>(StupidExpress.id("arsonist_moment"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, MomentS2C> CODEC = StreamCodec.of(
+                (buf, packet) -> { buf.writeUUID(packet.owner()); buf.writeBoolean(packet.active()); },
+                buf -> new MomentS2C(buf.readUUID(), buf.readBoolean()));
+        @Override public Type<? extends CustomPacketPayload> type() { return ID; }
+    }
+
+    public static void register() {
+        PayloadTypeRegistry.playC2S().register(ReloadC2S.ID, ReloadC2S.CODEC);
+        PayloadTypeRegistry.playS2C().register(HeatS2C.ID, HeatS2C.CODEC);
+        PayloadTypeRegistry.playS2C().register(MomentS2C.ID, MomentS2C.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(ReloadC2S.ID, (packet, context) ->
+                context.server().execute(() -> {
+                    ArsonistRoleData data = ArsonistRoleData.of(context.player());
+                    if (data != null) data.startReload();
+                }));
+    }
+}

@@ -1,43 +1,47 @@
-/*
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
 package pro.fazeclan.river.stupid_express.role.arsonist;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
+import io.wifi.starrailexpress.api.hit.HitType;
+import io.wifi.starrailexpress.api.hit.SREHitManager;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
+import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
+import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent.GameStatus;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.component.DeathPenaltyComponent;
-import org.agmas.noellesroles.component.DefibrillatorComponent;
-import org.agmas.noellesroles.init.ModEffects;
-import pro.fazeclan.river.stupid_express.constants.SEEffects;
+import io.wifi.starrailexpress.util.ParticleFx;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.game.economy.MoneyFlow;
+import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.role_data.neutral.CuckooRoleData;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
+import pro.fazeclan.river.stupid_express.StupidExpress;
+import pro.fazeclan.river.stupid_express.constants.SEEffects;
+import pro.fazeclan.river.stupid_express.constants.SEItems;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -45,254 +49,404 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-/**
- * 纵火犯职业数据：被浇油的玩家与点燃归属都记在纵火犯身上，而不是每个受害者一份 CCA。
- */
+/** 纵火犯的标记、非致死火枪、80秒纵火时刻、火力和燃烧值，均由服务端权威结算。 */
 public class ArsonistRoleData extends SimpleRoleData {
-
-    public int dousedCount = 0;
-    /** 服务端统一计算并同步给 HUD，避免客户端只能统计已加载的附近玩家。 */
+    public int dousedCount;
     public int ignitionRequired = 1;
     public final Set<UUID> dousedPlayers = new LinkedHashSet<>();
     public final Map<UUID, UUID> burningKillers = new HashMap<>();
-    /** 仅服务端使用，记录真正被本纵火犯烧死的玩家及死亡位置。 */
-    public final Map<UUID, BurnedPlayer> burnedPlayers = new HashMap<>();
+    public final Map<UUID, Integer> burnValues = new HashMap<>();
     public UUID activeOilCan;
+    public boolean arsonMoment;
+    public int momentTicks;
+    public int fuelUnits = ArsonistRules.FULL_FUEL;
+    public int reloadTicks;
+    public int forcedSlot = -1;
+    private ItemStack savedMainHand = ItemStack.EMPTY;
+    private MobEffectInstance savedStaminaEffect;
+    private final Map<UUID, Integer> timedBurnDurations = new HashMap<>();
+    private final Map<UUID, Integer> sentHeat = new HashMap<>();
+    private long lastPulse = Long.MIN_VALUE;
+    private boolean won;
+    private boolean dirty;
 
-    public record BurnedPlayer(ServerLevel level, Vec3 position, float yaw, float pitch) {
-        public static BurnedPlayer at(ServerPlayer target) {
-            return new BurnedPlayer(target.serverLevel(), target.position(), target.getYRot(), target.getXRot());
-        }
+    public ArsonistRoleData(RoleDataContext context) { super(context); }
 
-        public void release(ServerPlayer target, boolean revive) {
-            clearBurnRestrictions(target);
-            if (revive && target.isSpectator()) {
-                target.teleportTo(level, position.x, position.y, position.z, yaw, pitch);
-                GameUtils.revivePlayer(target, position.x, position.y, position.z);
-                target.setCamera(target);
-                target.displayClientMessage(Component.translatable("message.stupid_express.arsonist.revived"), false);
-            }
-        }
+    @Nullable public static ArsonistRoleData of(Player player) {
+        return player == null ? null : RoleData.getNullable(ArsonistRoleData.class, player);
     }
 
-    public void captureBurnedPlayer(ServerPlayer target, BurnedPlayer origin) {
-        if (!(player instanceof ServerPlayer owner) || !target.isSpectator()) return;
-        if (!GameUtils.isPlayerAliveAndSurvival(owner)) {
-            origin.release(target, true);
-            return;
-        }
-        burnedPlayers.put(target.getUUID(), origin);
-        bindBurnedPlayer(owner, target);
-        target.displayClientMessage(Component.translatable("message.stupid_express.arsonist.bound"), false);
-    }
-
-    private static void bindBurnedPlayer(ServerPlayer owner, ServerPlayer target) {
-        DeathPenaltyComponent penalty = DeathPenaltyComponent.KEY.get(target);
-        if (!owner.getUUID().equals(penalty.limitCameraUUID) || !penalty.hasPenalty()) {
-            penalty.setPenaltyWithCameraLimit(-1, owner, true);
-        }
-        DefibrillatorComponent.KEY.get(target).init();
-        if (!target.hasEffect(ModEffects.CHAT_BAN))
-            target.addEffect(new MobEffectInstance(ModEffects.CHAT_BAN, -1, 0, false, false, false));
-        if (!target.hasEffect(ModEffects.VOICE_SILENCE))
-            target.addEffect(new MobEffectInstance(ModEffects.VOICE_SILENCE, -1, 0, false, false, false));
-        if (!target.hasEffect(ModEffects.SKILL_BANED))
-            target.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, -1, 0, false, false, false));
-        if (!target.hasEffect(ModEffects.USED_BANED))
-            target.addEffect(new MobEffectInstance(ModEffects.USED_BANED, -1, 0, false, false, false));
-    }
-
-    private static void clearBurnRestrictions(ServerPlayer target) {
-        DeathPenaltyComponent.KEY.get(target).init();
-        target.removeEffect(ModEffects.CHAT_BAN);
-        target.removeEffect(ModEffects.VOICE_SILENCE);
-        target.removeEffect(ModEffects.SKILL_BANED);
-        target.removeEffect(ModEffects.USED_BANED);
-        target.removeEffect(ModEffects.MOVE_BANED);
-        target.setCamera(target);
-    }
-
-    /** 死亡、离线或换职业时释放；局末只解除限制，不把人复活进结算场景。 */
-    public void releaseBurnedPlayers(boolean revive) {
-        if (!(player instanceof ServerPlayer owner)) return;
-        for (var entry : burnedPlayers.entrySet()) {
-            ServerPlayer target = owner.server.getPlayerList().getPlayer(entry.getKey());
-            if (target != null) entry.getValue().release(target, revive);
-            else ArsonistEvents.releaseOnJoin(entry.getKey(), entry.getValue(), revive);
-        }
-        burnedPlayers.clear();
-        for (UUID id : burningKillers.keySet()) {
-            ServerPlayer target = owner.server.getPlayerList().getPlayer(id);
-            if (target != null) {
-                target.removeEffect(SEEffects.BURNING);
-                target.clearFire();
-            }
-        }
-        burningKillers.clear();
-        if (activeOilCan != null && owner.serverLevel().getEntity(activeOilCan) instanceof LargeOilCanEntity can) {
-            can.finish();
-        }
-        activeOilCan = null;
-    }
-
-    @Override
-    public void serverTick() {
-        if (!(player instanceof ServerPlayer owner)) return;
-        boolean running = SREGameWorldComponent.KEY.get(owner.level()).isRunning();
-        if (!running || !GameUtils.isPlayerAliveAndSurvival(owner)) {
-            if (!burnedPlayers.isEmpty() || !burningKillers.isEmpty() || activeOilCan != null)
-                releaseBurnedPlayers(running);
-            return;
-        }
-        if (activeOilCan != null && !(owner.serverLevel().getEntity(activeOilCan) instanceof LargeOilCanEntity)) {
-            activeOilCan = null;
-            owner.connection.send(new net.minecraft.network.protocol.game.ClientboundSetCameraPacket(owner));
-        }
-        if (owner.tickCount % 20 != 0) return;
-        if (updateIgnitionProgress()) sync();
-        var iterator = burnedPlayers.entrySet().iterator();
-        while (iterator.hasNext()) {
-            var entry = iterator.next();
-            ServerPlayer target = owner.server.getPlayerList().getPlayer(entry.getKey());
-            if (target == null) continue;
-            if (GameUtils.isPlayerAliveAndSurvival(target)) {
-                clearBurnRestrictions(target);
-                iterator.remove();
-            } else if (target.isSpectator()) {
-                bindBurnedPlayer(owner, target);
-            }
-        }
-    }
-
-    @Override
-    public void clear() {
-        releaseBurnedPlayers(SREGameWorldComponent.KEY.get(player.level()).isRunning());
-    }
-
-    public ArsonistRoleData(RoleDataContext context) {
-        super(context);
-    }
-
-    @Nullable
-    public static ArsonistRoleData of(Player player) {
-        return RoleData.getNullable(ArsonistRoleData.class, player);
-    }
-
-    @Nullable
-    public static ArsonistRoleData find(Level level) {
-        if (level == null) {
-            return null;
-        }
-        for (Player p : level.players()) {
-            ArsonistRoleData data = of(p);
-            if (data != null) {
-                return data;
-            }
+    @Nullable public static ArsonistRoleData find(Level level) {
+        if (level == null) return null;
+        Iterable<? extends Player> candidates = level instanceof ServerLevel serverLevel
+                ? serverLevel.getServer().getPlayerList().getPlayers() : level.players();
+        for (Player p : candidates) {
+            var data = of(p);
+            if (data != null) return data;
         }
         return null;
     }
 
-    public boolean isDoused(UUID playerId) {
-        return playerId != null && dousedPlayers.contains(playerId);
+    private boolean canAct() {
+        var game = SREGameWorldComponent.KEY.get(player.level());
+        return game.getGameStatus() == GameStatus.ACTIVE && game.isSkillAvailable && GameUtils.isPlayerAliveAndSurvival(player)
+                && !player.hasEffect(ModEffects.SKILL_BANED) && !player.hasEffect(ModEffects.USED_BANED);
     }
 
-    /** 按当前存活的其他玩家计算：至少浇油 75%（向上取整），保留领袖追随者加成。 */
+    public boolean isDoused(UUID id) { return id != null && dousedPlayers.contains(id); }
+
     public boolean updateIgnitionProgress() {
         if (!(player instanceof ServerPlayer owner)) return false;
         var targets = owner.server.getPlayerList().getPlayers().stream()
                 .filter(p -> p != owner && GameUtils.isPlayerAliveAndSurvival(p)).toList();
         int count = (int) targets.stream().filter(p -> isDoused(p.getUUID())).count();
         int required = org.agmas.noellesroles.game.roles.neutral.leader.LeaderFollowerEffects
-                .arsonistRequiredDoused(Math.max(1, (int) Math.ceil(targets.size() * 0.75D)), owner);
-        boolean changed = dousedCount != count || ignitionRequired != required;
+                .arsonistRequiredDoused(ArsonistRules.requiredDoused(targets.size()), owner);
+        boolean changed = count != dousedCount || required != ignitionRequired;
         dousedCount = count;
         ignitionRequired = required;
         return changed;
     }
 
-    public void douse(Player victim) {
-        if (victim == null) {
-            return;
-        }
-        if (dousedPlayers.add(victim.getUUID())) {
-            updateIgnitionProgress();
-            sync();
-        }
-    }
-
-    public void undouse(UUID playerId) {
-        if (playerId != null && dousedPlayers.remove(playerId)) {
-            updateIgnitionProgress();
-            sync();
-        }
-    }
-
-    public void setBurningKiller(UUID victimId, @Nullable UUID killerId) {
-        if (victimId == null) {
-            return;
-        }
-        if (killerId == null) {
-            burningKillers.remove(victimId);
-        } else {
-            burningKillers.put(victimId, killerId);
-        }
+    /** 只有新增的有效浇油标记才给35金币，重复命中已有标记不发钱。 */
+    public boolean douse(Player target) {
+        if (!(player instanceof ServerPlayer owner) || !canAct() || arsonMoment || target == player
+                || !GameUtils.isPlayerAliveAndSurvival(target) || !dousedPlayers.add(target.getUUID())) return false;
+        MoneyFlow.recordIncome(owner, MoneyFlow.IncomeType.SKILL, ArsonistRules.MARK_COINS);
+        SREPlayerShopComponent.KEY.get(owner).addToBalance(ArsonistRules.MARK_COINS);
+        updateIgnitionProgress();
         sync();
+        return true;
     }
 
-    @Nullable
-    public UUID getBurningKiller(UUID victimId) {
-        return victimId == null ? null : burningKillers.get(victimId);
+    public void undouse(UUID id) {
+        if (dousedPlayers.remove(id)) { updateIgnitionProgress(); sync(); }
     }
 
-    public void resetDouses() {
+    public void resetDouses() { dousedPlayers.clear(); dousedCount = 0; sync(); }
+
+    public void setBurningKiller(UUID victim, @Nullable UUID killer) {
+        if (killer == null) burningKillers.remove(victim); else burningKillers.put(victim, killer);
+    }
+
+    @Nullable public UUID getBurningKiller(UUID victim) { return burningKillers.get(victim); }
+
+    /** 火枪复用左轮射线，不伤害目标、不消耗枪、不掉枪；命中与否均收100金币并冷却30秒。 */
+    public boolean shootFireGun(InteractionHand hand) {
+        if (!(player instanceof ServerPlayer owner) || !canAct() || arsonMoment
+                || !owner.getItemInHand(hand).is(SEItems.FIRE_GUN)
+                || owner.getCooldowns().isOnCooldown(SEItems.FIRE_GUN)) return false;
+        var shop = SREPlayerShopComponent.KEY.get(owner);
+        if (shop.balance < ArsonistRules.SHOT_COINS) {
+            owner.displayClientMessage(Component.translatable("message.stupid_express.arsonist.shot_money", ArsonistRules.SHOT_COINS), true);
+            return false;
+        }
+        MoneyFlow.recordExpense(owner, MoneyFlow.ExpenseType.SKILL, ArsonistRules.SHOT_COINS,
+                Component.translatable("item.stupid_express.fire_gun"));
+        shop.addToBalance(-ArsonistRules.SHOT_COINS);
+        owner.getCooldowns().addCooldown(SEItems.FIRE_GUN, ArsonistRules.SHOT_COOLDOWN_TICKS);
+        var hit = SREHitManager.getTarget(owner, HitType.GUN, 20.0D);
+        if (hit instanceof EntityHitResult entityHit && entityHit.getEntity() instanceof ServerPlayer target) douse(target);
+        owner.serverLevel().playSound(null, owner.blockPosition(), SoundEvents.FIREWORK_ROCKET_BLAST,
+                SoundSource.PLAYERS, 0.9F, 0.7F);
+        ParticleFx.sendCustom(owner.serverLevel(), StupidExpress.id("arsonist_shot"), owner.getEyePosition(), 4,
+                owner.getYRot(), owner.getXRot());
+        return true;
+    }
+
+    /** 门槛不足只提示，不点火、不自杀，也不添加任何冷却。 */
+    public boolean ignite() {
+        if (!(player instanceof ServerPlayer owner) || !canAct() || arsonMoment) return false;
+        updateIgnitionProgress();
+        if (dousedCount < ignitionRequired) {
+            owner.displayClientMessage(Component.translatable("message.stupid_express.arsonist.need_marks", dousedCount, ignitionRequired), true);
+            sync();
+            return false;
+        }
+        int duration = Math.max(20, StupidExpress.CONFIG.rolesSection.arsonistSection.burnDurationSeconds * 20);
+        for (ServerPlayer target : owner.server.getPlayerList().getPlayers()) {
+            if (target != owner && GameUtils.isPlayerAliveAndSurvival(target) && isDoused(target.getUUID())) {
+                setBurningKiller(target.getUUID(), owner.getUUID());
+                timedBurnDurations.put(target.getUUID(), duration);
+                burnValues.put(target.getUUID(), 0);
+                target.addEffect(new MobEffectInstance(SEEffects.BURNING, duration, 0, false, true, true));
+                target.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, duration + 20, 0, false, false, false));
+                target.setRemainingFireTicks(40);
+            }
+        }
         dousedPlayers.clear();
         dousedCount = 0;
+        startMoment(owner);
+        owner.serverLevel().playSound(null, owner.blockPosition(), SoundEvents.FLINTANDSTEEL_USE, SoundSource.PLAYERS, 1, 1);
+        SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.event.arsonist.ignite",
+                io.wifi.starrailexpress.api.replay.GameReplayUtils.getReplayPlayerDisplayText(owner, true)));
+        return true;
+    }
+
+    private void startMoment(ServerPlayer owner) {
+        if (activeOilCan != null && owner.serverLevel().getEntity(activeOilCan) instanceof LargeOilCanEntity can) can.finish();
+        arsonMoment = true;
+        momentTicks = ArsonistRules.MOMENT_TICKS;
+        fuelUnits = ArsonistRules.FULL_FUEL;
+        reloadTicks = 0;
+        forcedSlot = owner.getInventory().selected;
+        savedMainHand = owner.getMainHandItem().copy();
+        owner.stopUsingItem();
+        owner.setItemInHand(InteractionHand.MAIN_HAND, SEItems.FLAMETHROWER.getDefaultInstance());
+        SREArmorPlayerComponent.KEY.get(owner).addArmor(1);
+        var previousStamina = owner.getEffect(ModEffects.INFINITE_STAMINA);
+        savedStaminaEffect = previousStamina == null ? null : new MobEffectInstance(previousStamina);
+        owner.addEffect(new MobEffectInstance(ModEffects.INFINITE_STAMINA, 40, 0, false, false, false));
+        owner.getInventory().setChanged();
+        owner.inventoryMenu.broadcastChanges();
+        for (ServerPlayer p : owner.server.getPlayerList().getPlayers()) {
+            p.sendSystemMessage(Component.translatable("message.stupid_express.arsonist.moment_start", owner.getDisplayName()));
+            p.playNotifySound(SoundEvents.WITHER_SPAWN, SoundSource.PLAYERS, 0.65F, 1.15F);
+            ServerPlayNetworking.send(p, new ArsonistPackets.MomentS2C(owner.getUUID(), true));
+        }
         sync();
     }
 
+    public boolean canSpray() {
+        return arsonMoment && reloadTicks == 0 && fuelUnits > 0 && canAct();
+    }
+
+    public void startReload() {
+        if (!(player instanceof ServerPlayer owner) || !arsonMoment || !canAct()
+                || reloadTicks > 0 || fuelUnits >= ArsonistRules.FULL_FUEL
+                || !owner.getMainHandItem().is(SEItems.FLAMETHROWER)) return;
+        reloadTicks = ArsonistRules.RELOAD_TICKS;
+        owner.stopUsingItem();
+        owner.getCooldowns().addCooldown(SEItems.FLAMETHROWER, ArsonistRules.RELOAD_TICKS);
+        owner.serverLevel().playSound(null, owner.blockPosition(), SoundEvents.IRON_TRAPDOOR_OPEN, SoundSource.PLAYERS, 0.8F, 0.8F);
+        sync();
+    }
+
+    /** 燃烧等待进度也进入同一燃烧值，受害者与纵火犯都能看见。 */
+    public void tickTimedBurn(ServerPlayer target, int remaining) {
+        Integer total = timedBurnDurations.get(target.getUUID());
+        if (total != null) {
+            int heat = Math.min(99, (total - remaining) * 100 / total);
+            int previous = burnValues.getOrDefault(target.getUUID(), 0);
+            if (heat > previous) { burnValues.put(target.getUUID(), heat); dirty = true; }
+        }
+    }
+
+    private void spray(ServerPlayer owner) {
+        Vec3 origin = owner.getEyePosition();
+        Vec3 look = owner.getLookAngle();
+        // 服务端只发一条形状消息，由客户端生成喷火半球，不逐点发网络粒子。
+        ParticleFx.sendCustom(owner.serverLevel(), StupidExpress.id("arsonist_flame"), origin, 3,
+                owner.getYRot(), owner.getXRot(), (float) ArsonistRules.FLAME_RADIUS);
+        if (owner.tickCount % 10 == 0) owner.serverLevel().playSound(null, owner.blockPosition(),
+                SoundEvents.FIRE_AMBIENT, SoundSource.PLAYERS, 1.0F, 1.1F);
+        for (ServerPlayer target : owner.serverLevel().getEntitiesOfClass(ServerPlayer.class,
+                owner.getBoundingBox().inflate(ArsonistRules.FLAME_RADIUS), p -> p != owner && GameUtils.isPlayerAliveAndSurvival(p))) {
+            if (!arsonMoment || !GameUtils.isPlayerAliveAndSurvival(owner)) break;
+            Vec3 delta = target.getBoundingBox().getCenter().subtract(origin);
+            if (!ArsonistRules.inFlame(delta.x, delta.y, delta.z, look.x, look.y, look.z) || !owner.hasLineOfSight(target)) continue;
+            int heat = ArsonistRules.heatAfterPulse(burnValues.getOrDefault(target.getUUID(), 0));
+            burnValues.put(target.getUUID(), heat);
+            if (heat >= 100) killBurnedPlayer(target);
+        }
+        fuelUnits = ArsonistRules.fuelAfterPulse(fuelUnits);
+        dirty = true;
+        if (fuelUnits == 0) startReload();
+    }
+
+    /** 烧死不生成尸体，不再附身或复活。 */
+    public void killBurnedPlayer(ServerPlayer target) {
+        if (!(player instanceof ServerPlayer owner) || !GameUtils.isPlayerAliveAndSurvival(target)) return;
+        target.clearFire();
+        target.removeEffect(SEEffects.BURNING);
+        GameUtils.killPlayer(target, false, owner, GameConstants.DeathReasons.IGNITED, true);
+        forgetTarget(target);
+    }
+
+    public void forgetTarget(ServerPlayer target) {
+        burningKillers.remove(target.getUUID());
+        timedBurnDurations.remove(target.getUUID());
+        burnValues.remove(target.getUUID());
+        sentHeat.remove(target.getUUID());
+        ServerPlayNetworking.send(target, new ArsonistPackets.HeatS2C(0));
+        dirty = true;
+    }
+
+    private void syncVictims(ServerPlayer owner) {
+        for (var entry : burnValues.entrySet()) {
+            if (entry.getValue().equals(sentHeat.get(entry.getKey()))) continue;
+            ServerPlayer target = owner.server.getPlayerList().getPlayer(entry.getKey());
+            if (target != null) {
+                ServerPlayNetworking.send(target, new ArsonistPackets.HeatS2C(entry.getValue()));
+                sentHeat.put(entry.getKey(), entry.getValue());
+            }
+        }
+    }
+
+    public void enforceWeapon() {
+        if (!(player instanceof ServerPlayer owner) || !arsonMoment || forcedSlot < 0) return;
+        if (owner.getInventory().selected != forcedSlot) {
+            owner.getInventory().selected = forcedSlot;
+            owner.connection.send(new ClientboundSetCarriedItemPacket(forcedSlot));
+        }
+        if (!owner.getMainHandItem().is(SEItems.FLAMETHROWER)) {
+            ItemStack displaced = owner.getMainHandItem();
+            owner.setItemInHand(InteractionHand.MAIN_HAND, SEItems.FLAMETHROWER.getDefaultInstance());
+            if (!displaced.isEmpty()) owner.getInventory().placeItemBackInInventory(displaced);
+            owner.inventoryMenu.broadcastChanges();
+        }
+    }
+
+    @Override public void serverTick() {
+        if (!(player instanceof ServerPlayer owner)) return;
+        var game = SREGameWorldComponent.KEY.get(owner.level());
+        if (game.getGameStatus() != GameStatus.ACTIVE || !GameUtils.isPlayerAliveAndSurvival(owner)) {
+            if (arsonMoment || !burnValues.isEmpty() || !burningKillers.isEmpty() || activeOilCan != null) reset();
+            return;
+        }
+        if (activeOilCan != null && !(owner.serverLevel().getEntity(activeOilCan) instanceof LargeOilCanEntity)) {
+            activeOilCan = null;
+            owner.connection.send(new net.minecraft.network.protocol.game.ClientboundSetCameraPacket(owner));
+        }
+        if (owner.tickCount % 20 == 0) {
+            dirty |= updateIgnitionProgress();
+            for (UUID id : new LinkedHashSet<>(burnValues.keySet())) {
+                ServerPlayer target = owner.server.getPlayerList().getPlayer(id);
+                if (target != null && !GameUtils.isPlayerAliveAndSurvival(target)) forgetTarget(target);
+            }
+        }
+        if (arsonMoment) {
+            enforceWeapon();
+            if (owner.tickCount % 20 == 0) owner.addEffect(new MobEffectInstance(ModEffects.INFINITE_STAMINA, 40, 0, false, false, false));
+            if (game.isSkillAvailable && !SREGameTimeComponent.KEY.get(owner.level()).isTimeFrozen()) {
+                momentTicks--;
+                if (reloadTicks > 0 && --reloadTicks == 0) { fuelUnits = ArsonistRules.FULL_FUEL; dirty = true; }
+                long now = owner.level().getGameTime();
+                if (canSpray() && owner.isUsingItem() && owner.getUseItem().is(SEItems.FLAMETHROWER)
+                        && (lastPulse == Long.MIN_VALUE || now - lastPulse >= ArsonistRules.PULSE_TICKS)) {
+                    lastPulse = now;
+                    spray(owner);
+                }
+                if (momentTicks <= 0 || owner.server.getPlayerList().getPlayers().stream()
+                        .noneMatch(p -> p != owner && GameUtils.isPlayerAliveAndSurvival(p))) {
+                    win();
+                    return;
+                }
+            }
+        }
+        if (owner.tickCount % 2 == 0 && dirty || owner.tickCount % 20 == 0) {
+            syncVictims(owner);
+            sync();
+            dirty = false;
+        }
+    }
+
+    public void win() {
+        if (!(player instanceof ServerPlayer owner) || won || !GameUtils.isPlayerAliveAndSurvival(owner)
+                || SREGameWorldComponent.KEY.get(owner.level()).getGameStatus() != GameStatus.ACTIVE) return;
+        reset();
+        won = true;
+        if (!CuckooRoleData.checkCuckooVictory(owner.serverLevel())) {
+            RoleUtils.customWinnerWin(owner.serverLevel(), GameUtils.WinStatus.CUSTOM,
+                    "arsonist", java.util.OptionalInt.of(pro.fazeclan.river.stupid_express.constants.SERoles.ARSONIST.color()));
+        }
+    }
+
+    /** 退出只恢复本体物品和状态；没有任何受害者复活路径。 */
     public void reset() {
-        releaseBurnedPlayers(SREGameWorldComponent.KEY.get(player.level()).isRunning());
+        if (!(player instanceof ServerPlayer owner)) return;
+        boolean wasMoment = arsonMoment;
+        arsonMoment = false;
+        momentTicks = 0;
+        reloadTicks = 0;
+        owner.stopUsingItem();
+        if (wasMoment) {
+            owner.removeEffect(ModEffects.INFINITE_STAMINA);
+            if (savedStaminaEffect != null) owner.addEffect(savedStaminaEffect);
+            savedStaminaEffect = null;
+            for (ServerPlayer p : owner.server.getPlayerList().getPlayers()) {
+                ServerPlayNetworking.send(p, new ArsonistPackets.MomentS2C(owner.getUUID(), false));
+            }
+        }
+        for (int i = 0; i < owner.getInventory().getContainerSize(); i++) {
+            if (owner.getInventory().getItem(i).is(SEItems.FLAMETHROWER)) owner.getInventory().setItem(i, ItemStack.EMPTY);
+        }
+        if (owner.containerMenu.getCarried().is(SEItems.FLAMETHROWER)) owner.containerMenu.setCarried(ItemStack.EMPTY);
+        if (forcedSlot >= 0 && !savedMainHand.isEmpty()) {
+            ItemStack occupied = owner.getInventory().getItem(forcedSlot);
+            owner.getInventory().setItem(forcedSlot, savedMainHand);
+            savedMainHand = ItemStack.EMPTY;
+            if (!occupied.isEmpty()) owner.getInventory().placeItemBackInInventory(occupied);
+        }
+        forcedSlot = -1;
+        owner.getCooldowns().removeCooldown(SEItems.FLAMETHROWER);
+        owner.inventoryMenu.broadcastChanges();
+        for (UUID id : new LinkedHashSet<>(burnValues.keySet())) {
+            ServerPlayer target = owner.server.getPlayerList().getPlayer(id);
+            if (target != null) {
+                target.removeEffect(SEEffects.BURNING);
+                target.clearFire();
+                ServerPlayNetworking.send(target, new ArsonistPackets.HeatS2C(0));
+            }
+        }
+        burnValues.clear();
+        burningKillers.clear();
+        timedBurnDurations.clear();
+        sentHeat.clear();
         dousedPlayers.clear();
         dousedCount = 0;
-        burningKillers.clear();
+        ignitionRequired = 1;
+        fuelUnits = ArsonistRules.FULL_FUEL;
+        lastPulse = Long.MIN_VALUE;
+        won = false;
+        if (activeOilCan != null && owner.serverLevel().getEntity(activeOilCan) instanceof LargeOilCanEntity can) can.finish();
+        activeOilCan = null;
         sync();
     }
 
-    @Override
-    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    @Override public void clear() { reset(); }
+    @Override public void clientTick() {
+        if (!SREGameWorldComponent.KEY.get(player.level()).isSkillAvailable
+                || SREGameTimeComponent.KEY.get(player.level()).isTimeFrozen()) return;
+        if (arsonMoment && momentTicks > 0) momentTicks--;
+        if (reloadTicks > 0) reloadTicks--;
+    }
+
+    @Override public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider lookup) {
         tag.putInt("dousedCount", dousedCount);
         tag.putInt("ignitionRequired", ignitionRequired);
+        tag.putBoolean("arsonMoment", arsonMoment);
+        tag.putInt("momentTicks", momentTicks);
+        tag.putInt("fuelUnits", fuelUnits);
+        tag.putInt("reloadTicks", reloadTicks);
+        tag.putInt("forcedSlot", forcedSlot);
         ListTag doused = new ListTag();
-        for (UUID id : dousedPlayers) {
-            doused.add(NbtUtils.createUUID(id));
-        }
+        for (UUID id : dousedPlayers) doused.add(NbtUtils.createUUID(id));
         tag.put("dousedPlayers", doused);
-        ListTag burning = new ListTag();
-        for (Map.Entry<UUID, UUID> entry : burningKillers.entrySet()) {
-            CompoundTag pair = new CompoundTag();
-            pair.putUUID("v", entry.getKey());
-            pair.putUUID("k", entry.getValue());
-            burning.add(pair);
+        ListTag heat = new ListTag();
+        for (var entry : burnValues.entrySet()) {
+            CompoundTag value = new CompoundTag();
+            value.putUUID("id", entry.getKey()); value.putInt("heat", entry.getValue()); heat.add(value);
         }
-        tag.put("burningKillers", burning);
+        tag.put("burnValues", heat);
     }
 
-    @Override
-    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        dousedCount = tag.contains("dousedCount") ? tag.getInt("dousedCount") : 0;
-        ignitionRequired = tag.contains("ignitionRequired") ? tag.getInt("ignitionRequired") : 1;
+    @Override public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider lookup) {
+        dousedCount = tag.getInt("dousedCount");
+        ignitionRequired = tag.getInt("ignitionRequired");
+        arsonMoment = tag.getBoolean("arsonMoment");
+        momentTicks = tag.getInt("momentTicks");
+        fuelUnits = tag.getInt("fuelUnits");
+        reloadTicks = tag.getInt("reloadTicks");
+        forcedSlot = tag.contains("forcedSlot") ? tag.getInt("forcedSlot") : -1;
         dousedPlayers.clear();
         ListTag doused = tag.getList("dousedPlayers", Tag.TAG_INT_ARRAY);
-        for (int i = 0; i < doused.size(); i++) {
-            dousedPlayers.add(NbtUtils.loadUUID(doused.get(i)));
-        }
-        burningKillers.clear();
-        ListTag burning = tag.getList("burningKillers", Tag.TAG_COMPOUND);
-        for (int i = 0; i < burning.size(); i++) {
-            CompoundTag pair = burning.getCompound(i);
-            if (pair.hasUUID("v") && pair.hasUUID("k")) {
-                burningKillers.put(pair.getUUID("v"), pair.getUUID("k"));
-            }
+        for (int i = 0; i < doused.size(); i++) dousedPlayers.add(NbtUtils.loadUUID(doused.get(i)));
+        burnValues.clear();
+        ListTag heat = tag.getList("burnValues", Tag.TAG_COMPOUND);
+        for (int i = 0; i < heat.size(); i++) {
+            CompoundTag value = heat.getCompound(i);
+            if (value.hasUUID("id")) burnValues.put(value.getUUID("id"), value.getInt("heat"));
         }
     }
 }

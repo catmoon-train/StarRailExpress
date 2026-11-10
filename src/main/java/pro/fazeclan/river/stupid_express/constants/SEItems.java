@@ -40,6 +40,15 @@ public class SEItems {
             new pro.fazeclan.river.stupid_express.role.arsonist.item.LargeOilCanItem(new Item.Properties().stacksTo(1)),
             TOOLS_GROUP, SRE_ALL_GROUP);
 
+    @SuppressWarnings("unchecked")
+    public static final Item FIRE_GUN = registrar.create("fire_gun",
+            new pro.fazeclan.river.stupid_express.role.arsonist.item.FireGunItem(new Item.Properties().stacksTo(1)),
+            WEAPONS_GROUP, SRE_ALL_GROUP);
+    @SuppressWarnings("unchecked")
+    public static final Item FLAMETHROWER = registrar.create("flamethrower",
+            new pro.fazeclan.river.stupid_express.role.arsonist.item.FlamethrowerItem(new Item.Properties().stacksTo(1)),
+            WEAPONS_GROUP, SRE_ALL_GROUP);
+
     public static final TagKey<Item> DRINKS = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(StupidExpress.MOD_ID, "drinks"));
 
     public static void init() {
@@ -47,6 +56,8 @@ public class SEItems {
         TMMDescItems.introItems.add(JERRY_CAN);
         TMMDescItems.introItems.add(LIGHTER);
         TMMDescItems.introItems.add(LARGE_OIL_CAN);
+        TMMDescItems.introItems.add(FIRE_GUN);
+        TMMDescItems.introItems.add(FLAMETHROWER);
     }
 
 }

@@ -68,6 +68,8 @@ public class BurningEffect extends MobEffect {
 
         if (entity instanceof ServerPlayer victim) {
             MobEffectInstance instance = victim.getEffect(SEEffects.BURNING);
+            ArsonistRoleData owner = ArsonistRoleData.find(victim.level());
+            if (owner != null && instance != null) owner.tickTimedBurn(victim, instance.getDuration());
             // duration 在本 tick 的 applyEffectTick 之后才递减，==1 即为最后一 tick
             if (instance != null && instance.getDuration() <= 1) {
                 scheduleBurnDeath(victim);
@@ -102,10 +104,8 @@ public class BurningEffect extends MobEffect {
                     || ArsonistRoleData.of(killer) != arsonist) {
                 return;
             }
-            var origin = ArsonistRoleData.BurnedPlayer.at(victim);
-            // 烧死不生成尸体；死亡完整结算后才锁定视角，避免被其它死亡回调覆盖。
-            GameUtils.killPlayer(victim, false, killer, GameConstants.DeathReasons.IGNITED, true);
-            arsonist.captureBurnedPlayer(victim, origin);
+            // 烧死不生成尸体，不再附身或复活。
+            arsonist.killBurnedPlayer(victim);
         }));
     }
 }
