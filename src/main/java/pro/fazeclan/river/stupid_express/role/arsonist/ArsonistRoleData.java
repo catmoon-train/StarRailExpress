@@ -233,7 +233,7 @@ public class ArsonistRoleData extends SimpleRoleData {
             p.playNotifySound(SoundEvents.WITHER_SPAWN, SoundSource.PLAYERS, 0.65F, 1.15F);
             // 与阿蒙时刻一致：在每名玩家所在位置播放，确保全场都能听到。
             owner.serverLevel().playSound(null, p.getX(), p.getY(), p.getZ(),
-                    NRSounds.ARSONIST, SoundSource.MASTER, 1.15F, 1.15F);
+                    NRSounds.ARSONIST, SoundSource.MASTER, 1.0F, 1.0F);
             ServerPlayNetworking.send(p, new ArsonistPackets.MomentS2C(owner.getUUID(), true, momentTicks));
         }
         SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.event.arsonist.moment",
