@@ -47,7 +47,8 @@ public class LargeOilCanItem extends Item {
         can.setPos(owner.getX(), owner.getEyeY() - 0.15D, owner.getZ());
         can.setYRot(owner.getYRot());
         can.setXRot(owner.getXRot());
-        can.setDeltaMovement(owner.getLookAngle().scale(0.65D).add(0, 0.15D, 0));
+        // 出手速度同样对半砍（原 0.65 / 0.15），与遥控飞行速度保持一致。
+        can.setDeltaMovement(owner.getLookAngle().scale(0.325D).add(0, 0.075D, 0));
         if (!level.addFreshEntity(can)) {
             return InteractionResultHolder.fail(stack);
         }

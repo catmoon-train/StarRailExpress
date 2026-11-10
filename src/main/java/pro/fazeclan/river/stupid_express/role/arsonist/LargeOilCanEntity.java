@@ -28,6 +28,10 @@ import pro.fazeclan.river.stupid_express.constants.SERoles;
 
 /** 可遥控的大油罐：保留重力，碰撞后在落点半径 4.5 格内浇油，不造成爆炸伤害。 */
 public class LargeOilCanEntity extends NoHeavyWaterInfluencedThrowableItemProjectile {
+    /** 遥控飞行每 tick 加速度与最高速度，均为原值（0.12 / 0.8）的一半。 */
+    private static final double CONTROL_ACCELERATION = 0.06D;
+    private static final double MAX_FLIGHT_SPEED = 0.4D;
+
     private int movementBits;
     private int controlTimeout;
     private boolean cameraBound;
@@ -93,8 +97,11 @@ public class LargeOilCanEntity extends NoHeavyWaterInfluencedThrowableItemProjec
                 if ((movementBits & MechanicalBirdControlC2SPacket.BIT_RIGHT) != 0) input = input.add(right);
                 if ((movementBits & MechanicalBirdControlC2SPacket.BIT_JUMP) != 0) input = input.add(0, 1, 0);
                 if ((movementBits & MechanicalBirdControlC2SPacket.BIT_SNEAK) != 0) input = input.add(0, -1, 0);
-                Vec3 motion = getDeltaMovement().scale(0.92D).add(input.normalize().scale(0.12D));
-                if (motion.lengthSqr() > 0.8D * 0.8D) motion = motion.normalize().scale(0.8D);
+                Vec3 motion = getDeltaMovement().scale(0.92D)
+                        .add(input.normalize().scale(CONTROL_ACCELERATION));
+                if (motion.lengthSqr() > MAX_FLIGHT_SPEED * MAX_FLIGHT_SPEED) {
+                    motion = motion.normalize().scale(MAX_FLIGHT_SPEED);
+                }
                 setDeltaMovement(motion);
             }
         }
@@ -119,7 +126,10 @@ public class LargeOilCanEntity extends NoHeavyWaterInfluencedThrowableItemProjec
                 }
             }
             level.sendParticles(ParticleTypes.SMOKE, impact.x, impact.y, impact.z, 40, 1.5, 0.5, 1.5, 0.01);
-            level.playSound(null, impact.x, impact.y, impact.z, SoundEvents.GENERIC_SPLASH,
+            // 落地（碰撞）时金属撞击声与高速溅落声同时播放；两次发包在同一 tick，客户端同时响起。
+            level.playSound(null, impact.x, impact.y, impact.z, SoundEvents.ZOMBIE_ATTACK_IRON_DOOR,
+                    SoundSource.PLAYERS, 1.0F, 0.8F);
+            level.playSound(null, impact.x, impact.y, impact.z, SoundEvents.PLAYER_SPLASH_HIGH_SPEED,
                     SoundSource.PLAYERS, 1.0F, 0.8F);
         }
         finish();
