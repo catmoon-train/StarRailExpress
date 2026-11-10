@@ -62,13 +62,13 @@ public class OilDousingHandler {
                         Component.translatable("message.stupid_express.generic.skill_not_available").withStyle(ChatFormatting.RED), true);
                 return InteractionResult.PASS;
             }
+            ArsonistRoleData arsonistData = ArsonistRoleData.of(interacting);
+            if (arsonistData != null) {
+                arsonistData.douse(victim);
+            }
             if (interacting.gameMode.isSurvival()) {
                 var alivePlayers = ((ServerLevel) level).getPlayers(GameUtils::isPlayerAliveAndSurvival);
                 var playerCount = alivePlayers.size();
-                ArsonistRoleData arsonist = ArsonistRoleData.of(interacting);
-                var dousedPlayers = alivePlayers.stream()
-                        .filter(p -> arsonist != null && arsonist.isDoused(p.getUUID()))
-                        .toList();
                 var cd = 45 - (5 / 3.0) * (double) playerCount;
 
                 if (playerCount > 15) {
@@ -76,13 +76,9 @@ public class OilDousingHandler {
                 }
 
                 interacting.getCooldowns().addCooldown(item.getItem(), (int) (cd * 20));
-                if (dousedPlayers.size() >= (int) (alivePlayers.size() * 0.3)) {
+                if (arsonistData != null && arsonistData.dousedCount >= arsonistData.ignitionRequired) {
                     interacting.getCooldowns().addCooldown(SEItems.LIGHTER, (int) (cd * 20));
                 }
-            }
-            ArsonistRoleData arsonistData = ArsonistRoleData.of(interacting);
-            if (arsonistData != null) {
-                arsonistData.douse(victim);
             }
 
             SRE.REPLAY_MANAGER.recordCustomEvent(

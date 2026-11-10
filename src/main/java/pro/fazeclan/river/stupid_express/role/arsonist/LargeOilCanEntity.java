@@ -26,7 +26,7 @@ import org.agmas.noellesroles.packet.MechanicalBirdControlC2SPacket;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 
-/** 可遥控的大油罐：保留重力，碰撞后在落点四格内浇油，不造成爆炸伤害。 */
+/** 可遥控的大油罐：保留重力，碰撞后在落点半径 4.5 格内浇油，不造成爆炸伤害。 */
 public class LargeOilCanEntity extends NoHeavyWaterInfluencedThrowableItemProjectile {
     private int movementBits;
     private int controlTimeout;
@@ -110,8 +110,8 @@ public class LargeOilCanEntity extends NoHeavyWaterInfluencedThrowableItemProjec
             Vec3 impact = hit.getLocation();
             if (data != null) {
                 for (ServerPlayer target : level.getEntitiesOfClass(ServerPlayer.class,
-                        new AABB(impact, impact).inflate(4), p -> p != owner
-                                && GameUtils.isPlayerAliveAndSurvival(p) && p.distanceToSqr(impact) <= 16)) {
+                        new AABB(impact, impact).inflate(4.5D), p -> p != owner
+                                && GameUtils.isPlayerAliveAndSurvival(p) && p.distanceToSqr(impact) <= 4.5D * 4.5D)) {
                     data.douse(target);
                     SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.event.arsonist.douse_gasoline",
                             GameReplayUtils.getReplayPlayerDisplayText(owner, true),

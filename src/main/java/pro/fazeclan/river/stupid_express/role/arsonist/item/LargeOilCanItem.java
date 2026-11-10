@@ -16,7 +16,7 @@ import pro.fazeclan.river.stupid_express.constants.SERoles;
 import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRoleData;
 import pro.fazeclan.river.stupid_express.role.arsonist.LargeOilCanEntity;
 
-/** 纵火犯可重复使用的大油罐，复用银翼的移动控制包。 */
+/** 纵火犯一次性大油罐，复用银翼的移动控制包。 */
 public class LargeOilCanItem extends Item {
     public LargeOilCanItem(Properties properties) {
         super(properties);
@@ -53,6 +53,7 @@ public class LargeOilCanItem extends Item {
         }
         data.activeOilCan = can.getUUID();
         owner.getCooldowns().addCooldown(this, 60 * 20);
+        stack.shrink(1);
         owner.displayClientMessage(Component.translatable("item.stupid_express.large_oil_can.control"), true);
         return InteractionResultHolder.sidedSuccess(stack, false);
     }

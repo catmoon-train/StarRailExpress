@@ -20,7 +20,6 @@ import dev.doctor4t.ratatouille.client.util.ambience.BackgroundAmbience;
 import dev.doctor4t.ratatouille.util.TextUtils;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.StatusInit;
 import io.wifi.starrailexpress.client.StatusInit.StatusBar;
@@ -39,13 +38,11 @@ import net.minecraft.network.chat.Component;
 import io.wifi.starrailexpress.event.client.LimitedInventoryScreenEvents;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.role_data.neutral.LeaderRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import pro.fazeclan.river.stupid_express.StupidExpress;
@@ -216,16 +213,8 @@ public class StupidExpressClient {
 
             ArsonistRoleData ownComp = ArsonistRoleData.of(client.player);
             int dousedCount = ownComp != null ? ownComp.dousedCount : 0;
-
-            // 计算存活玩家数（排除观察者和创造模式）
-            long alivePlayers = client.player.level().players().stream()
-                    .filter(p -> !p.isSpectator() && !p.isCreative() && p.getHealth() > 0)
-                    .count();
-            int requiredCount = (int) Math.ceil(alivePlayers * 0.3);
-            // 领袖追随者纵火犯：点燃所需 -2 人（下限 1），与 LighterItem 服务端判定保持一致
-            if (isLocalLeaderFollower()) {
-                requiredCount = Math.max(1, requiredCount - 2);
-            }
+            // 直接使用服务端同步的实时人数和门槛，不能只统计客户端已加载的玩家。
+            int requiredCount = ownComp != null ? ownComp.ignitionRequired : 1;
 
             var font = client.font;
             int xBase = context.guiWidth() - 10;
@@ -331,22 +320,6 @@ public class StupidExpressClient {
         LimitedInventoryScreenEvents.INIT.register(SplitPersonalityInventoryScreenExtension.INSTANCE::onInit);
         LimitedInventoryScreenEvents.RENDER_TAIL
                 .register(SplitPersonalityInventoryScreenExtension.INSTANCE::onRenderTail);
-    }
-
-    /** 本地玩家是否为领袖追随者（纵火犯 HUD 同步：追随者点燃所需 -2 人） */
-    private static boolean isLocalLeaderFollower() {
-        Minecraft client = Minecraft.getInstance();
-        LocalPlayer self = client.player;
-        if (self == null || client.level == null) {
-            return false;
-        }
-        for (Player p : client.level.players()) {
-            LeaderRoleData data = RoleData.getNullable(LeaderRoleData.class, p);
-            if (data != null && data.followers.contains(self.getUUID())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static void applyWeavingPollution(Level level, BlockPos playerPos, int xzRadius,

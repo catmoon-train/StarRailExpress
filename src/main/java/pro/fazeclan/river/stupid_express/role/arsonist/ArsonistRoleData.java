@@ -51,6 +51,8 @@ import java.util.UUID;
 public class ArsonistRoleData extends SimpleRoleData {
 
     public int dousedCount = 0;
+    /** 服务端统一计算并同步给 HUD，避免客户端只能统计已加载的附近玩家。 */
+    public int ignitionRequired = 1;
     public final Set<UUID> dousedPlayers = new LinkedHashSet<>();
     public final Map<UUID, UUID> burningKillers = new HashMap<>();
     /** 仅服务端使用，记录真正被本纵火犯烧死的玩家及死亡位置。 */
@@ -147,6 +149,7 @@ public class ArsonistRoleData extends SimpleRoleData {
             owner.connection.send(new net.minecraft.network.protocol.game.ClientboundSetCameraPacket(owner));
         }
         if (owner.tickCount % 20 != 0) return;
+        if (updateIgnitionProgress()) sync();
         var iterator = burnedPlayers.entrySet().iterator();
         while (iterator.hasNext()) {
             var entry = iterator.next();
@@ -193,18 +196,33 @@ public class ArsonistRoleData extends SimpleRoleData {
         return playerId != null && dousedPlayers.contains(playerId);
     }
 
+    /** 按当前存活的其他玩家计算：至少浇油 75%（向上取整），保留领袖追随者加成。 */
+    public boolean updateIgnitionProgress() {
+        if (!(player instanceof ServerPlayer owner)) return false;
+        var targets = owner.server.getPlayerList().getPlayers().stream()
+                .filter(p -> p != owner && GameUtils.isPlayerAliveAndSurvival(p)).toList();
+        int count = (int) targets.stream().filter(p -> isDoused(p.getUUID())).count();
+        int required = org.agmas.noellesroles.game.roles.neutral.leader.LeaderFollowerEffects
+                .arsonistRequiredDoused(Math.max(1, (int) Math.ceil(targets.size() * 0.75D)), owner);
+        boolean changed = dousedCount != count || ignitionRequired != required;
+        dousedCount = count;
+        ignitionRequired = required;
+        return changed;
+    }
+
     public void douse(Player victim) {
         if (victim == null) {
             return;
         }
         if (dousedPlayers.add(victim.getUUID())) {
-            dousedCount++;
+            updateIgnitionProgress();
             sync();
         }
     }
 
     public void undouse(UUID playerId) {
         if (playerId != null && dousedPlayers.remove(playerId)) {
+            updateIgnitionProgress();
             sync();
         }
     }
@@ -243,6 +261,7 @@ public class ArsonistRoleData extends SimpleRoleData {
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("dousedCount", dousedCount);
+        tag.putInt("ignitionRequired", ignitionRequired);
         ListTag doused = new ListTag();
         for (UUID id : dousedPlayers) {
             doused.add(NbtUtils.createUUID(id));
@@ -261,6 +280,7 @@ public class ArsonistRoleData extends SimpleRoleData {
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         dousedCount = tag.contains("dousedCount") ? tag.getInt("dousedCount") : 0;
+        ignitionRequired = tag.contains("ignitionRequired") ? tag.getInt("ignitionRequired") : 1;
         dousedPlayers.clear();
         ListTag doused = tag.getList("dousedPlayers", Tag.TAG_INT_ARRAY);
         for (int i = 0; i < doused.size(); i++) {
