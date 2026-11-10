@@ -67,6 +67,7 @@ public final class TrainingSession {
         settings = loadSettings();
         settings.myRole = resolveRole(settings.myRole, false).identifier().toString();
         settings.enemyRole = resolveRole(settings.enemyRole, true).identifier().toString();
+        normalizeModifierSettings();
         bots = new CarpetTrainingBots(this);
     }
     /** 专服先把会话记入租约，再初始化；失败时仍可通过同一会话完成清理。 */
@@ -94,7 +95,7 @@ public final class TrainingSession {
 
     private TrainingSettings loadSettings() {
         try {
-            if (Files.isRegularFile(settingsPath) && Files.size(settingsPath) <= 65_536) {
+            if (Files.isRegularFile(settingsPath) && Files.size(settingsPath) <= 262_144) {
                 var loaded = GSON.fromJson(Files.readString(settingsPath, StandardCharsets.UTF_8), TrainingSettings.class);
                 if (loaded != null) { loaded.normalize(); return loaded; }
             }
@@ -165,6 +166,7 @@ public final class TrainingSession {
         player.getFoodData().eat(20, 1.0F);
         var role = resolveRole(id, bot);
         RoleUtils.changeRole(player, role, false, false, false, false, true);
+        if (!bot) TrainingModifiers.addConfigured(player, settings.myModifiers);
         SREAbilityPlayerComponent.KEY.get(player).resetAllCooldowns();
         SREPlayerMoodComponent.KEY.get(player).setMood(1.0F);
         if (!bot) SREPlayerShopComponent.KEY.get(player).setBalance(1000);
@@ -182,6 +184,7 @@ public final class TrainingSession {
         move(player, pos, area().yaw());
         GameUtils.revivePlayer(player, pos.x, pos.y, pos.z);
         assign(player, settings.bot(slot).role, true);
+        TrainingModifiers.addConfigured(player, settings.bot(slot).modifiers);
         if (!TrainingRules.isAlive(player)) throw new IllegalStateException("Training bot revival did not complete");
         // 只扫描本营已加载实体；按死者 UUID 删除所有旧尸体，不清理其他人的尸体。
         List<PlayerBodyEntity> bodies = new ArrayList<>();
@@ -257,7 +260,7 @@ public final class TrainingSession {
                 String id = data.getString("id");
                 var key = ResourceLocation.tryParse(id);
                 if (key == null || !TMMRoles.ROLES.containsKey(key)) { error("training.sre.error.role"); break; }
-                settings.myRole = id; assign(actor, id, false);
+                settings.myRole = id; normalizeModifierSettings(); assign(actor, id, false);
             }
             case "reset_self" -> { actor = reviveOwner(actor); }
             case "heal" -> {
@@ -273,15 +276,17 @@ public final class TrainingSession {
             case "cooldown" -> TrainingAssistance.resetCooldowns(actor);
             case "configure" -> configure(data);
             case "revive_bots" -> bots.reviveAll();
+            case "modifier" -> modify(actor, data);
             case "bot" -> {
                 int slot = data.getInt("slot");
                 if (slot < 0 || slot >= settings.enemyCount) return false;
                 var old = settings.bot(slot);
                 var override = new TrainingSettings.BotSettings(data.contains("role") ? data.getString("role") : old.role,
                         data.contains("behavior") ? data.getString("behavior") : old.behavior,
-                        data.contains("equipment") ? data.getString("equipment") : old.equipment);
+                        data.contains("equipment") ? data.getString("equipment") : old.equipment, old.modifiers);
                 if (!TMMRoles.ROLES.containsKey(ResourceLocation.tryParse(override.role))) { error("training.sre.error.role"); break; }
                 override.normalize();
+                override.modifiers = TrainingModifiers.compatible(override.modifiers, resolveRole(override.role, true));
                 bots.operate(slot, data.getString("operation"), override);
             }
             case "teleport" -> {
@@ -298,6 +303,56 @@ public final class TrainingSession {
             default -> { return false; }
         }
         save(); changed(); return true;
+    }
+
+    private void normalizeModifierSettings() {
+        settings.myModifiers = TrainingModifiers.compatible(settings.myModifiers, resolveRole(settings.myRole, false));
+        settings.enemyModifiers = TrainingModifiers.compatible(settings.enemyModifiers, resolveRole(settings.enemyRole, true));
+        settings.overrides.values().forEach(config ->
+                config.modifiers = TrainingModifiers.compatible(config.modifiers, resolveRole(config.role, true)));
+    }
+
+    /** 所有候选配置先完整验证，整组修改不清空职业/行为的独立覆盖。 */
+    private void modify(ServerPlayer actor, CompoundTag data) {
+        String target = data.getString("target"), operation = data.getString("operation"), id = data.getString("id");
+        if (!Set.of("self", "batch", "bot").contains(target) || !Set.of("add", "remove", "clear").contains(operation)
+                || !operation.equals("clear") && (id.length() > 128 || TrainingModifiers.resolve(id) == null)) {
+            error("training.sre.error.modifier"); return;
+        }
+        if (!operation.equals("clear")) id = TrainingModifiers.resolve(id).identifier().toString();
+        try {
+            if (target.equals("self")) {
+                var selected = TrainingModifiers.edit(TrainingModifiers.actual(actor), operation, id,
+                        SREGameWorldComponent.KEY.get(actor.level()).getRole(actor));
+                TrainingModifiers.replace(actor, selected);
+                settings.myModifiers = new ArrayList<>(selected);
+                updateAssistance();
+                return;
+            }
+            if (target.equals("bot")) {
+                int slot = data.contains("slot") ? data.getInt("slot") : -1;
+                if (slot < 0 || slot >= settings.enemyCount) { error("training.sre.error.modifier"); return; }
+                var old = settings.bot(slot);
+                var selected = TrainingModifiers.edit(old.modifiers, operation, id, resolveRole(old.role, true));
+                settings.overrides.put(slot, new TrainingSettings.BotSettings(old.role, old.behavior, old.equipment, selected));
+                bots.updateModifiers(slot);
+                return;
+            }
+            var defaults = TrainingModifiers.edit(settings.enemyModifiers, operation, id, resolveRole(settings.enemyRole, true));
+            Map<Integer, TrainingSettings.BotSettings> replacements = new LinkedHashMap<>();
+            for (var entry : settings.overrides.entrySet()) {
+                var old = entry.getValue();
+                var selected = TrainingModifiers.edit(old.modifiers, operation, id, resolveRole(old.role, true));
+                replacements.put(entry.getKey(), new TrainingSettings.BotSettings(old.role, old.behavior, old.equipment, selected));
+            }
+            settings.enemyModifiers = defaults;
+            settings.overrides = replacements;
+            for (int slot = 0; slot < settings.enemyCount; slot++) bots.updateModifiers(slot);
+        } catch (IllegalArgumentException ex) {
+            if (ex.getMessage() != null && Set.of("training.sre.error.modifier", "training.sre.error.modifier_role", "training.sre.error.modifier_limit").contains(ex.getMessage()))
+                error(ex.getMessage());
+            else throw ex;
+        }
     }
 
     /** 训练金币只累加，不把较高余额重设为初始值；饱和加法避免整数溢出。 */
@@ -323,6 +378,7 @@ public final class TrainingSession {
         updateAssistance();
         settings.normalize();
         if (batch) settings.overrides.clear();
+        normalizeModifierSettings();
         bots.reconcile();
         if (!oldArea.equals(settings.area)) { bots.teleport(); var owner = owner(); if (owner != null) move(owner, area().spawn(), area().yaw()); }
         SREGameWorldComponent.KEY.get(level()).setStartingPlayerCount(1 + settings.enemyCount);
@@ -355,6 +411,8 @@ public final class TrainingSession {
         t.putInt("respawnDelay", settings.respawnDelay); t.putBoolean("friendlyFirePenalty", settings.friendlyFirePenalty);
         t.putBoolean("unlimitedStamina", settings.unlimitedStamina); t.putBoolean("speedBoost", settings.speedBoost);
         t.putBoolean("noCooldown", settings.noCooldown);
+        t.put("myModifiers", TrainingModifiers.tag(settings.myModifiers));
+        t.put("enemyModifiers", TrainingModifiers.tag(settings.enemyModifiers));
         return t;
     }
     public void snapshot(boolean full) {
@@ -365,7 +423,11 @@ public final class TrainingSession {
         state.putString("myRole", settings.myRole); state.putString("message", message);
         state.putInt("alive", bots.alive()); state.putInt("pending", bots.pending());
         state.put("settings", settingsTag()); state.put("bots", bots.snapshot());
-        if (full) { state.put("items", catalogue.items(owner)); state.put("roles", catalogue.roles(owner)); lastFullSnapshot = level().getGameTime(); }
+        state.put("myModifiers", TrainingModifiers.tag(TrainingModifiers.actual(owner)));
+        if (full) {
+            state.put("items", catalogue.items(owner)); state.put("roles", catalogue.roles(owner));
+            state.put("modifierCatalogue", catalogue.modifiers()); lastFullSnapshot = level().getGameTime();
+        }
         ServerPlayNetworking.send(owner, new TrainingStatePayload(state));
         message = "";
     }

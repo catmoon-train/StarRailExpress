@@ -99,4 +99,26 @@ public final class TrainingCatalogue {
         });
         return result;
     }
+    /** 含已加载自定义修饰符；只发送展示资料，客户端不能提交任意组件。 */
+    public ListTag modifiers() {
+        var result = new ListTag();
+        java.util.List<org.agmas.harpymodloader.modifiers.SREModifier> entries;
+        synchronized (org.agmas.harpymodloader.modifiers.HMLModifiers.LOCK) {
+            entries = new ArrayList<>(org.agmas.harpymodloader.modifiers.HMLModifiers.MODIFIERS);
+        }
+        entries.sort(Comparator.comparing(m -> m.identifier().toString()));
+        int bytes = 0;
+        for (var modifier : entries) {
+            var tag = new CompoundTag();
+            tag.putString("id", modifier.identifier().toString());
+            tag.putString("name", modifier.getName().getString());
+            var description = modifier.getDescription();
+            tag.putString("description", description.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents t
+                    ? t.getKey() : description.getString());
+            bytes += tag.toString().length() * 3;
+            if (bytes > 180_000) break;
+            result.add(tag);
+        }
+        return result;
+    }
 }

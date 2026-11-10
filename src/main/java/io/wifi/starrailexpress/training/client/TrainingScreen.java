@@ -17,6 +17,8 @@ import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -34,11 +36,12 @@ import java.util.Map;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-/** 原生训练操作台：固定导航、分页目录、即时权威配置；只有职业介绍独立滚动。 */
+/** 原生训练操作台：本人配装总览、明确目标的目录/详情、即时权威配置。 */
 @Environment(EnvType.CLIENT)
 public final class TrainingScreen extends Screen {
     private static final String P = "training.sre.ui.";
-    private static final String[] TABS = {"items", "roles", "enemies", "settings"};
+    private static final int HOME = 0, ITEMS = 1, ROLES = 2, ENEMIES = 3, SETTINGS = 4;
+    private static final String[] TABS = {"overview", "items", "roles", "enemies", "settings"};
     private static final String[] CATEGORIES = {"all", "weapons", "ammo", "consumables", "functional", "role"};
     private static final String[] TEAMS = {"all", "killer", "innocent", "sheriff", "neutral"};
     private static final String[] BEHAVIORS = {"stationary", "moving", "combat"};
@@ -49,6 +52,7 @@ public final class TrainingScreen extends Screen {
     private long revision = -1;
     private final List<CatalogueItem> items = new ArrayList<>();
     private final List<CompoundTag> roles = new ArrayList<>();
+    private final List<CompoundTag> modifiers = new ArrayList<>();
     private final Map<String, EditBox> searches = new HashMap<>();
     private final Map<String, Integer> pages = new HashMap<>();
     private final Map<String, AbstractWidget> keyed = new LinkedHashMap<>();
@@ -60,6 +64,9 @@ public final class TrainingScreen extends Screen {
     private String category = "all", team = "all", selectedRole = "", selectedItem = "";
     private String picker = "";
     private int selectedSlot = -1;
+    private String modifierTarget = "", selectedModifier = "";
+    private int modifierSlot = -1;
+    private boolean modifierDetail;
     private boolean roleDetail, botDetail, rebuild;
     private boolean awaiting, uncertain;
     private String localMessage = "";
@@ -86,7 +93,8 @@ public final class TrainingScreen extends Screen {
     private void syncState() {
         CompoundTag incoming = TrainingClient.state();
         boolean catalogueChanged = !incoming.getList("items", Tag.TAG_COMPOUND).equals(state.getList("items", Tag.TAG_COMPOUND))
-                || !incoming.getList("roles", Tag.TAG_COMPOUND).equals(state.getList("roles", Tag.TAG_COMPOUND));
+                || !incoming.getList("roles", Tag.TAG_COMPOUND).equals(state.getList("roles", Tag.TAG_COMPOUND))
+                || !incoming.getList("modifierCatalogue", Tag.TAG_COMPOUND).equals(state.getList("modifierCatalogue", Tag.TAG_COMPOUND));
         boolean rosterChanged = incoming.getList("bots", Tag.TAG_COMPOUND).size() != state.getList("bots", Tag.TAG_COMPOUND).size();
         state = incoming;
         revision = TrainingClient.revision();
@@ -108,6 +116,7 @@ public final class TrainingScreen extends Screen {
     private void readCatalogues() {
         items.clear();
         roles.clear();
+        modifiers.clear();
         for (Tag value : state.getList("items", Tag.TAG_COMPOUND)) {
             CompoundTag entry = (CompoundTag) value;
             ItemStack stack = ItemStack.EMPTY;
@@ -120,6 +129,7 @@ public final class TrainingScreen extends Screen {
             items.add(new CatalogueItem(entry.getString("key"), entry.getString("category"), stack, name));
         }
         for (Tag value : state.getList("roles", Tag.TAG_COMPOUND)) roles.add((CompoundTag) value);
+        for (Tag value : state.getList("modifierCatalogue", Tag.TAG_COMPOUND)) modifiers.add((CompoundTag) value);
     }
 
     private void build() {
@@ -139,7 +149,7 @@ public final class TrainingScreen extends Screen {
         for (int i = 0; i < TABS.length; i++) {
             int index = i;
             select("tab" + i, cell(nav, i, TABS.length), () -> tr("tab." + TABS[index]), null, () -> tab == index, () -> {
-                tab = index; picker = ""; rebuild = true;
+                tab = index; picker = ""; modifierTarget = ""; rebuild = true;
             });
         }
         Rect common = new Rect(inner.x, inner.y + 48, inner.w, 20);
@@ -147,17 +157,206 @@ public final class TrainingScreen extends Screen {
         action("cooldown", cell(common, 1, 3), "cooldown", "cooldown_hint", () -> send("cooldown"));
         action("money", cell(common, 2, 3), "money", "money_hint", () -> send("money"));
         body = new Rect(inner.x, inner.y + 72, inner.w, Math.max(1, panel.bottom() - 24 - (inner.y + 72)));
-        if (!picker.isEmpty()) buildRoles(body, true);
+        if (!modifierTarget.isEmpty()) buildModifiers(body);
+        else if (!picker.isEmpty()) buildRoles(body, true);
         else switch (tab) {
-            case 0 -> buildItems(body);
-            case 1 -> buildRoles(body, false);
-            case 2 -> buildEnemies(body);
+            case HOME -> buildOverview(body);
+            case ITEMS -> buildItems(body);
+            case ROLES -> buildRoles(body, false);
+            case ENEMIES -> buildEnemies(body);
             default -> buildSettings(body);
         }
         rebuild = false;
         updateBindings();
         AbstractWidget target = keyed.get(focus);
         if (target != null && target.visible) { setFocused(target); target.setFocused(true); }
+    }
+
+    /** 320×240 时仍有五条完整轨道；本人辅助和两种假人目标无需先翻配置表。 */
+    private void buildOverview(Rect r) {
+        label(new Rect(r.x + 4, r.y, r.w - 8, 12),
+                () -> tr("current_role", roleName(state.getString("myRole"))), SREPanelStyle.GOLD);
+        Rect loadout = new Rect(r.x, r.y + 16, r.w, 20);
+        button("homeRole", cell(loadout, 0, 3), () -> tr("overview.role"), tr("choose_role_hint"), () -> true,
+                () -> navigate(ROLES), false);
+        modifierEntry("homeModifiers", cell(loadout, 1, 3), "self", -1);
+        button("homeItems", cell(loadout, 2, 3), () -> tr("overview.items"), tr("kit_hint"), () -> true,
+                () -> navigate(ITEMS), false);
+        Rect assists = new Rect(r.x, r.y + 40, r.w, 20);
+        toggle("unlimitedStamina", cell(assists, 0, 2));
+        toggle("speedBoost", cell(assists, 1, 2));
+        Rect camp = new Rect(r.x, r.y + 64, r.w, 20);
+        toggle("noCooldown", cell(camp, 0, 2));
+        button("homeBots", cell(camp, 1, 2), () -> tr("overview.bots", settings().getInt("enemyCount")), tr("batch_hint"),
+                () -> true, () -> navigate(ENEMIES), false);
+        Rect shortcuts = new Rect(r.x, r.y + 88, r.w, 20);
+        modifierEntry("homeBatchModifiers", cell(shortcuts, 0, 2), "batch", -1);
+        button("homeTeleports", cell(shortcuts, 1, 2), () -> tr("teleports"), tr("teleport_hint"), () -> true,
+                () -> { settingsTab = 1; navigate(SETTINGS); }, false);
+        if (r.h >= 144) {
+            Rect summary = new Rect(r.x + 4, r.y + 120, r.w - 8, r.h - 120);
+            label(summary, () -> tr("overview.summary", state.getInt("alive"), state.getInt("pending"),
+                    modifierIds("self", -1).size(), state.getList("myModifiers", Tag.TAG_STRING).size()), SREPanelStyle.BODY);
+        }
+    }
+
+    private void navigate(int destination) { tab = destination; picker = ""; modifierTarget = ""; rebuild = true; }
+
+    private void modifierEntry(String key, Rect r, String target, int slot) {
+        button(key, r, () -> tr("modifier.entry." + target, modifierSelection(target, slot).size()),
+                tr("modifier.scope." + target).append("\n").append(tr("modifier.persistence")),
+                () -> !target.equals("bot") || bot(slot) != null,
+                () -> { modifierTarget = target; modifierSlot = slot; modifierDetail = false; rebuild = true; }, false);
+    }
+
+    /** 所有入口共用同一目录；目标及槽位独立保存，不跟随列表中后来选中的假人。 */
+    private void buildModifiers(Rect r) {
+        boolean wide = r.w >= 560 && r.h >= 192;
+        label(new Rect(r.x + 4, r.y, r.w - 8, 12), () -> modifierTarget.equals("batch")
+                ? tr("modifier.batch_target_count", modifierIds("batch", -1).size())
+                : tr("modifier.target_count", modifierTargetName(modifierTarget, modifierSlot),
+                        modifierSelection(modifierTarget, modifierSlot).size()), SREPanelStyle.GOLD);
+        Rect actions = new Rect(r.x, r.y + 16, r.w, 20);
+        button("modifierBack", cell(actions, 0, 2), () -> tr(!wide && modifierDetail ? "back_to_list" : "modifier.back"),
+                null, () -> true, () -> {
+                    if (!wide && modifierDetail) modifierDetail = false;
+                    else modifierTarget = "";
+                    rebuild = true;
+                }, false);
+        button("modifierClear", cell(actions, 1, 2), () -> tr("modifier.clear"), tr("modifier.clear_hint"),
+                () -> modifierReady(modifierTarget, modifierSlot) && hasModifierConfiguration(),
+                this::confirmClearModifiers, true);
+        Rect content = new Rect(r.x, r.y + 40, r.w, r.h - 40);
+        if (!wide && modifierDetail) { buildModifierDetail(content); return; }
+        Rect left = wide ? new Rect(content.x, content.y, content.w * 2 / 5, content.h) : content;
+        String searchId = "modifiers:" + modifierTarget + ":" + modifierSlot;
+        search(searchId, new Rect(left.x, left.y, left.w, 20));
+        Rect list = new Rect(left.x, left.y + 24, left.w, left.h - 24);
+        List<CompoundTag> filtered = modifiers.stream().filter(entry -> contains(query(searchId),
+                modifierName(entry).getString(), entry.getString("id"), entry.getString("name"))).toList();
+        int capacity = Math.max(1, (list.h - 24) / 24), start = page(searchId, filtered.size(), capacity) * capacity;
+        for (int i = start; i < Math.min(filtered.size(), start + capacity); i++) {
+            CompoundTag entry = filtered.get(i); String id = entry.getString("id");
+            select("modifier:" + id, new Rect(list.x, list.y + (i - start) * 24, list.w, 20),
+                    () -> modifierRowName(entry), modifierName(entry).copy().append("\n").append(id),
+                    () -> selectedModifier.equals(id), () -> { selectedModifier = id; modifierDetail = true; rebuild = true; });
+        }
+        empty(list, filtered.size(), false);
+        pager(searchId, new Rect(list.x, list.bottom() - 20, list.w, 20), filtered.size(), capacity);
+        if (wide) buildModifierDetail(new Rect(left.right() + 8, content.y, content.w - left.w - 8, content.h));
+    }
+
+    private void buildModifierDetail(Rect r) {
+        cards.add(r);
+        CompoundTag entry = modifiers.stream().filter(m -> m.getString("id").equals(selectedModifier)).findFirst().orElse(null);
+        if (entry == null) { label(new Rect(r.x + 8, r.y + 4, r.w - 16, 12), () -> tr("modifier.select"), SREPanelStyle.MUTED); return; }
+        String id = entry.getString("id");
+        label(new Rect(r.x + 8, r.y + 3, r.w - 16, 12), () -> modifierName(entry), SREPanelStyle.GOLD);
+        Rect actions = new Rect(r.x + 4, r.y + 20, r.w - 8, 20);
+        Component hint = tr("modifier.persistence").append("\n").append(tr("modifier.limit"));
+        boolean batch = modifierTarget.equals("batch");
+        if (batch) {
+            // 默认配置与个体覆盖可能不同：整组必须分别提供添加/移除，不能只按默认值切换。
+            button("modifierAdd", cell(actions, 0, 2), () -> tr("modifier.add"), hint,
+                    () -> modifierReady(modifierTarget, modifierSlot) && (modifierConfigured(id)
+                            || modifierSelection(modifierTarget, modifierSlot).size() < 16)
+                            && (!modifierConfigured(id) || botModifierCount(id) < state.getList("bots", Tag.TAG_COMPOUND).size()),
+                    () -> changeModifier(modifierTarget, modifierSlot, "add", id), true);
+            button("modifierRemove", cell(actions, 1, 2), () -> tr("modifier.remove"), hint,
+                    () -> modifierReady(modifierTarget, modifierSlot) && (modifierConfigured(id) || botModifierCount(id) > 0),
+                    () -> changeModifier(modifierTarget, modifierSlot, "remove", id), true);
+            label(new Rect(r.x + 8, r.y + 44, r.w - 16, 12), () -> modifierStatus(id), SREPanelStyle.BODY);
+        } else {
+            button("modifierApply", cell(actions, 0, 2), () -> tr(modifierSelected(id) ? "modifier.remove" : "modifier.add"), hint,
+                    () -> modifierReady(modifierTarget, modifierSlot) && (modifierSelected(id)
+                            || modifierSelection(modifierTarget, modifierSlot).size() < 16),
+                    () -> changeModifier(modifierTarget, modifierSlot, modifierSelected(id) ? "remove" : "add", id), true);
+            label(cell(new Rect(actions.x, actions.y + 4, actions.w, 12), 1, 2), () -> modifierStatus(id), SREPanelStyle.BODY);
+        }
+        Component description = translatedText(entry.getString("description"), P + "modifier.no_description");
+        Component text = description.copy().append("\n\n").append(id).append("\n\n").append(tr("modifier.persistence"));
+        String key = "modifierDescription:" + id;
+        int textY = batch ? 60 : 44;
+        add(key, new ScrollText(new Rect(r.x + 8, r.y + textY, r.w - 16, r.h - textY - 4), text, key));
+    }
+
+    private Component modifierRowName(CompoundTag entry) {
+        String id = entry.getString("id");
+        if (modifierTarget.equals("self") && hasModifier(state.getList("myModifiers", Tag.TAG_STRING), id))
+            return tr("modifier.applied_entry", modifierName(entry));
+        if (modifierTarget.equals("batch") && !modifierConfigured(id) && botModifierCount(id) > 0)
+            return tr("modifier.partial_entry", modifierName(entry));
+        return modifierConfigured(id) ? tr("modifier.configured_entry", modifierName(entry)) : modifierName(entry);
+    }
+
+    private Component modifierStatus(String id) {
+        if (!modifierReady(modifierTarget, modifierSlot)) return tr("modifier.target_unavailable");
+        if (modifierTarget.equals("self")) return tr("modifier.self_status",
+                tr(modifierConfigured(id) ? "modifier.configured" : "modifier.not_configured"),
+                tr(hasModifier(state.getList("myModifiers", Tag.TAG_STRING), id) ? "modifier.applied" : "modifier.not_applied"));
+        if (modifierTarget.equals("batch")) return tr("modifier.batch_status",
+                tr(modifierConfigured(id) ? "modifier.configured" : "modifier.not_configured"),
+                botModifierCount(id), state.getList("bots", Tag.TAG_COMPOUND).size());
+        return tr(modifierConfigured(id) ? "modifier.configured" : "modifier.not_configured");
+    }
+
+    private boolean modifierConfigured(String id) { return hasModifier(modifierIds(modifierTarget, modifierSlot), id); }
+    private boolean modifierSelected(String id) { return hasModifier(modifierSelection(modifierTarget, modifierSlot), id); }
+    private ListTag modifierSelection(String target, int slot) {
+        // 本人请求以实际已应用列表为基底，配置列表仅用于展示持久化状态。
+        return target.equals("self") ? state.getList("myModifiers", Tag.TAG_STRING) : modifierIds(target, slot);
+    }
+    private int botModifierCount(String id) {
+        int count = 0;
+        for (Tag value : state.getList("bots", Tag.TAG_COMPOUND))
+            if (hasModifier(((CompoundTag) value).getList("modifiers", Tag.TAG_STRING), id)) count++;
+        return count;
+    }
+    private boolean hasModifierConfiguration() {
+        if (!modifierSelection(modifierTarget, modifierSlot).isEmpty() || !modifierIds(modifierTarget, modifierSlot).isEmpty()) return true;
+        if (modifierTarget.equals("batch")) for (Tag value : state.getList("bots", Tag.TAG_COMPOUND))
+            if (!((CompoundTag) value).getList("modifiers", Tag.TAG_STRING).isEmpty()) return true;
+        return false;
+    }
+    private boolean modifierReady(String target, int slot) {
+        return TrainingClient.hasCatalogue() && (!target.equals("bot") || bot(slot) != null && !bot(slot).getBoolean("pending"));
+    }
+    private ListTag modifierIds(String target, int slot) {
+        if (target.equals("bot")) { CompoundTag entry = bot(slot); return entry == null ? new ListTag() : entry.getList("modifiers", Tag.TAG_STRING); }
+        return settings().getList(target.equals("self") ? "myModifiers" : "enemyModifiers", Tag.TAG_STRING);
+    }
+    private static boolean hasModifier(ListTag list, String id) {
+        for (int i = 0; i < list.size(); i++) if (list.getString(i).equals(id)) return true;
+        return false;
+    }
+    private Component modifierTargetName(String target, int slot) { return tr("modifier.target." + target, slot + 1); }
+    private Component modifierName(CompoundTag entry) { return translatedText(entry.getString("name"), entry.getString("id")); }
+    private static Component translatedText(String value, String fallback) { return Component.translatable(value.isBlank() ? fallback : value); }
+
+    private void confirmClearModifiers() {
+        String target = modifierTarget; int slot = modifierSlot;
+        confirm(tr("modifier.clear_confirm", modifierTargetName(target, slot)), () -> changeModifier(target, slot, "clear", ""));
+    }
+
+    /** 预期列表只用于识别权威确认，绝不乐观改写本地状态；不发送 UUID 或自由输入的 ID。 */
+    private boolean changeModifier(String target, int slot, String operation, String id) {
+        if (!canAct() || !modifierReady(target, slot)) return false;
+        if (!operation.equals("clear") && modifiers.stream().noneMatch(m -> m.getString("id").equals(id))) return false;
+        ListTag updated = new ListTag();
+        if (!operation.equals("clear")) {
+            ListTag current = modifierSelection(target, slot);
+            for (int i = 0; i < current.size(); i++) if (!current.getString(i).equals(id)) updated.add(StringTag.valueOf(current.getString(i)));
+            if (operation.equals("add")) {
+                if (updated.size() >= 16) return false;
+                updated.add(StringTag.valueOf(id));
+            }
+        }
+        CompoundTag data = string("target", target); data.putString("operation", operation);
+        if (target.equals("bot")) data.putInt("slot", slot);
+        if (!operation.equals("clear")) data.putString("id", id);
+        CompoundTag changes = new CompoundTag();
+        changes.put(target.equals("bot") ? "modifiers" : target.equals("self") ? "myModifiers" : "enemyModifiers", updated);
+        return request("modifier", data, target.equals("bot") ? "bot" : "settings", changes, slot);
     }
 
     private void buildItems(Rect r) {
@@ -212,8 +411,9 @@ public final class TrainingScreen extends Screen {
             button("pickerBack", cell(heading, 0, 2), () -> tr("back_to_bots"), null, () -> true, () -> { picker = ""; rebuild = true; }, false);
             label(cell(heading, 1, 2), () -> tr(picker.equals("batch") ? "pick_batch_role" : "pick_bot_role"), SREPanelStyle.GOLD);
         } else {
-            label(cell(heading, 0, 2), () -> tr("current_role", roleName(state.getString("myRole"))), SREPanelStyle.BODY);
-            action("resetSelf", cell(heading, 1, 2), "reset_self", "reset_self_hint", () -> send("reset_self"));
+            label(cell(heading, 0, 3), () -> tr("current_role", roleName(state.getString("myRole"))), SREPanelStyle.BODY);
+            action("resetSelf", cell(heading, 1, 3), "reset_self", "reset_self_hint", () -> send("reset_self"));
+            modifierEntry("roleModifiers", cell(heading, 2, 3), "self", -1);
         }
         Rect content = new Rect(r.x, r.y + 72, r.w, Math.max(1, r.h - 72));
         Rect list = wide ? new Rect(content.x, content.y, content.w * 2 / 5, content.h) : content;
@@ -296,10 +496,11 @@ public final class TrainingScreen extends Screen {
             y += 24;
         }
         Rect nav = new Rect(r.x, y, r.w, 20);
-        select("batchTab", cell(nav, 0, 2), () -> tr("batch"), tr("batch_hint"), () -> enemyTab == 0,
+        select("batchTab", cell(nav, 0, 3), () -> tr("batch"), tr("batch_hint"), () -> enemyTab == 0,
                 () -> { enemyTab = 0; botDetail = false; rebuild = true; });
-        select("rosterTab", cell(nav, 1, 2), () -> tr(narrowDetail ? "back_to_list" : "roster"), tr("ai_hint"), () -> enemyTab == 1,
+        select("rosterTab", cell(nav, 1, 3), () -> tr(narrowDetail ? "back_to_list" : "roster"), tr("ai_hint"), () -> enemyTab == 1,
                 () -> { enemyTab = 1; botDetail = false; rebuild = true; });
+        modifierEntry("enemyModifiers", cell(nav, 2, 3), "batch", -1);
         Rect content = new Rect(r.x, y + 24, r.w, Math.max(1, r.bottom() - y - 24));
         if (enemyTab == 0) {
             List<FormRow> rows = new ArrayList<>();
@@ -344,12 +545,13 @@ public final class TrainingScreen extends Screen {
         Rect heading = new Rect(r.x + 4, r.y + 3, r.w - 8, 12);
         label(heading, () -> botLabel(bot(selectedSlot)), SREPanelStyle.GOLD);
         Rect actions = new Rect(r.x + 4, r.y + 18, r.w - 8, 20);
-        button("revive", cell(actions, 0, 3), () -> tr("revive"), tr("revive_hint"),
+        button("revive", cell(actions, 0, 4), () -> tr("revive"), tr("revive_hint"),
                 () -> botReady() && !bot(selectedSlot).getBoolean("alive"), () -> botAction("revive", new CompoundTag()), true);
-        button("retry", cell(actions, 1, 3), () -> tr("retry"), tr("retry_hint"),
+        button("retry", cell(actions, 1, 4), () -> tr("retry"), tr("retry_hint"),
                 () -> botReady() && !bot(selectedSlot).getString("error").isBlank(), () -> botAction("retry", new CompoundTag()), true);
-        button("remove", cell(actions, 2, 3), () -> tr("remove"), tr("remove_hint"), () -> bot(selectedSlot) != null,
+        button("remove", cell(actions, 2, 4), () -> tr("remove"), tr("remove_hint"), () -> bot(selectedSlot) != null,
                 () -> botAction("remove", new CompoundTag()), true);
+        modifierEntry("botModifiers", cell(actions, 3, 4), "bot", selectedSlot);
         List<FormRow> rows = new ArrayList<>();
         rows.add(new FormRow("botRole", tr("choose_role_hint"), () -> tr("field_value", tr("enemy_role"), roleName(botString("role"))), () -> openPicker("bot")));
         rows.add(choiceRow("behavior", "behavior", BEHAVIORS, true));
@@ -453,8 +655,9 @@ public final class TrainingScreen extends Screen {
             searches.put(id, box);
         }
         box.setX(r.x); box.setY(r.y); box.setWidth(r.w); box.setHeight(r.h);
-        box.setHint(SREPanelStyle.hint(Component.literal(MapUiGraphics.clip(font, tr("search_hint").getString(), r.w - 12))));
-        box.setTooltip(Tooltip.create(tr("search_hint")));
+        Component hint = tr(id.startsWith("modifiers:") ? "modifier.search_hint" : "search_hint");
+        box.setHint(SREPanelStyle.hint(Component.literal(MapUiGraphics.clip(font, hint.getString(), r.w - 12))));
+        box.setTooltip(Tooltip.create(hint));
         add("search" + id, box);
     }
 
@@ -535,21 +738,28 @@ public final class TrainingScreen extends Screen {
         sentAt = Util.getMillis(); localMessage = "waiting"; updateBindings(); return true;
     }
 
-    private void confirm(String key, Runnable yes) {
+    private void confirm(String key, Runnable yes) { confirm(tr(key), yes); }
+
+    private void confirm(Component message, Runnable yes) {
         minecraft.setScreen(new ConfirmScreen(result -> {
             minecraft.setScreen(this);
             if (result && canAct()) yes.run();
-        }, tr("confirm_title"), tr(key)));
+        }, tr("confirm_title"), message));
     }
 
     @Override public void onClose() {
+        if (!modifierTarget.isEmpty()) {
+            if (modifierDetail && (body.w < 560 || body.h < 192)) modifierDetail = false;
+            else modifierTarget = "";
+            rebuild = true; return;
+        }
         if (!picker.isEmpty()) {
             if (roleDetail && (body.w < 560 || body.h < 192)) roleDetail = false;
             else { picker = ""; roleDetail = false; }
             rebuild = true; return;
         }
-        if (tab == 1 && roleDetail && (body.w < 560 || body.h < 192)) { roleDetail = false; rebuild = true; return; }
-        if (tab == 2 && botDetail && (body.w < 560 || body.h < 212)) { botDetail = false; rebuild = true; return; }
+        if (tab == ROLES && roleDetail && (body.w < 560 || body.h < 192)) { roleDetail = false; rebuild = true; return; }
+        if (tab == ENEMIES && botDetail && (body.w < 560 || body.h < 212)) { botDetail = false; rebuild = true; return; }
         minecraft.setScreen(TrainingClient.isTraining() ? parent : null);
     }
     @Override public boolean isPauseScreen() { return false; }
@@ -610,7 +820,7 @@ public final class TrainingScreen extends Screen {
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
-    private boolean hasBotError() { return tab == 2 && picker.isEmpty() && enemyTab == 1 && !botString("error").isBlank(); }
+    private boolean hasBotError() { return tab == ENEMIES && picker.isEmpty() && modifierTarget.isEmpty() && enemyTab == 1 && !botString("error").isBlank(); }
 
     @Override public boolean mouseScrolled(double mx, double my, double horizontal, double vertical) {
         if (super.mouseScrolled(mx, my, horizontal, vertical)) return true;
@@ -662,7 +872,14 @@ public final class TrainingScreen extends Screen {
     }
     private static boolean matches(CompoundTag actual, CompoundTag expected) {
         if (actual == null) return false;
-        for (String key : expected.getAllKeys()) if (!expected.get(key).equals(actual.get(key))) return false;
+        for (String key : expected.getAllKeys()) {
+            if (key.equals("myModifiers") || key.equals("enemyModifiers") || key.equals("modifiers")) {
+                // 修饰符是集合；服务端排序不应使一次已成功的请求被误判成超时。
+                ListTag wanted = expected.getList(key, Tag.TAG_STRING), received = actual.getList(key, Tag.TAG_STRING);
+                if (wanted.size() != received.size()) return false;
+                for (int i = 0; i < wanted.size(); i++) if (!hasModifier(received, wanted.getString(i))) return false;
+            } else if (!expected.get(key).equals(actual.get(key))) return false;
+        }
         return true;
     }
     private static boolean error(String message) { return message.contains(".error.") || message.startsWith("training.error."); }

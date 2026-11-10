@@ -84,9 +84,10 @@ public final class TrainingClient {
         if (incoming.getBoolean("full")) {
             hasCatalogue = true;
         } else if (hasCatalogue) {
-            // 普通确认只更新权威状态，不把之前的物品/职业目录清空。
+            // 普通确认只更新权威状态，不把之前的物品/职业/修饰符目录清空。
             if (state.contains("items")) incoming.put("items", state.get("items").copy());
             if (state.contains("roles")) incoming.put("roles", state.get("roles").copy());
+            if (state.contains("modifierCatalogue")) incoming.put("modifierCatalogue", state.get("modifierCatalogue").copy());
         }
         state = incoming;
         revision++;

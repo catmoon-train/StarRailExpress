@@ -72,4 +72,31 @@ class TrainingSettingsTest {
         copy.noCooldown = false;
         assertFalse(gson.fromJson(gson.toJson(copy), TrainingSettings.class).noCooldown);
     }
+    @Test void modifierSettingsMigrateOldSavesAndPreserveIndependentSlots() {
+        var gson = new Gson();
+        var old = gson.fromJson("{\"enemyCount\":5,\"overrides\":{\"2\":{\"role\":\"demo:role\",\"behavior\":\"moving\",\"equipment\":\"gun\"}}}", TrainingSettings.class);
+        old.normalize();
+        assertTrue(old.myModifiers.isEmpty()); assertTrue(old.enemyModifiers.isEmpty()); assertTrue(old.bot(2).modifiers.isEmpty());
+        old.myModifiers.add("demo:fast"); old.enemyModifiers.add("demo:small");
+        old.overrides.put(1, new TrainingSettings.BotSettings("demo:role", "combat", "gun", java.util.List.of("demo:strong")));
+        var copy = gson.fromJson(gson.toJson(old), TrainingSettings.class); copy.normalize();
+        assertEquals(java.util.List.of("demo:fast"), copy.myModifiers);
+        assertEquals(java.util.List.of("demo:small"), copy.bot(0).modifiers);
+        assertEquals(java.util.List.of("demo:strong"), copy.bot(1).modifiers);
+        assertEquals("combat", copy.bot(1).behavior); assertEquals("gun", copy.bot(1).equipment);
+        assertTrue(copy.bot(2).modifiers.isEmpty());
+        copy.bot(0).modifiers.clear();
+        assertEquals(java.util.List.of("demo:small"), copy.enemyModifiers, "继承配置必须返回独立列表");
+        copy.myModifiers.clear();
+        assertEquals(java.util.List.of("demo:fast"), old.myModifiers);
+    }
+
+    @Test void nullModifierFieldsAndDuplicateIdsNormalizeIdempotently() {
+        var gson = new Gson();
+        var settings = gson.fromJson("{\"myModifiers\":null,\"enemyModifiers\":[\"demo:a\",\"demo:a\",null,\"bad id\"],\"overrides\":{\"0\":{\"modifiers\":null}}}", TrainingSettings.class);
+        settings.normalize();
+        assertTrue(settings.myModifiers.isEmpty()); assertTrue(settings.bot(0).modifiers.isEmpty());
+        assertEquals(java.util.List.of("demo:a"), settings.enemyModifiers);
+        String first = gson.toJson(settings); settings.normalize(); assertEquals(first, gson.toJson(settings));
+    }
 }

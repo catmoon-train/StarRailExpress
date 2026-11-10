@@ -95,6 +95,8 @@ public final class CarpetTrainingBots implements AutoCloseable {
             ServerPlayer bot = online(entry);
             if (bot != null && TrainingRules.isAlive(bot) && !desired.equals(entry.applied)
                     && !desired.equals(entry.attempted)) configure(entry, bot);
+            if (bot != null && TrainingRules.isAlive(bot) && entry.state.error.isEmpty()
+                    && !session.settings().bot(i).modifiers.equals(entry.appliedModifiers)) updateModifiers(i);
         }
         sweep(session.server());
         var reserved = RESERVATIONS.get(session.server());
@@ -230,8 +232,10 @@ public final class CarpetTrainingBots implements AutoCloseable {
             Config config = Config.of(session.settings().bot(entry.state.slot));
             entry.attempted = config;
             session.assign(bot, config.role, true);
+            TrainingModifiers.addConfigured(bot, session.settings().bot(entry.state.slot).modifiers);
             equip(bot, config.equipment);
             entry.applied = config;
+            entry.appliedModifiers = java.util.List.copyOf(session.settings().bot(entry.state.slot).modifiers);
             entry.state.error = "";
             entry.controller = new TrainingBotController(entry.state.slot);
             session.changed();
@@ -276,6 +280,7 @@ public final class CarpetTrainingBots implements AutoCloseable {
             entry.player = bot;
             entry.applied = config;
             entry.attempted = config;
+            entry.appliedModifiers = java.util.List.copyOf(session.settings().bot(entry.state.slot).modifiers);
             entry.deadAt = -1;
             entry.reviveFailures = 0;
             entry.reviveAt = 0;
@@ -354,7 +359,9 @@ public final class CarpetTrainingBots implements AutoCloseable {
             case "configure", "apply", "settings", "role", "behavior", "equipment" -> {
                 if (override == null) return;
                 Config config = Config.of(override);
-                session.settings().overrides.put(slot, config.settings());
+                var copy = config.settings();
+                copy.modifiers = new ArrayList<>(override.modifiers);
+                session.settings().overrides.put(slot, copy);
                 entry.state.error = "";
                 entry.applied = null;
                 entry.attempted = null;
@@ -401,6 +408,24 @@ public final class CarpetTrainingBots implements AutoCloseable {
                 operation, entry.state.attempts, error);
     }
 
+    /** 修饰符变更不重配职业/装备；死亡或生成中的槽位由下次初始化恢复配置。 */
+    public void updateModifiers(int slot) {
+        if (closed) return;
+        var entry = slots.get(slot);
+        if (entry == null) return;
+        var bot = online(entry);
+        if (bot != null && TrainingRules.isAlive(bot)) {
+            try {
+                TrainingModifiers.replace(bot, session.settings().bot(slot).modifiers);
+                entry.appliedModifiers = java.util.List.copyOf(session.settings().bot(slot).modifiers);
+            } catch (RuntimeException ex) {
+                logFailure(entry, "modifiers", ex);
+                setError(entry, "training.error.bot_config_failed");
+            }
+        }
+        session.changed();
+    }
+
     public ListTag snapshot() {
         ListTag list = new ListTag();
         for (Entry entry : slots.values()) {
@@ -417,6 +442,7 @@ public final class CarpetTrainingBots implements AutoCloseable {
             tag.putString("role", config.role);
             tag.putString("behavior", config.behavior);
             tag.putString("equipment", config.equipment);
+            tag.put("modifiers", TrainingModifiers.tag(session.settings().bot(entry.state.slot).modifiers));
             tag.putString("state", status);
             tag.putString("status", status);
             tag.putBoolean("alive", alive);
@@ -563,6 +589,7 @@ public final class CarpetTrainingBots implements AutoCloseable {
         ServerPlayer player;
         Config applied;
         Config attempted;
+        java.util.List<String> appliedModifiers = java.util.List.of();
         long deadAt = -1;
         long reviveAt;
         boolean reviveRequested;
