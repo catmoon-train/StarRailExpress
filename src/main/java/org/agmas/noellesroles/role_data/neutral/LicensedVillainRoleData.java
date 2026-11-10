@@ -21,7 +21,7 @@ import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.index.TMMSounds;
+import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.packet.BroadcastMessageS2CPacket;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.HolderLookup;
@@ -198,12 +198,10 @@ public class LicensedVillainRoleData extends SimpleRoleData {
             }
         }
 
-        // 全场播放与远征队修饰符触发时一致的音效（master 类型）
-        for (Player p : level.players()) {
-            if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p))
-                continue;
-            p.level().playSound(null, p.blockPosition(), TMMSounds.ITEM_PSYCHO_ARMOUR,
-                    SoundSource.MASTER, 2.0F, 0.8F);
+        // 黑警时刻登场音效：与阿蒙时刻一致，在每名玩家所在位置播放，确保全场都能听到。
+        for (ServerPlayer p : level.players()) {
+            level.playSound(null, p.getX(), p.getY(), p.getZ(),
+                    NRSounds.FATE, SoundSource.MASTER, 0.75F, 1.0F);
         }
     }
 

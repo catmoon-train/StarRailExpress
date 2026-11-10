@@ -56,6 +56,8 @@ public class NRSounds {
     public static final SoundEvent BROKEN_ALARM = registrar.create("noellesroles.broken_alarm");
     public static final SoundEvent CIRCUS_BACKGROUND = registrar.create("noellesroles.circus_background");
     public static final SoundEvent A_MENG = registrar.create("noellesroles.a_meng");
+    // 黑警时刻登场音效
+    public static final SoundEvent FATE = registrar.create("noellesroles.fate");
     // 纵火犯时刻登场音效
     public static final SoundEvent ARSONIST = registrar.create("noellesroles.arsonist");
     // 皮革噶的：疯魔模式神秘追杀音效

@@ -1,4 +1,4 @@
-{
+﻿{
   "hud.noellesroles.clone_doctor.copy_ready": "职业克隆：已就绪",
   "hud.noellesroles.clone_doctor.substitute_ready": "制作替身：已就绪",
   "hud.noellesroles.clone_doctor.current_role": "当前职业：%s",
@@ -2846,7 +2846,7 @@
   "item.noellesroles.camera_shears.on_cooldown": "剪刀正在冷却中！",
   "item.noellesroles.extinguisher": "灭火器",
   "item.noellesroles.extinguisher.tooltip.durability": "耐久度: %s/%s",
-  "item.noellesroles.extinguisher.tooltip.use": "右键：消耗1点耐久，向前方5格圆锥喷射；被喷到的玩家获得缓慢和失明效果（1.5秒）",
+  "item.noellesroles.extinguisher.tooltip.use": "右键：消耗1点耐久，向前方5格锥形范围内喷射；被喷到的玩家获得缓慢和失明效果（1.5秒）",
   "item.noellesroles.extinguisher.tooltip.hold": "长按：持续喷射，每秒再消耗1点耐久，并使被喷到的玩家每秒降低20点燃烧值",
   "item.noellesroles.extinguisher.tooltip.clean": "喷雾可清除纵火犯浇的汽油与点燃效果，并使目标在5秒内免疫点燃",
   "item.noellesroles.extinguisher.empty": "灭火器已用尽！",
