@@ -2340,6 +2340,8 @@ public class RoleShopHandler {
             ARSONIST_SHOP.add(new ShopEntry(
                     pro.fazeclan.river.stupid_express.constants.SEItems.FIRE_GUN.getDefaultInstance(),
                     pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRules.FIRE_GUN_PRICE, ShopEntry.Type.WEAPON));
+            ARSONIST_SHOP.add(new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(),
+                    SREConfig.instance().crowbarPrice, ShopEntry.Type.TOOL));
             ShopContent.customEntries.put(SERoles.ARSONIST.getIdentifier(), ARSONIST_SHOP);
             ShopContent.customEntries.put(BounsRoles.CAT_NECROMANCER.getIdentifier(), NECROMANCER_SHOP);
 

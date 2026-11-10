@@ -1,12 +1,9 @@
 package pro.fazeclan.river.stupid_express.role.arsonist;
 
 import io.wifi.starrailexpress.api.NormalRole;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
 
@@ -24,20 +21,11 @@ public class ArsonistRole extends NormalRole {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> onItemUse(Player player, Level level, InteractionHand hand) {
-        var data = ArsonistRoleData.of(player);
-        if (data != null && data.arsonMoment && !player.getItemInHand(hand).is(SEItems.FLAMETHROWER)) {
-            return InteractionResultHolder.fail(player.getItemInHand(hand));
-        }
-        return super.onItemUse(player, level, hand);
-    }
-    @Override
     public void onDeath(Player victim, boolean spawnBody, Player killer,
             net.minecraft.resources.ResourceLocation reason, boolean forceDeath) {
         var data = ArsonistRoleData.of(victim);
         if (data != null) data.reset();
     }
-
 
     @Override
     public boolean onGunHit(Player shooter, Player target) {

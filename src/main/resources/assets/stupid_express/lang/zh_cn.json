@@ -38,7 +38,7 @@
   "item.stupid_express.fire_gun": "火枪",
   "item.stupid_express.fire_gun.tooltip": "商店可购买，右键开枪，射程20格\n命中玩家会给对方浇上汽油，不会造成伤害，也不会掉落手里的枪\n每开一枪都需要额外花费金币，金币不够时无法开枪\n不论是否命中都会进入30秒冷却，纵火犯时刻期间无法使用",
   "item.stupid_express.flamethrower": "喷火枪",
-  "item.stupid_express.flamethrower.tooltip": "纵火犯时刻期间固定拿在主手，无法切换或丢弃\n长按右键可向前方180°、半径5格的范围喷火，火焰会被墙体遮挡\n被火焰持续命中的玩家会迅速累积燃烧值，连续喷中约1秒就会烧满，烧满后就会被烧死\n喷火会持续消耗火力，火力耗尽后自动换弹10秒并回满，也可以按R键手动换弹，同样需要10秒",
+  "item.stupid_express.flamethrower.tooltip": "纵火犯时刻期间获得喷火枪，可以自由切换手持物品，但无法丢弃物品\n长按右键可向前方180°、半径5格的范围喷火，火焰会被墙体遮挡\n被火焰持续命中的玩家会迅速累积燃烧值，连续喷中约1秒就会烧满，烧满后就会被烧死\n喷火会持续消耗火力，火力耗尽后自动换弹10秒并回满，也可以按R键手动换弹，同样需要10秒",
   "message.stupid_express.arsonist.shot_money": "火枪每次开枪需要%s金币。",
   "message.stupid_express.arsonist.burn_kill": "纵火犯 %s 烧死了 %s！",
   "message.stupid_express.arsonist.need_marks": "浇油人数不足：%s/%s，3秒内再次右键打火机会点火失败烧死自己。",

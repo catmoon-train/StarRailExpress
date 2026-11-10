@@ -170,7 +170,8 @@ public class InitModRolesMax {
         Harpymodloader.setRoleMaximum(ModRoles.FORTUNETELLER_ID, 1);
         Harpymodloader.setRoleMaximum(ModRoles.WIND_YAOSE_ID, 1);
         Harpymodloader.setRoleMaximum(ModRoles.RESCUER_ID, 1);
-        Harpymodloader.setRoleMaximum(ModRoles.FIREFIGHTER_ID, 1);
+        // 消防员不单独刷新，只能随纵火犯绑定生成
+        Harpymodloader.setRoleMaximum(ModRoles.FIREFIGHTER_ID, 0);
 
         // 叛徒设置为0
         Harpymodloader.setRoleMaximum(TraitorAndModifiers.TRAITOR_ID, 0);

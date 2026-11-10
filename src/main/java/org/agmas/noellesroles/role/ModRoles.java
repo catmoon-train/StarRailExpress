@@ -1505,7 +1505,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不隐藏计分板
-    )).setCanSeeCoin(true);
+    )).setCanSeeCoin(true).setDefaultMax(0);
 
     /**
      * 会计角色
@@ -3889,6 +3889,8 @@ public class ModRoles {
 
         // 设置鹈鹕与纵火犯互斥
         ModRoles.PELICAN.addTwoWayOpposingRole(SERoles.ARSONIST);
+        // 纵火犯与消防员绑定生成（消防员最大生成数量为 0，只能靠这条绑定出现）
+        SERoles.ARSONIST.addOccupationRole(ModRoles.FIREFIGHTER);
         // 设置鹈鹕与秉烛人互斥
         ModRoles.PELICAN.addTwoWayOpposingRole(ModRoles.CANDLE_BEARER);
         ModRoles.PELICAN.addTwoWayOpposingRole(SERoles.INITIATE);

@@ -20,7 +20,6 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -87,11 +86,6 @@ public final class ArsonistClient {
         }
         // 只记录本次装填首次看到的剩余时长，不额外要求服务端暴露装填总时长字段。
         reloadSpanTicks = data.reloadTicks > 0 ? Math.max(reloadSpanTicks, data.reloadTicks) : 0;
-        int slot = data.forcedSlot;
-        if (slot >= 0 && slot < 9 && client.player.getInventory().selected != slot) {
-            client.player.getInventory().selected = slot;
-            client.player.connection.send(new ServerboundSetCarriedItemPacket(slot));
-        }
         if (client.player.getMainHandItem().is(SEItems.FLAMETHROWER)) {
             boolean requested = false;
             while (InputHandler.sniperReloadKeybind.consumeClick()) requested = true;

@@ -21,7 +21,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -222,6 +221,7 @@ public class ArsonistRoleData extends SimpleRoleData {
         var previousStamina = owner.getEffect(ModEffects.INFINITE_STAMINA);
         savedStaminaEffect = previousStamina == null ? null : new MobEffectInstance(previousStamina);
         owner.addEffect(new MobEffectInstance(ModEffects.INFINITE_STAMINA, 40, 0, false, false, false));
+        owner.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 40, 0, false, false, false));
         owner.getInventory().setChanged();
         owner.inventoryMenu.broadcastChanges();
         for (ServerPlayer p : owner.server.getPlayerList().getPlayers()) {
@@ -354,20 +354,6 @@ public class ArsonistRoleData extends SimpleRoleData {
         }
     }
 
-    public void enforceWeapon() {
-        if (!(player instanceof ServerPlayer owner) || !arsonMoment || forcedSlot < 0) return;
-        if (owner.getInventory().selected != forcedSlot) {
-            owner.getInventory().selected = forcedSlot;
-            owner.connection.send(new ClientboundSetCarriedItemPacket(forcedSlot));
-        }
-        if (!owner.getMainHandItem().is(SEItems.FLAMETHROWER)) {
-            ItemStack displaced = owner.getMainHandItem();
-            owner.setItemInHand(InteractionHand.MAIN_HAND, SEItems.FLAMETHROWER.getDefaultInstance());
-            if (!displaced.isEmpty()) owner.getInventory().placeItemBackInInventory(displaced);
-            owner.inventoryMenu.broadcastChanges();
-        }
-    }
-
     @Override public void serverTick() {
         if (!(player instanceof ServerPlayer owner)) return;
         var game = SREGameWorldComponent.KEY.get(owner.level());
@@ -387,8 +373,10 @@ public class ArsonistRoleData extends SimpleRoleData {
             }
         }
         if (arsonMoment) {
-            enforceWeapon();
-            if (owner.tickCount % 20 == 0) owner.addEffect(new MobEffectInstance(ModEffects.INFINITE_STAMINA, 40, 0, false, false, false));
+            if (owner.tickCount % 20 == 0) {
+                owner.addEffect(new MobEffectInstance(ModEffects.INFINITE_STAMINA, 40, 0, false, false, false));
+                owner.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 40, 0, false, false, false));
+            }
             if (game.isSkillAvailable && !SREGameTimeComponent.KEY.get(owner.level()).isTimeFrozen()) {
                 momentTicks--;
                 if (reloadTicks > 0 && --reloadTicks == 0) { fuelUnits = ArsonistRules.FULL_FUEL; dirty = true; }
