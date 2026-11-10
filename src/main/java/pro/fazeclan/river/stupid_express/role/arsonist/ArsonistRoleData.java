@@ -392,8 +392,11 @@ public class ArsonistRoleData extends SimpleRoleData {
             return;
         }
         if (activeOilCan != null && !(owner.serverLevel().getEntity(activeOilCan) instanceof LargeOilCanEntity)) {
-            // 大油罐不再接管相机，这里不能发相机包，否则会重置其它系统正在使用的视角。
+            // 油罐已不存在（落地 / 超时 / 越界）：把相机还给玩家，避免残留绑定导致视角卡死。
             activeOilCan = null;
+            if (!owner.hasDisconnected()) {
+                owner.connection.send(new net.minecraft.network.protocol.game.ClientboundSetCameraPacket(owner));
+            }
         }
         if (owner.tickCount % 20 == 0) {
             dirty |= updateIgnitionProgress();

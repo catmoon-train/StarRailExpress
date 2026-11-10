@@ -23,12 +23,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.packet.MechanicalBirdControlC2SPacket;
 import org.joml.Matrix4f;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
 import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistPackets;
 import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRoleData;
-import pro.fazeclan.river.stupid_express.role.arsonist.LargeOilCanEntity;
 
 import java.util.Locale;
 
@@ -73,7 +71,6 @@ public final class ArsonistClient {
             activeOilCanId = -1;
             oilCanMissingTicks = 0;
         });
-        ClientTickEvents.END_CLIENT_TICK.register(ArsonistClient::sendOilCanControl);
         ClientTickEvents.END_CLIENT_TICK.register(ArsonistClient::tick);
         HudRenderCallback.EVENT.register((graphics, delta) ->
                 renderHud(graphics, delta.getGameTimeDeltaPartialTick(false)));
@@ -83,29 +80,6 @@ public final class ArsonistClient {
     private static void clear() {
         localHeat = 0;
         reloadSpanTicks = 0;
-    }
-
-    /** 大油罐不再绑定相机：按服务端下发的实体 id 持续提交按键，玩家视角完全保持自己的。 */
-    private static void sendOilCanControl(Minecraft client) {
-        if (activeOilCanId < 0 || client.player == null || client.level == null) return;
-        // 实体生成包可能比状态包晚到，给 2 秒宽限；之后视为遥控结束，避免状态残留。
-        var can = client.level.getEntity(activeOilCanId);
-        if (can instanceof LargeOilCanEntity && !can.isRemoved()) {
-            oilCanMissingTicks = 0;
-        } else if (++oilCanMissingTicks > 40) {
-            activeOilCanId = -1;
-            oilCanMissingTicks = 0;
-            return;
-        }
-        int bits = 0;
-        if (client.options.keyUp.isDown()) bits |= MechanicalBirdControlC2SPacket.BIT_FORWARD;
-        if (client.options.keyDown.isDown()) bits |= MechanicalBirdControlC2SPacket.BIT_BACK;
-        if (client.options.keyLeft.isDown()) bits |= MechanicalBirdControlC2SPacket.BIT_LEFT;
-        if (client.options.keyRight.isDown()) bits |= MechanicalBirdControlC2SPacket.BIT_RIGHT;
-        if (client.options.keyJump.isDown()) bits |= MechanicalBirdControlC2SPacket.BIT_JUMP;
-        if (client.options.keyShift.isDown()) bits |= MechanicalBirdControlC2SPacket.BIT_SNEAK;
-        ClientPlayNetworking.send(new MechanicalBirdControlC2SPacket(activeOilCanId,
-                client.player.getYRot(), client.player.getXRot(), bits));
     }
 
     private static boolean isLiving(Player player) {
