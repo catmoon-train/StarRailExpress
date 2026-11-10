@@ -59,6 +59,8 @@ public class ArsonistRoleData extends SimpleRoleData {
     public UUID activeOilCan;
     public boolean arsonMoment;
     public int momentTicks;
+    /** 超时失败后放行普通结算，不能下一tick又因本职业存活而重新锁局。 */
+    public boolean settlementUnlocked;
     public int fuelUnits = ArsonistRules.FULL_FUEL;
     public int reloadTicks;
     public int forcedSlot = -1;
@@ -207,6 +209,7 @@ public class ArsonistRoleData extends SimpleRoleData {
     private void startMoment(ServerPlayer owner) {
         if (activeOilCan != null && owner.serverLevel().getEntity(activeOilCan) instanceof LargeOilCanEntity can) can.finish();
         arsonMoment = true;
+        settlementUnlocked = false;
         momentTicks = ArsonistRules.MOMENT_TICKS;
         fuelUnits = ArsonistRules.FULL_FUEL;
         reloadTicks = 0;
@@ -383,10 +386,12 @@ public class ArsonistRoleData extends SimpleRoleData {
                 if (canSpray() && owner.isUsingItem() && owner.getUseItem().is(SEItems.FLAMETHROWER)) {
                     spray(owner);
                 }
-                if (momentTicks <= 0 || owner.server.getPlayerList().getPlayers().stream()
-                        .noneMatch(p -> p != owner && GameUtils.isPlayerAliveAndSurvival(p))) {
-                    win();
-                    return;
+                if (!arsonMoment || !GameUtils.isPlayerAliveAndSurvival(owner)) return;
+                int aliveOthers = aliveOthers(owner);
+                switch (ArsonistRules.momentResult(momentTicks, aliveOthers)) {
+                    case VICTORY -> { win(); return; }
+                    case TIMEOUT -> { failMoment(owner, aliveOthers); return; }
+                    case RUNNING -> { }
                 }
             }
         }
@@ -397,9 +402,31 @@ public class ArsonistRoleData extends SimpleRoleData {
         }
     }
 
+    private int aliveOthers(ServerPlayer owner) {
+        return (int) owner.server.getPlayerList().getPlayers().stream()
+                .filter(p -> p != owner && GameUtils.isPlayerAliveAndSurvival(p)).count();
+    }
+
+    /** 时刻超时只恢复普通对局，不为仍有对手的纵火犯宣胜。 */
+    private void failMoment(ServerPlayer owner, int aliveOthers) {
+        if (!arsonMoment || SREGameWorldComponent.KEY.get(owner.level()).getGameStatus() != GameStatus.ACTIVE) return;
+        int restoredTicks = ArsonistRules.failedMomentTimeTicks(aliveOthers);
+        reset();
+        settlementUnlocked = true;
+        SREGameTimeComponent.KEY.get(owner.level()).setTime(restoredTicks);
+        sync();
+        var message = Component.translatable("message.stupid_express.arsonist.moment_failed",
+                aliveOthers, restoredTicks / 20);
+        for (ServerPlayer observer : owner.server.getPlayerList().getPlayers()) {
+            org.agmas.noellesroles.commands.BroadcastCommand.BroadcastMessage(observer, message);
+            observer.sendSystemMessage(message);
+        }
+    }
+
     public void win() {
         if (!(player instanceof ServerPlayer owner) || won || !GameUtils.isPlayerAliveAndSurvival(owner)
                 || SREGameWorldComponent.KEY.get(owner.level()).getGameStatus() != GameStatus.ACTIVE) return;
+        if (settlementUnlocked || aliveOthers(owner) != 0) return;
         reset();
         won = true;
         if (!CuckooRoleData.checkCuckooVictory(owner.serverLevel())) {
@@ -411,6 +438,7 @@ public class ArsonistRoleData extends SimpleRoleData {
     /** 退出只恢复本体物品和状态；没有任何受害者复活路径。 */
     public void reset() {
         if (!(player instanceof ServerPlayer owner)) return;
+        if (SREGameWorldComponent.KEY.get(owner.level()).getGameStatus() != GameStatus.ACTIVE) settlementUnlocked = false;
         boolean wasMoment = arsonMoment;
         arsonMoment = false;
         momentTicks = 0;
@@ -474,6 +502,7 @@ public class ArsonistRoleData extends SimpleRoleData {
         tag.putInt("ignitionRequired", ignitionRequired);
         tag.putBoolean("arsonMoment", arsonMoment);
         tag.putInt("momentTicks", momentTicks);
+        tag.putBoolean("settlementUnlocked", settlementUnlocked);
         tag.putInt("fuelUnits", fuelUnits);
         tag.putInt("reloadTicks", reloadTicks);
         tag.putInt("forcedSlot", forcedSlot);
@@ -493,6 +522,7 @@ public class ArsonistRoleData extends SimpleRoleData {
         ignitionRequired = tag.getInt("ignitionRequired");
         arsonMoment = tag.getBoolean("arsonMoment");
         momentTicks = tag.getInt("momentTicks");
+        settlementUnlocked = tag.getBoolean("settlementUnlocked");
         fuelUnits = tag.getInt("fuelUnits");
         reloadTicks = tag.getInt("reloadTicks");
         forcedSlot = tag.contains("forcedSlot") ? tag.getInt("forcedSlot") : -1;
