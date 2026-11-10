@@ -108,6 +108,7 @@ public class SERoles {
         /// ARSONIST
         Harpymodloader.setRoleMaximum(ARSONIST.getIdentifier(), 1);
         OilDousingHandler.init();
+        pro.fazeclan.river.stupid_express.role.arsonist.ArsonistEvents.init();
 
         ResetPlayerEvent.EVENT.register(player -> {
             ArsonistRoleData arsonist = ArsonistRoleData.of(player);

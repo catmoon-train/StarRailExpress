@@ -2333,7 +2333,11 @@ public class RoleShopHandler {
                     SREConfig.instance().lockpickPrice + 20,
                     ShopEntry.Type.TOOL));
             ShopContent.customEntries.put(SERoles.NECROMANCER.getIdentifier(), NECROMANCER_SHOP);
-            ShopContent.customEntries.put(SERoles.ARSONIST.getIdentifier(), NECROMANCER_SHOP);
+            var ARSONIST_SHOP = new ArrayList<>(NECROMANCER_SHOP);
+            ARSONIST_SHOP.add(new ShopEntry(
+                    pro.fazeclan.river.stupid_express.constants.SEItems.LARGE_OIL_CAN.getDefaultInstance(),
+                    165, ShopEntry.Type.TOOL));
+            ShopContent.customEntries.put(SERoles.ARSONIST.getIdentifier(), ARSONIST_SHOP);
             ShopContent.customEntries.put(BounsRoles.CAT_NECROMANCER.getIdentifier(), NECROMANCER_SHOP);
 
             {

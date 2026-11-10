@@ -37,7 +37,8 @@ public class MechanicalBirdHandMixin {
     private void noellesroles$hideHandsWhileCameraIsVehicle(float partialTick, PoseStack poseStack,
             MultiBufferSource.BufferSource bufferSource, LocalPlayer player, int packedLight, CallbackInfo ci) {
         var camera = Minecraft.getInstance().getCameraEntity();
-        if (camera instanceof MechanicalBirdEntity || camera instanceof NiaoshoushouMissileEntity) {
+        if (camera instanceof MechanicalBirdEntity || camera instanceof NiaoshoushouMissileEntity
+                || camera instanceof pro.fazeclan.river.stupid_express.role.arsonist.LargeOilCanEntity) {
             ci.cancel();
         }
     }

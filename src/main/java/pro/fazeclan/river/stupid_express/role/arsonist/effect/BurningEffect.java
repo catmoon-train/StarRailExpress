@@ -78,7 +78,7 @@ public class BurningEffect extends MobEffect {
 
     /**
      * 把烧死延迟到本 tick 结束后再执行：此刻仍在遍历目标的效果列表，直接 killPlayer
-     * 会在死亡时清空效果列表，造成对效果列表的并发修改。改用 server.execute 推迟即可避开。
+     * 会在死亡时清空效果列表，造成对效果列表的并发修改。使用 tell 明确排队，不能用会内联执行的 execute。
      */
     private void scheduleBurnDeath(ServerPlayer victim) {
         if (victim.getServer() == null) {
@@ -89,8 +89,8 @@ public class BurningEffect extends MobEffect {
         if (arsonist != null) {
             arsonist.setBurningKiller(victim.getUUID(), null);
         }
-        victim.getServer().execute(() -> {
-            if (!victim.isAlive()) {
+        victim.getServer().tell(new net.minecraft.server.TickTask(victim.getServer().getTickCount(), () -> {
+            if (!GameUtils.isPlayerAliveAndSurvival(victim)) {
                 return;
             }
             ServerPlayer killer = killerId != null && victim.getServer() != null
@@ -98,7 +98,14 @@ public class BurningEffect extends MobEffect {
                     : null;
             victim.setRemainingFireTicks(0);
             victim.removeEffect(SEEffects.BURNING);
-            GameUtils.killPlayer(victim, true, killer, GameConstants.DeathReasons.IGNITED, true);
-        });
+            if (killer == null || !GameUtils.isPlayerAliveAndSurvival(killer)
+                    || ArsonistRoleData.of(killer) != arsonist) {
+                return;
+            }
+            var origin = ArsonistRoleData.BurnedPlayer.at(victim);
+            // 烧死不生成尸体；死亡完整结算后才锁定视角，避免被其它死亡回调覆盖。
+            GameUtils.killPlayer(victim, false, killer, GameConstants.DeathReasons.IGNITED, true);
+            arsonist.captureBurnedPlayer(victim, origin);
+        }));
     }
 }

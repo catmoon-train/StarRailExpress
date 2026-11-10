@@ -503,6 +503,8 @@ public class NoellesrolesClient implements ClientModInitializer {
                 org.agmas.noellesroles.client.render.PigeonRenderer::new);
         EntityRendererRegistry.register(ModEntities.MECHANICAL_BIRD,
                 org.agmas.noellesroles.client.render.MechanicalBirdRenderer::new);
+        EntityRendererRegistry.register(ModEntities.LARGE_OIL_CAN,
+                context -> new net.minecraft.client.renderer.entity.ThrownItemRenderer<>(context, 1.5F, false));
         EntityRendererRegistry.register(ModEntities.MOVING_PLATFORM,
                 org.agmas.noellesroles.client.render.MovingPlatformRenderer::new);
         EntityRendererRegistry.register(ModEntities.HURRICANE,
@@ -1352,14 +1354,19 @@ public class NoellesrolesClient implements ClientModInitializer {
                 ClientPlayNetworking.send(new org.agmas.noellesroles.packet.NiaoshoushouMissileControlC2SPacket(
                         missile.getId(), client.player.getYRot(), client.player.getXRot(), steering));
             }
-            if (client.getCameraEntity() instanceof org.agmas.noellesroles.content.entity.MechanicalBirdEntity bird) {
+            var remoteCamera = client.getCameraEntity();
+            if (remoteCamera instanceof org.agmas.noellesroles.content.entity.MechanicalBirdEntity
+                    || remoteCamera instanceof pro.fazeclan.river.stupid_express.role.arsonist.LargeOilCanEntity) {
+                var bird = remoteCamera;
                 if (bird.isRemoved()
                         || client.level.getEntity(bird.getId()) != bird
                         || client.player.distanceToSqr(bird) > 128.0D * 128.0D) {
                     client.setCameraEntity(client.player);
                     return;
                 }
-                org.agmas.noellesroles.client.sound.MechanicalBirdFlySound.ensurePlaying(bird);
+                if (bird instanceof org.agmas.noellesroles.content.entity.MechanicalBirdEntity mechanicalBird) {
+                    org.agmas.noellesroles.client.sound.MechanicalBirdFlySound.ensurePlaying(mechanicalBird);
+                }
                 int bits = 0;
                 if (client.options.keyUp.isDown()) {
                     bits |= org.agmas.noellesroles.packet.MechanicalBirdControlC2SPacket.BIT_FORWARD;

@@ -35,12 +35,18 @@ public class SEItems {
     @SuppressWarnings("unchecked")
     public static final Item LIGHTER = registrar.create("lighter", new LighterItem(new Item.Properties().stacksTo(1)), WEAPONS_GROUP, SRE_ALL_GROUP);
 
+    @SuppressWarnings("unchecked")
+    public static final Item LARGE_OIL_CAN = registrar.create("large_oil_can",
+            new pro.fazeclan.river.stupid_express.role.arsonist.item.LargeOilCanItem(new Item.Properties().stacksTo(1)),
+            TOOLS_GROUP, SRE_ALL_GROUP);
+
     public static final TagKey<Item> DRINKS = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(StupidExpress.MOD_ID, "drinks"));
 
     public static void init() {
         registrar.registerEntries();
         TMMDescItems.introItems.add(JERRY_CAN);
         TMMDescItems.introItems.add(LIGHTER);
+        TMMDescItems.introItems.add(LARGE_OIL_CAN);
     }
 
 }

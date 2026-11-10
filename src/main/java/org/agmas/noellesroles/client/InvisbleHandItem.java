@@ -60,7 +60,8 @@ public class InvisbleHandItem {
         });
         // 巡飞弹操控期间相机已经绑定到弹体，隐藏第一人称双手避免遮挡视野。
         AllowItemShowInHand.EVENT.register((player, itemStack, mainHand) -> {
-            if (Minecraft.getInstance().getCameraEntity() instanceof NiaoshoushouMissileEntity
+            if (Minecraft.getInstance().getCameraEntity() instanceof pro.fazeclan.river.stupid_express.role.arsonist.LargeOilCanEntity
+                    || Minecraft.getInstance().getCameraEntity() instanceof NiaoshoushouMissileEntity
                     || Minecraft.getInstance()
                             .getCameraEntity() instanceof org.agmas.noellesroles.content.entity.MechanicalBirdEntity) {
                 return ItemStack.EMPTY;

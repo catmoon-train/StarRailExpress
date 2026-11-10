@@ -507,6 +507,17 @@ public class ModEntities {
                     .trackRangeBlocks(128)
                     .trackedUpdateRate(1)
                     .build());
+
+    @SuppressWarnings("deprecation")
+    public static final EntityType<pro.fazeclan.river.stupid_express.role.arsonist.LargeOilCanEntity> LARGE_OIL_CAN = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            pro.fazeclan.river.stupid_express.StupidExpress.id("large_oil_can"),
+            FabricEntityTypeBuilder.<pro.fazeclan.river.stupid_express.role.arsonist.LargeOilCanEntity>create(MobCategory.MISC,
+                    pro.fazeclan.river.stupid_express.role.arsonist.LargeOilCanEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.45F, 0.45F))
+                    .trackRangeBlocks(128)
+                    .trackedUpdateRate(1)
+                    .build());
     /**
      * 傀戏傀儡实体类型
      */

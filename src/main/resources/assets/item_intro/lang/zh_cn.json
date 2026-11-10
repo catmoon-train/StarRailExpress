@@ -153,6 +153,7 @@
   "item.noellesroles.stalker_knife.desc": "潜行者职业二阶段专属武器。普通形态右键蓄力刺击，蹲下可快速蓄力，并沿用原有冷却。刺客形态中作为Psycho兼容武器：右键走猎刀蓄力后冲刺，命中一名敌人会让一把未冷却的猎刀进入5秒冷却，技能进入3.5秒冷却。",
   "item.noellesroles.stalker_knife_offhand.desc": "潜行者可花350金币购买的副手刀，与主手刀冷却独立。刺客形态命中时会优先让未冷却的那把刀进入5秒冷却，冲刺时双刀位置均有刀光轨迹。",
   "item.stupid_express.jerry_can.desc": "纵火犯职业专属道具，右键使玩家浇上汽油。",
+  "item.stupid_express.large_oil_can.desc": "纵火犯可花165金币购买的可重复使用道具。右键投掷后，使用WASD和视角遥控，空格上升、潜行下降。油罐落地或碰撞后，为落点半径4格内的其他存活玩家浇油，冷却60秒。",
   "item.stupid_express.lighter.desc": "纵火犯职业专属道具，右键将被浇上汽油的玩家点燃，详细情况见纵火犯职业介绍。",
   "item.wathe.thrown_grenade.desc": "投掷出的手雷。",
   "item.starrailexpress.camera.desc": "监控摄像头，用途同现实中的监控",

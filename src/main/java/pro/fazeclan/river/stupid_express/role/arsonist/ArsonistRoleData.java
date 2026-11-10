@@ -18,6 +18,17 @@ package pro.fazeclan.river.stupid_express.role.arsonist;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.component.DeathPenaltyComponent;
+import org.agmas.noellesroles.component.DefibrillatorComponent;
+import org.agmas.noellesroles.init.ModEffects;
+import pro.fazeclan.river.stupid_express.constants.SEEffects;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -42,6 +53,118 @@ public class ArsonistRoleData extends SimpleRoleData {
     public int dousedCount = 0;
     public final Set<UUID> dousedPlayers = new LinkedHashSet<>();
     public final Map<UUID, UUID> burningKillers = new HashMap<>();
+    /** 仅服务端使用，记录真正被本纵火犯烧死的玩家及死亡位置。 */
+    public final Map<UUID, BurnedPlayer> burnedPlayers = new HashMap<>();
+    public UUID activeOilCan;
+
+    public record BurnedPlayer(ServerLevel level, Vec3 position, float yaw, float pitch) {
+        public static BurnedPlayer at(ServerPlayer target) {
+            return new BurnedPlayer(target.serverLevel(), target.position(), target.getYRot(), target.getXRot());
+        }
+
+        public void release(ServerPlayer target, boolean revive) {
+            clearBurnRestrictions(target);
+            if (revive && target.isSpectator()) {
+                target.teleportTo(level, position.x, position.y, position.z, yaw, pitch);
+                GameUtils.revivePlayer(target, position.x, position.y, position.z);
+                target.setCamera(target);
+                target.displayClientMessage(Component.translatable("message.stupid_express.arsonist.revived"), false);
+            }
+        }
+    }
+
+    public void captureBurnedPlayer(ServerPlayer target, BurnedPlayer origin) {
+        if (!(player instanceof ServerPlayer owner) || !target.isSpectator()) return;
+        if (!GameUtils.isPlayerAliveAndSurvival(owner)) {
+            origin.release(target, true);
+            return;
+        }
+        burnedPlayers.put(target.getUUID(), origin);
+        bindBurnedPlayer(owner, target);
+        target.displayClientMessage(Component.translatable("message.stupid_express.arsonist.bound"), false);
+    }
+
+    private static void bindBurnedPlayer(ServerPlayer owner, ServerPlayer target) {
+        DeathPenaltyComponent penalty = DeathPenaltyComponent.KEY.get(target);
+        if (!owner.getUUID().equals(penalty.limitCameraUUID) || !penalty.hasPenalty()) {
+            penalty.setPenaltyWithCameraLimit(-1, owner, true);
+        }
+        DefibrillatorComponent.KEY.get(target).init();
+        if (!target.hasEffect(ModEffects.CHAT_BAN))
+            target.addEffect(new MobEffectInstance(ModEffects.CHAT_BAN, -1, 0, false, false, false));
+        if (!target.hasEffect(ModEffects.VOICE_SILENCE))
+            target.addEffect(new MobEffectInstance(ModEffects.VOICE_SILENCE, -1, 0, false, false, false));
+        if (!target.hasEffect(ModEffects.SKILL_BANED))
+            target.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, -1, 0, false, false, false));
+        if (!target.hasEffect(ModEffects.USED_BANED))
+            target.addEffect(new MobEffectInstance(ModEffects.USED_BANED, -1, 0, false, false, false));
+    }
+
+    private static void clearBurnRestrictions(ServerPlayer target) {
+        DeathPenaltyComponent.KEY.get(target).init();
+        target.removeEffect(ModEffects.CHAT_BAN);
+        target.removeEffect(ModEffects.VOICE_SILENCE);
+        target.removeEffect(ModEffects.SKILL_BANED);
+        target.removeEffect(ModEffects.USED_BANED);
+        target.removeEffect(ModEffects.MOVE_BANED);
+        target.setCamera(target);
+    }
+
+    /** 死亡、离线或换职业时释放；局末只解除限制，不把人复活进结算场景。 */
+    public void releaseBurnedPlayers(boolean revive) {
+        if (!(player instanceof ServerPlayer owner)) return;
+        for (var entry : burnedPlayers.entrySet()) {
+            ServerPlayer target = owner.server.getPlayerList().getPlayer(entry.getKey());
+            if (target != null) entry.getValue().release(target, revive);
+            else ArsonistEvents.releaseOnJoin(entry.getKey(), entry.getValue(), revive);
+        }
+        burnedPlayers.clear();
+        for (UUID id : burningKillers.keySet()) {
+            ServerPlayer target = owner.server.getPlayerList().getPlayer(id);
+            if (target != null) {
+                target.removeEffect(SEEffects.BURNING);
+                target.clearFire();
+            }
+        }
+        burningKillers.clear();
+        if (activeOilCan != null && owner.serverLevel().getEntity(activeOilCan) instanceof LargeOilCanEntity can) {
+            can.finish();
+        }
+        activeOilCan = null;
+    }
+
+    @Override
+    public void serverTick() {
+        if (!(player instanceof ServerPlayer owner)) return;
+        boolean running = SREGameWorldComponent.KEY.get(owner.level()).isRunning();
+        if (!running || !GameUtils.isPlayerAliveAndSurvival(owner)) {
+            if (!burnedPlayers.isEmpty() || !burningKillers.isEmpty() || activeOilCan != null)
+                releaseBurnedPlayers(running);
+            return;
+        }
+        if (activeOilCan != null && !(owner.serverLevel().getEntity(activeOilCan) instanceof LargeOilCanEntity)) {
+            activeOilCan = null;
+            owner.connection.send(new net.minecraft.network.protocol.game.ClientboundSetCameraPacket(owner));
+        }
+        if (owner.tickCount % 20 != 0) return;
+        var iterator = burnedPlayers.entrySet().iterator();
+        while (iterator.hasNext()) {
+            var entry = iterator.next();
+            ServerPlayer target = owner.server.getPlayerList().getPlayer(entry.getKey());
+            if (target == null) continue;
+            if (GameUtils.isPlayerAliveAndSurvival(target)) {
+                clearBurnRestrictions(target);
+                iterator.remove();
+            } else if (target.isSpectator()) {
+                bindBurnedPlayer(owner, target);
+            }
+        }
+    }
+
+    @Override
+    public void clear() {
+        releaseBurnedPlayers(SREGameWorldComponent.KEY.get(player.level()).isRunning());
+    }
 
     public ArsonistRoleData(RoleDataContext context) {
         super(context);
@@ -110,6 +233,7 @@ public class ArsonistRoleData extends SimpleRoleData {
     }
 
     public void reset() {
+        releaseBurnedPlayers(SREGameWorldComponent.KEY.get(player.level()).isRunning());
         dousedPlayers.clear();
         dousedCount = 0;
         burningKillers.clear();
