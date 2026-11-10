@@ -38,6 +38,7 @@ public final class ArsonistWinChecker {
                 if (!game.isRole(player, SERoles.ARSONIST)) continue;
                 var data = ArsonistRoleData.of(player);
                 if (data == null || data.settlementUnlocked) continue;
+                if (data.introTicks > 0) return GameUtils.WinStatus.NONE;
                 if (level.getServer().getPlayerList().getPlayers().stream()
                         .noneMatch(p -> p != player && GameUtils.isPlayerAliveAndSurvival(p))) {
                     data.win();

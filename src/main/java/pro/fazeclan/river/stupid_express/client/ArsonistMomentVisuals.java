@@ -45,6 +45,8 @@ public final class ArsonistMomentVisuals {
     private static final Map<UUID, Integer> REMAINING = new HashMap<>();
     private static final Map<BlockPos, Vec3> FLOOR_FIRE = new LinkedHashMap<>();
     private static ClientLevel lastLevel;
+    private static boolean introMapIgnited;
+    private static final String STATUS_ID = "ArsonistMoment";
 
     private ArsonistMomentVisuals() {}
 
@@ -55,14 +57,37 @@ public final class ArsonistMomentVisuals {
     }
 
     public static void accept(ArsonistPackets.MomentS2C packet) {
-        if (packet.active()) REMAINING.put(packet.owner(), Mth.clamp(packet.remainingTicks(), 0, ArsonistRules.MOMENT_TICKS));
-        else REMAINING.remove(packet.owner());
-        if (REMAINING.isEmpty()) FLOOR_FIRE.clear();
+        boolean wasEmpty = REMAINING.isEmpty();
+        if (packet.active()) {
+            if (wasEmpty) introMapIgnited = false;
+            REMAINING.put(packet.owner(), Mth.clamp(packet.remainingTicks(), 0, ArsonistRules.MOMENT_TICKS));
+            if (wasEmpty) io.wifi.starrailexpress.client.StatusBarHUD.getInstance().addStatusBar(
+                    STATUS_ID, "", () -> remainingTicks() / (float) ArsonistRules.MOMENT_TICKS);
+        } else REMAINING.remove(packet.owner());
+        if (REMAINING.isEmpty()) {
+            FLOOR_FIRE.clear();
+            introMapIgnited = false;
+            io.wifi.starrailexpress.client.StatusBarHUD.getInstance().removeStatusBar(STATUS_ID);
+        } else updateStatusBar();
+    }
+
+    private static int remainingTicks() {
+        return REMAINING.values().stream().mapToInt(Integer::intValue).min().orElse(0);
+    }
+
+    private static void updateStatusBar() {
+        if (REMAINING.isEmpty()) return;
+        int remaining = remainingTicks();
+        io.wifi.starrailexpress.client.StatusBarHUD.getInstance().updateStatusBar(STATUS_ID,
+                net.minecraft.network.chat.Component.translatable("hud.stupid_express.arsonist.global_time", (remaining + 19) / 20).getString(),
+                remaining / (float) ArsonistRules.MOMENT_TICKS);
     }
 
     public static void clear() {
         REMAINING.clear();
         FLOOR_FIRE.clear();
+        introMapIgnited = false;
+        io.wifi.starrailexpress.client.StatusBarHUD.getInstance().removeStatusBar(STATUS_ID);
         lastLevel = null;
     }
 
@@ -73,8 +98,8 @@ public final class ArsonistMomentVisuals {
     }
 
     private static float progress() {
-        int remaining = REMAINING.values().stream().mapToInt(Integer::intValue).min().orElse(ArsonistRules.MOMENT_TICKS);
-        return Mth.clamp(1.0F - remaining / (float) ArsonistRules.MOMENT_TICKS, 0, 1);
+        float battle = Mth.clamp(1.0F - remainingTicks() / (float) ArsonistRules.MOMENT_TICKS, 0, 1);
+        return introMapIgnited ? 1 : Math.max(battle, ArsonistIntroClient.mapBurnProgress());
     }
 
     private static void tick(Minecraft client) {
@@ -85,6 +110,11 @@ public final class ArsonistMomentVisuals {
         if (!visible(client)) {
             FLOOR_FIRE.clear();
             return;
+        }
+        updateStatusBar();
+        if (ArsonistIntroClient.isActive()) {
+            introMapIgnited |= ArsonistIntroClient.mapBurnProgress() >= 0.95F;
+            if (client.level.getGameTime() % 4 == 0) updateFloor(client);
         }
         if (!SREClient.gameComponent.isSkillAvailable || SREGameTimeComponent.KEY.get(client.level).isTimeFrozen()) return;
         REMAINING.replaceAll((id, ticks) -> Math.max(0, ticks - 1));
@@ -107,17 +137,25 @@ public final class ArsonistMomentVisuals {
         if (client.level.getGameTime() % 10 == 0) updateFloor(client);
     }
 
-    /** 每半秒最多16条短射线、最多96处假火；只采样客户端已经加载的地面。 */
+    /** 仅采样已经加载的地面；过场全图最多256处，正常战斗近景最多96处。 */
     private static void updateFloor(Minecraft client) {
         Vec3 center = client.player.position();
-        FLOOR_FIRE.entrySet().removeIf(entry -> entry.getValue().distanceToSqr(center) > 32 * 32
-                || !client.level.hasChunkAt(entry.getKey()));
-        int targetCount = 6 + (int) (90 * progress());
+        var area = ArsonistIntroClient.mapBounds();
+        boolean intro = ArsonistIntroClient.isActive() && area != null;
+        FLOOR_FIRE.entrySet().removeIf(entry -> !client.level.hasChunkAt(entry.getKey())
+                || !intro && entry.getValue().distanceToSqr(center) > 32 * 32);
+        if (!intro && FLOOR_FIRE.size() > 96) {
+            var iterator = FLOOR_FIRE.keySet().iterator();
+            while (FLOOR_FIRE.size() > 96 && iterator.hasNext()) { iterator.next(); iterator.remove(); }
+        }
+        int targetCount = 6 + (int) ((intro ? 250 : 90) * progress());
         for (int attempt = 0; attempt < 16 && FLOOR_FIRE.size() < targetCount; attempt++) {
-            double x = Math.floor(center.x + client.level.random.nextInt(49) - 24) + 0.5;
-            double z = Math.floor(center.z + client.level.random.nextInt(49) - 24) + 0.5;
-            Vec3 from = new Vec3(x, center.y + 1.2, z);
-            Vec3 to = new Vec3(x, center.y - 6, z);
+            double x = intro ? area.minX + client.level.random.nextDouble() * area.getXsize()
+                    : Math.floor(center.x + client.level.random.nextInt(49) - 24) + 0.5;
+            double z = intro ? area.minZ + client.level.random.nextDouble() * area.getZsize()
+                    : Math.floor(center.z + client.level.random.nextInt(49) - 24) + 0.5;
+            Vec3 from = new Vec3(x, intro ? Math.min(client.level.getMaxBuildHeight() - 1, area.maxY + 1) : center.y + 1.2, z);
+            Vec3 to = new Vec3(x, intro ? Math.max(client.level.getMinBuildHeight(), area.minY - 1) : center.y - 6, z);
             if (!client.level.hasChunkAt(BlockPos.containing(from)) || !client.level.hasChunkAt(BlockPos.containing(to))) continue;
             var hit = client.level.clip(new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, client.player));
             if (hit.getType() == HitResult.Type.MISS || hit.getDirection() != Direction.UP) continue;
@@ -141,8 +179,8 @@ public final class ArsonistMomentVisuals {
         TextureAtlasSprite sprite = fireSprite(client);
         float intensity = progress();
         for (Vec3 position : FLOOR_FIRE.values()) {
-            drawFire(context, vertices, sprite, position, 0.6F + intensity * 0.5F,
-                    0.65F + intensity * 0.65F, 0.75F);
+            drawFire(context, vertices, sprite, position, 0.6F + intensity * (ArsonistIntroClient.isActive() ? 3 : 0.5F),
+                    0.65F + intensity * (ArsonistIntroClient.isActive() ? 4 : 0.65F), 0.75F);
         }
         float partial = context.tickCounter().getGameTimeDeltaPartialTick(false);
         for (UUID id : REMAINING.keySet()) {
@@ -186,7 +224,9 @@ public final class ArsonistMomentVisuals {
 
     private static void renderEdges(GuiGraphics graphics) {
         Minecraft client = Minecraft.getInstance();
-        if (!visible(client) || client.options.hideGui) return;
+        if (!visible(client)) return;
+        graphics.fill(0, 0, graphics.guiWidth(), graphics.guiHeight(), 0x14FF9A45);
+        if (client.options.hideGui) return;
         int width = graphics.guiWidth();
         int height = graphics.guiHeight();
         int edgeX = Math.min(52, Math.max(16, width / 12));

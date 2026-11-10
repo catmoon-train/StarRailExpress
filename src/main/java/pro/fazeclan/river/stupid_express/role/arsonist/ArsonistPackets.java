@@ -36,6 +36,29 @@ public final class ArsonistPackets {
         @Override public Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
+    public record IntroS2C(java.util.UUID owner, net.minecraft.world.phys.Vec3 position, float yaw,
+            net.minecraft.world.phys.AABB mapBounds, int elapsedTicks, boolean active) implements CustomPacketPayload {
+        public static final Type<IntroS2C> ID = new Type<>(StupidExpress.id("arsonist_intro"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, IntroS2C> CODEC = StreamCodec.of((buf, p) -> {
+            buf.writeUUID(p.owner());
+            buf.writeDouble(p.position().x); buf.writeDouble(p.position().y); buf.writeDouble(p.position().z);
+            buf.writeFloat(p.yaw());
+            buf.writeDouble(p.mapBounds().minX); buf.writeDouble(p.mapBounds().minY); buf.writeDouble(p.mapBounds().minZ);
+            buf.writeDouble(p.mapBounds().maxX); buf.writeDouble(p.mapBounds().maxY); buf.writeDouble(p.mapBounds().maxZ);
+            buf.writeVarInt(p.elapsedTicks()); buf.writeBoolean(p.active());
+        }, buf -> new IntroS2C(buf.readUUID(), new net.minecraft.world.phys.Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble()),
+                buf.readFloat(), new net.minecraft.world.phys.AABB(buf.readDouble(), buf.readDouble(), buf.readDouble(),
+                        buf.readDouble(), buf.readDouble(), buf.readDouble()), buf.readVarInt(), buf.readBoolean()));
+        @Override public Type<? extends CustomPacketPayload> type() { return ID; }
+    }
+
+    public record DeathFxS2C() implements CustomPacketPayload {
+        public static final Type<DeathFxS2C> ID = new Type<>(StupidExpress.id("arsonist_death_fx"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, DeathFxS2C> CODEC = StreamCodec.of(
+                (buf, packet) -> {}, buf -> new DeathFxS2C());
+        @Override public Type<? extends CustomPacketPayload> type() { return ID; }
+    }
+
     /** 大油罐遥控状态：相机不再绑到油罐，改由该包告知客户端当前受控实体 id。 */
     public record OilCanControlS2C(int entityId, boolean active) implements CustomPacketPayload {
         public static final Type<OilCanControlS2C> ID = new Type<>(StupidExpress.id("arsonist_oil_can_control"));
@@ -50,6 +73,8 @@ public final class ArsonistPackets {
         PayloadTypeRegistry.playS2C().register(HeatS2C.ID, HeatS2C.CODEC);
         PayloadTypeRegistry.playS2C().register(MomentS2C.ID, MomentS2C.CODEC);
         PayloadTypeRegistry.playS2C().register(OilCanControlS2C.ID, OilCanControlS2C.CODEC);
+        PayloadTypeRegistry.playS2C().register(IntroS2C.ID, IntroS2C.CODEC);
+        PayloadTypeRegistry.playS2C().register(DeathFxS2C.ID, DeathFxS2C.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(ReloadC2S.ID, (packet, context) ->
                 context.server().execute(() -> {
                     ArsonistRoleData data = ArsonistRoleData.of(context.player());

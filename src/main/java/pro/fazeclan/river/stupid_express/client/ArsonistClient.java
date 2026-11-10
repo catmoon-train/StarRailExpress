@@ -115,7 +115,7 @@ public final class ArsonistClient {
 
     private static void renderHud(GuiGraphics graphics, float partialTick) {
         Minecraft client = Minecraft.getInstance();
-        if (client.options.hideGui || !inMatch(client) || !isLiving(client.player)) return;
+        if (client.options.hideGui || !inMatch(client) || !isLiving(client.player) || ArsonistIntroClient.isActive()) return;
         ArsonistRoleData data = ArsonistRoleData.of(client.player);
         if (data != null) renderRolePanel(graphics, client, data, partialTick);
         if (localHeat > 0) {
@@ -212,7 +212,7 @@ public final class ArsonistClient {
 
     private static void renderBurnValues(WorldRenderContext context) {
         Minecraft client = Minecraft.getInstance();
-        if (client.options.hideGui || !inMatch(client) || !isLiving(client.player)) return;
+        if (client.options.hideGui || !inMatch(client) || !isLiving(client.player) || ArsonistIntroClient.isActive()) return;
         ArsonistRoleData ownComp = ArsonistRoleData.of(client.player);
         PoseStack poses = context.matrixStack();
         if (ownComp == null || poses == null) return;

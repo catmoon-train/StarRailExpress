@@ -9,7 +9,11 @@ public final class ArsonistRules {
     public static final int SHOT_COINS = 100;
     public static final int SHOT_COOLDOWN_TICKS = 30 * 20;
     public static final int MOMENT_TICKS = 80 * 20;
-    public static final int RELOAD_TICKS = 10 * 20;
+    public static final int RELOAD_TICKS = 130;
+    public static final int INTRO_TICKS = 120;
+    public static final int BODY_BURN_TICKS = 60;
+    public static final int TITLE_START_TICK = 76;
+    public static final int TITLE_STEP_TICKS = 8;
     public static final int FAILED_IGNITE_WINDOW_TICKS = 3 * 20;
     public static final int FULL_FUEL = 1000;
     public static final int FUEL_PER_PULSE = 15;
@@ -22,6 +26,11 @@ public final class ArsonistRules {
     private static final double FLAME_COS_HALF_ANGLE = Math.cos(Math.toRadians(FLAME_HALF_ANGLE_DEGREES));
 
     private ArsonistRules() {}
+
+    /** -1仅代表原本就是无限时长；有限效果到期必须归零，不能产生永久效果。 */
+    public static int remainingEffectTicks(int originalDuration, int elapsedTicks) {
+        return originalDuration == -1 ? -1 : Math.max(0, originalDuration - Math.max(0, elapsedTicks));
+    }
 
     public static int requiredDoused(int aliveOthers) {
         return Math.max(1, (int) Math.ceil(Math.max(0, aliveOthers) * 0.8D));

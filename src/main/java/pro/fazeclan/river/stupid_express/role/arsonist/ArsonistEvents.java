@@ -19,6 +19,8 @@ public final class ArsonistEvents {
 
     public static void init() {
         ArsonistPackets.register();
+        ArsonistIntroManager.register();
+        ArsonistBurnedBodies.register();
         GameplayExtensionEvents.QUEST_REWARD.register((player, quest, streak, parallel, reward) ->
                 SREGameWorldComponent.KEY.get(player.level()).isRole(player, SERoles.ARSONIST)
                         ? ArsonistRules.TASK_COINS : reward);
@@ -27,11 +29,7 @@ public final class ArsonistEvents {
             if (reason.equals(io.wifi.starrailexpress.game.GameConstants.DeathReasons.IGNITED)
                     && killer instanceof ServerPlayer arsonist
                     && SREGameWorldComponent.KEY.get(arsonist.level()).isRole(arsonist, SERoles.ARSONIST)) {
-                var message = net.minecraft.network.chat.Component.translatable(
-                        "message.stupid_express.arsonist.burn_kill", arsonist.getDisplayName(), target.getDisplayName());
                 for (ServerPlayer observer : target.server.getPlayerList().getPlayers()) {
-                    org.agmas.noellesroles.commands.BroadcastCommand.BroadcastMessage(observer, message);
-                    observer.sendSystemMessage(message);
                     observer.playNotifySound(net.minecraft.sounds.SoundEvents.BLAZE_DEATH,
                             net.minecraft.sounds.SoundSource.PLAYERS, 0.8F, 1.05F);
                 }
@@ -55,6 +53,7 @@ public final class ArsonistEvents {
         });
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             int heat = 0;
+            ArsonistIntroManager.join(handler.player);
             for (var p : server.getPlayerList().getPlayers()) {
                 var data = ArsonistRoleData.of(p);
                 if (data != null) {

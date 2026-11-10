@@ -28,7 +28,7 @@ class ArsonistRulesTest {
         assertEquals(10, fuel);
         assertEquals(0, ArsonistRules.fuelAfterPulse(fuel));
         assertEquals(0, ArsonistRules.fuelAfterPulse(0));
-        assertEquals(200, ArsonistRules.RELOAD_TICKS);
+        assertEquals(130, ArsonistRules.RELOAD_TICKS);
         assertEquals(2, ArsonistRules.FUEL_PULSE_TICKS);
     }
 
@@ -89,6 +89,24 @@ class ArsonistRulesTest {
         assertEquals(30 * 20, ArsonistRules.failedMomentTimeTicks(1));
         assertEquals(90 * 20, ArsonistRules.failedMomentTimeTicks(3));
         assertEquals(360 * 20, ArsonistRules.failedMomentTimeTicks(12));
+    }
+
+    @Test void introCorpseAndReloadUseIndependentDurations() {
+        assertEquals(120, ArsonistRules.INTRO_TICKS);
+        assertEquals(60, ArsonistRules.BODY_BURN_TICKS);
+        assertEquals(130, ArsonistRules.RELOAD_TICKS);
+        assertEquals(1600, ArsonistRules.MOMENT_TICKS);
+        assertEquals(76, ArsonistRules.TITLE_START_TICK);
+        assertEquals(8, ArsonistRules.TITLE_STEP_TICKS);
+        assertTrue(ArsonistRules.TITLE_START_TICK + ArsonistRules.TITLE_STEP_TICKS * 3 < ArsonistRules.INTRO_TICKS);
+    }
+
+    @Test void expiredFiniteEffectsNeverBecomeInfiniteAfterIntro() {
+        assertEquals(-1, ArsonistRules.remainingEffectTicks(-1, 120));
+        assertEquals(0, ArsonistRules.remainingEffectTicks(119, 120));
+        assertEquals(0, ArsonistRules.remainingEffectTicks(120, 120));
+        assertEquals(1, ArsonistRules.remainingEffectTicks(121, 120));
+        assertEquals(60, ArsonistRules.remainingEffectTicks(60, -10));
     }
 
     @Test void economicsAndMomentMatchTheRoleSpecification() {

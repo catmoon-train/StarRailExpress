@@ -65,6 +65,7 @@ public class ArsonistRoleData extends SimpleRoleData {
     public UUID activeOilCan;
     public boolean arsonMoment;
     public int momentTicks;
+    public int introTicks;
     /** 超时失败后放行普通结算，不能下一tick又因本职业存活而重新锁局。 */
     public boolean settlementUnlocked;
     public int fuelUnits = ArsonistRules.FULL_FUEL;
@@ -72,6 +73,9 @@ public class ArsonistRoleData extends SimpleRoleData {
     public int forcedSlot = -1;
     private ItemStack savedMainHand = ItemStack.EMPTY;
     private MobEffectInstance savedStaminaEffect;
+    private MobEffectInstance savedSpeedEffect;
+    private long speedSnapshotTick;
+    private final Set<UUID> pendingIgnition = new LinkedHashSet<>();
     private final Map<UUID, Integer> timedBurnDurations = new HashMap<>();
     private final Map<UUID, Integer> sentHeat = new HashMap<>();
     private long lastPulse = Long.MIN_VALUE;
@@ -165,7 +169,7 @@ public class ArsonistRoleData extends SimpleRoleData {
 
     /** 门槛不足时首次右键只警告，3秒内再次右键按原有规则点火失败而死；达标才点燃并进入纵火时刻。 */
     public boolean ignite() {
-        if (!(player instanceof ServerPlayer owner) || !canAct() || arsonMoment) return false;
+        if (!(player instanceof ServerPlayer owner) || !canAct() || arsonMoment || ArsonistIntroManager.isActive(owner.serverLevel())) return false;
         updateIgnitionProgress();
         if (dousedCount < ignitionRequired) {
             long now = owner.level().getGameTime();
@@ -182,17 +186,10 @@ public class ArsonistRoleData extends SimpleRoleData {
             return false;
         }
         failedIgniteTick = Long.MIN_VALUE;
-        int duration = Math.max(20, StupidExpress.CONFIG.rolesSection.arsonistSection.burnDurationSeconds * 20);
+        pendingIgnition.clear();
         for (ServerPlayer target : owner.server.getPlayerList().getPlayers()) {
             if (target != owner && GameUtils.isPlayerAliveAndSurvival(target) && isDoused(target.getUUID())
-                    && !target.hasEffect(SEEffects.EXTINGUISH_IMMUNITY)) {
-                setBurningKiller(target.getUUID(), owner.getUUID());
-                timedBurnDurations.put(target.getUUID(), duration);
-                burnValues.put(target.getUUID(), 0);
-                target.addEffect(new MobEffectInstance(SEEffects.BURNING, duration, 0, false, true, true));
-                target.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, duration + 20, 0, false, false, false));
-                target.setRemainingFireTicks(40);
-            }
+                    && !target.hasEffect(SEEffects.EXTINGUISH_IMMUNITY)) pendingIgnition.add(target.getUUID());
         }
         dousedPlayers.clear();
         dousedCount = 0;
@@ -207,7 +204,7 @@ public class ArsonistRoleData extends SimpleRoleData {
     public boolean forceStartMoment() {
         if (!(player instanceof ServerPlayer owner) || arsonMoment
                 || SREGameWorldComponent.KEY.get(owner.level()).getGameStatus() != GameStatus.ACTIVE
-                || !GameUtils.isPlayerAliveAndSurvival(owner)) return false;
+                || ArsonistIntroManager.isActive(owner.serverLevel()) || !GameUtils.isPlayerAliveAndSurvival(owner)) return false;
         startMoment(owner);
         return true;
     }
@@ -217,12 +214,13 @@ public class ArsonistRoleData extends SimpleRoleData {
         arsonMoment = true;
         settlementUnlocked = false;
         momentTicks = ArsonistRules.MOMENT_TICKS;
+        introTicks = ArsonistRules.INTRO_TICKS;
         fuelUnits = ArsonistRules.FULL_FUEL;
         reloadTicks = 0;
         forcedSlot = owner.getInventory().selected;
         savedMainHand = owner.getMainHandItem().copy();
         owner.stopUsingItem();
-        owner.setItemInHand(InteractionHand.MAIN_HAND, SEItems.FLAMETHROWER.getDefaultInstance());
+        owner.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         int alivePlayers = (int) owner.server.getPlayerList().getPlayers().stream()
                 .filter(GameUtils::isPlayerAliveAndSurvival).count();
         int shields = ArsonistRules.momentShields(alivePlayers);
@@ -230,9 +228,12 @@ public class ArsonistRoleData extends SimpleRoleData {
         var previousStamina = owner.getEffect(ModEffects.INFINITE_STAMINA);
         savedStaminaEffect = previousStamina == null ? null : new MobEffectInstance(previousStamina);
         owner.addEffect(new MobEffectInstance(ModEffects.INFINITE_STAMINA, 40, 0, false, false, false));
-        owner.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 40, 0, false, false, false));
+        var previousSpeed = owner.getEffect(MobEffects.MOVEMENT_SPEED);
+        savedSpeedEffect = previousSpeed == null ? null : new MobEffectInstance(previousSpeed);
+        speedSnapshotTick = owner.server.getTickCount();
         owner.getInventory().setChanged();
         owner.inventoryMenu.broadcastChanges();
+        ArsonistIntroManager.begin(owner);
         for (ServerPlayer p : owner.server.getPlayerList().getPlayers()) {
             p.sendSystemMessage(Component.translatable("message.stupid_express.arsonist.moment_start", owner.getDisplayName()));
             p.playNotifySound(SoundEvents.WITHER_SPAWN, SoundSource.PLAYERS, MOMENT_CUE_VOLUME, 1.15F);
@@ -246,8 +247,40 @@ public class ArsonistRoleData extends SimpleRoleData {
         sync();
     }
 
+    /** 过场结束后正式开战；此刻才给枪、速度II并启动最初标记的燃烧等待。 */
+    public void finishIntro() {
+        if (!(player instanceof ServerPlayer owner) || !arsonMoment || !GameUtils.isPlayerAliveAndSurvival(owner)) return;
+        introTicks = 0;
+        ItemStack displaced = owner.getMainHandItem();
+        owner.setItemInHand(InteractionHand.MAIN_HAND, SEItems.FLAMETHROWER.getDefaultInstance());
+        if (!displaced.isEmpty()) owner.getInventory().placeItemBackInInventory(displaced);
+        owner.inventoryMenu.broadcastChanges();
+        owner.addEffect(new MobEffectInstance(ModEffects.INFINITE_STAMINA, 40, 0, false, false, false));
+        owner.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 40, 1, false, false, false));
+        int duration = Math.max(20, StupidExpress.CONFIG.rolesSection.arsonistSection.burnDurationSeconds * 20);
+        for (UUID id : pendingIgnition) {
+            ServerPlayer target = owner.server.getPlayerList().getPlayer(id);
+            if (target == null || !GameUtils.isPlayerAliveAndSurvival(target) || target.hasEffect(SEEffects.EXTINGUISH_IMMUNITY)) continue;
+            setBurningKiller(id, owner.getUUID());
+            timedBurnDurations.put(id, duration);
+            burnValues.put(id, 0);
+            target.addEffect(new MobEffectInstance(SEEffects.BURNING, duration, 0, false, true, true));
+            target.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, duration + 20, 0, false, false, false));
+            target.setRemainingFireTicks(40);
+        }
+        pendingIgnition.clear();
+        publishMoment(owner);
+        sync();
+    }
+
+    private void publishMoment(ServerPlayer owner) {
+        for (ServerPlayer p : owner.server.getPlayerList().getPlayers()) {
+            ServerPlayNetworking.send(p, new ArsonistPackets.MomentS2C(owner.getUUID(), arsonMoment, momentTicks));
+        }
+    }
+
     public boolean canSpray() {
-        return arsonMoment && reloadTicks == 0 && fuelUnits > 0 && canAct();
+        return arsonMoment && introTicks == 0 && reloadTicks == 0 && fuelUnits > 0 && canAct();
     }
 
     public void startReload() {
@@ -304,7 +337,8 @@ public class ArsonistRoleData extends SimpleRoleData {
             // 参数：yaw、pitch、射程、锥半角；客户端按同一组参数画出与实际命中一致的锥形。
             ParticleFx.sendCustom(owner.serverLevel(), StupidExpress.id("arsonist_flame"), origin, 3,
                     owner.getYRot(), owner.getXRot(), (float) ArsonistRules.FLAME_RADIUS,
-                    (float) ArsonistRules.FLAME_HALF_ANGLE_DEGREES);
+                    (float) ArsonistRules.FLAME_HALF_ANGLE_DEGREES, owner.getId(),
+                    owner.getMainArm() == net.minecraft.world.entity.HumanoidArm.RIGHT ? 1 : -1);
             if (owner.tickCount % 10 == 0) owner.serverLevel().playSound(null, owner.blockPosition(),
                     SoundEvents.FIRE_AMBIENT, SoundSource.PLAYERS, 1.0F, 1.1F);
         }
@@ -323,12 +357,12 @@ public class ArsonistRoleData extends SimpleRoleData {
         if (fuelUnits == 0) startReload();
     }
 
-    /** 烧死不生成尸体，不再附身或复活。 */
+    /** 烧死生成燃烧尸体，由统一事件在3秒后销毁，不再附身或复活。 */
     public void killBurnedPlayer(ServerPlayer target) {
         if (!(player instanceof ServerPlayer owner) || !GameUtils.isPlayerAliveAndSurvival(target)) return;
         target.clearFire();
         target.removeEffect(SEEffects.BURNING);
-        GameUtils.killPlayer(target, false, owner, GameConstants.DeathReasons.IGNITED, true);
+        GameUtils.killPlayer(target, true, owner, GameConstants.DeathReasons.IGNITED, true);
         forgetTarget(target);
     }
 
@@ -391,6 +425,10 @@ public class ArsonistRoleData extends SimpleRoleData {
             if (arsonMoment || !burnValues.isEmpty() || !burningKillers.isEmpty() || activeOilCan != null) reset();
             return;
         }
+        if (introTicks > 0) {
+            introTicks = ArsonistIntroManager.remaining(owner);
+            if (introTicks > 0) { if (owner.tickCount % 20 == 0) sync(); return; }
+        }
         if (activeOilCan != null && !(owner.serverLevel().getEntity(activeOilCan) instanceof LargeOilCanEntity)) {
             // 油罐已不存在（落地 / 超时 / 越界）：把相机还给玩家，避免残留绑定导致视角卡死。
             activeOilCan = null;
@@ -408,7 +446,8 @@ public class ArsonistRoleData extends SimpleRoleData {
         if (arsonMoment) {
             if (owner.tickCount % 20 == 0) {
                 owner.addEffect(new MobEffectInstance(ModEffects.INFINITE_STAMINA, 40, 0, false, false, false));
-                owner.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 40, 0, false, false, false));
+                owner.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 40, 1, false, false, false));
+                publishMoment(owner);
             }
             if (game.isSkillAvailable && !SREGameTimeComponent.KEY.get(owner.level()).isTimeFrozen()) {
                 momentTicks--;
@@ -457,6 +496,7 @@ public class ArsonistRoleData extends SimpleRoleData {
         if (!(player instanceof ServerPlayer owner) || won || !GameUtils.isPlayerAliveAndSurvival(owner)
                 || SREGameWorldComponent.KEY.get(owner.level()).getGameStatus() != GameStatus.ACTIVE) return;
         if (settlementUnlocked || aliveOthers(owner) != 0) return;
+        if (introTicks > 0) return;
         reset();
         won = true;
         if (!CuckooRoleData.checkCuckooVictory(owner.serverLevel())) {
@@ -469,15 +509,32 @@ public class ArsonistRoleData extends SimpleRoleData {
     public void reset() {
         if (!(player instanceof ServerPlayer owner)) return;
         if (SREGameWorldComponent.KEY.get(owner.level()).getGameStatus() != GameStatus.ACTIVE) settlementUnlocked = false;
+        ArsonistIntroManager.cancel(owner);
         boolean wasMoment = arsonMoment;
         arsonMoment = false;
         momentTicks = 0;
+        introTicks = 0;
+        pendingIgnition.clear();
         reloadTicks = 0;
         owner.stopUsingItem();
         if (wasMoment) {
             owner.removeEffect(ModEffects.INFINITE_STAMINA);
-            if (savedStaminaEffect != null) owner.addEffect(savedStaminaEffect);
+            if (savedStaminaEffect != null) {
+                int left = ArsonistRules.remainingEffectTicks(savedStaminaEffect.getDuration(),
+                        (int) (owner.server.getTickCount() - speedSnapshotTick));
+                if (left == -1 || left > 0) owner.addEffect(new MobEffectInstance(ModEffects.INFINITE_STAMINA, left,
+                        savedStaminaEffect.getAmplifier(), savedStaminaEffect.isAmbient(), savedStaminaEffect.isVisible(), savedStaminaEffect.showIcon()));
+            }
             savedStaminaEffect = null;
+            var currentSpeed = owner.getEffect(MobEffects.MOVEMENT_SPEED);
+            if (currentSpeed != null && currentSpeed.getAmplifier() == 1 && currentSpeed.getDuration() <= 40) owner.removeEffect(MobEffects.MOVEMENT_SPEED);
+            if (savedSpeedEffect != null) {
+                int left = ArsonistRules.remainingEffectTicks(savedSpeedEffect.getDuration(),
+                        (int) (owner.server.getTickCount() - speedSnapshotTick));
+                if (left == -1 || left > 0) owner.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED,
+                        left, savedSpeedEffect.getAmplifier(), savedSpeedEffect.isAmbient(), savedSpeedEffect.isVisible(), savedSpeedEffect.showIcon()));
+                savedSpeedEffect = null;
+            }
             for (ServerPlayer p : owner.server.getPlayerList().getPlayers()) {
                 ServerPlayNetworking.send(p, new ArsonistPackets.MomentS2C(owner.getUUID(), false));
             }
@@ -521,6 +578,7 @@ public class ArsonistRoleData extends SimpleRoleData {
 
     @Override public void clear() { reset(); }
     @Override public void clientTick() {
+        if (introTicks > 0) return;
         if (!SREGameWorldComponent.KEY.get(player.level()).isSkillAvailable
                 || SREGameTimeComponent.KEY.get(player.level()).isTimeFrozen()) return;
         if (arsonMoment && momentTicks > 0) momentTicks--;
@@ -532,6 +590,7 @@ public class ArsonistRoleData extends SimpleRoleData {
         tag.putInt("ignitionRequired", ignitionRequired);
         tag.putBoolean("arsonMoment", arsonMoment);
         tag.putInt("momentTicks", momentTicks);
+        tag.putInt("introTicks", introTicks);
         tag.putBoolean("settlementUnlocked", settlementUnlocked);
         tag.putInt("fuelUnits", fuelUnits);
         tag.putInt("reloadTicks", reloadTicks);
@@ -552,6 +611,7 @@ public class ArsonistRoleData extends SimpleRoleData {
         ignitionRequired = tag.getInt("ignitionRequired");
         arsonMoment = tag.getBoolean("arsonMoment");
         momentTicks = tag.getInt("momentTicks");
+        introTicks = tag.getInt("introTicks");
         settlementUnlocked = tag.getBoolean("settlementUnlocked");
         fuelUnits = tag.getInt("fuelUnits");
         reloadTicks = tag.getInt("reloadTicks");
