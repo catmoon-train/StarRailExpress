@@ -32,10 +32,15 @@ class ArsonistRulesTest {
         assertEquals(2, ArsonistRules.FUEL_PULSE_TICKS);
     }
 
-    @Test void flameIsFrontHalfSphereWithFiveBlockBoundary() {
+    @Test void flameIsFrontConeWithFiveBlockBoundary() {
+        assertEquals(5.0D, ArsonistRules.FLAME_RADIUS);
+        assertEquals(35.0D, ArsonistRules.FLAME_HALF_ANGLE_DEGREES);
         assertTrue(ArsonistRules.inFlame(0, 0, 5, 0, 0, 1));
-        assertTrue(ArsonistRules.inFlame(5, 0, 0, 0, 0, 1));
+        assertTrue(ArsonistRules.inFlame(2, 0, 4, 0, 0, 1));
         assertTrue(ArsonistRules.inFlame(0, 0, 0, 0, 0, 1));
+        // 90° 正侧面与 63.4° 斜前方都在 5 格半径内，但已超出 35° 锥
+        assertFalse(ArsonistRules.inFlame(5, 0, 0, 0, 0, 1));
+        assertFalse(ArsonistRules.inFlame(4, 0, 2, 0, 0, 1));
         assertFalse(ArsonistRules.inFlame(0, 0, 5.01, 0, 0, 1));
         assertFalse(ArsonistRules.inFlame(0, 0, -0.01, 0, 0, 1));
         assertFalse(ArsonistRules.inFlame(0, 5.01, 0, 0, 0, 1));
