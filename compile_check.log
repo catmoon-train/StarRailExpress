@@ -1,0 +1,49 @@
+
+d:\gengxin\StarRailExpress>if "Windows_NT" == "Windows_NT" setlocal
+
+d:\gengxin\StarRailExpress>chcp 65001 
+Active code page: 65001
+
+d:\gengxin\StarRailExpress>set DIRNAME=d:\gengxin\StarRailExpress\ 
+
+d:\gengxin\StarRailExpress>if "d:\gengxin\StarRailExpress\" == "" set DIRNAME=. 
+
+d:\gengxin\StarRailExpress>set APP_BASE_NAME=gradlew 
+
+d:\gengxin\StarRailExpress>set APP_HOME=d:\gengxin\StarRailExpress\ 
+
+d:\gengxin\StarRailExpress>for %i in ("d:\gengxin\StarRailExpress\") do set APP_HOME=%~fi 
+
+d:\gengxin\StarRailExpress>set APP_HOME=d:\gengxin\StarRailExpress\ 
+
+d:\gengxin\StarRailExpress>set DEFAULT_JVM_OPTS="-Xmx64m" "-Xms64m" 
+
+d:\gengxin\StarRailExpress>if defined JAVA_HOME goto findJavaFromJavaHome 
+
+d:\gengxin\StarRailExpress>set JAVA_HOME=C:\Users\hai'man\AppData\Local\Packages\Microsoft.4297127D64EC6_8wekyb3d8bbwe\LocalCache\Local\runtime\java-runtime-delta\windows-x64\java-runtime-delta 
+
+d:\gengxin\StarRailExpress>set JAVA_EXE=C:\Users\hai'man\AppData\Local\Packages\Microsoft.4297127D64EC6_8wekyb3d8bbwe\LocalCache\Local\runtime\java-runtime-delta\windows-x64\java-runtime-delta/bin/java.exe 
+
+d:\gengxin\StarRailExpress>if exist "C:\Users\hai'man\AppData\Local\Packages\Microsoft.4297127D64EC6_8wekyb3d8bbwe\LocalCache\Local\runtime\java-runtime-delta\windows-x64\java-runtime-delta/bin/java.exe" goto execute 
+
+d:\gengxin\StarRailExpress>set CLASSPATH= 
+
+d:\gengxin\StarRailExpress>"C:\Users\hai'man\AppData\Local\Packages\Microsoft.4297127D64EC6_8wekyb3d8bbwe\LocalCache\Local\runtime\java-runtime-delta\windows-x64\java-runtime-delta/bin/java.exe" "-Xmx64m" "-Xms64m"   "-Dorg.gradle.appname=gradlew" -classpath "" -jar "d:\gengxin\StarRailExpress\\gradle\wrapper\gradle-wrapper.jar" compileJava --offline --console=plain 
+Starting a Gradle Daemon, 17 busy and 2 incompatible and 1 stopped Daemons could not be reused, use --status for details
+
+> Configure project :
+Fabric Loom: 1.17.13
+
+> Configure project :sre-pack-compat
+Fabric Loom: 1.17.13
+
+> Task :sre-pack-compat:compileJava UP-TO-DATE
+> Task :compileJava
+D:\gengxin\StarRailExpress\src\main\java\org\agmas\noellesroles\client\DynamiclightsEntry.java:62: 警告: [removal] DynamicLightsInitializer 中的 onInitializeDynamicLights(ItemLightSourceManager) 已过时, 且标记为待删除
+    public void onInitializeDynamicLights(ItemLightSourceManager itemLightSourceManager) {
+                ^
+注: 某些输入文件使用或覆盖了已过时的 API。
+注: 有关详细信息, 请使用 -Xlint:deprecation 重新编译。
+注: 某些输入文件使用了未经检查或不安全的操作。
+注: 有关详细信息, 请使用 -Xlint:unchecked 重新编译。
+1 个警告

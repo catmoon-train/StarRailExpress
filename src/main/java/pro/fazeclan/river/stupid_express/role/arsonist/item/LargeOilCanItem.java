@@ -10,6 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModEntities;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
@@ -44,7 +45,10 @@ public class LargeOilCanItem extends Item {
         }
         LargeOilCanEntity can = new LargeOilCanEntity(ModEntities.LARGE_OIL_CAN, level);
         can.setOwner(owner);
-        can.setPos(owner.getX(), owner.getEyeY() - 0.15D, owner.getZ());
+        // 生成在视线前方：相机留在玩家身上时，油罐才不会被近裁剪面吞掉，玩家能直接看见它飞出去。
+        Vec3 eye = owner.getEyePosition();
+        Vec3 ahead = owner.getLookAngle().scale(1.1D);
+        can.setPos(eye.x + ahead.x, eye.y + ahead.y - 0.15D, eye.z + ahead.z);
         can.setYRot(owner.getYRot());
         can.setXRot(owner.getXRot());
         // 出手速度同样对半砍（原 0.65 / 0.15），与遥控飞行速度保持一致。

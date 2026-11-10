@@ -36,10 +36,20 @@ public final class ArsonistPackets {
         @Override public Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
+    /** 大油罐遥控状态：相机不再绑到油罐，改由该包告知客户端当前受控实体 id。 */
+    public record OilCanControlS2C(int entityId, boolean active) implements CustomPacketPayload {
+        public static final Type<OilCanControlS2C> ID = new Type<>(StupidExpress.id("arsonist_oil_can_control"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, OilCanControlS2C> CODEC = StreamCodec.of(
+                (buf, packet) -> { buf.writeVarInt(packet.entityId()); buf.writeBoolean(packet.active()); },
+                buf -> new OilCanControlS2C(buf.readVarInt(), buf.readBoolean()));
+        @Override public Type<? extends CustomPacketPayload> type() { return ID; }
+    }
+
     public static void register() {
         PayloadTypeRegistry.playC2S().register(ReloadC2S.ID, ReloadC2S.CODEC);
         PayloadTypeRegistry.playS2C().register(HeatS2C.ID, HeatS2C.CODEC);
         PayloadTypeRegistry.playS2C().register(MomentS2C.ID, MomentS2C.CODEC);
+        PayloadTypeRegistry.playS2C().register(OilCanControlS2C.ID, OilCanControlS2C.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(ReloadC2S.ID, (packet, context) ->
                 context.server().execute(() -> {
                     ArsonistRoleData data = ArsonistRoleData.of(context.player());

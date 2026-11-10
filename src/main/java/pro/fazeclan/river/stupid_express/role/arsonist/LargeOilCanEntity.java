@@ -7,8 +7,8 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.no_water_influenced.NoHeavyWaterInfluencedThrowableItemProjectile;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.particles.ParticleTypes;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ClientboundSetCameraPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -34,7 +34,7 @@ public class LargeOilCanEntity extends NoHeavyWaterInfluencedThrowableItemProjec
 
     private int movementBits;
     private int controlTimeout;
-    private boolean cameraBound;
+    private boolean controlAnnounced;
     private boolean finished;
 
     public LargeOilCanEntity(EntityType<? extends NoHeavyWaterInfluencedThrowableItemProjectile> type, Level level) {
@@ -51,11 +51,8 @@ public class LargeOilCanEntity extends NoHeavyWaterInfluencedThrowableItemProjec
                 && SREGameWorldComponent.KEY.get(level()).isRole(player, SERoles.ARSONIST);
     }
 
-    public void setControlInput(float yaw, float pitch, int bits) {
-        if (!Float.isFinite(yaw) || !Float.isFinite(pitch)) {
-            return;
-        }
-        setRot(yaw, Mth.clamp(pitch, -85, 85));
+    /** 客户端只提交按键位；朝向由服务端直接读玩家本体，不再靠客户端回传视角。 */
+    public void setControlInput(int bits) {
         movementBits = bits;
         controlTimeout = 10;
     }
@@ -72,7 +69,7 @@ public class LargeOilCanEntity extends NoHeavyWaterInfluencedThrowableItemProjec
 
     @Override
     public void tick() {
-        if (level() instanceof ServerLevel) {
+        if (level() instanceof ServerLevel serverLevel) {
             if (!(getOwner() instanceof ServerPlayer owner) || !controlledBy(owner)
                     || !SREGameWorldComponent.KEY.get(level()).isRunning()
                     || tickCount >= 20 * 20 || owner.hasDisconnected()
@@ -81,11 +78,15 @@ public class LargeOilCanEntity extends NoHeavyWaterInfluencedThrowableItemProjec
                 finish();
                 return;
             }
-            if (!cameraBound) {
-                // 首 tick 才发相机包，确保客户端先收到实体生成包。
-                owner.connection.send(new ClientboundSetCameraPacket(this));
-                cameraBound = true;
+            if (!controlAnnounced) {
+                // 首 tick 才通知客户端，确保客户端先收到实体生成包；不再发送相机包，
+                // 玩家始终使用自己的视角，油罐也能作为普通实体被渲染出来。
+                ServerPlayNetworking.send(owner, new ArsonistPackets.OilCanControlS2C(getId(), true));
+                controlAnnounced = true;
             }
+            // 直接沿用玩家本体当前朝向（原版移动包已经同步到服务端），
+            // 避免「客户端视角 → 服务端实体旋转 → 客户端相机」的往返反馈导致的抖动与强制转向。
+            setRot(owner.getYRot(), Mth.clamp(owner.getXRot(), -85.0F, 85.0F));
             if (controlTimeout > 0) {
                 controlTimeout--;
                 Vec3 look = getLookAngle();
@@ -103,6 +104,11 @@ public class LargeOilCanEntity extends NoHeavyWaterInfluencedThrowableItemProjec
                     motion = motion.normalize().scale(MAX_FLIGHT_SPEED);
                 }
                 setDeltaMovement(motion);
+            }
+            // 单次发包拖尾，便于玩家在自己的视角里看清油罐飞到了哪里（相机不再附着在油罐上）。
+            if (tickCount % 4 == 0) {
+                serverLevel.sendParticles(ParticleTypes.SMOKE, getX(), getY(), getZ(),
+                        2, 0.08D, 0.08D, 0.08D, 0.01D);
             }
         }
         super.tick();
@@ -139,8 +145,9 @@ public class LargeOilCanEntity extends NoHeavyWaterInfluencedThrowableItemProjec
         if (finished) return;
         finished = true;
         if (getOwner() instanceof ServerPlayer owner) {
-            if (cameraBound && GameUtils.isPlayerAliveAndSurvival(owner)) {
-                owner.connection.send(new ClientboundSetCameraPacket(owner));
+            if (!level().isClientSide && !owner.hasDisconnected()) {
+                // 相机始终留在玩家身上，这里只需结束遥控状态，禁止再发相机包改玩家视角。
+                ServerPlayNetworking.send(owner, new ArsonistPackets.OilCanControlS2C(getId(), false));
             }
             ArsonistRoleData data = ArsonistRoleData.of(owner);
             if (data != null && getUUID().equals(data.activeOilCan)) data.activeOilCan = null;

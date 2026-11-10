@@ -117,7 +117,8 @@ public class RiceReceiverRegister {
                 } else if (entity instanceof pro.fazeclan.river.stupid_express.role.arsonist.LargeOilCanEntity can
                         && can.controlledBy(player)
                         && player.distanceToSqr(can) <= 128.0D * 128.0D) {
-                    can.setControlInput(payload.yaw(), payload.pitch(), payload.movementBits());
+                    // 大油罐只用按键位，朝向由服务端读玩家本体，避免视角回传延迟。
+                    can.setControlInput(payload.movementBits());
                 }
             });
         });

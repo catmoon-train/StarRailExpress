@@ -23,6 +23,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.packet.MechanicalBirdControlC2SPacket;
 import org.joml.Matrix4f;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
 import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistPackets;
@@ -43,6 +44,8 @@ public final class ArsonistClient {
     // 受击者独立收包，不依赖纵火犯实体是否在客户端的追踪距离内。
     private static int localHeat;
     private static int reloadSpanTicks;
+    /** 服务端下发的大油罐实体 id；相机不再绑定到油罐，靠它维持遥控输入。 */
+    private static int activeOilCanId = -1;
 
     private ArsonistClient() {
     }
@@ -53,7 +56,14 @@ public final class ArsonistClient {
         ClientPlayNetworking.registerGlobalReceiver(ArsonistPackets.HeatS2C.ID,
                 (payload, context) -> context.client().execute(() ->
                         localHeat = Mth.clamp(payload.heat(), 0, 100)));
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> clear());
+        ClientPlayNetworking.registerGlobalReceiver(ArsonistPackets.OilCanControlS2C.ID,
+                (payload, context) -> context.client().execute(() ->
+                        activeOilCanId = payload.active() ? payload.entityId() : -1));
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+            clear();
+            activeOilCanId = -1;
+        });
+        ClientTickEvents.END_CLIENT_TICK.register(ArsonistClient::sendOilCanControl);
         ClientTickEvents.END_CLIENT_TICK.register(ArsonistClient::tick);
         HudRenderCallback.EVENT.register((graphics, delta) ->
                 renderHud(graphics, delta.getGameTimeDeltaPartialTick(false)));
@@ -63,6 +73,21 @@ public final class ArsonistClient {
     private static void clear() {
         localHeat = 0;
         reloadSpanTicks = 0;
+    }
+
+    /** 大油罐不再绑定相机：按服务端下发的实体 id 持续提交按键，玩家视角完全保持自己的。 */
+    private static void sendOilCanControl(Minecraft client) {
+        if (activeOilCanId < 0 || client.player == null || client.level == null) return;
+        // 实体生成包可能比状态包晚到；服务端会校验实体、归属和距离，客户端无需先拿到实体。
+        int bits = 0;
+        if (client.options.keyUp.isDown()) bits |= MechanicalBirdControlC2SPacket.BIT_FORWARD;
+        if (client.options.keyDown.isDown()) bits |= MechanicalBirdControlC2SPacket.BIT_BACK;
+        if (client.options.keyLeft.isDown()) bits |= MechanicalBirdControlC2SPacket.BIT_LEFT;
+        if (client.options.keyRight.isDown()) bits |= MechanicalBirdControlC2SPacket.BIT_RIGHT;
+        if (client.options.keyJump.isDown()) bits |= MechanicalBirdControlC2SPacket.BIT_JUMP;
+        if (client.options.keyShift.isDown()) bits |= MechanicalBirdControlC2SPacket.BIT_SNEAK;
+        ClientPlayNetworking.send(new MechanicalBirdControlC2SPacket(activeOilCanId,
+                client.player.getYRot(), client.player.getXRot(), bits));
     }
 
     private static boolean isLiving(Player player) {

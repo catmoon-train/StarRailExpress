@@ -52,6 +52,11 @@ import java.util.UUID;
 
 /** 纵火犯的标记、非致死火枪、80秒纵火时刻、火力和燃烧值，均由服务端权威结算。 */
 public class ArsonistRoleData extends SimpleRoleData {
+    /** 参照命令方块系列环境音的独立音量常量（CommandBlockAmbientSound.VOLUME = 0.25F），
+     *  登场曲与提示音都改成常量并略微调低，避免盖过对局音效。 */
+    private static final float MOMENT_MUSIC_VOLUME = 0.7F;
+    private static final float MOMENT_CUE_VOLUME = 0.5F;
+
     public int dousedCount;
     public int ignitionRequired = 1;
     public final Set<UUID> dousedPlayers = new LinkedHashSet<>();
@@ -230,10 +235,10 @@ public class ArsonistRoleData extends SimpleRoleData {
         owner.inventoryMenu.broadcastChanges();
         for (ServerPlayer p : owner.server.getPlayerList().getPlayers()) {
             p.sendSystemMessage(Component.translatable("message.stupid_express.arsonist.moment_start", owner.getDisplayName()));
-            p.playNotifySound(SoundEvents.WITHER_SPAWN, SoundSource.PLAYERS, 0.65F, 1.15F);
-            // 与阿蒙时刻一致：在每名玩家所在位置播放，确保全场都能听到。
+            p.playNotifySound(SoundEvents.WITHER_SPAWN, SoundSource.PLAYERS, MOMENT_CUE_VOLUME, 1.15F);
+            // 与阿蒙时刻一致：在每名玩家所在位置播放，确保全场都能听到；音量单独用常量控制。
             owner.serverLevel().playSound(null, p.getX(), p.getY(), p.getZ(),
-                    NRSounds.ARSONIST, SoundSource.MASTER, 1.0F, 1.0F);
+                    NRSounds.ARSONIST, SoundSource.MASTER, MOMENT_MUSIC_VOLUME, 1.0F);
             ServerPlayNetworking.send(p, new ArsonistPackets.MomentS2C(owner.getUUID(), true, momentTicks));
         }
         SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.event.arsonist.moment",
@@ -387,8 +392,8 @@ public class ArsonistRoleData extends SimpleRoleData {
             return;
         }
         if (activeOilCan != null && !(owner.serverLevel().getEntity(activeOilCan) instanceof LargeOilCanEntity)) {
+            // 大油罐不再接管相机，这里不能发相机包，否则会重置其它系统正在使用的视角。
             activeOilCan = null;
-            owner.connection.send(new net.minecraft.network.protocol.game.ClientboundSetCameraPacket(owner));
         }
         if (owner.tickCount % 20 == 0) {
             dirty |= updateIgnitionProgress();

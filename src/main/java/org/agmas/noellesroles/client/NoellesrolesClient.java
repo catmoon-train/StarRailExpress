@@ -1354,9 +1354,9 @@ public class NoellesrolesClient implements ClientModInitializer {
                 ClientPlayNetworking.send(new org.agmas.noellesroles.packet.NiaoshoushouMissileControlC2SPacket(
                         missile.getId(), client.player.getYRot(), client.player.getXRot(), steering));
             }
+            // 大油罐已不再绑定相机，控制输入改由 ArsonistClient 按受控实体 id 发送。
             var remoteCamera = client.getCameraEntity();
-            if (remoteCamera instanceof org.agmas.noellesroles.content.entity.MechanicalBirdEntity
-                    || remoteCamera instanceof pro.fazeclan.river.stupid_express.role.arsonist.LargeOilCanEntity) {
+            if (remoteCamera instanceof org.agmas.noellesroles.content.entity.MechanicalBirdEntity) {
                 var bird = remoteCamera;
                 if (bird.isRemoved()
                         || client.level.getEntity(bird.getId()) != bird

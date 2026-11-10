@@ -215,6 +215,17 @@ public class CustomWinnerClass {
             }
         }
 
+        // 纵火犯时刻锁局（参考鹈鹕）：与鹈鹕同在 checkWinnerBuiltin 这一层，
+        // 放在布谷鸟之后以保留「布谷鸟优先于纵火犯」，同时早于后续会把普通结算
+        // 改写成独立胜利、甚至直接 customWinnerWin -> stopGame 绕过事件链的分支。
+        if (pro.fazeclan.river.stupid_express.role.arsonist.ArsonistWinChecker
+                .isSettlementLocked(serverLevel)
+                && pro.fazeclan.river.stupid_express.role.arsonist.ArsonistWinChecker
+                        .isOrdinaryEnding(winStatus)) {
+            if (!prioritize) return WinStatus.NONE;
+            deferred = WinStatus.NONE;
+        }
+
         // 自定义角色独立胜利判定 (来自 CustomRoleLoader)
         WinStatus customRoleWin = io.wifi.starrailexpress.customrole.CustomRoleLoader
                 .checkCustomRoleWins(serverLevel, winStatus);
