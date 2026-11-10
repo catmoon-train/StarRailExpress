@@ -6,7 +6,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.server.level.ServerLevel;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 
-/** 纵火犯仅杀光对手才能宣胜；时刻失败后放行普通阵营及超时结算。 */
+/** 纵火犯仅杀光对手才能宣胜；时间耗尽时正常走 TIME 结算，不对耗时的局锁局。 */
 public final class ArsonistWinChecker {
     private ArsonistWinChecker() {}
 
@@ -22,10 +22,12 @@ public final class ArsonistWinChecker {
         return false;
     }
 
-    /** 普通阵营胜利或时间耗尽：锁局要否决的正是这三类结算。 */
+    /**
+     * 锁局要否决的是普通阵营胜利（杀手/乘客）；时间耗尽 TIME 不在此列，
+     * 否则时间到了也会被纵火犯锁局卡住、永远不结算。
+     */
     public static boolean isOrdinaryEnding(GameUtils.WinStatus status) {
-        return status == GameUtils.WinStatus.KILLERS || status == GameUtils.WinStatus.PASSENGERS
-                || status == GameUtils.WinStatus.TIME;
+        return status == GameUtils.WinStatus.KILLERS || status == GameUtils.WinStatus.PASSENGERS;
     }
 
     public static void registerEvent() {
