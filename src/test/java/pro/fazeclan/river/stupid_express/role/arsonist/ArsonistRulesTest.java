@@ -79,4 +79,13 @@ class ArsonistRulesTest {
         assertEquals(600, ArsonistRules.SHOT_COOLDOWN_TICKS);
         assertEquals(1600, ArsonistRules.MOMENT_TICKS);
     }
+
+    @Test void failedIgniteNeedsASecondClickWithinThreeSeconds() {
+        assertEquals(60, ArsonistRules.FAILED_IGNITE_WINDOW_TICKS);
+        assertFalse(ArsonistRules.withinFailedIgniteWindow(0, Long.MIN_VALUE));
+        assertTrue(ArsonistRules.withinFailedIgniteWindow(0, 0));
+        assertTrue(ArsonistRules.withinFailedIgniteWindow(60, 0));
+        assertFalse(ArsonistRules.withinFailedIgniteWindow(61, 0));
+        assertFalse(ArsonistRules.withinFailedIgniteWindow(59, 60));
+    }
 }

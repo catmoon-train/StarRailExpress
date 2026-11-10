@@ -67,6 +67,7 @@ public class ArsonistRoleData extends SimpleRoleData {
     private final Map<UUID, Integer> timedBurnDurations = new HashMap<>();
     private final Map<UUID, Integer> sentHeat = new HashMap<>();
     private long lastPulse = Long.MIN_VALUE;
+    private long failedIgniteTick = Long.MIN_VALUE;
     private boolean won;
     private boolean dirty;
 
@@ -154,15 +155,25 @@ public class ArsonistRoleData extends SimpleRoleData {
         return true;
     }
 
-    /** 门槛不足只提示，不点火、不自杀，也不添加任何冷却。 */
+    /** 门槛不足时首次右键只警告，3秒内再次右键按原有规则点火失败而死；达标才点燃并进入纵火时刻。 */
     public boolean ignite() {
         if (!(player instanceof ServerPlayer owner) || !canAct() || arsonMoment) return false;
         updateIgnitionProgress();
         if (dousedCount < ignitionRequired) {
-            owner.displayClientMessage(Component.translatable("message.stupid_express.arsonist.need_marks", dousedCount, ignitionRequired), true);
-            sync();
+            long now = owner.level().getGameTime();
+            if (!ArsonistRules.withinFailedIgniteWindow(now, failedIgniteTick)) {
+                failedIgniteTick = now;
+                owner.displayClientMessage(Component.translatable("message.stupid_express.arsonist.need_marks",
+                        dousedCount, ignitionRequired), true);
+                sync();
+                return false;
+            }
+            failedIgniteTick = Long.MIN_VALUE;
+            owner.playNotifySound(SoundEvents.FIRE_EXTINGUISH, SoundSource.PLAYERS, 1.0F, 1.0F);
+            GameUtils.killPlayer(owner, true, null, GameConstants.DeathReasons.FAILED_IGNITE);
             return false;
         }
+        failedIgniteTick = Long.MIN_VALUE;
         int duration = Math.max(20, StupidExpress.CONFIG.rolesSection.arsonistSection.burnDurationSeconds * 20);
         for (ServerPlayer target : owner.server.getPlayerList().getPlayers()) {
             if (target != owner && GameUtils.isPlayerAliveAndSurvival(target) && isDoused(target.getUUID())) {
@@ -413,6 +424,7 @@ public class ArsonistRoleData extends SimpleRoleData {
         ignitionRequired = 1;
         fuelUnits = ArsonistRules.FULL_FUEL;
         lastPulse = Long.MIN_VALUE;
+        failedIgniteTick = Long.MIN_VALUE;
         won = false;
         if (activeOilCan != null && owner.serverLevel().getEntity(activeOilCan) instanceof LargeOilCanEntity can) can.finish();
         activeOilCan = null;

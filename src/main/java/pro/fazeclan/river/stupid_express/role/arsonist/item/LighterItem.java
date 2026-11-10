@@ -8,7 +8,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRoleData;
 
-/** 打火机没有冷却；条件不足时安全失败，达标才点燃并进入纵火时刻。 */
+/** 打火机没有冷却；人数不足时首次右键只提示，3秒内再次右键点火失败而死，达标才点燃并进入纵火时刻。 */
 public class LighterItem extends Item {
     public LighterItem(Properties properties) { super(properties); }
 

@@ -10,6 +10,7 @@ public final class ArsonistRules {
     public static final int SHOT_COOLDOWN_TICKS = 30 * 20;
     public static final int MOMENT_TICKS = 80 * 20;
     public static final int RELOAD_TICKS = 10 * 20;
+    public static final int FAILED_IGNITE_WINDOW_TICKS = 3 * 20;
     public static final int FULL_FUEL = 1000;
     public static final int FUEL_PER_PULSE = 15;
     public static final int HEAT_PER_TICK = 5;
@@ -32,6 +33,11 @@ public final class ArsonistRules {
 
     public static int heatAfterTick(int heat) {
         return Math.min(100, Math.max(0, heat) + HEAT_PER_TICK);
+    }
+
+    /** 首次点火失败警告后，3秒内的第二次右键才会点火失败而死。 */
+    public static boolean withinFailedIgniteWindow(long now, long warnedAt) {
+        return warnedAt != Long.MIN_VALUE && now >= warnedAt && now - warnedAt <= FAILED_IGNITE_WINDOW_TICKS;
     }
 
     /** 按触发时全部存活人数（含本人）计算，每满3人给1层，最多4层。 */
