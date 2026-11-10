@@ -39,6 +39,8 @@ import java.util.List;
 
 import org.agmas.noellesroles.component.InfectedPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.game.moment.MomentManager;
+import org.agmas.noellesroles.game.moment.MomentType;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.BroadcastMessageS2CPacket;
@@ -203,6 +205,7 @@ public class InfectedWinChecker {
                 if (wasAccelerated) {
                     InfectedPlayerComponent.setSpreadAcceleratedForAll(level, false);
                     wasAccelerated = false;
+                    MomentManager.end(level, MomentType.INFECTED);
                 }
                 return;
             }
@@ -230,6 +233,7 @@ public class InfectedWinChecker {
                 if (wasAccelerated) {
                     InfectedPlayerComponent.setSpreadAcceleratedForAll(level, false);
                     wasAccelerated = false;
+                    MomentManager.end(level, MomentType.INFECTED);
                     // 同步取消加速状态到疫使玩家自身的组件（供客户端HUD读取）
                     for (ServerPlayer p : inftectRolePlayers) {
                         {
@@ -290,11 +294,8 @@ public class InfectedWinChecker {
                 comp.sync();
             }
         }
-        // 全场播放疫使时刻音效
-        for (ServerPlayer p : level.players()) {
-            level.playSound(null, p.getX(), p.getY(), p.getZ(),
-                    SoundEvents.WITCH_CELEBRATE, SoundSource.MASTER, 1.0F, 1.0F);
-        }
+        // 交由统一时刻管理器播放疫使时刻音乐（音乐由 MomentManager 统一管理）
+        MomentManager.begin(level, MomentType.INFECTED);
         // 全场广播疫使时刻提示
         Component broadcast = Component.translatable("message.noellesroles.infected.time.triggered")
                 .withStyle(ChatFormatting.DARK_GREEN, ChatFormatting.BOLD);
@@ -404,6 +405,7 @@ public class InfectedWinChecker {
             if (wasAccelerated) {
                 InfectedPlayerComponent.setSpreadAcceleratedForAll(level, false);
                 wasAccelerated = false;
+                MomentManager.end(level, MomentType.INFECTED);
             }
             return;
         }
@@ -432,10 +434,8 @@ public class InfectedWinChecker {
                         comp.sync();
                     }
                 }
-                for (ServerPlayer p : level.players()) {
-                    level.playSound(null, p.getX(), p.getY(), p.getZ(),
-                            SoundEvents.WITCH_CELEBRATE, SoundSource.MASTER, 1.0F, 1.0F);
-                }
+                // 交由统一时刻管理器播放疫使时刻音乐
+                MomentManager.begin(level, MomentType.INFECTED);
                 Component broadcast = Component.translatable("message.noellesroles.infected.time.triggered")
                         .withStyle(ChatFormatting.DARK_GREEN, ChatFormatting.BOLD);
                 for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) {
@@ -453,6 +453,7 @@ public class InfectedWinChecker {
             if (wasAccelerated) {
                 InfectedPlayerComponent.setSpreadAcceleratedForAll(level, false);
                 wasAccelerated = false;
+                MomentManager.end(level, MomentType.INFECTED);
                 // 同步取消加速状态到疫使玩家自身的组件（供客户端HUD读取）
                 for (ServerPlayer p : inftectRolePlayers) {
                     {

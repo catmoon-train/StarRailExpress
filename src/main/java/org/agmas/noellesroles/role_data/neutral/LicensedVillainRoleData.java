@@ -31,6 +31,8 @@ import org.agmas.noellesroles.utils.ReplayEventLog;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
+import org.agmas.noellesroles.game.moment.MomentManager;
+import org.agmas.noellesroles.game.moment.MomentType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
@@ -105,6 +107,11 @@ public class LicensedVillainRoleData extends SimpleRoleData {
             return;
         }
         if (!gameWorld.isRunning() || !GameUtils.isPlayerAliveAndSurvival(player)) {
+            // 黑警时刻结束（游戏结束或黑警死亡）：统一管理器出栈并停播/回退时刻音乐。
+            if (momentTriggered) {
+                MomentManager.end((ServerLevel) player.level(), MomentType.LICENSED_VILLAIN);
+                momentTriggered = false;
+            }
             return;
         }
 
@@ -112,10 +119,12 @@ public class LicensedVillainRoleData extends SimpleRoleData {
         if (momentTriggered) {
             if (areAllTargetsCleared(player.level(), gameWorld, targetPhase)) {
                 if (player.level() instanceof ServerLevel serverLevel) {
+                    MomentManager.end(serverLevel, MomentType.LICENSED_VILLAIN);
                     RoleUtils.customWinnerWin(serverLevel, GameUtils.WinStatus.CUSTOM,
                             BounsRoles.LICENSED_VILLAIN.identifier().getPath(),
                             OptionalInt.of(LICENSED_VILLAIN_COLOR));
                 }
+                momentTriggered = false;
             }
             return;
         }
@@ -198,11 +207,8 @@ public class LicensedVillainRoleData extends SimpleRoleData {
             }
         }
 
-        // 黑警时刻登场音效：与阿蒙时刻一致，在每名玩家所在位置播放，确保全场都能听到。
-        for (ServerPlayer p : level.players()) {
-            level.playSound(null, p.getX(), p.getY(), p.getZ(),
-                    NRSounds.FATE, SoundSource.MASTER, 0.75F, 1.0F);
-        }
+        // 交给统一时刻管理器：登记开始并按优先级播放时刻音乐（音乐由 MomentManager 统一管理）
+        MomentManager.begin(level, MomentType.LICENSED_VILLAIN);
     }
 
     /** 统计当前存活玩家数。 */

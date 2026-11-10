@@ -87,20 +87,8 @@ public class StupidExpressClient {
 
     public static void init() {
 
-        // p.playNotifySound(StupidExpress.SOUND_REGUGEE, SoundSource.AMBIENT, 0.5f,
-        // 1.0f);
-        AmbienceUtil.registerBackgroundAmbience(
-                new BackgroundAmbience(StupidExpress.SOUND_REGUGEE,
-                        player -> {
-                            if (SREClient.gameComponent == null)
-                                return false;
-                            var refugeeC = RefugeeComponent.KEY.get(player.level());
-                            if (refugeeC.isAnyRevivals) {
-                                return true;
-                            }
-                            return false;
-                        },
-                        1));
+        // 亡命徒时刻（难民）音乐改由统一时刻管理器（MomentManager + MomentMusicClient）播放，
+        // 见 MomentType.DESPERADO，此处不再单独注册环境音。
 
         ItemTooltipCallback.EVENT.register((itemStack, tooltipContext, tooltipFlag, list) -> {
             if (itemStack.is(SEItems.JERRY_CAN))

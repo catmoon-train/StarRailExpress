@@ -38,11 +38,8 @@ public class NoellesrolesClientAmbientSounds {
     //     new BackgroundAmbience(NRSounds.MUSIC_UNWELCOME_SCHOOL,
     //         player -> ClientFakeSteveHuntState.isActive(),
     //         1));
-    // 阿蒙终幕「阿蒙时刻」：使用 A_MENG 音乐，于终幕全程循环播放。
-    AmbienceUtil.registerBackgroundAmbience(
-        new BackgroundAmbience(NRSounds.A_MENG,
-            player -> SREClient.gameComponent != null && org.agmas.noellesroles.client.ClientAmonState.finaleActive,
-            1));
+    // 阿蒙终幕「阿蒙时刻」音乐改由统一时刻管理器（MomentManager + MomentMusicClient）播放，
+    // 以支持跨时刻音乐优先级与时刻结束立即停播，此处不再单独注册环境音。
     AmbienceUtil.registerBackgroundAmbience(
         new BackgroundAmbience(NRSounds.JESTER_AMBIENT,
             player -> {
@@ -86,35 +83,8 @@ public class NoellesrolesClientAmbientSounds {
             },
             1));
 
-    // 恶魔之妹时刻（快进倒计时后）：芙兰朵露存活期间循环播放专属 BGM。
-    // 用 MASTER 声道全场播放（与 Dream 追杀音乐一致）：默认 BackgroundAmbience 的
-    // MUSIC 声道会被玩家音乐音量滑块静音，导致很多玩家听不到。
-    AmbienceUtil.registerBackgroundAmbience(
-        new MyBackgroundAmbience(NRSounds.ROLES_FURANDORU_FINAL, SoundSource.MASTER,
-            player -> {
-              if (SREClient.gameComponent == null || SREClient.timeComponent == null)
-                return false;
-              if (!SREClient.gameComponent.isRunning()) {
-                return false;
-              }
-              if (SREClient.timeComponent.getTime() <= GhostRoleData.FURAN_LAST_STAND_TIME) {
-                var level = Minecraft.getInstance().level;
-                if (level == null)
-                  return false;
-                return (level.players().stream().anyMatch((p) -> {
-                  if (!GameUtils.isPlayerAliveAndSurvival(p))
-                    return false;
-                  if (SREClient.gameComponent.isRole(p, THRedHouseRoles.FURANDORU)) {
-                    {
-                      return true;
-                    }
-                  }
-                  return false;
-                }));
-              }
-              return false;
-            },
-            1.0f, 10, 20));
+    // 恶魔之妹时刻音乐改由统一时刻管理器（MomentManager + MomentMusicClient）播放，
+    // 见 MomentType.FURANDORU，此处不再单独注册环境音。
     AmbienceUtil.registerBackgroundAmbience(
         new BackgroundAmbience(NRSounds.ROLES_REMILIA,
             player -> {

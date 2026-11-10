@@ -209,6 +209,8 @@ public class Noellesroles implements ModInitializer {
         // 世界系统与事件处理器注册
         NREventRegister.registerWorldSystemsAndEvents();
         org.agmas.noellesroles.game.halloween.HalloweenRuntime.register();
+        // 统一时刻管理器：起止标记、进度记录、音乐与亡命徒插队
+        org.agmas.noellesroles.game.moment.MomentManager.register();
 
         // 咖啡师「抱兔兔上头顶」的乘骑状态机
         org.agmas.noellesroles.role.anime.chino.ChinoHeadRideManager.register();

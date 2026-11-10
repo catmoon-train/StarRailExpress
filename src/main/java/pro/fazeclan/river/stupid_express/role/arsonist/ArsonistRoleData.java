@@ -35,6 +35,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.game.economy.MoneyFlow;
+import org.agmas.noellesroles.game.moment.MomentManager;
+import org.agmas.noellesroles.game.moment.MomentType;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.role_data.neutral.CuckooRoleData;
@@ -234,12 +236,11 @@ public class ArsonistRoleData extends SimpleRoleData {
         owner.getInventory().setChanged();
         owner.inventoryMenu.broadcastChanges();
         ArsonistIntroManager.begin(owner);
+        // 交给统一时刻管理器：登记开始并按优先级播放时刻音乐（音乐由 MomentManager 统一管理）
+        MomentManager.begin(owner.serverLevel(), MomentType.ARSONIST);
         for (ServerPlayer p : owner.server.getPlayerList().getPlayers()) {
             p.sendSystemMessage(Component.translatable("message.stupid_express.arsonist.moment_start", owner.getDisplayName()));
             p.playNotifySound(SoundEvents.WITHER_SPAWN, SoundSource.PLAYERS, MOMENT_CUE_VOLUME, 1.15F);
-            // 与阿蒙时刻一致：在每名玩家所在位置播放，确保全场都能听到；音量单独用常量控制。
-            owner.serverLevel().playSound(null, p.getX(), p.getY(), p.getZ(),
-                    NRSounds.ARSONIST, SoundSource.MASTER, MOMENT_MUSIC_VOLUME, 1.0F);
             ServerPlayNetworking.send(p, new ArsonistPackets.MomentS2C(owner.getUUID(), true, momentTicks));
         }
         SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.event.arsonist.moment",
@@ -449,7 +450,8 @@ public class ArsonistRoleData extends SimpleRoleData {
                 owner.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 40, 1, false, false, false));
                 publishMoment(owner);
             }
-            if (game.isSkillAvailable && !SREGameTimeComponent.KEY.get(owner.level()).isTimeFrozen()) {
+            if (game.isSkillAvailable && !SREGameTimeComponent.KEY.get(owner.level()).isTimeFrozen()
+                    && !MomentManager.isPaused(owner.serverLevel(), MomentType.ARSONIST)) {
                 momentTicks--;
                 if (reloadTicks > 0 && --reloadTicks == 0) { fuelUnits = ArsonistRules.FULL_FUEL; dirty = true; }
                 if (canSpray() && owner.isUsingItem() && owner.getUseItem().is(SEItems.FLAMETHROWER)) {
@@ -538,6 +540,8 @@ public class ArsonistRoleData extends SimpleRoleData {
             for (ServerPlayer p : owner.server.getPlayerList().getPlayers()) {
                 ServerPlayNetworking.send(p, new ArsonistPackets.MomentS2C(owner.getUUID(), false));
             }
+            // 交给统一时刻管理器：出栈并停止/回退时刻音乐
+            MomentManager.end(owner.serverLevel(), MomentType.ARSONIST);
         }
         for (int i = 0; i < owner.getInventory().getContainerSize(); i++) {
             if (owner.getInventory().getItem(i).is(SEItems.FLAMETHROWER)) owner.getInventory().setItem(i, ItemStack.EMPTY);

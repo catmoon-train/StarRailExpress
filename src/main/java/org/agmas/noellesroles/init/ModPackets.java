@@ -401,6 +401,10 @@ public class ModPackets {
         PayloadTypeRegistry.playS2C().register(org.agmas.noellesroles.packet.AmonFinaleS2CPacket.ID,
                 org.agmas.noellesroles.packet.AmonFinaleS2CPacket.CODEC);
 
+        // 注册统一时刻音乐网络包（客户端接收器在 MomentMusicClient）
+        PayloadTypeRegistry.playS2C().register(org.agmas.noellesroles.packet.MomentMusicS2CPacket.ID,
+                org.agmas.noellesroles.packet.MomentMusicS2CPacket.CODEC);
+
         // 注册物资箱网络包
         PayloadTypeRegistry.playC2S().register(SupplyCrateSaveConfigC2SPacket.ID,
                 SupplyCrateSaveConfigC2SPacket.CODEC);

@@ -57,6 +57,8 @@ import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.game.moment.MomentManager;
+import org.agmas.noellesroles.game.moment.MomentType;
 import org.agmas.noellesroles.packet.AmonFinaleS2CPacket;
 import org.agmas.noellesroles.packet.AmonSkinS2CPacket;
 import org.agmas.noellesroles.packet.BroadcastMessageS2CPacket;
@@ -186,6 +188,7 @@ public class AmonRoleData extends SimpleRoleData {
                 amon.getAttribute(Attributes.SCALE).setBaseValue(1.0D);
             }
             broadcastFinale(level, false);
+            MomentManager.end(level, MomentType.AMON);
         }
         seeds.clear();
         maturedHosts.clear();
@@ -771,6 +774,7 @@ public class AmonRoleData extends SimpleRoleData {
         applyGlow(amon);
         stealItems(amon, level);
         broadcastFinale(level, true);
+        MomentManager.begin(level, MomentType.AMON);
         // 回放记录：阿蒙时刻触发
         ReplayEventLog.record("replay.event.moment.amon", ReplayEventLog.player(amon));
         sync();
@@ -853,6 +857,7 @@ public class AmonRoleData extends SimpleRoleData {
             return;
         finalePhase = false;
         broadcastFinale(level, false);
+        MomentManager.end(level, MomentType.AMON);
         RoleUtils.customWinnerWin(level, GameUtils.WinStatus.CUSTOM,
                 ModRoles.AMON_ID.getPath(), OptionalInt.of(ModRoles.AMON.color()));
     }
@@ -871,6 +876,7 @@ public class AmonRoleData extends SimpleRoleData {
                 amon.getAttribute(Attributes.SCALE).setBaseValue(1.0D);
             }
             broadcastFinale(level, false);
+            MomentManager.end(level, MomentType.AMON);
         }
         sync();
     }

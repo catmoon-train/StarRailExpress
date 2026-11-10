@@ -58,6 +58,8 @@ import org.agmas.noellesroles.content.item.GroselleJourneyManager;
 import org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager;
 import org.agmas.noellesroles.game.roles.killer.warlock.WarlockDomainManager;
 import org.agmas.noellesroles.role_data.neutral.MonokumaRoleData;
+import org.agmas.noellesroles.game.moment.MomentManager;
+import org.agmas.noellesroles.game.moment.MomentType;
 import org.agmas.noellesroles.role_data.neutral.AmonRoleData;
 import org.agmas.noellesroles.api.time.TimeRewind;
 import org.agmas.noellesroles.api.time.TimeRewindAreaResult;
@@ -321,6 +323,8 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
                     true);
         });
         isAnyRevivals = true;
+        // 亡命徒时刻插队：暂停其它时刻并让位（其它时刻进度冻结，音乐切换到亡命徒音乐）
+        MomentManager.yieldToDesperado(serverLevel);
         // 回放记录：难民修饰符触发亡命徒时刻
         ReplayEventLog.record("replay.event.moment.refugee", ReplayEventLog.player(player));
         var gameWorldComponent = SREGameWorldComponent.KEY.get(this.level);
@@ -614,6 +618,8 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         });
 
         LoadPlayersStats();
+        // 亡命徒时刻结束（时间回溯已完成）：恢复被暂停的旧时刻与音乐
+        MomentManager.resumeFromDesperado(sp.serverLevel());
         players_stats.clear(); // 清空玩家位置信息，避免浪费资源
         playerTimeRewindSnapshots.clear();
         areaTimeRewindSnapshot = null;

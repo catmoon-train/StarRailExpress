@@ -259,6 +259,8 @@ public class NoellesrolesClient implements ClientModInitializer {
         CloneDoctorClient.register();
         IdentityScannerClient.register();
         NoellesrolesClientAmbientSounds.register();
+        // 统一时刻音乐播放器（统一管理各时刻的循环 BGM 与优先级）
+        org.agmas.noellesroles.client.MomentMusicClient.register();
         // Dream（Dream）：颤抖视角漂移 + 虚拟血量条（准星指向受伤玩家时显示）
         org.agmas.noellesroles.game.roles.killer.dream.client.DreamClientHandler.register();
         org.agmas.noellesroles.client.hud.VirtualHealthHud.register();

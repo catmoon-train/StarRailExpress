@@ -13,7 +13,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -21,6 +20,8 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.game.moment.MomentManager;
+import org.agmas.noellesroles.game.moment.MomentType;
 import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.ReplayEventLog;
@@ -143,6 +144,9 @@ public class DaywalkerRoleData extends SimpleRoleData {
 
     @Override
     public void init() {
+        if (finalChaseActive && player.level() instanceof ServerLevel level) {
+            MomentManager.end(level, MomentType.DAYWALKER);
+        }
         completedTasks = 0;
         storedMoments = 0;
         spentTicks = 0;
@@ -240,7 +244,7 @@ public class DaywalkerRoleData extends SimpleRoleData {
         // 局内计时器由 finalizeGame 的 reset() 复位，快进速率随 RoleData 于下局重建归零
         // （onEndGame 清空所有职业数据 + 每局 assignRole 新建 RoleData 实例）。
         // （时停/会议期间与主计时器一同暂停）
-        if (fastForwardActive) {
+        if (fastForwardActive && !momentPaused()) {
             fastForwardAccumulator += fastForwardRate / (1.0 - fastForwardRate);
             while (fastForwardAccumulator >= 1.0) {
                 fastForwardAccumulator -= 1.0;
@@ -270,7 +274,8 @@ public class DaywalkerRoleData extends SimpleRoleData {
         boolean nightEventLocking = SREWorldBlackoutComponent.KEY.get(player.level()).isNightEventActive();
         if (rateEnabled && !nightEventLocking
                 && game.getGameStatus() == SREGameWorldComponent.GameStatus.ACTIVE
-                && !timeComp.isTimeFrozen() && player.level() instanceof ServerLevel serverLevel) {
+                && !timeComp.isTimeFrozen() && !momentPaused()
+                && player.level() instanceof ServerLevel serverLevel) {
             worldTimeAccumulator += WORLD_TIME_TICKS_PER_TICK * getTimeMultiplier();
             worldTimeFlushTimer++;
             if (worldTimeFlushTimer >= WORLD_TIME_FLUSH_INTERVAL) {
@@ -291,6 +296,7 @@ public class DaywalkerRoleData extends SimpleRoleData {
         // 只在 ACTIVE 判定：进入结算（STOPPING）后不再额外制造死亡。
         if (!lastChanceTriggered && requiredTasks > 0 && completedTasks < requiredTasks
                 && game.getGameStatus() == SREGameWorldComponent.GameStatus.ACTIVE
+                && !momentPaused()
                 && timeComp.getTime() <= LAST_CHANCE_TICKS) {
             lastChanceTriggered = true;
             serverPlayer.displayClientMessage(
@@ -317,14 +323,11 @@ public class DaywalkerRoleData extends SimpleRoleData {
                         listener.playNotifySound(SoundEvents.ILLUSIONER_PREPARE_BLINDNESS,
                                 SoundSource.MASTER, 1.0F, 1.0F);
                     }
-                    // 提示音效结束后，再开始播放逐日者音乐（master 类型，同样全场逐人发包）
+                    // 提示音效结束后，交由统一时刻管理器开始播放逐日者音乐（延迟 30 tick）
                     Scheduler.schedule(() -> {
                         if (serverLevel == player.level()
                                 && GameUtils.isPlayerAliveAndSurvival(player)) {
-                            for (ServerPlayer listener : serverLevel.players()) {
-                                listener.playNotifySound(NRSounds.DAYWALKER,
-                                        SoundSource.MASTER, 1.0F, 1.0F);
-                            }
+                            MomentManager.begin(serverLevel, MomentType.DAYWALKER);
                         }
                     }, 30);
                     // 全场广播：终末追逐已经开始（不透露逐日者身份）
@@ -351,6 +354,9 @@ public class DaywalkerRoleData extends SimpleRoleData {
         } else if (finalChaseActive) {
             finalChaseActive = false;
             changed = true;
+            if (player.level() instanceof ServerLevel serverLevel) {
+                MomentManager.end(serverLevel, MomentType.DAYWALKER);
+            }
         }
 
         if (changed) {
@@ -559,6 +565,11 @@ public class DaywalkerRoleData extends SimpleRoleData {
      * 逐日者死亡：返还所有被加速掉的时间——技能快进掉的部分、因加速倍率多流逝的部分，
      * 以及尚未花费的「逐日时刻」，并使时间流速恢复正常（局内 1 秒 = 现实 1 秒）。
      */
+    /** 亡命徒时刻插队期间，逐日者时刻的时间推进与死亡判定暂停。 */
+    private boolean momentPaused() {
+        return player.level() instanceof ServerLevel level && MomentManager.isPaused(level, MomentType.DAYWALKER);
+    }
+
     public void refundOnDeath() {
         if (!(player instanceof ServerPlayer)) {
             return;
@@ -588,10 +599,7 @@ public class DaywalkerRoleData extends SimpleRoleData {
         // 逐日者音乐是开场时逐名玩家发包播放的一次性音效，死亡后不会自行停止，
         // 这里同样向全场发送停播包，按「音效 ID + MASTER 声道」精确停掉逐日者音乐。
         if (wasFinalChaseActive && player.level() instanceof ServerLevel serverLevel) {
-            for (ServerPlayer other : serverLevel.players()) {
-                other.connection.send(new ClientboundStopSoundPacket(
-                        NRSounds.DAYWALKER.getLocation(), SoundSource.MASTER));
-            }
+            MomentManager.end(serverLevel, MomentType.DAYWALKER);
         }
         if (refundTicks > 0) {
             SREGameTimeComponent timeComp = SREGameTimeComponent.KEY.get(player.level());

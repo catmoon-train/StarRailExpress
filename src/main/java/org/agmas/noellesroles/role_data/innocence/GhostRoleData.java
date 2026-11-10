@@ -30,6 +30,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.utils.ReplayEventLog;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.sounds.SoundSource;
@@ -37,6 +38,8 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.Items;
 import org.agmas.noellesroles.commands.BroadcastCommand;
+import org.agmas.noellesroles.game.moment.MomentManager;
+import org.agmas.noellesroles.game.moment.MomentType;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
@@ -64,6 +67,14 @@ public class GhostRoleData extends SimpleRoleData {
 
     @Override
     public void clear() {
+        endFuranMoment();
+    }
+
+    /** 恶魔之妹时刻结束：从统一时刻管理器出栈并停播其音乐。 */
+    private void endFuranMoment() {
+        if (lastStandNotified && player.level() instanceof ServerLevel level) {
+            MomentManager.end(level, MomentType.FURANDORU);
+        }
     }
 
     public GhostRoleData(RoleDataContext context) {
@@ -88,9 +99,11 @@ public class GhostRoleData extends SimpleRoleData {
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
 
         if (!gameWorld.isRunning()) {
+            endFuranMoment();
             return;
         }
         if (!GameUtils.isPlayerAliveAndSurvival(player)) {
+            endFuranMoment();
             return;
         }
 
@@ -374,6 +387,8 @@ public class GhostRoleData extends SimpleRoleData {
             });
 
             lastStandNotified = true;
+            // 交由统一时刻管理器：登记恶魔之妹时刻开始并按优先级播放其音乐
+            MomentManager.begin(serverPlayer.serverLevel(), MomentType.FURANDORU);
             sync();
             // 回放记录：芙兰朵露加速时间（若小透明也已加速，则记为「共同加速」）
             recordAccelerateTime(true);
