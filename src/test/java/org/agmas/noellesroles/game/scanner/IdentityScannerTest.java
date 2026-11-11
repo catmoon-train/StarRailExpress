@@ -106,7 +106,8 @@ class IdentityScannerTest {
                     "gui.noellesroles.identity_scanner.scan", "gui.noellesroles.identity_scanner.history",
                     "message.noellesroles.identity_scanner.result_target",
                     "message.noellesroles.identity_scanner.drop_cooldown",
-                    "message.noellesroles.identity_scanner.neutral_forbidden")) assertTrue(lang.has(key), key);
+                    "message.noellesroles.identity_scanner.neutral_forbidden",
+                    "message.noellesroles.identity_scanner.drop_while_cooling")) assertTrue(lang.has(key), key);
             var intro = JsonParser.parseString(Files.readString(root.resolve("item_intro/lang/" + locale + ".json"))).getAsJsonObject();
             String itemText = intro.get("item.noellesroles.portable_identity_scanner.desc").getAsString();
             for (String number : List.of("5", "120", "125", "150")) assertTrue(itemText.contains(number), locale + number);
@@ -256,5 +257,51 @@ class IdentityScannerTest {
         assertTrue(client.contains("client.setScreen(null)"));
         String screen = Files.readString(root.resolve("client/screen/IdentityScannerScreen.java"));
         assertTrue(screen.contains("IdentityScannerClient.canView(client, pos)"));
+    }
+    @Test void eachSuccessfulScanCreatesANewCooldownEvenAfterTheInitialDropRestrictionExpires() {
+        var ledger = new IdentityScannerLedger();
+        UUID player = UUID.randomUUID();
+        long initial = ledger.coronerDropReadyAt(player, 0);
+        assertEquals(0, IdentityScannerLedger.remaining(initial, 4000));
+        ledger.portableScanned(player, 4000);
+        assertEquals(2400, ledger.portableRemaining(player, 4000));
+        assertEquals(1, ledger.portableRemaining(player, 6399));
+        assertEquals(0, ledger.portableRemaining(player, 6400));
+        ledger.portableScanned(player, 8000);
+        assertEquals(2400, ledger.portableRemaining(player, 8000));
+        assertEquals(initial, ledger.coronerDropReadyAt(player, 8000));
+    }
+
+    @Test void scannerCooldownDropGuardAppliesBeforeRoleAndWhitelistApproval() throws Exception {
+        Path root = Path.of("src/main/java/org/agmas/noellesroles");
+        String item = Files.readString(root.resolve("content/item/PortableIdentityScannerItem.java"));
+        assertTrue(item.contains("player.getCooldowns().isOnCooldown(stack.getItem())"));
+        assertTrue(item.contains("IdentityScannerService.portableCoolingDown(owner)"));
+        assertFalse(item.contains("ModRoles.CORONER"));
+        String service = Files.readString(root.resolve("game/scanner/IdentityScannerService.java"));
+        String cooldown = service.substring(service.indexOf("public static boolean portableCoolingDown"),
+                service.indexOf("public static long coronerDropReadyAt"));
+        assertTrue(cooldown.contains("portableRemaining(player.getUUID(), now(player.level())) > 0"));
+        String drop = Files.readString(root.resolve("mixin/item/PortableScannerDropMixin.java"));
+        assertTrue(drop.contains("RoleMethodDispatcher.class, remap = false"));
+        assertTrue(drop.contains("method = \"callOnDropItem\", at = @At(\"HEAD\")"));
+        assertTrue(drop.contains("PortableIdentityScannerItem.blocksDrop(player, stack)"));
+        assertTrue(drop.contains("cir.setReturnValue(InteractionResult.FAIL)"));
+        assertTrue(drop.contains("sendAllDataToRemote()"));
+    }
+
+    @Test void scannerInventoryDropGuardCoversSlotDropsAndCarriedStackDrops() throws Exception {
+        String menu = Files.readString(Path.of("src/main/java/org/agmas/noellesroles/mixin/item/PortableScannerMenuDropMixin.java"));
+        assertTrue(menu.contains("method = \"clicked\", at = @At(\"HEAD\")"));
+        assertTrue(menu.contains("action == ClickType.THROW"));
+        assertTrue(menu.contains("action == ClickType.PICKUP && slot == -999"));
+        assertTrue(menu.contains("menu.getSlot(slot).getItem()"));
+        assertTrue(menu.contains("menu.getCarried()"));
+        assertTrue(menu.contains("RoleMethodDispatcher.callOnDropItem(player, stack)"));
+        assertTrue(menu.contains("ci.cancel()"));
+        var config = JsonParser.parseString(Files.readString(Path.of("src/main/resources/noellesroles.mixins.json"))).getAsJsonObject();
+        var entries = config.getAsJsonArray("mixins").asList().stream().map(value -> value.getAsString()).toList();
+        assertEquals(1, entries.stream().filter("item.PortableScannerDropMixin"::equals).count());
+        assertEquals(1, entries.stream().filter("item.PortableScannerMenuDropMixin"::equals).count());
     }
 }

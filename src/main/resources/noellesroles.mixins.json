@@ -5,6 +5,8 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "org.agmas.noellesroles.client.NRMixinPlugin",
   "mixins": [
+    "item.PortableScannerDropMixin",
+    "item.PortableScannerMenuDropMixin",
     "roles.clone_doctor.CloneDoctorItemMixin",
     "roles.clone_doctor.CloneDoctorInventoryMixin",
     "roles.ma_chen_xu.GhostArtInventoryMixin",

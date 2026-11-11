@@ -185,6 +185,10 @@ public final class IdentityScannerService {
         ledger.portableScanned(player.getUUID(), now(player.level()));
         player.getCooldowns().addCooldown(ModItems.PORTABLE_IDENTITY_SCANNER, 120 * 20);
     }
+    /** 按使用者查询扫描冷却，作为服务端丢弃限制的权威依据。 */
+    public static boolean portableCoolingDown(ServerPlayer player) {
+        return running(player) && ledger(player.level()).portableRemaining(player.getUUID(), now(player.level())) > 0;
+    }
     /** 首次成为验尸官时登记本局丢弃期限；离线、换道具或重新购买都不能重置。 */
     public static long coronerDropReadyAt(ServerPlayer player) {
         return running(player) ? ledger(player.level()).coronerDropReadyAt(player.getUUID(), now(player.level())) : -1;
