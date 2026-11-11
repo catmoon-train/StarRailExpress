@@ -12,7 +12,7 @@
 3. 客户端入口固定一次调用
    `org.agmas.noellesroles.game.halloween.pumpkin.client.PumpkinSpiritClient.register()`。
 4. 真实任务完成后一次调用 `PumpkinSpiritHandler.onTaskCompleted(ServerPlayer)`。
-   此回调给8格内其他存活南瓜精 +1–2 南瓜。自己的任务收入由 `PumpkinTaskIncomeMixin` 在默认收入计算后、账本记录前替换为60金币，不叠加普通中立任务金币。
+   此回调给8格内其他存活南瓜精 +1 南瓜。自己的任务收入由 `PumpkinTaskIncomeMixin` 在默认收入计算后、账本记录前替换为60金币，不叠加普通中立任务金币。
 5. 有效敲门奖励成功、CD 已消耗后调用 `PumpkinSpiritHandler.onDoorKnocked(ServerPlayer)`。
 6. 正常糖果效果确认成功后、`stack.shrink(1)` 前，传**真实被消费栈**调用
    `PumpkinSpiritHandler.onCandyConsumed(ServerPlayer, ItemStack)`。
@@ -46,7 +46,7 @@
 
 ## 机制与不变量
 
-- 胜利阈值固定为该局 `SREGameWorldComponent.getPlayerCount() * 4`；只看累计获得量，消费/丢弃不扣进度。
+- 胜利阈值固定为该局 `SREGameWorldComponent.getPlayerCount() * 5`；只看累计获得量，消费/丢弃不扣进度。
   每跨过一个 10 给一袋糖果，单次跨多档全给。独立胜利走标准 `RoleUtils.customWinnerWin`，
   `CustomWinnerRole` 自动参加现有胜利检查，不需要再改 CustomWinnerClass。
 - 已领取南瓜栈带全局 `CustomData` 已结算位；位会随原版分栈、合栈、转移复制。
@@ -74,7 +74,7 @@
   到期、真实死亡、断线、重生、换职业/维度、地图重置/结束均恢复。
   重施只延长租约，不把临时头保存成“原装备”；支持 15 秒与 20 秒。
   本方案保证正常退出流程，不声称支持 JVM 崩溃后的服务端内存租约恢复。
-- 真实死亡只监听 `FINAL_EVENT`，附近其他玩家最终死亡 +3；不使用尝试死亡事件发奖励。
+- 真实死亡只监听 `FINAL_EVENT`，附近其他玩家最终死亡 +2；不使用尝试死亡事件发奖励。
   杀手击杀南瓜精的基础金币和职业额外击杀金币在确切结算点跳过，不事后回滚余额。
   平民（实际 RoleTeam.CIVILIAN，非中立/警长）击杀时收到提示、20 秒南瓜头、缓慢 I 20 秒。
 - 本仓库实际亡命徒是 `TMMRoles.LOOSE_END`，并不存在 `ModRoles.DESPERADO`；兼容额外 id 路径 desperado。

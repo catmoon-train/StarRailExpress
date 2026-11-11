@@ -255,7 +255,7 @@ public final class PumpkinSpiritHandler {
         PumpkinHeads.restore(dead);
         if (!r.suppressionDeath) {
             for (ServerPlayer p : new ArrayList<>(dead.serverLevel().players())) {
-                if (p != dead && isSpirit(p) && alive(p) && p.distanceToSqr(dead) <= 64) grantPumpkins(p, 3);
+                if (p != dead && isSpirit(p) && alive(p) && p.distanceToSqr(dead) <= 64) grantPumpkins(p, 2);
             }
         }
         if (!isSpirit(dead)) return;
@@ -274,7 +274,7 @@ public final class PumpkinSpiritHandler {
         if (!active(p.serverLevel()) || paused(p.serverLevel()) || !alive(p)) return;
         for (ServerPlayer spirit : new ArrayList<>(p.serverLevel().players())) {
             if (spirit != p && isSpirit(spirit) && alive(spirit) && spirit.distanceToSqr(p) <= 64)
-                grantPumpkins(spirit, 1 + p.getRandom().nextInt(2));
+                grantPumpkins(spirit, 1);
         }
     }
 

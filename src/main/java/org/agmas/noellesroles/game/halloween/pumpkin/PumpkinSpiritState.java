@@ -14,7 +14,7 @@ public final class PumpkinSpiritState {
     private final Map<UUID, Long> attackReady = new HashMap<>();
 
     public PumpkinSpiritState(int startingPlayers) {
-        target = Math.multiplyExact(Math.max(1, startingPlayers), 4);
+        target = Math.multiplyExact(Math.max(1, startingPlayers), 5);
     }
 
     /** 返回本次应发的糖果袋数，跨越多个十位也不漏发。 */

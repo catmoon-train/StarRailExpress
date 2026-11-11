@@ -16,7 +16,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 public final class PumpkinSpiritRoleData extends SimpleRoleData {
     private static final ResourceLocation SCALE = ResourceLocation.fromNamespaceAndPath("noellesroles", "pumpkin_spirit_scale");
     public int collected;
-    public int target = 4;
+    public int target = 5;
     public boolean suppressed;
     private EntityDisguiseState batAppearance;
     private EntityDisguiseState previousAppearance;

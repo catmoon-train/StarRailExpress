@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class PumpkinSpiritStateTest {
     @Test void targetIsFixedAndResourcesAreCumulative() {
         var state = new PumpkinSpiritState(6);
-        assertEquals(24, state.target);
+        assertEquals(30, state.target);
         assertEquals(0, state.credit(9));
         assertEquals(3, state.credit(22));
         assertEquals(31, state.collected());
@@ -42,7 +42,7 @@ class PumpkinSpiritStateTest {
         assertEquals(2, before.credit(20));
         var after = round.computeIfAbsent(player, id -> new PumpkinSpiritState(99));
         assertSame(before, after);
-        assertEquals(20, after.target);
+        assertEquals(25, after.target);
         assertEquals(0, after.credit(1));
         assertEquals(21, after.collected());
     }
@@ -113,7 +113,7 @@ class PumpkinSpiritStateTest {
 
     @Test void desperadoKillsOnceAndRevivesAfterItDisappears() {
         var state = new PumpkinSpiritState(2);
-        state.credit(8);
+        state.credit(10);
         assertTrue(state.suppress(true, true));
         assertFalse(state.won(true));
         state.died();

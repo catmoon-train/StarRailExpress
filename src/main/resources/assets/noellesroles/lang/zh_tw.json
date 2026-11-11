@@ -54,7 +54,7 @@
   "command.noellesroles.night.already_queued": "已有等待中的黑夜事件請求，不會重複安排。",
   "text.autoconfig.noellesroles.option.nightEventEnableChance": "黑夜事件機率（萬分比，預設0）",
   "announcement.star.role.pumpkin_spirit": "南瓜精",
-  "announcement.star.goals.pumpkin_spirit": "累計獲得開局人數×4個南瓜，獨立獲勝。丟棄再撿不計數。",
+  "announcement.star.goals.pumpkin_spirit": "累計獲得開局人數×5個南瓜，獨立獲勝。丟棄再撿不計數。",
   "announcement.star.win.pumpkin_spirit": "南瓜精勝利",
   "game.win.star.pumpkin_spirit": "南瓜精收集到了足夠多的南瓜",
   "announcement.star.role.halloween_event": "萬聖節事件",
