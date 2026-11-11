@@ -293,6 +293,16 @@ public class GameUtils {
         return GameWorld.getSpawnPos(areas, room);
     }
 
+    /**
+     * 房间号尚未分配时返回 null，避免把 {@code Map.get} 的 null 结果拆箱成 int。
+     * 训练模式、地图切换等场景不会为玩家写入 {@link #roomToPlayer}，
+     * 此时由调用方按原有逻辑回退（例如使用玩家死亡位置）。
+     */
+    public static Vec3 getSpawnPos(AreasWorldComponent areas, @Nullable Integer room) {
+        if (room == null) return null;
+        return getSpawnPos(areas, room.intValue());
+    }
+
     public static void limitPlayerToBox(ServerPlayer player, AABB box) {
         GameWorld.limitPlayerToBox(player, box);
     }
