@@ -1,4 +1,4 @@
-{
+﻿{
   "hud.noellesroles.clone_doctor.copy_ready": "職業克隆：已就緒",
   "hud.noellesroles.clone_doctor.substitute_ready": "製作替身：已就緒",
   "hud.noellesroles.clone_doctor.current_role": "目前職業：%s",
@@ -3047,7 +3047,7 @@
   "hud.noellesroles.sack.devour": "可魂噬",
   "hud.noellesroles.sack.need_san": "魂噬需≤15SAN",
   "item.noellesroles.guest_ghost.stop_raining": "淨雨符",
-  "item.noellesroles.guest_ghost.stop_raining.tooltip1": "立刻關閉裏世界且全圖好人恢復 20 SAN",
+  "item.noellesroles.guest_ghost.stop_raining.tooltip1": "為10格內好人（含本人）恢復20點SAN，清除寄生與領域死亡標記，並在6秒內抵抗布袋鬼削減SAN；不關閉裏世界",
   "item.noellesroles.guest_ghost.taomuding": "桃木釘",
   "item.noellesroles.taomuding": "桃木釘",
   "item.noellesroles.guest_ghost.taomuding.tooltip1": "讓鬼的鬼術進入冷卻，持續 30 秒",
@@ -4955,7 +4955,7 @@
   "message.noellesroles.fake_steve.control.ended": "自由操控結束，偽人AI重新接管身體。80秒後可再次使用。",
   "message.noellesroles.fake_steve.control.cancelled": "自由操控已取消，進入80秒冷卻。",
   "message.noellesroles.fake_steve.control.unavailable": "現在無法奪回身體：僅本局存活的偽人可在非會議期間使用。",
-  "message.noellesroles.fake_steve.infected": "你被偽人擊殺並感染，已作為偽人重新站起。" ,
+  "message.noellesroles.fake_steve.infected": "你被偽人擊殺並感染，已作為偽人重新站起。",
   "message.noellesroles.fake_steve.event.title": "偽人出現",
   "message.noellesroles.fake_steve.event.subtitle": "它已經混入了這輛列車……",
   "message.noellesroles.fake_steve.event.broadcast": "警告：Fake Steve事件已經出現。留意沒有臉的Steve。",
@@ -4963,7 +4963,7 @@
   "message.noellesroles.fake_steve.hunt.subtitle": "回到你的房間。活下去，或成為它們的一員。",
   "message.noellesroles.fake_steve.hunt.broadcast": "偽人數量已佔據多數。所有偽人已進入永久瘋魔，狩獵開始。",
   "message.noellesroles.fake_steve.hunt.recall": "列車再次歸零。所有人已被送回自己的房間。",
-  "message.noellesroles.fake_steve.death.revive": "你在自己的房間重新站了起來——偽人已經奪舍了你的身體。" ,
+  "message.noellesroles.fake_steve.death.revive": "你在自己的房間重新站了起來——偽人已經奪舍了你的身體。",
   "replay.event.fake_steve.replaced": "§8🎭§r %s 被偽人替代了",
   "==================== Mini Game: Russian Roulette ====================": "",
   "==================== Main Body ====================": "",

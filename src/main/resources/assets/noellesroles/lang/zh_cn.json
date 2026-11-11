@@ -1,4 +1,4 @@
-{
+﻿{
   "hud.noellesroles.clone_doctor.copy_ready": "职业克隆：已就绪",
   "hud.noellesroles.clone_doctor.substitute_ready": "制作替身：已就绪",
   "hud.noellesroles.clone_doctor.current_role": "当前职业：%s",
@@ -3048,7 +3048,7 @@
   "hud.noellesroles.sack.devour": "可魂噬",
   "hud.noellesroles.sack.need_san": "魂噬需≤15SAN",
   "item.noellesroles.guest_ghost.stop_raining": "净雨符",
-  "item.noellesroles.guest_ghost.stop_raining.tooltip1": "立刻关闭里世界且全图好人恢复 20 SAN",
+  "item.noellesroles.guest_ghost.stop_raining.tooltip1": "为10格内好人（含本人）恢复20点SAN，清除寄生与领域死亡标记，并在6秒内抵抗布袋鬼削减SAN",
   "item.noellesroles.guest_ghost.taomuding": "桃木钉",
   "item.noellesroles.taomuding": "桃木钉",
   "item.noellesroles.guest_ghost.taomuding.tooltip1": "让鬼的鬼术进入冷却，持续 30 秒",
@@ -3083,7 +3083,7 @@
   "message.noellesroles.ma_chen_xu.ghost_skill_acquired": "已解锁诡物：%s",
   "hud.noellesroles.ma_chen_xu.san_progress": "实际削减SAN：%s/%s",
   "hud.noellesroles.ma_chen_xu.li_shi_jie_active": "里世界·百鬼夜行: %s秒",
-  "hud.noellesroles.ma_chen_xu.li_shi_jie_ready": "潜行+%s开启里世界（免费）",
+  "hud.noellesroles.ma_chen_xu.li_shi_jie_ready": "潜行+%s开启里世界",
   "hud.noellesroles.ma_chen_xu.ghost_skill": "诡术: %s",
   "hud.noellesroles.ma_chen_xu.ghost_skill_cooldown": "诡术冷却: %s秒",
   "hud.noellesroles.ma_chen_xu.ghost_skill_ready": "诡术就绪",
@@ -4968,7 +4968,7 @@
   "message.noellesroles.fake_steve.control.ended": "自由操控结束，伪人AI重新接管身体。80秒后可再次使用。",
   "message.noellesroles.fake_steve.control.cancelled": "自由操控已取消，进入80秒冷却。",
   "message.noellesroles.fake_steve.control.unavailable": "现在无法夺回身体：仅本局存活的伪人可在非会议期间使用。",
-  "message.noellesroles.fake_steve.infected": "你被伪人击杀并感染，已作为伪人重新站起。" ,
+  "message.noellesroles.fake_steve.infected": "你被伪人击杀并感染，已作为伪人重新站起。",
   "message.noellesroles.fake_steve.event.title": "伪人出现",
   "message.noellesroles.fake_steve.event.subtitle": "它已经混入了这辆列车……",
   "message.noellesroles.fake_steve.event.broadcast": "警告：Fake Steve事件已经出现。留意没有脸的Steve。",
