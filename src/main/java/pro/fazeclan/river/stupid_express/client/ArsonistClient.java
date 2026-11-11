@@ -97,7 +97,7 @@ public final class ArsonistClient {
         });
         ClientTickEvents.END_CLIENT_TICK.register(ArsonistClient::tick);
         HudRenderCallback.EVENT.register((graphics, delta) ->
-                renderHud(graphics, delta.getGameTimeDeltaPartialTick(false)));
+                renderHud(graphics));
         WorldRenderEvents.AFTER_ENTITIES.register(ArsonistClient::renderBurnValues);
     }
 
@@ -141,11 +141,11 @@ public final class ArsonistClient {
         }
     }
 
-    private static void renderHud(GuiGraphics graphics, float partialTick) {
+    private static void renderHud(GuiGraphics graphics) {
         Minecraft client = Minecraft.getInstance();
         if (client.options.hideGui || !inMatch(client) || !isLiving(client.player) || ArsonistIntroClient.isActive()) return;
         ArsonistRoleData data = ArsonistRoleData.of(client.player);
-        if (data != null) renderRolePanel(graphics, client, data, partialTick);
+        if (data != null) renderRolePanel(graphics, client, data);
         if (localHeat > 0) {
             int width = Math.min(160, graphics.guiWidth() / 2 - 24);
             if (width < 24) return;
@@ -158,8 +158,8 @@ public final class ArsonistClient {
     }
 
     private static void renderRolePanel(GuiGraphics graphics, Minecraft client,
-                                       ArsonistRoleData data, float partialTick) {
-        int height = data.arsonMoment ? 128 : 112;
+                                       ArsonistRoleData data) {
+        int height = data.arsonMoment ? 128 : 50;
         // 始终留在准星右侧，并避开底部快捷栏；小窗口整体缩放，而非遮住屏幕中央。
         float scale = Math.min(1.0F, Math.min((graphics.guiWidth() / 2.0F - 24) / PANEL_WIDTH,
                 (graphics.guiHeight() - 64.0F) / height));
@@ -168,7 +168,7 @@ public final class ArsonistClient {
         graphics.pose().translate(graphics.guiWidth() - 8 - PANEL_WIDTH * scale,
                 graphics.guiHeight() - 48 - height * scale, 0);
         graphics.pose().scale(scale, scale, 1.0F);
-        panel(graphics, 0, 0, PANEL_WIDTH, height);
+        if (data.arsonMoment) panel(graphics, 0, 0, PANEL_WIDTH, height);
         Font font = client.font;
         int width = PANEL_WIDTH - 20;
         label(graphics, font, text(data.arsonMoment ? "moment" : "preparation"), 10, 8, width, ORANGE);
@@ -186,22 +186,15 @@ public final class ArsonistClient {
             progress(graphics, 10, 81, width, reloadProgress);
             label(graphics, font, text("reload_hint", InputHandler.sniperReloadKeybind.getTranslatedKeyMessage()),
                     10, 96, width, MUTED);
+            int shields = Math.max(0, SREArmorPlayerComponent.KEY.get(client.player).getArmor());
+            label(graphics, font, text("shields", shields), 10, 111, width,
+                    shields > 0 ? ORANGE : MUTED);
         } else {
             int required = Math.max(1, data.ignitionRequired);
             int doused = Math.max(0, data.dousedCount);
             label(graphics, font, text("doused", doused, required, 80), 10, 25, width, LIGHT);
             progress(graphics, 10, 37, width, doused / (float) required);
-            float gunCooldown = client.player.getCooldowns().getCooldownPercent(SEItems.FIRE_GUN, partialTick);
-            label(graphics, font, text("fire_gun", 100, decimal(gunCooldown * 30), 30),
-                    10, 47, width, MUTED);
-            progress(graphics, 10, 59, width, 1.0F - gunCooldown);
-            float oilCooldown = client.player.getCooldowns().getCooldownPercent(SEItems.LARGE_OIL_CAN, partialTick);
-            label(graphics, font, text("oil_can", decimal(oilCooldown * 60), 60), 10, 69, width, MUTED);
-            progress(graphics, 10, 81, width, 1.0F - oilCooldown);
         }
-        int shields = Math.max(0, SREArmorPlayerComponent.KEY.get(client.player).getArmor());
-        label(graphics, font, text("shields", shields), 10, data.arsonMoment ? 111 : 95, width,
-                shields > 0 ? ORANGE : MUTED);
         graphics.pose().popPose();
     }
 
@@ -246,7 +239,7 @@ public final class ArsonistClient {
         if (client.options.hideGui || !inMatch(client) || !isLiving(client.player) || ArsonistIntroClient.isActive()) return;
         ArsonistRoleData ownComp = ArsonistRoleData.of(client.player);
         PoseStack poses = context.matrixStack();
-        if (ownComp == null || poses == null) return;
+        if (ownComp == null || !ownComp.arsonMoment || poses == null) return;
         Vec3 camera = context.camera().getPosition();
         float partial = context.tickCounter().getGameTimeDeltaPartialTick(false);
         MultiBufferSource.BufferSource buffers = client.renderBuffers().bufferSource();
