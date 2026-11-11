@@ -2,6 +2,7 @@ package org.agmas.noellesroles.client;
 
 import org.agmas.noellesroles.client.screen.IdentityScannerScreen;
 import org.agmas.noellesroles.packet.IdentityScannerStateS2CPacket;
+import org.agmas.noellesroles.game.scanner.IdentityScannerAccess;
 import io.wifi.starrailexpress.client.SREClient;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -9,7 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 
-/** 扫描仪统一客户端入口；不依赖玩家职业，不新增按键。 */
+/** 扫描仪统一客户端入口；同步阵营使用限制，不新增按键。 */
 public final class IdentityScannerClient {
     private static BlockPos pendingOpen;
     private static int pendingTicks;
@@ -56,7 +57,7 @@ public final class IdentityScannerClient {
 
     public static boolean canView(Minecraft client, BlockPos pos) {
         return client.player != null && client.level != null && SREClient.gameComponent != null
-                && SREClient.gameComponent.isRunning()
+                && SREClient.gameComponent.isRunning() && IdentityScannerAccess.canUse(client.player)
                 && client.level.getBlockState(pos).is(org.agmas.noellesroles.init.ModBlocks.IDENTITY_SCANNER)
                 && client.player.distanceToSqr(Vec3.atCenterOf(pos)) <= 36.0;
     }

@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.game.scanner;
 
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -55,7 +56,7 @@ public final class IdentityScannerService {
     private static long now(Level level) { return GameUtils.getTicksFromGameStart(level); }
     private static boolean running(Player player) { return SREGameWorldComponent.KEY.get(player.level()).isRunning(); }
     private static boolean canOperate(ServerPlayer player) {
-        return running(player) && GameUtils.isPlayerAliveAndSurvival(player)
+        return IdentityScannerAccess.canUse(player) && running(player) && GameUtils.isPlayerAliveAndSurvival(player)
                 && !player.hasEffect(ModEffects.USED_BANED);
     }
     private static boolean currentlyDead(ServerLevel level, UUID uuid) {
@@ -105,13 +106,17 @@ public final class IdentityScannerService {
         level.players().forEach(player -> BODY_SNAPSHOTS.remove(player.getUUID()));
     }
     private static IdentityScannerBlockEntity machine(ServerPlayer player, BlockPos pos) {
-        if (!running(player) || player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) > 36
+        if (!IdentityScannerAccess.canUse(player) || !running(player) || player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) > 36
                 || !player.serverLevel().hasChunkAt(pos)) return null;
         if (!(player.serverLevel().getBlockEntity(pos) instanceof IdentityScannerBlockEntity machine)) return null;
         machine.ensureRound(ledger(player.level()).roundId());
         return machine;
     }
     public static void open(ServerPlayer player, BlockPos pos) {
+        if (!IdentityScannerAccess.canUse(player)) {
+            portableMessage(player, "neutral_forbidden");
+            return;
+        }
         IdentityScannerBlockEntity machine = machine(player, pos);
         if (machine == null) { message(player, "not_running"); return; }
         VIEWERS.put(player.getUUID(), new Viewing(player.level().dimension(), pos.immutable(), player.level().getGameTime()));
@@ -150,28 +155,42 @@ public final class IdentityScannerService {
                     machine.remaining(now(player.level())), machine.history()));
     }
     public static void scanPortable(ServerPlayer player) {
+        if (!IdentityScannerAccess.canUse(player)) {
+            portableMessage(player, "neutral_forbidden");
+            return;
+        }
         if (!canOperate(player) || (!player.getMainHandItem().is(ModItems.PORTABLE_IDENTITY_SCANNER)
                 && !player.getOffhandItem().is(ModItems.PORTABLE_IDENTITY_SCANNER))) return;
         IdentityScannerLedger ledger = ledger(player.level());
         int remaining = ledger.portableRemaining(player.getUUID(), now(player.level()));
-        if (remaining > 0) { message(player, "cooldown", (remaining + 19) / 20); return; }
+        if (remaining > 0) { portableMessage(player, "cooldown", (remaining + 19) / 20); return; }
         var hit = ProjectileUtil.getHitResultOnViewVector(player, entity -> entity instanceof PlayerBodyEntity, 5.0D);
         if (!(hit instanceof EntityHitResult result) || !(result.getEntity() instanceof PlayerBodyEntity body)
                 || body.isRemoved() || body.getPlayerUuid() == null
                 || DoomedSinnerBodyEntity.isDoomedSinnerBody(body)
-                || DisguisedBodyUtils.isUnreportableDisguisedBody(body)) { message(player, "invalid_body"); return; }
+                || DisguisedBodyUtils.isUnreportableDisguisedBody(body)) { portableMessage(player, "invalid_body"); return; }
         var component = PlayerBodyEntityComponent.KEY.get(body);
         if (component.isFakeBody || !currentlyDead(player.serverLevel(), body.getPlayerUuid())
-                || !player.hasLineOfSight(body)) { message(player, "invalid_body"); return; }
+                || !player.hasLineOfSight(body)) { portableMessage(player, "invalid_body"); return; }
         SRERole role = TMMRoles.getRole(component.playerRole);
-        if (role == null) { message(player, "invalid_body"); return; }
+        if (role == null) { portableMessage(player, "invalid_body"); return; }
         String name = component.getOwnerName();
         if (name == null || name.isBlank()) name = body.getDisplayName().getString();
         // 随身扫描不写公共终端，也不消耗随机终端的个人去重名额。
-        message(player, "result", Component.literal(name),
+        SRENetworkMessageUtils.sendTitleTime(player, 10, 80, 20);
+        SRENetworkMessageUtils.sendSubtitle(player,
+                Component.translatable("message.noellesroles.identity_scanner.result_target", Component.literal(name)));
+        SRENetworkMessageUtils.sendTitle(player,
                 Component.translatable("announcement.star.role." + role.identifier().getPath()).withColor(role.color()));
         ledger.portableScanned(player.getUUID(), now(player.level()));
         player.getCooldowns().addCooldown(ModItems.PORTABLE_IDENTITY_SCANNER, 120 * 20);
+    }
+    /** 首次成为验尸官时登记本局丢弃期限；离线、换道具或重新购买都不能重置。 */
+    public static long coronerDropReadyAt(ServerPlayer player) {
+        return running(player) ? ledger(player.level()).coronerDropReadyAt(player.getUUID(), now(player.level())) : -1;
+    }
+    private static void portableMessage(ServerPlayer player, String key, Object... args) {
+        player.displayClientMessage(Component.translatable("message.noellesroles.identity_scanner." + key, args), true);
     }
     private static void message(ServerPlayer player, String key, Object... args) {
         player.sendSystemMessage(Component.translatable("message.noellesroles.identity_scanner." + key, args));

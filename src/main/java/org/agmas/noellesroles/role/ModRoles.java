@@ -2534,8 +2534,8 @@ public class ModRoles {
 
     // 验尸官
     public static SRERole CORONER = TMMRoles
-            .registerRole(new NormalRole(CORONER_ID, new Color(122, 122, 122).getRGB(), true,
-                    false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
+            .registerRole(new CoronerRole(CORONER_ID, new Color(122, 122, 122).getRGB(),
+                    TMMRoles.CIVILIAN.getMaxSprintTime()))
             .setCanSeeBodyDeathReason(true).setCanSeeBodyRoleInfo(true).setCanSeeBodyItems(true)
             .setDefaultMax(1).setCanSeeBodyKiller(false);
 

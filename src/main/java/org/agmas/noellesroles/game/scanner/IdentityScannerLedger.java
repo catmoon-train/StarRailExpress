@@ -12,11 +12,13 @@ import java.util.function.Predicate;
 
 /** 单局扫描账本：按死者UUID去重，绝不按职业或扫描仪位置去重。 */
 public final class IdentityScannerLedger {
+    public static final int CORONER_DROP_LOCK_TICKS = 150 * 20;
     public record Identity(UUID player, String name, String roleId, int color) { }
     private final UUID roundId = UUID.randomUUID();
     private final Map<UUID, Identity> deaths = new LinkedHashMap<>();
     private final Map<UUID, Set<UUID>> seen = new HashMap<>();
     private final Map<UUID, Long> portableReadyAt = new HashMap<>();
+    private final Map<UUID, Long> coronerDropReadyAt = new HashMap<>();
 
     public UUID roundId() { return roundId; }
     public void recordDeath(Identity identity) { deaths.put(identity.player(), identity); }
@@ -36,6 +38,10 @@ public final class IdentityScannerLedger {
         return remaining(portableReadyAt.getOrDefault(viewer, 0L), now);
     }
     public void portableScanned(UUID viewer, long now) { portableReadyAt.put(viewer, now + 120 * 20); }
+    /** 每名玩家每局只登记一次，从开局或首次成为验尸官时开始，不因后续购买或转职而延长。 */
+    public long coronerDropReadyAt(UUID viewer, long now) {
+        return coronerDropReadyAt.computeIfAbsent(viewer, key -> Math.max(0, now) + CORONER_DROP_LOCK_TICKS);
+    }
     public static int remaining(long deadline, long now) {
         return deadline <= now ? 0 : (int) Math.min(Integer.MAX_VALUE, deadline - now);
     }

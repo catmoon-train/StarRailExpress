@@ -103,9 +103,21 @@ class IdentityScannerTest {
         for (String locale : List.of("zh_cn", "zh_tw", "en_us")) {
             var lang = JsonParser.parseString(Files.readString(root.resolve("noellesroles/lang/" + locale + ".json"))).getAsJsonObject();
             for (String key : List.of("block.noellesroles.identity_scanner", "item.noellesroles.portable_identity_scanner",
-                    "gui.noellesroles.identity_scanner.scan", "gui.noellesroles.identity_scanner.history")) assertTrue(lang.has(key), key);
+                    "gui.noellesroles.identity_scanner.scan", "gui.noellesroles.identity_scanner.history",
+                    "message.noellesroles.identity_scanner.result_target",
+                    "message.noellesroles.identity_scanner.drop_cooldown",
+                    "message.noellesroles.identity_scanner.neutral_forbidden")) assertTrue(lang.has(key), key);
             var intro = JsonParser.parseString(Files.readString(root.resolve("item_intro/lang/" + locale + ".json"))).getAsJsonObject();
-            assertTrue(intro.has("item.noellesroles.portable_identity_scanner.desc"));
+            String itemText = intro.get("item.noellesroles.portable_identity_scanner.desc").getAsString();
+            for (String number : List.of("5", "120", "125", "150")) assertTrue(itemText.contains(number), locale + number);
+            String neutralWord = locale.equals("en_us") ? "Neutral" : "中立";
+            assertTrue(itemText.contains(neutralWord));
+            assertTrue(intro.get("block.noellesroles.identity_scanner.desc").getAsString().contains(neutralWord));
+            var roles = JsonParser.parseString(Files.readString(root.resolve("role_modifier_intro/lang/" + locale + ".json"))).getAsJsonObject();
+            for (String key : List.of("info.screen.roleid.coroner", "info.screen.roleid.coroner.simple")) {
+                String text = roles.get(key).getAsString();
+                for (String number : List.of("125", "150", "120")) assertTrue(text.contains(number), locale + key + number);
+            }
         }
         for (String face : List.of("front", "side", "top", "bottom")) {
             var image = ImageIO.read(root.resolve("noellesroles/textures/block/identity_scanner_" + face + ".png").toFile());
@@ -117,5 +129,132 @@ class IdentityScannerTest {
         assertEquals(0, (item.getRGB(0, 0) >>> 24) & 255);
         var states = JsonParser.parseString(Files.readString(root.resolve("noellesroles/blockstates/identity_scanner.json"))).getAsJsonObject();
         assertEquals(4, states.getAsJsonObject("variants").size());
+    }
+    @Test void coronerDropLockStartsAtRoundStartOrFirstRoleEntryWithoutBuyingAnything() {
+        var ledger = new IdentityScannerLedger();
+        UUID initial = UUID.randomUUID(), converted = UUID.randomUUID();
+        assertEquals(3000, ledger.coronerDropReadyAt(initial, 0));
+        assertEquals(8000, ledger.coronerDropReadyAt(converted, 5000));
+        assertEquals(3000, IdentityScannerLedger.remaining(ledger.coronerDropReadyAt(converted, 5000), 5000));
+    }
+
+    @Test void coronerDropDeadlineNeverRestartsAfterPurchasesReconnectsOrRoleChanges() {
+        var ledger = new IdentityScannerLedger();
+        UUID player = UUID.randomUUID();
+        assertEquals(3000, ledger.coronerDropReadyAt(player, 0));
+        for (long time : new long[] {100, 2999, 3000, 5000, 100_000}) {
+            assertEquals(3000, ledger.coronerDropReadyAt(player, time));
+        }
+        assertEquals(1, IdentityScannerLedger.remaining(ledger.coronerDropReadyAt(player, 2999), 2999));
+        assertEquals(0, IdentityScannerLedger.remaining(ledger.coronerDropReadyAt(player, 3000), 3000));
+        assertEquals(0, IdentityScannerLedger.remaining(ledger.coronerDropReadyAt(player, 100_000), 100_000));
+    }
+
+    @Test void coronerDropRestrictionIsSeparateFromScanningAndOtherPlayers() {
+        var ledger = new IdentityScannerLedger();
+        UUID first = UUID.randomUUID(), second = UUID.randomUUID();
+        assertEquals(3000, ledger.coronerDropReadyAt(first, 0));
+        assertEquals(4000, ledger.coronerDropReadyAt(second, 1000));
+        ledger.portableScanned(first, 1100);
+        assertEquals(2400, ledger.portableRemaining(first, 1100));
+        assertEquals(1900, IdentityScannerLedger.remaining(ledger.coronerDropReadyAt(first, 1100), 1100));
+        assertEquals(0, ledger.portableRemaining(second, 1100));
+    }
+
+    @Test void newRoundRegistersANewInitialDropRestriction() {
+        UUID player = UUID.randomUUID();
+        var first = new IdentityScannerLedger();
+        assertEquals(4000, first.coronerDropReadyAt(player, 1000));
+        var next = new IdentityScannerLedger();
+        assertEquals(3000, next.coronerDropReadyAt(player, 0));
+        assertEquals(3000, IdentityScannerLedger.remaining(next.coronerDropReadyAt(player, 0), 0));
+    }
+
+    @Test void coronerDropDeadlineHandlesPreparationTimeAndExpiredLimits() {
+        var ledger = new IdentityScannerLedger();
+        UUID player = UUID.randomUUID();
+        assertEquals(3000, ledger.coronerDropReadyAt(player, -20));
+        assertEquals(0, IdentityScannerLedger.remaining(ledger.coronerDropReadyAt(player, 3001), 3001));
+        assertEquals(150 * 20, IdentityScannerLedger.CORONER_DROP_LOCK_TICKS);
+    }
+
+    @Test void portableResultsUsePrivateTitlePacketsAndVisibleFailureMessages() throws Exception {
+        String service = Files.readString(Path.of("src/main/java/org/agmas/noellesroles/game/scanner/IdentityScannerService.java"));
+        String portable = service.substring(service.indexOf("public static void scanPortable"),
+                service.indexOf("public static long coronerDropReadyAt"));
+        assertTrue(portable.contains("SRENetworkMessageUtils.sendTitleTime(player, 10, 80, 20)"));
+        assertTrue(portable.contains("SRENetworkMessageUtils.sendTitle(player,"));
+        assertTrue(portable.contains("SRENetworkMessageUtils.sendSubtitle(player,"));
+        assertTrue(portable.contains("role.color()"));
+        assertFalse(portable.contains("message(player, \"result\""));
+        assertFalse(portable.contains("sendSystemMessage"));
+        assertTrue(portable.contains("portableMessage(player, \"invalid_body\")"));
+        assertTrue(portable.contains("portableMessage(player, \"cooldown\""));
+    }
+
+    @Test void coronerShopAndDropRulesApplyOnlyToThePortableItem() throws Exception {
+        Path root = Path.of("src/main/java/org/agmas/noellesroles");
+        String role = Files.readString(root.resolve("role/CoronerRole.java"));
+        assertEquals(125, org.agmas.noellesroles.role.CoronerRole.SCANNER_PRICE);
+        assertTrue(role.contains("ModItems.PORTABLE_IDENTITY_SCANNER.getDefaultInstance()"));
+        assertTrue(role.contains("SCANNER_PRICE, ShopEntry.Type.TOOL"));
+        assertTrue(role.contains("RoleData.getNullable(CoronerRoleData.class, player)"));
+        assertTrue(role.contains("remaining > 0"));
+        assertTrue(role.contains("return InteractionResult.FAIL"));
+        assertTrue(role.contains("return InteractionResult.SUCCESS"));
+        String drops = Files.readString(root.resolve("init/events/NRRulePredicateEvents.java"));
+        assertTrue(drops.contains("\"noellesroles:portable_identity_scanner\""));
+        assertFalse(drops.contains("\"noellesroles:identity_scanner\""));
+        String registration = Files.readString(root.resolve("role/ModRoles.java"));
+        assertTrue(registration.contains("new CoronerRole(CORONER_ID"));
+    }
+
+    @Test void portableItemIsHiddenInEitherHandWithoutHidingItsInventoryOrGroundModel() throws Exception {
+        Path root = Path.of("src/main/java/org/agmas/noellesroles");
+        String renderer = Files.readString(root.resolve("client/InvisbleHandItem.java"));
+        int hidden = renderer.indexOf("itemStack.is(ModItems.PORTABLE_IDENTITY_SCANNER)");
+        assertTrue(hidden >= 0);
+        assertTrue(renderer.substring(hidden, renderer.indexOf("});", hidden)).contains("return ItemStack.EMPTY"));
+        assertFalse(renderer.substring(renderer.indexOf("public static void register()"), hidden).contains("if (!mainHand)"));
+        var model = JsonParser.parseString(Files.readString(Path.of(
+                "src/main/resources/assets/noellesroles/models/item/portable_identity_scanner.json"))).getAsJsonObject();
+        assertTrue(model.has("textures"));
+    }
+    @Test void everyNeutralFactionVariantIsDeniedWhileNonNeutralFactionsRemainAllowed() {
+        for (int flags = 0; flags < 8; flags++) {
+            assertEquals(flags == 0, IdentityScannerAccess.allowsFaction(
+                    (flags & 1) != 0, (flags & 2) != 0, (flags & 4) != 0));
+        }
+    }
+
+    @Test void neutralPermissionIsCheckedBeforeReturningHistoryChargingOrStartingCooldown() throws Exception {
+        String source = Files.readString(Path.of("src/main/java/org/agmas/noellesroles/game/scanner/IdentityScannerService.java"));
+        String operate = source.substring(source.indexOf("private static boolean canOperate"),
+                source.indexOf("private static boolean currentlyDead"));
+        assertTrue(operate.contains("IdentityScannerAccess.canUse(player)"));
+        String machine = source.substring(source.indexOf("private static IdentityScannerBlockEntity machine"),
+                source.indexOf("public static void open"));
+        assertTrue(machine.contains("!IdentityScannerAccess.canUse(player)"));
+        String open = source.substring(source.indexOf("public static void open"), source.indexOf("public static void handleRequest"));
+        assertTrue(open.indexOf("!IdentityScannerAccess.canUse(player)") >= 0);
+        assertTrue(open.indexOf("!IdentityScannerAccess.canUse(player)") < open.indexOf("VIEWERS.put"));
+        String request = source.substring(source.indexOf("public static void handleRequest"), source.indexOf("private static void scanRandom"));
+        assertTrue(request.contains("if (machine == null) { VIEWERS.remove(player.getUUID()); return; }"));
+        assertTrue(request.indexOf("machine(player, pos)") < request.indexOf("scanRandom(player, machine)"));
+        String portable = source.substring(source.indexOf("public static void scanPortable"), source.indexOf("public static long coronerDropReadyAt"));
+        assertTrue(portable.indexOf("!IdentityScannerAccess.canUse(player)") >= 0);
+        assertTrue(portable.indexOf("!IdentityScannerAccess.canUse(player)") < portable.indexOf("IdentityScannerLedger ledger"));
+        assertTrue(portable.contains("portableMessage(player, \"neutral_forbidden\")"));
+    }
+
+    @Test void changingToANeutralRoleClosesTheExistingTerminalScreen() throws Exception {
+        Path root = Path.of("src/main/java/org/agmas/noellesroles");
+        String client = Files.readString(root.resolve("client/IdentityScannerClient.java"));
+        String canView = client.substring(client.indexOf("public static boolean canView"));
+        assertTrue(canView.contains("IdentityScannerAccess.canUse(client.player)"));
+        assertTrue(client.contains("if (!screen.isValid(client))"));
+        assertTrue(client.contains("client.setScreen(null)"));
+        String screen = Files.readString(root.resolve("client/screen/IdentityScannerScreen.java"));
+        assertTrue(screen.contains("IdentityScannerClient.canView(client, pos)"));
     }
 }

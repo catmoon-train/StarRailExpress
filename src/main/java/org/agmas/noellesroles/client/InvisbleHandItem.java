@@ -43,7 +43,7 @@ public class InvisbleHandItem {
 
     public static void register() {
         AllowItemShowInHand.EVENT.register((player, itemStack, mainHand) -> {
-            if (itemStack.is(FunnyItems.BOWEN_BADGE)) {
+            if (itemStack.is(FunnyItems.BOWEN_BADGE) || itemStack.is(ModItems.PORTABLE_IDENTITY_SCANNER)) {
                 return ItemStack.EMPTY;
             }
             if (!mainHand && OraPunchManager.isRushing(player) && OraPunchManager.isHoldingOraPunch(player)) {
