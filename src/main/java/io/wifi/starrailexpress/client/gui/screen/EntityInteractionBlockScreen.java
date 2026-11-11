@@ -344,6 +344,8 @@ public class EntityInteractionBlockScreen extends Screen {
                     Component.translatable("comparison." + condition.comparison.name().toLowerCase())).getString();
             case ELAPSED_TIME -> Component.translatable("condition.elapsed_time", formatTimeDisplay(condition.value),
                     Component.translatable("comparison." + condition.comparison.name().toLowerCase())).getString();
+            case ELAPSED_TIME_SECONDS -> Component.translatable("condition.elapsed_time_seconds", (int) condition.value,
+                    Component.translatable("comparison." + condition.comparison.name().toLowerCase())).getString();
             case PROXIMITY_SPHERE -> Component.translatable("condition.proximity_sphere.blocks_display", condition.value).getString();
             case PROXIMITY_LINE -> Component.translatable("condition.proximity_line.blocks_display", condition.value,
                     Component.translatable("direction." + (condition.lineDirection != null ? condition.lineDirection.name().toLowerCase() : "all"))).getString();
@@ -510,6 +512,8 @@ public class EntityInteractionBlockScreen extends Screen {
                             "gui.entity_interaction_block.narrator_queue")).getString();
             case INFECT -> Component.translatable("action.infect", (int) action.value).getString();
             case OUTPUT_REDSTONE -> Component.translatable("action.output_redstone", (int) action.value).getString();
+            case APPLY_REDSTONE_RADIUS -> Component.translatable("action.apply_redstone_radius", (int) action.value,
+                    (int) action.redstoneRadius).getString();
             case ADD_MODIFIER -> Component.translatable("action.add_modifier",
                     action.stringValue != null ? action.stringValue : "?").getString();
             case REMOVE_MODIFIER -> Component.translatable("action.remove_modifier",
@@ -842,6 +846,26 @@ public class EntityInteractionBlockScreen extends Screen {
                     }
 
                     y += 30;
+                    // 比较类型
+                    addRenderableWidget(CycleButton.<EntityInteractionBlockEntity.ComparisonType>builder(comp ->
+                                    Component.translatable("comparison." + comp.name().toLowerCase()))
+                            .withValues(EntityInteractionBlockEntity.ComparisonType.values())
+                            .withInitialValue(selectedComparison)
+                            .create(centerX - 100, y, 200, 20,
+                                    Component.translatable("gui.entity_interaction_block.comparison"),
+                                    (b, comp) -> selectedComparison = comp));
+                }
+                case ELAPSED_TIME_SECONDS -> {
+                    // 游戏经过的时间（秒）- 直接填写秒数
+                    addRenderableWidget(new EditBox(this.font, centerX - 50, y, 100, 20,
+                            Component.translatable("gui.entity_interaction_block.seconds")));
+                    valueInput = findAndAttachInput(Component.translatable("gui.entity_interaction_block.seconds"));
+                    if (valueInput != null) {
+                        valueInput.setFilter(s -> s.matches("[0-9]*"));
+                        valueInput.setValue("0");
+                    }
+
+                    y += 25;
                     // 比较类型
                     addRenderableWidget(CycleButton.<EntityInteractionBlockEntity.ComparisonType>builder(comp ->
                                     Component.translatable("comparison." + comp.name().toLowerCase()))
@@ -1447,6 +1471,7 @@ public class EntityInteractionBlockScreen extends Screen {
         private EditBox stringInput;
         private EditBox minutesInput;
         private EditBox secondsInput;
+        private EditBox radiusInput;
         private EditBox roleWinDescriptionInput;
         private EditBox roleWinSubtitleInput;
         private String selectedTaskType = "random";
@@ -2018,6 +2043,38 @@ public class EntityInteractionBlockScreen extends Screen {
                             Component.translatable("gui.entity_interaction_block.redstone_signal_desc"), b -> {})
                             .bounds(centerX - 100, y, 200, 15).build());
                 }
+                case APPLY_REDSTONE_RADIUS -> {
+                    // 半径红石信号：强度 (0-15) + 半径 (格)
+                    addRenderableWidget(Button.builder(
+                            Component.translatable("gui.entity_interaction_block.redstone_signal_hint"), b -> {})
+                            .bounds(centerX - 100, y, 200, 20).build());
+                    y += 25;
+                    // 强度
+                    addRenderableWidget(new EditBox(this.font, centerX - 50, y, 100, 20,
+                            Component.translatable("gui.entity_interaction_block.redstone_signal_strength")));
+                    valueInput = findAndAttachInput(Component.translatable("gui.entity_interaction_block.redstone_signal_strength"));
+                    if (valueInput != null) {
+                        valueInput.setFilter(s -> s.matches("[0-9]*"));
+                        valueInput.setValue("15");
+                    }
+                    addRenderableWidget(Button.builder(Component.literal("(0~15)"), b -> {})
+                            .bounds(centerX + 55, y, 45, 20).build());
+                    y += 25;
+                    // 半径
+                    addRenderableWidget(new EditBox(this.font, centerX - 50, y, 100, 20,
+                            Component.translatable("gui.entity_interaction_block.redstone_radius")));
+                    radiusInput = findAndAttachInput(Component.translatable("gui.entity_interaction_block.redstone_radius"));
+                    if (radiusInput != null) {
+                        radiusInput.setFilter(s -> s.matches("[0-9]*"));
+                        radiusInput.setValue("3");
+                    }
+                    addRenderableWidget(Button.builder(Component.literal("(0~15)"), b -> {})
+                            .bounds(centerX + 55, y, 45, 20).build());
+                    y += 22;
+                    addRenderableWidget(Button.builder(
+                            Component.translatable("gui.entity_interaction_block.redstone_radius_desc"), b -> {})
+                            .bounds(centerX - 100, y, 200, 15).build());
+                }
                 case ADD_MODIFIER, REMOVE_MODIFIER -> {
                     // 修饰符ID
                     String labelKey = selectedType == EntityInteractionBlockEntity.ActionType.ADD_MODIFIER
@@ -2302,6 +2359,18 @@ public class EntityInteractionBlockScreen extends Screen {
             // 限制红石信号强度 0-15
             if (selectedType == EntityInteractionBlockEntity.ActionType.OUTPUT_REDSTONE) {
                 action.value = Math.max(0, Math.min(15, (int) action.value));
+            }
+
+            // 半径红石信号：强度 0-15，半径 0-15（以本方块为圆心）
+            if (selectedType == EntityInteractionBlockEntity.ActionType.APPLY_REDSTONE_RADIUS) {
+                action.value = Math.max(0, Math.min(15, (int) action.value));
+                int radius = 0;
+                if (radiusInput != null && !radiusInput.getValue().isEmpty()) {
+                    try {
+                        radius = Integer.parseInt(radiusInput.getValue());
+                    } catch (NumberFormatException ignored) {}
+                }
+                action.redstoneRadius = Math.max(0, Math.min(15, radius));
             }
 
             parent.addAction(action);

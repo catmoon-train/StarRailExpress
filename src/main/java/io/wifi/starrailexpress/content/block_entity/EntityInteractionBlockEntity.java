@@ -142,6 +142,7 @@ public class EntityInteractionBlockEntity extends BlockEntity {
     private boolean receivedRedstoneSignal = false; // 是否接收到红石信号
     private boolean isOutputtingRedstone = false; // 是否正在输出红石信号
     private int redstoneOutputStrength = 15; // 输出的红石信号强度（0-15）
+    private int redstoneRadius = 0; // 半径红石信号的半径（格，0 表示仅方块自身输出）
     // 上次红石检测的游戏时间（用于按「内置间隔」检测是否继续输出）
     private long lastRedstoneCheckGameTime = 0;
     // 是否启用碰撞箱
@@ -465,11 +466,11 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         this.timerTick = 0;
         boolean wasOutputting = this.isOutputtingRedstone;
         this.isOutputtingRedstone = false;
+        this.redstoneRadius = 0;
         setChanged();
         if (wasOutputting && this.level != null && !this.level.isClientSide) {
             // 立即刷新红石信号：只清字段不更新邻居的话，相邻红石线会保持通电缓存跨局残留
-            this.level.updateNeighborsAt(this.worldPosition, this.getBlockState().getBlock());
-            this.level.updateNeighbourForOutputSignal(this.worldPosition, this.getBlockState().getBlock());
+            applyRedstoneNeighborUpdates(this.level, this.worldPosition, this.getBlockState(), this.redstoneRadius);
         }
     }
 
@@ -493,6 +494,45 @@ public class EntityInteractionBlockEntity extends BlockEntity {
     public void setRedstoneOutput(boolean outputting, int strength) {
         this.isOutputtingRedstone = outputting;
         this.redstoneOutputStrength = Math.max(0, Math.min(15, strength));
+        if (!outputting) {
+            this.redstoneRadius = 0;
+        }
+    }
+
+    /**
+     * 半径红石信号输出：开启后让方块作为红石信号源（强度 strength），并在 radius 格半径范围内
+     * 持续刷新红石网络，使该范围内的红石组件/红石线被通电。radius 为 0 时等价于普通输出。
+     */
+    public void setRadiusRedstoneOutput(int strength, int radius) {
+        this.isOutputtingRedstone = true;
+        this.redstoneOutputStrength = Math.max(0, Math.min(15, strength));
+        this.redstoneRadius = Math.max(0, Math.min(15, radius));
+    }
+
+    /** 半径红石信号的半径（格）。 */
+    public int getRedstoneRadius() {
+        return redstoneRadius;
+    }
+
+    /**
+     * 刷新与红石输出相关的邻居（含半径范围内的方块），让红石网络重新计算信号。
+     * radius 为 0 时只刷新方块自身相邻的红石；radius > 0 时额外刷新半径范围内所有方块的邻居，
+     * 使半径内的红石线 / 红石组件被通电（红石仍按原版规则最多传播 15 格）。
+     */
+    private static void applyRedstoneNeighborUpdates(Level world, BlockPos pos, BlockState state, int radius) {
+        int r = Math.max(0, Math.min(15, radius));
+        world.updateNeighborsAt(pos, state.getBlock());
+        world.updateNeighbourForOutputSignal(pos, state.getBlock());
+        if (r > 0) {
+            for (int dx = -r; dx <= r; dx++) {
+                for (int dy = -r; dy <= r; dy++) {
+                    for (int dz = -r; dz <= r; dz++) {
+                        BlockPos p = pos.offset(dx, dy, dz);
+                        world.updateNeighborsAt(p, state.getBlock());
+                    }
+                }
+            }
+        }
     }
 
     // 从服务端接收更新
@@ -624,16 +664,15 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         if (anyPlayerTriggered && entity.isOutputtingRedstone) {
             // 本次触发即一次检测：记录时刻并保持信号持续输出
             entity.lastRedstoneCheckGameTime = elapsedGameTime;
-            // 刷新方块状态，使红石信号更新
-            serverWorld.updateNeighborsAt(pos, state.getBlock());
-            serverWorld.updateNeighbourForOutputSignal(pos, state.getBlock());
+            // 刷新方块状态，使红石信号（及半径范围内）更新
+            applyRedstoneNeighborUpdates(serverWorld, pos, state, entity.redstoneRadius);
         } else if (elapsedGameTime - entity.lastRedstoneCheckGameTime >= checkInterval) {
             // 到达下一次检测时刻仍未触发 → 条件不再满足，停止输出
             entity.lastRedstoneCheckGameTime = elapsedGameTime;
             if (entity.isOutputtingRedstone) {
                 entity.isOutputtingRedstone = false;
-                serverWorld.updateNeighborsAt(pos, state.getBlock());
-                serverWorld.updateNeighbourForOutputSignal(pos, state.getBlock());
+                entity.redstoneRadius = 0;
+                applyRedstoneNeighborUpdates(serverWorld, pos, state, entity.redstoneRadius);
             }
         }
     }
@@ -832,6 +871,19 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                 // 游戏经过的时间（使用已过去的时间作为判断依据）
                 long elapsedSeconds = elapsedGameTime / 20; // tick转秒
                 long targetSeconds = (long) (condition.value * 60); // 分钟转秒
+                yield switch (condition.comparison) {
+                    case EQUALS -> elapsedSeconds == targetSeconds;
+                    case GREATER -> elapsedSeconds > targetSeconds;
+                    case LESS -> elapsedSeconds < targetSeconds;
+                    case GREATER_EQUAL -> elapsedSeconds >= targetSeconds;
+                    case LESS_EQUAL -> elapsedSeconds <= targetSeconds;
+                };
+            }
+            case ELAPSED_TIME_SECONDS -> {
+                // 游戏经过的时间（秒）：从本局游戏开始计时，游戏结束归零；
+                // 与技能冷却倒计时一致，填秒数并支持比较符号。
+                long elapsedSeconds = elapsedGameTime / 20; // tick转秒
+                long targetSeconds = (long) condition.value; // 直接为秒
                 yield switch (condition.comparison) {
                     case EQUALS -> elapsedSeconds == targetSeconds;
                     case GREATER -> elapsedSeconds > targetSeconds;
@@ -1710,6 +1762,14 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                 strength = Math.max(0, Math.min(15, strength));
                 this.setRedstoneOutput(true, strength);
             }
+            case APPLY_REDSTONE_RADIUS -> {
+                // 向半径范围内施加红石信号：以本方块为圆心、radius 格半径范围内的所有方块
+                // 持续获得红石信号，直到触发条件不再满足或本局游戏结束（见 tick 中的红石检测逻辑）。
+                int strength = (int) action.value;
+                strength = Math.max(0, Math.min(15, strength));
+                int radius = Math.max(0, Math.min(15, action.redstoneRadius));
+                this.setRadiusRedstoneOutput(strength, radius);
+            }
             case TELEPORT -> {
                 int targetId = (int) action.value;
                 BlockPos targetPos = findTeleportPoint(world, pos, targetId);
@@ -2096,6 +2156,7 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         PLAYER_DAMAGED_BY_PLAYER, // 玩家受到来自玩家的原版伤害
         PLAYER_DAMAGED_BY_NON_PLAYER, // 玩家受到非玩家来源的原版伤害
         ELAPSED_TIME, // 游戏经过的时间
+        ELAPSED_TIME_SECONDS, // 游戏经过的时间（秒，从本局游戏开始计时，游戏结束归零）
         REDSTONE_SIGNAL, // 接收到红石信号
         HAS_MODIFIER, // 玩家拥有某个修饰符
         FAKE_POISONED, // 玩家是否触发了假毒
@@ -2180,6 +2241,7 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         NARRATOR, // 语音播报
         INFECT, // 进入感染
         OUTPUT_REDSTONE, // 输出红石信号
+        APPLY_REDSTONE_RADIUS, // 向半径范围内施加红石信号（持续，直到触发条件不再满足或游戏结束）
         ADD_MODIFIER, // 为玩家添加修饰符
         REMOVE_MODIFIER, // 为玩家移除修饰符
         ROLE_CUSTOM_WIN, // 带绑定职业的自定义获胜
@@ -2277,6 +2339,7 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         public String roleWinSubtitle = ""; // 获胜子标题
         public int sabotageDuration = 60; // 破坏任务持续时间（秒，用于TRIGGER_SABOTAGE）
         public boolean meetingEmergency = false; // 是否紧急会议（true=紧急会议，绕过冷却；false=普通会议，用于TRIGGER_MEETING）
+        public int redstoneRadius = 0; // 半径红石信号的半径（格，用于APPLY_REDSTONE_RADIUS）
 
         public CompoundTag toNbt() {
             CompoundTag tag = new CompoundTag();
@@ -2298,6 +2361,7 @@ public class EntityInteractionBlockEntity extends BlockEntity {
             tag.putString("RoleWinSubtitle", roleWinSubtitle != null ? roleWinSubtitle : "");
             tag.putInt("SabotageDuration", sabotageDuration);
             tag.putBoolean("MeetingEmergency", meetingEmergency);
+            tag.putInt("RedstoneRadius", redstoneRadius);
             return tag;
         }
 
@@ -2341,6 +2405,7 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                 action.roleWinSubtitle = "";
             action.sabotageDuration = tag.contains("SabotageDuration") ? tag.getInt("SabotageDuration") : 60;
             action.meetingEmergency = tag.contains("MeetingEmergency") && tag.getBoolean("MeetingEmergency");
+            action.redstoneRadius = tag.contains("RedstoneRadius") ? tag.getInt("RedstoneRadius") : 0;
             return action;
         }
     }
