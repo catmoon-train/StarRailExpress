@@ -39,12 +39,14 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEEffects;
 import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRoleData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * 灭火器：60点耐久的蓄力喷雾道具。
@@ -143,7 +145,18 @@ public class ExtinguisherItem extends Item implements AdventureUsable {
             target.addEffect(new MobEffectInstance(
                     SEEffects.EXTINGUISH_IMMUNITY, IMMUNITY_DURATION, 0, false, false));
             if (arsonist != null && target instanceof ServerPlayer serverTarget) {
+                UUID targetId = serverTarget.getUUID();
+                boolean hadGasoline = arsonist.isDoused(targetId);
+                boolean hadBurning = serverTarget.hasEffect(SEEffects.BURNING);
                 cleaned |= arsonist.extinguish(serverTarget, HEAT_REDUCTION);
+                if (hadGasoline && !arsonist.isDoused(targetId)) {
+                    ReplayEventLog.record("replay.event.extinguisher.clean_gasoline",
+                            ReplayEventLog.player(player), ReplayEventLog.player(serverTarget));
+                }
+                if (hadBurning && !serverTarget.hasEffect(SEEffects.BURNING)) {
+                    ReplayEventLog.record("replay.event.extinguisher.extinguish_flames",
+                            ReplayEventLog.player(player), ReplayEventLog.player(serverTarget));
+                }
             }
         }
         if (cleaned && player instanceof ServerPlayer serverPlayer) {

@@ -4067,6 +4067,8 @@
   "replay.event.candlebearer.candle_player": "§6🕯️§r %s 為 %s 秉燭",
   "replay.event.candlebearer.candle_corpse": "§6🕯️§r %s 完成了一次秉燭儀式",
   "replay.event.arsonist.douse_gasoline": "§c🔥§r %s 為 %s 澆上了汽油",
+  "replay.event.extinguisher.clean_gasoline": "§b🧯§r %s 使用滅火器清除了 %s 身上的汽油",
+  "replay.event.extinguisher.extinguish_flames": "§b🧯§r %s 使用滅火器澆滅了 %s 身上的火焰",
   "replay.event.reasoner.deduce_clue": "§9🔍§r %s 成功推理出了一條線索",
   "replay.event.fool_meeting.heresy": "§c⚖️§r 愚者會議將 %s 認定為異端",
   "replay.event.swapper.swap_position": "§a🔄§r %s 交換了 %s 和 %s 的位置",

@@ -4136,6 +4136,8 @@
     "replay.event.candlebearer.candle_player": "§6🕯️§r %s held a candle for %s",
     "replay.event.candlebearer.candle_corpse": "§6🕯️§r %s completed a candle-holding ritual",
     "replay.event.arsonist.douse_gasoline": "§c🔥§r %s doused %s with gasoline",
+    "replay.event.extinguisher.clean_gasoline": "§b🧯§r %s used a fire extinguisher to clean the gasoline off %s",
+    "replay.event.extinguisher.extinguish_flames": "§b🧯§r %s used a fire extinguisher to put out the flames on %s",
     "replay.event.reasoner.deduce_clue": "§9🔍§r %s successfully deduced a clue",
     "replay.event.fool_meeting.heresy": "§c⚖️§r The Fool meeting declared %s a heretic",
     "replay.event.swapper.swap_position": "§a🔄§r %s swapped positions of %s and %s",
