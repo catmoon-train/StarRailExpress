@@ -732,15 +732,9 @@ public class ModRoles {
             true // 隐藏计分板
     )).setCanSeeCoin(true).setOccupiedRoleCount(2).setVigilanteTeam(true).setCanBeRandomedByOtherRoles(false)
             .setSpecialMapRole(MapSpecialFeatures.QIYUCUN).setDefaultMax(0);
-    public static SRERole MA_CHEN_XU = TMMRoles.registerRole(new NormalRole(
-            MA_CHEN_XU_ID, // 角色 ID
-            new Color(75, 0, 130).getRGB(), // 深紫色 - 代表恐惧与神秘
-            false, // isInnocent = 非乘客阵营（杀手）
-            true, // canUseKiller = 有杀手能力
-            SRERole.MoodType.FAKE, // 假心情
-            Integer.MAX_VALUE, // 无限冲刺时间
-            true // 隐藏计分板
-    )).setRoleData(MaChenXuRoleData::new).setCanSeeCoin(true).setOccupiedRoleCount(2)
+    public static SRERole MA_CHEN_XU = TMMRoles.registerRole(
+            new org.agmas.noellesroles.game.roles.killer.ma_chen_xu.SackGhostRole())
+            .setRoleData(MaChenXuRoleData::new).setCanSeeCoin(true).setOccupiedRoleCount(2)
             .setCanBeRandomedByOtherRoles(false).setSpecialMapRole(MapSpecialFeatures.QIYUCUN)
             .setDefaultMax(1).setToggledOnInstinctType(
                     InstinctType.customWithFunction((self, target, selfRole, targetRole) -> {

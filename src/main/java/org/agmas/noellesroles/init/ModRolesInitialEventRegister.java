@@ -279,6 +279,8 @@ public class ModRolesInitialEventRegister {
             }
             if (role.identifier().equals(ModRoles.GUEST_GHOST.identifier())) {
                 SREPlayerShopComponent.KEY.get(player).setBalance(100);
+                SREPlayerShopComponent.KEY.get(player).sync();
+                if (player instanceof ServerPlayer sp) org.agmas.noellesroles.game.roles.killer.ma_chen_xu.SackGhostItems.giveRelic(sp);
             }
 
             if (role.equals(ModRoles.BROADCASTER)) {
@@ -1463,30 +1465,16 @@ public class ModRolesInitialEventRegister {
                             return true;
                         }).shifted(true).build());
 
-        // 布袋鬼鬼术注册：4 个鬼术作为可选槽位（V 切换、G 释放、Sneak+G 开里世界大招）。
-        // 冷却/门控由 MaChenXuRoleData 自有逻辑负责（cooldownTicks=0 让引擎不拦截），
-        // announceToSelf(false) 由组件自定义提示。槽位顺序须与 MaChenXuRoleData.ART_ORDER 一致。
+        // 两个固定技能：普通技能键抽取诡物，潜行技能键展开里世界，物品右键自行施法。
         RoleSkill.register(ModRoles.MA_CHEN_XU,
-                RoleSkill.skill(SRE.id("ma_chen_xu_veil"), "hud.noellesroles.ma_chen_xu.skill.veil",
-                        context -> {
-                            var d = RoleData.getNullable(MaChenXuRoleData.class, context.player());
-                            return d != null && d.onGhostArt("veil");
-                        }).announceToSelf(false).build(),
-                RoleSkill.skill(SRE.id("ma_chen_xu_effigy"), "hud.noellesroles.ma_chen_xu.skill.effigy",
-                        context -> {
-                            var d = RoleData.getNullable(MaChenXuRoleData.class, context.player());
-                            return d != null && d.onGhostArt("effigy");
-                        }).announceToSelf(false).build(),
-                RoleSkill.skill(SRE.id("ma_chen_xu_wail"), "hud.noellesroles.ma_chen_xu.skill.wail",
-                        context -> {
-                            var d = RoleData.getNullable(MaChenXuRoleData.class, context.player());
-                            return d != null && d.onGhostArt("wail");
-                        }).announceToSelf(false).build(),
-                RoleSkill.skill(SRE.id("ma_chen_xu_seize"), "hud.noellesroles.ma_chen_xu.skill.seize",
-                        context -> {
-                            var d = RoleData.getNullable(MaChenXuRoleData.class, context.player());
-                            return d != null && d.onGhostArt("seize");
-                        }).announceToSelf(false).build());
+                RoleSkill.skill(SRE.id("sack_ghost_draw"), "skill.noellesroles.sack.draw", context -> {
+                    var data = RoleData.getNullable(MaChenXuRoleData.class, context.player());
+                    return data != null && data.drawArt();
+                }).announceToSelf(false).build(),
+                RoleSkill.skill(SRE.id("sack_ghost_realm"), "skill.noellesroles.sack.realm", context -> {
+                    var data = RoleData.getNullable(MaChenXuRoleData.class, context.player());
+                    return data != null && data.usePrayerRain();
+                }).shifted(true).announceToSelf(false).build());
 
         RoleSkill.register(ModRoles.WRAITH_ASSASSIN,
                 RoleSkill.skill(SRE.id("wraith_assault"), "skill.noellesroles.wraith_assassin.assault",

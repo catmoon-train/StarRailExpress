@@ -2091,66 +2091,9 @@ public class RoleShopHandler {
             ShopContent.customEntries.put(ModRoles.SPELLBREAKER.getIdentifier(), SHOP);
         }
 
-        // 布袋鬼商店（诡舍·缚灵）
-        {
-            // 设计要求：无法购买刀、枪、狂暴模式，只能购买强化领域的道具
-            var MA_CHEN_XU_SHOP = new ArrayList<ShopEntry>();
-
-            // 诡舍·浊雨 - 100金币
-            // 效果：30秒小雨，恐惧范围外好人每5秒掉3SAN，可与大招叠加
-            ItemStack turbidRainItem = Items.BARRIER.getDefaultInstance();
-            turbidRainItem.set(DataComponents.ITEM_NAME,
-                    Component.translatable("item.noellesroles.ma_chen_xu.turbid_rain")
-                            .withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.BOLD));
-            var turbidRainLore = new ArrayList<Component>();
-            turbidRainLore.add(Component.translatable("item.noellesroles.ma_chen_xu.turbid_rain.lore1")
-                    .setStyle(Style.EMPTY.withItalic(false))
-                    .withStyle(ChatFormatting.GRAY));
-            turbidRainLore.add(Component.translatable("item.noellesroles.ma_chen_xu.turbid_rain.lore2")
-                    .setStyle(Style.EMPTY.withItalic(false))
-                    .withStyle(ChatFormatting.GRAY));
-            turbidRainItem.set(DataComponents.LORE, new ItemLore(turbidRainLore));
-
-            MA_CHEN_XU_SHOP.add(new ShopEntry(turbidRainItem, 180, ShopEntry.Type.TOOL) {
-                @Override
-                public boolean onBuy(@NotNull Player player) {
-                    var component = RoleData.getNullable(MaChenXuRoleData.class, player);
-                    if (component != null) {
-                        return component.useTurbidRain();
-                    }
-                    return false;
-                }
-            });
-
-            // 诡舍·镇魂铃 - 150金币
-            // 效果：20格AoE，好人获得10秒耳鸣效果
-            ItemStack soulBellItem = Items.BELL.getDefaultInstance();
-            soulBellItem.set(DataComponents.ITEM_NAME,
-                    Component.translatable("item.noellesroles.ma_chen_xu.soul_bell")
-                            .withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD));
-            var soulBellLore = new ArrayList<Component>();
-            soulBellLore.add(Component.translatable("item.noellesroles.ma_chen_xu.soul_bell.lore1")
-                    .setStyle(Style.EMPTY.withItalic(false))
-                    .withStyle(ChatFormatting.GRAY));
-            soulBellLore.add(Component.translatable("item.noellesroles.ma_chen_xu.soul_bell.lore2")
-                    .setStyle(Style.EMPTY.withItalic(false))
-                    .withStyle(ChatFormatting.GRAY));
-            soulBellItem.set(DataComponents.LORE, new ItemLore(soulBellLore));
-
-            MA_CHEN_XU_SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 75, ShopEntry.Type.TOOL));
-            MA_CHEN_XU_SHOP.add(new ShopEntry(soulBellItem, 105, ShopEntry.Type.TOOL) {
-                @Override
-                public boolean onBuy(@NotNull Player player) {
-                    var component = RoleData.getNullable(MaChenXuRoleData.class, player);
-                    if (component != null) {
-                        return component.useSoulBell();
-                    }
-                    return false;
-                }
-            });
-
-            ShopContent.customEntries.put(ModRoles.MA_CHEN_XU.getIdentifier(), MA_CHEN_XU_SHOP);
-        }
+        // 布袋鬼的战斗能力统一来自诡物与领域，商店仅保留原有通用工具。
+        ShopContent.customEntries.put(ModRoles.MA_CHEN_XU_ID,
+                new ArrayList<>(List.of(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 75, ShopEntry.Type.TOOL))));
 
         // FURANDORU的商店
         {
@@ -3413,107 +3356,9 @@ public class RoleShopHandler {
             ShopContent.customEntries.put(ModRoles.DIVER_ID, diverShop);
         }
 
-        // 诡客的商店
-        {
-            List<ShopEntry> shop = new ArrayList<>();
-            // 净雨符
-            {
-                ItemStack it = Items.POTION.getDefaultInstance();
-                it.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.guest_ghost.stop_raining"));
-                var rainLore = new ArrayList<Component>();
-                rainLore.add(Component.translatable("item.noellesroles.guest_ghost.stop_raining.tooltip1")
-                        .setStyle(Style.EMPTY.withItalic(false))
-                        .withStyle(ChatFormatting.GRAY));
-                it.set(DataComponents.LORE, new ItemLore(rainLore));
-                shop.add(new ShopEntry(it, 200,
-                        ShopEntry.Type.TOOL) {
-                    @Override
-                    public boolean onBuy(Player player) {
-                        if (player.getCooldowns().isOnCooldown(Items.BARRIER)) {
-                            return false;
-                        }
-                        player.getCooldowns().addCooldown(Items.BARRIER, 60 * 20);
-                        if (player instanceof ServerPlayer sp) {
-                            final SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(sp.level());
-                            List<ServerPlayer> players = sp.serverLevel().players();
-                            for (var p : players) {
-                                if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p)) {
-                                    p.removeEffect(ModEffects.INFINITE_STAMINA);
-                                    if (gameWorldComponent.isRole(p, ModRoles.MA_CHEN_XU)) {
-                                        var mapc = RoleData.getNullable(MaChenXuRoleData.class, p);
-                                        if (mapc != null && mapc.otherworldActive) {
-                                            mapc.otherworldDuration = 1;
-                                        }
-                                    } else {
-                                        SRERole role = gameWorldComponent.getRole(p);
-                                        if (role != null) {
-                                            if (role.getMoodType().equals(SRERole.MoodType.REAL)) {
-                                                SREPlayerMoodComponent.KEY.get(p).addMood(0.2f);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        // 回放记录：诡客购买净雨符关闭里世界
-                        SRE.REPLAY_MANAGER.recordCustomEvent(
-                                Component.translatable("replay.event.trickster.close_shadow",
-                                        GameReplayUtils.getReplayPlayerDisplayText(player, true)));
-                        return true;
-                    }
-                });
-            }
-            // 桃木钉
-            {
-                ItemStack it = ModItems.TAOMUDING.getDefaultInstance();
-                it.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.guest_ghost.taomuding"));
-                var rainLore = new ArrayList<Component>();
-                rainLore.add(Component.translatable("item.noellesroles.guest_ghost.taomuding.tooltip1")
-                        .setStyle(Style.EMPTY.withItalic(false))
-                        .withStyle(ChatFormatting.GRAY));
-                it.set(DataComponents.LORE, new ItemLore(rainLore));
-                shop.add(new ShopEntry(it, 150,
-                        ShopEntry.Type.TOOL) {
-                    @Override
-                    public boolean onBuy(Player player) {
-                        if (player.getCooldowns().isOnCooldown(ModItems.TAOMUDING)) {
-                            return false;
-                        }
-                        player.getCooldowns().addCooldown(ModItems.TAOMUDING, 60 * 20);
-                        if (player instanceof ServerPlayer sp) {
-                            final SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(sp.level());
-                            List<ServerPlayer> players = sp.serverLevel().players();
-                            for (var p : players) {
-                                if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p)) {
-                                    if (gameWorldComponent.isRole(p, ModRoles.MA_CHEN_XU)) {
-                                        var mapc = RoleData.getNullable(MaChenXuRoleData.class, p);
-                                        if (mapc != null) {
-                                            // 增加所有鬼术冷却30秒
-                                            mapc.veilCooldown += 20 * 30;
-                                            mapc.effigyCooldown += 20 * 30;
-                                            mapc.wailCooldown += 20 * 30;
-                                            mapc.seizeCooldown += 20 * 30;
-                                            mapc.ultimateCooldown += 20 * 30;
-                                            // 移除护盾
-                                            mapc.permanentShield = false;
-                                            p.displayClientMessage(
-                                                    Component.translatable(
-                                                            "message.noellesroles.ma_chen_xu.into_cooldown_by_guest")
-                                                            .withStyle(ChatFormatting.RED),
-                                                    true);
-                                            p.playNotifySound(TMMSounds.ITEM_PSYCHO_ARMOUR, SoundSource.MASTER, 1f, 1f);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        return true;
-                    }
-                });
-            }
-
-            ShopContent.customEntries.put(ModRoles.GUEST_GHOST_ID, shop);
-        }
+        // 诡客反制由可传承法器承载，不再通过购买按钮全图生效。
+        ShopContent.customEntries.put(ModRoles.GUEST_GHOST_ID,
+                new ArrayList<>(List.of(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 75, ShopEntry.Type.TOOL))));
 
         // 观察者商店 (Watcher)
         {

@@ -119,8 +119,8 @@ public abstract class StalkerLeftClickKillMixin {
 
     /**
      * 在MaChenXu攻击实体时触发
-     * 里世界中：左键标记玩家（无SAN要求），里世界结束后标记者死亡
-     * 里世界外：对SAN≤10的玩家执行魂噬
+     * 里世界中：近战命中削SAN，归零后标记并在自然结束时结算死亡。
+     * 里世界外：对SAN≤15的玩家执行魂噬。
      */
     @Inject(method = "attack", at = @At("HEAD"), cancellable = true)
     private void onMaChenXuKnifeAttack(Entity target, CallbackInfo ci) {
@@ -143,15 +143,11 @@ public abstract class StalkerLeftClickKillMixin {
             return;
         }
         if (mcxpc.otherworldActive) {
-            // 里世界中：标记玩家
-            if (mcxpc.markPlayer(targetPlayer)) {
-                ci.cancel();
-            }
-        } else {
-            // 里世界外：魂噬（SAN≤10）
-            if (mcxpc.soulDevour(targetPlayer)) {
-                ci.cancel();
-            }
+            mcxpc.markPlayer(targetPlayer);
+            // 领域攻击不退回原版伤害，冷却或护心期间也不能借普通拳击绕过规则。
+            ci.cancel();
+        } else if (mcxpc.soulDevour(targetPlayer)) {
+            ci.cancel();
         }
     }
 }

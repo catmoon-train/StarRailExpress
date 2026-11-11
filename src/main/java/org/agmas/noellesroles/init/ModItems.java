@@ -38,6 +38,7 @@ import net.minecraft.world.item.component.ItemLore;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.item.*;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.GhostArt;
 import org.agmas.noellesroles.role.touhou.roles.THKonpakuYoumuRole;
 import org.agmas.noellesroles.content.item.charge_item.*;
 
@@ -52,6 +53,15 @@ import static io.wifi.starrailexpress.index.TMMItems.*;
 
 public class ModItems {
     public static final ItemRegistrar registrar = new ItemRegistrar(Noellesroles.MOD_ID);
+
+    public static final Item GHOST_ART_VEIL = register(new GhostArtItem(GhostArt.VEIL), "ghost_art_veil", TOOLS_GROUP);
+    public static final Item GHOST_ART_PUSH = register(new GhostArtItem(GhostArt.PUSH), "ghost_art_push", TOOLS_GROUP);
+    public static final Item GHOST_ART_EFFIGY = register(new GhostArtItem(GhostArt.EFFIGY), "ghost_art_effigy", TOOLS_GROUP);
+    public static final Item GHOST_ART_ECHO = register(new GhostArtItem(GhostArt.ECHO), "ghost_art_echo", TOOLS_GROUP);
+    public static final Item GHOST_ART_WAIL = register(new GhostArtItem(GhostArt.WAIL), "ghost_art_wail", TOOLS_GROUP);
+    public static final Item GHOST_ART_PARASITE = register(new GhostArtItem(GhostArt.PARASITE), "ghost_art_parasite", TOOLS_GROUP);
+    public static final Item GHOST_ART_SEIZE = register(new GhostArtItem(GhostArt.SEIZE), "ghost_art_seize", TOOLS_GROUP);
+    public static final Item GHOST_WARD_RELIC = register(new GhostWardRelicItem(), "ghost_ward_relic", TOOLS_GROUP);
 
     public static final Item ANTIDOTE = register(new AntidoteItem((new Item.Properties()).stacksTo(1)), "antidote",
             CONSUMABLES_GROUP);

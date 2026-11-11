@@ -96,6 +96,7 @@ public final class TimeRewind {
         // CCA is captured separately. This prevents normal persistent CCA NBT from
         // racing with RoleComponent's richer synchronization snapshot.
         vanillaState.remove(CCA_ROOT_TAG);
+        TimeRewindEvents.CAPTURE.invoker().apply(player, vanillaState);
 
         HolderLookup.Provider registryLookup = player.registryAccess();
         ComponentContainer container = ((ComponentProvider) player).getComponentContainer();
@@ -162,12 +163,14 @@ public final class TimeRewind {
 
         CompoundTag vanillaState = snapshot.rawVanillaState().copy();
         try {
+            TimeRewindEvents.BEFORE_RESTORE.invoker().apply(player, vanillaState);
             moveToSnapshotDimension(player, snapshot, vanillaState);
             playerAccess(player).noellesroles$restoreTimeRewindState(vanillaState);
         } catch (RuntimeException exception) {
             failures.add(new Failure("vanilla", VANILLA_STATE_ID, describe(exception)));
             Noellesroles.LOGGER.error("Failed to restore vanilla player state for {}",
                     player.getScoreboardName(), exception);
+            TimeRewindEvents.AFTER_RESTORE.invoker().apply(player, vanillaState);
             return new TimeRewindResult(0, failures);
         }
         if (!player.isSpectator()) {
@@ -233,6 +236,7 @@ public final class TimeRewind {
             }
         }
 
+        TimeRewindEvents.AFTER_RESTORE.invoker().apply(player, vanillaState);
         return new TimeRewindResult(restoredKeys.size(), failures);
     }
 

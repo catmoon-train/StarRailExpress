@@ -236,11 +236,15 @@ public class ModEffects {
                 }
             });
 
-    /**
-     * 里世界侵蚀效果
-     * - 有害效果，暗紫色
-     * - 用于标记处于里世界影响下的好人玩家，驱动客户端shader和场景变化
-     */
+    /** 里世界归零判死标记：只驱动警告，不锁移动、操作或施加无敌。 */
+    public static final Holder<MobEffect> GHOST_CONDEMNED = register("ghost_condemned",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xB42432));
+
+    /** 净雨护心：只阻止布袋鬼削SAN，不影响其他伤害。 */
+    public static final Holder<MobEffect> GHOST_WARD = register("ghost_ward",
+            new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0x9AD8BC));
+
+    /** 里世界全图氛围标记，用于客户端着色器与倒计时。 */
     public static final Holder<MobEffect> OTHERWORLD_AURA = register("otherworld_aura",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x4B0082));
 
@@ -263,7 +267,7 @@ public class ModEffects {
      * - 仅作为「客户端渲染标记」：当本地玩家自身也持有该效果时，才会给同样持有该效果的
      * 其他玩家绘制发光轮廓（类似原版发光，但只有里世界内的人能互相看见）。
      * - 由 {@code BackworldOutlineEffectSync} 同步给所有客户端（原版只会把效果同步给持有者本人）。
-     * - 使用方：怀旧者里世界、布袋鬼里世界、归途旅人「旧日渡口 / 末班车」。
+     * - 使用方：怀旧者里世界、归途旅人「旧日渡口 / 末班车」。
      */
     public static final Holder<MobEffect> BACKWORLD_OUTLINE = register("backworld_outline",
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0x7FE7E0));

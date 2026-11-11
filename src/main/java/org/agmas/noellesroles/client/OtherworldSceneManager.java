@@ -15,354 +15,192 @@
 
 package org.agmas.noellesroles.client;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-
-import java.util.*;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 /**
- * 里世界场景变化管理器（客户端侧）
- *
- * 比 StupidExpressClient 的 WEAVING 更高级：
- * - 渐进式扩散替换，从玩家位置逐圈向外
- * - 使用多种暗色方块（灵魂沙、黑石、深板岩等）
- * - 支持完全还原（记录原始方块状态）
- * - 周期性脉动：已替换方块会随时间变化
+ * 里世界的纯渲染符纹与薄雾：绝不替换、隐藏或扫描方块，不创建假实体。
+ * 固定 12 个复用槽位，每 8 tick 只重定位一个；距离与视锥裁剪后再提交顶点。
  */
 public class OtherworldSceneManager {
     public static final OtherworldSceneManager INSTANCE = new OtherworldSceneManager();
 
-    /** 已替换方块的原始状态缓存 */
-    private final Map<BlockPos, BlockState> originalBlocks = new LinkedHashMap<>();
-
-    /** 当前替换半径 */
-    private int currentRadius = 0;
-
-    /** 最大替换半径 */
-    private static final int MAX_RADIUS = 80;
-
-    /** 每次tick扩展的层数 */
-    private static final int EXPAND_PER_TICK = 4;
-
-    /** 开场阶段单tick替换预算（前2秒，更平滑） */
-    private static final int START_REPLACE_BUDGET = 96;
-
-    /** 正常阶段单tick替换预算 */
-    private static final int NORMAL_REPLACE_BUDGET = 220;
-
-    /** 扩展间隔（tick） */
-    private static final int EXPAND_INTERVAL = 2;
-
-    /** 替换概率 */
-    private static final float REPLACE_CHANCE = 0.75f;
-
-    /** 脉动间隔（tick） */
-    private static final int PULSE_INTERVAL = 30;
-
-    /** 是否正在活动 */
-    private boolean active = false;
-
-    /** 计时器 */
-    private int tickCounter = 0;
-
-    /** 脉动计时器 */
-    private int pulseTimer = 0;
-
-    /** 阶段化扩散环偏移（开场后继续一圈圈展开） */
-    private int ringOffset = 0;
-
-    /** 上一次的玩家位置 */
-    private BlockPos lastPlayerPos = null;
-
-    /** 是否正在还原中 */
-    private boolean restoring = false;
-
-    /** 还原队列 */
-    private final List<Map.Entry<BlockPos, BlockState>> restoreQueue = new ArrayList<>();
-    private int restoreIndex = 0;
-
-    private final Random random = new Random();
-
-    /** 里世界替换方块集合（暗色系） */
-    private static final BlockState[] OTHERWORLD_BLOCKS = {
-        // Blocks.SOUL_SAND.defaultBlockState(),//不完整方块会卡人
-        Blocks.SOUL_SOIL.defaultBlockState(),
-        Blocks.BLACKSTONE.defaultBlockState(),
-        Blocks.GILDED_BLACKSTONE.defaultBlockState(),
-        Blocks.DEEPSLATE.defaultBlockState(),
-        Blocks.CRYING_OBSIDIAN.defaultBlockState(),
-        Blocks.SCULK.defaultBlockState(),
-        Blocks.BASALT.defaultBlockState(),
-        Blocks.POLISHED_BLACKSTONE.defaultBlockState(),
-        Blocks.POLISHED_BLACKSTONE_BRICKS.defaultBlockState(),
-        Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS.defaultBlockState(),
-        Blocks.DEEPSLATE_BRICKS.defaultBlockState(),
-        Blocks.CRACKED_DEEPSLATE_BRICKS.defaultBlockState(),
-        Blocks.NETHER_BRICKS.defaultBlockState(),
-        Blocks.RED_NETHER_BRICKS.defaultBlockState(),
-        Blocks.TUFF.defaultBlockState(),
+    private static final int MAX_GLYPHS = 12;
+    private static final int RELOCATE_INTERVAL = 8;
+    private static final double MAX_DISTANCE_SQUARED = 24.0D * 24.0D;
+    private static final RenderType FOG = RenderType.entityTranslucent(
+            ResourceLocation.withDefaultNamespace("textures/misc/shadow.png"));
+    /** 每个符纹最多 10 条细线和 1 张低透明度雾片。 */
+    private static final float[][] STROKES = {
+            {-0.04F, -0.60F, 0.06F, 0.55F},
+            {0.06F, 0.55F, -0.20F, 0.30F},
+            {-0.20F, 0.30F, 0.02F, 0.16F},
+            {0.02F, 0.16F, 0.24F, 0.34F},
+            {0.24F, 0.34F, 0.06F, 0.55F},
+            {0.01F, 0.07F, -0.22F, -0.12F},
+            {-0.22F, -0.12F, -0.02F, -0.30F},
+            {-0.02F, -0.30F, 0.22F, -0.10F},
+            {0.22F, -0.10F, 0.01F, 0.07F},
+            {-0.05F, -0.49F, 0.20F, -0.38F}
     };
 
-    /** 稀有替换方块（低概率出现，发光/氛围方块） */
-    private static final BlockState[] RARE_OTHERWORLD_BLOCKS = {
-        Blocks.SCULK_CATALYST.defaultBlockState(),
-        // Blocks.SCULK_SENSOR.defaultBlockState(), //这个会把人卡住
-        // Blocks.SCULK_SHRIEKER.defaultBlockState(),不完整方块会卡人
-        // Blocks.SOUL_LANTERN.defaultBlockState(),不完整方块会卡人
-        Blocks.SHROOMLIGHT.defaultBlockState(),
-        Blocks.JACK_O_LANTERN.defaultBlockState(),
-        Blocks.REDSTONE_BLOCK.defaultBlockState(),
-        Blocks.MAGMA_BLOCK.defaultBlockState(),
-    };
+    private final Glyph[] glyphs = new Glyph[MAX_GLYPHS];
+    private ClientLevel level;
+    private boolean active;
+    private int ticks;
+    private int nextGlyph;
+    private int lastPlayerTick = Integer.MIN_VALUE;
 
-    /**
-     * 激活里世界场景变化
-     */
+    public OtherworldSceneManager() {
+        for (int i = 0; i < glyphs.length; i++) glyphs[i] = new Glyph();
+    }
+
     public void activate() {
-        if (active) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (active && level == mc.level) return;
+        reset();
+        if (mc.level == null || mc.player == null) return;
+        level = mc.level;
         active = true;
-        restoring = false;
-        currentRadius = 0;
-        ringOffset = 0;
-        tickCounter = 0;
-        pulseTimer = 0;
-        restoreQueue.clear();
-        restoreIndex = 0;
+        for (int i = 0; i < glyphs.length; i++) relocate(mc, i);
     }
 
-    /**
-     * 停用里世界场景变化并开始还原
-     */
+    /** 纯渲染数据可以立即丢弃，不再有分批还原和错位的碰撞体。 */
     public void deactivate() {
-        if (!active) return;
-        active = false;
-        startRestoration();
+        reset();
     }
 
-    /**
-     * 每tick调用
-     */
     public void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.level == null) return;
-
-        if (active) {
-            tickActive(mc);
-        } else if (restoring) {
-            tickRestore(mc);
-        }
-    }
-
-    private void tickActive(Minecraft mc) {
-        tickCounter++;
-        pulseTimer++;
-
-        BlockPos playerPos = mc.player.blockPosition();
-        lastPlayerPos = playerPos;
-
-        // 改为渐进扩散：开场不再做高倍率爆发，避免瞬时大量替换卡顿
-        int expandStep = EXPAND_PER_TICK;
-        int replaceBudget = tickCounter <= 40 ? START_REPLACE_BUDGET : NORMAL_REPLACE_BUDGET;
-
-        // 开场后：围绕玩家逐圈展开（ringOffset 让圈层有明显层级感）
-        if (tickCounter % EXPAND_INTERVAL == 0 && currentRadius < MAX_RADIUS) {
-            int fromRadius = Math.max(0, currentRadius - ringOffset);
-            int toRadius = Math.min(MAX_RADIUS, currentRadius + expandStep - ringOffset);
-            expandToRadius(mc.level, playerPos, fromRadius, toRadius, replaceBudget);
-            currentRadius += expandStep;
-
-            if (tickCounter > 20) {
-                ringOffset = Math.min(24, ringOffset + 1);
-            }
-        }
-
-        // 脉动效果：已替换的方块周期性变化
-        if (pulseTimer >= PULSE_INTERVAL) {
-            pulseTimer = 0;
-            pulseExistingBlocks(mc.level);
-        }
-    }
-
-    /**
-     * 扩展替换范围
-     */
-    private void expandToRadius(ClientLevel level, BlockPos center, int fromRadius, int toRadius, int replaceBudget) {
-        if (replaceBudget <= 0) return;
-        int replaced = 0;
-
-        for (int r = fromRadius; r < toRadius; r++) {
-            for (int x = -r; x <= r; x++) {
-                for (int y = -3; y <= 10; y++) {
-                    for (int z = -r; z <= r; z++) {
-                        if (replaced >= replaceBudget) return;
-
-                        // 只处理当前圈层边界上的方块
-                        if (Math.abs(x) != r && Math.abs(z) != r) continue;
-
-                        BlockPos pos = center.offset(x, y, z);
-
-                        // 已经替换过的跳过
-                        if (originalBlocks.containsKey(pos)) continue;
-
-                        BlockState state = level.getBlockState(pos);
-
-                        // 跳过空气和流体
-                        if (state.isAir()) continue;
-                        if (!state.getFluidState().isEmpty()) continue;
-
-                        // 不替换不可见方块
-                        if (!state.isSolidRender(level, pos)) continue;
-
-                        // 概率替换
-                        if (random.nextFloat() >= REPLACE_CHANCE) continue;
-
-                        // 记录原始方块
-                        originalBlocks.put(pos.immutable(), state);
-
-                        // 随机选择替换方块
-                        BlockState replacement;
-                        if (random.nextFloat() < 0.12f) {
-                            replacement = RARE_OTHERWORLD_BLOCKS[random.nextInt(RARE_OTHERWORLD_BLOCKS.length)];
-                        } else {
-                            replacement = OTHERWORLD_BLOCKS[random.nextInt(OTHERWORLD_BLOCKS.length)];
-                        }
-
-                        level.setBlock(pos, replacement, 3);
-                        replaced++;
-
-                        // 替换时释放粒子效果
-                        if (random.nextFloat() < 0.3f) {
-                            double px = pos.getX() + 0.5;
-                            double py = pos.getY() + 0.5;
-                            double pz = pos.getZ() + 0.5;
-                            level.addParticle(ParticleTypes.SOUL_FIRE_FLAME, px, py, pz, 0, 0.05, 0);
-                            if (random.nextFloat() < 0.2f) {
-                                level.addParticle(ParticleTypes.SCULK_CHARGE_POP, px, py + 0.3, pz, 0, 0.02, 0);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * 脉动效果：随机改变一些已替换的方块
-     */
-    private void pulseExistingBlocks(ClientLevel level) {
-        List<BlockPos> positions = new ArrayList<>(originalBlocks.keySet());
-        int pulseCount = Math.min(positions.size() / 3, 80);
-
-        for (int i = 0; i < pulseCount; i++) {
-            BlockPos pos = positions.get(random.nextInt(positions.size()));
-            if (!level.isLoaded(pos)) continue;
-
-            BlockState replacement;
-            if (random.nextFloat() < 0.08f) {
-                replacement = RARE_OTHERWORLD_BLOCKS[random.nextInt(RARE_OTHERWORLD_BLOCKS.length)];
-            } else {
-                replacement = OTHERWORLD_BLOCKS[random.nextInt(OTHERWORLD_BLOCKS.length)];
-            }
-            level.setBlock(pos, replacement, 3);
-
-            // 脉动时的粒子效果
-            if (random.nextFloat() < 0.15f) {
-                double px = pos.getX() + 0.5;
-                double py = pos.getY() + 1.0;
-                double pz = pos.getZ() + 0.5;
-                level.addParticle(ParticleTypes.SOUL, px, py, pz,
-                        (random.nextDouble() - 0.5) * 0.1, 0.05, (random.nextDouble() - 0.5) * 0.1);
-            }
-        }
-    }
-
-    /**
-     * 开始还原过程（渐进式）
-     */
-    private void startRestoration() {
-        restoring = true;
-        restoreQueue.clear();
-        restoreQueue.addAll(originalBlocks.entrySet());
-        // 从外到内还原
-        if (lastPlayerPos != null) {
-            BlockPos center = lastPlayerPos;
-            restoreQueue.sort((a, b) -> {
-                double distA = a.getKey().distSqr(center);
-                double distB = b.getKey().distSqr(center);
-                return Double.compare(distB, distA); // 远的先还原
-            });
-        }
-        restoreIndex = 0;
-    }
-
-    /**
-     * 还原tick：每tick还原一批方块
-     */
-    private void tickRestore(Minecraft mc) {
-        if (restoreIndex >= restoreQueue.size()) {
-            // 还原完毕
-            restoring = false;
-            originalBlocks.clear();
-            restoreQueue.clear();
-            currentRadius = 0;
+        if (level != mc.level || mc.level == null || mc.player == null
+                || !OtherworldShader.isAnyOtherworldActive()) {
+            reset();
             return;
         }
-
-        ClientLevel level = mc.level;
-        if (level == null) {
-            restoring = false;
-            originalBlocks.clear();
-            return;
+        if (!active || mc.isPaused() || lastPlayerTick == mc.player.tickCount) return;
+        // 兼容旧初始化代码仍调用 tick 的情况，同一玩家 tick 只推进一次。
+        lastPlayerTick = mc.player.tickCount;
+        ticks++;
+        for (Glyph glyph : glyphs) glyph.age++;
+        if (ticks % RELOCATE_INTERVAL == 0) {
+            relocate(mc, nextGlyph);
+            nextGlyph = (nextGlyph + 1) % glyphs.length;
         }
-
-        // 每tick还原 30 个方块
-        int batchSize = Math.min(30, restoreQueue.size() - restoreIndex);
-        for (int i = 0; i < batchSize; i++) {
-            var entry = restoreQueue.get(restoreIndex + i);
-            BlockPos pos = entry.getKey();
-            BlockState original = entry.getValue();
-            if (level.isLoaded(pos)) {
-                level.setBlock(pos, original, 3);
-                // 还原时释放恢复粒子
-                if (random.nextFloat() < 0.15f) {
-                    double px = pos.getX() + 0.5;
-                    double py = pos.getY() + 0.5;
-                    double pz = pos.getZ() + 0.5;
-                    level.addParticle(ParticleTypes.END_ROD, px, py, pz, 0, 0.05, 0);
-                }
-            }
-        }
-        restoreIndex += batchSize;
     }
 
-    /**
-     * 强制立即还原所有方块
-     */
-    public void forceRestore() {
+    /** 只在重定位时创建一个裁剪盒，渲染帧内不创建位置、集合或包围盒。 */
+    private void relocate(Minecraft mc, int index) {
+        Glyph glyph = glyphs[index];
+        double angle = index * (Math.PI * 2.0D / MAX_GLYPHS) + ticks * 0.006D;
+        double radius = 7.0D + (index * 7 % 10);
+        glyph.x = mc.player.getX() + Math.cos(angle) * radius;
+        glyph.y = mc.player.getY() + 0.65D + (index % 3) * 0.65D;
+        glyph.z = mc.player.getZ() + Math.sin(angle) * radius;
+        glyph.age = 0;
+        glyph.bounds = new AABB(glyph.x - 1.5D, glyph.y - 1.5D, glyph.z - 1.5D,
+                glyph.x + 1.5D, glyph.y + 1.5D, glyph.z + 1.5D);
+    }
+
+    /** 由 SackGhostRealmFx.register 静态接入 AFTER_ENTITIES；保留原版深度测试。 */
+    public void render(WorldRenderContext context) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null) return;
-
-        for (var entry : originalBlocks.entrySet()) {
-            if (mc.level.isLoaded(entry.getKey())) {
-                mc.level.setBlock(entry.getKey(), entry.getValue(), 3);
-            }
+        if (!active || level != mc.level || !SackGhostRealmFx.hasVisuals()
+                || context.matrixStack() == null || context.consumers() == null) return;
+        // 装饰性几何同样尊重粒子设置；最少时完全关闭，警示 HUD 不受影响。
+        int limit = switch (mc.options.particles().get()) {
+            case ALL -> MAX_GLYPHS;
+            case DECREASED -> MAX_GLYPHS / 2;
+            case MINIMAL -> 0;
+        };
+        if (limit == 0) return;
+        float partial = context.tickCounter().getGameTimeDeltaPartialTick(false);
+        float pressure = SackGhostRealmFx.pressure(partial);
+        float strength = SackGhostRealmFx.strength(partial);
+        Vec3 camera = context.camera().getPosition();
+        PoseStack poses = context.matrixStack();
+        VertexConsumer mist = null;
+        for (int i = 0; i < limit; i++) {
+            Glyph glyph = glyphs[i];
+            glyph.fade = 0.0F;
+            double dx = glyph.x - camera.x;
+            double dy = glyph.y - camera.y;
+            double dz = glyph.z - camera.z;
+            double distanceSquared = dx * dx + dy * dy + dz * dz;
+            if (distanceSquared < 16.0D || distanceSquared > MAX_DISTANCE_SQUARED
+                    || glyph.bounds == null || context.frustum() == null
+                    || !context.frustum().isVisible(glyph.bounds)) continue;
+            float lifetime = Mth.clamp((glyph.age + partial) / 16.0F, 0.0F, 1.0F)
+                    * Mth.clamp((MAX_GLYPHS * RELOCATE_INTERVAL - glyph.age - partial) / 16.0F, 0.0F, 1.0F);
+            float fade = lifetime * strength * Mth.clamp((24.0F - (float) Math.sqrt(distanceSquared)) / 6.0F, 0.0F, 1.0F);
+            if (fade <= 0.01F) continue;
+            glyph.fade = fade;
+            if (mist == null) mist = context.consumers().getBuffer(FOG);
+            poses.pushPose();
+            poses.translate(dx, dy + Math.sin((ticks + partial) * 0.025D + i) * 0.10D, dz);
+            poses.mulPose(context.camera().rotation());
+            var pose = poses.last();
+            int fogAlpha = (int) (fade * (10.0F + pressure * 7.0F));
+            fogVertex(mist, pose, -0.75F, -0.9F, 0.0F, 1.0F, fogAlpha);
+            fogVertex(mist, pose, 0.75F, -0.9F, 1.0F, 1.0F, fogAlpha);
+            fogVertex(mist, pose, 0.75F, 0.9F, 1.0F, 0.0F, fogAlpha);
+            fogVertex(mist, pose, -0.75F, 0.9F, 0.0F, 0.0F, fogAlpha);
+            poses.popPose();
         }
-        originalBlocks.clear();
-        restoreQueue.clear();
-        restoring = false;
-        active = false;
-        currentRadius = 0;
+        if (mist == null) return;
+        // 先完成所有雾片，再请求线段缓冲；兼容不提供固定缓冲的渲染实现。
+        VertexConsumer lines = context.consumers().getBuffer(RenderType.lines());
+        for (int i = 0; i < limit; i++) {
+            Glyph glyph = glyphs[i];
+            if (glyph.fade <= 0.01F) continue;
+            poses.pushPose();
+            poses.translate(glyph.x - camera.x,
+                    glyph.y - camera.y + Math.sin((ticks + partial) * 0.025D + i) * 0.10D, glyph.z - camera.z);
+            poses.mulPose(context.camera().rotation());
+            var pose = poses.last();
+            int alpha = (int) (glyph.fade * (48.0F + pressure * 30.0F));
+            for (float[] stroke : STROKES) {
+                float nx = stroke[2] - stroke[0];
+                float ny = stroke[3] - stroke[1];
+                float length = Mth.sqrt(nx * nx + ny * ny);
+                lines.addVertex(pose, stroke[0], stroke[1], 0.015F).setColor(150, 24, 32, alpha)
+                        .setNormal(pose, nx / length, ny / length, 0.0F);
+                lines.addVertex(pose, stroke[2], stroke[3], 0.015F).setColor(150, 24, 32, alpha)
+                        .setNormal(pose, nx / length, ny / length, 0.0F);
+            }
+            poses.popPose();
+        }
     }
 
-    /**
-     * 清理所有状态
-     */
+    private static void fogVertex(VertexConsumer out, PoseStack.Pose pose, float x, float y,
+            float u, float v, int alpha) {
+        out.addVertex(pose, x, y, 0.0F).setColor(48, 8, 15, alpha).setUv(u, v)
+                .setOverlay(OverlayTexture.NO_OVERLAY).setLight(0xF000F0).setNormal(pose, 0.0F, 0.0F, 1.0F);
+    }
+
+    /** 兼容旧调用方：现在只清理渲染数据，不向世界写回任何方块。 */
+    public void forceRestore() {
+        reset();
+    }
+
     public void reset() {
-        forceRestore();
+        active = false;
+        level = null;
+        ticks = 0;
+        nextGlyph = 0;
+        lastPlayerTick = Integer.MIN_VALUE;
+        for (Glyph glyph : glyphs) {
+            glyph.bounds = null;
+            glyph.age = 0;
+        }
     }
 
     public boolean isActive() {
@@ -370,6 +208,15 @@ public class OtherworldSceneManager {
     }
 
     public boolean isRestoring() {
-        return restoring;
+        return false;
+    }
+
+    private static final class Glyph {
+        private double x;
+        private double y;
+        private double z;
+        private int age;
+        private float fade;
+        private AABB bounds;
     }
 }

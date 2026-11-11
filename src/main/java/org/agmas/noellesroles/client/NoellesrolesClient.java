@@ -258,6 +258,8 @@ public class NoellesrolesClient implements ClientModInitializer {
         RoleScreenRegister.register();
         CloneDoctorClient.register();
         IdentityScannerClient.register();
+        SackGhostClient.register();
+        SackGhostRealmFx.register();
         NoellesrolesClientAmbientSounds.register();
         // 统一时刻音乐播放器（统一管理各时刻的循环 BGM 与优先级）
         org.agmas.noellesroles.client.MomentMusicClient.register();
@@ -1526,43 +1528,6 @@ public class NoellesrolesClient implements ClientModInitializer {
 
         });
 
-        // 注册里世界场景管理器tick
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (client.player == null || client.level == null)
-                return;
-            if (SREClient.gameComponent == null)
-                return;
-
-            boolean otherworldActive = OtherworldShader.isAnyOtherworldActive();
-
-            if (otherworldActive && !OtherworldSceneManager.INSTANCE.isActive()) {
-                OtherworldSceneManager.INSTANCE.activate();
-            } else if (!otherworldActive && OtherworldSceneManager.INSTANCE.isActive()) {
-                OtherworldSceneManager.INSTANCE.deactivate();
-            }
-
-            OtherworldSceneManager.INSTANCE.tick();
-
-            // 鬼缚效果红色粒子渲染
-            for (var p : client.level.players()) {
-                if (p.hasEffect(ModEffects.GHOST_CURSE)) {
-                    double px = p.getX() + (Math.random() - 0.5) * 0.8;
-                    double py = p.getY() + Math.random() * 1.8;
-                    double pz = p.getZ() + (Math.random() - 0.5) * 0.8;
-                    client.level.addParticle(
-                            net.minecraft.core.particles.ParticleTypes.CRIMSON_SPORE,
-                            px, py, pz, 0, 0.02, 0);
-                    if (Math.random() < 0.4) {
-                        double px2 = p.getX() + (Math.random() - 0.5) * 1.0;
-                        double py2 = p.getY() + 0.5 + Math.random() * 1.0;
-                        double pz2 = p.getZ() + (Math.random() - 0.5) * 1.0;
-                        client.level.addParticle(
-                                net.minecraft.core.particles.ParticleTypes.DUST_PLUME,
-                                px2, py2, pz2, 0, -0.01, 0);
-                    }
-                }
-            }
-        });
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player == null || client.level == null || SREClient.gameComponent == null) {

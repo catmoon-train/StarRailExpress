@@ -1,90 +1,64 @@
 #version 150
 
 uniform sampler2D DiffuseSampler;
-
-uniform float Strength;      // 里世界强度 (0~1正常, >1过渡闪白)
-uniform float Time;           // 累计时间
-uniform float PulsePhase;     // 脉动阶段 (用于15秒发光等周期性效果)
+uniform float Strength;
+uniform float Time;
+uniform float Pressure;
+uniform float Condemned;
+uniform float Entry;
 uniform vec2 OutSize;
 
 in vec2 texCoord;
 out vec4 fragColor;
 
-float rand(vec2 co) {
-    return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
-}
-
-float noise(vec2 p) {
-    vec2 i = floor(p);
-    vec2 f = fract(p);
-    f = f * f * (3.0 - 2.0 * f);
-    float a = rand(i);
-    float b = rand(i + vec2(1.0, 0.0));
-    float c = rand(i + vec2(0.0, 1.0));
-    float d = rand(i + vec2(1.0, 1.0));
-    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+float grainHash(vec2 p) {
+    return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
 void main() {
-    vec2 uv = texCoord;
-    vec2 center = vec2(0.5, 0.5);
-    float dist = distance(uv, center);
+    float strength = clamp(Strength, 0.0, 1.0);
+    float pressure = clamp(Pressure, 0.0, 1.0);
+    float condemned = clamp(Condemned, 0.0, 1.0);
+    float entry = clamp(Entry, 0.0, 1.0);
+    vec2 pixel = 1.0 / max(OutSize, vec2(1.0));
+    vec2 centered = (texCoord - 0.5) * vec2(1.0, 1.1);
+    float edge = smoothstep(0.30, 0.72, length(centered));
+    float breath = 0.5 + 0.5 * sin(Time * (1.6 + pressure * 0.8));
 
-    // ========== 1. 扭曲效果 ==========
-    // 缓慢旋转扭曲
-    float angle = atan(uv.y - 0.5, uv.x - 0.5);
-    float warp = sin(angle * 3.0 + Time * 0.8) * 0.008 * Strength;
-    // 波纹扭曲
-    float ripple = sin(dist * 20.0 - Time * 2.0) * 0.004 * Strength;
-    uv += normalize(uv - center + 0.001) * (warp + ripple);
+    // 扭曲只在外围，位移每轴最多 0.9 像素；不移动准星附近的场景。
+    vec2 warp = vec2(sin(texCoord.y * 32.0 + Time * 0.4),
+                     sin(texCoord.x * 27.0 - Time * 0.32));
+    vec2 uv = clamp(texCoord + warp * pixel * 0.9 * edge * strength * (0.2 + pressure * 0.8),
+                    pixel * 0.5, vec2(1.0) - pixel * 0.5);
+    vec3 color = texture(DiffuseSampler, uv).rgb;
 
-    // 黑雾飘动扭曲
-    float fogWarp = noise(uv * 5.0 + Time * 0.3) * 0.006 * Strength;
-    uv.x += fogWarp;
-    uv.y += noise(uv * 4.0 - Time * 0.2) * 0.004 * Strength;
+    // 中央仅轻微去饱和/压暗，保留路线、玩家和手持物的辨识度。
+    float luma = dot(color, vec3(0.299, 0.587, 0.114));
+    color = mix(color, vec3(luma), strength * 0.12);
+    color *= mix(vec3(1.0), vec3(1.0, 0.975, 0.97), strength);
+    float darkness = 0.05 + edge * (0.13 + pressure * 0.08 + breath * 0.035
+                                   + condemned * 0.04 + entry * 0.035);
+    color *= 1.0 - strength * darkness;
 
-    // ========== 2. 色差 ==========
-    float aberr = 0.003 * Strength;
-    vec3 col;
-    col.r = texture(DiffuseSampler, uv + vec2(aberr, 0.0)).r;
-    col.g = texture(DiffuseSampler, uv).g;
-    col.b = texture(DiffuseSampler, uv - vec2(aberr, 0.0)).b;
+    // 缓慢漂移的暗红裂纹限于屏幕外沿，不使用白闪或快速明暗跳变。
+    float sideSeam = 0.045 + sin(texCoord.y * 21.0 + Time * 0.12) * 0.012
+                           + sin(texCoord.y * 97.0) * 0.004;
+    float topSeam = 0.038 + sin(texCoord.x * 24.0 - Time * 0.10) * 0.009
+                          + sin(texCoord.x * 113.0) * 0.003;
+    float sideWidth = max(pixel.x, 0.0007);
+    float topWidth = max(pixel.y, 0.0007);
+    float sideCrack = 1.0 - smoothstep(sideWidth, sideWidth * 3.0,
+            abs(min(texCoord.x, 1.0 - texCoord.x) - sideSeam));
+    float topCrack = 1.0 - smoothstep(topWidth, topWidth * 3.0,
+            abs(min(texCoord.y, 1.0 - texCoord.y) - topSeam));
+    float cracks = max(sideCrack, topCrack * 0.75);
+    color += vec3(0.28, 0.014, 0.024) * cracks * strength
+             * (0.22 + pressure * 0.15 + entry * 0.40 + condemned * 0.35);
+    color = mix(color, vec3(max(color.r, 0.16), color.g * 0.72, color.b * 0.76),
+                edge * strength * condemned * 0.13);
 
-    // ========== 3. 颜色偏移 - 暗紫红色调 ==========
-    // 去饱和后重新着色
-    float gray = dot(col, vec3(0.299, 0.587, 0.114));
-    // 里世界色调：暗紫红色
-    vec3 otherworldTint = vec3(0.15, 0.02, 0.12);
-    vec3 tintedColor = mix(col, vec3(gray) * 0.6 + otherworldTint, Strength * 0.7);
-
-    // ========== 4. 黑雾覆盖 ==========
-    float fog = noise(uv * 3.0 + vec2(Time * 0.15, Time * 0.1));
-    float fog2 = noise(uv * 6.0 - vec2(Time * 0.2, Time * 0.15));
-    float fogMask = (fog * 0.6 + fog2 * 0.4);
-    // 边缘雾更浓
-    fogMask = fogMask * (0.3 + dist * 0.7);
-    tintedColor = mix(tintedColor, otherworldTint * 0.3, fogMask * Strength * 0.4);
-
-    // ========== 5. 脉动效果 ==========
-    float pulse = sin(Time * 1.5) * 0.5 + 0.5;
-    tintedColor *= 1.0 - pulse * 0.08 * Strength;
-
-    // ========== 6. 暗角 ==========
-    float vignette = smoothstep(1.0, 0.2, dist);
-    tintedColor *= mix(1.0, vignette, Strength * 0.6);
-
-    // ========== 7. 颗粒噪声 ==========
-    float grain = (rand(uv + Time * 0.1) - 0.5) * 0.06 * Strength;
-    tintedColor += grain;
-
-    // ========== 8. 整体暗化 ==========
-    tintedColor *= mix(1.0, 0.7, clamp(Strength, 0.0, 1.0));
-
-    // ========== 9. 过渡闪白效果 (Strength > 1.0 时) ==========
-    if (Strength > 1.0) {
-        float flashIntensity = clamp(Strength - 1.0, 0.0, 1.0);
-        tintedColor = mix(tintedColor, vec3(1.0), flashIntensity);
-    }
-
-    fragColor = vec4(tintedColor, 1.0);
+    // 低幅度颗粒随倒计时增强；中心噪声极弱，不叠加模糊或色差。
+    float grain = grainHash(floor(texCoord * OutSize * 0.5) + floor(Time * 8.0)) - 0.5;
+    color += grain * strength * (0.002 + pressure * 0.006) * (0.2 + edge * 0.8);
+    fragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
 }

@@ -15,65 +15,78 @@
 
 package org.agmas.noellesroles.client;
 
-import io.wifi.starrailexpress.client.PostProcessor;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.pipeline.TextureTarget;
+import com.mojang.blaze3d.systems.RenderSystem;
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
-import io.wifi.starrailexpress.api.data.RoleData;
-import org.agmas.noellesroles.role_data.killer.MaChenXuRoleData;
+import net.minecraft.client.renderer.PostPass;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
-
-import java.util.function.BooleanSupplier;
+import org.agmas.noellesroles.role_data.killer.MaChenXuRoleData;
+import org.joml.Matrix4f;
 
 /**
- * 里世界 Shader 效果
- * 当任何玩家附近存在布袋鬼开启里世界时，对好人显示黑暗扭曲的后处理效果
+ * 里世界的独立后处理；不替换 GameRenderer 的后处理链，也不触碰世界方块。
+ * 强度由客户端 tick 推进，不随帧率改变。加载失败时保留独立的 HUD 警告。
  */
 public class OtherworldShader {
     public static OtherworldShader instance = new OtherworldShader();
-    private PostProcessor m_post;
 
-    private float otherworldStrength = 0.0f;
-    private float totalTime = 0.0f;
-    /** 过渡动画：进入时先闪白再变暗 */
-    private float transitionFlash = 0.0f;
-    private boolean wasActive = false;
+    private final Matrix4f projection = new Matrix4f();
+    private RenderTarget swapBuffer;
+    private PostPass realmPass;
+    private PostPass copyPass;
+    private boolean failed;
 
-    private static final float FADE_IN_SPEED = 0.02f;
-    private static final float FADE_OUT_SPEED = 0.04f;
-
+    /** 按需创建；保留旧 GameRenderer mixin 的调用接口。 */
     public void initPostProcessor() {
-        if (m_post != null) return;
-        m_post = new PostProcessor();
-        initOtherworldPostProcess();
+        if (realmPass != null || failed || !SackGhostRealmFx.hasVisuals()) return;
+        Minecraft mc = Minecraft.getInstance();
+        try {
+            RenderTarget main = mc.getMainRenderTarget();
+            swapBuffer = new TextureTarget(main.width, main.height, false, Minecraft.ON_OSX);
+            swapBuffer.setClearColor(0.0F, 0.0F, 0.0F, 1.0F);
+            realmPass = new PostPass(mc.getResourceManager(), "otherworld", main, swapBuffer, true);
+            copyPass = new PostPass(mc.getResourceManager(), "blit", swapBuffer, main, true);
+            updateProjection(main.width, main.height);
+        } catch (Exception error) {
+            disable(error);
+        } finally {
+            mc.getMainRenderTarget().bindWrite(false);
+        }
     }
 
     public void resize(int w, int h) {
-        if (m_post == null) return;
-        m_post.resize(w, h);
+        if (swapBuffer == null || w <= 0 || h <= 0) return;
+        if (swapBuffer.width == w && swapBuffer.height == h) return;
+        try {
+            swapBuffer.resize(w, h, Minecraft.ON_OSX);
+            updateProjection(w, h);
+        } catch (Exception error) {
+            disable(error);
+        }
     }
 
-    private boolean processPlayer(LocalPlayer player, BooleanSupplier action) {
-        return player != null && action.getAsBoolean();
+    private void updateProjection(int w, int h) {
+        projection.setOrtho(0.0F, w, 0.0F, h, 0.1F, 1000.0F);
+        realmPass.setOrthoMatrix(projection);
+        copyPass.setOrthoMatrix(projection);
     }
 
-    /**
-     * 检查本地玩家是否受到里世界影响（通过药水效果检测，更可靠）
-     */
+    /** 全图影响只读取本人的光环；施法者同步数据作为效果尚未抵达时的后备。 */
     public static boolean isAnyOtherworldActive() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null) return false;
-        // 好人通过 OTHERWORLD_AURA 药水效果检测
+        if (mc.level == null || mc.player == null || !mc.player.isAlive() || mc.player.isSpectator()
+                || SREClient.gameComponent == null || !SREClient.gameComponent.isRunning()) return false;
+        if (SackGhostClient.hasActiveRealm()) return true;
         if (mc.player.hasEffect(ModEffects.OTHERWORLD_AURA)) return true;
-        // 布袋鬼自己通过组件状态检测
-        MaChenXuRoleData localComp = getLocalMaChenXuComponent();
-        return localComp != null && localComp.otherworldActive;
+        MaChenXuRoleData data = getLocalMaChenXuComponent();
+        return data != null && data.otherworldActive;
     }
 
-    /**
-     * 获取布袋鬼的MaChenXuRoleData（本地玩家为布袋鬼时）
-     */
     public static MaChenXuRoleData getLocalMaChenXuComponent() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || SREClient.gameComponent == null) return null;
@@ -83,80 +96,62 @@ public class OtherworldShader {
         return null;
     }
 
-    private void initOtherworldPostProcess() {
-        Minecraft mc = Minecraft.getInstance();
-
-        m_post.addSinglePassEntry("otherworld", pass -> processPlayer(mc.player, () -> {
-            boolean isActive = isAnyOtherworldActive();
-
-            // 布袋鬼自己不受shader影响（他是施法者）
-            MaChenXuRoleData localComp = getLocalMaChenXuComponent();
-            if (localComp != null && localComp.otherworldActive) {
-                // 布袋鬼自己也显示轻微效果（更沉浸）
-                // 但使用减弱版
-            }
-
-            totalTime += 0.016f;
-
-            // 检测过渡：刚激活时触发闪白效果
-            if (isActive && !wasActive) {
-                transitionFlash = 1.5f; // 初始闪白强度
-            }
-            wasActive = isActive;
-
-            // 闪白衰减
-            if (transitionFlash > 0) {
-                transitionFlash = Math.max(0, transitionFlash - 0.03f);
-            }
-
-            // 平滑渐入渐出（更慢的过渡，更有仪式感）
-            if (isActive) {
-                otherworldStrength = Math.min(1.0f, otherworldStrength + FADE_IN_SPEED);
-            } else {
-                otherworldStrength = Math.max(0.0f, otherworldStrength - FADE_OUT_SPEED);
-            }
-
-            if (otherworldStrength <= 0.01f) return false;
-
-            var effect = pass.getEffect();
-            if (effect == null) return false;
-
-            // 布袋鬼自己效果减弱
-            float finalStrength = otherworldStrength;
-            if (localComp != null && localComp.otherworldActive) {
-                finalStrength *= 0.3f;
-            }
-            // 过渡闪白叠加（进入时短暂增强到过度曝光再恢复）
-            finalStrength = Math.min(2.0f, finalStrength + transitionFlash);
-
-            var strengthUniform = effect.safeGetUniform("Strength");
-            if (strengthUniform != null) {
-                strengthUniform.set(finalStrength);
-            }
-
-            var timeUniform = effect.safeGetUniform("Time");
-            if (timeUniform != null) {
-                timeUniform.set(totalTime);
-            }
-
-            var pulseUniform = effect.safeGetUniform("PulsePhase");
-            if (pulseUniform != null) {
-                pulseUniform.set((totalTime % 30.0f) / 30.0f);
-            }
-
-            return true;
-        }));
-    }
-
     public void renderPostProcess(float partialTicks) {
-        if (m_post == null) return;
-        m_post.render(partialTicks);
+        if (!SackGhostRealmFx.hasVisuals()) return;
+        initPostProcessor();
+        if (realmPass == null || copyPass == null || failed) return;
+        Minecraft mc = Minecraft.getInstance();
+        try {
+            RenderTarget main = mc.getMainRenderTarget();
+            resize(main.width, main.height);
+            if (realmPass == null || copyPass == null) return;
+            var effect = realmPass.getEffect();
+            effect.safeGetUniform("Strength").set(SackGhostRealmFx.strength(partialTicks));
+            effect.safeGetUniform("Time").set(SackGhostRealmFx.time(partialTicks));
+            effect.safeGetUniform("Pressure").set(SackGhostRealmFx.pressure(partialTicks));
+            effect.safeGetUniform("Condemned").set(SackGhostRealmFx.markStrength(partialTicks));
+            effect.safeGetUniform("Entry").set(SackGhostRealmFx.entry(partialTicks));
+            realmPass.process(partialTicks);
+            copyPass.process(partialTicks);
+        } catch (Exception error) {
+            disable(error);
+        } finally {
+            mc.getMainRenderTarget().bindWrite(false);
+            RenderSystem.enableDepthTest();
+            RenderSystem.depthMask(true);
+            RenderSystem.defaultBlendFunc();
+        }
     }
 
+    /** 退出、断线与换世界共用清理，既清视觉状态也释放显存。 */
     public void reset() {
-        otherworldStrength = 0.0f;
-        totalTime = 0.0f;
-        transitionFlash = 0.0f;
-        wasActive = false;
+        SackGhostRealmFx.reset();
+    }
+
+    /** 资源重载后才允许重试失败的着色器，避免每帧重复编译与刷日志。 */
+    void reload() {
+        clearPostProcessor();
+        failed = false;
+    }
+
+    void clearPostProcessor() {
+        if (realmPass != null) {
+            realmPass.close();
+            realmPass = null;
+        }
+        if (copyPass != null) {
+            copyPass.close();
+            copyPass = null;
+        }
+        if (swapBuffer != null) {
+            swapBuffer.destroyBuffers();
+            swapBuffer = null;
+        }
+    }
+
+    private void disable(Exception error) {
+        clearPostProcessor();
+        failed = true;
+        SRE.LOGGER.warn("Otherworld post effect disabled until resource reload; HUD remains available", error);
     }
 }

@@ -7,6 +7,8 @@
   "mixins": [
     "roles.clone_doctor.CloneDoctorItemMixin",
     "roles.clone_doctor.CloneDoctorInventoryMixin",
+    "roles.ma_chen_xu.GhostArtInventoryMixin",
+    "roles.ma_chen_xu.GhostArtContainerMixin",
     "halloween.HalloweenPlayerActionsMixin",
     "halloween.HalloweenLinkInventoryMixin",
     "halloween.HalloweenLinkPlayerMixin",

@@ -56,7 +56,7 @@ final class TimeRewindAreaEngine {
         List<TimeRewindAreaSnapshot.Warning> warnings = new ArrayList<>();
 
         List<ItemEntity> currentItems = level.getEntitiesOfClass(ItemEntity.class, area,
-                item -> !item.isRemoved());
+                item -> !item.isRemoved() && TimeRewindEvents.ALLOW_AREA_ITEM.invoker().allow(item));
         currentItems.sort(Comparator.comparing(Entity::getUUID));
         for (ItemEntity item : currentItems) {
             try {
@@ -139,7 +139,7 @@ final class TimeRewindAreaEngine {
         for (ItemState itemState : snapshot.rawItemStates()) {
             for (ServerLevel candidate : level.getServer().getAllLevels()) {
                 Entity entity = candidate.getEntity(itemState.entityId());
-                if (entity instanceof ItemEntity item && removed.add(item.getUUID())) {
+                if (entity instanceof ItemEntity item && TimeRewindEvents.ALLOW_AREA_ITEM.invoker().allow(item) && removed.add(item.getUUID())) {
                     item.discard();
                 }
             }
@@ -147,7 +147,7 @@ final class TimeRewindAreaEngine {
 
         // Items created after the snapshot are not part of the restored area state.
         for (ItemEntity item : level.getEntitiesOfClass(ItemEntity.class, snapshot.area(),
-                candidate -> !candidate.isRemoved())) {
+                candidate -> !candidate.isRemoved() && TimeRewindEvents.ALLOW_AREA_ITEM.invoker().allow(candidate))) {
             if (removed.add(item.getUUID())) {
                 item.discard();
             }
@@ -173,6 +173,7 @@ final class TimeRewindAreaEngine {
                     throw new IllegalStateException("snapshot entity type is not an ItemEntity");
                 }
                 item.load(data);
+                if (!TimeRewindEvents.ALLOW_AREA_ITEM.invoker().allow(item)) continue;
                 if (!level.addFreshEntity(item)) {
                     throw new IllegalStateException("server rejected restored item entity");
                 }

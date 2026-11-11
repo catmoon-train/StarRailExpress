@@ -12,1953 +12,789 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package org.agmas.noellesroles.role_data.killer;
 
-import io.wifi.starrailexpress.api.data.RoleData;
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
-import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
-import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
+import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent.GameStatus;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.util.ParticleFx;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
-import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
-import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ResolvableProfile;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.component.PlayerVolumeComponent;
+import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.GhostArt;
+import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.SackGhostItems;
+import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.SackGhostRules;
+import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.SackGhostPackets;
+import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.SackGhostVerdicts;
+import org.agmas.noellesroles.api.time.TimeRewind;
+import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.SackGhostRewind;
+import java.util.HashSet;
+import java.util.Set;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
-import org.jetbrains.annotations.NotNull;
-import java.util.*;
-import static org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuEventHandler.HIT_SELF_LOCK_TICKS;
+import org.agmas.noellesroles.utils.MoneyUtils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+/** 四阶段诡物成长与里世界判死的服务端权威状态；不再存在自动小诡术或七套独立冷却。 */
 public class MaChenXuRoleData extends SimpleRoleData {
-
-    /** 组件键 */
-
-
-    /** 诡术槽位顺序（与 RoleSkill 注册顺序一致，HUD/选中索引据此映射） */
-    public static final String[] ART_ORDER = { "veil", "effigy", "wail", "seize" };
-
-    // ==================== 同步分组掩码 ====================
-
-    public static final int SYNC_CORE = 0x01;
-    public static final int SYNC_SKILLS = 0x02;
-    public static final int SYNC_COOLDOWNS = 0x04;
-    public static final int SYNC_OTHERWORLD = 0x08;
-    public static final int SYNC_TURBID = 0x10;
-    public static final int SYNC_ALL = 0x1F;
-
-    // ==================== 恐惧侵蚀常量 ====================
-
-    public static final double[] STAGE_RANGE = { 0, 30.0, 40.0, 50.0, 50.0 };
-    /** 各阶段点对点（prox=1）基础侵蚀（mood/tick）：约 0.64/1.04/1.44/1.84 SAN/s（-60%） */
-    public static final double[] STAGE_EROSION = { 0, 0.00032, 0.00052, 0.00072, 0.00092 };
-    public static final double GAZE_MULT = 1.8;
-    public static final float LOW_SAN_THRESHOLD = 0.3f;
-    public static final double LOW_SAN_MAX_BONUS = 0.5;
-    public static final double OTHERWORLD_PROX_FLOOR = 0.5;
-
-    public int STAGE_2_THRESHOLD = 100;
-    public int STAGE_3_THRESHOLD = 250;
-    public int STAGE_4_THRESHOLD = 500;
-
-    // ==================== 大招 / 里世界常量 ====================
-
-    public static final int ULTIMATE_COST = 150;
-    public static final int ULTIMATE_DURATION_STAGE_3 = 600; // 30s
-    public static final int ULTIMATE_DURATION_STAGE_4 = 900; // 45s
-    public static final int INITIAL_GOLD = 50;
-
-    public static final int OTHERWORLD_GLOW_INTERVAL = 300;
-    public static final int OTHERWORLD_GLOW_DURATION = 100;
-    public static final double OTHERWORLD_WARN_RANGE = 20.0;
-    public static final int BLACK_FOG_PARTICLE_INTERVAL = 5;
-    public static final int OTHERWORLD_DESCENT_DURATION = 100;
-    public static final int OTHERWORLD_INTRO_FREEZE_DURATION = 40;
-
-    // ==================== 诡术常量 ====================
-
-    /** 鬼遮眼：朝准星区域致盲+反胃+扭曲 */
-    public static final int VEIL_COOLDOWN = 320; // 16s
-    public static final double VEIL_AIM_DISTANCE = 9.0;
-    public static final double VEIL_RADIUS = 4.0;
-    public static final int VEIL_DEBUFF_TICKS = 100; // 5s
-    public static final int VEIL_SAN_LOSS = 15;
-
-    /** 替身草人：伪装成布袋鬼的诱饵，好人靠近受惊 */
-    public static final int EFFIGY_COOLDOWN = 500; // 25s
-    public static final int EFFIGY_LIFETIME = 600; // 30s
-    public static final double EFFIGY_TRIGGER_RANGE = 3.0;
-    public static final int EFFIGY_SAN_LOSS = 20;
-    public static final int EFFIGY_GLOW_TICKS = 120;
-
-    /** 怨声：以自身为中心的恐惧脉冲 */
-    public static final int WAIL_COOLDOWN = 400; // 20s
-    public static final double WAIL_RANGE = 12.0;
-    public static final int WAIL_SAN_MAX = 18;
-    public static final int WAIL_SAN_MIN = 8;
-    public static final int WAIL_SLOW_TICKS = 50;
-
-    /** 夺魄：拉拽并定身低 SAN 目标（处决前摇） */
-    public static final int SEIZE_COOLDOWN = 600; // 30s
-    public static final double SEIZE_RANGE = 12.0;
-    public static final float SEIZE_SAN_THRESHOLD = 0.35f;
-    public static final int SEIZE_ROOT_TICKS = 50;
-    public static final int SEIZE_SAN_LOSS = 20;
-
-    // ==================== 小诡术常量 ====================
-
-    /** 小诡术池（随机获取，不重复） */
-    public static final String[] MINOR_TRICK_POOL = { "parasite", "push", "echo" };
-    public static final int MAX_MINOR_TRICKS = 4;
-
-    /** 寄生：目标20秒后死亡，自身隐身 */
-    public static final int PARASITE_COOLDOWN = 480; // 24s
-    public static final double PARASITE_RANGE = 8.0;
-    public static final int PARASITE_DEATH_DELAY = 400; // 20s
-    public static final int PARASITE_INVIS_DURATION = 160; // 8s
-    public static final int PARASITE_SAN_LOSS = 20;
-
-    /** 推走：推开周围非杀手玩家 */
-    public static final int PUSH_COOLDOWN = 280; // 14s
-    public static final double PUSH_RANGE = 6.0;
-    public static final double PUSH_FORCE = 2.8;
-
-    /** 录制回响：记录位置→前瞬移→再释放返回原位 */
-    public static final int ECHO_COOLDOWN = 360; // 18s
-    public static final double ECHO_TELEPORT_DISTANCE = 10.0;
-    public static final int ECHO_RETURN_WINDOW = 160; // 8s
-    public static final int ECHO_SAN_LOSS = 12;
-
-    /** 魂噬：低 SAN 处决 */
-    public static final float SOUL_DEVOUR_THRESHOLD = 0.15f;
-
-    /** 浊雨（商店） */
-    public static final int TURBID_RAIN_DURATION = 600;
-    public static final int TURBID_RAIN_SAN_INTERVAL = 100;
-    public static final int TURBID_RAIN_SAN_LOSS = 3;
-
-    /** 镇魂铃（商店） */
-    public static final double SOUL_BELL_RANGE = 20.0;
-    public static final int SOUL_BELL_DURATION = 200;
-
-    // ==================== 状态变量 ====================
-
+    public static final int ULTIMATE_DURATION_STAGE_3 = 600;
+    public static final int ULTIMATE_DURATION_STAGE_4 = 800;
+    public static final double[] STAGE_RANGE = {0, 30, 40, 50, 50};
+    private static final double[] EROSION = {0, 0.00032, 0.00052, 0.00072, 0.00092};
+    private static final int OPENING_LOCK = 40;
+    private static final int GLOW_INTERVAL = 15 * 20;
 
     public int stage = 1;
-    public int totalSanLoss = 0;
-    private float sanLossAccumulator = 0f;
+    public int totalSanLoss;
+    public int initialPlayers = 1;
+    public int STAGE_2_THRESHOLD = 90;
+    public int STAGE_3_THRESHOLD = 220;
+    public int STAGE_4_THRESHOLD = 400;
+    public int generationCooldown;
+    public int castCooldown;
+    public int ultimateCooldown;
+    public int realmHitCooldown;
+    public boolean otherworldActive;
+    public int otherworldTimer;
+    public int otherworldDuration;
+    public int otherworldTotalTicks;
+    public final SackGhostVerdicts verdicts = new SackGhostVerdicts();
+    public final List<String> ghostSkills = new ArrayList<>();
 
-    public boolean otherworldActive = false;
-    public int otherworldTimer = 0;
-    public int otherworldDuration = 0;
-
-    public int ultimateCooldown = 0;
-    public boolean stage4FreeUltUsed = false;
-    public List<UUID> markedPlayers = new ArrayList<>();
-
-    public boolean permanentShield = false;
-    public int permanentSpeedBonus = 0;
-
-    public List<String> ghostSkills = new ArrayList<>();
-    /** 已解锁的小诡术（随机获取，不放V键循环；主技能冷却时按G自动尝试释放） */
-    public final List<String> minorTricks = new ArrayList<>();
-    public int nowSelectedSkill = 0;
-
-    /** 诡术冷却 */
-    public int veilCooldown = 0;
-    public int effigyCooldown = 0;
-    public int wailCooldown = 0;
-    public int seizeCooldown = 0;
-
-    /** 小诡术冷却 */
-    public int parasiteCooldown = 0;
-    public int pushCooldown = 0;
-    public int echoCooldown = 0;
-
-    /** 寄生追踪：目标UUID → 剩余tick */
-    private final Map<UUID, Integer> parasiteTargets = new HashMap<>();
-
-    /** 录制回响状态 */
-    private Vec3 echoRecordedPos = null;
-    private boolean echoActive = false;
-    private int echoReturnTimer = 0;
-
-    /** 替身草人状态（服务端，不同步） */
-    private Vec3 effigyPos = null;
-    private int effigyTicks = 0;
-    private final Set<UUID> effigyTriggered = new HashSet<>();
-
-    /** 浊雨 */
-    public boolean turbidRainActive = false;
-    public int turbidRainDuration = 0;
-    public int turbidRainTimer = 0;
-    public int turbidRainUseCount = 0;
-
-    private int otherworldGlowTimer = 0;
-    private int blackFogTimer = 0;
-
-    private final Random random = new Random();
-
-    private transient int pendingSyncMask = SYNC_ALL;
+    private UUID sessionId = UUID.randomUUID();
+    private double fear;
+    private boolean started;
+    private boolean previousInvulnerable;
+    private long activeTicks;
+    private ServerLevel realmLevel;
+    private long generationReadyAt;
+    private long castReadyAt;
+    private long realmReadyAt;
+    private long hitReadyAt;
+    private Vec3 effigyPosition;
+    private int effigyTicks;
+    private UUID effigyEntity;
+    private ServerLevel effigyLevel;
+    private final Set<UUID> moodDirty = new HashSet<>();
+    private final Map<UUID, Integer> parasites = new HashMap<>();
+    private final Map<UUID, Map<Holder<MobEffect>, Lease>> realmEffects = new LinkedHashMap<>();
+    private record Lease(MobEffectInstance previous, long capturedAt, int amplifier, long expectedEnd, long activeUntil) {}
 
     public MaChenXuRoleData(RoleDataContext context) {
         super(context);
+        refreshSkills();
     }
 
-
-    @Override
-    public boolean shouldSyncWith(ServerPlayer player) {
-        return this.player == player;
-    }
-
-    @Override
-    public void init() {
-        this.stage = 1;
-        this.totalSanLoss = 0;
-        this.sanLossAccumulator = 0f;
-        this.otherworldActive = false;
-        this.otherworldTimer = 0;
-        this.otherworldDuration = 0;
-        this.ultimateCooldown = 0;
-        this.stage4FreeUltUsed = false;
-        this.markedPlayers.clear();
-        this.permanentShield = false;
-        this.permanentSpeedBonus = 0;
-        this.ghostSkills.clear();
-        this.ghostSkills.add("veil"); // 阶段1初始诡术
-        this.minorTricks.clear();
-        this.nowSelectedSkill = 0;
-        this.veilCooldown = 0;
-        this.effigyCooldown = 0;
-        this.wailCooldown = 0;
-        this.seizeCooldown = 0;
-        this.parasiteCooldown = 0;
-        this.pushCooldown = 0;
-        this.echoCooldown = 0;
-        this.parasiteTargets.clear();
-        this.echoRecordedPos = null;
-        this.echoActive = false;
-        this.echoReturnTimer = 0;
-        resetEffigy();
-        this.turbidRainActive = false;
-        this.turbidRainDuration = 0;
-        this.turbidRainTimer = 0;
-        this.turbidRainUseCount = 0;
-        this.otherworldGlowTimer = 0;
-        this.blackFogTimer = 0;
-        if (player instanceof ServerPlayer serverPlayer) {
-            SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(serverPlayer);
-            shopComponent.setBalance(INITIAL_GOLD);
-            shopComponent.sync();
-            updateStageNeeds(serverPlayer.level().players().size());
-        }
-        this.sync();
-    }
-
-    public void updateStageNeeds(int playerCount) {
-        if (playerCount <= 12) {
-            STAGE_2_THRESHOLD = 350;
-            STAGE_3_THRESHOLD = 600;
-            STAGE_4_THRESHOLD = 1000;
-        } else if (playerCount <= 24) {
-            STAGE_2_THRESHOLD = 700;
-            STAGE_3_THRESHOLD = 1200;
-            STAGE_4_THRESHOLD = 1800;
-        } else {
-            STAGE_2_THRESHOLD = 650;
-            STAGE_3_THRESHOLD = 1200;
-            STAGE_4_THRESHOLD = 1600;
-        }
-    }
-
-    @Override
-    public void clear() {
-        this.stage = 0;
-        this.totalSanLoss = 0;
-        this.sanLossAccumulator = 0f;
-        this.otherworldActive = false;
-        this.otherworldTimer = 0;
-        this.otherworldDuration = 0;
-        this.ultimateCooldown = 0;
-        this.stage4FreeUltUsed = false;
-        this.markedPlayers.clear();
-        this.permanentShield = false;
-        this.permanentSpeedBonus = 0;
-        this.ghostSkills.clear();
-        this.minorTricks.clear();
-        this.nowSelectedSkill = 0;
-        this.veilCooldown = 0;
-        this.effigyCooldown = 0;
-        this.wailCooldown = 0;
-        this.seizeCooldown = 0;
-        this.parasiteCooldown = 0;
-        this.pushCooldown = 0;
-        this.echoCooldown = 0;
-        this.parasiteTargets.clear();
-        this.echoRecordedPos = null;
-        this.echoActive = false;
-        this.echoReturnTimer = 0;
-        resetEffigy();
-        this.turbidRainActive = false;
-        this.turbidRainDuration = 0;
-        this.turbidRainTimer = 0;
-        this.turbidRainUseCount = 0;
-        this.otherworldGlowTimer = 0;
-        this.blackFogTimer = 0;
-        if (player instanceof ServerPlayer sp) {
-            sp.setInvulnerable(false);
-        }
-        this.sync();
-    }
-
-    private void resetEffigy() {
-        this.effigyPos = null;
-        this.effigyTicks = 0;
-        this.effigyTriggered.clear();
-    }
+    public UUID sessionId() { return sessionId; }
+    private long now() { return activeTicks; }
 
     public boolean isActiveMaChenXu() {
-        if (player == null)
-            return false;
-        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
-        if (gameWorldComponent == null)
-            return false;
-        if (!gameWorldComponent.isRole(player, ModRoles.MA_CHEN_XU))
-            return false;
-        return stage > 0;
+        return stage > 0 && SREGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.MA_CHEN_XU);
     }
 
-    private boolean isKiller(Player target) {
-        return SREGameWorldComponent.KEY.get(target.level()).isKillerTeam(target);
+    private boolean matchActive() {
+        return SREGameWorldComponent.KEY.get(player.level()).getGameStatus() == SREGameWorldComponent.GameStatus.ACTIVE;
     }
 
-    // ==================== 阶段进阶 ====================
-
-    /** 进阶提速倍率：所有恐惧值累计来源都汇入 accrueSanLoss，统一对进阶 +40% 提速 */
-    public static final double ADVANCE_SPEED_MULT = 1.4;
-
-    /** 累计恐惧值并检查进阶，不触发同步（高频侵蚀使用） */
-    private void accrueSanLoss(int amount) {
-        if (amount <= 0)
-            return;
-        this.totalSanLoss += (int) Math.round(amount * ADVANCE_SPEED_MULT);
-        checkStageAdvance();
+    private boolean clockRunning() {
+        return matchActive() && SREGameWorldComponent.KEY.get(player.level()).isSkillAvailable
+                && !SREGameTimeComponent.KEY.get(player.level()).isTimeFrozen();
     }
 
-    /** 低频来源使用：累计 + 立即同步 */
-    public void addSanLoss(int amount) {
-        if (amount <= 0)
-            return;
-        accrueSanLoss(amount);
-        this.sync(SYNC_CORE | SYNC_SKILLS);
+    private boolean canCast() {
+        return isActiveMaChenXu() && clockRunning() && GameUtils.isPlayerAliveAndSurvival(player)
+                && !player.hasEffect(ModEffects.SKILL_BANED) && !player.hasEffect(ModEffects.USED_BANED);
     }
 
-    public void checkStageAdvance() {
-        if (stage == 1 && totalSanLoss >= STAGE_2_THRESHOLD) {
-            advanceToStage2();
-        } else if (stage == 2 && totalSanLoss >= STAGE_3_THRESHOLD) {
-            advanceToStage3();
-        } else if (stage == 3 && totalSanLoss >= STAGE_4_THRESHOLD) {
-            advanceToStage4();
-        }
+    public boolean isEnemy(Player target) {
+        return target != player && target.level() == player.level() && GameUtils.isPlayerAliveAndSurvival(target)
+                && !SREGameWorldComponent.KEY.get(player.level()).isKillerTeam(target);
     }
 
-    private void unlockArt(String artId) {
-        if (!ghostSkills.contains(artId)) {
-            ghostSkills.add(artId);
-            if (player instanceof ServerPlayer serverPlayer) {
-                serverPlayer.displayClientMessage(
-                        Component.translatable("message.noellesroles.ma_chen_xu.ghost_skill_acquired",
-                                Component.translatable("hud.noellesroles.ma_chen_xu.skill." + artId))
-                                .withStyle(ChatFormatting.GOLD),
-                        true);
-            }
-        }
+    private void refreshSkills() {
+        ghostSkills.clear();
+        for (GhostArt art : GhostArt.unlocked(stage)) ghostSkills.add(art.id);
     }
 
-    /**
-     * 从池中随机获取一个未拥有的小诡术。小诡术存在独立的 minorTricks 列表中，
-     * 不影响 V 键的 4 个主技能槽位。
-     */
-    private void unlockRandomMinorTrick() {
-        if (minorTricks.size() >= MAX_MINOR_TRICKS)
-            return;
-
-        List<String> pool = new ArrayList<>();
-        for (String id : MINOR_TRICK_POOL) {
-            if (!minorTricks.contains(id))
-                pool.add(id);
-        }
-        if (pool.isEmpty())
-            return;
-
-        Collections.shuffle(pool, random);
-        String picked = pool.get(0);
-        minorTricks.add(picked);
-
-        if (player instanceof ServerPlayer serverPlayer) {
-            serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.ma_chen_xu.minor_trick_acquired",
-                            Component.translatable("hud.noellesroles.ma_chen_xu.skill." + picked))
-                            .withStyle(ChatFormatting.GOLD, ChatFormatting.ITALIC),
-                    true);
-            // 提示使用方式
-            serverPlayer.displayClientMessage(
-                    Component
-                            .translatable("tip.noellesroles.ma_chen_xu.minor_trick_usage",
-                                    Component.keybind("key.noellesroles.ability"))
-                            .withStyle(ChatFormatting.GRAY),
-                    false);
-        }
+    private void initializeRound(ServerPlayer owner) {
+        started = true;
+        initialPlayers = SackGhostItems.initialPlayers(owner.serverLevel());
+        STAGE_2_THRESHOLD = SackGhostRules.stageThreshold(2, initialPlayers);
+        STAGE_3_THRESHOLD = SackGhostRules.stageThreshold(3, initialPlayers);
+        STAGE_4_THRESHOLD = SackGhostRules.stageThreshold(4, initialPlayers);
+        MoneyUtils.setBalance(owner, 50);
+        generationReadyAt = now() + SackGhostRules.generationCooldownSeconds(initialPlayers) * 20L;
+        // 初始两件只给一次，不会因领域结束、冷却结束或重连重新补发。
+        giveArt(owner, GhostArt.VEIL);
+        giveArt(owner, GhostArt.PUSH);
+        sync();
     }
 
-    private void announceStage(String phaseKey, ChatFormatting... styles) {
-        if (player instanceof ServerPlayer serverPlayer) {
-            serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.ma_chen_xu.stage_advance",
-                            Component.translatable(phaseKey)).withStyle(styles),
-                    true);
-        }
+    private boolean giveArt(ServerPlayer owner, GhostArt art) {
+        if (SackGhostItems.artCount(owner) >= SackGhostRules.MAX_ART_ITEMS) return false;
+        ItemStack stack = SackGhostItems.createArt(owner, sessionId, art);
+        return owner.getInventory().add(stack);
     }
 
-    public void advanceToStage2() {
-        this.stage = 2;
-        unlockArt("effigy");
-        unlockRandomMinorTrick();
-        announceStage("hud.noellesroles.ma_chen_xu.phase2", ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD);
-        player.level().playSound(null, player.blockPosition(),
-                SoundEvents.WITHER_AMBIENT, SoundSource.PLAYERS, 1.0F, 0.8F);
-        sync(SYNC_CORE | SYNC_SKILLS);
-    }
-
-    public void advanceToStage3() {
-        this.stage = 3;
-        unlockArt("wail");
-        unlockRandomMinorTrick();
-        announceStage("hud.noellesroles.ma_chen_xu.phase3", ChatFormatting.DARK_RED, ChatFormatting.BOLD);
-        if (player instanceof ServerPlayer serverPlayer) {
-            serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.ma_chen_xu.ghost_skill_acquired",
-                            Component.translatable("hud.noellesroles.ma_chen_xu.skill.prayer_rain"))
-                            .withStyle(ChatFormatting.GOLD),
-                    false);
-        }
-        player.level().playSound(null, player.blockPosition(),
-                SoundEvents.WITHER_SPAWN, SoundSource.PLAYERS, 1.0F, 0.6F);
-        sync(SYNC_CORE | SYNC_SKILLS);
-    }
-
-    public void advanceToStage4() {
-        this.stage = 4;
-        unlockArt("seize");
-        unlockRandomMinorTrick();
-        announceStage("hud.noellesroles.ma_chen_xu.phase4", ChatFormatting.BLACK, ChatFormatting.BOLD);
-        player.level().playSound(null, player.blockPosition(),
-                SoundEvents.ENDER_DRAGON_GROWL, SoundSource.PLAYERS, 1.0F, 0.4F);
-        sync(SYNC_CORE | SYNC_SKILLS);
-    }
-
-    // ==================== 恐惧侵蚀 ====================
-
-    private double getFearRange() {
-        return (stage >= 1 && stage <= 4) ? STAGE_RANGE[stage] : 0;
-    }
-
-    private double getBaseErosion() {
-        return (stage >= 1 && stage <= 4) ? STAGE_EROSION[stage] : 0;
-    }
-
-    private void processErosion() {
-        double range = getFearRange();
-        double base = getBaseErosion();
-        if (range <= 0 || base <= 0)
-            return;
-
-        Level world = player.level();
-        Vec3 playerPos = player.position();
-        float drainedTotal = 0f;
-
-        for (Player target : world.players()) {
-            if (target.equals(player))
-                continue;
-            if (!GameUtils.isPlayerAliveAndSurvival(target))
-                continue;
-            if (isKiller(target))
-                continue;
-
-            double distance = playerPos.distanceTo(target.position());
-            double prox;
-            if (otherworldActive) {
-                double t = Math.min(1.0, distance / range);
-                prox = Math.max(OTHERWORLD_PROX_FLOOR, Math.pow(1.0 - t, 1.5));
-            } else {
-                if (distance > range)
-                    continue;
-                double t = distance / range;
-                prox = Math.pow(1.0 - t, 1.5);
-            }
-
-            double gaze = target.hasLineOfSight(player) ? GAZE_MULT : 1.0;
-            float mood = SREPlayerMoodComponent.KEY.get(target).getMood();
-            double low = 1.0;
-            if (mood < LOW_SAN_THRESHOLD) {
-                low = 1.0 + LOW_SAN_MAX_BONUS * ((LOW_SAN_THRESHOLD - mood) / LOW_SAN_THRESHOLD);
-            }
-
-            float rate = (float) (base * prox * gaze * low);
-            if (rate <= 0f)
-                continue;
-            SREPlayerMoodComponent.KEY.get(target).addMood(-rate);
-            drainedTotal += rate;
-        }
-
-        if (drainedTotal > 0f) {
-            sanLossAccumulator += drainedTotal * 100f;
-            if (sanLossAccumulator >= 1f) {
-                int whole = (int) sanLossAccumulator;
-                sanLossAccumulator -= whole;
-                accrueSanLoss(whole);
-            }
-        }
-    }
-
-    // ==================== 里世界·百鬼夜行 ====================
-
-    private void processOtherworldMechanism() {
-        if (!otherworldActive)
-            return;
-
-        otherworldTimer++;
-        otherworldDuration--;
-        otherworldGlowTimer++;
-        blackFogTimer++;
-
-        Level world = player.level();
-
-        if (world.getGameTime() % 60 == 0) {
-            for (UUID uuid : new ArrayList<>(markedPlayers)) {
-                Player marked = world.getPlayerByUUID(uuid);
-                if (marked != null && GameUtils.isPlayerAliveAndSurvival(marked)) {
-                    marked.addEffect(new MobEffectInstance(MobEffects.GLOWING, 80, 0, false, false, true));
-                }
-            }
-        }
-
-        if (otherworldGlowTimer >= OTHERWORLD_GLOW_INTERVAL) {
-            otherworldGlowTimer = 0;
-            for (Player target : world.players()) {
-                if (target.equals(player) || !GameUtils.isPlayerAliveAndSurvival(target))
-                    continue;
-                target.addEffect(
-                        new MobEffectInstance(MobEffects.GLOWING, OTHERWORLD_GLOW_DURATION, 0, false, false, true));
-                if (target instanceof ServerPlayer targetSp) {
-                    targetSp.connection.send(new ClientboundSetTitlesAnimationPacket(5, 30, 10));
-                    targetSp.connection.send(new ClientboundSetTitleTextPacket(
-                            Component.translatable("message.noellesroles.ma_chen_xu.glow_pulse")
-                                    .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD)));
-                    world.playSound(null, target.blockPosition(),
-                            SoundEvents.WARDEN_HEARTBEAT, SoundSource.HOSTILE, 0.6F, 0.8F);
-                }
-            }
-        }
-
-        if (world.getGameTime() % 40 == 0) {
-            Vec3 playerPos = player.position();
-            for (Player target : world.players()) {
-                if (target.equals(player) || !GameUtils.isPlayerAliveAndSurvival(target) || isKiller(target))
-                    continue;
-                if (!(target instanceof ServerPlayer targetSp))
-                    continue;
-                double distance = playerPos.distanceTo(target.position());
-                if (distance > OTHERWORLD_WARN_RANGE)
-                    continue;
-                if (distance <= 8.0) {
-                    targetSp.connection.send(new ClientboundSetTitlesAnimationPacket(5, 40, 10));
-                    targetSp.connection.send(new ClientboundSetTitleTextPacket(
-                            Component.translatable("message.noellesroles.ma_chen_xu.proximity_danger")
-                                    .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD)));
-                    world.playSound(null, target.blockPosition(),
-                            SoundEvents.WARDEN_NEARBY_CLOSEST, SoundSource.HOSTILE, 0.8F, 1.0F);
-                } else {
-                    targetSp.displayClientMessage(
-                            Component.translatable("message.noellesroles.ma_chen_xu.proximity_warning")
-                                    .withStyle(ChatFormatting.RED),
-                            true);
-                }
-            }
-        }
-
-        if (otherworldTimer <= OTHERWORLD_DESCENT_DURATION && player instanceof ServerPlayer sp
-                && world instanceof ServerLevel sl) {
-            playOtherworldDescentEffects(sl, sp, otherworldTimer);
-        }
-
-        if (blackFogTimer >= BLACK_FOG_PARTICLE_INTERVAL && world instanceof ServerLevel sl) {
-            blackFogTimer = 0;
-            Vec3 pos = player.position();
-            sl.sendParticles(ParticleTypes.LARGE_SMOKE, pos.x, pos.y + 0.5, pos.z, 10, 1.2, 0.8, 1.2, 0.02);
-            sl.sendParticles(ParticleTypes.SCULK_SOUL, pos.x, pos.y + 0.2, pos.z, 3, 1.4, 0.2, 1.4, 0.01);
-            sl.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, pos.x, pos.y + 0.8, pos.z, 4, 1.0, 0.4, 1.0, 0.01);
-        }
-
-        if (otherworldDuration <= 0) {
-            endOtherworld();
-        }
-    }
-
-    private void playOtherworldDescentEffects(ServerLevel sl, ServerPlayer sp, int timer) {
-        Vec3 pos = sp.position();
-        if (timer % 2 == 0) {
-            double radius = 4.0 + (12.0 * Math.min(timer, OTHERWORLD_DESCENT_DURATION) / OTHERWORLD_DESCENT_DURATION);
-            for (int i = 0; i < 32; i++) {
-                double yaw = random.nextDouble() * Math.PI * 2.0;
-                double pitch = (random.nextDouble() - 0.5) * Math.PI;
-                double px = pos.x + Math.cos(yaw) * Math.cos(pitch) * radius;
-                double py = pos.y + 1.2 + Math.sin(pitch) * radius * 0.6;
-                double pz = pos.z + Math.sin(yaw) * Math.cos(pitch) * radius;
-                sl.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, px, py, pz, 1, 0, 0, 0, 0.01);
-            }
-        }
-        if (timer == 1) {
-            sl.playSound(null, sp.blockPosition(), SoundEvents.WARDEN_NEARBY_CLOSE, SoundSource.HOSTILE, 1.3F, 0.55F);
-        } else if (timer == 35) {
-            sl.playSound(null, sp.blockPosition(), SoundEvents.WARDEN_ROAR, SoundSource.HOSTILE, 1.2F, 0.75F);
-        } else if (timer == 70) {
-            sl.playSound(null, sp.blockPosition(), SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 1.0F, 0.9F);
-        } else if (timer == OTHERWORLD_DESCENT_DURATION) {
-            sl.playSound(null, sp.blockPosition(), SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.HOSTILE, 1.4F,
-                    0.65F);
-        }
-    }
-
-    public void activateOtherworld(int duration) {
-        if (!(player instanceof ServerPlayer sp))
-            return;
-
-        this.otherworldActive = true;
-        this.otherworldDuration = duration;
-        this.otherworldTimer = 0;
-        this.otherworldGlowTimer = 0;
-        this.blackFogTimer = 0;
-        this.markedPlayers.clear();
-
-        sp.setInvulnerable(true);
-        sp.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, duration, 2, false, false, false));
-        sp.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false, false));
-        // 布袋鬼本人也处于里世界，能看见里世界内其他人的轮廓
-        sp.addEffect(new MobEffectInstance(ModEffects.BACKWORLD_OUTLINE, duration, 0, false, false, false));
-
-        Level world = player.level();
-
-        for (Player target : world.players()) {
-            if (!GameUtils.isPlayerAliveAndSurvival(target))
-                continue;
-            if (target instanceof ServerPlayer targetSp) {
-                targetSp.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 60, 0, false, false, false));
-            }
-            if (!target.equals(sp)) {
-                target.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, OTHERWORLD_INTRO_FREEZE_DURATION, 0,
-                        false, false, true));
-                target.addEffect(new MobEffectInstance(ModEffects.USED_BANED, OTHERWORLD_INTRO_FREEZE_DURATION, 0,
-                        false, false, true));
-                target.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, OTHERWORLD_INTRO_FREEZE_DURATION, 0,
-                        false, false, true));
-            }
-        }
-
-        if (world instanceof ServerLevel sl) {
-            Vec3 pos = sp.position();
-            sl.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, pos.x, pos.y + 1.0, pos.z, 40, 3.0, 2.0, 3.0, 0.05);
-            sl.sendParticles(ParticleTypes.SCULK_SOUL, pos.x, pos.y + 0.5, pos.z, 25, 4.0, 1.0, 4.0, 0.03);
-            sl.sendParticles(ParticleTypes.LARGE_SMOKE, pos.x, pos.y + 0.3, pos.z, 30, 5.0, 1.0, 5.0, 0.02);
-            playOtherworldDescentEffects(sl, sp, 1);
-        }
-
-        for (Player target : world.players()) {
-            if (!GameUtils.isPlayerAliveAndSurvival(target) || isKiller(target))
-                continue;
-            target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, duration, 2, false, false, true));
-            target.addEffect(new MobEffectInstance(ModEffects.OTHERWORLD_AURA, duration, 0, false, false, false));
-            // 里世界同界描边：里世界内的人可以互相看见轮廓
-            target.addEffect(new MobEffectInstance(ModEffects.BACKWORLD_OUTLINE, duration, 0, false, false, false));
-            target.addEffect(new MobEffectInstance(ModEffects.INFINITE_STAMINA, duration, 5, false, false, false));
-            target.addEffect(
-                    new MobEffectInstance(ModEffects.LOW_SAN_SHADER_RESISTANCE, duration, 10, false, false, false));
-            target.addEffect(new MobEffectInstance(ModEffects.MOOD_DRAIN_REDUCTION, duration, 1, false, false, false));
-            if (target instanceof ServerPlayer targetSp) {
-                targetSp.connection.send(new ClientboundSetTitlesAnimationPacket(10, 60, 20));
-                targetSp.connection.send(new ClientboundSetTitleTextPacket(
-                        Component.translatable("message.noellesroles.ma_chen_xu.otherworld_warning_title")
-                                .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD, ChatFormatting.OBFUSCATED)));
-                targetSp.connection.send(new ClientboundSetSubtitleTextPacket(
-                        Component.translatable("message.noellesroles.ma_chen_xu.otherworld_warning_subtitle")
-                                .withStyle(ChatFormatting.RED)));
-                world.playSound(null, target.blockPosition(),
-                        SoundEvents.WARDEN_ROAR, SoundSource.HOSTILE, 1.0F, 0.5F);
-            }
-        }
-
-        sp.connection.send(new ClientboundSetTitlesAnimationPacket(10, 40, 10));
-        sp.connection.send(new ClientboundSetTitleTextPacket(
-                Component.translatable("message.noellesroles.ma_chen_xu.li_shi_jie_activated")
-                        .withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD)));
-        world.playSound(null, sp.blockPosition(), SoundEvents.WARDEN_EMERGE, SoundSource.HOSTILE, 1.5F, 0.6F);
-
-        // 回放记录：布袋鬼开启里世界
-        SRE.REPLAY_MANAGER.recordCustomEvent(
-            Component.translatable("replay.event.sackghost.open_shadow",
-                GameReplayUtils.getReplayPlayerDisplayText(sp, true)));
-
-        this.sync(SYNC_OTHERWORLD);
-    }
-
-    private void endOtherworld() {
-        otherworldActive = false;
-        otherworldTimer = 0;
-        otherworldDuration = 0;
-        otherworldGlowTimer = 0;
-        blackFogTimer = 0;
-
-        if (!(player instanceof ServerPlayer sp))
-            return;
-
-        sp.setInvulnerable(false);
-        sp.removeEffect(MobEffects.INVISIBILITY);
-        sp.removeEffect(ModEffects.BACKWORLD_OUTLINE);
-
-        Level world = player.level();
-
-        int markCount = 0;
-        // 处决会同步跑完整条死亡事件链（反噬/殉情可反过来击杀布袋鬼并使其降级，见
-        // MaChenXuEventHandler），期间 markedPlayers 可能被 clear()；必须遍历快照
-        for (UUID uuid : new ArrayList<>(markedPlayers)) {
-            Player markedPlayer = world.getPlayerByUUID(uuid);
-            if (markedPlayer != null && GameUtils.isPlayerAliveAndSurvival(markedPlayer)) {
-                GameUtils.killPlayer(markedPlayer, true, player, Noellesroles.id("machenxu"));
-                markCount++;
-            }
-        }
-
-        for (Player target : world.players()) {
-            if (!GameUtils.isPlayerAliveAndSurvival(target) || isKiller(target))
-                continue;
-            if (!markedPlayers.contains(target.getUUID())) {
-                SREPlayerMoodComponent.KEY.get(target).addMood(0.2f);
-            }
-        }
-
-        SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(sp);
-
-        // 动态倍率：玩家越少收益越高（击杀更难），基准8人 = 1.0x
-        long aliveInnocents = world.players().stream()
-                .filter(p -> GameUtils.isPlayerAliveAndSurvival(p) && !isKiller(p)
-                        && !markedPlayers.contains(p.getUUID()))
-                .count();
-        double dynamicMultiplier = Math.clamp(8.0 / Math.max(1.0, (double) aliveInnocents), 0.5, 2.0);
-
-        // 结算途中职业可能已被撤销（反噬/殉情击杀导致降级）：不再发放个人奖励
-        boolean canReward = RoleData.isAttached(this);
-        if (canReward && markCount >= 3) {
-            int reward = (int) Math.round(150 * dynamicMultiplier);
-            shopComponent.setBalance(shopComponent.balance + reward);
-            permanentSpeedBonus = Math.min(30, permanentSpeedBonus + 10);
-            permanentShield = true;
-            sp.displayClientMessage(
-                    Component.translatable("message.noellesroles.ma_chen_xu.ult_reward_3", reward)
-                            .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD),
-                    true);
-        } else if (canReward && markCount >= 2) {
-            int reward = (int) Math.round(100 * dynamicMultiplier);
-            shopComponent.setBalance(shopComponent.balance + reward);
-            permanentShield = true;
-            sp.displayClientMessage(
-                    Component.translatable("message.noellesroles.ma_chen_xu.ult_reward_2", reward)
-                            .withStyle(ChatFormatting.GOLD),
-                    true);
-        } else if (canReward && markCount >= 1) {
-            int reward = (int) Math.round(50 * dynamicMultiplier);
-            shopComponent.setBalance(shopComponent.balance + reward);
-            ultimateCooldown = Math.max(0, ultimateCooldown - 600);
-            sp.displayClientMessage(
-                    Component.translatable("message.noellesroles.ma_chen_xu.ult_reward_1", reward)
-                            .withStyle(ChatFormatting.YELLOW),
-                    true);
-        }
-        shopComponent.sync();
-        markedPlayers.clear();
-
-        for (Player target : world.players()) {
-            if (GameUtils.isPlayerAliveAndSurvival(target) && !isKiller(target)) {
-                target.removeEffect(MobEffects.MOVEMENT_SPEED);
-                target.removeEffect(MobEffects.GLOWING);
-                target.removeEffect(ModEffects.OTHERWORLD_AURA);
-                target.removeEffect(ModEffects.BACKWORLD_OUTLINE);
-                if (target instanceof ServerPlayer targetSp) {
-                    targetSp.connection.send(new ClientboundSetTitlesAnimationPacket(10, 40, 20));
-                    targetSp.connection.send(new ClientboundSetTitleTextPacket(
-                            Component.translatable("message.noellesroles.ma_chen_xu.otherworld_end_notice")
-                                    .withStyle(ChatFormatting.GREEN)));
-                }
-            }
-        }
-
-        if (world instanceof ServerLevel sl) {
-            Vec3 pos = sp.position();
-            sl.sendParticles(ParticleTypes.END_ROD, pos.x, pos.y + 1.0, pos.z, 30, 3.0, 2.0, 3.0, 0.05);
-            sl.sendParticles(ParticleTypes.FLASH, pos.x, pos.y + 1.0, pos.z, 1, 0, 0, 0, 0);
-        }
-
-        this.sync(SYNC_OTHERWORLD | SYNC_CORE | SYNC_SKILLS | SYNC_COOLDOWNS);
-    }
-
-    // ==================== 魂噬 / 标记（左键） ====================
-
-    public boolean soulDevour(Player target) {
-        if (!(player instanceof ServerPlayer sp))
-            return false;
-        if (SREGameWorldComponent.KEY.get(player.level()).canUseKillerFeatures(target))
-            return false;
-        float mood = SREPlayerMoodComponent.KEY.get(target).getMood();
-        if (mood > SOUL_DEVOUR_THRESHOLD)
-            return false;
-        if (!sp.hasLineOfSight(target))
-            return false;
-
-        if (player.level() instanceof ServerLevel sl) {
-            playSoulDevourExecutionEffects(sl, player, target);
-        }
-        GameUtils.forceKillPlayer(target, true, player, Noellesroles.id("machenxu"));
-        if (target instanceof ServerPlayer targetSp) {
-            targetSp.getInventory().clearContent();
-        }
-        SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(sp);
-        shopComponent.setBalance(shopComponent.balance + 50);
-        shopComponent.sync();
-
-        double range = getFearRange();
-        Vec3 playerPos = player.position();
-        for (Player nearby : player.level().players()) {
-            if (nearby.equals(player) || nearby.equals(target))
-                continue;
-            if (!GameUtils.isPlayerAliveAndSurvival(nearby) || isKiller(nearby))
-                continue;
-            if (playerPos.distanceTo(nearby.position()) <= range) {
-                SREPlayerMoodComponent.KEY.get(nearby).addMood(-0.1f);
-            }
-        }
+    public boolean drawArt() {
+        if (!(player instanceof ServerPlayer owner) || !canCast()) return false;
+        updateCooldowns();
+        if (generationCooldown > 0) return fail("message.noellesroles.sack.cooldown", (generationCooldown + 19) / 20);
+        if (SackGhostItems.artCount(owner) >= SackGhostRules.MAX_ART_ITEMS) return fail("message.noellesroles.sack.full");
+        var pool = GhostArt.unlocked(stage);
+        GhostArt art = pool.get(owner.getRandom().nextInt(pool.size()));
+        if (!giveArt(owner, art)) return fail("message.noellesroles.sack.inventory_full");
+        generationReadyAt = now() + SackGhostRules.generationCooldownSeconds(initialPlayers) * 20L;
+        owner.displayClientMessage(Component.translatable("message.noellesroles.sack.drawn", Component.translatable(art.nameKey())), true);
+        owner.playNotifySound(SoundEvents.BUNDLE_INSERT, SoundSource.PLAYERS, 0.7F, 0.75F);
+        updateCooldowns();
+        sync();
         return true;
     }
 
-    public boolean markPlayer(Player target) {
-        if (!(player instanceof ServerPlayer sp))
-            return false;
-        if (!otherworldActive)
-            return false;
-        if (!GameUtils.isPlayerAliveAndSurvival(target) || isKiller(target))
-            return false;
-        if (markedPlayers.contains(target.getUUID()))
-            return false;
-        if (!sp.hasLineOfSight(target))
-            return false;
-
-        if (player.level() instanceof ServerLevel sl) {
-            playSoulDevourExecutionEffects(sl, player, target);
-        }
-        markedPlayers.add(target.getUUID());
-
-        player.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, HIT_SELF_LOCK_TICKS, 1, false, false, false));
-        player.addEffect(new MobEffectInstance(ModEffects.USED_BANED, HIT_SELF_LOCK_TICKS, 1, false, false, false));
-        player.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, HIT_SELF_LOCK_TICKS, 1, false, false, false));
-
-        target.addEffect(new MobEffectInstance(MobEffects.GLOWING, otherworldDuration + 200, 0, false, false, true));
-        target.addEffect(
-                new MobEffectInstance(ModEffects.GHOST_CURSE, otherworldDuration + 200, 0, false, false, true));
-
-        if (target instanceof ServerPlayer targetSp) {
-            targetSp.connection.send(new ClientboundSetTitlesAnimationPacket(5, 60, 10));
-            targetSp.connection.send(new ClientboundSetTitleTextPacket(
-                    Component.translatable("message.noellesroles.ma_chen_xu.marked")
-                            .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD)));
-        }
-        player.level().playSound(null, target.blockPosition(),
-                SoundEvents.WITHER_AMBIENT, SoundSource.PLAYERS, 1.0F, 1.5F);
-
-        this.sync(SYNC_OTHERWORLD);
+    public boolean useArt(ItemStack stack, GhostArt art) {
+        if (!(player instanceof ServerPlayer owner) || !canCast() || art.stage > stage
+                || !SackGhostItems.validArt(owner, stack, sessionId)) return false;
+        if (SackGhostItems.artCount(owner) > SackGhostRules.MAX_ART_ITEMS) return fail("message.noellesroles.sack.full");
+        updateCooldowns();
+        if (castCooldown > 0) return fail("message.noellesroles.sack.cast_wait");
+        boolean used = switch (art) {
+            case VEIL -> castVeil(owner);
+            case PUSH -> castPush(owner);
+            case EFFIGY -> castEffigy(owner);
+            case ECHO -> castEcho(owner);
+            case WAIL -> castWail(owner);
+            case PARASITE -> castParasite(owner);
+            case SEIZE -> castSeize(owner);
+        };
+        if (!used) return false;
+        SackGhostItems.consumeArt(owner, stack);
+        castReadyAt = now() + SackGhostRules.CAST_INTERVAL;
+        owner.getInventory().setChanged();
+        owner.containerMenu.broadcastChanges();
+        updateCooldowns();
+        sync();
         return true;
     }
 
-    private void playSoulDevourExecutionEffects(ServerLevel sl, Player killer, Player target) {
-        Vec3 tp = target.position();
-        Vec3 kp = killer.position();
-        for (int ring = 0; ring < 3; ring++) {
-            double y = tp.y + 0.35 + ring * 0.65;
-            for (int i = 0; i < 20; i++) {
-                double angle = (Math.PI * 2.0 * i) / 20.0;
-                double px = tp.x + Math.cos(angle) * (2.0 + ring * 0.35);
-                double pz = tp.z + Math.sin(angle) * (2.0 + ring * 0.35);
-                sl.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, px, y, pz, 1, 0, 0, 0, 0.01);
-            }
+    /** 只累计真实SAN降幅；护心、满SAN锁和已归零者不会贡献虚假进阶。 */
+    public double drainSan(Player target, double points) {
+        if (!isEnemy(target) || points <= 0 || target.hasEffect(ModEffects.GHOST_WARD)) return 0;
+        var mood = SREPlayerMoodComponent.KEY.get(target);
+        float before = mood.getMood();
+        if (!Float.isFinite(before) || before <= 0) return 0;
+        mood.addMood(-(float) (points / 100));
+        double removed = SackGhostRules.actualSanLoss(before, mood.getMood());
+        if (removed > 0) {
+            fear += removed;
+            if (removed < 1) moodDirty.add(target.getUUID());
+            totalSanLoss = (int) Math.floor(fear);
+            int next = SackGhostRules.stageForFear(fear, initialPlayers);
+            if (next > stage) advanceTo(next);
         }
-        sl.sendParticles(ParticleTypes.FLASH, tp.x, tp.y + 1.0, tp.z, 1, 0, 0, 0, 0);
-        sl.sendParticles(ParticleTypes.SWEEP_ATTACK, tp.x, tp.y + 0.9, tp.z, 4, 0.8, 0.5, 0.8, 0.0);
-        Vec3 dir = tp.subtract(kp).normalize();
-        for (int i = 1; i <= 8; i++) {
-            Vec3 p = kp.add(dir.scale(i * 0.6)).add(0, 1.0, 0);
-            sl.sendParticles(ParticleTypes.CRIT, p.x, p.y, p.z, 2, 0.1, 0.1, 0.1, 0.02);
-        }
-        sl.playSound(null, target.blockPosition(), SoundEvents.WARDEN_ATTACK_IMPACT, SoundSource.HOSTILE, 1.25F, 0.7F);
+        return removed;
     }
 
-    // ==================== 大招：里世界 ====================
+    private void advanceTo(int next) {
+        int previous = stage;
+        stage = next;
+        refreshSkills();
+        if (player instanceof ServerPlayer owner) {
+            owner.sendSystemMessage(Component.translatable("message.noellesroles.sack.advanced", stage));
+            for (GhostArt art : GhostArt.unlocked(stage)) {
+                if (art.stage > previous) owner.sendSystemMessage(Component.translatable("message.noellesroles.ma_chen_xu.ghost_skill_acquired", Component.translatable(art.nameKey())));
+            }
+            if (previous < 3 && stage >= 3) owner.sendSystemMessage(Component.translatable("message.noellesroles.sack.realm_unlocked"));
+            owner.playNotifySound(SoundEvents.WITHER_AMBIENT, SoundSource.PLAYERS, 0.8F, 0.65F);
+        }
+        sync();
+    }
+
+    private void tickErosion() {
+        double range = STAGE_RANGE[stage];
+        double base = EROSION[stage] * SackGhostRules.EROSION_MULTIPLIER;
+        for (Player target : player.level().players()) {
+            if (!isEnemy(target)) continue;
+            double distance = player.distanceTo(target);
+            if (!otherworldActive && distance >= range) continue;
+            double proximity = Math.pow(Math.max(0, 1 - distance / range), 1.5);
+            if (otherworldActive) proximity = Math.max(0.5, proximity);
+            // 全图领域侵蚀仍保留，近身更强；只有近战攻击会登记归零判死。
+            double gaze = target.hasLineOfSight(player) ? 1.8 : 1;
+            drainSan(target, base * proximity * gaze * 100);
+        }
+    }
 
     public boolean usePrayerRain() {
-        if (otherworldActive)
-            return false;
-        if (stage < 3) {
-            player.displayClientMessage(
-                    Component.translatable("tip.noellesroles.not_enough_energy").withStyle(ChatFormatting.RED), true);
-            return false;
-        }
-        if (ultimateCooldown > 0) {
-            player.displayClientMessage(
-                    Component
-                            .translatable("message.noellesroles.ma_chen_xu.prayer_rain_cooldown", ultimateCooldown / 20)
-                            .withStyle(ChatFormatting.RED),
-                    true);
-            return false;
-        }
-        if (!(player instanceof ServerPlayer serverPlayer))
-            return false;
-
-        boolean isFree = (stage == 4 && !stage4FreeUltUsed);
-        SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(serverPlayer);
-        if (!isFree) {
-            if (shopComponent.balance < ULTIMATE_COST) {
-                serverPlayer.displayClientMessage(
-                        Component.translatable("message.noellesroles.insufficient_funds").withStyle(ChatFormatting.RED),
-                        true);
-                return false;
+        if (!(player instanceof ServerPlayer owner) || !canCast() || otherworldActive) return false;
+        if (stage < 3) return fail("message.noellesroles.sack.realm_locked");
+        updateCooldowns();
+        if (ultimateCooldown > 0) return fail("message.noellesroles.sack.cooldown", (ultimateCooldown + 19) / 20);
+        otherworldActive = true;
+        otherworldTimer = 0;
+        otherworldTotalTicks = SackGhostRules.realmDuration(stage);
+        otherworldDuration = otherworldTotalTicks;
+        verdicts.clear();
+        previousInvulnerable = owner.isInvulnerable();
+        owner.setInvulnerable(true);
+        hitReadyAt = now();
+        for (ServerPlayer target : owner.serverLevel().players()) {
+            if (!GameUtils.isPlayerAliveAndSurvival(target)) continue;
+            lease(target, ModEffects.OTHERWORLD_AURA, otherworldDuration, stage >= 4 ? 1 : 0);
+            if (target != owner && isEnemy(target)) {
+                lease(target, ModEffects.MOVE_BANED, OPENING_LOCK, 0);
+                lease(target, ModEffects.USED_BANED, OPENING_LOCK, 0);
+                lease(target, ModEffects.SKILL_BANED, OPENING_LOCK, 0);
             }
-            shopComponent.setBalance(shopComponent.balance - ULTIMATE_COST);
-            shopComponent.sync();
-        } else {
-            stage4FreeUltUsed = true;
+            target.sendSystemMessage(Component.translatable("message.noellesroles.sack.realm_begins"));
+            target.playNotifySound(SoundEvents.WARDEN_EMERGE, SoundSource.HOSTILE, 0.8F, 0.7F);
         }
-
-        int duration = (stage >= 4) ? ULTIMATE_DURATION_STAGE_4 : ULTIMATE_DURATION_STAGE_3;
-        activateOtherworld(duration);
-        ultimateCooldown = duration * 2;
-        sync(SYNC_COOLDOWNS | SYNC_CORE);
-
-        serverPlayer.displayClientMessage(
-                Component.translatable("message.noellesroles.ma_chen_xu.prayer_rain_activated")
-                        .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD),
-                false);
-        player.level().playSound(null, player.blockPosition(),
-                SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.PLAYERS, 1.0F, 0.8F);
+        refreshRealmEffects(owner);
+        realmLevel = owner.serverLevel();
+        SackGhostPackets.publish(owner, this);
+        SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.event.sackghost.open_shadow", GameReplayUtils.getReplayPlayerDisplayText(owner, true)));
+        sync();
         return true;
     }
 
-    // ==================== 商店物品 ====================
-
-    public boolean useTurbidRain() {
-        if (!(player instanceof ServerPlayer sp))
-            return false;
-        if (turbidRainActive)
-            return false;
-
-        this.turbidRainActive = true;
-        this.turbidRainDuration = TURBID_RAIN_DURATION;
-        this.turbidRainTimer = 0;
-        this.turbidRainUseCount++;
-
-        sp.serverLevel().setWeatherParameters(0, TURBID_RAIN_DURATION + 20, true, false);
-        sp.displayClientMessage(
-                Component.translatable("message.noellesroles.ma_chen_xu.turbid_rain_activated")
-                        .withStyle(ChatFormatting.DARK_AQUA),
-                false);
-        player.level().playSound(null, player.blockPosition(),
-                SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.PLAYERS, 0.8F, 1.0F);
-        this.sync(SYNC_TURBID);
+    /** 命中削SAN，归零才标记；同一秒不能通过连点重复结算。 */
+    public boolean markPlayer(Player target) {
+        if (!(player instanceof ServerPlayer owner) || !otherworldActive || !canCast() || !isEnemy(target)
+                || target.hasEffect(ModEffects.GHOST_WARD) || otherworldTimer < OPENING_LOCK
+                || player.distanceToSqr(target) > SackGhostRules.REALM_ATTACK_RANGE * SackGhostRules.REALM_ATTACK_RANGE
+                || !player.hasLineOfSight(target) || now() < hitReadyAt || verdicts.contains(target.getUUID())) return false;
+        hitReadyAt = now() + SackGhostRules.REALM_ATTACK_INTERVAL;
+        drainSan(target, SackGhostRules.realmAttackSan(stage));
+        owner.playNotifySound(SoundEvents.PLAYER_ATTACK_STRONG, SoundSource.PLAYERS, 0.7F, 0.65F);
+        if (target instanceof ServerPlayer victim) {
+            victim.playNotifySound(SoundEvents.WARDEN_HEARTBEAT, SoundSource.HOSTILE, 0.7F, 0.8F);
+            victim.displayClientMessage(Component.translatable("message.noellesroles.sack.realm_hit", SackGhostRules.realmAttackSan(stage)), true);
+        }
+        if (verdicts.markAfterHit(target.getUUID(), SREPlayerMoodComponent.KEY.get(target).getMood())) {
+            lease((ServerPlayer) target, ModEffects.GHOST_CONDEMNED, otherworldDuration + 10, 0);
+            target.sendSystemMessage(Component.translatable("message.noellesroles.sack.condemned"));
+        }
+        updateCooldowns();
+        sync();
         return true;
     }
 
-    public boolean useSoulBell() {
-        if (!(player instanceof ServerPlayer))
-            return false;
-        Level world = player.level();
-        Vec3 playerPos = player.position();
-        boolean hitAny = false;
-        for (Player target : world.players()) {
-            if (target.equals(player) || !GameUtils.isPlayerAliveAndSurvival(target) || isKiller(target))
-                continue;
-            if (playerPos.distanceTo(target.position()) > SOUL_BELL_RANGE)
-                continue;
-            PlayerVolumeComponent.KEY.get(target).setVolume(10 * 20, 5);
-            target.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, SOUL_BELL_DURATION, 2, false, false, true));
-            target.addEffect(
-                    new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, SOUL_BELL_DURATION, 0, false, false, true));
-            target.addEffect(new MobEffectInstance(MobEffects.CONFUSION, SOUL_BELL_DURATION, 0, false, false, true));
-            hitAny = true;
+    public boolean cleanse(Player target) {
+        boolean changed = parasites.remove(target.getUUID()) != null;
+        if (verdicts.cleanse(target.getUUID())) {
+            target.removeEffect(ModEffects.GHOST_CONDEMNED);
+            var effects = realmEffects.get(target.getUUID());
+            if (effects != null) effects.remove(ModEffects.GHOST_CONDEMNED);
+            target.displayClientMessage(Component.translatable("message.noellesroles.sack.mark_cleansed"), true);
+            changed = true;
         }
-        if (hitAny) {
-            player.level().playSound(null, player.blockPosition(),
-                    SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.PLAYERS, 1.5F, 0.5F);
-        }
-        return hitAny;
+        if (changed) sync();
+        return changed;
     }
 
-    private void processTurbidRain() {
-        if (!turbidRainActive)
-            return;
-        turbidRainDuration--;
-        turbidRainTimer++;
-        if (turbidRainTimer >= TURBID_RAIN_SAN_INTERVAL) {
-            turbidRainTimer = 0;
-            double fearRange = getFearRange();
-            Vec3 playerPos = player.position();
-            for (Player target : player.level().players()) {
-                if (target.equals(player) || !GameUtils.isPlayerAliveAndSurvival(target) || isKiller(target))
-                    continue;
-                if (playerPos.distanceTo(target.position()) > fearRange) {
-                    SREPlayerMoodComponent.KEY.get(target).addMood(-((float) TURBID_RAIN_SAN_LOSS / 100));
-                    addSanLoss(TURBID_RAIN_SAN_LOSS);
-                }
-            }
+    /** 自然结束才执行判死；法器、死亡、换职业或局末均取消这次待结算标记。 */
+    public void endOtherworld(boolean natural) {
+        if (!(player instanceof ServerPlayer owner) || !otherworldActive) return;
+        List<UUID> condemned = verdicts.finish(natural);
+        otherworldActive = false;
+        otherworldDuration = 0;
+        realmReadyAt = now() + SackGhostRules.REALM_COOLDOWN;
+        owner.setInvulnerable(previousInvulnerable);
+        restoreRealmEffects(owner);
+        SackGhostPackets.publish(realmLevel == null ? owner.serverLevel() : realmLevel, owner, this);
+        realmLevel = null;
+        for (ServerPlayer target : owner.serverLevel().players()) {
+            target.playNotifySound(SoundEvents.BEACON_DEACTIVATE, SoundSource.HOSTILE, 0.6F, 0.7F);
+            target.displayClientMessage(Component.translatable(natural ? "message.noellesroles.sack.realm_ended" : "message.noellesroles.sack.realm_broken"), true);
         }
-        if (turbidRainDuration <= 0) {
-            turbidRainActive = false;
-            if (player instanceof ServerPlayer sp) {
-                sp.serverLevel().setWeatherParameters(6000, 0, false, false);
+        // 多布袋鬼环境中重新维持仍有效的领域，不能复活已结束领域的光环。
+        for (ServerPlayer other : owner.server.getPlayerList().getPlayers()) {
+            var data = SackGhostItems.data(other);
+            if (data != null && data != this && data.otherworldActive) data.refreshRealmEffects(other);
+        }
+        updateCooldowns();
+        sync();
+        if (natural && matchActive()) {
+            for (UUID id : condemned) {
+                ServerPlayer target = owner.server.getPlayerList().getPlayer(id);
+                if (target != null && isEnemy(target)) GameUtils.forceKillPlayer(target, true, owner, Noellesroles.id("machenxu"));
             }
-            this.sync(SYNC_TURBID);
         }
     }
 
-    // ==================== 诡术：输入分发 ====================
-
-    /**
-     * 诡术按键入口（由各 RoleSkill 定义调用）。
-     * Sneak+G → 开里世界大招（任意槽位均可）。
-     */
-    public boolean onGhostArt(String artId) {
-        if (this.player.hasEffect(ModEffects.SKILL_BANED))
-            return false;
-        if (player.isShiftKeyDown()) {
-            return usePrayerRain();
-        }
-        if (!ghostSkills.contains(artId)) {
-            player.displayClientMessage(
-                    Component.translatable("message.noellesroles.ma_chen_xu.skill_locked",
-                            Component.translatable("hud.noellesroles.ma_chen_xu.skill." + artId))
-                            .withStyle(ChatFormatting.GRAY),
-                    true);
-            return false;
-        }
-        // 主技能冷却时自动尝试小诡术
-        boolean mainOnCd = switch (artId) {
-            case "veil" -> veilCooldown > 0;
-            case "effigy" -> effigyCooldown > 0;
-            case "wail" -> wailCooldown > 0;
-            case "seize" -> seizeCooldown > 0;
-            default -> true;
-        };
-        if (mainOnCd) {
-            if (tryUseMinorTrick())
-                return true;
-            sendCooldownTip(artId, getArtCooldown(artId));
-            return false;
-        }
-        switch (artId) {
-            case "veil" -> useVeil();
-            case "effigy" -> useEffigy();
-            case "wail" -> useWail();
-            case "seize" -> useSeize();
-            default -> {
-                return false;
-            }
-        }
+    public boolean soulDevour(Player target) {
+        if (!(player instanceof ServerPlayer owner) || otherworldActive || !canCast() || !isEnemy(target)
+                || target.hasEffect(ModEffects.GHOST_WARD) || now() < hitReadyAt
+                || player.distanceToSqr(target) > SackGhostRules.REALM_ATTACK_RANGE * SackGhostRules.REALM_ATTACK_RANGE
+                || !owner.hasLineOfSight(target) || SREPlayerMoodComponent.KEY.get(target).getMood() > 0.15F) return false;
+        hitReadyAt = now() + SackGhostRules.REALM_ATTACK_INTERVAL;
+        GameUtils.forceKillPlayer(target, true, owner, Noellesroles.id("machenxu"));
+        if (GameUtils.isPlayerAliveAndSurvival(target)) return false;
+        // 法器由统一死亡掉落钩子先行掉出，不能随魂噬清包被删除。
+        if (target instanceof ServerPlayer victim) SackGhostItems.dropRelics(victim);
+        target.getInventory().clearContent();
+        MoneyUtils.addToBalance(owner, 50);
+        ParticleFx.burst(owner.serverLevel(), ParticleTypes.SCULK_SOUL, target.getX(), target.getY() + 1, target.getZ(), 16, 0.4, 0.7, 0.4, 0.03);
         return true;
     }
 
-    /** 从已解锁的小诡术中随机选一个冷却就绪的释放。返回 true 表示成功释放。 */
-    private boolean tryUseMinorTrick() {
-        if (minorTricks.isEmpty())
-            return false;
-        List<String> ready = new ArrayList<>();
-        for (String t : minorTricks) {
-            int cd = getArtCooldown(t);
-            if (cd <= 0)
-                ready.add(t);
+    private void refreshRealmEffects(ServerPlayer owner) {
+        lease(owner, ModEffects.OTHERWORLD_AURA, otherworldDuration + 2, stage >= 4 ? 1 : 0);
+        // 不授予常驻青色互透，避免绕过法器的20格私有照诡。
+        lease(owner, MobEffects.MOVEMENT_SPEED, otherworldDuration + 2, 1);
+        for (ServerPlayer target : owner.serverLevel().players()) {
+            if (!isEnemy(target)) continue;
+            lease(target, ModEffects.OTHERWORLD_AURA, otherworldDuration + 2, stage >= 4 ? 1 : 0);
+            lease(target, ModEffects.INFINITE_STAMINA, otherworldDuration + 2, 0);
         }
-        if (ready.isEmpty())
-            return false;
-        Collections.shuffle(ready, random);
-        String picked = ready.get(0);
-        switch (picked) {
-            case "parasite" -> useParasite();
-            case "push" -> usePush();
-            case "echo" -> useEcho();
-            default -> {
-                return false;
-            }
-        }
-        if (player instanceof ServerPlayer sp) {
-            sp.displayClientMessage(
-                    Component.translatable("tip.noellesroles.ma_chen_xu.minor_trick_cast",
-                            Component.translatable("hud.noellesroles.ma_chen_xu.skill." + picked))
-                            .withStyle(ChatFormatting.LIGHT_PURPLE),
-                    true);
-        }
-        return true;
-    }
-
-    // ==================== 鬼遮眼 ====================
-
-    public void useVeil() {
-        if (!(player instanceof ServerPlayer sp))
-            return;
-        if (veilCooldown > 0) {
-            sendCooldownTip("veil", veilCooldown);
-            return;
-        }
-        Vec3 eye = sp.getEyePosition();
-        Vec3 look = sp.getViewVector(1.0F);
-        Vec3 aim = eye.add(look.scale(VEIL_AIM_DISTANCE));
-
-        List<Player> hits = new ArrayList<>();
-        for (Player target : sp.level().players()) {
-            if (target.equals(sp) || !GameUtils.isPlayerAliveAndSurvival(target) || isKiller(target))
-                continue;
-            if (target.position().add(0, 1.0, 0).distanceTo(aim) <= VEIL_RADIUS) {
-                hits.add(target);
-            }
-        }
-        if (hits.isEmpty()) {
-            sp.displayClientMessage(Component.translatable("tip.noellesroles.no_target").withStyle(ChatFormatting.RED),
-                    true);
-            return;
-        }
-
-        for (Player target : hits) {
-            target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, VEIL_DEBUFF_TICKS, 0, false, false, true));
-            target.addEffect(new MobEffectInstance(MobEffects.CONFUSION, VEIL_DEBUFF_TICKS, 0, false, false, true));
-            target.addEffect(new MobEffectInstance(MobEffects.DARKNESS, VEIL_DEBUFF_TICKS, 0, false, false, false));
-            SREPlayerMoodComponent.KEY.get(target).addMood(-((float) VEIL_SAN_LOSS / 100));
-            addSanLoss(VEIL_SAN_LOSS);
-            if (target instanceof ServerPlayer targetSp) {
-                targetSp.connection.send(new ClientboundSetTitlesAnimationPacket(3, 40, 10));
-                targetSp.connection.send(new ClientboundSetTitleTextPacket(
-                        Component.translatable("message.noellesroles.ma_chen_xu.veil.hit")
-                                .withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD)));
-            }
-            if (sp.level() instanceof ServerLevel sl) {
-                Vec3 hp = target.position();
-                sl.sendParticles(ParticleTypes.SQUID_INK, hp.x, hp.y + 1.5, hp.z, 30, 0.4, 0.4, 0.4, 0.02);
-                sl.sendParticles(ParticleTypes.SCULK_SOUL, hp.x, hp.y + 1.5, hp.z, 12, 0.3, 0.3, 0.3, 0.01);
-            }
-        }
-        veilCooldown = VEIL_COOLDOWN;
-        if (sp.level() instanceof ServerLevel sl) {
-            sl.sendParticles(ParticleTypes.LARGE_SMOKE, aim.x, aim.y, aim.z, 25, 1.0, 1.0, 1.0, 0.03);
-        }
-        sendActivatedTip("veil", ChatFormatting.DARK_PURPLE);
-        sp.level().playSound(null, sp.blockPosition(), SoundEvents.WARDEN_SONIC_BOOM, SoundSource.PLAYERS, 0.7F, 1.4F);
-        sync(SYNC_COOLDOWNS);
-    }
-
-    // ==================== 替身草人 ====================
-
-    public void useEffigy() {
-        if (!(player instanceof ServerPlayer sp))
-            return;
-        if (effigyCooldown > 0) {
-            sendCooldownTip("effigy", effigyCooldown);
-            return;
-        }
-        effigyPos = sp.position();
-        effigyTicks = EFFIGY_LIFETIME;
-        effigyTriggered.clear();
-        effigyCooldown = EFFIGY_COOLDOWN;
-        if (sp.level() instanceof ServerLevel sl) {
-            sl.sendParticles(ParticleTypes.LARGE_SMOKE, effigyPos.x, effigyPos.y + 0.5, effigyPos.z, 20, 0.6, 0.8, 0.6,
-                    0.02);
-        }
-        sendActivatedTip("effigy", ChatFormatting.DARK_GREEN);
-        sp.level().playSound(null, sp.blockPosition(), SoundEvents.WITHER_AMBIENT, SoundSource.PLAYERS, 0.8F, 0.7F);
-        sync(SYNC_COOLDOWNS);
-    }
-
-    private void processEffigy() {
-        if (effigyTicks <= 0 || effigyPos == null)
-            return;
-        effigyTicks--;
-        Level world = player.level();
-
-        // 模拟布袋鬼的黑雾，迷惑好人
-        if (world instanceof ServerLevel sl && effigyTicks % BLACK_FOG_PARTICLE_INTERVAL == 0) {
-            sl.sendParticles(ParticleTypes.LARGE_SMOKE, effigyPos.x, effigyPos.y + 0.5, effigyPos.z, 6, 0.5, 0.7, 0.5,
-                    0.02);
-            sl.sendParticles(ParticleTypes.SCULK_SOUL, effigyPos.x, effigyPos.y + 0.2, effigyPos.z, 2, 0.4, 0.2, 0.4,
-                    0.01);
-            sl.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, effigyPos.x, effigyPos.y + 0.8, effigyPos.z, 2, 0.4, 0.4,
-                    0.4, 0.01);
-        }
-
-        for (Player target : world.players()) {
-            if (target.equals(player) || !GameUtils.isPlayerAliveAndSurvival(target) || isKiller(target))
-                continue;
-            if (effigyTriggered.contains(target.getUUID()))
-                continue;
-            if (target.position().distanceTo(effigyPos) > EFFIGY_TRIGGER_RANGE)
-                continue;
-            effigyTriggered.add(target.getUUID());
-
-            SREPlayerMoodComponent.KEY.get(target).addMood(-((float) EFFIGY_SAN_LOSS / 100));
-            addSanLoss(EFFIGY_SAN_LOSS);
-            target.addEffect(new MobEffectInstance(MobEffects.GLOWING, EFFIGY_GLOW_TICKS, 0, false, false, true));
-            target.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 60, 0, false, false, true));
-
-            if (target instanceof ServerPlayer targetSp) {
-                targetSp.connection.send(new ClientboundSetTitlesAnimationPacket(3, 35, 8));
-                targetSp.connection.send(new ClientboundSetTitleTextPacket(
-                        Component.translatable("message.noellesroles.ma_chen_xu.effigy.scared")
-                                .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD)));
-            }
-            if (player instanceof ServerPlayer self) {
-                self.displayClientMessage(
-                        Component.translatable("message.noellesroles.ma_chen_xu.effigy.triggered", target.getName())
-                                .withStyle(ChatFormatting.GOLD),
-                        true);
-            }
-            if (world instanceof ServerLevel sl) {
-                Vec3 tp = target.position();
-                sl.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, tp.x, tp.y + 1.0, tp.z, 20, 0.4, 0.6, 0.4, 0.05);
-                sl.playSound(null, target.blockPosition(), SoundEvents.WARDEN_NEARBY_CLOSEST, SoundSource.HOSTILE, 1.0F,
-                        1.3F);
-            }
-        }
-
-        if (effigyTicks <= 0) {
-            resetEffigy();
+        for (UUID id : verdicts.snapshot()) {
+            ServerPlayer target = owner.server.getPlayerList().getPlayer(id);
+            if (target != null && isEnemy(target)) lease(target, ModEffects.GHOST_CONDEMNED, otherworldDuration + 10, 0);
         }
     }
 
-    /** 寄生：每 tick 递减死亡倒计时，到 0 时处决目标 */
-    private void processParasite() {
-        if (parasiteTargets.isEmpty())
-            return;
-        Level world = player.level();
-        List<UUID> expired = new ArrayList<>();
-        for (Map.Entry<UUID, Integer> entry : parasiteTargets.entrySet()) {
-            int remaining = entry.getValue() - 1;
-            if (remaining <= 0) {
-                expired.add(entry.getKey());
-            } else {
-                entry.setValue(remaining);
-            }
-        }
-        for (UUID uuid : expired) {
-            parasiteTargets.remove(uuid);
-            Player target = world.getPlayerByUUID(uuid);
-            if (target != null && GameUtils.isPlayerAliveAndSurvival(target)) {
-                if (world instanceof ServerLevel sl) {
-                    Vec3 tp = target.position();
-                    for (int i = 0; i < 25; i++) {
-                        sl.sendParticles(ParticleTypes.SCULK_CHARGE_POP,
-                                tp.x + (random.nextDouble() - 0.5) * 2.0,
-                                tp.y + 1.0 + random.nextDouble() * 2.0,
-                                tp.z + (random.nextDouble() - 0.5) * 2.0,
-                                2, 0.1, 0.1, 0.1, 0.04);
-                    }
-                    sl.playSound(null, target.blockPosition(), SoundEvents.WARDEN_DEATH, SoundSource.HOSTILE, 1.4F,
-                            0.5F);
-                }
-                GameUtils.forceKillPlayer(target, true, player, Noellesroles.id("machenxu"));
-                if (player instanceof ServerPlayer sp) {
-                    sp.displayClientMessage(
-                            Component.translatable("message.noellesroles.ma_chen_xu.parasite.killed", target.getName())
-                                    .withStyle(ChatFormatting.DARK_RED),
-                            true);
-                }
-            }
-        }
-    }
-
-    /** 录制回响：归位窗口倒计时，超时自动取消 */
-    private void processEchoTimer() {
-        if (!echoActive)
-            return;
-        echoReturnTimer--;
-        if (echoReturnTimer <= 0) {
-            echoActive = false;
-            echoCooldown = ECHO_COOLDOWN / 2; // 未归位给予半冷却
-            echoRecordedPos = null;
-            if (player instanceof ServerPlayer sp) {
-                sp.displayClientMessage(
-                        Component.translatable("message.noellesroles.ma_chen_xu.echo.expired")
-                                .withStyle(ChatFormatting.GRAY),
-                        true);
-            }
-            sync(SYNC_COOLDOWNS);
-        }
-    }
-
-    // ==================== 怨声 ====================
-
-    public void useWail() {
-        if (!(player instanceof ServerPlayer sp))
-            return;
-        if (wailCooldown > 0) {
-            sendCooldownTip("wail", wailCooldown);
-            return;
-        }
-        Vec3 center = sp.position();
-        for (Player target : sp.level().players()) {
-            if (target.equals(sp) || !GameUtils.isPlayerAliveAndSurvival(target) || isKiller(target))
-                continue;
-            double dist = center.distanceTo(target.position());
-            if (dist > WAIL_RANGE)
-                continue;
-            double t = dist / WAIL_RANGE;
-            int san = (int) Math.round(WAIL_SAN_MIN + (WAIL_SAN_MAX - WAIL_SAN_MIN) * (1.0 - t));
-            SREPlayerMoodComponent.KEY.get(target).addMood(-((float) san / 100));
-            addSanLoss(san);
-            target.addEffect(
-                    new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, WAIL_SLOW_TICKS, 1, false, false, true));
-            if (target instanceof ServerPlayer targetSp) {
-                targetSp.displayClientMessage(
-                        Component.translatable("message.noellesroles.ma_chen_xu.wail.hit")
-                                .withStyle(ChatFormatting.DARK_RED),
-                        true);
-            }
-        }
-        wailCooldown = WAIL_COOLDOWN;
-        if (sp.level() instanceof ServerLevel sl) {
-            Vec3 c = sp.position();
-            for (int ring = 1; ring <= 3; ring++) {
-                double r = ring * 3.0;
-                int count = (int) (r * 6);
-                for (int i = 0; i < count; i++) {
-                    double a = (Math.PI * 2.0 * i) / count;
-                    sl.sendParticles(ParticleTypes.SONIC_BOOM, c.x + Math.cos(a) * r, c.y + 1.0, c.z + Math.sin(a) * r,
-                            1, 0, 0, 0, 0.0);
-                }
-            }
-        }
-        sendActivatedTip("wail", ChatFormatting.DARK_RED);
-        sp.level().playSound(null, sp.blockPosition(), SoundEvents.WARDEN_ROAR, SoundSource.PLAYERS, 1.2F, 0.7F);
-        sync(SYNC_COOLDOWNS);
-    }
-
-    // ==================== 夺魄 ====================
-
-    public void useSeize() {
-        if (!(player instanceof ServerPlayer sp))
-            return;
-        if (seizeCooldown > 0) {
-            sendCooldownTip("seize", seizeCooldown);
-            return;
-        }
-        Vec3 eyePos = sp.getEyePosition();
-        Vec3 lookVec = sp.getViewVector(1.0F);
-        Vec3 endPos = eyePos.add(lookVec.scale(SEIZE_RANGE));
-        AABB searchArea = new AABB(eyePos, endPos).inflate(2.0);
-        Player target = null;
-        double closest = Double.MAX_VALUE;
-        for (Player p : sp.level().getEntitiesOfClass(Player.class, searchArea)) {
-            if (p.equals(sp) || !GameUtils.isPlayerAliveAndSurvival(p) || isKiller(p))
-                continue;
-            double d = eyePos.distanceTo(p.getEyePosition());
-            if (d < closest) {
-                closest = d;
-                target = p;
-            }
-        }
-        if (target == null) {
-            sp.displayClientMessage(Component.translatable("tip.noellesroles.no_target").withStyle(ChatFormatting.RED),
-                    true);
-            return;
-        }
-        if (SREPlayerMoodComponent.KEY.get(target).getMood() > SEIZE_SAN_THRESHOLD) {
-            sp.displayClientMessage(
-                    Component.translatable("message.noellesroles.ma_chen_xu.seize.too_high")
-                            .withStyle(ChatFormatting.RED),
-                    true);
-            return;
-        }
-
-        // 拉到面前并定身
-        Vec3 flat = new Vec3(lookVec.x, 0, lookVec.z).normalize();
-        Vec3 front = sp.position().add(flat.scale(1.6));
-        target.teleportTo(front.x, sp.getY(), front.z);
-        target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, SEIZE_ROOT_TICKS, 255, false, true, true));
-        target.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, SEIZE_ROOT_TICKS, 0, false, false, true));
-        SREPlayerMoodComponent.KEY.get(target).addMood(-((float) SEIZE_SAN_LOSS / 100));
-        addSanLoss(SEIZE_SAN_LOSS);
-        seizeCooldown = SEIZE_COOLDOWN;
-
-        if (target instanceof ServerPlayer targetSp) {
-            targetSp.connection.send(new ClientboundSetTitlesAnimationPacket(3, 40, 10));
-            targetSp.connection.send(new ClientboundSetTitleTextPacket(
-                    Component.translatable("message.noellesroles.ma_chen_xu.seize.pulled")
-                            .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD)));
-        }
-        if (sp.level() instanceof ServerLevel sl) {
-            playSoulDevourExecutionEffects(sl, sp, target);
-        }
-        sendActivatedTip("seize", ChatFormatting.DARK_RED);
-        sp.level().playSound(null, target.blockPosition(), SoundEvents.WARDEN_ATTACK_IMPACT, SoundSource.PLAYERS, 1.0F,
-                0.8F);
-        sync(SYNC_COOLDOWNS);
-    }
-
-    // ==================== 小诡术：寄生 ====================
-
-    /** 寄生：对目标施加死亡倒计时，自身隐身。目标20秒后死亡。 */
-    public void useParasite() {
-        if (!(player instanceof ServerPlayer sp))
-            return;
-        if (parasiteCooldown > 0) {
-            sendCooldownTip("parasite", parasiteCooldown);
-            return;
-        }
-
-        Vec3 eyePos = sp.getEyePosition();
-        Vec3 lookVec = sp.getViewVector(1.0F);
-        Vec3 endPos = eyePos.add(lookVec.scale(PARASITE_RANGE));
-        AABB searchArea = new AABB(eyePos, endPos).inflate(1.5);
-
-        Player target = null;
-        double closest = Double.MAX_VALUE;
-        for (Player p : sp.level().getEntitiesOfClass(Player.class, searchArea)) {
-            if (p.equals(sp) || !GameUtils.isPlayerAliveAndSurvival(p) || isKiller(p))
-                continue;
-            if (parasiteTargets.containsKey(p.getUUID()))
-                continue;
-            double d = eyePos.distanceTo(p.getEyePosition());
-            if (d < closest) {
-                closest = d;
-                target = p;
-            }
-        }
-        if (target == null) {
-            sp.displayClientMessage(Component.translatable("tip.noellesroles.no_target").withStyle(ChatFormatting.RED),
-                    true);
-            return;
-        }
-        if (!sp.hasLineOfSight(target)) {
-            sp.displayClientMessage(Component.translatable("tip.noellesroles.no_target").withStyle(ChatFormatting.RED),
-                    true);
-            return;
-        }
-
-        parasiteTargets.put(target.getUUID(), PARASITE_DEATH_DELAY);
-        sp.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, PARASITE_INVIS_DURATION, 0, false, false, false));
-        SREPlayerMoodComponent.KEY.get(target).addMood(-((float) PARASITE_SAN_LOSS / 100));
-        addSanLoss(PARASITE_SAN_LOSS);
-        parasiteCooldown = PARASITE_COOLDOWN;
-
-        if (target instanceof ServerPlayer targetSp) {
-            targetSp.connection.send(new ClientboundSetTitlesAnimationPacket(5, 60, 10));
-            targetSp.connection.send(new ClientboundSetTitleTextPacket(
-                    Component.translatable("message.noellesroles.ma_chen_xu.parasite.infected")
-                            .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD)));
-        }
-        if (sp.level() instanceof ServerLevel sl) {
-            Vec3 tp = target.position();
-            for (int i = 0; i < 20; i++) {
-                sl.sendParticles(ParticleTypes.SCULK_CHARGE_POP,
-                        tp.x + (random.nextDouble() - 0.5) * 2.0,
-                        tp.y + 1.0 + random.nextDouble() * 1.5,
-                        tp.z + (random.nextDouble() - 0.5) * 2.0,
-                        2, 0.1, 0.1, 0.1, 0.02);
-            }
-            sl.playSound(null, target.blockPosition(), SoundEvents.WARDEN_HEARTBEAT, SoundSource.HOSTILE, 1.0F, 0.6F);
-        }
-        sendActivatedTip("parasite", ChatFormatting.DARK_RED);
-        sp.level().playSound(null, sp.blockPosition(), SoundEvents.WITHER_AMBIENT, SoundSource.PLAYERS, 0.6F, 1.8F);
-        sync(SYNC_COOLDOWNS);
-    }
-
-    // ==================== 小诡术：推走 ====================
-
-    /** 推走：将周围非杀手玩家推飞。 */
-    public void usePush() {
-        if (!(player instanceof ServerPlayer sp))
-            return;
-        if (pushCooldown > 0) {
-            sendCooldownTip("push", pushCooldown);
-            return;
-        }
-
-        Vec3 selfPos = sp.position();
-        boolean hitAny = false;
-
-        for (Player target : sp.level().players()) {
-            if (target.equals(sp) || !GameUtils.isPlayerAliveAndSurvival(target) || isKiller(target))
-                continue;
-            double dist = selfPos.distanceTo(target.position());
-            if (dist > PUSH_RANGE)
-                continue;
-
-            Vec3 dir = target.position().subtract(selfPos);
-            double hDist = Math.sqrt(dir.x * dir.x + dir.z * dir.z);
-            if (hDist < 0.01)
-                hDist = 0.01;
-            Vec3 knockback = new Vec3(dir.x / hDist * PUSH_FORCE, 0.6, dir.z / hDist * PUSH_FORCE);
-            target.setDeltaMovement(target.getDeltaMovement().add(knockback));
-            target.hurtMarked = true;
-
-            if (target instanceof ServerPlayer targetSp) {
-                targetSp.displayClientMessage(
-                        Component.translatable("message.noellesroles.ma_chen_xu.push.pushed")
-                                .withStyle(ChatFormatting.DARK_PURPLE),
-                        true);
-            }
-            hitAny = true;
-        }
-
-        if (!hitAny) {
-            sp.displayClientMessage(Component.translatable("tip.noellesroles.no_target").withStyle(ChatFormatting.RED),
-                    true);
-            return;
-        }
-
-        pushCooldown = PUSH_COOLDOWN;
-
-        if (sp.level() instanceof ServerLevel sl) {
-            for (int ring = 0; ring < 3; ring++) {
-                double r = 1.5 + ring * 1.8;
-                int count = (int) (r * 8);
-                for (int i = 0; i < count; i++) {
-                    double a = (Math.PI * 2.0 * i) / count;
-                    sl.sendParticles(ParticleTypes.POOF,
-                            selfPos.x + Math.cos(a) * r,
-                            selfPos.y + 1.0,
-                            selfPos.z + Math.sin(a) * r,
-                            2, 0.2, 0.3, 0.2, 0.05);
-                }
-            }
-        }
-        sendActivatedTip("push", ChatFormatting.DARK_PURPLE);
-        sp.level().playSound(null, sp.blockPosition(), SoundEvents.WARDEN_SONIC_BOOM, SoundSource.PLAYERS, 0.8F, 1.6F);
-        sync(SYNC_COOLDOWNS);
-    }
-
-    // ==================== 小诡术：录制回响 ====================
-
-    /** 录制回响：首次释放录制位置并前瞬移，再次释放返回原位。 */
-    public void useEcho() {
-        if (!(player instanceof ServerPlayer sp))
-            return;
-
-        if (!echoActive) {
-            // 首次释放：录制 → 前瞬移
-            if (echoCooldown > 0) {
-                sendCooldownTip("echo", echoCooldown);
-                return;
-            }
-
-            echoRecordedPos = sp.position();
-            Vec3 lookVec = sp.getViewVector(1.0F);
-            Vec3 forward = sp.position().add(lookVec.x * ECHO_TELEPORT_DISTANCE, 0, lookVec.z * ECHO_TELEPORT_DISTANCE);
-
-            // 墙体检测：沿路径找可落脚点
-            Level world = sp.level();
-            Vec3 safePos = forward;
-            for (int step = (int) ECHO_TELEPORT_DISTANCE; step >= 2; step--) {
-                Vec3 probe = sp.position().add(lookVec.x * step, 0, lookVec.z * step);
-                // 找地面
-                int floorY = (int) probe.y;
-                while (floorY > world.getMinBuildHeight() && world.getBlockState(
-                        new BlockPos((int) probe.x, floorY, (int) probe.z)).isAir()) {
-                    floorY--;
-                }
-                if (floorY > world.getMinBuildHeight()) {
-                    safePos = new Vec3(probe.x, floorY + 1.0, probe.z);
+    private void lease(ServerPlayer target, Holder<MobEffect> effect, int duration, int amplifier) {
+        var effects = realmEffects.computeIfAbsent(target.getUUID(), ignored -> new HashMap<>());
+        Lease old = effects.get(effect);
+        MobEffectInstance previous = old == null ? target.getEffect(effect) : old.previous();
+        if (old == null) {
+            for (var owner : target.server.getPlayerList().getPlayers()) {
+                var data = SackGhostItems.data(owner);
+                if (data == null || data == this || !data.otherworldActive) continue;
+                var shared = data.realmEffects.get(target.getUUID());
+                if (shared != null && shared.containsKey(effect)) {
+                    previous = previousAt(target, effect, shared.get(effect));
                     break;
                 }
             }
+        }
+        if (effect == ModEffects.OTHERWORLD_AURA || effect == ModEffects.GHOST_CONDEMNED) previous = null;
+        long captured = old == null ? target.level().getGameTime() : old.capturedAt();
+        effects.put(effect, new Lease(previous == null ? null : new MobEffectInstance(previous), captured,
+                amplifier, Math.max(target.level().getGameTime() + duration, old == null ? 0 : old.expectedEnd()),
+                now() + duration));
+        target.addEffect(new MobEffectInstance(effect, duration, amplifier, false, false, false));
+    }
 
-            sp.teleportTo(safePos.x, safePos.y, safePos.z);
-            echoActive = true;
-            echoReturnTimer = ECHO_RETURN_WINDOW;
+    private MobEffectInstance previousAt(ServerPlayer target, Holder<MobEffect> effect, Lease lease) {
+        var previous = lease.previous();
+        if (previous == null) return null;
+        int left = SackGhostRules.remainingEffectTicks(previous.getDuration(), target.level().getGameTime() - lease.capturedAt());
+        return left == 0 ? null : new MobEffectInstance(effect, left, previous.getAmplifier(),
+                previous.isAmbient(), previous.isVisible(), previous.showIcon());
+    }
 
-            if (sp.level() instanceof ServerLevel sl) {
-                Vec3 pos = sp.position();
-                sl.sendParticles(ParticleTypes.REVERSE_PORTAL, pos.x, pos.y + 1.0, pos.z, 30, 0.6, 0.8, 0.6, 0.03);
-                sl.sendParticles(ParticleTypes.END_ROD, pos.x, pos.y + 0.5, pos.z, 8, 0.3, 0.4, 0.3, 0.02);
-            }
-            sendActivatedTip("echo", ChatFormatting.AQUA);
-            sp.level().playSound(null, sp.blockPosition(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0F,
-                    1.0F);
-            sync(SYNC_COOLDOWNS);
-        } else {
-            // 再次释放：返回原位
-            Vec3 returnPos = echoRecordedPos;
-            echoActive = false;
-            echoReturnTimer = 0;
-            echoCooldown = ECHO_COOLDOWN;
+    private void restoreLease(ServerPlayer target, Holder<MobEffect> effect, Lease lease) {
+        var current = target.getEffect(effect);
+        if (current != null && !current.isInfiniteDuration() && current.getAmplifier() == lease.amplifier()
+                && current.getDuration() <= Math.max(2, lease.expectedEnd() - target.level().getGameTime() + 2)) target.removeEffect(effect);
+        var previous = previousAt(target, effect, lease);
+        if (previous != null) target.addEffect(previous);
+    }
 
-            sp.teleportTo(returnPos.x, returnPos.y, returnPos.z);
-
-            if (sp.level() instanceof ServerLevel sl) {
-                Vec3 pos = sp.position();
-                sl.sendParticles(ParticleTypes.REVERSE_PORTAL, pos.x, pos.y + 1.0, pos.z, 30, 0.6, 0.8, 0.6, 0.03);
-                sl.sendParticles(ParticleTypes.END_ROD, pos.x, pos.y + 0.5, pos.z, 8, 0.3, 0.4, 0.3, 0.02);
-                // 返回时对周围好人造成 SAN 损失
-                for (Player target : sl.players()) {
-                    if (target.equals(sp) || !GameUtils.isPlayerAliveAndSurvival(target) || isKiller(target))
-                        continue;
-                    if (pos.distanceTo(target.position()) <= 6.0) {
-                        SREPlayerMoodComponent.KEY.get(target).addMood(-((float) ECHO_SAN_LOSS / 100));
-                        addSanLoss(ECHO_SAN_LOSS);
-                    }
+    /** 原版实体仍tick时，给暂停中的本领域效果小幅续租；有效时钟到期则精确撤销。 */
+    private void maintainRealmEffects(ServerPlayer owner) {
+        for (var entity : realmEffects.entrySet()) {
+            ServerPlayer target = owner.server.getPlayerList().getPlayer(entity.getKey());
+            if (target == null) continue;
+            for (var iterator = entity.getValue().entrySet().iterator(); iterator.hasNext();) {
+                var entry = iterator.next();
+                Lease saved = entry.getValue();
+                int left = SackGhostRules.remaining(now(), saved.activeUntil());
+                if (left == 0) {
+                    restoreLease(target, entry.getKey(), saved);
+                    iterator.remove();
+                    continue;
+                }
+                var current = target.getEffect(entry.getKey());
+                int refresh = SackGhostRules.effectRefreshDuration(left, current == null ? 0 : current.getDuration());
+                if (refresh > 0) {
+                    target.addEffect(new MobEffectInstance(entry.getKey(), refresh, saved.amplifier(), false, false, false));
+                    entry.setValue(new Lease(saved.previous(), saved.capturedAt(), saved.amplifier(),
+                            target.level().getGameTime() + refresh, saved.activeUntil()));
                 }
             }
-            sp.displayClientMessage(
-                    Component.translatable("message.noellesroles.ma_chen_xu.echo.returned")
-                            .withStyle(ChatFormatting.AQUA),
-                    true);
-            sp.level().playSound(null, sp.blockPosition(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0F,
-                    0.6F);
-            echoRecordedPos = null;
-            sync(SYNC_COOLDOWNS);
         }
     }
 
-    // ==================== 提示工具 ====================
-
-    private void sendActivatedTip(String artId, ChatFormatting color) {
-        player.displayClientMessage(
-                Component.translatable("tip.noellesroles.activated.with_name",
-                        Component.translatable("hud.noellesroles.ma_chen_xu.skill." + artId)).withStyle(color),
-                true);
-    }
-
-    private void sendCooldownTip(String artId, int cooldown) {
-        player.displayClientMessage(
-                Component.translatable("message.noellesroles.ma_chen_xu.cooldown",
-                        Component.translatable("hud.noellesroles.ma_chen_xu.skill." + artId), cooldown / 20)
-                        .withStyle(ChatFormatting.RED),
-                true);
-    }
-
-    // ==================== HUD 辅助 ====================
-
-    public String getSelectedArtId() {
-        int slot = SREAbilityPlayerComponent.KEY.get(player).getSelectedSkill();
-        if (slot < 0 || slot >= ART_ORDER.length)
-            slot = 0;
-        return ART_ORDER[slot];
-    }
-
-    public int getArtCooldown(String artId) {
-        return switch (artId) {
-            case "veil" -> veilCooldown;
-            case "effigy" -> effigyCooldown;
-            case "wail" -> wailCooldown;
-            case "seize" -> seizeCooldown;
-            case "parasite" -> parasiteCooldown;
-            case "push" -> pushCooldown;
-            case "echo" -> echoCooldown;
-            default -> 0;
-        };
-    }
-
-    /** 当前选中诡术名（HUD 始终显示） */
-    public Component getSelectedArtName() {
-        return Component.translatable("hud.noellesroles.ma_chen_xu.skill." + getSelectedArtId());
-    }
-
-    /** 选中诡术状态文本（就绪也带名字） */
-    public Component getNowCooldownText() {
-        String artId = getSelectedArtId();
-        Component name = Component.translatable("hud.noellesroles.ma_chen_xu.skill." + artId);
-        if (!ghostSkills.contains(artId)) {
-            return Component.translatable("message.noellesroles.ma_chen_xu.skill_locked", name)
-                    .withStyle(ChatFormatting.GRAY);
+    private void restoreRealmEffects(ServerPlayer owner) {
+        for (var entity : realmEffects.entrySet()) {
+            ServerPlayer target = owner.server.getPlayerList().getPlayer(entity.getKey());
+            if (target != null) entity.getValue().forEach((effect, lease) -> restoreLease(target, effect, lease));
         }
-        int cd = getArtCooldown(artId);
-        if (cd <= 0) {
-            return Component.translatable("message.noellesroles.ma_chen_xu.ready_named",
-                    name, Component.keybind("key.noellesroles.ability")).withStyle(ChatFormatting.GREEN);
-        }
-        return Component.translatable("message.noellesroles.ma_chen_xu.cooldown", name, cd / 20)
-                .withStyle(ChatFormatting.YELLOW);
+        realmEffects.clear();
     }
 
-    // ==================== 同步 ====================
-
-    public void sync(int mask) {
-        this.pendingSyncMask = mask;
-        ctx.sync();
-        this.pendingSyncMask = SYNC_ALL;
-    }
-
-    public void sync() {
-        sync(SYNC_ALL);
-    }
-
-    // ==================== Tick ====================
-
-    @Override
-    public void serverTick() {
-        if (!isActiveMaChenXu())
-            return;
-        if (!GameUtils.isPlayerAliveAndSurvival(player))
-            return;
-        if (!(player instanceof ServerPlayer))
-            return;
-        if (this.player.hasEffect(ModEffects.SKILL_BANED))
-            return;
-
-        if (ultimateCooldown > 0)
-            ultimateCooldown--;
-
-        processErosion();
-        processOtherworldMechanism();
-        processTurbidRain();
-        processEffigy();
-        processParasite();
-        processEchoTimer();
-
-        if (veilCooldown > 0)
-            veilCooldown--;
-        if (effigyCooldown > 0)
-            effigyCooldown--;
-        if (wailCooldown > 0)
-            wailCooldown--;
-        if (seizeCooldown > 0)
-            seizeCooldown--;
-        if (parasiteCooldown > 0)
-            parasiteCooldown--;
-        if (pushCooldown > 0)
-            pushCooldown--;
-        if (echoCooldown > 0)
-            echoCooldown--;
-
-        if (stage >= 2) {
-            player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 3, 0, false, false, false));
-        }
-        if (permanentSpeedBonus >= 10 && player.level().getGameTime() % 20 == 0) {
-            int amplifier = Math.max(0, (permanentSpeedBonus / 10) - 1);
-            player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 25, amplifier, false, false, false));
-        }
-
-        // 周期性同步累计恐惧值 / 冷却，刷新 HUD
-        if (player.level().getGameTime() % 20 == 0) {
-            sync(SYNC_CORE | SYNC_COOLDOWNS);
+    /** 领域临时增益不进入原版回溯快照，包括Entity无敌标志；职业成长仍可正常保存。 */
+    public void filterRewindSnapshot(ServerPlayer target, CompoundTag state) {
+        if (target == player && otherworldActive) state.putBoolean("Invulnerable", previousInvulnerable);
+        var effects = realmEffects.get(target.getUUID());
+        if (effects == null) return;
+        for (var entry : effects.entrySet()) {
+            var current = target.getEffect(entry.getKey());
+            if (current == null || current.isInfiniteDuration() || current.getAmplifier() != entry.getValue().amplifier()
+                    || current.getDuration() > Math.max(2, entry.getValue().expectedEnd() - target.level().getGameTime() + 2)) continue;
+            SackGhostRewind.removeSnapshotEffect(state, entry.getKey());
+            var previous = previousAt(target, entry.getKey(), entry.getValue());
+            if (previous != null) {
+                ListTag baseline = state.getList("active_effects", Tag.TAG_COMPOUND);
+                baseline.add(previous.save());
+                state.put("active_effects", baseline);
+            }
         }
     }
 
-    @Override
-    public void clientTick() {
-        if (this.player.hasEffect(ModEffects.SKILL_BANED))
-            return;
-        if (otherworldActive && otherworldDuration > 1)
+    /** 平滑回溯的临时旁观不等于死亡：取消临时追击，不删除阶段、会话或绑定物品。 */
+    public void cancelForRewind() {
+        if (player instanceof ServerPlayer owner) {
+            endOtherworld(false);
+            clearEffigy(owner);
+        }
+        parasites.clear();
+        verdicts.clear();
+    }
+
+    private Player rayTarget(ServerPlayer owner, double range) {
+        Vec3 from = owner.getEyePosition(), end = from.add(owner.getLookAngle().scale(range));
+        Player best = null;
+        double bestDistance = range * range;
+        for (Player target : owner.serverLevel().getEntitiesOfClass(Player.class, new AABB(from, end).inflate(1), this::isEnemy)) {
+            var hit = target.getBoundingBox().inflate(0.2).clip(from, end);
+            if (hit.isEmpty() || !owner.hasLineOfSight(target)) continue;
+            double distance = from.distanceToSqr(hit.get());
+            if (distance <= bestDistance) { best = target; bestDistance = distance; }
+        }
+        return best;
+    }
+
+    private boolean castVeil(ServerPlayer owner) {
+        Vec3 from = owner.getEyePosition(), end = from.add(owner.getLookAngle().scale(9));
+        var hit = owner.serverLevel().clip(new ClipContext(from, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, owner));
+        Vec3 center = hit.getType() == HitResult.Type.MISS ? end : hit.getLocation();
+        for (Player target : owner.serverLevel().getEntitiesOfClass(Player.class, new AABB(center, center).inflate(3), this::isEnemy)) {
+            if (target.position().distanceToSqr(center) > 9 || !owner.hasLineOfSight(target)) continue;
+            drainSan(target, 12);
+            target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 60, 0, false, false, true));
+        }
+        ParticleFx.burst(owner.serverLevel(), ParticleTypes.LARGE_SMOKE, center.x, center.y, center.z, 18, 1.2, 0.8, 1.2, 0.02);
+        return true;
+    }
+
+    private boolean castPush(ServerPlayer owner) {
+        for (Player target : owner.serverLevel().getEntitiesOfClass(Player.class, owner.getBoundingBox().inflate(5), this::isEnemy)) {
+            if (owner.distanceToSqr(target) > 25) continue;
+            Vec3 direction = target.position().subtract(owner.position()).multiply(1, 0, 1).normalize();
+            target.setDeltaMovement(direction.scale(1.4).add(0, 0.25, 0));
+            target.hurtMarked = true;
+        }
+        owner.serverLevel().playSound(null, owner.blockPosition(), SoundEvents.WIND_CHARGE_BURST.value(), SoundSource.PLAYERS, 0.8F, 0.7F);
+        return true;
+    }
+
+    private boolean castEffigy(ServerPlayer owner) {
+        Vec3 from = owner.getEyePosition(), end = from.add(owner.getLookAngle().scale(4));
+        var hit = owner.serverLevel().clip(new ClipContext(from, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, owner));
+        Vec3 position = hit.getType() == HitResult.Type.MISS ? end.add(0, -owner.getEyeHeight(), 0)
+                : hit.getLocation().add(Vec3.atLowerCornerOf(hit.getDirection().getNormal()).scale(0.35));
+        ArmorStand decoy = new ArmorStand(owner.serverLevel(), position.x, position.y, position.z);
+        if (!safeLanding(owner.serverLevel(), decoy, position)) return fail("message.noellesroles.sack.no_landing");
+        clearEffigy(owner);
+        CompoundTag config = new CompoundTag();
+        config.putInt("DisabledSlots", 0x3F3F3F);
+        decoy.readAdditionalSaveData(config);
+        decoy.setNoGravity(true);
+        decoy.setInvulnerable(true);
+        decoy.setNoBasePlate(true);
+        decoy.setShowArms(true);
+        decoy.setSilent(true);
+        decoy.setYRot(owner.getYRot());
+        ItemStack head = Items.PLAYER_HEAD.getDefaultInstance();
+        head.set(DataComponents.PROFILE, new ResolvableProfile(owner.getGameProfile()));
+        decoy.setItemSlot(EquipmentSlot.HEAD, head);
+        decoy.setItemSlot(EquipmentSlot.CHEST, Items.LEATHER_CHESTPLATE.getDefaultInstance());
+        if (!owner.serverLevel().addFreshEntity(decoy)) return false;
+        effigyEntity = decoy.getUUID();
+        effigyLevel = owner.serverLevel();
+        effigyPosition = position;
+        effigyTicks = 600;
+        ParticleFx.burst(owner.serverLevel(), ParticleTypes.SCULK_SOUL, position.x, position.y + 1, position.z, 8, 0.3, 0.5, 0.3, 0.01);
+        return true;
+    }
+
+    private void clearEffigy(ServerPlayer owner) {
+        if (effigyEntity != null) {
+            Entity entity = effigyLevel == null ? null : effigyLevel.getEntity(effigyEntity);
+            if (entity != null) entity.discard();
+        }
+        effigyEntity = null;
+        effigyLevel = null;
+        effigyPosition = null;
+        effigyTicks = 0;
+    }
+
+    private boolean safeLanding(ServerLevel level, Entity entity, Vec3 destination) {
+        BlockPos pos = BlockPos.containing(destination);
+        return level.hasChunkAt(pos) && level.getWorldBorder().isWithinBounds(pos)
+                && level.getFluidState(pos).isEmpty()
+                && !level.getBlockState(pos.below()).getCollisionShape(level, pos.below()).isEmpty()
+                && level.noCollision(entity, entity.getBoundingBox().move(destination.subtract(entity.position())));
+    }
+
+    private boolean clearPath(ServerLevel level, Entity entity, Vec3 destination) {
+        Vec3 delta = destination.subtract(entity.position());
+        int steps = Math.max(1, (int) Math.ceil(delta.length() * 4));
+        for (int i = 1; i <= steps; i++) {
+            Vec3 offset = delta.scale(i / (double) steps);
+            if (!level.hasChunkAt(BlockPos.containing(entity.position().add(offset)))
+                    || !level.noCollision(entity, entity.getBoundingBox().move(offset))) return false;
+        }
+        return true;
+    }
+
+    private boolean castWail(ServerPlayer owner) {
+        for (Player target : owner.serverLevel().getEntitiesOfClass(Player.class, owner.getBoundingBox().inflate(8), this::isEnemy)) {
+            if (owner.distanceToSqr(target) > 64 || !owner.hasLineOfSight(target)) continue;
+            drainSan(target, 15);
+            target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 40, 0, false, false, true));
+        }
+        owner.serverLevel().playSound(null, owner.blockPosition(), SoundEvents.WARDEN_ROAR, SoundSource.HOSTILE, 0.8F, 0.7F);
+        return true;
+    }
+
+    private boolean castParasite(ServerPlayer owner) {
+        Player target = rayTarget(owner, 8);
+        if (target == null || parasites.containsKey(target.getUUID()) || target.hasEffect(ModEffects.GHOST_WARD)) return fail("tip.noellesroles.no_target");
+        parasites.put(target.getUUID(), 200);
+        target.sendSystemMessage(Component.translatable("message.noellesroles.sack.parasite"));
+        return true;
+    }
+
+    private boolean castSeize(ServerPlayer owner) {
+        Player target = rayTarget(owner, 10);
+        if (target == null) return fail("tip.noellesroles.no_target");
+        if (SREPlayerMoodComponent.KEY.get(target).getMood() > 0.35F || target.hasEffect(ModEffects.GHOST_WARD)) return fail("message.noellesroles.ma_chen_xu.seize.too_high");
+        Vec3 direction = new Vec3(owner.getLookAngle().x, 0, owner.getLookAngle().z).normalize();
+        Vec3 destination = owner.position().add(direction.scale(1.6));
+        if (!safeLanding(owner.serverLevel(), target, destination) || !clearPath(owner.serverLevel(), target, destination)) return fail("message.noellesroles.sack.no_landing");
+        target.teleportTo(destination.x, destination.y, destination.z);
+        target.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, 20, 0, false, false, true));
+        drainSan(target, 10);
+        return true;
+    }
+
+    private boolean castEcho(ServerPlayer owner) {
+        Vec3 direction = new Vec3(owner.getLookAngle().x, 0, owner.getLookAngle().z).normalize();
+        if (direction.lengthSqr() < 0.1) return fail("message.noellesroles.sack.no_landing");
+        Vec3 destination = null;
+        for (double distance = 0.25; distance <= 8; distance += 0.25) {
+            Vec3 candidate = owner.position().add(direction.scale(distance));
+            if (!owner.serverLevel().hasChunkAt(BlockPos.containing(candidate))
+                    || !owner.serverLevel().noCollision(owner, owner.getBoundingBox().move(candidate.subtract(owner.position())))) break;
+            if (distance >= 1 && safeLanding(owner.serverLevel(), owner, candidate)) destination = candidate;
+        }
+        if (destination == null) return fail("message.noellesroles.sack.no_landing");
+        owner.teleportTo(destination.x, destination.y, destination.z);
+        owner.playNotifySound(SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.7F, 0.75F);
+        return true;
+    }
+
+    private void tickTricks(ServerPlayer owner) {
+        if (effigyEntity != null && effigyLevel != owner.serverLevel()) clearEffigy(owner);
+        if (effigyTicks > 0 && effigyPosition != null) {
+            effigyTicks--;
+            if (owner.tickCount % 10 == 0) {
+                // 诱饵本身是可见实体，不再逐次广播维持粒子。
+                for (Player target : owner.serverLevel().getEntitiesOfClass(Player.class, new AABB(effigyPosition, effigyPosition).inflate(3), this::isEnemy)) {
+                    if (target.position().distanceToSqr(effigyPosition) > 9) continue;
+                    drainSan(target, 18);
+                    target.addEffect(new MobEffectInstance(MobEffects.GLOWING, 60, 0, false, false, true));
+                    target.playSound(SoundEvents.GHAST_SCREAM, 0.7F, 0.7F);
+                    effigyTicks = 0;
+                    break;
+                }
+            }
+            if (effigyTicks <= 0) clearEffigy(owner);
+        }
+        for (var iterator = parasites.entrySet().iterator(); iterator.hasNext();) {
+            var entry = iterator.next();
+            ServerPlayer target = owner.server.getPlayerList().getPlayer(entry.getKey());
+            if (target == null || !isEnemy(target) || target.hasEffect(ModEffects.GHOST_WARD)) { iterator.remove(); continue; }
+            int left = entry.getValue() - 1;
+            if (left % 20 == 0) drainSan(target, 2);
+            if (left <= 0) iterator.remove(); else entry.setValue(left);
+        }
+    }
+
+    private void updateCooldowns() {
+        generationCooldown = SackGhostRules.remaining(now(), generationReadyAt);
+        castCooldown = SackGhostRules.remaining(now(), castReadyAt);
+        ultimateCooldown = SackGhostRules.remaining(now(), realmReadyAt);
+        realmHitCooldown = SackGhostRules.remaining(now(), hitReadyAt);
+    }
+
+    @Override public void serverTick() {
+        if (!(player instanceof ServerPlayer owner) || stage <= 0) return;
+        if (!isActiveMaChenXu()) { clear(); return; }
+        if (TimeRewind.isSmoothRewinding(owner)) { cancelForRewind(); return; }
+        if (otherworldActive && realmLevel != owner.serverLevel()) endOtherworld(false);
+        if (!matchActive() || !GameUtils.isPlayerAliveAndSurvival(owner)) { clear(); return; }
+        if (!started) initializeRound(owner);
+        if (clockRunning()) activeTicks++;
+        updateCooldowns();
+        if (otherworldActive) maintainRealmEffects(owner);
+        if (otherworldActive && owner.tickCount % 20 == 0) {
+            refreshRealmEffects(owner);
+            SackGhostPackets.publish(owner, this);
+        }
+        if (!clockRunning()) return;
+        tickErosion();
+        tickTricks(owner);
+        if (otherworldActive) {
+            otherworldTimer++;
             otherworldDuration--;
-        if (ultimateCooldown > 1)
-            ultimateCooldown--;
-        if (veilCooldown > 1)
-            veilCooldown--;
-        if (effigyCooldown > 1)
-            effigyCooldown--;
-        if (wailCooldown > 1)
-            wailCooldown--;
-        if (seizeCooldown > 1)
-            seizeCooldown--;
-        if (parasiteCooldown > 1)
-            parasiteCooldown--;
-        if (pushCooldown > 1)
-            pushCooldown--;
-        if (echoCooldown > 1)
-            echoCooldown--;
-        if (turbidRainActive && turbidRainDuration > 1)
-            turbidRainDuration--;
-    }
-
-    // ==================== NBT 同步序列化 ====================
-
-    @Override
-    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        if (this.stage <= 0)
-            return;
-        if (SREGameWorldComponent.KEY.get(this.player.level()).getGameStatus() != GameStatus.ACTIVE) {
-            return;
-        }
-        int mask = this.pendingSyncMask;
-        tag.putInt("_mask", mask);
-
-        if ((mask & SYNC_CORE) != 0) {
-            tag.putInt("STAGE_2_THRESHOLD", this.STAGE_2_THRESHOLD);
-            tag.putInt("STAGE_3_THRESHOLD", this.STAGE_3_THRESHOLD);
-            tag.putInt("STAGE_4_THRESHOLD", this.STAGE_4_THRESHOLD);
-            tag.putInt("stage", this.stage);
-            tag.putInt("totalSanLoss", this.totalSanLoss);
-            tag.putBoolean("stage4FreeUltUsed", this.stage4FreeUltUsed);
-            tag.putBoolean("permanentShield", this.permanentShield);
-            tag.putInt("permanentSpeedBonus", this.permanentSpeedBonus);
-        }
-        if ((mask & SYNC_SKILLS) != 0) {
-            tag.putInt("nowSelectedSkill", this.nowSelectedSkill);
-            CompoundTag skillsTag = new CompoundTag();
-            for (int i = 0; i < ghostSkills.size(); i++) {
-                skillsTag.putString("skill_" + i, ghostSkills.get(i));
+            if (otherworldTimer % GLOW_INTERVAL == 0) {
+                for (ServerPlayer target : owner.serverLevel().players()) if (isEnemy(target)) lease(target, MobEffects.GLOWING, 80, 0);
             }
-            skillsTag.putInt("size", ghostSkills.size());
-            tag.put("ghostSkills", skillsTag);
-            // 小诡术同步
-            CompoundTag minorTag = new CompoundTag();
-            for (int i = 0; i < minorTricks.size(); i++) {
-                minorTag.putString("mt_" + i, minorTricks.get(i));
+            if (otherworldDuration <= 0) endOtherworld(true);
+        }
+        if (owner.tickCount % 20 == 0) {
+            for (UUID id : moodDirty) {
+                var target = owner.server.getPlayerList().getPlayer(id);
+                if (target != null) SREPlayerMoodComponent.KEY.get(target).sync();
             }
-            minorTag.putInt("size", minorTricks.size());
-            tag.put("minorTricks", minorTag);
-        }
-        if ((mask & SYNC_COOLDOWNS) != 0) {
-            tag.putInt("ultimateCooldown", this.ultimateCooldown);
-            tag.putInt("veilCooldown", this.veilCooldown);
-            tag.putInt("effigyCooldown", this.effigyCooldown);
-            tag.putInt("wailCooldown", this.wailCooldown);
-            tag.putInt("seizeCooldown", this.seizeCooldown);
-            tag.putInt("parasiteCooldown", this.parasiteCooldown);
-            tag.putInt("pushCooldown", this.pushCooldown);
-            tag.putInt("echoCooldown", this.echoCooldown);
-            tag.putBoolean("echoActive", this.echoActive);
-            tag.putInt("echoReturnTimer", this.echoReturnTimer);
-        }
-        if ((mask & SYNC_OTHERWORLD) != 0) {
-            tag.putBoolean("otherworldActive", this.otherworldActive);
-            tag.putInt("otherworldTimer", this.otherworldTimer);
-            tag.putInt("otherworldDuration", this.otherworldDuration);
-            CompoundTag markedTag = new CompoundTag();
-            for (int i = 0; i < markedPlayers.size(); i++) {
-                markedTag.putUUID("player_" + i, markedPlayers.get(i));
-            }
-            markedTag.putInt("size", markedPlayers.size());
-            tag.put("markedPlayers", markedTag);
-        }
-        if ((mask & SYNC_TURBID) != 0) {
-            tag.putBoolean("turbidRainActive", this.turbidRainActive);
-            tag.putInt("turbidRainDuration", this.turbidRainDuration);
-            tag.putInt("turbidRainUseCount", this.turbidRainUseCount);
+            moodDirty.clear();
+            sync();
         }
     }
 
-    @Override
-    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        // 没有 _mask 说明写入方被 writeToSyncNbt 的守卫拦下（stage<=0 / 非 ACTIVE），tag 是空的。
-        // 按 SYNC_ALL 解读空 tag 会把 stage、阈值、冷却和三个集合全部重置，所以这里直接跳过。
-        if (!tag.contains("_mask"))
-            return;
-        int mask = tag.getInt("_mask");
-
-        if ((mask & SYNC_CORE) != 0) {
-            this.STAGE_2_THRESHOLD = tag.contains("STAGE_2_THRESHOLD") ? tag.getInt("STAGE_2_THRESHOLD") : 100000;
-            this.STAGE_3_THRESHOLD = tag.contains("STAGE_3_THRESHOLD") ? tag.getInt("STAGE_3_THRESHOLD") : 100000;
-            this.STAGE_4_THRESHOLD = tag.contains("STAGE_4_THRESHOLD") ? tag.getInt("STAGE_4_THRESHOLD") : 100000;
-            this.stage = tag.contains("stage") ? tag.getInt("stage") : 1;
-            this.totalSanLoss = tag.contains("totalSanLoss") ? tag.getInt("totalSanLoss") : 0;
-            this.stage4FreeUltUsed = tag.contains("stage4FreeUltUsed") && tag.getBoolean("stage4FreeUltUsed");
-            this.permanentShield = tag.contains("permanentShield") && tag.getBoolean("permanentShield");
-            this.permanentSpeedBonus = tag.contains("permanentSpeedBonus") ? tag.getInt("permanentSpeedBonus") : 0;
-        }
-        if ((mask & SYNC_SKILLS) != 0) {
-            this.nowSelectedSkill = tag.contains("nowSelectedSkill") ? tag.getInt("nowSelectedSkill") : 0;
-            this.ghostSkills.clear();
-            if (tag.contains("ghostSkills")) {
-                CompoundTag skillsTag = tag.getCompound("ghostSkills");
-                int size = skillsTag.getInt("size");
-                for (int i = 0; i < size; i++) {
-                    String skill = skillsTag.getString("skill_" + i);
-                    if (!skill.isEmpty())
-                        this.ghostSkills.add(skill);
-                }
-            }
-            this.minorTricks.clear();
-            if (tag.contains("minorTricks")) {
-                CompoundTag minorTag = tag.getCompound("minorTricks");
-                int size = minorTag.getInt("size");
-                for (int i = 0; i < size; i++) {
-                    String mt = minorTag.getString("mt_" + i);
-                    if (!mt.isEmpty())
-                        this.minorTricks.add(mt);
-                }
-            }
-        }
-        if ((mask & SYNC_COOLDOWNS) != 0) {
-            this.ultimateCooldown = tag.contains("ultimateCooldown") ? tag.getInt("ultimateCooldown") : 0;
-            this.veilCooldown = tag.contains("veilCooldown") ? tag.getInt("veilCooldown") : 0;
-            this.effigyCooldown = tag.contains("effigyCooldown") ? tag.getInt("effigyCooldown") : 0;
-            this.wailCooldown = tag.contains("wailCooldown") ? tag.getInt("wailCooldown") : 0;
-            this.seizeCooldown = tag.contains("seizeCooldown") ? tag.getInt("seizeCooldown") : 0;
-            this.parasiteCooldown = tag.contains("parasiteCooldown") ? tag.getInt("parasiteCooldown") : 0;
-            this.pushCooldown = tag.contains("pushCooldown") ? tag.getInt("pushCooldown") : 0;
-            this.echoCooldown = tag.contains("echoCooldown") ? tag.getInt("echoCooldown") : 0;
-            this.echoActive = tag.contains("echoActive") && tag.getBoolean("echoActive");
-            this.echoReturnTimer = tag.contains("echoReturnTimer") ? tag.getInt("echoReturnTimer") : 0;
-        }
-        if ((mask & SYNC_OTHERWORLD) != 0) {
-            this.otherworldActive = tag.contains("otherworldActive") && tag.getBoolean("otherworldActive");
-            this.otherworldTimer = tag.contains("otherworldTimer") ? tag.getInt("otherworldTimer") : 0;
-            this.otherworldDuration = tag.contains("otherworldDuration") ? tag.getInt("otherworldDuration") : 0;
-            this.markedPlayers.clear();
-            if (tag.contains("markedPlayers")) {
-                CompoundTag markedTag = tag.getCompound("markedPlayers");
-                int size = markedTag.getInt("size");
-                for (int i = 0; i < size; i++) {
-                    if (markedTag.contains("player_" + i))
-                        this.markedPlayers.add(markedTag.getUUID("player_" + i));
-                }
-            }
-        }
-        if ((mask & SYNC_TURBID) != 0) {
-            this.turbidRainActive = tag.contains("turbidRainActive") && tag.getBoolean("turbidRainActive");
-            this.turbidRainDuration = tag.contains("turbidRainDuration") ? tag.getInt("turbidRainDuration") : 0;
-            this.turbidRainUseCount = tag.contains("turbidRainUseCount") ? tag.getInt("turbidRainUseCount") : 0;
-        }
+    @Override public void clientTick() {
+        if (!clockRunning()) return;
+        activeTicks++;
+        updateCooldowns();
+        if (otherworldActive && otherworldDuration > 0) { otherworldDuration--; otherworldTimer++; }
     }
 
-    @Override
-    public void writeToRewindNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        // 回溯快照：绕过增量掩码强制全量写入（保留 stage/ACTIVE 守卫，回溯只发生在进行中的对局）
-        int savedMask = this.pendingSyncMask;
-        this.pendingSyncMask = SYNC_ALL;
-        try {
-            writeToSyncNbt(tag, registryLookup);
-        } finally {
-            this.pendingSyncMask = savedMask;
+    @Override public void clear() {
+        if (player instanceof ServerPlayer owner) {
+            endOtherworld(false);
+            SackGhostItems.clearOwnerArts(owner);
+            clearEffigy(owner);
         }
+        stage = 0;
+        parasites.clear();
+        moodDirty.clear();
+        effigyTicks = 0;
     }
 
-    @Override
-    public void readFromRewindNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        // 回溯恢复：纯回填字段，不触发 clear()/sync()。写入方被守卫拦下的空快照会被 readFromSyncNbt 跳过。
-        readFromSyncNbt(tag, registryLookup);
+    private boolean fail(String key, Object... args) {
+        player.displayClientMessage(Component.translatable(key, args).withStyle(ChatFormatting.RED), true);
+        return false;
+    }
+
+    @Override public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider provider) {
+        updateCooldowns();
+        tag.putInt("stage", stage);
+        tag.putInt("totalSanLoss", totalSanLoss);
+        tag.putDouble("fear", fear);
+        tag.putInt("population", initialPlayers);
+        tag.putBoolean("started", started);
+        tag.putUUID("session", sessionId);
+        tag.putInt("draw", generationCooldown);
+        tag.putInt("cast", castCooldown);
+        tag.putInt("realmCd", ultimateCooldown);
+        tag.putInt("hit", realmHitCooldown);
+        tag.putBoolean("realm", otherworldActive);
+        tag.putInt("remaining", otherworldDuration);
+        tag.putInt("elapsed", otherworldTimer);
+        tag.putInt("duration", otherworldTotalTicks);
+        ListTag marks = new ListTag();
+        for (UUID id : verdicts.snapshot()) marks.add(NbtUtils.createUUID(id));
+        tag.put("marks", marks);
+    }
+
+    @Override public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider provider) {
+        if (!tag.contains("stage")) return;
+        stage = Math.clamp(tag.getInt("stage"), 0, 4);
+        totalSanLoss = Math.max(0, tag.getInt("totalSanLoss"));
+        fear = Math.max(totalSanLoss, tag.getDouble("fear"));
+        initialPlayers = Math.max(1, tag.getInt("population"));
+        started = tag.getBoolean("started");
+        if (tag.hasUUID("session")) sessionId = tag.getUUID("session");
+        STAGE_2_THRESHOLD = SackGhostRules.stageThreshold(2, initialPlayers);
+        STAGE_3_THRESHOLD = SackGhostRules.stageThreshold(3, initialPlayers);
+        STAGE_4_THRESHOLD = SackGhostRules.stageThreshold(4, initialPlayers);
+        generationReadyAt = now() + Math.max(0, tag.getInt("draw"));
+        castReadyAt = now() + Math.max(0, tag.getInt("cast"));
+        realmReadyAt = now() + Math.max(0, tag.getInt("realmCd"));
+        hitReadyAt = now() + Math.max(0, tag.getInt("hit"));
+        otherworldActive = tag.getBoolean("realm");
+        otherworldDuration = Math.max(0, tag.getInt("remaining"));
+        otherworldTimer = Math.max(0, tag.getInt("elapsed"));
+        otherworldTotalTicks = Math.max(0, tag.getInt("duration"));
+        List<UUID> restoredMarks = new ArrayList<>();
+        ListTag marks = tag.getList("marks", Tag.TAG_INT_ARRAY);
+        for (int i = 0; i < Math.min(128, marks.size()); i++) restoredMarks.add(NbtUtils.loadUUID(marks.get(i)));
+        verdicts.restore(restoredMarks);
+        refreshSkills();
+        updateCooldowns();
+    }
+
+    @Override public void readFromRewindNbt(CompoundTag tag, HolderLookup.Provider provider) {
+        boolean interrupted = otherworldActive;
+        long liveRealmReadyAt = realmReadyAt;
+        if (player instanceof ServerPlayer owner) {
+            endOtherworld(false);
+            clearEffigy(owner);
+        }
+        readFromSyncNbt(tag, provider);
+        // 回溯可恢复成长，但不能重新打开已清理的领域或重复执行旧标记。
+        if (player instanceof ServerPlayer) {
+            otherworldActive = false;
+            otherworldDuration = 0;
+            verdicts.clear();
+            parasites.clear();
+            effigyTicks = 0;
+            realmReadyAt = Math.max(realmReadyAt, liveRealmReadyAt);
+            if (interrupted || tag.getBoolean("realm")) realmReadyAt = Math.max(realmReadyAt, now() + SackGhostRules.REALM_COOLDOWN);
+            updateCooldowns();
+        }
     }
 }

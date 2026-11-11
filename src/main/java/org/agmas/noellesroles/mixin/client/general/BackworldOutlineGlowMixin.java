@@ -19,6 +19,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.client.SackGhostClient;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -43,14 +44,16 @@ public abstract class BackworldOutlineGlowMixin {
 
     @Inject(method = "isCurrentlyGlowing", at = @At("HEAD"), cancellable = true)
     private void nr$backworldOutlineGlow(CallbackInfoReturnable<Boolean> cir) {
-        if (nr$shouldOutline((Entity) (Object) this)) {
+        if (SackGhostClient.shouldReveal((Entity) (Object) this) || nr$shouldOutline((Entity) (Object) this)) {
             cir.setReturnValue(true);
         }
     }
 
     @Inject(method = "getTeamColor", at = @At("HEAD"), cancellable = true)
     private void nr$backworldOutlineColor(CallbackInfoReturnable<Integer> cir) {
-        if (nr$shouldOutline((Entity) (Object) this)) {
+        if (SackGhostClient.shouldReveal((Entity) (Object) this)) {
+            cir.setReturnValue(SackGhostClient.RELIC_RED);
+        } else if (nr$shouldOutline((Entity) (Object) this)) {
             cir.setReturnValue(NR$BACKWORLD_OUTLINE_COLOR);
         }
     }

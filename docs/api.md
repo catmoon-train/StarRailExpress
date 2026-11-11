@@ -43,6 +43,7 @@
 > | `AreasSettings.meetingX/Y/Z`、`meetingChairScanRadius` | `meetingPosition: {x,y,z}`、`meetingChairScanBox: {minX..maxZ}` |
 >
 > 注：**RoleData / ShopEntry / 商店 / 背包扩展 / TimeRewind / ui_style 等章节经核对基本正确**，可以放心参考；职业相关的最新最全流程请优先看 [`角色开发指南.md`](角色开发指南.md) 与 [`AI创建新职业攻略.md`](AI创建新职业攻略.md)。
+> 时间回溯的原版 NBT 捕获/恢复生命周期与区域掉落物过滤，见 [`time_rewind_api.md`](time_rewind_api.md)「原版状态生命周期与物品过滤」；注册入口为 `TimeRewindEvents`，用于保全不可回溯复制的实物和排除临时领域增益。
 
 ## 目录 / Table of Contents
 
