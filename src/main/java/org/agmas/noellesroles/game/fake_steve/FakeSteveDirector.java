@@ -18,7 +18,6 @@ package org.agmas.noellesroles.game.fake_steve;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
@@ -513,8 +512,7 @@ public final class FakeSteveDirector {
                 || SREGameWorldComponent.KEY.get(level).getRole(player) == null) {
             return;
         }
-        Integer room = GameUtils.roomToPlayer.get(player.getUUID());
-        if (room == null || GameUtils.getSpawnPos(AreasWorldComponent.KEY.get(level), room) == null
+        if (GameUtils.getPlayerRoomSpawnPos(player) == null
                 || !FakeSteveRules.shouldReviveAfterDeath(level.random.nextInt(100))) {
             return;
         }

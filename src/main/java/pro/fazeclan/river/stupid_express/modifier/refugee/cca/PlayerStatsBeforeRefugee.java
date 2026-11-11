@@ -50,11 +50,9 @@ public record PlayerStatsBeforeRefugee(Vec3 pos, int money, ListTag inventory, V
             var worldModifierComponent = WorldModifierComponent.KEY.get(level);
             if (worldModifierComponent.isModifier(victim.getUUID(), SEModifiers.REFUGEE)) {
                 var refugeeComponent = RefugeeComponent.KEY.get(level);
-                // 训练模式等场景没有为玩家分配房间，roomToPlayer 里不存在映射；
-                // 不能用 null 房间号走 int 重载（自动拆箱会抛 NPE 并中断死亡结算），
-                // 交给 Integer 重载返回 null，再回退到死亡位置。
-                Integer room = GameUtils.roomToPlayer.get(victim.getUUID());
-                Vec3 pos = GameUtils.getSpawnPos(AreasWorldComponent.KEY.get(level), room);
+                // 房间出生点统一由 getPlayerRoomSpawnPos 解析：训练场假人是它的初始点位。
+                // 没有房间映射时回退到死亡位置；登记坐标会在亡命徒复活时真正使用。
+                Vec3 pos = GameUtils.getPlayerRoomSpawnPos(victim);
                 if (pos != null) {
                     refugeeComponent.addPendingRevival(victim.getUUID(), pos.x(), pos.y() + 1, pos.z());
                 } else {

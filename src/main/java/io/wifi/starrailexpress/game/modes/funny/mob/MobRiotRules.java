@@ -145,12 +145,8 @@ public final class MobRiotRules {
     }
 
     public static boolean isInOwnRoom(ServerPlayer player) {
-        Integer room = GameUtils.roomToPlayer.get(player.getUUID());
-        if (room == null) {
-            return player.isSleeping();
-        }
-        AreasWorldComponent areas = AreasWorldComponent.KEY.get(player.level());
-        Vec3 spawn = GameUtils.getSpawnPos(areas, room);
+        // 训练场假人的「自己房间」就是它的初始点位。
+        Vec3 spawn = GameUtils.getPlayerRoomSpawnPos(player);
         if (spawn == null) {
             return player.isSleeping();
         }

@@ -16,9 +16,12 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.LevelResource;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -245,6 +248,14 @@ public final class TrainingRules {
                 || isManagedBot(player) && player.serverLevel() == camp.session.level())) return camp.session;
         return null;
     }
+
+    /** 训练场假人的出生点房间即其初始点位；非本会话假人返回 null。 */
+    public static @Nullable Vec3 botRoomSpawn(Player player) {
+        if (!(player instanceof ServerPlayer serverPlayer)) return null;
+        TrainingSession own = session(serverPlayer);
+        return own != null && own.owns(serverPlayer) ? own.botSpawn(serverPlayer) : null;
+    }
+
     public static boolean canInteract(ServerPlayer actor, Entity target) {
         if (!isTrainingServer(actor.getServer())) return true;
         TrainingSession own = session(actor);

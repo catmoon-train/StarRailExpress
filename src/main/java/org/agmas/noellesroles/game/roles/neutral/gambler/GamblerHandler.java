@@ -20,7 +20,6 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
-import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
@@ -223,8 +222,7 @@ public class GamblerHandler {
     }
 
     private static void teleport(Player player) {
-        Vec3 pos = GameUtils.getSpawnPos(AreasWorldComponent.KEY.get(player.level()),
-                GameUtils.roomToPlayer.get(player.getUUID()));
+        Vec3 pos = GameUtils.getPlayerRoomSpawnPos(player);
         if (pos != null) {
             player.teleportTo(pos.x(), pos.y() + 1, pos.z());
         }

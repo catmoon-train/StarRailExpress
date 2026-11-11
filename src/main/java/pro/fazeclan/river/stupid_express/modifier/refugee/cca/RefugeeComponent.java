@@ -51,6 +51,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.component.DefibrillatorComponent;
@@ -244,10 +245,14 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         WorldModifierComponent.KEY.get(player.serverLevel()).removeModifier(data.uuid, SEModifiers.REFUGEE);
 
         final var areasWorldComponent = AreasWorldComponent.KEY.get(serverLevel);
-        final var roomPosition = areasWorldComponent.getRoomPosition(i);
-        // Teleport to death location
-        player.teleportTo(serverLevel, roomPosition.x, roomPosition.y, roomPosition.z, player.getYRot(),
-                player.getXRot());
+        // 出生点房间统一解析：训练场假人是它的初始点位；旧存档没有登记坐标时仍回退房间锚点。
+        Vec3 roomPosition = GameUtils.getPlayerRoomSpawnPos(player);
+        if (roomPosition == null) roomPosition = data.spawnPos;
+        if (roomPosition == null) roomPosition = areasWorldComponent.getRoomPosition(i);
+        if (roomPosition != null) {
+            player.teleportTo(serverLevel, roomPosition.x, roomPosition.y, roomPosition.z, player.getYRot(),
+                    player.getXRot());
+        }
         SREArmorPlayerComponent armorCCA = SREArmorPlayerComponent.KEY.get(player);
         int size = serverLevel.getPlayers(GameUtils::isPlayerAliveAndSurvival).size();
         armorCCA.addArmor((Math.clamp(size / 6, 1, 3)));
@@ -639,7 +644,8 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
     public void addPendingRevival(UUID uuid, double x, double y, double z) {
         // 2 minutes = 120 seconds = 2400 ticks
         long revivalTime = level.getGameTime() + 2400;
-        pendingRevivals.add(new RefugeeData(uuid, revivalTime, false));
+        // 记录死亡时登记的出生点房间（训练场假人即初始点位），复活时不能丢弃。
+        pendingRevivals.add(new RefugeeData(uuid, revivalTime, false, new Vec3(x, y, z)));
         this.sync();
     }
 
@@ -681,10 +687,14 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
             ListTag list = tag.getList("pending_revivals", Tag.TAG_COMPOUND);
             for (int i = 0; i < list.size(); i++) {
                 CompoundTag item = list.getCompound(i);
+                Vec3 spawnPos = item.contains("spawn_x")
+                        ? new Vec3(item.getDouble("spawn_x"), item.getDouble("spawn_y"), item.getDouble("spawn_z"))
+                        : null;
                 pendingRevivals.add(new RefugeeData(
                         item.getUUID("uuid"),
                         item.getLong("revival_time"),
-                        item.getBoolean("is_revive")));
+                        item.getBoolean("is_revive"),
+                        spawnPos));
             }
         }
         isAnyRevivals = tag.getBoolean("isAnyRevivals");
@@ -697,6 +707,11 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
             item.putUUID("uuid", data.uuid);
             item.putLong("revival_time", data.revivalTime);
             item.putBoolean("is_revive", data.isRevive);
+            if (data.spawnPos != null) {
+                item.putDouble("spawn_x", data.spawnPos.x);
+                item.putDouble("spawn_y", data.spawnPos.y);
+                item.putDouble("spawn_z", data.spawnPos.z);
+            }
 
             list.add(item);
         }
@@ -707,6 +722,8 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
     public static class RefugeeData {
         final UUID uuid;
         long revivalTime;
+        /** 死亡时登记的出生点房间（训练场假人即初始点位）；旧数据可能为空。 */
+        Vec3 spawnPos;
 
         public boolean isRevive() {
             return isRevive;
@@ -728,10 +745,14 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         boolean isRevive, isDead = false;
 
         RefugeeData(UUID uuid, long revivalTime, boolean isRevive) {
+            this(uuid, revivalTime, isRevive, null);
+        }
+
+        RefugeeData(UUID uuid, long revivalTime, boolean isRevive, Vec3 spawnPos) {
             this.uuid = uuid;
             this.revivalTime = revivalTime;
             this.isRevive = isRevive;
-
+            this.spawnPos = spawnPos;
         }
     }
 

@@ -27,6 +27,7 @@ import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.events.ModdedRoleRemoved;
 import org.agmas.noellesroles.utils.RoleUtils;
+import org.jetbrains.annotations.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
@@ -90,6 +91,16 @@ public final class TrainingSession {
     public TrainingSettings settings() { return settings; }
     public TrainingLayout.Area area() { return TrainingLayout.get().area(settings.area); }
     public boolean owns(ServerPlayer player) { return bots.owns(player); }
+
+    /**
+     * 训练场假人的「出生点房间」就是它的初始点位（按当前训练区域与槽位计算）。
+     * 非本会话假人返回 null。
+     */
+    public @Nullable Vec3 botSpawn(ServerPlayer player) {
+        Integer slot = bots.slotOf(player);
+        return slot == null ? null : area().botSpawn(slot);
+    }
+
     public void changed() { dirty = true; }
     public void error(String key) { message = key; dirty = true; }
 

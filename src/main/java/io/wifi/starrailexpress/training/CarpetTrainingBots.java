@@ -472,6 +472,15 @@ public final class CarpetTrainingBots implements AutoCloseable {
         return issued.stream().anyMatch(a -> a.matches(player.getGameProfile().getName(), player.getUUID(), true));
     }
 
+    /** 本会话假人占用的槽位，用于把它的「出生点房间」解析成初始点位。 */
+    public Integer slotOf(ServerPlayer player) {
+        if (closed || !owns(player)) return null;
+        for (Entry entry : slots.values()) {
+            if (entry.state.uuid != null && entry.state.uuid.equals(player.getUUID())) return entry.state.slot;
+        }
+        return null;
+    }
+
     @Override
     public void close() {
         if (closed) return;

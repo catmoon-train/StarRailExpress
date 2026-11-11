@@ -35,8 +35,9 @@ class FakeSteveDeathReviveTest {
         assertTrue(revive.contains("!isReallyDead(player)"));
         assertTrue(revive.contains("session(level) != session"));
         assertTrue(revive.contains("!canGenerate(level) || !isRoundAcceptingCommands(level)"));
-        assertTrue(revive.indexOf("room == null") < revive.indexOf("GameUtils.revivePlayerToItsRoom(player)"));
-        assertTrue(revive.contains("GameUtils.getSpawnPos(AreasWorldComponent.KEY.get(level), room) == null"));
+        assertTrue(revive.contains("GameUtils.getPlayerRoomSpawnPos(player) == null"));
+        assertTrue(revive.indexOf("GameUtils.getPlayerRoomSpawnPos(player) == null")
+                < revive.indexOf("GameUtils.revivePlayerToItsRoom(player)"));
         assertTrue(revive.contains("clearPlayerBodies(level, player)"));
         assertTrue(revive.contains("replace(player, ReplacementCause.DEATH_REVIVE)"));
         assertTrue(revive.indexOf("GameUtils.revivePlayerToItsRoom(player)")

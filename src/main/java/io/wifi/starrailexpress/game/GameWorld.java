@@ -10,6 +10,7 @@ import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.index.TMMBlocks;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.index.tag.TMMBlockTags;
+import io.wifi.starrailexpress.training.TrainingRules;
 import net.fabricmc.loader.impl.util.log.Log;
 import net.fabricmc.loader.impl.util.log.LogCategory;
 import net.minecraft.commands.CommandSourceStack;
@@ -36,11 +37,12 @@ final class GameWorld {
     }
 
     static void teleportBackToRoom(Player player) {
-        if (player == null || GameUtils.roomToPlayer.isEmpty()) return;
+        if (player == null) return;
+        // 训练场假人的出生点房间就是它的初始点位，统一由 getPlayerRoomSpawnPos 解析。
+        Vec3 pos = GameUtils.getPlayerRoomSpawnPos(player);
+        if (pos == null && GameUtils.roomToPlayer.isEmpty()) return;
         player.stopRiding();
         player.stopSleeping();
-        var areas = AreasWorldComponent.KEY.get(player.level());
-        Vec3 pos = GameUtils.getSpawnPos(areas, GameUtils.roomToPlayer.getOrDefault(player.getUUID(), 0));
         if (pos != null) {
             player.teleportTo(pos.x(), pos.y() + 1, pos.z());
         } else if (player instanceof ServerPlayer sp) {
@@ -51,6 +53,12 @@ final class GameWorld {
     /** 多个可用房间时排除自己的房间；没有配置锚点时仍回退旁观。 */
     static void teleportToRandomRoom(Player player) {
         if (player == null) return;
+        // 训练场假人只有「初始点位」这一个房间，不参与随机房间。
+        Vec3 botSpawn = TrainingRules.botRoomSpawn(player);
+        if (botSpawn != null) {
+            player.teleportTo(botSpawn.x(), botSpawn.y() + 1, botSpawn.z());
+            return;
+        }
         var areas = AreasWorldComponent.KEY.get(player.level());
         if (areas == null) return;
         List<Integer> rooms = new ArrayList<>();

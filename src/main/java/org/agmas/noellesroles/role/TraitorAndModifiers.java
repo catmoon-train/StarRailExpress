@@ -20,7 +20,6 @@ import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
-import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
@@ -506,9 +505,8 @@ public class TraitorAndModifiers {
                     double triggerY = player.getY();
                     double triggerZ = player.getZ();
 
-                    // 传送回房间
-                    Vec3 pos = GameUtils.getSpawnPos(AreasWorldComponent.KEY.get(player.level()),
-                            GameUtils.roomToPlayer.get(player.getUUID()));
+                    // 传送回房间（训练场假人回自己的初始点位）
+                    Vec3 pos = GameUtils.getPlayerRoomSpawnPos(player);
                     if (pos != null) {
                         player.teleportTo(pos.x(), pos.y() + 1, pos.z());
                     }

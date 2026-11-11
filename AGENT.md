@@ -129,3 +129,9 @@ CustomParticleHandlers.register(id, (level, origin, durationTicks, params) -> {
 
 # Javadoc 语言
 请使用中文而不是英文。开发者均为简体中文使用者。
+
+# 回自己房间 / 训练场假人出生点房间
+
+**规定**：训练场假人的「出生点房间」就是它的初始点位（`TrainingSession.botSpawn` → `TrainingLayout.Area.botSpawn(slot)`），不是房间 1 锚点，也不是死亡位置。
+
+所有「传送回房间 / 取自己房间坐标」的逻辑统一走 `GameUtils.getPlayerRoomSpawnPos(Player)`（传送用 `GameUtils.teleportBackToRoom` / `teleportToRandomRoom`）。**禁止**直接把 `GameUtils.roomToPlayer.get(uuid)` 传给 `getSpawnPos(..., int)`：未分配房间时 `Map.get` 返回 null，自动拆箱会抛 NPE 并让服务器崩溃。

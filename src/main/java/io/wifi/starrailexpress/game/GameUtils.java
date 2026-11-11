@@ -20,6 +20,7 @@ import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.training.TrainingRules;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentMap;
@@ -295,12 +296,25 @@ public class GameUtils {
 
     /**
      * 房间号尚未分配时返回 null，避免把 {@code Map.get} 的 null 结果拆箱成 int。
-     * 训练模式、地图切换等场景不会为玩家写入 {@link #roomToPlayer}，
-     * 此时由调用方按原有逻辑回退（例如使用玩家死亡位置）。
+     * 训练模式、地图切换等场景不会为玩家写入 {@link #roomToPlayer}；
+     * 按玩家取出生点请统一使用 {@link #getPlayerRoomSpawnPos(Player)}。
      */
     public static Vec3 getSpawnPos(AreasWorldComponent areas, @Nullable Integer room) {
         if (room == null) return null;
         return getSpawnPos(areas, room.intValue());
+    }
+
+    /**
+     * 「回房间」统一入口。规定：训练场假人的出生点房间就是它的初始点位；
+     * 其他玩家按 {@link #roomToPlayer} 中的房间锚点；未分配房间返回 null。
+     * 所有传送回房间、取自己房间坐标的逻辑都必须走这里，
+     * 不要把 {@code roomToPlayer.get(uuid)} 直接当 int 用。
+     */
+    public static @Nullable Vec3 getPlayerRoomSpawnPos(Player player) {
+        if (player == null || player.level() == null) return null;
+        Vec3 trainingSpawn = TrainingRules.botRoomSpawn(player);
+        if (trainingSpawn != null) return trainingSpawn;
+        return getSpawnPos(AreasWorldComponent.KEY.get(player.level()), roomToPlayer.get(player.getUUID()));
     }
 
     public static void limitPlayerToBox(ServerPlayer player, AABB box) {

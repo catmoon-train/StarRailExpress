@@ -18,7 +18,6 @@ package org.agmas.noellesroles.game.roles.neutral.gambler;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.data.RoleData;
-import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.util.Scheduler;
@@ -41,9 +40,6 @@ import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static io.wifi.starrailexpress.game.GameUtils.getSpawnPos;
-import static io.wifi.starrailexpress.game.GameUtils.roomToPlayer;
 
 public class GamblerRole extends SRERole {
 
@@ -144,7 +140,7 @@ public class GamblerRole extends SRERole {
     }
 
     private static void teleport(Player player) {
-        Vec3 pos = getSpawnPos(AreasWorldComponent.KEY.get(player.level()), roomToPlayer.get(player.getUUID()));
+        Vec3 pos = GameUtils.getPlayerRoomSpawnPos(player);
         if (pos != null) {
             player.teleportTo(pos.x(), pos.y() + 1, pos.z());
         }
