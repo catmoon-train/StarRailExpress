@@ -63,11 +63,14 @@ public class GhostRoleData extends SimpleRoleData {
 
     @Override
     public void init() {
+        // 每局重新判定「最后立会」，避免复用 RoleData 实例时残留上一局的标记。
+        lastStandNotified = false;
     }
 
     @Override
     public void clear() {
         endFuranMoment();
+        lastStandNotified = false;
     }
 
     /** 恶魔之妹时刻结束：从统一时刻管理器出栈并停播其音乐。 */
@@ -302,7 +305,8 @@ public class GhostRoleData extends SimpleRoleData {
 
     /** 管理员强制开启恶魔之妹时刻，跳过剩余时间与阵营人数条件。 */
     public boolean forceStartMoment() {
-        if (!(player instanceof ServerPlayer serverPlayer) || lastStandNotified)
+        if (!(player instanceof ServerPlayer serverPlayer) || lastStandNotified
+                || !MomentManager.canTrigger(serverPlayer.serverLevel(), MomentType.FURANDORU))
             return false;
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         if (gameWorld.getGameStatus() != SREGameWorldComponent.GameStatus.ACTIVE
@@ -364,39 +368,42 @@ public class GhostRoleData extends SimpleRoleData {
         // 恶魔之妹时刻激活条件：时间已快进到阈值内，或场上只剩单一阵营+芙兰朵露
         boolean momentActive = gameTime.getTime() <= FURAN_LAST_STAND_TIME
                 || (aliveCivilianCount <= 0 || aliveKillerCount <= 0) && aliveCivilianCount + aliveKillerCount > 0;
-        if (!forced && !momentActive) {
+        // 已经触发过之后，场上环境是否仍满足条件不再影响时刻：继续保持状态与效果。
+        if (!forced && !lastStandNotified && !momentActive) {
             return false;
         }
 
         if (!lastStandNotified) {
-            // 一次性结算：快进时间 + 全局广播 + 发放风弹 + 回放记录
-            if (gameTime.getTime() > FURAN_LAST_STAND_TIME) {
-                gameTime.setTime(FURAN_LAST_STAND_TIME);
-            }
-
-            // 发送全局广播
-            var broadcastMessage = Component
-                    .translatable("message.noellesroles.furandoru.last_stand")
-                    .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
-            serverPlayer.server.getPlayerList().getPlayers().forEach((p) -> {
-                BroadcastCommand.BroadcastMessage(p, broadcastMessage);
-                int count = MoneyUtils.getBalance(p);
-                var stack = Items.WIND_CHARGE.getDefaultInstance();
-                stack.setCount(Math.max(1, Math.min(16, count / 75)));
-                MCItemsUtils.insertStackInFreeSlot(p, stack);
-            });
-
+            // 统一时刻入口：一局仅第一次真正触发；之后只维持效果，不重复开场演出。
+            boolean first = MomentManager.trigger(serverPlayer.serverLevel(), MomentType.FURANDORU);
             lastStandNotified = true;
-            // 交由统一时刻管理器：登记恶魔之妹时刻开始并按优先级播放其音乐
-            MomentManager.begin(serverPlayer.serverLevel(), MomentType.FURANDORU);
+            if (first) {
+                // 一次性结算：快进时间 + 全局广播 + 发放风弹 + 回放记录
+                if (gameTime.getTime() > FURAN_LAST_STAND_TIME) {
+                    gameTime.setTime(FURAN_LAST_STAND_TIME);
+                }
+
+                // 发送全局广播
+                var broadcastMessage = Component
+                        .translatable("message.noellesroles.furandoru.last_stand")
+                        .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
+                serverPlayer.server.getPlayerList().getPlayers().forEach((p) -> {
+                    BroadcastCommand.BroadcastMessage(p, broadcastMessage);
+                    int count = MoneyUtils.getBalance(p);
+                    var stack = Items.WIND_CHARGE.getDefaultInstance();
+                    stack.setCount(Math.max(1, Math.min(16, count / 75)));
+                    MCItemsUtils.insertStackInFreeSlot(p, stack);
+                });
+
+                // 回放记录：芙兰朵露加速时间（若小透明也已加速，则记为「共同加速」）
+                recordAccelerateTime(true);
+                // 回放记录：恶魔之妹时刻触发
+                ReplayEventLog.record("replay.event.moment.furandoru", ReplayEventLog.player(player));
+            }
             sync();
-            // 回放记录：芙兰朵露加速时间（若小透明也已加速，则记为「共同加速」）
-            recordAccelerateTime(true);
-            // 回放记录：恶魔之妹时刻触发
-            ReplayEventLog.record("replay.event.moment.furandoru", ReplayEventLog.player(player));
         }
 
-        // 恶魔之妹时刻激活期间持续保证发光：
+        // 恶魔之妹时刻激活期间持续保证发光（不论条件是否仍满足）：
         // 难民/亡命徒期间时刻可能提前触发过一次（一次性发光 121 秒，随后自然过期，
         // 或被亡命徒的时间回溯快照恢复覆盖），而 lastStandNotified 已置位导致发光不再补发，
         // 再次正式进入时刻时 BGM 照响但发光丢失。这里在时刻激活的每 tick 检查，

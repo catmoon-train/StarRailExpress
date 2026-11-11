@@ -55,10 +55,6 @@ import java.util.UUID;
 
 /** 纵火犯的标记、非致死火枪、80秒纵火时刻、火力和燃烧值，均由服务端权威结算。 */
 public class ArsonistRoleData extends SimpleRoleData {
-    /** 参照命令方块系列环境音的独立音量常量（CommandBlockAmbientSound.VOLUME = 0.25F），
-     *  登场曲与提示音都改成常量并略微调低，避免盖过对局音效。 */
-    private static final float MOMENT_MUSIC_VOLUME = 0.57F;
-    private static final float MOMENT_CUE_VOLUME = 0.5F;
 
     public int dousedCount;
     public int ignitionRequired = 1;
@@ -195,9 +191,10 @@ public class ArsonistRoleData extends SimpleRoleData {
             if (target != owner && GameUtils.isPlayerAliveAndSurvival(target) && isDoused(target.getUUID())
                     && !target.hasEffect(SEEffects.EXTINGUISH_IMMUNITY)) pendingIgnition.add(target.getUUID());
         }
+        // 统一时刻入口：一局仅触发一次；已触发过则保持状态，不再点火开场。
+        if (!startMoment(owner)) return false;
         dousedPlayers.clear();
         dousedCount = 0;
-        startMoment(owner);
         owner.serverLevel().playSound(null, owner.blockPosition(), SoundEvents.FLINTANDSTEEL_USE, SoundSource.PLAYERS, 1, 1);
         SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.event.arsonist.ignite",
                 io.wifi.starrailexpress.api.replay.GameReplayUtils.getReplayPlayerDisplayText(owner, true)));
@@ -209,11 +206,13 @@ public class ArsonistRoleData extends SimpleRoleData {
         if (!(player instanceof ServerPlayer owner) || arsonMoment
                 || SREGameWorldComponent.KEY.get(owner.level()).getGameStatus() != GameStatus.ACTIVE
                 || ArsonistIntroManager.isActive(owner.serverLevel()) || !GameUtils.isPlayerAliveAndSurvival(owner)) return false;
-        startMoment(owner);
-        return true;
+        return startMoment(owner);
     }
 
-    private void startMoment(ServerPlayer owner) {
+    /** @return 是否是本局第一次真正触发（false 表示已触发过，不应重复开场）。 */
+    private boolean startMoment(ServerPlayer owner) {
+        // 统一触发入口：一局仅一次，并播放登记在 MomentType 里的凋灵生成触发音效。
+        if (!MomentManager.trigger(owner.serverLevel(), MomentType.ARSONIST)) return false;
         if (activeOilCan != null && owner.serverLevel().getEntity(activeOilCan) instanceof LargeOilCanEntity can) can.finish();
         arsonMoment = true;
         settlementUnlocked = false;
@@ -239,16 +238,14 @@ public class ArsonistRoleData extends SimpleRoleData {
         owner.getInventory().setChanged();
         owner.inventoryMenu.broadcastChanges();
         ArsonistIntroManager.begin(owner);
-        // 交给统一时刻管理器：登记开始并按优先级播放时刻音乐（音乐由 MomentManager 统一管理）
-        MomentManager.begin(owner.serverLevel(), MomentType.ARSONIST);
         for (ServerPlayer p : owner.server.getPlayerList().getPlayers()) {
             p.sendSystemMessage(Component.translatable("message.stupid_express.arsonist.moment_start", owner.getDisplayName()));
-            p.playNotifySound(SoundEvents.WITHER_SPAWN, SoundSource.PLAYERS, MOMENT_CUE_VOLUME, 1.15F);
             ServerPlayNetworking.send(p, new ArsonistPackets.MomentS2C(owner.getUUID(), true, momentTicks));
         }
         SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.event.arsonist.moment",
                 io.wifi.starrailexpress.api.replay.GameReplayUtils.getReplayPlayerDisplayText(owner, true)));
         sync();
+        return true;
     }
 
     /** 过场结束后正式开战；此刻才给枪、速度II并启动最初标记的燃烧等待。 */

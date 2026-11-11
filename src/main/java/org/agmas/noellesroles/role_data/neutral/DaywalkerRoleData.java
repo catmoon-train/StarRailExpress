@@ -310,23 +310,26 @@ public class DaywalkerRoleData extends SimpleRoleData {
             return;
         }
 
-        // 终末追逐：距胜利目标任务数还剩 1 个任务时全程发光，直至游戏结束；
-        // 入场时全场先播一次提示音效，再开始播放逐日者音乐（均为 master 类型）并向全场广播
+        // 终末追逐：距胜利目标任务数还剩 1 个任务时触发一次，之后全程发光直至游戏结束。
+        // 时刻一旦触发就不再因任务数/场上环境变化而关闭或重新触发（一局仅一次）。
         if (finalChaseActive || (requiredTasks - completedTasks) == 1) {
             if (!finalChaseActive) {
                 finalChaseActive = true;
                 changed = true;
-                // 回放记录：逐日者时刻触发
-                ReplayEventLog.record("replay.event.moment.daywalker", ReplayEventLog.player(player));
-                if (player.level() instanceof ServerLevel serverLevel) {
+                if (player.level() instanceof ServerLevel serverLevel
+                        && MomentManager.reserve(serverLevel, MomentType.DAYWALKER)) {
+                    // 占位成功即本局唯一的一次触发：先播提示音效，再延迟开始音乐并全场广播。
+                    // 回放记录：逐日者时刻触发
+                    ReplayEventLog.record("replay.event.moment.daywalker", ReplayEventLog.player(player));
                     for (ServerPlayer listener : serverLevel.players()) {
                         listener.playNotifySound(SoundEvents.ILLUSIONER_PREPARE_BLINDNESS,
                                 SoundSource.MASTER, 1.0F, 1.0F);
                     }
-                    // 提示音效结束后，交由统一时刻管理器开始播放逐日者音乐（延迟 30 tick）
+                    // 提示音效结束后，由已预留名额的时刻延迟入栈（音乐由 MomentManager 统一管理）
                     Scheduler.schedule(() -> {
                         if (serverLevel == player.level()
-                                && GameUtils.isPlayerAliveAndSurvival(player)) {
+                                && GameUtils.isPlayerAliveAndSurvival(player)
+                                && SREGameWorldComponent.KEY.get(serverLevel).isRunning()) {
                             MomentManager.begin(serverLevel, MomentType.DAYWALKER);
                         }
                     }, 30);
@@ -337,11 +340,11 @@ public class DaywalkerRoleData extends SimpleRoleData {
                     for (ServerPlayer other : serverLevel.players()) {
                         SRENetworkMessageUtils.sendBroadcast(other, broadcast);
                     }
+                    serverPlayer.displayClientMessage(
+                            Component.translatable("message.noellesroles.daywalker.final_chase")
+                                    .withStyle(ChatFormatting.GOLD),
+                            true);
                 }
-                serverPlayer.displayClientMessage(
-                        Component.translatable("message.noellesroles.daywalker.final_chase")
-                                .withStyle(ChatFormatting.GOLD),
-                        true);
             }
             // 维持发光（无限续期，直至死亡或游戏结束）
             glowTimer++;
@@ -350,12 +353,6 @@ public class DaywalkerRoleData extends SimpleRoleData {
                 player.addEffect(new MobEffectInstance(MobEffects.GLOWING, FINAL_CHASE_GLOW_INTERVAL * 2 + 2, 0,
                         false, true, true));
                 glowApplied = true;
-            }
-        } else if (finalChaseActive) {
-            finalChaseActive = false;
-            changed = true;
-            if (player.level() instanceof ServerLevel serverLevel) {
-                MomentManager.end(serverLevel, MomentType.DAYWALKER);
             }
         }
 

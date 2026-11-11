@@ -31,8 +31,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,8 +51,9 @@ import org.agmas.noellesroles.utils.RoleUtils;
  */
 public class InfectedWinChecker {
 
-    private static boolean wasAccelerated = false; // 记录上一个tick的加速状态
-    /** 管理员启动后不再受自然加速条件影响，随时刻结束或对局重置清除。 */
+    /** 本局疫使时刻是否已触发；触发后一直保持到对局重置，不再因条件波动关闭。 */
+    private static boolean wasAccelerated = false;
+    /** 管理员启动后不再受自然加速条件影响，随场上无疫使或对局重置清除。 */
     private static boolean forcedMoment = false;
     private static int tickCounter = 0; // tick 计数器，用于节流
     private static final int TICK_INTERVAL = 20; // 每20 tick（1秒）执行一次检查（原来每tick执行，减少95%）
@@ -139,7 +138,6 @@ public class InfectedWinChecker {
         });
 
         // 服务器tick事件 - 检查疫使加速条件（节流：每20tick执行一次，从20次/秒降至1次/秒）
-        // 触发条件：所有杀手全部阵亡 且 平民中没有医生
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             // 节流：每 TICK_INTERVAL 才执行一次，减少 95% 的 tick 开销
             tickCounter++;
@@ -147,113 +145,101 @@ public class InfectedWinChecker {
                 return;
             }
             tickCounter = 0;
-
-            ServerLevel level = server.overworld();
-            var gameWorldComponent = SREGameWorldComponent.KEY.maybeGet(level).orElse(null);
-            if (gameWorldComponent == null || !gameWorldComponent.isRunning()) {
-                return;
-            }
-
-            // 单次遍历完成所有检查（原来分4次遍历，现在合并为1次）
-
-            ArrayList<ServerPlayer> inftectRolePlayers = new ArrayList<>();
-            boolean hasInfected = false;
-            boolean hasKiller = false;
-            boolean hasDoctor = false;
-            boolean hasLooseEnd = false;
-            boolean hasSafeTime = false;
-
-            for (ServerPlayer player : level.getPlayers(GameUtils::isPlayerAliveAndSurvival)) {
-                // 检查是否处于安全时间（游戏开始安全时间、阳光自选、职业轮抽的选择阶段）
-                if (!hasSafeTime && player.hasEffect(ModEffects.SAFE_TIME)) {
-                    hasSafeTime = true;
-                }
-                if (gameWorldComponent.isRole(player, ModRoles.INFECTED)) {
-                    hasInfected = true;
-                    inftectRolePlayers.add(player);
-                    continue;
-                }
-                // 只检查真正的杀手阵营（isKiller），不含杀手方中立
-                var role = gameWorldComponent.getRole(player);
-                if (role != null && role.isKiller() && !hasKiller) {
-                    hasKiller = true;
-                }
-                if (!hasDoctor && (gameWorldComponent.isRole(player, ModRoles.DOCTOR)
-                        || (gameWorldComponent.getRole(player) instanceof SRERole r && !r.canBePoisoned()))) {
-                    hasDoctor = true;
-                }
-                if (!hasLooseEnd && gameWorldComponent.isRole(player, TMMRoles.LOOSE_END)) {
-                    hasLooseEnd = true;
-                }
-            }
-
-            if (!hasInfected) {
-                // 检查疫使是否在鹈鹕肚子里——如果在肚子里，则不取消加速状态，等待释放后重新判断
-                boolean infectedInPelicanBelly = false;
-                for (ServerPlayer player : level.getPlayers(p -> true)) {
-                    if (PelicanManager.isStashed(player) && gameWorldComponent.isRole(player, ModRoles.INFECTED)) {
-                        infectedInPelicanBelly = true;
-                        break;
-                    }
-                }
-                if (infectedInPelicanBelly) {
-                    return; // 疫使在鹈鹕肚子里，保持当前状态不变
-                }
-
-                // 没有疫使，取消加速
-                forcedMoment = false;
-                if (wasAccelerated) {
-                    InfectedPlayerComponent.setSpreadAcceleratedForAll(level, false);
-                    wasAccelerated = false;
-                    MomentManager.end(level, MomentType.INFECTED);
-                }
-                return;
-            }
-
-            // 检查触发条件：所有杀手已阵亡 且 没有医生 且 不处于亡命时刻 且 不处于安全时间
-            boolean killersAllDead = !hasKiller;
-            boolean shouldAccelerate = forcedMoment || killersAllDead && !hasDoctor && !hasLooseEnd && !hasSafeTime;
-            boolean shouldAccelerateIgnoreDoctor = killersAllDead && !hasLooseEnd && !hasSafeTime;
-
-            if (shouldAccelerate) {
-                // 设置加速传播（病毒传染时间缩短至10秒）
-                if (!wasAccelerated) {
-                    // 有医生直接趋势，直接不管后面逻辑避免一堆神秘bug和性能消耗
-                    if (hasDoctor) {
-                        for (ServerPlayer p : inftectRolePlayers) {
-                            GameUtils.forceKillPlayer(p, true, null, GameConstants.DeathReasons.CANNOT_WIN);
-                        }
-                        return;
-                    }
-                    startMoment(level, inftectRolePlayers);
-                }
-                checkAndTriggerLastInfected(level, inftectRolePlayers);
-            } else {
-                // 取消加速传播
-                if (wasAccelerated) {
-                    InfectedPlayerComponent.setSpreadAcceleratedForAll(level, false);
-                    wasAccelerated = false;
-                    MomentManager.end(level, MomentType.INFECTED);
-                    // 同步取消加速状态到疫使玩家自身的组件（供客户端HUD读取）
-                    for (ServerPlayer p : inftectRolePlayers) {
-                        {
-                            InfectedPlayerComponent comp = ModComponents.INFECTED.get(p);
-                            comp.spreadAccelerated = false;
-                            comp.sync();
-                        }
-                    }
-                }
-                if (shouldAccelerateIgnoreDoctor && hasDoctor) {
-                    for (ServerPlayer p : inftectRolePlayers) {
-                        GameUtils.forceKillPlayer(p, true, null, GameConstants.DeathReasons.CANNOT_WIN);
-                    }
-                    return;
-                }
-            }
+            updateMoment(server.overworld());
         });
     }
 
-    /** 管理员强制开启疫使时刻；沿用自然入口的广播、音效、同步和冷却初始化。 */
+    /**
+     * 统一的疫使时刻状态机：每 20 tick 与「疫使从鹈鹕肚子释放」时共用。
+     *
+     * <p>
+     * 时刻由 {@link MomentManager#trigger} 保证一局只触发一次。触发之后，无论场上环境
+     * 是否又达不到触发要求（杀手复活、医生出现、安全时间、亡命徒等），都只保持触发后的
+     * 加速状态与效果并继续推进结算，既不关闭效果、也不再触发一遍开场。
+     * </p>
+     */
+    private static void updateMoment(ServerLevel level) {
+        var gameWorldComponent = SREGameWorldComponent.KEY.maybeGet(level).orElse(null);
+        if (gameWorldComponent == null || !gameWorldComponent.isRunning()) {
+            return;
+        }
+
+        // 单次遍历完成所有检查（原来分4次遍历，现在合并为1次）
+        ArrayList<ServerPlayer> infectedRolePlayers = new ArrayList<>();
+        boolean hasInfected = false;
+        boolean hasKiller = false;
+        boolean hasDoctor = false;
+        boolean hasLooseEnd = false;
+        boolean hasSafeTime = false;
+
+        for (ServerPlayer player : level.getPlayers(GameUtils::isPlayerAliveAndSurvival)) {
+            // 检查是否处于安全时间（游戏开始安全时间、阳光自选、职业轮抽的选择阶段）
+            if (!hasSafeTime && player.hasEffect(ModEffects.SAFE_TIME)) {
+                hasSafeTime = true;
+            }
+            if (gameWorldComponent.isRole(player, ModRoles.INFECTED)) {
+                hasInfected = true;
+                infectedRolePlayers.add(player);
+                continue;
+            }
+            // 只检查真正的杀手阵营（isKiller），不含杀手方中立
+            var role = gameWorldComponent.getRole(player);
+            if (role != null && role.isKiller() && !hasKiller) {
+                hasKiller = true;
+            }
+            if (!hasDoctor && (gameWorldComponent.isRole(player, ModRoles.DOCTOR)
+                    || (gameWorldComponent.getRole(player) instanceof SRERole r && !r.canBePoisoned()))) {
+                hasDoctor = true;
+            }
+            if (!hasLooseEnd && gameWorldComponent.isRole(player, TMMRoles.LOOSE_END)) {
+                hasLooseEnd = true;
+            }
+        }
+
+        if (!hasInfected) {
+            // 疫使仍在鹈鹕肚子里：等待释放后重新判断，当前状态保持不变。
+            for (ServerPlayer player : level.getPlayers(p -> true)) {
+                if (PelicanManager.isStashed(player) && gameWorldComponent.isRole(player, ModRoles.INFECTED)) {
+                    return;
+                }
+            }
+            // 场上暂时没有存活疫使：时刻一旦触发就不再关闭（一局仅触发一次），
+            // 保持触发后的加速状态与效果，仅清除管理员强制标记。
+            forcedMoment = false;
+            return;
+        }
+
+        // 触发条件：所有杀手已阵亡 且 没有医生 且 不处于亡命时刻 且 不处于安全时间
+        boolean killersAllDead = !hasKiller;
+        boolean shouldAccelerate = forcedMoment || killersAllDead && !hasDoctor && !hasLooseEnd && !hasSafeTime;
+        boolean shouldAccelerateIgnoreDoctor = killersAllDead && !hasLooseEnd && !hasSafeTime;
+
+        if (shouldAccelerate && !wasAccelerated) {
+            // 管理员强制开启但场上有医生：直接趋势，避免后续逻辑反复纠缠
+            if (hasDoctor) {
+                for (ServerPlayer p : infectedRolePlayers) {
+                    GameUtils.forceKillPlayer(p, true, null, GameConstants.DeathReasons.CANNOT_WIN);
+                }
+                return;
+            }
+            startMoment(level, infectedRolePlayers);
+        }
+
+        // 时刻已触发：不论条件是否仍满足，持续保持加速效果并推进全员感染结算。
+        if (wasAccelerated) {
+            applyMomentEffects(level, infectedRolePlayers);
+            checkAndTriggerLastInfected(level, infectedRolePlayers);
+        }
+
+        // 医生在场且疫使已无获胜可能：强制趋势（与时刻是否维持无关）。
+        if (!shouldAccelerate && shouldAccelerateIgnoreDoctor && hasDoctor) {
+            for (ServerPlayer p : infectedRolePlayers) {
+                GameUtils.forceKillPlayer(p, true, null, GameConstants.DeathReasons.CANNOT_WIN);
+            }
+        }
+    }
+
+    /** 管理员强制开启疫使时刻；沿用自然入口的效果，开场演出一局只有一次。 */
     public static boolean forceStartMoment(ServerPlayer target) {
         ServerLevel level = target.serverLevel();
         var game = SREGameWorldComponent.KEY.get(level);
@@ -265,37 +251,38 @@ public class InfectedWinChecker {
         forcedMoment = true;
         List<ServerPlayer> infectedPlayers = level.getPlayers(p -> GameUtils.isPlayerAliveAndSurvival(p)
                 && game.isRole(p, ModRoles.INFECTED));
-        if (!wasAccelerated) {
-            startMoment(level, infectedPlayers);
-        } else {
-            // 全局时刻已经开始，仅初始化新转职的目标，不重复广播或刷新其他疫使。
-            InfectedPlayerComponent comp = ModComponents.INFECTED.get(target);
-            comp.spreadAccelerated = true;
-            comp.sync();
-            SREAbilityPlayerComponent ability = SREAbilityPlayerComponent.KEY.get(target);
-            ability.resetAllCooldowns();
-            ability.status = 2;
-            ability.sync();
-        }
+        startMoment(level, infectedPlayers);
+        // 新转职或被回溯还原的目标补齐时刻状态，不重复广播或刷新其他疫使。
+        InfectedPlayerComponent comp = ModComponents.INFECTED.get(target);
+        comp.spreadAccelerated = true;
+        comp.sync();
+        SREAbilityPlayerComponent ability = SREAbilityPlayerComponent.KEY.get(target);
+        ability.resetAllCooldowns();
+        ability.status = 2;
+        ability.sync();
         checkAndTriggerLastInfected(level, infectedPlayers);
         return true;
     }
 
-    /** 自然触发与管理员强制触发共用的完整时刻初始化。 */
-    private static void startMoment(ServerLevel level, List<ServerPlayer> inftectRolePlayers) {
-        var gameWorldComponent = SREGameWorldComponent.KEY.get(level);
-        InfectedPlayerComponent.setSpreadAcceleratedForAll(level, true);
-        wasAccelerated = true;
-        // 同步加速状态到疫使玩家自身的组件（供客户端HUD读取）
-        for (ServerPlayer p : inftectRolePlayers) {
-            {
-                InfectedPlayerComponent comp = ModComponents.INFECTED.get(p);
-                comp.spreadAccelerated = true;
-                comp.sync();
-            }
+    /**
+     * 自然触发与管理员强制触发共用的入口。
+     *
+     * <p>
+     * {@link MomentManager#trigger} 保证一局只触发一次：第一次会播放触发瞬间的
+     * 一次性音效（疫使时刻没有音乐）、广播并清零冷却；之后再调用只保持/恢复
+     * 已触发后的加速效果，不重复开场。
+     * </p>
+     *
+     * @return 是否是本局第一次真正触发
+     */
+    private static boolean startMoment(ServerLevel level, List<ServerPlayer> infectedRolePlayers) {
+        boolean first = MomentManager.trigger(level, MomentType.INFECTED);
+        applyMomentEffects(level, infectedRolePlayers);
+        if (!first) {
+            return false;
         }
-        // 交由统一时刻管理器播放疫使时刻音乐（音乐由 MomentManager 统一管理）
-        MomentManager.begin(level, MomentType.INFECTED);
+
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(level);
         // 全场广播疫使时刻提示
         Component broadcast = Component.translatable("message.noellesroles.infected.time.triggered")
                 .withStyle(ChatFormatting.DARK_GREEN, ChatFormatting.BOLD);
@@ -312,11 +299,27 @@ public class InfectedWinChecker {
             }
         }
         // 疫使技能冷却立刻清零（同时重置统一冷却和独立技能状态冷却）
-        for (ServerPlayer p : inftectRolePlayers) {
-            {
-                SREAbilityPlayerComponent abilityComponent = SREAbilityPlayerComponent.KEY.get(p);
-                abilityComponent.resetAllCooldowns();
-                abilityComponent.status = 2;
+        for (ServerPlayer p : infectedRolePlayers) {
+            SREAbilityPlayerComponent abilityComponent = SREAbilityPlayerComponent.KEY.get(p);
+            abilityComponent.resetAllCooldowns();
+            abilityComponent.status = 2;
+        }
+        return true;
+    }
+
+    /**
+     * 维持疫使时刻触发后的效果：全局加速传播 + 疫使自身组件的 HUD 状态。
+     * 可重复调用（对已处于加速状态的玩家不会重复同步），用于「时刻期间环境变化
+     * 也不关闭效果」以及亡命徒回溯后把效果补回来。
+     */
+    private static void applyMomentEffects(ServerLevel level, List<ServerPlayer> infectedRolePlayers) {
+        InfectedPlayerComponent.setSpreadAcceleratedForAll(level, true);
+        wasAccelerated = true;
+        for (ServerPlayer p : infectedRolePlayers) {
+            InfectedPlayerComponent comp = ModComponents.INFECTED.get(p);
+            if (!comp.spreadAccelerated) {
+                comp.spreadAccelerated = true;
+                comp.sync();
             }
         }
     }
@@ -363,114 +366,12 @@ public class InfectedWinChecker {
     }
 
     /**
-     * 当疫使从鹈鹕肚子里被释放时调用，重新检查并触发疫使时刻条件
+     * 当疫使从鹈鹕肚子里被释放时调用：复用统一状态机重新检查，
+     * 不再单独维护一套会关掉/重开时刻的判定。
      */
     public static void onInfectedReleasedFromPelican(ServerLevel level) {
-        var gameWorldComponent = SREGameWorldComponent.KEY.maybeGet(level).orElse(null);
-        if (gameWorldComponent == null || !gameWorldComponent.isRunning()) {
-            return;
-        }
-
-        ArrayList<ServerPlayer> inftectRolePlayers = new ArrayList<>();
-        boolean hasInfected = false;
-        boolean hasKiller = false;
-        boolean hasDoctor = false;
-        boolean hasLooseEnd = false;
-        boolean hasSafeTime = false;
-
-        for (ServerPlayer player : level.getPlayers(GameUtils::isPlayerAliveAndSurvival)) {
-            if (!hasSafeTime && player.hasEffect(ModEffects.SAFE_TIME)) {
-                hasSafeTime = true;
-            }
-            if (gameWorldComponent.isRole(player, ModRoles.INFECTED)) {
-                hasInfected = true;
-                inftectRolePlayers.add(player);
-                continue;
-            }
-            var role = gameWorldComponent.getRole(player);
-            if (role != null && role.isKiller() && !hasKiller) {
-                hasKiller = true;
-            }
-            if (!hasDoctor && (gameWorldComponent.isRole(player, ModRoles.DOCTOR)
-                    || (gameWorldComponent.getRole(player) instanceof SRERole r && !r.canBePoisoned()))) {
-                hasDoctor = true;
-            }
-            if (!hasLooseEnd && gameWorldComponent.isRole(player, TMMRoles.LOOSE_END)) {
-                hasLooseEnd = true;
-            }
-        }
-
-        if (!hasInfected) {
-            forcedMoment = false;
-            if (wasAccelerated) {
-                InfectedPlayerComponent.setSpreadAcceleratedForAll(level, false);
-                wasAccelerated = false;
-                MomentManager.end(level, MomentType.INFECTED);
-            }
-            return;
-        }
-
-        boolean killersAllDead = !hasKiller;
-        boolean shouldAccelerate = forcedMoment || killersAllDead && !hasDoctor && !hasLooseEnd && !hasSafeTime;
-        boolean shouldAccelerateIgnoreDoctor = killersAllDead && !hasLooseEnd && !hasSafeTime;
-        ;
-
-        if (shouldAccelerate) {
-            if (!wasAccelerated) {
-                // 有医生直接趋势，直接不管后面逻辑避免一堆神秘bug和性能消耗
-                if (hasDoctor) {
-                    for (ServerPlayer p : inftectRolePlayers) {
-                        GameUtils.forceKillPlayer(p, true, null, GameConstants.DeathReasons.CANNOT_WIN);
-                    }
-                    return;
-                }
-                InfectedPlayerComponent.setSpreadAcceleratedForAll(level, true);
-                wasAccelerated = true;
-                // 同步加速状态到疫使玩家自身的组件（供客户端HUD读取）
-                for (ServerPlayer p : inftectRolePlayers) {
-                    {
-                        InfectedPlayerComponent comp = ModComponents.INFECTED.get(p);
-                        comp.spreadAccelerated = true;
-                        comp.sync();
-                    }
-                }
-                // 交由统一时刻管理器播放疫使时刻音乐
-                MomentManager.begin(level, MomentType.INFECTED);
-                Component broadcast = Component.translatable("message.noellesroles.infected.time.triggered")
-                        .withStyle(ChatFormatting.DARK_GREEN, ChatFormatting.BOLD);
-                for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) {
-                    ServerPlayNetworking.send(p, new BroadcastMessageS2CPacket(broadcast));
-                }
-                for (ServerPlayer p : inftectRolePlayers) {
-                    {
-                        SREAbilityPlayerComponent abilityComponent = SREAbilityPlayerComponent.KEY.get(p);
-                        abilityComponent.resetAllCooldowns();
-                    }
-                }
-            }
-            checkAndTriggerLastInfected(level, inftectRolePlayers);
-        } else {
-            if (wasAccelerated) {
-                InfectedPlayerComponent.setSpreadAcceleratedForAll(level, false);
-                wasAccelerated = false;
-                MomentManager.end(level, MomentType.INFECTED);
-                // 同步取消加速状态到疫使玩家自身的组件（供客户端HUD读取）
-                for (ServerPlayer p : inftectRolePlayers) {
-                    {
-                        InfectedPlayerComponent comp = ModComponents.INFECTED.get(p);
-                        comp.spreadAccelerated = false;
-                        comp.sync();
-                    }
-                }
-            }
-            if (shouldAccelerateIgnoreDoctor && hasDoctor) {
-                for (ServerPlayer p : inftectRolePlayers) {
-                    GameUtils.forceKillPlayer(p, true, null, GameConstants.DeathReasons.CANNOT_WIN);
-                }
-                return;
-            }
-
-        }
+        // 与每 20 tick 的检查使用同一个权威世界，避免不同维度的 level 各自维护一份时刻状态。
+        updateMoment(level.getServer().overworld());
     }
 
     /**

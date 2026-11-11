@@ -11,6 +11,8 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.game.moment.MomentManager;
+import org.agmas.noellesroles.game.moment.MomentType;
 import org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
@@ -51,7 +53,9 @@ public class MomentCommand {
                     target.getDisplayName()));
             return 0;
         }
-        if (game.isRole(target, moment.role) && moment.isActive(target)) {
+        // 时刻默认一局只能触发一次：即使当前效果已结束，本局也不允许管理员再触发一遍。
+        if (MomentManager.hasTriggered(target.serverLevel(), moment.type)
+                || (game.isRole(target, moment.role) && moment.isActive(target))) {
             source.sendSuccess(() -> Component.translatable("commands.noellesroles.moment.already_active",
                     target.getDisplayName(), moment.role.getName()), false);
             return 1;
@@ -72,17 +76,19 @@ public class MomentCommand {
     }
 
     private enum Moment {
-        AMON("amon", ModRoles.AMON),
-        DEVIL_SISTER("devil_sister", THRedHouseRoles.FURANDORU),
-        ARSONIST("arsonist", SERoles.ARSONIST),
-        INFECTED("infected", ModRoles.INFECTED);
+        AMON("amon", ModRoles.AMON, MomentType.AMON),
+        DEVIL_SISTER("devil_sister", THRedHouseRoles.FURANDORU, MomentType.FURANDORU),
+        ARSONIST("arsonist", SERoles.ARSONIST, MomentType.ARSONIST),
+        INFECTED("infected", ModRoles.INFECTED, MomentType.INFECTED);
 
         private final String argument;
         private final SRERole role;
+        private final MomentType type;
 
-        Moment(String argument, SRERole role) {
+        Moment(String argument, SRERole role, MomentType type) {
             this.argument = argument;
             this.role = role;
+            this.type = type;
         }
 
         private boolean isActive(ServerPlayer target) {

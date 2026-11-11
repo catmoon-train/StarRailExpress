@@ -735,8 +735,10 @@ public class AmonRoleData extends SimpleRoleData {
      * 为 true 的整段时间里，全服处于亡命徒专属流程（技能禁用、时间冻结/回拨、结算由亡命徒接管）。
      * 此时若启动阿蒙时刻，会和亡命徒的「最后的挣扎」表现与胜负判定互相打架，故直接跳过本次触发；
      * 亡命徒流程结束后（{@code isAnyRevivals} 归位 false）下一个 tick / 下一次结算会重新尝试。
+     * 另外由 {@link MomentManager#trigger} 保证一局只触发一次：终幕结束后即便条件再次满足，
+     * 也不会重新开场。
      *
-     * @return true 表示已进入终幕；false 表示未开启（条件不满足或处于亡命徒时刻）。
+     * @return true 表示已进入终幕；false 表示未开启（条件不满足、处于亡命徒时刻或本局已触发过）。
      */
     public boolean forceStartMoment() {
         if (!(player instanceof ServerPlayer amon))
@@ -754,6 +756,9 @@ public class AmonRoleData extends SimpleRoleData {
             return false;
         // 亡命徒（难民修饰符变来的）期间禁止触发阿蒙时刻。
         if (isDesperadoMoment(level))
+            return false;
+        // 统一时刻入口：一局仅触发一次；已触发过则保持终幕结束后的状态，不重新开场。
+        if (!MomentManager.trigger(level, MomentType.AMON))
             return false;
         finalePhase = true;
         finaleTicks = FINALE_TICKS;
@@ -774,7 +779,6 @@ public class AmonRoleData extends SimpleRoleData {
         applyGlow(amon);
         stealItems(amon, level);
         broadcastFinale(level, true);
-        MomentManager.begin(level, MomentType.AMON);
         // 回放记录：阿蒙时刻触发
         ReplayEventLog.record("replay.event.moment.amon", ReplayEventLog.player(amon));
         sync();
