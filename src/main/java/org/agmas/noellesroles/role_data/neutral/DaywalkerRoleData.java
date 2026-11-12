@@ -40,7 +40,7 @@ import org.jetbrains.annotations.NotNull;
  * 每完成任务 +0.075，上限 0.6（领袖追随者 +0.09 / 上限 0.85）。
  * 即局内 1 秒 = 现实 (1 - 速率) 秒；满速时局内 1 秒 = 现实 0.4 秒（2.5 倍速）</li>
  * <li>{@link #skillCooldownTicks}：技能冷却（tick），服务端与客户端各自递减（客户端本地倒计时）</li>
- * <li>{@link #completedTasks} / {@link #requiredTasks}：任务进度 / 胜利所需任务数（开局人数/3）</li>
+ * <li>{@link #completedTasks} / {@link #requiredTasks}：任务进度 / 胜利所需任务数（开局人数/3，至少 6 个）</li>
  * <li>{@link #finalChaseActive}：终末追逐状态（距胜利还剩 1 个任务时触发，持续至游戏结束）</li>
  * </ul>
  *
@@ -53,6 +53,8 @@ public class DaywalkerRoleData extends SimpleRoleData {
 
     // ==================== 常量 ====================
 
+    /** 胜利所需任务数的下限：开局人数 / 3 向下取整后不得低于 6 个 */
+    public static final int MIN_REQUIRED_TASKS = 6;
     /** 每完成 1 个任务获得的「逐日时刻」（秒） */
     public static final int MOMENTS_PER_TASK = 20;
     /** 「逐日时刻」储存上限（秒） */
@@ -100,8 +102,8 @@ public class DaywalkerRoleData extends SimpleRoleData {
 
     /** 已完成任务数 */
     public int completedTasks = 0;
-    /** 胜利所需任务数（开局人数/3，至少 1） */
-    public int requiredTasks = 1;
+    /** 胜利所需任务数（开局人数/3，至少 {@value #MIN_REQUIRED_TASKS} 个） */
+    public int requiredTasks = MIN_REQUIRED_TASKS;
     /** 当前储存的「逐日时刻」（秒） */
     public int storedMoments = 0;
     /** 已通过技能快进掉的局内时间（tick），死亡时返还 */
@@ -165,7 +167,7 @@ public class DaywalkerRoleData extends SimpleRoleData {
         glowApplied = false;
         timeSyncTimer = 0;
         int totalPlayers = SREGameWorldComponent.KEY.get(player.level()).getPlayerCount();
-        requiredTasks = Math.max(1, totalPlayers / 3);
+        requiredTasks = Math.max(MIN_REQUIRED_TASKS, totalPlayers / 3);
     }
 
     @Override
@@ -217,9 +219,9 @@ public class DaywalkerRoleData extends SimpleRoleData {
             }
         }
 
-        // 胜利所需任务数：开局人数/3（自愈式刷新，防止 init 时人数未就绪）
+        // 胜利所需任务数：开局人数/3、至少 6 个（自愈式刷新，防止 init 时人数未就绪）
         int playerCount = game.getPlayerCount();
-        int newRequired = Math.max(1, playerCount / 3);
+        int newRequired = Math.max(MIN_REQUIRED_TASKS, playerCount / 3);
         if (requiredTasks != newRequired) {
             requiredTasks = newRequired;
             changed = true;
@@ -633,7 +635,7 @@ public class DaywalkerRoleData extends SimpleRoleData {
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         completedTasks = tag.getInt("CompletedTasks");
-        requiredTasks = Math.max(1, tag.getInt("RequiredTasks"));
+        requiredTasks = Math.max(MIN_REQUIRED_TASKS, tag.getInt("RequiredTasks"));
         storedMoments = tag.getInt("StoredMoments");
         spentTicks = tag.getInt("SpentTicks");
         rateDrainedTicks = tag.getInt("RateDrainedTicks");
