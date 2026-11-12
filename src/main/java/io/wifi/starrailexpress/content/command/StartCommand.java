@@ -28,6 +28,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.command.argument.GameModeArgumentType;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.modes.funny.SRERandomGameMode;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -82,8 +83,11 @@ public class StartCommand {
     AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
     if (!gameMode.identifier.equals(SREGameModes.MOB_RIOT_MODE_ID)
         && areas.gameModes != null && !areas.gameModes.isEmpty()) {
-      String modeId = gameMode.identifier.getPath();
-      boolean isSupported = areas.gameModes.contains(modeId);
+      // 随机模式按候选池判断：只要地图支持池内至少一个模式即可，
+      // 抽取时会优先从地图支持的模式里选（见 SRERandomGameMode.pick）。
+      boolean isSupported = gameMode instanceof SRERandomGameMode randomMode
+          ? !randomMode.candidatesFor(areas.gameModes).isEmpty()
+          : areas.gameModes.contains(gameMode.identifier.getPath());
       if (!isSupported) {
         source.sendFailure(Component.translatable("commands.sre.start.error.map_not_supported",
             gameMode.getName(), areas.mapName != null ? areas.mapName : "unknown"));

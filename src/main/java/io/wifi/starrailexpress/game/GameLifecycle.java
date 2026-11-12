@@ -64,6 +64,7 @@ import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.event.OnGameInitialized;
 import io.wifi.starrailexpress.event.OnGameStarted;
 import io.wifi.starrailexpress.event.OnTrainAreaHaveReseted;
+import io.wifi.starrailexpress.game.modes.funny.SRERandomGameMode;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.CloseUiPayload;
 import io.wifi.starrailexpress.network.MapDepartCancelPayload;
@@ -106,6 +107,18 @@ final class GameLifecycle {
             return;
         if (SREGameWorldComponent.KEY.get(world).isRunning()) {
             return;
+        }
+        // 随机模式只负责抽取：在写入 gameMode、创建重置任务和触发开局事件之前，
+        // 整体替换成抽中的真实模式，后续流程（含 HUD、存档、模式专属逻辑）都按真实模式运行。
+        GameMode resolvedMode = SRERandomGameMode.resolve(gameMode,
+                AreasWorldComponent.KEY.get(world).gameModes, getStartingPlayers(world).size());
+        if (resolvedMode != gameMode) {
+            SRE.LOGGER.info("随机模式 {} 抽中 {}", gameMode.identifier, resolvedMode.identifier);
+            world.getServer().getPlayerList().broadcastSystemMessage(
+                    Component.translatable("sre.random_mode.selected", gameMode.getName(), resolvedMode.getName())
+                            .withStyle(ChatFormatting.GREEN),
+                    false);
+            gameMode = resolvedMode;
         }
         if (io.wifi.starrailexpress.settlement.SettlementManager.hasViewers()
                 && (forcedReadyPlayers == null || forcedReadyPlayers.isEmpty())) {
