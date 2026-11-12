@@ -984,8 +984,8 @@ public interface TMMBlocks {
         sreBlockRegistrar.registerEntries();
         sreItemRegistrar.registerEntries();
 
-        BuiltInRegistries.BLOCK.addAlias(SRE.id("small_train_door"), SRE.id("navy_steel_door"));
-        BuiltInRegistries.ITEM.addAlias(SRE.id("small_train_door"), SRE.id("navy_steel_door"));
+        BuiltInRegistries.BLOCK.addAlias(SRE.id("small_train_door"), SRE.TMMId("navy_steel_door"));
+        BuiltInRegistries.ITEM.addAlias(SRE.id("small_train_door"), SRE.TMMId("navy_steel_door"));
 
         WatheBridgerBlocks.initialize();
     }

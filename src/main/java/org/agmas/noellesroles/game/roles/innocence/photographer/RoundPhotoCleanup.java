@@ -19,9 +19,8 @@ import io.github.mortuusars.exposure.fabric.api.event.ModifyFrameExtraDataCallba
 import io.github.mortuusars.exposure.util.ExtraData;
 import io.github.mortuusars.exposure.world.camera.frame.Frame;
 import io.github.mortuusars.exposure.world.entity.PhotographFrameEntity;
-import io.github.mortuusars.exposure.world.item.PhotographItem;
 import io.github.mortuusars.exposure.world.item.StackedPhotographsItem;
-import io.github.mortuusars.exposure.world.item.util.ItemAndStack;
+import io.github.mortuusars.exposure.world.item.component.StackedPhotographs;
 import io.github.mortuusars.exposure.world.level.storage.ExposureRepository;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
@@ -300,12 +299,12 @@ public final class RoundPhotoCleanup {
             return new Cleaned(stack == null ? ItemStack.EMPTY : stack, 0);
         }
         if (stack.getItem() instanceof StackedPhotographsItem stackedPhotographsItem) {
-            List<ItemAndStack<PhotographItem>> photographs = stackedPhotographsItem.getPhotographs(stack);
-            if (!photographs.isEmpty()) {
-                List<ItemAndStack<PhotographItem>> kept = new ArrayList<>(photographs.size());
+            StackedPhotographs stacked = stackedPhotographsItem.getPhotographs(stack);
+            if (!stacked.isEmpty()) {
+                List<ItemStack> kept = new ArrayList<>(stacked.size());
                 int removed = 0;
-                for (ItemAndStack<PhotographItem> photograph : photographs) {
-                    if (containsRoundFrame(photograph.getItemStack(), roundIds)) {
+                for (ItemStack photograph : stacked.photographsCopy()) {
+                    if (containsRoundFrame(photograph, roundIds)) {
                         removed++;
                     } else {
                         kept.add(photograph);
@@ -316,7 +315,7 @@ public final class RoundPhotoCleanup {
                         return new Cleaned(ItemStack.EMPTY, removed);
                     }
                     ItemStack trimmed = stack.copy();
-                    stackedPhotographsItem.setPhotographs(trimmed, kept);
+                    stackedPhotographsItem.setPhotographs(trimmed, new StackedPhotographs(kept));
                     return new Cleaned(trimmed, removed);
                 }
             }

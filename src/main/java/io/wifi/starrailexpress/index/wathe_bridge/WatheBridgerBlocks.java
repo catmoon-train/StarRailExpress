@@ -741,7 +741,7 @@ public interface WatheBridgerBlocks {
 
         registrar.registerEntries();
 
-        BuiltInRegistries.BLOCK.addAlias(SRE.watheId("small_train_door"), SRE.id("navy_steel_door"));
-        BuiltInRegistries.ITEM.addAlias(SRE.watheId("small_train_door"), SRE.id("navy_steel_door"));
+        BuiltInRegistries.BLOCK.addAlias(SRE.watheId("small_train_door"), SRE.TMMId("navy_steel_door"));
+        BuiltInRegistries.ITEM.addAlias(SRE.watheId("small_train_door"), SRE.TMMId("navy_steel_door"));
     }
 }

@@ -41,7 +41,6 @@
     "SteveMiningPermissionMixin",
     "SteveMiningProgressMixin",
     "MagicianPlayerEntityMixin",
-    "PlayerPsychoComponentCooldownMixin",
     "RiptideTridentMixin",
     "ShitExposureMixin",
     "ShitExposurePatreonMixin",
