@@ -60,7 +60,15 @@ public class WatcherRoleData extends SimpleRoleData {
 
     @Override
     public void clear() {
-        this.init();
+        // 离职只回收观者自身未消耗的普通盾，不重新初始化或清空外部护盾。
+        var armorComponent = SREArmorPlayerComponent.KEY.get(player);
+        if (isCalm && !shieldConsumed && armorComponent.getArmor() > 0) {
+            armorComponent.removeArmor();
+        }
+        var speed = player.getEffect(MobEffects.MOVEMENT_SPEED);
+        if (speed != null && speed.getAmplifier() == 0 && speed.isAmbient()) {
+            player.removeEffect(MobEffects.MOVEMENT_SPEED);
+        }
     }
 
     public boolean isInCalmStance() {

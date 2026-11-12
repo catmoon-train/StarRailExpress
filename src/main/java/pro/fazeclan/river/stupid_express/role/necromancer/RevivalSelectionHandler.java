@@ -33,6 +33,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.GameType;
+import org.agmas.harpymodloader.commands.RoleCountManager;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentPool;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -47,6 +48,16 @@ import java.util.UUID;
 import static io.wifi.starrailexpress.compat.TrainVoicePlugin.SERVER_API;
 
 public class RevivalSelectionHandler {
+    /** 按实际阵营限制存活杀手数，复制平民的克隆博士仍占用杀手名额。 */
+    private static boolean hasKillerSlot(ServerLevel level, SREGameWorldComponent game) {
+        int limit = RoleCountManager.getKillerCount(game.getStartingPlayerCount());
+        long aliveKillers = level.players().stream()
+                .filter(GameUtils::isPlayerAliveAndSurvival)
+                .filter(game::canUseKillerFeatures)
+                .count();
+        return aliveKillers < limit;
+    }
+
     public static void removeVoice(@NotNull UUID player) {
         if (SERVER_API == null) {
             return;
@@ -106,7 +117,7 @@ public class RevivalSelectionHandler {
                 return InteractionResult.PASS;
             }
             var nc = NecromancerComponent.KEY.get(serverLevel);
-            if (nc.getAvailableRevives() < 1) {
+            if (nc.getAvailableRevives() < 1 || !hasKillerSlot(serverLevel, gameWorldComponent)) {
                 return InteractionResult.PASS;
             }
 
@@ -207,7 +218,7 @@ public class RevivalSelectionHandler {
                 return InteractionResult.PASS;
             }
             var nc = NecromancerComponent.KEY.get(serverLevel);
-            if (nc.getAvailableRevives() < 1) {
+            if (nc.getAvailableRevives() < 1 || !hasKillerSlot(serverLevel, gameWorldComponent)) {
                 return InteractionResult.PASS;
             }
 
