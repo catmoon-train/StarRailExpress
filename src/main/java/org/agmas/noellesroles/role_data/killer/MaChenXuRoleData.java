@@ -352,6 +352,11 @@ public class MaChenXuRoleData extends SimpleRoleData {
         for (ServerPlayer target : owner.serverLevel().players()) {
             target.playNotifySound(SoundEvents.BEACON_DEACTIVATE, SoundSource.HOSTILE, 0.6F, 0.7F);
             target.displayClientMessage(Component.translatable(natural ? "message.noellesroles.sack.realm_ended" : "message.noellesroles.sack.realm_broken"), true);
+            SRENetworkMessageUtils.sendTitleTime(target, 10, 40, 20);
+            SRENetworkMessageUtils.sendTitle(target,
+                    Component.translatable("message.noellesroles.ma_chen_xu.otherworld_end_notice")
+                            .withStyle(ChatFormatting.GREEN));
+            SRENetworkMessageUtils.sendSubtitle(target, Component.empty());
         }
         // 多布袋鬼环境中重新维持仍有效的领域，不能复活已结束领域的光环。
         for (ServerPlayer other : owner.server.getPlayerList().getPlayers()) {
