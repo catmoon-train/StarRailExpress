@@ -66,6 +66,8 @@ public class ExtinguisherItem extends Item implements AdventureUsable {
     private static final int SPRAY_RANGE = 5;
     private static final double CONE_DOT = 0.5D;
     private static final int HEAT_REDUCTION = 20;
+    /** 停止蓄力使用后进入的物品冷却：30 秒 */
+    private static final int USE_COOLDOWN_TICKS = 30 * 20;
 
     public ExtinguisherItem(Properties settings) {
         super(settings);
@@ -74,6 +76,9 @@ public class ExtinguisherItem extends Item implements AdventureUsable {
     @Override
     public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
+        if (player.getCooldowns().isOnCooldown(this)) {
+            return InteractionResultHolder.fail(stack);
+        }
         if (stack.getDamageValue() >= MAX_DURABILITY) {
             if (!world.isClientSide) {
                 player.displayClientMessage(
@@ -100,6 +105,26 @@ public class ExtinguisherItem extends Item implements AdventureUsable {
         return MAX_USE_DURATION;
     }
 
+    /** 松开右键停止蓄力：进入 30 秒物品冷却（releaseUsing 双端调用，副作用限定服务端）。 */
+    @Override
+    public void releaseUsing(ItemStack stack, Level world, LivingEntity user, int timeLeft) {
+        if (user instanceof Player player) startCooldown(player);
+    }
+
+    /** 蓄力时长自然走满也是一次停止使用：补齐冷却。 */
+    @Override
+    public ItemStack finishUsingItem(ItemStack stack, Level world, LivingEntity user) {
+        if (user instanceof Player player) startCooldown(player);
+        return super.finishUsingItem(stack, world, user);
+    }
+
+    /** 原版服务端冷却表会自动把冷却同步给客户端并显示覆盖层。 */
+    private void startCooldown(Player player) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.getCooldowns().addCooldown(this, USE_COOLDOWN_TICKS);
+        }
+    }
+
     @Override
     public void onUseTick(Level world, LivingEntity user, ItemStack stack, int remainingUseDuration) {
         if (!(user instanceof Player player) || world.isClientSide) {
@@ -116,11 +141,16 @@ public class ExtinguisherItem extends Item implements AdventureUsable {
             return;
         }
         if (stack.isEmpty() || stack.getDamageValue() >= MAX_DURABILITY) {
+            // stopUsingItem 不回调物品，耐久耗尽/破碎时需在此自行补冷却。
+            startCooldown(player);
             user.stopUsingItem();
             return;
         }
         spray(player, stack);
-        if (stack.isEmpty()) user.stopUsingItem();
+        if (stack.isEmpty()) {
+            startCooldown(player);
+            user.stopUsingItem();
+        }
     }
 
     /** 一次喷雾结算：消耗耐久、处理圆锥内玩家、播放音效并广播白色喷雾特效。 */
