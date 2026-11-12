@@ -23,6 +23,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.util.ParticleFx;
+import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -286,6 +287,13 @@ public class MaChenXuRoleData extends SimpleRoleData {
             }
             target.sendSystemMessage(Component.translatable("message.noellesroles.sack.realm_begins"));
             target.playNotifySound(SoundEvents.WARDEN_EMERGE, SoundSource.HOSTILE, 0.8F, 0.7F);
+            SRENetworkMessageUtils.sendTitleTime(target, 10, 60, 20);
+            SRENetworkMessageUtils.sendTitle(target,
+                    Component.translatable("message.noellesroles.ma_chen_xu.otherworld_warning_title")
+                            .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD, ChatFormatting.OBFUSCATED));
+            SRENetworkMessageUtils.sendSubtitle(target,
+                    Component.translatable("message.noellesroles.ma_chen_xu.otherworld_warning_subtitle")
+                            .withStyle(ChatFormatting.RED));
         }
         refreshRealmEffects(owner);
         realmLevel = owner.serverLevel();
