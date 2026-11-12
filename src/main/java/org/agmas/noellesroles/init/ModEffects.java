@@ -667,6 +667,7 @@ public class ModEffects {
     /**
      * 领域庇护（摘星者「星之光环」/「庇护强化」授予）：
      * - 有益效果，淡金色
+     * - 摘星者授予时默认隐藏药水图标与粒子，避免暴露光环范围
      * - 拥有此效果的玩家无法被拉入除愚者会议（{@link #DOMAIN_MARK} amplifier 0）以外的任何领域。
      * 各领域在拉人前检查 {@link #hasDomainSanctuary(LivingEntity)}；
      * 摘星者死亡后由 {@code StarGathererRoleData} 统一清除。
