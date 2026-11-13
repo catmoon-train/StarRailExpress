@@ -290,5 +290,7 @@ public final class EntityDisguiseRenderer {
         } else {
             dummy.tickCount = player.tickCount;
         }
+        io.wifi.starrailexpress.event.client.ClientGameplayEvents.DISGUISE_STATE_COPIED
+                .invoker().copied(player, dummy);
     }
 }

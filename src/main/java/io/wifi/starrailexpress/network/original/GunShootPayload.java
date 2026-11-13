@@ -72,6 +72,7 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
 
         /** 网络玩家与训练假人共享的服务端枪击入口。 */
         public static void shoot(ServerPlayer player, int targetId) {
+            if (!io.wifi.starrailexpress.event.ItemGameplayEvents.ALLOW_GUN_FIRE.invoker().allow(player, targetId)) return;
             if (io.wifi.starrailexpress.anticheat.ClickAntiCheat.isLocked(player)) {
                 return;
             }

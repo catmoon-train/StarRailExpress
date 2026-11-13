@@ -163,6 +163,7 @@ public class PhantomMusicianRoleData extends SimpleRoleData {
      * 传送技能：花费100金币传送到30格外随机一人的身边
      */
     public void useTeleport() {
+        if (org.agmas.noellesroles.game.roles.innocence.decree.DecreeService.blocksTeleport(player)) return;
         if (teleportCooldown > 0)
             return;
 

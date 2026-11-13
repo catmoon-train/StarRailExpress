@@ -2,9 +2,7 @@ package org.agmas.noellesroles.game.command_block.item;
 
 import org.agmas.noellesroles.game.command_block.LegendFx;
 import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.role.ModRoles;
 
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -36,9 +34,6 @@ public class FogBellItem extends Item {
             return InteractionResultHolder.success(stack);
         }
         if (self.isSpectator() || self.getCooldowns().isOnCooldown(this)) {
-            return InteractionResultHolder.fail(stack);
-        }
-        if (!SREGameWorldComponent.KEY.get(level).isRole(self, ModRoles.FOG_GUEST)) {
             return InteractionResultHolder.fail(stack);
         }
         int found = 0;

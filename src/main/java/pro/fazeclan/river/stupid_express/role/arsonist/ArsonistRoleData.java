@@ -146,6 +146,7 @@ public class ArsonistRoleData extends SimpleRoleData {
     /** 火枪复用左轮射线，不伤害目标、不消耗枪、不掉枪；命中与否均花费金币并冷却30秒。
      *  领袖开枪时由 {@code shooter} 支付与冷却，但浇油记到这位纵火犯追随者名下。 */
     public boolean shootFireGunFor(ServerPlayer shooter, InteractionHand hand) {
+        if (org.agmas.noellesroles.game.roles.innocence.decree.DecreeService.blocksGun(shooter)) return false;
         if (!(player instanceof ServerPlayer) || !canAct() || arsonMoment
                 || !shooter.getItemInHand(hand).is(SEItems.FIRE_GUN)
                 || shooter.getCooldowns().isOnCooldown(SEItems.FIRE_GUN)) return false;

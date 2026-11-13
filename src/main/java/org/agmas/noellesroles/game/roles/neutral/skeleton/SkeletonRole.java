@@ -215,6 +215,9 @@ public class SkeletonRole extends ExtraEffectRole implements CustomWinnerRoleInt
                     true);
             return stack;
         }
+        if (org.agmas.noellesroles.game.roles.innocence.decree.DecreeService.blocksRevival(user, revived)
+                || org.agmas.noellesroles.game.roles.innocence.decree.DecreeService.isRestrictedAt(body.level(), body.position(),
+                        org.agmas.noellesroles.game.roles.innocence.decree.Decree.REVIVAL)) return stack;
         // 葬仪伪造的尸体不能复活
         if (PlayerBodyEntityComponent.KEY.get(body).isFakeBody) {
             user.displayClientMessage(

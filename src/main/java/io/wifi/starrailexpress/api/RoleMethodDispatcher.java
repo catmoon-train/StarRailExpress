@@ -190,6 +190,9 @@ public class RoleMethodDispatcher {
     }
 
     public static InteractionResult callOnDropItem(Player player, ItemStack item) {
+        InteractionResult before = io.wifi.starrailexpress.event.ItemGameplayEvents.BEFORE_ROLE_DROP
+                .invoker().beforeDrop(player, item);
+        if (before != InteractionResult.PASS) return before;
         SRERole role = getCurrentRole(player);
         if (role != null) {
             return role.onDropItem(player, item);
@@ -249,6 +252,7 @@ public class RoleMethodDispatcher {
         }
 
         role.onInit(minecraftServer, player);
+        RoleSkill.applyInitialCooldowns(player, role);
     }
 
     /**

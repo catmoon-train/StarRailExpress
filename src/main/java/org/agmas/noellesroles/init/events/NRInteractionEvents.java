@@ -242,6 +242,7 @@ public class NRInteractionEvents {
     private static void registerChatEvents() {
         // 分裂人格聊天广播
         ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, serverPlayer, bound) -> {
+            if (serverPlayer.hasEffect(ModEffects.CHAT_BAN)) return false;
             if (!WorldModifierComponent.KEY.get(serverPlayer.level()).isModifier(serverPlayer,
                     SEModifiers.SPLIT_PERSONALITY))
                 return true;
@@ -275,6 +276,8 @@ public class NRInteractionEvents {
     // --- 掉落规则 ---
 
     private static void registerDropRules() {
+        io.wifi.starrailexpress.event.ItemGameplayEvents.BEFORE_ROLE_DROP.register(
+                org.agmas.noellesroles.content.item.PortableIdentityScannerItem::beforeDrop);
         DropRules.canDrop.add((player) -> {
             var mainHandItem = player.getMainHandItem();
             if (mainHandItem.is(ModItems.INSURANCE)) {

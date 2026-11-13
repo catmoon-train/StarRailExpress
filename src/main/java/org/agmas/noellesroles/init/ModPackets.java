@@ -53,6 +53,13 @@ public class ModPackets {
     public static final CustomPacketPayload.Type<ImitatorSwitchSlotC2SPacket> IMITATOR_SWITCH_SLOT_PACKET = ImitatorSwitchSlotC2SPacket.TYPE;
 
     public static void registerPackets() {
+        org.agmas.noellesroles.game.minigame.roulette.RouletteNetworking.register();
+        org.agmas.noellesroles.game.minigame.roulette.RouletteSupply.register();
+        PayloadTypeRegistry.playC2S().register(RouletteDevilC2SPacket.ID, RouletteDevilC2SPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(RouletteDevilStateS2CPacket.ID, RouletteDevilStateS2CPacket.CODEC);
+        org.agmas.noellesroles.game.roles.neutral.roulette_devil.RouletteDevilSessions.registerNetworking();
+        PayloadTypeRegistry.playC2S().register(DecreeC2SPacket.ID, DecreeC2SPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(DecreeS2CPacket.ID, DecreeS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(CloneDoctorActionC2SPacket.ID, CloneDoctorActionC2SPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(CloneDoctorStateS2CPacket.ID, CloneDoctorStateS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(IdentityScannerRequestC2SPacket.ID, IdentityScannerRequestC2SPacket.CODEC);

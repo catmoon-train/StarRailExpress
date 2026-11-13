@@ -12,10 +12,47 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
 
 /** 物品与托盘的精确扩展时点；不依赖客户端类型，监听器在对应环境初始化时注册。 */
 public final class ItemGameplayEvents {
     private ItemGameplayEvents() {
+    }
+
+    /** 职业丢弃判定之前查询，首个非 PASS 短路；双端调用，不修改物品栈。 */
+    public static final Event<DropItem> BEFORE_ROLE_DROP = dropGate();
+
+    static Event<DropItem> dropGate() {
+        return EventFactory.createArrayBacked(DropItem.class, listeners -> (player, stack) -> {
+            for (DropItem listener : listeners) {
+                InteractionResult result = listener.beforeDrop(player, stack);
+                if (result != InteractionResult.PASS) return result;
+            }
+            return InteractionResult.PASS;
+        });
+    }
+
+    @FunctionalInterface
+    public interface DropItem {
+        InteractionResult beforeDrop(Player player, ItemStack stack);
+    }
+
+    /** 枪械开火前否决，在耗弹、音效和冷却之前调用，包含普通枪和狙击。 */
+    public static final Event<WeaponAction> ALLOW_GUN_FIRE = weaponGate();
+    /** 普通刀击前否决，在命中、副作用和冷却之前调用。 */
+    public static final Event<WeaponAction> ALLOW_KNIFE_ATTACK = weaponGate();
+
+    static Event<WeaponAction> weaponGate() {
+        return EventFactory.createArrayBacked(WeaponAction.class, listeners -> (player, target) -> {
+            for (WeaponAction listener : listeners) if (!listener.allow(player, target)) return false;
+            return true;
+        });
+    }
+
+    @FunctionalInterface
+    public interface WeaponAction {
+        boolean allow(ServerPlayer player, int targetId);
     }
 
     /** 物品 use 入口通知，不修改原返回值，也不切换调用线程或逻辑端。 */

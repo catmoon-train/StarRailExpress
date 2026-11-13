@@ -1,0 +1,14 @@
+{
+  "parent":"minecraft:block/block",
+  "textures":{"bottle":"minecraft:block/white_concrete","cap":"minecraft:block/red_concrete","label":"minecraft:block/white_terracotta","stain":"minecraft:block/brown_terracotta","particle":"minecraft:block/white_concrete"},
+  "elements":[
+    {"from":[5,1,5],"to":[11,11,11],"faces":{"north":{"texture":"#bottle"},"south":{"texture":"#bottle"},"east":{"texture":"#bottle"},"west":{"texture":"#bottle"},"up":{"texture":"#bottle"},"down":{"texture":"#bottle"}}},
+    {"from":[6,11,6],"to":[10,13,10],"faces":{"north":{"texture":"#bottle"},"south":{"texture":"#bottle"},"east":{"texture":"#bottle"},"west":{"texture":"#bottle"},"up":{"texture":"#bottle"},"down":{"texture":"#bottle"}}},
+    {"from":[4.5,13,4.5],"to":[11.5,15,11.5],"faces":{"north":{"texture":"#cap"},"south":{"texture":"#cap"},"east":{"texture":"#cap"},"west":{"texture":"#cap"},"up":{"texture":"#cap"},"down":{"texture":"#cap"}}},
+    {"from":[4.95,3,4.9],"to":[11.05,9,5],"faces":{"north":{"texture":"#label"},"south":{"texture":"#label"},"east":{"texture":"#label"},"west":{"texture":"#label"},"up":{"texture":"#label"},"down":{"texture":"#label"}}},
+    {"from":[7,4,4.7],"to":[9,8,4.9],"faces":{"north":{"texture":"#cap"},"south":{"texture":"#cap"},"east":{"texture":"#cap"},"west":{"texture":"#cap"},"up":{"texture":"#cap"},"down":{"texture":"#cap"}}},
+    {"from":[6,5,4.7],"to":[10,7,4.9],"faces":{"north":{"texture":"#cap"},"south":{"texture":"#cap"},"east":{"texture":"#cap"},"west":{"texture":"#cap"},"up":{"texture":"#cap"},"down":{"texture":"#cap"}}},
+    {"from":[5.5,2,4.8],"to":[7,4,5],"faces":{"north":{"texture":"#stain"},"south":{"texture":"#stain"},"east":{"texture":"#stain"},"west":{"texture":"#stain"},"up":{"texture":"#stain"},"down":{"texture":"#stain"}}}
+  ],
+  "display":{"gui":{"rotation":[12,-28,0],"scale":[0.9,0.9,0.9]},"fixed":{"rotation":[0,180,0],"scale":[0.8,0.8,0.8]},"ground":{"translation":[0,2,0],"scale":[0.5,0.5,0.5]}}
+}

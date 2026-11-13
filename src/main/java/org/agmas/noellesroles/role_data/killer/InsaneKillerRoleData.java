@@ -128,6 +128,7 @@ public class InsaneKillerRoleData extends SimpleRoleData {
     }
 
     public void revive() {
+        if (org.agmas.noellesroles.game.roles.innocence.decree.DecreeService.blocksRevival(player)) return;
         this.deathState = -1;
         this.isActive = false;
         // this.sync();

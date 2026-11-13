@@ -221,6 +221,7 @@ public final class HalloweenCombat {
 
     /** 不接收 target 参数：墙后的玩家和伪造客户端命中都无法进入分支。 */
     public static boolean fireGun(ServerPlayer p, InteractionHand hand) {
+        if (org.agmas.noellesroles.game.roles.innocence.decree.DecreeService.blocksGun(p)) return false;
         ItemStack stack = p.getItemInHand(hand);
         if (hand != InteractionHand.MAIN_HAND || !stack.is(HalloweenItems.FRIGHT_GUN) || !canAct(p)
                 || HalloweenPactRole.isPact(p) || !stack.isItemEnabled(p.level().enabledFeatures())) return false;

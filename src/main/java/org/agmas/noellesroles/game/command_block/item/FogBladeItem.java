@@ -3,10 +3,8 @@ package org.agmas.noellesroles.game.command_block.item;
 import java.util.List;
 
 import org.agmas.noellesroles.game.command_block.CommandBlockCombat;
-import org.agmas.noellesroles.game.command_block.FogGuestRole;
-import org.agmas.noellesroles.role.ModRoles;
-
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import org.agmas.noellesroles.Noellesroles;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -21,6 +19,7 @@ import net.minecraft.world.level.Level;
 public class FogBladeItem extends Item {
     public static final int COOLDOWN = 12 * 20;
     public static final double RANGE = 4.0D;
+    public static final net.minecraft.resources.ResourceLocation DEATH_BLADE = Noellesroles.id("fog_blade");
 
     public FogBladeItem(Properties properties) {
         super(properties);
@@ -35,22 +34,14 @@ public class FogBladeItem extends Item {
         if (self.isSpectator() || self.getCooldowns().isOnCooldown(this)) {
             return InteractionResultHolder.fail(stack);
         }
-        if (!SREGameWorldComponent.KEY.get(level).isRole(self, ModRoles.FOG_GUEST)) {
-            return InteractionResultHolder.fail(stack);
-        }
-        if (FogGuestRole.rejectsHarm(self)) {
-            self.displayClientMessage(Component.translatable("message.noellesroles.fog_guest.cannot_strike")
-                    .withStyle(ChatFormatting.GRAY), true);
-            return InteractionResultHolder.fail(stack);
-        }
         List<ServerPlayer> hit = GazeRays.playersAlong(self, RANGE, 0.35D);
         ServerPlayer target = hit.isEmpty() ? null : hit.get(0);
-        if (target == null || !FogGuestRole.inFog(target)) {
+        if (target == null || !(target.hasEffect(MobEffects.BLINDNESS) || target.hasEffect(MobEffects.DARKNESS))) {
             self.displayClientMessage(Component.translatable("message.noellesroles.fog_guest.blade_miss")
                     .withStyle(ChatFormatting.GRAY), true);
             return InteractionResultHolder.fail(stack);
         }
-        boolean killed = CommandBlockCombat.tryKill(self, target, FogGuestRole.DEATH_BLADE, false, null);
+        boolean killed = CommandBlockCombat.tryKill(self, target, DEATH_BLADE, false, null);
         if (killed) {
             self.getCooldowns().addCooldown(this, COOLDOWN);
             org.agmas.noellesroles.game.command_block.CommandBlockFeedback.play(level, self,

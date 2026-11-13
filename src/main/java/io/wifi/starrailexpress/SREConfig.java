@@ -233,6 +233,10 @@ public class SREConfig implements ConfigData {
     @Tooltip
     public int mapRandomCount = -1;
 
+    // 仅开局：在原出生点水平半径 6 格内安全分散；关闭后完全沿用原传送行为。
+    @ConfigEntry.Category(value = "map")
+    public boolean enableStartSpawnScatter = true;
+
     @ConfigEntry.Category(value = "map")
     public boolean allowRandomChooseMapNotInMapConfig = false;
     @ConfigEntry.Category(value = "map")

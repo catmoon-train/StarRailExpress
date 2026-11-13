@@ -224,7 +224,7 @@ public class SREClient implements ClientModInitializer {
     public static int intervalTime = 0;
     public static boolean isInLobby = false;
     public static Player cached_player = null;
-    public static Narrator narrator = Narrator.getNarrator();
+    public static final Narrator narrator = new io.wifi.starrailexpress.client.sound.AsyncNarrator();
     // HUD/API 缓存：在 END_CLIENT_TICK 统一更新，在渲染 mixin 中仅做读取，避免渲染流程重复判断。
     private static boolean cachedPlayerAliveAndInSurvival;
     private static boolean cachedPlayerSpectatingOrCreative;
@@ -308,6 +308,9 @@ public class SREClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        ((io.wifi.starrailexpress.client.sound.AsyncNarrator) narrator).initialize();
+        net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents.CLIENT_STOPPING
+                .register(client -> narrator.destroy());
         io.wifi.starrailexpress.training.client.TrainingClient.register();
         io.wifi.starrailexpress.client.render.ShaderPackFog.register();
         io.wifi.starrailexpress.settlement.client.SettlementClient.register();
@@ -795,9 +798,7 @@ public class SREClient implements ClientModInitializer {
             if (!content.isBlank()) {
                 narrator.say(content, shouldInterrupt);
             } else {
-                if (narrator.active()) {
-                    narrator.clear();
-                }
+                narrator.clear();
             }
         });
         ClientPlayNetworking.registerGlobalReceiver(OpenFourthRoomPeekDeckPayload.ID,

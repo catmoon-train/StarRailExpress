@@ -740,6 +740,7 @@ public class ModPacketsReciever {
       if (player.hasEffect(ModEffects.SAFE_TIME))// 安全时间
         return;
       ItemStack mainHandItem = player.getMainHandItem();
+      if (org.agmas.noellesroles.game.roles.innocence.decree.DecreeService.blocksUse(player, mainHandItem)) return;
       if (org.agmas.noellesroles.content.item.TomatoItem.tryThrow(player)) {
         return;
       }

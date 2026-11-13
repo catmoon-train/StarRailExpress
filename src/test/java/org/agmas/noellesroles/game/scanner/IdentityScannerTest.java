@@ -282,12 +282,18 @@ class IdentityScannerTest {
         String cooldown = service.substring(service.indexOf("public static boolean portableCoolingDown"),
                 service.indexOf("public static long coronerDropReadyAt"));
         assertTrue(cooldown.contains("portableRemaining(player.getUUID(), now(player.level())) > 0"));
-        String drop = Files.readString(root.resolve("mixin/item/PortableScannerDropMixin.java"));
-        assertTrue(drop.contains("RoleMethodDispatcher.class, remap = false"));
-        assertTrue(drop.contains("method = \"callOnDropItem\", at = @At(\"HEAD\")"));
-        assertTrue(drop.contains("PortableIdentityScannerItem.blocksDrop(player, stack)"));
-        assertTrue(drop.contains("cir.setReturnValue(InteractionResult.FAIL)"));
-        assertTrue(drop.contains("sendAllDataToRemote()"));
+        String dispatcher = Files.readString(Path.of("src/main/java/io/wifi/starrailexpress/api/RoleMethodDispatcher.java"));
+        int start = dispatcher.indexOf("public static InteractionResult callOnDropItem(");
+        String drop = dispatcher.substring(start, dispatcher.indexOf("public static void callServerTick(", start));
+        assertTrue(drop.indexOf("BEFORE_ROLE_DROP") < drop.indexOf("getCurrentRole(player)"));
+        assertTrue(drop.contains("if (before != InteractionResult.PASS) return before;"));
+        assertTrue(item.contains("if (!blocksDrop(player, stack)) return InteractionResult.PASS;"));
+        assertTrue(item.contains("return InteractionResult.FAIL;"));
+        assertTrue(item.contains("owner.containerMenu.sendAllDataToRemote()"));
+        assertTrue(item.contains("owner.inventoryMenu.sendAllDataToRemote()"));
+        String registration = Files.readString(root.resolve("init/events/NRInteractionEvents.java"));
+        assertTrue(registration.contains("ItemGameplayEvents.BEFORE_ROLE_DROP.register("));
+        assertTrue(registration.contains("PortableIdentityScannerItem::beforeDrop"));
     }
 
     @Test void scannerInventoryDropGuardCoversSlotDropsAndCarriedStackDrops() throws Exception {
@@ -301,7 +307,7 @@ class IdentityScannerTest {
         assertTrue(menu.contains("ci.cancel()"));
         var config = JsonParser.parseString(Files.readString(Path.of("src/main/resources/noellesroles.mixins.json"))).getAsJsonObject();
         var entries = config.getAsJsonArray("mixins").asList().stream().map(value -> value.getAsString()).toList();
-        assertEquals(1, entries.stream().filter("item.PortableScannerDropMixin"::equals).count());
+        assertEquals(0, entries.stream().filter("item.PortableScannerDropMixin"::equals).count());
         assertEquals(1, entries.stream().filter("item.PortableScannerMenuDropMixin"::equals).count());
     }
 }

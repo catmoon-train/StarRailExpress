@@ -6,37 +6,35 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package org.agmas.noellesroles.content.block_entity;
 
-import com.mojang.math.Transformation;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.content.block.entity.SeatEntity;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.modes.funny.SREDevilRouletteGameMode;
-import io.wifi.starrailexpress.index.TMMItems;
-import io.wifi.starrailexpress.index.TMMSounds;
-import io.wifi.starrailexpress.util.Scheduler;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.RandomSource;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -44,795 +42,462 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.init.ModBlocks;
-import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.game.minigame.DevilRouletteGame;
-import org.jetbrains.annotations.NotNull;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
-
+import org.agmas.noellesroles.game.minigame.roulette.*;
+import org.agmas.noellesroles.init.ModBlocks;
 import java.util.*;
+import java.util.function.BiConsumer;
 
-// TODO : 添加延迟开始和翻译键
+/** 服务端按阶段提交动作；客户端只根据公开快照画桌面，不持有暗弹顺序。 */
 public class DevilRouletteTableEntity extends BlockEntity {
+    // 保留旧实体类型的构造入口以兼容已有注册，不再为动画创建这些实体。
     public static class TableTextDisplay extends Display.TextDisplay {
-        public TableTextDisplay(EntityType<?> entityType, Level level) {
-            super(entityType, level);
-        }
+        public TableTextDisplay(EntityType<?> type, Level level) { super(type, level); }
     }
-
     public static class TableItemDisplay extends Display.ItemDisplay {
-        public TableItemDisplay(EntityType<?> entityType, Level level) {
-            super(entityType, level);
-        }
+        public TableItemDisplay(EntityType<?> type, Level level) { super(type, level); }
     }
+    public static final int AFK_TICK = 20 * 30;
+    public final Vec3 CENTER_POS;
+    public final Vec3 TIME_POS;
+    private UUID front, back;
+    private UUID session = UUID.randomUUID();
+    private long sequence, startedAt;
+    private RoulettePhase phase = RoulettePhase.WAITING;
+    private int duration, readyTicks, idleTicks, autoStreak;
+    private DevilRouletteGame game;
+    private DevilRouletteGame.DemonMatch demonMatch;
+    private DevilRouletteGame.GameMode gameMode = DevilRouletteGame.GameMode.Lobby;
+    private boolean matchInGlobalGame, settled, shotSaw;
+    private final RouletteActionGate actionGate = new RouletteActionGate();
+    private ResourceLocation matchMode;
+    private String frontName = "", backName = "", message = "roulette.hint.sit";
+    private RouletteItem actionItem, stolenItem, effect;
+    private UUID actor = RouletteView.NONE, target = RouletteView.NONE;
+    private int shell = -1, delta;
+    private DevilRouletteRound.Outcome result;
+    private RouletteView view = RouletteView.idle();
+    private Selection selection;
+    private final Map<UUID, Knowledge> knowledge = new HashMap<>();
+    private record Knowledge(int offset, int shell) {}
+    private record Selection(UUID token, UUID owner, InteractionHand hand, ItemStack held, Map<Integer, ItemStack> choices) {}
 
-    public DevilRouletteTableEntity(BlockPos blockPos, BlockState blockState) {
-        super(ModBlocks.DEVIL_ROULETTE_TABLE_ENTITY, blockPos, blockState);
-        Direction facing = blockState.getValue(BlockStateProperties.HORIZONTAL_FACING);
-        CENTER_POS = new Vec3(worldPosition.getX() + 0.5, worldPosition.getY() + 0.3, worldPosition.getZ() + 0.5);
-        BlockPos centerSidePos = worldPosition.relative(facing.getClockWise());
-        TIME_POS = new Vec3(centerSidePos.getX() + 0.5, centerSidePos.getY() + 0.2, centerSidePos.getZ() + 0.5);
-
-        init();
-        // 不随游戏初始化的成员
-        gameMode = DevilRouletteGame.GameMode.Lobby;
-        winnerText = null;
-
-        BlockPos posOffset = new BlockPos(0, -1, 0);
-        for (int i = 2; i >= -2; i -= 4) {
-            // 玩家视角的方向
-            for (int j = -1; j < 1; ++j) {
-                // 左
-                seatArea.add(worldPosition.offset(posOffset).relative(facing, i).relative(facing.getClockWise()));
-                // 中
-                seatArea.add(worldPosition.offset(posOffset).relative(facing, i));
-                // 右
-                seatArea.add(
-                        worldPosition.offset(posOffset).relative(facing, i).relative(facing.getCounterClockWise()));
-            }
-        }
-        for (int i = 1; i >= -1; i -= 2) {
-            // 玩家视角的方向
-            for (int j = -1; j < 1; ++j) {
-                // 左
-                playerOperateArea.add(worldPosition.relative(facing, i).relative(facing.getClockWise(), i));
-                playerOperateArea.add(worldPosition.relative(facing, i));
-                playerOperateArea.add(worldPosition.relative(facing, i).relative(facing.getCounterClockWise(), i));
-            }
-        }
+    public DevilRouletteTableEntity(BlockPos pos, BlockState state) {
+        super(ModBlocks.DEVIL_ROULETTE_TABLE_ENTITY, pos, state);
+        CENTER_POS = Vec3.atCenterOf(pos).add(0, -.2, 0);
+        TIME_POS = Vec3.atCenterOf(pos.relative(state.getValue(BlockStateProperties.HORIZONTAL_FACING).getClockWise()));
     }
-
-    /** 初始化成员 */
-    public void init() {
-        game = null;
-        frontPlayerUUID = null;
-        backPlayerUUID = null;
-
-        gunStack = ItemStack.EMPTY;
-        frontPlayerName = Component.empty();
-        backPlayerName = Component.empty();
-        shootSelfComponent = Component.translatable("noellesroles.game.devil_roulette.operate.shoot_self");
-        shootOppositeComponent = Component.translatable("noellesroles.game.devil_roulette.operate.shoot_opposite");
-        bulletComponent = Component.empty();
-
-        isCollectFloatingText = true;
-
-        curGunRotationY = 0;
-
-        curAFKTick = 0;
-        curAFKCount = 1;
-
-        for (var floatingText : floatingTexts.values())
-            floatingText.discard();
-        floatingTexts.clear();
-        for (var itemDisplay : itemDisplays.values())
-            itemDisplay.discard();
-        itemDisplays.clear();
-        for (var display : tempSubDisplays) {
-            display.discard();
-        }
-        tempSubDisplays.clear();
-        itemDisplays.clear();
+    public RouletteView getView() { return view; }
+    public void acceptView(RouletteView next) {
+        if (next.supersedes(view)) view = next;
     }
-
-    public void reset() {
-        init();
+    @Override public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag tag = new CompoundTag(); tag.put("RouletteView", view.toTag()); return tag;
     }
-
-    @Override
-    public void setRemoved() {
-        super.setRemoved();
-        reset();
-        if (winnerText != null) {
-
-            winnerText.discard();
-        }
+    @Override public ClientboundBlockEntityDataPacket getUpdatePacket() { return ClientboundBlockEntityDataPacket.create(this); }
+    @Override protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        // 活跃对局不写入磁盘；该标签仅供初次追踪区块的客户端恢复当前画面。
+        if (tag.contains("RouletteView")) acceptView(RouletteView.fromTag(tag.getCompound("RouletteView")));
     }
-
-    public void serverTick(Level level, BlockPos pos, BlockState state) {
-        // 当有玩家游玩时进行计数
-        if (frontPlayerUUID == null && backPlayerUUID == null) {
-            return;
-        }
-
-        // 显示玩家剩余操作时长，如果大于5s则5s更新一次，否则每隔1s更新一次
-        if (curLeftTickGap == LEFT_TICK_LONG_GAP ||
-                (curLeftTickGap % LEFT_TICK_GAP == 0 && AFK_TICK - curAFKTick <= LEFT_TICK_LONG_GAP)) {
-            addFloatingText(TIME_POS, Component.literal((AFK_TICK - curAFKTick) / 20 + " Second"), 20, MIDDLE_SCALE);
-            if (curLeftTickGap >= LEFT_TICK_LONG_GAP)
-                curLeftTickGap = 0;
-        }
-        ++curLeftTickGap;
-
-        if (curAFKTick++ >= AFK_TICK) {
-            if (isGameActive()) {
-                // 玩家未操作则自动向自己开火
-                processFireResult(game.fire(DevilRouletteGame.Target.self));
-                // 挂机响应时长会越来越短，以尽快结束等待的对局
-                curAFKTick = AFK_TICK - Math.max(20, AFK_TICK / Math.max(2, ++curAFKCount));
-
-                // 轮盘赌模式挂机会判断对手是否存活，如果不存活则强制结束
-                if (gameMode == DevilRouletteGame.GameMode.Roulette && level != null) {
-                    if (frontPlayerUUID != null
-                            && GameUtils.isPlayerEliminated(level.getPlayerByUUID(frontPlayerUUID))) {
-                        processFireResult(game.forceGameOverByKillPlayer(backPlayerUUID));
-                    } else if (backPlayerUUID != null
-                            && GameUtils.isPlayerEliminated(level.getPlayerByUUID(backPlayerUUID))) {
-                        processFireResult(game.forceGameOverByKillPlayer(frontPlayerUUID));
-                    }
-                }
-                tempSubDisplays.removeIf(display -> display == null || display.isRemoved());
-            }
-            // 游戏30未启动：重置
-            else {
-                removeFrontPlayer();
-                removeBackPlayer();
-                reset();
-                curAFKTick = 0;
-            }
-        }
+    public Direction getFacing() { return getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING); }
+    private static UUID id(UUID value) { return value == null ? RouletteView.NONE : value; }
+    private ServerPlayer player(UUID id) {
+        if (!(level instanceof ServerLevel server) || id == null || id.equals(RouletteView.NONE)) return null;
+        return server.getPlayerByUUID(id) instanceof ServerPlayer p ? p : null;
     }
-
-    /**
-     * 创建悬浮文字显示
-     * - 会自动根据方块坐标偏移至中心
-     */
-    protected TableTextDisplay addFloatingTextInBlockPosCenter(BlockPos pos, Component text, int duration) {
-        return addFloatingText(new Vec3(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5),
-                text, duration);
+    private DevilRouletteRound round() { return game.round(); }
+    private void publish() {
+        if (!(level instanceof ServerLevel)) return;
+        ServerPlayer p1 = player(front), p2 = player(back);
+        if (p1 != null) frontName = p1.getName().getString();
+        if (p2 != null) backName = p2.getName().getString();
+        var r = game == null ? null : round();
+        int seconds = Math.max(0, (budget() - readyTicks + 19) / 20);
+        view = new RouletteView(session, ++sequence, phase, startedAt, duration, id(front), id(back),
+                r == null ? RouletteView.NONE : r.operator(), frontName, backName,
+                r == null ? 5 : r.health(front), r == null ? 5 : r.health(back),
+                r == null ? 5 : r.maxHealth(front), r == null ? 5 : r.maxHealth(back),
+                r == null ? 0 : r.loadedLive(), r == null ? 0 : r.loadedBlanks(), r == null ? 0 : r.remaining(),
+                r != null && (phase == RoulettePhase.SHOOT ? shotSaw : r.saw()), r == null ? RouletteView.NONE : id(r.cuffed()),
+                actionItem, stolenItem, actor, target, shell, delta, RouletteItems.visible(p1), RouletteItems.visible(p2),
+                message, seconds, r == null ? RouletteView.NONE : id(r.winner()));
+        Set<ServerPlayer> recipients = new HashSet<>(PlayerLookup.tracking(this));
+        if (p1 != null) recipients.add(p1);
+        if (p2 != null) recipients.add(p2);
+        var payload = new RouletteNetworking.Public(worldPosition, view);
+        for (ServerPlayer recipient : recipients) ServerPlayNetworking.send(recipient, payload);
     }
-
-    /**
-     * 创建悬浮文字显示
-     * - 如果已存在则仅修改文本，不会重置之前的定时器
-     */
-    protected TableTextDisplay addFloatingText(Vec3 pos, Component text, int duration, Vec3 scale) {
-        TableTextDisplay displayText = null;
-        if (level != null) {
-            if (floatingTexts.containsKey(text)) {
-                displayText = floatingTexts.get(text);
+    private void privatePacket(ServerPlayer recipient, int kind, CompoundTag data) {
+        if (recipient != null) ServerPlayNetworking.send(recipient, new RouletteNetworking.Private(worldPosition, session, kind, data));
+    }
+    private void hint(Player player, String key) {
+        player.displayClientMessage(Component.translatable(key).withStyle(ChatFormatting.GOLD), true);
+    }
+    private void clearPrivate() {
+        privatePacket(player(front), RouletteNetworking.CLEAR, new CompoundTag());
+        privatePacket(player(back), RouletteNetworking.CLEAR, new CompoundTag());
+        selection = null; knowledge.clear();
+    }
+    private void showKnowledge(UUID who, Knowledge known) {
+        CompoundTag tag = new CompoundTag();
+        tag.putString("Key", known.shell == 1 ? "roulette.private.live" : "roulette.private.blank");
+        tag.putInt("Index", known.offset); tag.putInt("Shell", known.shell);
+        privatePacket(player(who), RouletteNetworking.INFO, tag);
+    }
+    private void updateKnowledge(int consumed, boolean inverted) {
+        for (UUID who : List.copyOf(knowledge.keySet())) {
+            Knowledge old = knowledge.get(who);
+            int offset = old.offset - consumed;
+            if (offset < 1) {
+                knowledge.remove(who);
+                privatePacket(player(who), RouletteNetworking.CLEAR, new CompoundTag());
             } else {
-                displayText = new TableTextDisplay(EntityType.TEXT_DISPLAY, level);
-                if (duration > 0) {
-                    Scheduler.schedule(displayText::discard, duration);
-                    // tempSubDisplays.removeIf(display -> display == null || !display.isAlive());
-                    if (isCollectFloatingText)
-                        tempSubDisplays.add(displayText);
-                } else if (isCollectFloatingText) {
-                    floatingTexts.put(text, displayText);
-                }
-                level.addFreshEntity(displayText);
+                Knowledge next = new Knowledge(offset, inverted && offset == 1 ? 1 - old.shell : old.shell);
+                knowledge.put(who, next); showKnowledge(who, next);
             }
-            displayText.setText(text);
-            displayText.setPos(pos.x, pos.y, pos.z);
-            // 设置缩放
-            Matrix4f matrix = new Matrix4f().scale((float) scale.x, (float) scale.y, (float) scale.z);
-            displayText.setTransformation(new Transformation(matrix));
-
-            // 始终面向玩家
-            displayText.setBillboardConstraints(Display.BillboardConstraints.CENTER);
-        }
-        return displayText;
-    }
-
-    protected TableTextDisplay addFloatingText(Vec3 pos, Component text, int duration) {
-        return addFloatingText(pos, text, duration, NORMAL_SCALE);
-    }
-
-    protected void removeFloatingText(Component text) {
-        if (floatingTexts.containsKey(text)) {
-            floatingTexts.get(text).discard();
-            floatingTexts.remove(text);
         }
     }
-
-    protected TableTextDisplay replaceFloatingText(Component oldText, Component newText, int duration, Vec3 scale) {
-        if (!floatingTexts.containsKey(oldText))
-            return addFloatingText(CENTER_POS,
-                    newText, duration);
-        var oldTextPos = floatingTexts.get(oldText).position();
-        removeFloatingText(oldText);
-        return addFloatingText(oldTextPos, newText, duration, scale);
+    private void begin(RoulettePhase next) {
+        phase = next; startedAt = level.getGameTime(); duration = next.duration(); actionGate.begin(next, startedAt);
+        selection = null;
+        publish();
     }
-
-    public void clientTick() {
-        // 如果游戏未创建，则在两个方向显示对应的玩家名
+    private int budget() { return Math.max(40, AFK_TICK / Math.max(1, autoStreak)); }
+    private void ready() { readyTicks = 0; begin(RoulettePhase.READY); }
+    private void reload() {
+        if (round().ended()) { begin(RoulettePhase.ENDING); return; }
+        clearPrivate(); round().reload(); shell = -1; delta = 0; actionItem = null; stolenItem = null;
+        message = "roulette.hint.memorize"; begin(RoulettePhase.RELOAD);
+    }
+    private boolean validParticipant(ServerPlayer player, boolean isFront) {
+        return player != null && player.isAlive() && !player.isSpectator()
+                && (!matchInGlobalGame || !GameUtils.isPlayerEliminated(player)) && seated(player, isFront);
+    }
+    private boolean seated(Player player, boolean isFront) {
+        return player.getVehicle() instanceof SeatEntity seat && seat.getSeatPos() != null
+                && isSeatAvailable(seat.getSeatPos()) && isFrontSeat(seat.getSeatPos()) == isFront;
+    }
+    public void serverTick(Level level, BlockPos pos, BlockState state) {
+        if (isRemoved()) return;
         if (game == null) {
+            if (front != null && !validParticipant(player(front), true)) { front = null; frontName = ""; publish(); }
+            if (back != null && !validParticipant(player(back), false)) { back = null; backName = ""; publish(); }
+            if ((front != null || back != null) && ++idleTicks >= AFK_TICK) reset();
             return;
         }
-    }
-
-    public void startGame() {
-        // 移除之前显示的结果
-        if (winnerText != null) {
-            winnerText.discard();
+        if (matchInGlobalGame && (!GameUtils.isGameStarted
+                || !SREGameWorldComponent.KEY.get(level).getGameMode().identifier.equals(matchMode))) {
+            reset(); return;
         }
-        RandomSource random = RandomSource.create();
-        if (level != null)
-            random = level.getRandom();
-        ArrayList<UUID> playerUUIDs = new ArrayList<>();
-        playerUUIDs.add(frontPlayerUUID);
-        playerUUIDs.add(backPlayerUUID);
-        // 创建游戏
-        game = new DevilRouletteGame(playerUUIDs, random, level);
-        if (gameMode != null)
-            game.setGameMode(gameMode);
-        // 初始化游戏
-        game.init();
-        if (!game.start()) {
-            // 开始游戏失败，重置游戏
-            reset();
-        }
-        removeFloatingText(Component.translatable("noellesroles.game.devil_roulette.wait_start"));
-        updatePlayerHealthDisplay();
-
-        // 生成左轮手枪动画
-        if (level != null) {
-            // 为当前操作玩家添加操作提示
-            int operatorIdxOffset = 0;
-            if (!game.canOperate(frontPlayerUUID)) {
-                operatorIdxOffset = playerOperateArea.size() / 2;
+        if (!round().ended()) {
+            boolean p1 = validParticipant(player(front), true), p2 = validParticipant(player(back), false);
+            if (!p1 || !p2) {
+                if (!p1 && !p2) { reset(); return; }
+                clearPrivate(); round().forfeit(!p1 ? front : back);
+                message = "roulette.result.forfeit"; begin(RoulettePhase.ENDING); return;
             }
-            offsetOperateText(operatorIdxOffset);
-
-            // 创建左轮手枪
-            TableItemDisplay gun = new TableItemDisplay(EntityType.ITEM_DISPLAY, level);
-            gunStack = new ItemStack(TMMItems.REVOLVER);
-            gun.setItemStack(gunStack);
-            itemDisplays.put(gunStack, gun);
-
-            // 设置位置
-            gun.setPos(worldPosition.getX() + 0.5, worldPosition.getY() + 1.5, worldPosition.getZ() + 0.5);
-            // TODO : 旋转动画
-            // 根据操作玩家正反决定旋转
-            Direction facing = getFacing();
-            // 基础旋转映射
-            curGunRotationY = switch (facing) {
-                // Y 轴朝上时，逆时针为正
-                case NORTH -> 90f;
-                case SOUTH -> -90f;
-                case WEST -> 180f;
-                // 默认 0°
-                default -> 0f;
-            };
-            float additionalYaw = 0;
-            // 反向玩家 +180°
-            if (operatorIdxOffset != 0)
-                additionalYaw = 180;
-            updateGunRotation(additionalYaw);
-
-            level.addFreshEntity(gun);
-            // 播放装填声音
-            level.playSound(null, worldPosition,
-                    TMMSounds.ITEM_DERRINGER_RELOAD, SoundSource.BLOCKS,
-                    0.15625f, 1f);
-
-            showBulletText();
         }
-    }
-
-    public void assignMatch(Player player1, Player player2) {
-        reset();
-        if (player1 == null || player2 == null)
+        long age = level.getGameTime() - startedAt;
+        if (phase == RoulettePhase.READY) {
+            if (++readyTicks >= budget()) {
+                autoStreak++; message = "roulette.hint.timeout";
+                shoot(round().operator(), true, true); return;
+            }
+            if (readyTicks % 20 == 0) {
+                if (budget() - readyTicks <= 100) hint(player(round().operator()), "roulette.hint.timeout_warning");
+                publish();
+            }
             return;
-        if (!player1.isAlive() || !player2.isAlive())
-            return;
-        addPlayer(player1, true);
-        addPlayer(player2, false);
-        startGame();
-    }
-
-    /** 实际交互函数 */
-    public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player,
-            InteractionHand hand, BlockHitResult hit) {
-        if (level.isClientSide)
-            return ItemInteractionResult.SUCCESS;
-        DevilRouletteGame.FireResult fireResult = null;
-        // 查询玩家操作位置的偏移
-        int idxOffset = 0;
-        if (player.getUUID() != frontPlayerUUID) {
-            idxOffset = playerOperateArea.size() / 2;
         }
-        for (int i = 0; i < playerOperateArea.size() / 2 && i + idxOffset < playerOperateArea.size(); ++i) {
-            if (playerOperateArea.get(i + idxOffset).equals(pos)) {
-                switch (i) {
-                    // 点击左侧
-                    case 0 -> {
-                        fireResult = game.fire(DevilRouletteGame.Target.self);
-                        break;
-                    }
-                    // 点击中间
-                    case 1 -> {
-                        boolean isNeedRemove = true;
-                        // 使用道具
-                        Item item = stack.getItem();
-                        if (item == ModItems.MAGNIFYING_GLASS) {
-                            // 放大镜
-                            player.displayClientMessage(
-                                    Component.translatable(
-                                            game.getCurBullet() ? "noellesroles.game.devil_roulette.tip.is_real_bullet"
-                                                    : "noellesroles.game.devil_roulette.tip.is_empty_bullet")
-                                            .withStyle(game.getCurBullet() ? ChatFormatting.RED : ChatFormatting.AQUA),
-                                    true);
-                        } else if (item == ModItems.CHEWING) {
-                            // 口香糖
-                            game.getCurrentPlayerData().addHealth(1);
-                            updatePlayerHealthDisplay();
-                        } else if (item == ModItems.CLIP) {
-                            // 弹夹逻辑
-                            game.reloadBullet();
-                            // 使用弹夹后获得一个道具
-                            game.sendItemToPlayer(player);
-                            afterReload();
-                        } else if (item == ModItems.STEEL_BALL) {
-                            // 钢球逻辑
-                            game.addDamage(1);
-                            showStrongBullet();
-                        } else if (item == ModItems.REVERSING_CARD) {
-                            // 反转卡逻辑
-                            game.reverseCurBullet();
-                            player.displayClientMessage(
-                                    Component.translatable(
-                                            "noellesroles.game.devil_roulette.tip.reverse_bullet")
-                                            .withStyle(ChatFormatting.AQUA),
-                                    true);
-                        } else if (item == ModItems.TELEPHONE) {
-                            // 电话逻辑
-                            int idx = game.getRandomTrueBulletIdx();
-                            player.displayClientMessage(
-                                    Component.translatable(
-                                            idx == -1 ? "noellesroles.game.devil_roulette.tip.no_real_bullet"
-                                                    : "noellesroles.game.devil_roulette.tip.random_real_bullet",
-                                            idx + 1)
-                                            .withStyle(idx == -1 ? ChatFormatting.AQUA : ChatFormatting.RED),
-                                    true);
-                        } else
-                            isNeedRemove = false;
-                        if (isNeedRemove)
-                            stack.shrink(1);
-                        break;
-                    }
-                    // 点击右侧
-                    case 2 -> {
-                        fireResult = game.fire(DevilRouletteGame.Target.opposite);
-                        break;
-                    }
+        if (actionGate.claimImpact(level.getGameTime())) commitAction();
+        if (phase == RoulettePhase.SUPPLY && age >= 4 && age <= (demonMatch == null ? 28 : 34) && (age - 4) % 6 == 0) {
+            if (demonMatch != null) {
+                deliverDemonSupply(player(front)); deliverDemonSupply(player(back));
+            } else {
+                RouletteSupply supply = RouletteSupply.get((ServerLevel) level);
+                for (UUID who : List.of(front, back)) { ServerPlayer p = player(who); if (p != null) supply.deliver(p); }
+            }
+            publish();
+        }
+        if (age < duration) return;
+        switch (phase) {
+            case INTRO -> reload();
+            case RELOAD -> {
+                int amount = level.random.nextInt(2, 6);
+                if (demonMatch != null) {
+                    demonMatch.reserve(amount, RouletteItems.count(player(front)), RouletteItems.count(player(back)),
+                            new Random(level.random.nextLong()));
+                } else {
+                    RouletteSupply supply = RouletteSupply.get((ServerLevel) level);
+                    supply.reserve(player(front), amount); supply.reserve(player(back), amount);
                 }
-                break;
+                message = "roulette.hint.supply"; begin(RoulettePhase.SUPPLY);
             }
-        }
-
-        // 进行了开火操作
-        processFireResult(fireResult);
-
-        // 当玩家进行了操作 则重置AFK计数
-        resetTick();
-
-        return ItemInteractionResult.SUCCESS;
-    }
-
-    protected void processFireResult(DevilRouletteGame.FireResult fireResult) {
-        if (fireResult == null || level == null)
-            return;
-        int idxOffset = 0;
-        if (fireResult.operatorUUID != frontPlayerUUID) {
-            idxOffset = playerOperateArea.size() / 2;
-        }
-
-        updatePlayerHealthDisplay();
-        // 根据是否是实弹播放不同音效
-        if (fireResult.isTrueBullet) {
-            level.playSound(null, worldPosition,
-                    TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.BLOCKS,
-                    0.15625f, 1f);
-        } else {
-            level.playSound(null, worldPosition,
-                    TMMSounds.ITEM_REVOLVER_CLICK, SoundSource.BLOCKS,
-                    0.15625f, 1f);
-        }
-        // 播放重装弹药音效
-        if (fireResult.isReload) {
-            afterReload();
-        }
-        if (fireResult.isSwitch) {
-            // 偏移到对方位置
-            idxOffset = (idxOffset + playerOperateArea.size() / 2) % playerOperateArea.size();
-            // 修改操作提示文本的位置到对方
-            if (floatingTexts.get(shootSelfComponent) != null && floatingTexts.get(shootOppositeComponent) != null) {
-                offsetOperateText(idxOffset);
-            }
-            updateGunRotation(180);
-        }
-        if (!fireResult.isTargetAlive || game.isGameEnd()) {
-            Player winner = null;
-            winner = level.getPlayerByUUID(game.getWinner().getPlayerUUID());
-
-            switch (gameMode) {
-                case Roulette -> {
-                    // 对局中失败会被击杀
-                    if (GameUtils.isGameStarted) {
-                        if (level.getPlayerByUUID(frontPlayerUUID) != null
-                                && level.getPlayerByUUID(frontPlayerUUID) != winner) {
-                            GameUtils.killPlayer(
-                                    level.getPlayerByUUID(frontPlayerUUID), false,
-                                    winner, SRE.id("gun_shot"), false);
-                        }
-                        if (level.getPlayerByUUID(backPlayerUUID) != null
-                                && level.getPlayerByUUID(backPlayerUUID) != winner) {
-                            GameUtils.killPlayer(
-                                    level.getPlayerByUUID(backPlayerUUID), false,
-                                    winner, SRE.id("gun_shot"), false);
-                        }
-                    }
-
-                    SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(level);
-                    if (gameComponent.gameMode instanceof SREDevilRouletteGameMode mode) {
-                        if (winner != null) {
-                            SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(winner);
-                            shopComponent.addToBalance(
-                                    SREDevilRouletteGameMode.WINNER_COIN * game.getHealth(winner.getUUID()));
-                            mode.addWinner(winner);
-                        }
-                        // 判断两次防止winner为空
-                        Player player = level.getPlayerByUUID(frontPlayerUUID);
-                        if (player != null && player != winner) {
-                            mode.addLooser(player);
-                        }
-                        player = level.getPlayerByUUID(backPlayerUUID);
-                        if (player != null && player != winner) {
-                            mode.addLooser(player);
-                        }
-                    }
+            case SUPPLY -> {
+                for (UUID who : List.of(front, back)) {
+                    ServerPlayer p = player(who);
+                    int pending = demonMatch == null ? RouletteSupply.get((ServerLevel) level).pending(who) : demonMatch.pending(who);
+                    if (p != null && pending > 0) hint(p, "roulette.hint.supply_pending");
                 }
-                default -> {
-                    // 普通对局没有小脑，直接穿盾
-                    if (GameUtils.isGameStarted) {
-                        if (level.getPlayerByUUID(frontPlayerUUID) != null
-                                && level.getPlayerByUUID(frontPlayerUUID) != winner) {
-                            GameUtils.killPlayer(
-                                    level.getPlayerByUUID(frontPlayerUUID), false,
-                                    // 杀手使用null 防止被小脑惩罚
-                                    null, SRE.id("gun_shot"), false);
-                        }
-                        if (level.getPlayerByUUID(backPlayerUUID) != null
-                                && level.getPlayerByUUID(backPlayerUUID) != winner) {
-                            GameUtils.killPlayer(
-                                    level.getPlayerByUUID(backPlayerUUID), false,
-                                    null, SRE.id("gun_shot"), false);
-                        }
-                    }
+                message = "roulette.hint.controls"; ready();
+            }
+            case SHOOT, ITEM, ADRENALINE -> {
+                if (round().ended()) begin(RoulettePhase.ENDING);
+                else if (round().remaining() == 0) reload();
+                else if (result != null && (result.switched() || result.skipped())) begin(RoulettePhase.HANDOFF);
+                else ready();
+            }
+            case HANDOFF -> ready();
+            case ENDING -> {
+                if (!settled) {
+                    boolean dedicated = demonMatch != null;
+                    finishMatch();
+                    // 专用回调可能已移除、重置甚至重开此桌，之后绝不再读写旧对局。
+                    if (dedicated) return;
+                    duration = 100; publish();
                 }
+                else reset();
             }
-            if (winner != null) {
-                isCollectFloatingText = false;
-                winnerText = addFloatingTextInBlockPosCenter(worldPosition,
-                        Component.translatable("noellesroles.game.devil_roulette.winner",
-                                winner.getName().getString()),
-                        200);
-                isCollectFloatingText = true;
-                // 播放胜利音效
-                level.playSound(null, worldPosition, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.BLOCKS,
-                        0.15625f, 1f);
-                reset();
-            }
+            default -> { }
         }
     }
-
-    protected void afterReload() {
-        if (level != null) {
-            level.playSound(null, worldPosition,
-                    TMMSounds.ITEM_DERRINGER_RELOAD, SoundSource.BLOCKS,
-                    0.15625f, 1f);
+    private void deliverDemonSupply(ServerPlayer player) {
+        if (player == null || RouletteItems.count(player) >= RouletteItems.CAPACITY) return;
+        RouletteItem kind = demonMatch.peek(player.getUUID());
+        int slot = player.getInventory().getFreeSlot();
+        if (kind == null || slot < 0) return;
+        player.getInventory().setItem(slot, RouletteItems.stack(kind));
+        demonMatch.delivered(player.getUUID());
+        player.getInventory().setChanged();
+        player.displayClientMessage(Component.translatable("roulette.result.received", Component.translatable(kind.titleKey())), true);
+    }
+    /** 只有取得关键帧提交权的 tick 能改变规则状态。 */
+    private void commitAction() {
+        if (game == null || round().ended()) return;
+        int before = round().remaining();
+        result = phase == RoulettePhase.SHOOT ? round().fire(target) : round().use(effect);
+        if (!result.valid()) { message = result.message(); publish(); return; }
+        actor = result.actor(); target = result.target(); shell = result.shell(); delta = result.delta(); message = result.message();
+        if (phase == RoulettePhase.SHOOT) {
+            if (result.skipped()) message = "roulette.result.cuffs_skipped";
+            else if (actor.equals(target)) message = shell == 0 ? "roulette.result.self_blank" : "roulette.result.self_live";
+            else message = shell == 0 ? "roulette.result.opponent_blank" : "roulette.result.opponent_live";
         }
-        showBulletText();
-    }
-
-    protected void showBulletText() {
-        // TODO : 添加文本上升动画
-        // 添加弹药信息文本
-        bulletComponent = Component.translatable("noellesroles.game.devil_roulette.real_bullet",
-                game.getTrueBulletNumber(), DevilRouletteGame.GUN_BULLET_SLOT_NUMBER);
-        addFloatingText(CENTER_POS,
-                bulletComponent, 60);
-    }
-
-    /** 当子弹被强化时显示强化信息 */
-    protected void showStrongBullet() {
-        addFloatingText(CENTER_POS, Component.literal("💀".repeat(Math.max(game.getDamage(), 0))), 30);
-    }
-
-    /**
-     * 偏移操作提示文本
-     * 
-     * @param idxOffset 偏移量
-     */
-    protected void offsetOperateText(int idxOffset) {
-        if (idxOffset + 2 >= playerOperateArea.size())
-            return;
-        BlockPos nextPos = playerOperateArea.get(idxOffset);
-        addFloatingText(new Vec3(nextPos.getX() + 0.5, nextPos.getY() + 0.3, nextPos.getZ() + 0.5),
-                shootSelfComponent, -1, MIDDLE_SCALE);
-        // 偏移到右手边
-        nextPos = playerOperateArea.get(idxOffset + 2);
-        addFloatingText(new Vec3(nextPos.getX() + 0.5, nextPos.getY() + 0.3, nextPos.getZ() + 0.5),
-                shootOppositeComponent, -1, MIDDLE_SCALE);
-    }
-
-    public boolean checkCanStartGame() {
-        if (frontPlayerUUID != null && backPlayerUUID != null) {
-            addFloatingTextInBlockPosCenter(worldPosition.offset(0, 1, 0),
-                    Component.translatable("noellesroles.game.devil_roulette.wait_start"), -1);
-            return true;
+        updateKnowledge(before - round().remaining(), effect == RouletteItem.INVERTER && phase != RoulettePhase.SHOOT);
+        if (result.knownOffset() > 0) {
+            Knowledge known = new Knowledge(result.knownOffset(), result.knownShell());
+            knowledge.put(actor, known); showKnowledge(actor, known);
         }
+        publish();
+    }
+    private void shoot(UUID who, boolean self, boolean timeout) {
+        actor = who; target = self ? who : round().opponent(who); effect = null;
+        shotSaw = round().saw();
+        actionItem = null; stolenItem = null; shell = -1; delta = 0; result = null;
+        if (!timeout) autoStreak = 0;
+        clearSelection(); begin(RoulettePhase.SHOOT);
+    }
+    private void use(RouletteItem kind, RouletteItem stolen) {
+        actor = round().operator(); target = actor; effect = stolen == null ? kind : stolen;
+        actionItem = kind; stolenItem = stolen; shell = -1; delta = 0; result = null; autoStreak = 0;
+        clearSelection(); begin(stolen == null ? RoulettePhase.ITEM : RoulettePhase.ADRENALINE);
+    }
+    private void clearSelection() { selection = null; }
+    public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+            Player player, InteractionHand hand, BlockHitResult hit) {
+        if (level.isClientSide || !(player instanceof ServerPlayer serverPlayer)) return ItemInteractionResult.SUCCESS;
+        int operation = operation(player.getUUID(), pos);
+        if (operation < 0) { hint(player, "roulette.error.operation_area"); return ItemInteractionResult.CONSUME; }
+        if (!seated(player, Objects.equals(front, player.getUUID())) || !checkPlayerInRightSeat(player, Objects.equals(front, player.getUUID()))) {
+            hint(player, "roulette.error.seat"); return ItemInteractionResult.CONSUME;
+        }
+        if (operation == 1 && stack.isEmpty() && hand == InteractionHand.MAIN_HAND
+                && RouletteItems.kind(player.getOffhandItem()) != null) { stack = player.getOffhandItem(); hand = InteractionHand.OFF_HAND; }
+        if (operation == 1 && stack.isEmpty()) {
+            privatePacket(serverPlayer, RouletteNetworking.HELP, new CompoundTag()); return ItemInteractionResult.CONSUME;
+        }
+        if (phase != RoulettePhase.READY || game == null || round().ended()) {
+            hint(player, "roulette.error.busy"); return ItemInteractionResult.CONSUME;
+        }
+        if (!game.canOperate(player.getUUID())) { hint(player, "roulette.error.turn"); return ItemInteractionResult.CONSUME; }
+        if (operation != 1) {
+            shoot(player.getUUID(), operation == 0, false); return ItemInteractionResult.CONSUME;
+        }
+        RouletteItem kind = RouletteItems.kind(stack);
+        if (kind == null) { hint(player, "roulette.error.item"); return ItemInteractionResult.CONSUME; }
+        if (kind == RouletteItem.ADRENALINE) { openSelection(serverPlayer, hand); return ItemInteractionResult.CONSUME; }
+        String failure = round().failure(kind);
+        if (failure != null) { hint(player, failure); return ItemInteractionResult.CONSUME; }
+        stack.shrink(1); player.getInventory().setChanged(); use(kind, null);
+        return ItemInteractionResult.CONSUME;
+    }
+    private void openSelection(ServerPlayer player, InteractionHand hand) {
+        ServerPlayer opponent = player(round().opponent(player.getUUID()));
+        if (opponent == null) { hint(player, "roulette.error.no_choices"); return; }
+        Map<Integer, ItemStack> choices = new HashMap<>(); ListTag rows = new ListTag();
+        for (int slot = 0; slot < opponent.getInventory().getContainerSize(); slot++) {
+            ItemStack stack = opponent.getInventory().getItem(slot); RouletteItem kind = RouletteItems.kind(stack);
+            if (kind == null || kind == RouletteItem.ADRENALINE || round().failure(kind) != null) continue;
+            choices.put(slot, stack.copy());
+            CompoundTag row = new CompoundTag(); row.putInt("Slot", slot); row.putInt("Kind", kind.ordinal()); row.putInt("Count", stack.getCount());
+            rows.add(row);
+        }
+        if (choices.isEmpty()) { hint(player, "roulette.error.no_choices"); return; }
+        UUID token = UUID.randomUUID();
+        selection = new Selection(token, player.getUUID(), hand, player.getItemInHand(hand).copy(), choices);
+        CompoundTag tag = new CompoundTag(); tag.putUUID("Token", token); tag.put("Choices", rows);
+        privatePacket(player, RouletteNetworking.SELECT, tag);
+    }
+    public void handleSelection(ServerPlayer player, RouletteNetworking.Select packet) {
+        Selection request = selection;
+        if (request == null || game == null || !RouletteSelectionPolicy.authorized(
+                session, packet.session(), request.token, packet.token(), request.owner, player.getUUID(),
+                phase == RoulettePhase.READY && readyTicks < budget(), game.canOperate(player.getUUID()),
+                seated(player, player.getUUID().equals(front)),
+                player.level() == level && player.distanceToSqr(Vec3.atCenterOf(worldPosition)) <= 64,
+                validParticipant(player, player.getUUID().equals(front)))) {
+            hint(player, "roulette.error.stale_selection"); return;
+        }
+        ServerPlayer other = player(round().opponent(player.getUUID()));
+        ItemStack snapshot = request.choices.get(packet.slot());
+        if (other == null || !validParticipant(other, other.getUUID().equals(front)) || snapshot == null
+                || packet.slot() < 0 || packet.slot() >= other.getInventory().getContainerSize()) {
+            clearSelection(); hint(player, "roulette.error.stale_selection"); return;
+        }
+        RouletteItem kind = RouletteItems.kind(snapshot);
+        String failure = round().failure(kind);
+        if (!RouletteSelectionPolicy.stealable(kind,
+                ItemStack.matches(snapshot, other.getInventory().getItem(packet.slot())),
+                ItemStack.matches(request.held, player.getItemInHand(request.hand))
+                        && RouletteItems.kind(player.getItemInHand(request.hand)) == RouletteItem.ADRENALINE,
+                failure == null)) {
+            clearSelection(); hint(player, failure == null ? "roulette.error.stale_selection" : failure); return;
+        }
+        // 所有检查结束后，在同一服务端任务中原子消费，令牌立即作废。
+        clearSelection();
+        player.getItemInHand(request.hand).shrink(1); other.getInventory().getItem(packet.slot()).shrink(1);
+        player.getInventory().setChanged(); other.getInventory().setChanged();
+        use(RouletteItem.ADRENALINE, kind);
+    }
+    /** 0 左侧自射，1 中间使用/帮助，2 右侧对射；对面座位的左右对称。 */
+    public int operation(UUID player, BlockPos hit) {
+        UUID first = front == null ? view.front() : front;
+        UUID second = back == null ? view.back() : back;
+        if (!Objects.equals(first, player) && !Objects.equals(second, player)) return -1;
+        if (worldPosition.equals(hit)) return 1;
+        int sign = Objects.equals(first, player) ? 1 : -1;
+        BlockPos near = worldPosition.relative(getFacing(), sign);
+        if (near.relative(getFacing().getClockWise(), sign).equals(hit)) return 0;
+        if (near.equals(hit)) return 1;
+        if (near.relative(getFacing().getCounterClockWise(), sign).equals(hit)) return 2;
+        return -1;
+    }
+    public boolean isSeatAvailable(BlockPos seat) {
+        return getSeatArea().contains(seat);
+    }
+    public boolean isFrontSeat(BlockPos seat) {
+        Direction facing = getFacing();
+        for (int y = -1; y <= 0; y++) for (int x = -1; x <= 1; x++)
+            if (worldPosition.offset(0, y, 0).relative(facing, 2).relative(facing.getClockWise(), x).equals(seat)) return true;
         return false;
     }
-
+    public List<BlockPos> getSeatArea() {
+        List<BlockPos> seats = new ArrayList<>();
+        for (int sign : new int[] {1, -1}) for (int y = -1; y <= 0; y++) for (int x = -1; x <= 1; x++)
+            seats.add(worldPosition.offset(0, y, 0).relative(getFacing(), 2 * sign).relative(getFacing().getClockWise(), x));
+        return seats;
+    }
     public boolean checkPlayerInRightSeat(Player player, boolean isFront) {
-        if (isFront) {
-            return player.getUUID() == frontPlayerUUID;
-        }
-        return player.getUUID() == backPlayerUUID;
+        return Objects.equals(player.getUUID(), isFront ? front : back);
     }
-
-    public boolean canPlayerOperate(Player player) {
-        return game != null && game.canOperate(player.getUUID());
+    public boolean checkCanStartGame() {
+        return front != null && back != null && validParticipant(player(front), true) && validParticipant(player(back), false);
     }
-
-    /** 更新玩家生命显示 */
-    public void updatePlayerHealthDisplay() {
-        StringBuilder healthText = new StringBuilder();
-        Component lastText = null;
-        Player player = null;
-        if (level != null) {
-            player = level.getPlayerByUUID(frontPlayerUUID);
-        }
-        // 创建玩家生命显示
-        if (player != null) {
-            lastText = frontPlayerName;
-            healthText.append(player.getName().getString()).append("\n");
-            healthText.append("❤".repeat(Math.max(game.getHealth(frontPlayerUUID), 0)));
-            frontPlayerName = Component.literal(String.valueOf(healthText));
-            replaceFloatingText(lastText, frontPlayerName, -1, MIDDLE_SCALE);
-        }
-
-        if (level != null) {
-            player = level.getPlayerByUUID(backPlayerUUID);
-        }
-        if (player != null) {
-            lastText = backPlayerName;
-            healthText = new StringBuilder();
-            healthText.append(player.getName().getString()).append("\n");
-            healthText.append("❤".repeat(Math.max(game.getHealth(backPlayerUUID), 0)));
-            backPlayerName = Component.literal(String.valueOf(healthText));
-            replaceFloatingText(lastText, backPlayerName, -1, MIDDLE_SCALE);
-        }
+    public boolean canPlayerOperate(Player player) { return phase == RoulettePhase.READY && game != null && game.canOperate(player.getUUID()); }
+    public boolean isGameActive() { return game != null; }
+    public boolean addPlayer(Player player, boolean isFront) {
+        if (game != null || !seated(player, isFront) || (isFront ? front : back) != null
+                || Objects.equals(player.getUUID(), isFront ? back : front)) return false;
+        if (isFront) { front = player.getUUID(); frontName = player.getName().getString(); }
+        else { back = player.getUUID(); backName = player.getName().getString(); }
+        idleTicks = 0; message = front != null && back != null ? "roulette.hint.start" : "roulette.hint.wait_opponent";
+        publish(); hint(player, message); return true;
     }
-
-    /**
-     * 更新枪的旋转角度
-     * 
-     * @param additionalYaw 额外的 Y 轴旋转角度（度数）
-     */
-    public void updateGunRotation(float additionalYaw) {
-        TableItemDisplay gun = itemDisplays.get(gunStack);
-        if (gun == null || !gun.isAlive())
-            return;
-
-        curGunRotationY += additionalYaw;
-        curGunRotationY %= 360;
-
-        // 绕自定义轴旋转（例如绕 (1, 0, 0) 即 X 轴）
-        Quaternionf rotation = new Quaternionf()
-                // 先绕Y轴旋转
-                .rotateY((float) Math.toRadians(curGunRotationY))
-                .rotateZ((float) Math.toRadians(-90));
-
-        Matrix4f matrix = new Matrix4f().rotate(rotation);
-        gun.setTransformation(new Transformation(matrix));
+    public boolean removePlayerIfSame(Player player, boolean isFront) {
+        if (game != null || !checkPlayerInRightSeat(player, isFront)) return false;
+        if (isFront) { front = null; frontName = ""; } else { back = null; backName = ""; }
+        message = "roulette.hint.wait_opponent"; publish(); hint(player, "roulette.hint.unregistered"); return true;
     }
-
-    public boolean addPlayer(@NotNull Player player, boolean isFront) {
-        BlockState state = getBlockState();
-        if (isFront) {
-            if (frontPlayerUUID != null || backPlayerUUID == player.getUUID()) {
-                return false;
-            }
-            frontPlayerUUID = player.getUUID();
-            BlockPos frontPos = worldPosition.relative(state.getValue(BlockStateProperties.HORIZONTAL_FACING));
-            frontPlayerName = player.getName();
-            addFloatingText(new Vec3(frontPos.getX() + 0.5, frontPos.getY() + 0.2, frontPos.getZ() + 0.5),
-                    frontPlayerName, -1, MIDDLE_SCALE);
-        } else {
-            if (backPlayerUUID != null || frontPlayerUUID == player.getUUID()) {
-                return false;
-            }
-            backPlayerUUID = player.getUUID();
-            BlockPos backPos = worldPosition
-                    .relative(state.getValue(BlockStateProperties.HORIZONTAL_FACING).getOpposite());
-            backPlayerName = player.getName();
-            addFloatingText(new Vec3(backPos.getX() + 0.5, backPos.getY() + 0.2, backPos.getZ() + 0.5),
-                    backPlayerName, -1, MIDDLE_SCALE);
-        }
-        checkCanStartGame();
+    public void startGame() { startMatch(5, 5, null); }
+    /** 调用方负责清空并托管背包、安排座位，以及在结算或取消后恢复玩家。 */
+    public boolean startDemonMatch(ServerPlayer demon, ServerPlayer opponent, BiConsumer<UUID, UUID> settlement) {
+        if (game != null || isRemoved() || !(level instanceof ServerLevel) || demon == null || opponent == null
+                || settlement == null || demon.getUUID().equals(opponent.getUUID())
+                || demon.level() != level || opponent.level() != level
+                || front != null && !front.equals(demon.getUUID()) || back != null && !back.equals(opponent.getUUID())
+                || !validParticipant(demon, true) || !validParticipant(opponent, false)) return false;
+        front = demon.getUUID(); back = opponent.getUUID();
+        return startMatch(6, 5, new DevilRouletteGame.DemonMatch(front, back, settlement));
+    }
+    private boolean startMatch(int frontMaxHealth, int backMaxHealth, DevilRouletteGame.DemonMatch dedicated) {
+        if (game != null || !checkCanStartGame() || !(level instanceof ServerLevel)) return false;
+        demonMatch = dedicated;
+        clearPrivate(); session = UUID.randomUUID(); sequence = 0;
+        game = new DevilRouletteGame(new ArrayList<>(List.of(front, back)), level.getRandom(), level);
+        game.setGameMode(gameMode); game.init();
+        if (!game.start(frontMaxHealth, backMaxHealth)) { reset(); return false; }
+        matchInGlobalGame = GameUtils.isGameStarted;
+        matchMode = SREGameWorldComponent.KEY.get(level).getGameMode().identifier;
+        settled = false; autoStreak = 0; readyTicks = 0; message = "roulette.hint.controls";
+        begin(RoulettePhase.INTRO);
         return true;
     }
-
-    protected void removeFrontPlayer() {
-        if (frontPlayerName != null) {
-            removeFloatingText(frontPlayerName);
+    public void assignMatch(Player first, Player second) {
+        reset(); if (first == null || second == null) return;
+        if (addPlayer(first, true) && addPlayer(second, false)) startGame();
+    }
+    private void finishMatch() {
+        if (settled || game == null || !round().ended() || !actionGate.claimSettlement()) return;
+        settled = true; clearPrivate();
+        if (demonMatch != null) {
+            UUID winner = round().winner(), loser = round().opponent(winner);
+            demonMatch.settle(winner, loser);
+            return;
         }
-        frontPlayerUUID = null;
-        frontPlayerName = Component.empty();
-    }
-
-    protected void removeBackPlayer() {
-        if (backPlayerName != null) {
-            removeFloatingText(backPlayerName);
+        ServerPlayer winner = player(round().winner());
+        ServerPlayer loser = player(round().opponent(round().winner()));
+        // 先标记结算，再调用可能触发游戏结束回调的外部接口。
+        if (winner != null && gameMode == DevilRouletteGame.GameMode.Roulette
+                && SREGameWorldComponent.KEY.get(level).getGameMode() instanceof SREDevilRouletteGameMode mode) {
+            SREPlayerShopComponent.KEY.get(winner).addToBalance(SREDevilRouletteGameMode.WINNER_COIN * round().health(winner.getUUID()));
+            mode.addWinner(winner); if (loser != null) mode.addLooser(loser);
         }
-        backPlayerUUID = null;
-        backPlayerName = Component.empty();
-    }
-
-    /** 移除同方向相同的玩家，如果成功则为true */
-    public boolean removePlayerIfSame(Player player, boolean isFront) {
-        if (isFront) {
-            if (frontPlayerUUID != null && frontPlayerUUID == player.getUUID()) {
-                removeFrontPlayer();
-                return true;
-            }
-        } else {
-            if (backPlayerUUID != null && backPlayerUUID == player.getUUID()) {
-                removeBackPlayer();
-                return true;
-            }
+        if (matchInGlobalGame && GameUtils.isGameStarted && loser != null && !GameUtils.isPlayerEliminated(loser)) {
+            GameUtils.killPlayer(loser, false, gameMode == DevilRouletteGame.GameMode.Roulette ? winner : null, SRE.id("gun_shot"), false);
         }
-        return false;
-    }
-
-    public void removeIfTextNull() {
-        floatingTexts.values().removeIf(display -> display == null || !display.isAlive());
-    }
-
-    // 召集玩家到桌子上
-    public void convenePlayers() {
-        if (level != null && frontPlayerUUID != null && backPlayerUUID != null) {
-            Player player1 = level.getPlayerByUUID(frontPlayerUUID);
-            Player player2 = level.getPlayerByUUID(backPlayerUUID);
-            if (player1 != null)
-                player1.teleportTo(CENTER_POS.x, CENTER_POS.y, CENTER_POS.z);
-            if (player2 != null)
-                player2.teleportTo(CENTER_POS.x, CENTER_POS.y, CENTER_POS.z);
+        if (winner != null) {
+            winner.displayClientMessage(Component.translatable("noellesroles.game.devil_roulette.winner", winner.getName()).withStyle(ChatFormatting.GOLD), false);
         }
     }
-
-    public int getTrueBulletNumber() {
-        if (game != null) {
-            return game.getTrueBulletNumber();
-        }
-        return 0;
+    public void setGameMode(DevilRouletteGame.GameMode gameMode) { this.gameMode = gameMode; }
+    public DevilRouletteGame.GameMode getGameMode() { return gameMode; }
+    public int getTrueBulletNumber() { return game == null ? 0 : round().loadedLive(); }
+    public void resetTick() { readyTicks = 0; autoStreak = 0; }
+    public void init() { reset(); }
+    public void reset() {
+        if (demonMatch != null) { demonMatch.reset(); demonMatch = null; }
+        clearPrivate(); game = null; front = null; back = null; frontName = ""; backName = "";
+        session = UUID.randomUUID(); sequence = 0; phase = RoulettePhase.WAITING; startedAt = level == null ? 0 : level.getGameTime();
+        duration = 0; readyTicks = 0; idleTicks = 0; autoStreak = 0; settled = false; actionGate.reset();
+        matchInGlobalGame = false; matchMode = null; shotSaw = false;
+        actionItem = null; stolenItem = null; effect = null; result = null; shell = -1; delta = 0;
+        actor = RouletteView.NONE; target = RouletteView.NONE; message = "roulette.hint.sit";
+        publish();
     }
-
-    public boolean isGameActive() {
-        return game != null && !game.isGameEnd();
+    @Override public void setRemoved() {
+        // 不留下 Scheduler 回调或未执行动作；持久补给独立于赌桌，不在此删除。
+        if (level != null && !level.isClientSide) reset();
+        super.setRemoved();
     }
-
-    public boolean isSeatAvailable(BlockPos pos) {
-        return seatArea.contains(pos);
-    }
-
-    public boolean isFrontSeat(BlockPos pos) {
-        return seatArea.contains(pos) && seatArea.indexOf(pos) < seatArea.size() / 2;
-    }
-
-    public void resetTick() {
-        curAFKTick = 0;
-        curAFKCount = 1;
-        curLeftTickGap = 0;
-    }
-
-    public void setGameMode(DevilRouletteGame.GameMode gameMode) {
-        this.gameMode = gameMode;
-    }
-
-    public DevilRouletteGame.GameMode getGameMode() {
-        return gameMode;
-    }
-
-    public Direction getFacing() {
-        if (this.level == null)
-            return Direction.NORTH;
-        BlockState state = this.getBlockState();
-
-        // 如果方块有 HORIZONTAL_FACING 属性
-        if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
-            return state.getValue(BlockStateProperties.HORIZONTAL_FACING);
-        }
-
-        // 如果方块有 FACING 属性（包含上下）
-        if (state.hasProperty(BlockStateProperties.FACING)) {
-            return state.getValue(BlockStateProperties.FACING);
-        }
-
-        return Direction.NORTH; // 默认
-    }
-
-    public List<BlockPos> getSeatArea() {
-        return seatArea;
-    }
-
-    /** 0.5 倍 */
-    public static final Vec3 MIDDLE_SCALE = new Vec3(0.5, 0.5, 0.5);
-    /** 正常倍数 */
-    public static final Vec3 NORMAL_SCALE = new Vec3(1, 1, 1);
-    /** 玩家AFK时间 */
-    public static final int AFK_TICK = 20 * 30;
-    /** 显示玩家剩余时间的长间隔（超过5秒，每5s显示一次 */
-    public static final int LEFT_TICK_LONG_GAP = 100;
-    /** 显示玩家剩余时间的短间隔（小于5秒，每1s显示一次 */
-    public static final int LEFT_TICK_GAP = 20;
-    public final Vec3 CENTER_POS;
-    /** 玩家操作时间显示位置 */
-    public final Vec3 TIME_POS;
-    /**
-     * 悬浮文本
-     */
-    protected final Map<Component, TableTextDisplay> floatingTexts = new HashMap<>();
-    protected final Map<ItemStack, TableItemDisplay> itemDisplays = new HashMap<>();
-    /**
-     * 游戏可用的座位区域
-     * <p>
-     * 前半是前方座位，后半是后方座位
-     * </p>
-     */
-    protected final List<BlockPos> seatArea = new ArrayList<>();
-    /**
-     * 玩家操作区域
-     * <p>
-     * - 前半是前方玩家，后半是后方玩家，顺序为玩家的左中右
-     * </p>
-     */
-    protected final List<BlockPos> playerOperateArea = new ArrayList<>();
-    /**
-     * 存储会自动消失的显示实体，当方块被移除时清空
-     */
-    protected final List<Display> tempSubDisplays = new ArrayList<>();
-    protected DevilRouletteGame game;
-    protected DevilRouletteGame.GameMode gameMode;
-    protected Component frontPlayerName;
-    protected Component backPlayerName;
-    protected Component shootSelfComponent;
-    protected Component shootOppositeComponent;
-    protected Component bulletComponent;
-    protected TableTextDisplay winnerText;
-    /** 前方玩家 */
-    protected UUID frontPlayerUUID;
-    /** 后方玩家 */
-    protected UUID backPlayerUUID;
-    protected ItemStack gunStack;
-    protected boolean isCollectFloatingText;
-    protected float curGunRotationY;
-    protected int curLeftTickGap;
-    protected int curAFKTick;
-    protected int curAFKCount;
 }

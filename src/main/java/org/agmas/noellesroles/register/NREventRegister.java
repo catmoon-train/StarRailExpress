@@ -25,6 +25,8 @@ import org.agmas.noellesroles.init.ModEventsRegister;
 public class NREventRegister {
 
     public static void registerWorldSystemsAndEvents() {
+        io.wifi.starrailexpress.api.RoleSkill.registerInitialCooldownEvents();
+        org.agmas.noellesroles.game.roles.innocence.decree.DecreeService.register();
         org.agmas.noellesroles.init.events.GameUtilityRoleHooks.register();
         org.agmas.noellesroles.init.events.ShopRoleEventHandlers.register();
         org.agmas.noellesroles.init.events.CoreGameplayRoleEvents.register();

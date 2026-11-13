@@ -161,6 +161,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
                 continue;
             }
             if (!data.isRevive && currentTime >= data.revivalTime) {
+                if (org.agmas.noellesroles.game.roles.innocence.decree.DecreeService.blocksRevival(player)) continue;
                 reviveLooseEnd(data);
                 data.isRevive = true;
             }
@@ -347,6 +348,9 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         if (!(level instanceof ServerLevel serverLevel)) {
             return;
         }
+        // 先关闭专属轮盘并返还背包，回溯节点不能保存已清理黑室或临时库存。
+        org.agmas.noellesroles.game.roles.neutral.roulette_devil.RouletteDevilSessions
+                .cancelAllForRefugee(serverLevel.getServer());
         List<ServerPlayer> players = serverLevel.getServer().getPlayerList().getPlayers();
         players_stats.clear();
         playerTimeRewindSnapshots.clear();
@@ -393,6 +397,9 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
                 if (amon != null)
                     amon.suspendForRefugee();
             }
+            // 与阿蒙一致：所有存活节点保存后才旁观，不走真正死亡和轮盘败局结算。
+            org.agmas.noellesroles.game.roles.neutral.roulette_devil.RouletteDevilRole
+                    .suspendForRefugee(player);
         }
         SREGameWorldComponent.KEY.get(level).sync();
     }

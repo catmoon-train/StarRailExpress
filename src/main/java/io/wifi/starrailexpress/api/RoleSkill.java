@@ -216,16 +216,29 @@ public final class RoleSkill {
             boolean haveRecord,
             boolean widgetSkill,
             Handler handler,
-            Component recordName) {
+            Component recordName,
+            int initialCooldownTicks) {
         public Definition {
             if (id == null || nameKey == null || handler == null) {
                 throw new IllegalArgumentException("Skill id, name key and handler are required");
             }
             cooldownTicks = Math.max(0, cooldownTicks);
+            initialCooldownTicks = Math.max(0, initialCooldownTicks);
             holdIntervalTicks = Math.max(1, holdIntervalTicks);
             if (maxCharges == 0 || maxCharges < -1) {
                 throw new IllegalArgumentException("maxCharges must be -1 or greater than 0");
             }
+        }
+
+        /** 兼容原有构造入口；旧技能默认没有开局冷却。 */
+        public Definition(ResourceLocation id, String nameKey, int cooldownTicks, int maxCharges,
+                boolean continuous, int holdIntervalTicks, boolean noCastCCA, AnnounceInfo announceInfo,
+                boolean toggleable, boolean shifted, boolean modeSwitch, boolean showOnHud,
+                boolean withTarget, Predicate<Entity> targetType, boolean haveRecord, boolean widgetSkill,
+                Handler handler, Component recordName) {
+            this(id, nameKey, cooldownTicks, maxCharges, continuous, holdIntervalTicks, noCastCCA,
+                    announceInfo, toggleable, shifted, modeSwitch, showOnHud, withTarget, targetType,
+                    haveRecord, widgetSkill, handler, recordName, 0);
         }
 
         public static Builder builder(ResourceLocation id, String nameKey, Handler handler) {
@@ -238,6 +251,7 @@ public final class RoleSkill {
         private final String nameKey;
         private final Handler handler;
         private int cooldownTicks;
+        private int initialCooldownTicks;
         private boolean noCastCCA = false;
         private boolean haveRecord = false;
         private boolean withTarget = false;
@@ -292,6 +306,16 @@ public final class RoleSkill {
         public Builder cooldownTicks(int ticks) {
             this.cooldownTicks = ticks;
             return this;
+        }
+
+        /** 角色首次赋予及正式开局时的冷却，默认 0，不影响普通施法冷却。 */
+        public Builder initialCooldownTicks(int ticks) {
+            this.initialCooldownTicks = ticks;
+            return this;
+        }
+
+        public Builder initialCooldownSeconds(int seconds) {
+            return initialCooldownTicks(Math.multiplyExact(seconds, 20));
         }
 
         public Builder noCastCCA(boolean flag) {
@@ -410,7 +434,7 @@ public final class RoleSkill {
                     holdIntervalTicks, noCastCCA, announceInfo, toggleable, shifted, modeSwitch, showOnHud, withTarget,
                     targetType,
                     haveRecord, widgetSkill,
-                    handler, recordName);
+                    handler, recordName, initialCooldownTicks);
         }
     }
 
@@ -439,6 +463,31 @@ public final class RoleSkill {
             "xiaoheihand:super_loose_end");
 
     private RoleSkill() {
+    }
+
+    private static boolean initialCooldownEventsRegistered;
+
+    /** 注册一次通用开局冷却，不让准备阶段提前消耗正式开局冷却。 */
+    public static void registerInitialCooldownEvents() {
+        if (initialCooldownEventsRegistered) return;
+        initialCooldownEventsRegistered = true;
+        io.wifi.starrailexpress.event.OnGameTrueStarted.EVENT.register(level -> {
+            var game = io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY.get(level);
+            for (ServerPlayer player : level.players()) applyInitialCooldowns(player, game.getRole(player));
+        });
+    }
+
+    /** 由职业初始化器在组件初始化后调用；不设置此属性的旧技能完全不受影响。 */
+    public static void applyInitialCooldowns(ServerPlayer player, SRERole role) {
+        var definitions = getDefinitions(role);
+        if (definitions.stream().noneMatch(definition -> definition.initialCooldownTicks() > 0)) return;
+        var ability = SREAbilityPlayerComponent.KEY.get(player);
+        ability.ensureSkills(definitions);
+        for (var definition : definitions) {
+            if (definition.initialCooldownTicks() > 0) {
+                ability.setSkillCooldown(definition.id(), definition.initialCooldownTicks());
+            }
+        }
     }
 
     public static Builder skill(ResourceLocation id, String nameKey, Handler handler) {

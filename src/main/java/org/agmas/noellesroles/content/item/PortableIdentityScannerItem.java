@@ -28,6 +28,15 @@ public final class PortableIdentityScannerItem extends Item {
         if (player instanceof ServerPlayer serverPlayer) IdentityScannerService.scanPortable(serverPlayer);
         return InteractionResult.sidedSuccess(player.level().isClientSide);
     }
+    /** 在职业允许丢弃和白名单之前执行；拒绝后纠正客户端移走物品的预测。 */
+    public static InteractionResult beforeDrop(Player player, ItemStack stack) {
+        if (!blocksDrop(player, stack)) return InteractionResult.PASS;
+        if (player instanceof ServerPlayer owner) {
+            owner.containerMenu.sendAllDataToRemote();
+            if (owner.containerMenu != owner.inventoryMenu) owner.inventoryMenu.sendAllDataToRemote();
+        }
+        return InteractionResult.FAIL;
+    }
     /** 通用于所有持有者；服务端同时查询局内期限，不能借换物品、重连或暂停绕过。 */
     public static boolean blocksDrop(Player player, ItemStack stack) {
         if (!(stack.getItem() instanceof PortableIdentityScannerItem) || player.isCreative()

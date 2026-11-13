@@ -34,6 +34,22 @@ public final class GameUtilityEvents {
         };
     }
 
+    /** 复活前否决，位于状态清理与传送之前；回房间复活的 destination 为 null。 */
+    public static final Event<BeforeRevive> ALLOW_REVIVE = EventFactory.createArrayBacked(BeforeRevive.class,
+            GameUtilityEvents::beforeReviveInvoker);
+
+    static BeforeRevive beforeReviveInvoker(BeforeRevive[] listeners) {
+        return (player, destination) -> {
+            for (BeforeRevive listener : listeners) if (!listener.allow(player, destination)) return false;
+            return true;
+        };
+    }
+
+    @FunctionalInterface
+    public interface BeforeRevive {
+        boolean allow(ServerPlayer player, @Nullable net.minecraft.world.phys.Vec3 destination);
+    }
+
     /** 完整 resetPlayer 的末尾；不挪用位于基础重置中段的 ResetPlayerEvent。 */
     public static final Event<AfterReset> AFTER_RESET = EventFactory.createArrayBacked(AfterReset.class,
             listeners -> player -> {

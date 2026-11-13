@@ -115,7 +115,7 @@ public final class CommandBlockDirector {
         WhiteEyesRole.registerSkill();
         StringerRole.registerSkill();
         PaperDollRole.registerSkill();
-        FogGuestRole.registerSkill();
+        MustardRole.registerEvents();
         PendulumRole.registerSkill();
         CandleShadeRole.registerSkill();
         DreadlordRole.registerSkill();

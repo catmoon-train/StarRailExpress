@@ -284,6 +284,10 @@ public class DreamHealthComponent implements RoleComponent {
                 return true;
             }
         }
+        if (org.agmas.noellesroles.game.command_block.MustardRole.redirectVirtualDamage(
+                sp, attacker, damage, deathReason, ignoreVirtualShield, pierceOtherShields)) {
+            return true;
+        }
         if (attacker != null) {
             ProgressionDataManager.onVirtualDamageDealt(attacker, damage);
         }

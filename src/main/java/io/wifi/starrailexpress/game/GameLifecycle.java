@@ -487,10 +487,31 @@ final class GameLifecycle {
             if (!echoMode) serverPlayerEntity.addItem(letter);
             i++;
         }
+        // 每次开局独立预留站位，不改变回房间、复活、旁观或局末回传的通用入口。
+        GameStartSpawnScatter spawnScatter = SREConfig.instance().enableStartSpawnScatter
+                ? new GameStartSpawnScatter() : null;
+        boolean warnedAboutSpawn = false;
         for (ServerPlayer player : players) {
             player.setGameMode(net.minecraft.world.level.GameType.ADVENTURE);
-            //
             Vec3 pos = getSpawnPos(areas, roomToPlayer.getOrDefault(player.getUUID(), 1));
+            if (spawnScatter != null) {
+                Vec3 originalSpawn = (pos != null ? pos : player.position().add(areas.getPlayAreaOffset()))
+                        .add(0, 1, 0);
+                Vec3 scattered = spawnScatter.find(player, originalSpawn, areas.getPlayArea());
+                if (scattered != null) {
+                    if (pos != null) {
+                        player.teleportTo(scattered.x(), scattered.y(), scattered.z());
+                    } else {
+                        player.teleportTo(player.serverLevel(), scattered.x(), scattered.y(), scattered.z(), Set.of(), 0, 0);
+                    }
+                    continue;
+                }
+                if (!warnedAboutSpawn) {
+                    SRE.LOGGER.warn("开局出生分散：地图 {} 的出生点 {} 附近没有安全站位，保留原出生行为。",
+                            areas.mapName, originalSpawn);
+                    warnedAboutSpawn = true;
+                }
+            }
             if (pos != null) {
                 player.teleportTo(pos.x(), pos.y() + 1, pos.z());
             } else {

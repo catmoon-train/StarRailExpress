@@ -50,6 +50,7 @@ public record ZeroOneFiveShootPayload(int target) implements CustomPacketPayload
         @Override
         public void receive(@NotNull ZeroOneFiveShootPayload payload, ServerPlayNetworking.@NotNull Context context) {
             ServerPlayer player = context.player();
+            if (org.agmas.noellesroles.game.roles.innocence.decree.DecreeService.blocksGun(player)) return;
             ItemStack mainHandStack = player.getMainHandItem();
 
             if (player.isSpectator()) {

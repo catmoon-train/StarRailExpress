@@ -87,6 +87,7 @@ public class SwapperRoleData extends SimpleRoleData {
                 .get(this.player);
         Player player1 = player.level().getPlayerByUUID(t1);
         Player player2 = player.level().getPlayerByUUID(t2);
+        if (org.agmas.noellesroles.game.roles.innocence.decree.DecreeService.blocksTeleport(player, player1, player2)) return;
         if (!GameUtils.isPlayerAliveAndSurvival(player1)) {
             this.player.displayClientMessage(
                     Component.translatable("message.swapper.failed.died", player1.getName()), true);
@@ -154,6 +155,7 @@ public class SwapperRoleData extends SimpleRoleData {
             return;
         }
 
+        if (org.agmas.noellesroles.game.roles.innocence.decree.DecreeService.blocksTeleport(sp, target)) return;
         Vec3 selfPos = sp.position();
         Vec3 targetPos = target.position();
         sp.stopRiding();
@@ -195,6 +197,7 @@ public class SwapperRoleData extends SimpleRoleData {
 
         Player player1 = player.level().getPlayerByUUID(target1);
         Player player2 = player.level().getPlayerByUUID(target2);
+        if (org.agmas.noellesroles.game.roles.innocence.decree.DecreeService.blocksTeleport(player, player1, player2)) return;
         if (!GameUtils.isPlayerAliveAndSurvival(player1)) {
             return;
         }

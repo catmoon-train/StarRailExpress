@@ -105,6 +105,8 @@ public record SniperShootPayload(Action action, int targetOrShooterId, @Nullable
                 return;
             // 独立按键只发「切换」语义：装填还是卸载以服务端权威数据为准，避免客户端状态不同步时装反。
             Action action = payload.action();
+            if (action == Action.SHOOT && !io.wifi.starrailexpress.event.ItemGameplayEvents.ALLOW_GUN_FIRE.invoker()
+                    .allow(player, payload.targetOrShooterId())) return;
             if (action == Action.TOGGLE_SCOPE) {
                 action = SniperRifleItem.hasScopeAttached(mainHandStack)
                         ? Action.UNINSTALL_SCOPE : Action.INSTALL_SCOPE;

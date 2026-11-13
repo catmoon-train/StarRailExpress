@@ -60,6 +60,9 @@ import org.agmas.noellesroles.game.roles.killer.pooler.PoolerDomainManager;
 import org.agmas.noellesroles.role_data.innocence.FoolRoleData;
 
 public class ModEffects {
+    /** 律令领域标记，具体禁令由服务端领域状态决定。 */
+    public static final Holder<MobEffect> DECREE_RANGE = register("decree_range",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xEED796));
     /** 禁止商店购买 */
     public static final Holder<MobEffect> SHOP_BANNED = register("shop_banned",
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF));
@@ -956,15 +959,18 @@ public class ModEffects {
         return entity != null && entity.hasEffect(MENTAL_DEAFNESS);
     }
 
+    /** 欲望显现的视线标记；由职业短时刷新，不另行固定扣除 SAN。 */
+    public static final Holder<MobEffect> ROULETTE_DEVIL_DREAD = register("roulette_devil_dread",
+            new MobEffect(MobEffectCategory.HARMFUL, 0x15101F) {});
+
     public static float getMoodDrainMultiplier(LivingEntity entity) {
         if (hasFullMoodLock(entity) || entity.hasEffect(MOOD_DRAIN_IMMUNITY)) {
             return 0f;
         }
         int amp = getAmplifier(entity, MOOD_DRAIN_REDUCTION);
-        if (amp < 0) {
-            return 1f;
-        }
-        return Mth.clamp(1f - 0.3f * (amp + 1), 0f, 1f);
+        float base = amp < 0 ? 1f : Mth.clamp(1f - 0.3f * (amp + 1), 0f, 1f);
+        return org.agmas.noellesroles.game.roles.neutral.roulette_devil.RouletteDevilRules
+                .manifestationDrain(base, entity.hasEffect(ROULETTE_DEVIL_DREAD));
     }
 
     public static float getMoodRegenPerTick(LivingEntity entity) {
@@ -1142,7 +1148,8 @@ public class ModEffects {
         if (!(entity instanceof ServerPlayer player)) return false;
         var uuid = player.getUUID();
         if (WarlockDomainManager.isInDomain(uuid) || PoolerDomainManager.isInDomain(uuid)
-                || GroselleJourneyManager.isBanished(uuid)) return true;
+                || GroselleJourneyManager.isBanished(uuid)
+                || org.agmas.noellesroles.game.roles.neutral.roulette_devil.RouletteDevilSessions.inDuel(uuid)) return true;
         for (ServerPlayer candidate : player.serverLevel().players()) {
             FoolRoleData fool = RoleData.getNullable(FoolRoleData.class, candidate);
             if (fool != null && fool.inMeeting && fool.meetingOriginalPositions.containsKey(uuid)) return true;

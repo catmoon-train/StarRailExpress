@@ -68,6 +68,7 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
 
         /** 网络玩家与训练假人共享的服务端刀击入口。 */
         public static void stab(ServerPlayer player, int targetId) {
+            if (!io.wifi.starrailexpress.event.ItemGameplayEvents.ALLOW_KNIFE_ATTACK.invoker().allow(player, targetId)) return;
             if (io.wifi.starrailexpress.anticheat.ClickAntiCheat.isLocked(player)) {
                 return;
             }

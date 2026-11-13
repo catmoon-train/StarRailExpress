@@ -136,7 +136,7 @@ public class PaperDollRoleData extends SimpleRoleData {
         // 只跳过纸人自己的拦截，不改为强制死亡，不绕过其他正常死亡规则。
         resolving = true;
         try {
-            death.run();
+            org.agmas.noellesroles.game.roles.innocence.decree.DecreeService.runDelayedDamage(death);
         } finally {
             resolving = false;
         }

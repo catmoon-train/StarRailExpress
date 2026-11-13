@@ -243,6 +243,9 @@ public class NoellesrolesClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        org.agmas.noellesroles.client.roulette.RouletteClient.register();
+        org.agmas.noellesroles.client.RouletteDevilClient.register();
+        org.agmas.noellesroles.client.decree.DecreeClient.register();
         org.agmas.noellesroles.client.events.ClientRoleEventHandlers.register();
         org.agmas.noellesroles.game.command_block.SteveMiner.clientTaskBlock =
                 pos -> taskBlocks.containsKey(pos) || TaskBlockOverlayRenderer.RoomDoorPositions.contains(pos);

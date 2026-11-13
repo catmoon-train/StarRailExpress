@@ -127,14 +127,7 @@ public class SREDevilRouletteGameMode extends SREBaseCustomizationGameMode {
                     player.addItem(itemStack);
                 }
             }
-            // 开局发放道具
-            if (!DevilRouletteGame.rouletteItems.isEmpty()) {
-                RandomSource randomSource = player.getRandom();
-                for (int i = 0; i < 3; ++i) {
-                    player.addItem(DevilRouletteGame.rouletteItems.get(
-                            randomSource.nextInt(DevilRouletteGame.rouletteItems.size())).get());
-                }
-            }
+            // 轮盘赌道具由赌桌开局及每次装填逐件发放，避免模式开局重复补给。
         }
     }
 

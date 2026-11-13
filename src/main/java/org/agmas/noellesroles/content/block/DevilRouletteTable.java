@@ -195,14 +195,7 @@ public class DevilRouletteTable extends Block implements EntityBlock, AutoResetB
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state,
             BlockEntityType<T> type) {
-        // 客户端调用 方块实体 tick ： 刷新动画
-        // if (level.isClientSide) {
-        // return (lvl, pos, st, be) -> {
-        // if (be instanceof DevilRouletteTableEntity table) {
-        // table.clientTick();
-        // }
-        // };
-        // }
+        // 服务端推进关键帧；客户端根据同步快照插值，不单独运行规则 tick。
         if (state.getValue(PART) == TablePart.CENTER && !level.isClientSide) {
             return (lvl, pos, st, be) -> {
                 if (be instanceof DevilRouletteTableEntity table) {
@@ -218,10 +211,8 @@ public class DevilRouletteTable extends Block implements EntityBlock, AutoResetB
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
             BlockHitResult hitResult) {
-        if (level.isClientSide) {
-            return InteractionResult.SUCCESS;
-        }
-        return InteractionResult.PASS;
+        if (!level.isClientSide) useItemOn(ItemStack.EMPTY, state, level, pos, player, InteractionHand.MAIN_HAND, hitResult);
+        return InteractionResult.SUCCESS;
     }
 
     /**
@@ -237,45 +228,31 @@ public class DevilRouletteTable extends Block implements EntityBlock, AutoResetB
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
             Player player,
             InteractionHand hand, BlockHitResult hit) {
-        if (level.isClientSide) {
-            return ItemInteractionResult.SUCCESS;
-        }
+        if (level.isClientSide) return ItemInteractionResult.SUCCESS;
         BlockPos corePos = getCore(state, pos);
-        BlockEntity be = level.getBlockEntity(corePos);
-        if (be instanceof DevilRouletteTableEntity table) {
-            // 只有玩家坐在座位上才能继续操作
-            if (player.getVehicle() instanceof SeatEntity seatEntity) {
-                var seatPos = seatEntity.getSeatPos();
-                if (seatPos != null && table.isSeatAvailable(seatPos)) {
-                    boolean isFront = table.isFrontSeat(seatPos);
-                    // 游戏未开始时：由玩家自行入座并点击桌子中心开局（轮盘赌模式同样如此）
-                    if (!table.isGameActive()) {
-                        // 满足开始条件，且操作玩家位置正确：开始游戏
-                        if (corePos.equals(hit.getBlockPos()) && table.checkCanStartGame() &&
-                                table.checkPlayerInRightSeat(player, isFront)) {
-                            table.startGame();
-                        }
-                        // 进行占位操作，再次点击取消
-                        else {
-                            if (isFront) {
-                                if (!table.removePlayerIfSame(player, true) && table.addPlayer(player, true)) {
-                                    return ItemInteractionResult.CONSUME;
-                                }
-                            } else {
-                                if (!table.removePlayerIfSame(player, false) && table.addPlayer(player, false)) {
-                                    return ItemInteractionResult.CONSUME;
-                                }
-                            }
-                        }
-                    }
-                    // 游戏已开始则由方块实体判断具体玩家操作
-                    else if (table.checkPlayerInRightSeat(player, isFront) && table.canPlayerOperate(player)) {
-                        return table.useItemOn(stack, state, level, pos, player, hand, hit);
-                    }
-                }
-            }
+        if (!(level.getBlockEntity(corePos) instanceof DevilRouletteTableEntity table)) return ItemInteractionResult.CONSUME;
+        if (!(player.getVehicle() instanceof SeatEntity seat) || seat.getSeatPos() == null
+                || !table.isSeatAvailable(seat.getSeatPos())) {
+            player.displayClientMessage(net.minecraft.network.chat.Component.translatable("roulette.error.seat"), true);
+            return ItemInteractionResult.CONSUME;
         }
-        return ItemInteractionResult.SUCCESS;
+        if (GameUtils.isGameStarted && GameUtils.isPlayerEliminated(player)) {
+            player.displayClientMessage(net.minecraft.network.chat.Component.translatable("roulette.error.eliminated"), true);
+            return ItemInteractionResult.CONSUME;
+        }
+        boolean isFront = table.isFrontSeat(seat.getSeatPos());
+        if (table.isGameActive()) return table.useItemOn(stack, state, level, pos, player, hand, hit);
+        if (corePos.equals(pos)) {
+            // 中心点击永不取消占位：先登记，双方确认就绪后再点击开始。
+            if (!table.checkPlayerInRightSeat(player, isFront)) {
+                if (!table.addPlayer(player, isFront))
+                    player.displayClientMessage(net.minecraft.network.chat.Component.translatable("roulette.error.occupied"), true);
+            } else if (table.checkCanStartGame()) table.startGame();
+            else player.displayClientMessage(net.minecraft.network.chat.Component.translatable("roulette.hint.wait_opponent"), true);
+        } else if (!table.removePlayerIfSame(player, isFront) && !table.addPlayer(player, isFront)) {
+            player.displayClientMessage(net.minecraft.network.chat.Component.translatable("roulette.error.occupied"), true);
+        }
+        return ItemInteractionResult.CONSUME;
     }
 
     // 游戏模式内重置逻辑

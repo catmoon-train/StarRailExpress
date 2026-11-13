@@ -65,7 +65,10 @@ import org.agmas.noellesroles.game.command_block.EntityNullRole;
 import org.agmas.noellesroles.game.command_block.FarlandsRole;
 import org.agmas.noellesroles.game.command_block.WhiteEyesRole;
 import org.agmas.noellesroles.game.command_block.PaperDollRole;
-import org.agmas.noellesroles.game.command_block.FogGuestRole;
+import org.agmas.noellesroles.game.command_block.MustardRole;
+import org.agmas.noellesroles.game.command_block.MustardPuppetRole;
+import org.agmas.noellesroles.role_data.killer.MustardRoleData;
+import org.agmas.noellesroles.role_data.killer.MustardPuppetRoleData;
 import org.agmas.noellesroles.game.command_block.PendulumRole;
 import org.agmas.noellesroles.game.command_block.CandleShadeRole;
 import org.agmas.noellesroles.game.command_block.DreadlordRole;
@@ -387,7 +390,8 @@ public class ModRoles {
     public static final ResourceLocation WHITE_EYES_ID = Noellesroles.id("white_eyes");
     public static final ResourceLocation STRINGER_ID = Noellesroles.id("stringer");
     public static final ResourceLocation PAPER_DOLL_ID = Noellesroles.id("paper_doll");
-    public static final ResourceLocation FOG_GUEST_ID = Noellesroles.id("fog_guest");
+    public static final ResourceLocation MUSTARD_ID = Noellesroles.id("mustard");
+    public static final ResourceLocation MUSTARD_PUPPET_ID = Noellesroles.id("mustard_puppet");
     public static final ResourceLocation PENDULUM_ID = Noellesroles.id("pendulum");
     public static final ResourceLocation CANDLE_SHADE_ID = Noellesroles.id("candle_shade");
     public static final ResourceLocation DREADLORD_ID = Noellesroles.id("dreadlord");
@@ -1207,6 +1211,8 @@ public class ModRoles {
             .setComponentKey(FoodDrinkGlowComponent.KEY)
             .setTaskReward(1, -1, ModItems.FOOD_STUFF.getDefaultInstance())
             .setTaskRewardSilent(true); // 每完成一个任务给 1 个食材，不限次数，静默发放
+    public static final SRERole DECREE_MAGE = TMMRoles.registerRole(
+            new org.agmas.noellesroles.game.roles.innocence.decree.DecreeMageRole());
     public static SRERole MUSHROOM_SCHOLAR = TMMRoles.registerRole(
             new MushroomScholarRole(MUSHROOM_SCHOLAR_ID, new Color(116, 87, 58).getRGB(),
                     true, false, SRERole.MoodType.REAL,
@@ -2376,11 +2382,11 @@ public class ModRoles {
             .addFlag("Command_Role")
             .setAddedVersion("4.5");
 
-    /** 雾客。只由命令方块事件改写产生。藏雾时不能出手。 */
-    public static final SRERole FOG_GUEST = TMMRoles.registerRole(
-            new FogGuestRole(FOG_GUEST_ID, new Color(150, 170, 180).getRGB(),
+    /** 芥末。只由命令方块事件改写产生，使用核心复活并升级傀儡。 */
+    public static final SRERole MUSTARD = TMMRoles.registerRole(
+            new MustardRole(MUSTARD_ID, new Color(174, 165, 56).getRGB(),
                     false, true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
-                    .setRoleData(FogGuestRoleData::new))
+                    .setRoleData(MustardRoleData::new))
             .setCanSeeCoin(true)
             .setCanBeRandomedByOtherRoles(false)
             .setCanSetSpawnInfoInConfig(false)
@@ -2388,6 +2394,17 @@ public class ModRoles {
             .setHiddenForRoleRotation(true)
             .addFlag("Command_Role")
             .setAddedVersion("4.5");
+
+    /** 芥末复活的玩家傀儡，不进入异常改写池。 */
+    public static final SRERole MUSTARD_PUPPET = TMMRoles.registerRole(
+            new MustardPuppetRole(MUSTARD_PUPPET_ID)
+                    .setRoleData(MustardPuppetRoleData::new))
+            .setCanBeRandomedByOtherRoles(false)
+            .setCanSetSpawnInfoInConfig(false)
+            .setDefaultMax(0)
+            .setHiddenForRoleRotation(true)
+            .setPassiveIncome(false)
+            .setCanSeeCoin(false);
 
     /** 钟摆。只由命令方块事件改写产生。先记下位置，再摆回去。 */
     public static final SRERole PENDULUM = TMMRoles.registerRole(
@@ -3862,8 +3879,13 @@ public class ModRoles {
      * 初始化并注册所有角色
      * 在模组初始化时调用
      */
+    public static final ResourceLocation ROULETTE_DEVIL_ID = Noellesroles.id("roulette_devil");
+    public static final SRERole ROULETTE_DEVIL = TMMRoles.registerRole(
+            new org.agmas.noellesroles.game.roles.neutral.roulette_devil.RouletteDevilRole(ROULETTE_DEVIL_ID));
+
     public static void init() {
         BounsRoles.init();
+        org.agmas.noellesroles.game.roles.neutral.roulette_devil.RouletteDevilRole.register();
         SREPlayerPoisonComponent.canSyncedRolePaths.add(ModRoles.POISONER_ID.getPath());
         SREPlayerPoisonComponent.canSyncedRolePaths.add(ModRoles.BARTENDER_ID.getPath());
         // 酒保透视护盾：不区分阵营，是否可见由护盾层自身的「可被酒保透视」标记决定

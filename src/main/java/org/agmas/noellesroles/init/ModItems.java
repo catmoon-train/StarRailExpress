@@ -1196,7 +1196,20 @@ public class ModItems {
     public static final Item ZHANWEIFU2 = registrar.create("zhanweifu2",
             new Item(new Item.Properties().stacksTo(64)));
 
-    // 轮盘赌物品
+    // 轮盘赌专用道具；普通手铐和药剂不复用桌内行为。
+    public static final Map<org.agmas.noellesroles.game.minigame.roulette.RouletteItem, Item> ROULETTE_TOOLS = createRouletteTools();
+
+    private static Map<org.agmas.noellesroles.game.minigame.roulette.RouletteItem, Item> createRouletteTools() {
+        var result = new java.util.EnumMap<org.agmas.noellesroles.game.minigame.roulette.RouletteItem, Item>(
+                org.agmas.noellesroles.game.minigame.roulette.RouletteItem.class);
+        for (var kind : org.agmas.noellesroles.game.minigame.roulette.RouletteItem.values()) {
+            result.put(kind, register(new org.agmas.noellesroles.game.minigame.roulette.RouletteToolItem(kind),
+                    kind.itemId(), MISC_ITEMS_GROUP));
+        }
+        return java.util.Collections.unmodifiableMap(result);
+    }
+
+    // 旧六道具保留 ID，赌桌内映射为对应的新规则，不再随机发放。
     public static final Item MAGNIFYING_GLASS = register(new Item(new Item.Properties().stacksTo(64)) {
         @Override
         public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip,
@@ -1570,6 +1583,10 @@ public class ModItems {
     public static final Item FOG_BLADE = register(
             new org.agmas.noellesroles.game.command_block.item.FogBladeItem(new Item.Properties().stacksTo(1)),
             "fog_blade", ROLE_ITEMS_GROUP, WEAPONS_GROUP);
+    public static final Item PUPPET_CORE = register(new Item(new Item.Properties()),
+            "puppet_core", ROLE_ITEMS_GROUP);
+    public static final Item PUPPET_HAND = register(new Item(new Item.Properties().stacksTo(1)),
+            "puppet_hand", ROLE_ITEMS_GROUP, WEAPONS_GROUP);
     public static final Item CLOCK_HAMMER = register(
             new org.agmas.noellesroles.game.command_block.item.ClockHammerItem(new Item.Properties().stacksTo(1)),
             "clock_hammer", ROLE_ITEMS_GROUP, WEAPONS_GROUP);

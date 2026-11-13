@@ -14,11 +14,23 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.Entity;
 
 /** 纯客户端扩展时点；这里只定义调度规则，不包含职业、效果或活动判断。 */
 @Environment(EnvType.CLIENT)
 public final class ClientGameplayEvents {
     private ClientGameplayEvents() {
+    }
+
+    /** 伪装临时实体的玩家状态复制完成后通知，不推进实体 tick。 */
+    public static final Event<DisguiseStateCopied> DISGUISE_STATE_COPIED = EventFactory.createArrayBacked(
+            DisguiseStateCopied.class, listeners -> (player, dummy) -> {
+                for (DisguiseStateCopied listener : listeners) listener.copied(player, dummy);
+            });
+
+    @FunctionalInterface
+    public interface DisguiseStateCopied {
+        void copied(Player player, Entity dummy);
     }
 
     /** 本能 HEAD 查询，首个非 PASS 覆盖原逻辑；player 可能为空。 */

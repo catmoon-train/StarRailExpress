@@ -116,6 +116,9 @@ public class RevivalSelectionHandler {
             if (!revived.isSpectator()) {
                 return InteractionResult.PASS;
             }
+            if (org.agmas.noellesroles.game.roles.innocence.decree.DecreeService.blocksRevival(player, revived)
+                    || org.agmas.noellesroles.game.roles.innocence.decree.DecreeService.isRestrictedAt(body.level(), body.position(),
+                            org.agmas.noellesroles.game.roles.innocence.decree.Decree.REVIVAL)) return InteractionResult.FAIL;
             var nc = NecromancerComponent.KEY.get(serverLevel);
             if (nc.getAvailableRevives() < 1 || !hasKillerSlot(serverLevel, gameWorldComponent)) {
                 return InteractionResult.PASS;
@@ -217,6 +220,9 @@ public class RevivalSelectionHandler {
             if (!revived.isSpectator()) {
                 return InteractionResult.PASS;
             }
+            if (org.agmas.noellesroles.game.roles.innocence.decree.DecreeService.blocksRevival(player, revived)
+                    || org.agmas.noellesroles.game.roles.innocence.decree.DecreeService.isRestrictedAt(body.level(), body.position(),
+                            org.agmas.noellesroles.game.roles.innocence.decree.Decree.REVIVAL)) return InteractionResult.FAIL;
             var nc = NecromancerComponent.KEY.get(serverLevel);
             if (nc.getAvailableRevives() < 1 || !hasKillerSlot(serverLevel, gameWorldComponent)) {
                 return InteractionResult.PASS;

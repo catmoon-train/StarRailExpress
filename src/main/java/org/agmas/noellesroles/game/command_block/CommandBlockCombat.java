@@ -145,9 +145,6 @@ public final class CommandBlockCombat {
         if (source.getEntity() instanceof ServerPlayer attacker && Entity303Role.rejectsHarm(attacker, player)) {
             return false;
         }
-        if (source.getEntity() instanceof ServerPlayer fog && FogGuestRole.rejectsHarm(fog)) {
-            return false;
-        }
         if (source.getEntity() instanceof ServerPlayer farlands && FarlandsRole.blocksMelee(farlands)) {
             return false;
         }
@@ -169,7 +166,7 @@ public final class CommandBlockCombat {
                 return false;
             }
         }
-        return true;
+        return !MustardRole.redirectNativeDamage(player, source, amount);
     }
 
     public static boolean allowScriptDeath(Player player, Player killer, ResourceLocation reason, boolean forced) {
@@ -202,9 +199,6 @@ public final class CommandBlockCombat {
         }
         if (killer instanceof ServerPlayer attacker && victim instanceof ServerPlayer dead
                 && Entity303Role.rejectsHarm(attacker, dead)) {
-            return false;
-        }
-        if (killer instanceof ServerPlayer fog && FogGuestRole.rejectsHarm(fog)) {
             return false;
         }
         if (killer instanceof ServerPlayer farlands && FarlandsRole.blocksMelee(farlands)

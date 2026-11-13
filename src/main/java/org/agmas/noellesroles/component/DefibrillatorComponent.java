@@ -161,6 +161,7 @@ public class DefibrillatorComponent implements RoleComponent, ServerTickingCompo
             return;
         if (this.isDead && player.isSpectator()
                 && SRE.getTicksFromGameStart() >= this.resurrectionTime) {
+            if (org.agmas.noellesroles.game.roles.innocence.decree.DecreeService.blocksRevival(player)) return;
             // 复活逻辑
             DeathPenaltyComponent.KEY.get(serverPlayer).init();
 

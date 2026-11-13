@@ -69,6 +69,7 @@ public final class ClientRoleEventHandlers {
         ItemClientActions.initialize();
         PlateTrayClientEffects.register();
         InventoryIntroductionRenderer.register();
+        ClientGameplayEvents.DISGUISE_STATE_COPIED.register(org.agmas.noellesroles.client.MustardPuppetAnimation::apply);
 
         // 和旧客户端 mixin 一样，也覆盖客户端进程内的集成服务器调用。
         GameUtilityEvents.ALIVE_OVERRIDE.register(player -> PelicanManager.isStashed(player)

@@ -148,6 +148,7 @@ final class GameDeath {
     }
 
     static void revivePlayerToItsRoom(ServerPlayer player) {
+        if (!io.wifi.starrailexpress.event.GameUtilityEvents.ALLOW_REVIVE.invoker().allow(player, null)) return;
         DeathPenaltyComponent.KEY.get(player).clear();
         DefibrillatorComponent.KEY.get(player).clear();
         // 部分复活路径不销毁尸体，解除旧尸体不可交互标记。
@@ -168,6 +169,7 @@ final class GameDeath {
     }
 
     static void revivePlayer(ServerPlayer player, double x, double y, double z) {
+        if (!io.wifi.starrailexpress.event.GameUtilityEvents.ALLOW_REVIVE.invoker().allow(player, new Vec3(x, y, z))) return;
         DeathPenaltyComponent.KEY.get(player).clear();
         DefibrillatorComponent.KEY.get(player).clear();
         PlayerBodyEntity body = DefibrillatorComponent.findPlayerBodyEntity(player);

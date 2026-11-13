@@ -59,6 +59,13 @@ public class ClientOpenScreenManager {
         if (id.equals(OpenScreenManager.MUSHROOM_CULTIVATION_SCREEN)) {
             screen = new MushroomCultivationScreen();
         }
+        if (id.equals(org.agmas.noellesroles.game.roles.neutral.roulette_devil.RouletteDevilRole.INVENTORY)
+                && context.client().player != null) {
+            screen = new io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen(context.client().player);
+        }
+        if (id.equals(OpenScreenManager.DECREE_MAGE_SCREEN)) {
+            screen = new org.agmas.noellesroles.client.screen.DecreeScreen();
+        }
         if (screen != null) {
             final var finalScreen = screen;
             context.client().execute(() -> {
