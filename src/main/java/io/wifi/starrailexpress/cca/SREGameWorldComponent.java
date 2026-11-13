@@ -58,10 +58,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.api.time.TimeRewindPlayback;
 import org.agmas.noellesroles.api.time.TimeRewind;
-import org.agmas.noellesroles.content.item.GroselleJourneyManager;
-import org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager;
 import org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA;
-import org.agmas.noellesroles.game.roles.killer.pooler.PoolerDomainManager;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.anime.AnimeRoles;
@@ -913,7 +910,10 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         if (player.isSpectator() || player.isCreative())
             return;
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
-        if (GroselleJourneyManager.isBanished(player.getUUID())) {
+        // 领域位于地图外（咒术师在负 Z，愚者/祈月者在正 Z），不能按地图高度、水域等规则处死。
+        if (ModEffects.isInAnyDomain(player)) {
+            gameCCA.playerBannedBlockTime.remove(player.getUUID());
+            perPlayerDarknessTime.remove(player.getUUID());
             return;
         }
         if (!(player.getZ() >= 19000)) {
@@ -1023,16 +1023,14 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         } else {
             gameCCA.playerBannedBlockTime.remove(player.getUUID());
             perPlayerDarknessTime.remove(player.getUUID());
-            if (!TarotAssemblyManager.havingMeeting
-                    && !PoolerDomainManager.isInDomain(player.getUUID())) {
-                GameUtils.killPlayer(player, false,
+            // 实际领域成员已在上方返回；远端区域里的普通玩家仍须正常判定越界。
+            GameUtils.killPlayer(player, false,
+                    player.getLastHurtByMob() instanceof Player killerPlayer ? killerPlayer : null,
+                    GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
+            if (!GameUtils.isPlayerEliminated(player) && (player.getZ() >= 19000)) {
+                GameUtils.forceKillPlayer(player, false,
                         player.getLastHurtByMob() instanceof Player killerPlayer ? killerPlayer : null,
                         GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
-                if (!GameUtils.isPlayerEliminated(player) && (player.getZ() >= 19000)) {
-                    GameUtils.forceKillPlayer(player, false,
-                            player.getLastHurtByMob() instanceof Player killerPlayer ? killerPlayer : null,
-                            GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
-                }
             }
         }
 
