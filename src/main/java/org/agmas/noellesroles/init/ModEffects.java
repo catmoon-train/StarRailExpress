@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.init;
 
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.game.data.MapStatusBarType;
@@ -53,6 +54,10 @@ import org.agmas.noellesroles.content.effects.TomatoFormMobEffect;
 import org.agmas.noellesroles.game.backworld.BackworldOutlineEffectSync;
 import org.agmas.noellesroles.game.roles.killer.nostalgist.NostalgistBackworldEffectSync;
 import org.agmas.noellesroles.game.roles.killer.wraith_assassin.WraithDimensionEffectSync;
+import org.agmas.noellesroles.content.item.GroselleJourneyManager;
+import org.agmas.noellesroles.game.roles.killer.warlock.WarlockDomainManager;
+import org.agmas.noellesroles.game.roles.killer.pooler.PoolerDomainManager;
+import org.agmas.noellesroles.role_data.innocence.FoolRoleData;
 
 public class ModEffects {
     /** 禁止商店购买 */
@@ -1129,10 +1134,20 @@ public class ModEffects {
     }
 
     /**
-     * 玩家当前是否处于任意一个三大领域中（即拥有领域标记效果）。
+     * 玩家是否处于领域中。客户端读取同步标记，服务端同时检查实际成员，
+     * 覆盖传送后尚未附加标记及死亡后效果被清除的阶段；不能按全局开会状态豁免旁人。
      */
     public static boolean isInAnyDomain(LivingEntity entity) {
-        return entity.hasEffect(DOMAIN_MARK);
+        if (entity.hasEffect(DOMAIN_MARK)) return true;
+        if (!(entity instanceof ServerPlayer player)) return false;
+        var uuid = player.getUUID();
+        if (WarlockDomainManager.isInDomain(uuid) || PoolerDomainManager.isInDomain(uuid)
+                || GroselleJourneyManager.isBanished(uuid)) return true;
+        for (ServerPlayer candidate : player.serverLevel().players()) {
+            FoolRoleData fool = RoleData.getNullable(FoolRoleData.class, candidate);
+            if (fool != null && fool.inMeeting && fool.meetingOriginalPositions.containsKey(uuid)) return true;
+        }
+        return false;
     }
 
     /**

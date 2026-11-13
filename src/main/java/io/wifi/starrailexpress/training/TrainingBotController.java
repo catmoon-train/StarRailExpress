@@ -60,9 +60,9 @@ public final class TrainingBotController {
         boolean combat = "combat".equals(config.behavior);
         if ("stationary".equals(config.behavior) || session.settings().paused || !session.authorized()
                 || !TrainingRules.isAlive(bot) || bot.serverLevel() != session.level()
-                || !area.box().contains(bot.position()) || locked(bot)
+                || !area.box().contains(bot.position()) || locked(bot) || ModEffects.isInAnyDomain(bot)
                 || owner == null || !TrainingRules.isAlive(owner) || owner.serverLevel() != session.level()
-                || !area.box().contains(owner.position())) {
+                || ModEffects.isInAnyDomain(owner) || !area.box().contains(owner.position())) {
             stop(bot);
             return;
         }

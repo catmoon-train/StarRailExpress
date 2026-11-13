@@ -139,6 +139,13 @@ public final class CarpetTrainingBots implements AutoCloseable {
                 continue;
             }
             ServerPlayer bot = online(entry);
+            // 领域期间停下 Carpet 输入，不回拉、不重置/复活；由领域管理器决定位置和返程。
+            if (bot != null && bot.serverLevel() == session.level()
+                    && org.agmas.noellesroles.init.ModEffects.isInAnyDomain(bot)) {
+                stop(entry);
+                entry.deadAt = -1;
+                continue;
+            }
             boolean alive = bot != null && TrainingRules.isAlive(bot) && !bot.isRemoved();
             if (!alive) {
                 stop(entry);

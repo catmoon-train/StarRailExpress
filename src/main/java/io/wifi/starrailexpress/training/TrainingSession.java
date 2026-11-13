@@ -235,9 +235,12 @@ public final class TrainingSession {
         if (closed) return;
         ServerPlayer owner = owner();
         if (owner == null) { assistance.clear(level().getGameTime()); return; }
-        if (owner.serverLevel() != level() || owner.getY() < 55 || !TrainingLayout.box(TrainingLayout.get().bounds).inflate(8).contains(owner.position()))
+        // 领域拥有自己的边界与返程流程，训练回拉/自动复活不能抢走控制权（愚者可死亡参会）。
+        boolean inDomain = owner.serverLevel() == level() && org.agmas.noellesroles.init.ModEffects.isInAnyDomain(owner);
+        if (!inDomain && (owner.serverLevel() != level() || owner.getY() < 55
+                || !TrainingLayout.box(TrainingLayout.get().bounds).inflate(8).contains(owner.position())))
             move(owner, TrainingLayout.get().area("lobby").spawn(), 0);
-        if (!TrainingRules.isAlive(owner)) {
+        if (!inDomain && !TrainingRules.isAlive(owner)) {
             if (ownerDeathAt < 0) { ownerDeathAt = level().getGameTime(); changed(); }
             if (settings.autoRespawn && level().getGameTime() - ownerDeathAt >= settings.respawnDelay * 20L)
                 reviveOwner(owner);
