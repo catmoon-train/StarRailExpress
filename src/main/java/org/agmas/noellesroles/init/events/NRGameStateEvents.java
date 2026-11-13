@@ -112,6 +112,9 @@ public class NRGameStateEvents {
 
     private static void registerOnGameStarted() {
         OnGameStarted.EVENT.register((serverLevel) -> {
+            // 新一局：把路径点可见性强制复位为隐藏，并同步给所有客户端。
+            // 只依赖 OnGameEnd 不够（崩溃 / 强停 / OP 手动开关都可能留下 true）。
+            io.wifi.starrailexpress.util.WaypointSync.setVisibility(serverLevel.getServer(), false);
             // 物资箱：清空上局遗留的物资与领取记录，间隔重新计时并复位开启状态
             org.agmas.noellesroles.content.block_entity.SupplyCrateBlockEntity.resetAll(serverLevel);
             TarotAssemblyManager.havingMeeting = false;
@@ -188,9 +191,9 @@ public class NRGameStateEvents {
             // 清除"领袖招募教父"带来的家族标记，避免下一局残留
             org.agmas.noellesroles.game.roles.neutral.mafia.MafiaManager.clearLeaderFamilyMarks();
 
-            // 清除冒险家路径点
-            io.wifi.starrailexpress.game.data.WaypointVisibilityManager.get(world.getServer())
-                    .setWaypointsVisibility(false);
+            // 清除冒险家路径点：服务端 SavedData 与客户端显示必须一起复位，
+            // 否则客户端静态标志会残留 true，标点会跨局显示（职业说明承诺"局末自动消失"）。
+            io.wifi.starrailexpress.util.WaypointSync.setVisibility(world.getServer(), false);
 
             // 清除鹈鹕状态
             PelicanManager.releaseAllInWorld(world);

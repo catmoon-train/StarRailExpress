@@ -114,6 +114,8 @@ public class SyncWaypointsPacket implements CustomPacketPayload {
                     WaypointHUD.addWaypoint(wp.getPos(), wp.getName(), path, new Color(wp.getColor()));
                 }
             }
+            // 全量重建会丢掉管理员设置的单点隐藏，这里重新套用。
+            WaypointHUD.reapplyHiddenWaypoints();
         });
     }
 

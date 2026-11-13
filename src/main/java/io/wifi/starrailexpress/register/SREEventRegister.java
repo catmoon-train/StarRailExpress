@@ -217,8 +217,10 @@ public class SREEventRegister {
             // 只带各通道的哈希，客户端本地缓存命中就什么都不用发，未命中才回来请求完整内容
             io.wifi.starrailexpress.synccontent.ContentSyncServer.handshakeTo(handler.player);
             SceneAssetServer.sendCurrentManifest(handler.player);
-            // 同步当前路径点给新加入的玩家
+            // 同步当前路径点给新加入的玩家；可见性也要补发，否则客户端静态默认值
+            // 会与服务端 SavedData 不一致（表现为"该显示时不显示 / 不该显示时乱显示"）。
             io.wifi.starrailexpress.util.WaypointSync.syncTo(handler.player);
+            io.wifi.starrailexpress.util.WaypointSync.syncVisibilityTo(handler.player);
             // 商店价格同步握手（仅哈希；客户端本地命中则无需服务端再发完整内容）
             io.wifi.starrailexpress.shop.ShopPriceSyncServer.syncTo(handler.player);
         });

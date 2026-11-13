@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 public class WaypointManager extends SavedData {
     private static final String DATA_NAME = "starrailexpress_waypoints";
     private final Map<String, List<WaypointData>> waypoints = new ConcurrentHashMap<>();
-    private final Path serverDataDir;
+    private Path serverDataDir;
 
     public WaypointManager(Path serverDataDir) {
         this.serverDataDir = serverDataDir;
@@ -57,12 +57,17 @@ public class WaypointManager extends SavedData {
     public static WaypointManager get(MinecraftServer server) {
         ServerLevel level = server.getLevel(Level.OVERWORLD); // 使用主世界存储
         DimensionDataStorage storage = level.getDataStorage();
-        return storage.computeIfAbsent(
+        WaypointManager manager = storage.computeIfAbsent(
             new SavedData.Factory<WaypointManager>(() -> new WaypointManager(server.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT)),
                     (a,b)->load(a),
                                   null),
             DATA_NAME
         );
+        // load(CompoundTag) 拿不到 server，反序列化出来的实例只有一个占位目录。
+        // 每次取用时纠正为真实存档目录，否则服务器重启后 loadFromFile()/saveToFile()
+        // 会读写错误路径的 waypoints.json，标点数据表现为"全部丢失"。
+        manager.serverDataDir = server.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT);
+        return manager;
     }
 
     public static WaypointManager load(CompoundTag tag) {

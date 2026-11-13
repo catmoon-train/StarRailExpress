@@ -30,8 +30,8 @@ public class WaypointInitUtil {
         WaypointManager manager = WaypointManager.get(server);
         manager.loadFromFile();
         
-        // 初始化路径点可见性管理器
-        WaypointVisibilityManager.get(server);
-        // 可选：从保存的数据中恢复可见性状态
+        // 初始化路径点可见性管理器。可见性是"本局临时状态"，不能跨服务器重启恢复：
+        // 崩溃 / 强停会绕开 OnGameEnd，若把 true 恢复回来，下一局一开始就会显示上一局的标点。
+        WaypointVisibilityManager.get(server).setWaypointsVisibility(false);
     }
 }

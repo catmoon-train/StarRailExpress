@@ -20,9 +20,8 @@ import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.data.WaypointVisibilityManager;
-import io.wifi.starrailexpress.network.PacketTracker;
+import io.wifi.starrailexpress.util.WaypointSync;
 import org.agmas.noellesroles.ConfigWorldComponent;
-import io.wifi.starrailexpress.network.packet.SyncWaypointVisibilityPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -101,6 +100,12 @@ public class AdventurerRoleData extends SimpleRoleData {
 
     @Override
     public void clear() {
+        // 冒险家死亡 / 换职业 / 局末重置后，本实例的 serverTick 不再运行，
+        // 3 分钟自动关标点的计时器会永远停在半路。若标点仍由本实例维持，
+        // 必须在这里同步关闭全局可见性，否则标点会一直残留到下一次手动开关。
+        if (waypointTimer > 0 && player instanceof ServerPlayer sp && sp.getServer() != null) {
+            WaypointSync.setVisibility(sp.getServer(), false);
+        }
         init();
     }
 
@@ -193,10 +198,7 @@ public class AdventurerRoleData extends SimpleRoleData {
     }
 
     private static void setWaypointVisibility(ServerPlayer sp, boolean visible) {
-        WaypointVisibilityManager.get(sp.serverLevel()).setWaypointsVisibility(visible);
-        for (ServerPlayer target : sp.serverLevel().players()) {
-            PacketTracker.sendToClient(target, new SyncWaypointVisibilityPacket(visible));
-        }
+        WaypointSync.setVisibility(sp.getServer(), visible);
     }
 
     @Override
