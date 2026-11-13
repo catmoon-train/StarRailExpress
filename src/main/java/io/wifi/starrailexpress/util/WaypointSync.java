@@ -79,4 +79,18 @@ public final class WaypointSync {
         boolean visible = WaypointVisibilityManager.get(player.getServer()).getWaypointsVisibility();
         PacketTracker.sendToClient(player, new SyncWaypointVisibilityPacket(visible));
     }
+
+    /**
+     * 清除本局所有冒险家临时标点并让客户端立刻对账。
+     *
+     * <p>技能到时、冒险家死亡 / 换职业、开局、局末都走这里。只清临时标点，
+     * 不动 OP 建立的永久地图标点，也不改全局可见性开关。</p>
+     */
+    public static void clearAdventurerWaypoints(MinecraftServer server) {
+        if (server == null) {
+            return;
+        }
+        WaypointManager.get(server).clearAdventurerWaypoints();
+        syncToAll(server);
+    }
 }

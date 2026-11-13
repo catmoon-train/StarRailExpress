@@ -38,6 +38,14 @@ import java.util.stream.Collectors;
 
 public class WaypointManager extends SavedData {
     private static final String DATA_NAME = "starrailexpress_waypoints";
+    /**
+     * 冒险家技能创建的「本局临时标点」专用路径。
+     *
+     * <p>与 OP 用 {@code /tmm:createpoint} 建的永久地图标点分开：不写入
+     * {@code waypoints.json}，只存在于内存并随全量同步下发，由技能计时器、
+     * 开局 / 局末 / 服务器启动统一清除。客户端也用这个 path 识别并优先显示它们。</p>
+     */
+    public static final String ADVENTURER_PATH = "_adventurer";
     private final Map<String, List<WaypointData>> waypoints = new ConcurrentHashMap<>();
     private Path serverDataDir;
 
@@ -84,7 +92,10 @@ public class WaypointManager extends SavedData {
                 .setPrettyPrinting()
                 .create(); // 移除了excludeFieldsWithoutExposeAnnotation()，因为我们使用了getter/setter
 
-            String json = gson.toJson(waypoints);
+            // 临时标点是本局运行时数据，绝不落盘，避免崩溃 / 强停后跨局残留。
+            Map<String, List<WaypointData>> persistent = new HashMap<>(waypoints);
+            persistent.remove(ADVENTURER_PATH);
+            String json = gson.toJson(persistent);
             
             Files.write(waypointFile, json.getBytes(StandardCharsets.UTF_8));
             setDirty(true); // 标记为脏数据以便保存
@@ -109,6 +120,8 @@ public class WaypointManager extends SavedData {
             Map<String, List<WaypointData>> loadedWaypoints = gson.fromJson(json, token.getType());
 
             if (loadedWaypoints != null) {
+                // 兼容旧版本可能误写入的临时标点：读文件时一律丢弃。
+                loadedWaypoints.remove(ADVENTURER_PATH);
                 waypoints.clear();
                 waypoints.putAll(loadedWaypoints);
             }
@@ -120,6 +133,21 @@ public class WaypointManager extends SavedData {
     public void addWaypoint(String path, String name, BlockPos pos, int color) {
         waypoints.computeIfAbsent(path, k -> new ArrayList<>()).add(new WaypointData(path, name, pos, color));
         saveToFile();
+    }
+
+    /**
+     * 创建 / 刷新一个冒险家临时标点（同名覆盖，因此冷却结束后再次按技能是「移动标点」）。
+     * 不落盘，调用方负责执行 {@code WaypointSync.syncToAll} 让客户端看到。
+     */
+    public void addAdventurerWaypoint(String name, BlockPos pos, int color) {
+        List<WaypointData> list = waypoints.computeIfAbsent(ADVENTURER_PATH, k -> new ArrayList<>());
+        list.removeIf(wp -> wp.getName().equals(name));
+        list.add(new WaypointData(ADVENTURER_PATH, name, pos, color));
+    }
+
+    /** 清空本局所有冒险家临时标点；返回是否确实清掉了东西。 */
+    public boolean clearAdventurerWaypoints() {
+        return waypoints.remove(ADVENTURER_PATH) != null;
     }
 
     public void removeWaypoint(String path, String name) {
