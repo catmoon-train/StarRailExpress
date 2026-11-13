@@ -23,7 +23,7 @@ import io.wifi.starrailexpress.content.block_entity.SecurityMonitorBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.TicketType;
@@ -81,11 +81,12 @@ public final class SecurityCameraChunkTickets {
     private static final Map<ResourceLocation, Set<Long>> PINNED = new HashMap<>();
 
     /**
-     * 按玩家记录被「强制推送到客户端」的区块及引用计数。
-     * 同一区块可能被多台摄像头视野覆盖、或被多个玩家同时观看，因此用计数去重，
-     * 只有计数为 1 时才真正调用 {@code ChunkMap.updateChunkForced}，归零时才撤销。
+     * 记录「某玩家当前正在观看哪台摄像头」：玩家 UUID -> 摄像头方块坐标。
+     * 监控画面是客户端虚拟相机，必须把摄像头视野区块并入该玩家的区块追踪视图
+     * （见 ChunkMapSecurityCameraMixin），客户端才能收到并渲染这些远端区块；
+     * 否则画面就是全透明的空洞。
      */
-    private static final Map<UUID, Map<Long, Integer>> PLAYER_PINNED = new HashMap<>();
+    private static final Map<UUID, BlockPos> VIEWING = new HashMap<>();
 
     private SecurityCameraChunkTickets() {
     }
@@ -150,13 +151,14 @@ public final class SecurityCameraChunkTickets {
     }
 
     /**
-     * 让某个玩家强制收到并保留指定摄像头视野覆盖的区块。
+     * 让某个玩家开始在客户端渲染指定摄像头视野覆盖的区块。
      *
      * <p>监控画面是客户端把相机放到摄像头位置渲染的，而客户端只会收到「玩家本体所在位置
      * 视距内」的区块。光在服务端用 region ticket 强加载（{@link #onGameStarted}）只能让区块
      * 留在服务端内存里，客户端仍然收不到远端摄像头所在的区块，于是画面出现全透明空洞。
-     * 这里把这些区块登记为该玩家的「强制追踪区块」，由服务端直接推送给观看者，
-     * 无论其本体离摄像头多远，客户端都能正常渲染方块。
+     * 这里把该玩家正在观看的摄像头记下来，并通过 {@code ServerChunkCache.move} 重新计算其
+     * 区块追踪视图；ChunkMapSecurityCameraMixin 会把摄像头视野区块并入该视图，
+     * 由服务端按正常的区块下发流程推送给观看者，无论其本体离摄像头多远。
      *
      * @param level      摄像头所在世界
      * @param player    正在观看该摄像头的玩家
@@ -166,92 +168,67 @@ public final class SecurityCameraChunkTickets {
         if (level == null || player == null || cameraPos == null) {
             return;
         }
-        Set<Long> chunks = new HashSet<>();
-        AreasWorldComponent areas = AreasWorldComponent.KEY.get(level);
-        AABB playArea = areas == null ? null : areas.getPlayArea();
-        if (playArea != null) {
-            addViewChunks(level, cameraPos, playArea, chunks);
-        } else {
-            chunks.add(ChunkPos.asLong(cameraPos.getX() >> 4, cameraPos.getZ() >> 4));
-        }
-        trackChunks(player, chunks, true);
+        VIEWING.put(player.getUUID(), cameraPos);
+        forceTrackingUpdate(level, player);
     }
 
     /**
-     * 撤销 {@link #trackForPlayer} 对某个摄像头的强制追踪；与 track 一一对应、引用计数去重。
+     * 撤销 {@link #trackForPlayer} 对某个摄像头的追踪：从记录里移除该玩家，
+     * 再重新计算其区块追踪视图，摄像头视野区块便不再并入视图，服务端会通知客户端卸载。
      */
     public static void untrackForPlayer(ServerLevel level, ServerPlayer player, BlockPos cameraPos) {
         if (level == null || player == null || cameraPos == null) {
             return;
         }
-        Set<Long> chunks = new HashSet<>();
-        AreasWorldComponent areas = AreasWorldComponent.KEY.get(level);
-        AABB playArea = areas == null ? null : areas.getPlayArea();
-        if (playArea != null) {
-            addViewChunks(level, cameraPos, playArea, chunks);
-        } else {
-            chunks.add(ChunkPos.asLong(cameraPos.getX() >> 4, cameraPos.getZ() >> 4));
+        if (cameraPos.equals(VIEWING.get(player.getUUID()))) {
+            VIEWING.remove(player.getUUID());
         }
-        trackChunks(player, chunks, false);
+        forceTrackingUpdate(level, player);
     }
 
-    /**
-     * 引用计数版强制追踪：count 归零时才真正调用 {@code ChunkMap.updateChunkForced} 撤销，
-     * 避免多摄像头视野重叠、或多玩家同看一台摄像头时互相抵消。
-     */
-    private static void trackChunks(ServerPlayer player, Set<Long> chunks, boolean add) {
-        if (chunks.isEmpty()) {
-            return;
-        }
-        ServerLevel level = (ServerLevel) player.level();
-        if (level == null) {
-            return;
-        }
-        ChunkMap chunkMap = level.getChunkSource().getChunkMap();
-        Map<Long, Integer> owned = PLAYER_PINNED.computeIfAbsent(player.getUUID(), k -> new HashMap<>());
-        for (long packed : chunks) {
-            int count = owned.getOrDefault(packed, 0);
-            if (add) {
-                count++;
-                owned.put(packed, count);
-                if (count == 1) {
-                    chunkMap.updateChunkForced(player, new ChunkPos(packed), true);
-                }
-            } else {
-                if (count <= 0) {
-                    continue;
-                }
-                count--;
-                if (count <= 0) {
-                    owned.remove(packed);
-                    chunkMap.updateChunkForced(player, new ChunkPos(packed), false);
-                } else {
-                    owned.put(packed, count);
-                }
-            }
-        }
-        if (owned.isEmpty()) {
-            PLAYER_PINNED.remove(player.getUUID());
-        }
-    }
-
-    /** 玩家掉线 / 离开时清掉其全部强制追踪区块，避免区块泄漏。 */
+    /** 玩家掉线 / 离开时清掉其观看记录，避免泄漏（区块会随正常退出流程卸载）。 */
     public static void untrackAll(ServerPlayer player) {
         if (player == null) {
             return;
         }
-        Map<Long, Integer> owned = PLAYER_PINNED.remove(player.getUUID());
-        if (owned == null || owned.isEmpty()) {
+        VIEWING.remove(player.getUUID());
+    }
+
+    /** 强制重新计算某玩家的区块追踪视图，触发 ChunkMapSecurityCameraMixin 并入摄像头区块。 */
+    private static void forceTrackingUpdate(ServerLevel level, ServerPlayer player) {
+        if (level == null || player == null) {
             return;
         }
-        ServerLevel level = (ServerLevel) player.level();
-        if (level == null) {
-            return;
+        ((ServerChunkCache) level.getChunkSource()).move(player);
+    }
+
+    /**
+     * 供 ChunkMapSecurityCameraMixin 查询：该玩家当前正在观看的摄像头方块坐标，没有则返回 null。
+     */
+    public static BlockPos getViewingCamera(UUID playerUuid) {
+        return VIEWING.get(playerUuid);
+    }
+
+    /**
+     * 供 ChunkMapSecurityCameraMixin 使用：计算某摄像头视野覆盖的区块集合（已裁剪到游玩区域）。
+     */
+    public static Set<ChunkPos> collectCameraChunks(ServerLevel level, BlockPos cameraPos) {
+        Set<ChunkPos> result = new HashSet<>();
+        if (level == null || cameraPos == null) {
+            return result;
         }
-        ChunkMap chunkMap = level.getChunkSource().getChunkMap();
-        for (long packed : owned.keySet()) {
-            chunkMap.updateChunkForced(player, new ChunkPos(packed), false);
+        AreasWorldComponent areas = AreasWorldComponent.KEY.get(level);
+        AABB playArea = areas == null ? null : areas.getPlayArea();
+        Set<Long> tmp = new HashSet<>();
+        if (playArea != null) {
+            addViewChunks(level, cameraPos, playArea, tmp);
+        } else {
+            tmp.add(ChunkPos.asLong(cameraPos.getX() >> 4, cameraPos.getZ() >> 4));
         }
+        for (long packed : tmp) {
+            result.add(new ChunkPos(packed));
+        }
+        return result;
     }
 
     /**

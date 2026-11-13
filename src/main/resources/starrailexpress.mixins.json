@@ -55,7 +55,8 @@
     "server.PlayerDiscard",
     "util.EntitySelectorMixin",
     "world.ChunkSerializerMixin",
-    "world.SceneAssetDirtyMixin"
+    "world.SceneAssetDirtyMixin",
+    "server.ChunkMapSecurityCameraMixin"
   ],
   "injectors": {
     "defaultRequire": 1
