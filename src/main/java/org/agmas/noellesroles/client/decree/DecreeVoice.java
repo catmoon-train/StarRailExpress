@@ -114,36 +114,52 @@ public final class DecreeVoice implements Narrator {
         }
 
         private void selectMaleVoice() {
+            // 新版 Windows 的康康等中文男声只登记在 OneCore，传统 SAPI 库可能只有女声。
+            for (String category : new String[] {
+                    "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Speech\\Voices",
+                    "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Speech_OneCore\\Voices",
+                    "HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Speech\\Voices",
+                    "HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Speech_OneCore\\Voices"}) {
+                try {
+                    if (selectMaleVoice(category)) return;
+                } catch (RuntimeException | LinkageError error) {
+                    LOGGER.debug("无法读取语音类别 {}，继续检查其它语音库", category, error);
+                }
+            }
+            LOGGER.warn("本机未找到可用中文男声，律令保留系统默认声线；可安装 Windows 中文男声语音包");
+        }
+
+        private boolean selectMaleVoice(String categoryId) {
             PointerByReference categoryPointer = new PointerByReference();
             COMUtils.checkRC(Ole32.INSTANCE.CoCreateInstance(
                     new Guid.CLSID("{A910187F-0C7A-45AC-92CC-59EDAFB77B53}"), null, WTypes.CLSCTX_INPROC_SERVER,
                     new Guid.IID("{2D3D3845-39AF-4850-BBF9-40B49780011D}"), categoryPointer));
             NativeObject category = new NativeObject(categoryPointer.getValue());
             try {
-                // ISpObjectTokenCategory::SetId 与 EnumTokens；不修改系统默认 token。
-                category.call(15, new WString("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Speech\\Voices"), 0);
+                // 只读枚举，不复制 token、不创建注册表项，也不修改系统默认音色。
+                category.call(15, new WString(categoryId), 0);
                 PointerByReference enumPointer = new PointerByReference();
-                // 只选择能朗读中文的男声；仅有英文男声时保留可用的系统默认声线。
                 category.call(18, new WString("Gender=Male;Language=804"), null, enumPointer);
                 NativeObject tokens = new NativeObject(enumPointer.getValue());
                 try {
-                    PointerByReference tokenPointer = new PointerByReference();
-                    IntByReference fetched = new IntByReference();
-                    tokens.call(3, 1, tokenPointer, fetched);
-                    Pointer token = tokenPointer.getValue();
-                    if (token == null) {
-                        LOGGER.info("本机没有匹配的 SAPI 男声，律令将使用系统默认声线");
-                        return;
-                    }
-                    NativeObject selected = new NativeObject(token);
-                    try {
-                        if (fetched.getValue() == 1) {
-                            // ISpVoice::SetVoice；voice 持有自己的引用，随后释放枚举返回的引用。
+                    while (true) {
+                        PointerByReference tokenPointer = new PointerByReference();
+                        IntByReference fetched = new IntByReference();
+                        tokens.call(3, 1, tokenPointer, fetched);
+                        Pointer token = tokenPointer.getValue();
+                        if (token == null) return false;
+                        NativeObject selected = new NativeObject(token);
+                        try {
+                            if (fetched.getValue() != 1) return false;
                             COMUtils.checkRC(new com.sun.jna.platform.win32.WinNT.HRESULT(
                                     _invokeNativeInt(18, new Object[] {getPointer(), token})));
+                            LOGGER.info("律令已选择中文男声，语音库：{}", categoryId);
+                            return true;
+                        } catch (RuntimeException error) {
+                            LOGGER.debug("该男声无法供 SAPI 使用，继续检查下一个音色", error);
+                        } finally {
+                            selected.Release();
                         }
-                    } finally {
-                        selected.Release();
                     }
                 } finally {
                     tokens.Release();

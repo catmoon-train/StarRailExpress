@@ -2,7 +2,6 @@ package org.agmas.noellesroles.client.screen;
 
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.gui.SREPanelStyle;
-import io.wifi.starrailexpress.client.gui.screen.WithParentScreenPauseScreen;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -171,7 +170,7 @@ public final class DecreeScreen extends Screen {
 
     @Override
     public void onClose() {
-        minecraft.setScreen(new WithParentScreenPauseScreen(this));
+        minecraft.setScreen(null);
     }
 
     @Override
