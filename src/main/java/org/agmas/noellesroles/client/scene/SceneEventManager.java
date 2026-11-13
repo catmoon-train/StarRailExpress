@@ -24,6 +24,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.init.NRSounds;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.HashMap;
@@ -119,6 +120,8 @@ public final class SceneEventManager {
         SABOTAGE_UNTIL.remove(level.dimension());
         SABOTAGE_TIMEOUT_HANDLED.remove(level.dimension());  // 手动停止时清除超时标记
         ALARM_LAST_TICK.remove(level.dimension());
+        // 破坏任务被修复（场景机关解除 / 管理员命令停止都走这里，超时结束不走这里）。
+        ReplayEventLog.record("replay.event.sabotage.repaired");
     }
 
     public static boolean isSabotageActive(ServerLevel level) {

@@ -4207,6 +4207,8 @@
   "replay.event.moment.furandoru": "§c🌙§r %s 觸發了惡魔之妹時刻",
   "replay.event.moment.refugee": "§c🔫§r %s 觸發了亡命徒時刻",
   "replay.event.moment.fake_steve": "§8🎭§r 偽人時刻已開啟",
+  "replay.event.sabotage.started": "%s 開啟了破壞任務",
+  "replay.event.sabotage.repaired": "破壞任務已被修復",
   "replay.event.modifier.rebel": "§c⚔️§r %s 的起義軍修飾符被觸發",
   "replay.event.modifier.expedition": "§b🧭§r %s 的遠征隊修飾符被觸發",
   "replay.event.modifier.gods_mission": "§6✝️§r %s 的神的使命修飾符被觸發",

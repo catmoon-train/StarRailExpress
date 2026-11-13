@@ -17,6 +17,7 @@ package io.wifi.starrailexpress.network;
 
 import io.wifi.starrailexpress.content.block_entity.MinigameQuestBlockEntity;
 import io.wifi.starrailexpress.util.EditorGuard;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -85,6 +86,8 @@ public class MinigameQuestServerNetwork {
                     questBe.setLastSabotageTime(now);
                     SceneEventManager.startSabotage(level,
                             questBe.getSabotageDuration() * 20);
+                    // 破坏任务开启：写入事件回放，记录开启者（小游戏任务点/镶板完成触发）。
+                    ReplayEventLog.record("replay.event.sabotage.started", ReplayEventLog.player(player));
                     level.playSound(null, pos, net.minecraft.sounds.SoundEvents.ELDER_GUARDIAN_CURSE,
                             net.minecraft.sounds.SoundSource.BLOCKS, 1.0F, 1.0F);
                     return;
