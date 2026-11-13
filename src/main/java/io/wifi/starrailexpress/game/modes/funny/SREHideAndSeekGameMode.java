@@ -206,8 +206,6 @@ public class SREHideAndSeekGameMode extends SREMurderGameMode {
         for (ServerPlayer player : players) {
             var role = gameWorldComponent.getRole(player);
             var roleType = PlayerRoleWeightManager.getRoleType(role);
-            PlayerRoleWeightManager.addWeight(player, roleType, 1);
-            // PlayerRoleWeightManager.
             ServerPlayNetworking.send(player,
                     new AnnounceWelcomePayload(role.getIdentifier().toString(), (int) killCount,
                             (int) (players.size() - killCount)));

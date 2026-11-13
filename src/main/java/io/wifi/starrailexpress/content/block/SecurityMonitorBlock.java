@@ -19,9 +19,11 @@ import com.mojang.serialization.MapCodec;
 import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import io.wifi.starrailexpress.content.block.api.TaskInstinctShowableInterface;
 import io.wifi.starrailexpress.content.block_entity.SecurityMonitorBlockEntity;
+import io.wifi.starrailexpress.game.SecurityCameraChunkTickets;
 import io.wifi.starrailexpress.network.PacketTracker;
 import io.wifi.starrailexpress.network.SecurityCameraModePayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -246,9 +248,16 @@ public class SecurityMonitorBlock extends BaseEntityBlock implements TaskInstinc
         // 必须按玩家分别记录——上面的 currentCameraPos 是全局静态字段，多人同时看监控会互相覆盖。
         org.agmas.noellesroles.game.roles.innocence.central_control.CentralControlRole
                 .onCameraViewed(player, currentCameraPos);
+        // 把摄像头视野区块强制推送给这个玩家：监控画面是客户端虚拟相机，
+        // 不推送的话客户端收不到远端区块，画面就是全透明的空洞。
+        SecurityCameraChunkTickets.trackForPlayer((ServerLevel) player.level(), player, currentCameraPos);
     }
 
     public static void exitSecurityMode(net.minecraft.server.level.ServerPlayer player) {
+        BlockPos cam = getCurrentCameraPos();
+        if (cam != null) {
+            SecurityCameraChunkTickets.untrackForPlayer((ServerLevel) player.level(), player, cam);
+        }
         currentCameraPos = null;
         currentCameraOffset = null;
         currentMonitorPos = null; // 清除监控控制台位置

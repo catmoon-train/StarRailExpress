@@ -112,6 +112,10 @@ public class WaypointManageScreen extends Screen {
         entries.clear();
         Map<String, List<WaypointMarker>> byPath = new TreeMap<>();
         for (WaypointMarker m : WaypointHUD.getWaypoints()) {
+            // 冒险家临时标点由技能生命周期管理，不属于 OP 可编辑的地图标点。
+            if (WaypointHUD.isAdventurerMarker(m)) {
+                continue;
+            }
             byPath.computeIfAbsent(m.path, k -> new ArrayList<>()).add(m);
         }
         for (Map.Entry<String, List<WaypointMarker>> ent : byPath.entrySet()) {

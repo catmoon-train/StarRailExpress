@@ -19,6 +19,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import io.wifi.starrailexpress.SREClientConfig;
+import io.wifi.starrailexpress.game.data.WaypointManager;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -42,8 +43,12 @@ public class WaypointHUD {
 
     private static final Minecraft mc = Minecraft.getInstance();
     private static final List<WaypointMarker> waypoints = new ArrayList<>();
-    private static boolean waypointsVisible = true;
+    // 与服务端 WaypointVisibilityManager 的默认隐藏保持一致：可见性一律以服务端下发的
+    // SyncWaypointVisibilityPacket 为准，客户端不能再默认显示。
+    private static boolean waypointsVisible = false;
     private static final Set<String> hiddenWaypoints = new HashSet<>(); // 存储被隐藏的特定路径点，格式为"path/name"
+    /** 世界渲染阶段与 endBatch 共用的光柱 RenderType。 */
+    public static final RenderType BEAM_RENDER_TYPE = RenderType.beaconBeam(BEAM_LOCATION, true);
 
     public static class WaypointMarker {
         public BlockPos pos;
@@ -132,6 +137,17 @@ public class WaypointHUD {
         return Collections.unmodifiableList(waypoints);
     }
 
+    /**
+     * 冒险家技能创建的临时标点。
+     *
+     * <p>这些点由技能自己创建和清除，不经过 OP 的全局路径点开关
+     * （{@code waypointsVisible}），只要存在就必须显示；否则会出现「按了技能、
+     * 数据也同步了，却因为全局开关是 false 而什么都不显示」。</p>
+     */
+    public static boolean isAdventurerMarker(WaypointMarker marker) {
+        return WaypointManager.ADVENTURER_PATH.equals(marker.path);
+    }
+
     public static void setWaypointsVisible(boolean visible) {
         waypointsVisible = visible;
     }
@@ -173,6 +189,39 @@ public class WaypointHUD {
         }
     }
 
+    /**
+     * 开局 / 局末 / 断线时复位客户端的临时显示状态。
+     *
+     * <p>路径点本身是地图级持久数据（由 OP 命令维护），不在这里清空；只清本局的
+     * 全局可见性和单点隐藏，等待服务端重新下发权威状态。</p>
+     */
+    public static void resetForNewGame() {
+        waypointsVisible = false;
+        hiddenWaypoints.clear();
+        // 临时标点本来就不该跨局存在，客户端先自行抹掉，不必等服务端全量对账。
+        waypoints.removeIf(WaypointHUD::isAdventurerMarker);
+        for (WaypointMarker marker : waypoints) {
+            marker.visible = true;
+        }
+    }
+
+    /** 全量重广播会清空重建 marker，重建后重新套用管理员设置的单点隐藏。 */
+    public static void reapplyHiddenWaypoints() {
+        for (String key : hiddenWaypoints) {
+            int sep = key.lastIndexOf('/');
+            if (sep < 0) {
+                continue;
+            }
+            String path = key.substring(0, sep);
+            String name = key.substring(sep + 1);
+            for (WaypointMarker marker : waypoints) {
+                if (marker.path.equals(path) && marker.name.equals(name)) {
+                    marker.visible = false;
+                }
+            }
+        }
+    }
+
     // 主要渲染方法，在世界渲染阶段调用
     public static void renderWorldMarkers(PoseStack poseStack, MultiBufferSource bufferSource, float partialTick,
             GuiGraphics guiGraphics) {
@@ -192,6 +241,43 @@ public class WaypointHUD {
                 renderMarkerInWorld(poseStack, bufferSource, marker, cameraPos, partialTick,
                         guiGraphics);
             }
+        }
+    }
+
+    /**
+     * 在真实的世界渲染阶段绘制可见路径点的信标光柱。
+     *
+     * <p>此前只有 {@link #renderHUD} 被注册到 HudRenderCallback，画的是屏幕边缘箭头和文字；
+     * 世界内标记的渲染方法从未接入渲染管线，所以局内看不到任何实际标点。这里复用
+     * vanilla 的 {@link BeaconRenderer#renderBeaconBeam} 保证顶点格式与 RenderType 匹配。</p>
+     */
+    public static void renderWorldBeacons(PoseStack poseStack, MultiBufferSource bufferSource,
+            Vec3 cameraPos, float partialTick) {
+        if (mc.player == null || mc.level == null) {
+            return;
+        }
+        if (SREClientConfig.instance().disableWaypoints) {
+            return;
+        }
+        boolean globalVisible = waypointsVisible;
+        long gameTime = mc.level.getGameTime();
+        for (WaypointMarker marker : waypoints) {
+            if (!marker.visible || !marker.showBeam) {
+                continue;
+            }
+            if (!globalVisible && !isAdventurerMarker(marker)) {
+                continue;
+            }
+            if (!shouldRenderMarker(marker, cameraPos)) {
+                continue;
+            }
+            Vec3 markerPos = Vec3.atCenterOf(marker.pos);
+            poseStack.pushPose();
+            poseStack.translate(markerPos.x - cameraPos.x, markerPos.y - cameraPos.y,
+                    markerPos.z - cameraPos.z);
+            BeaconRenderer.renderBeaconBeam(poseStack, bufferSource, BEAM_LOCATION, partialTick, 1.0F,
+                    gameTime, 0, (int) marker.beamHeight, marker.color.getRGB(), 0.2F, 0.25F);
+            poseStack.popPose();
         }
     }
 
@@ -745,23 +831,26 @@ public class WaypointHUD {
 
     // HUD渲染方法（在GUI层渲染屏幕上的指示器）
     public static void renderHUD(GuiGraphics guiGraphics, float partialTick) {
-        if (!waypointsVisible || mc.player == null || mc.level == null)
+        if (mc.player == null || mc.level == null)
             return;
         if (SREClientConfig.instance().disableWaypoints) {
             return;
         }
+        // 冒险家临时标点不受 waypointsVisible 这个全局开关限制，存在即显示。
+        boolean globalVisible = waypointsVisible;
         int screenWidth = mc.getWindow().getGuiScaledWidth();
         int screenHeight = mc.getWindow().getGuiScaledHeight();
 
         // 渲染屏幕上的方向指示器
         for (WaypointMarker marker : waypoints) {
-            if (marker.visible) {
-                renderScreenIndicator(guiGraphics, marker, screenWidth, screenHeight, partialTick);
+            if (!marker.visible || (!globalVisible && !isAdventurerMarker(marker))) {
+                continue;
+            }
+            renderScreenIndicator(guiGraphics, marker, screenWidth, screenHeight, partialTick);
 
-                // 如果标签可见，则渲染标签
-                if (marker.showLabel) {
-                    renderLabel(guiGraphics, marker, partialTick);
-                }
+            // 如果标签可见，则渲染标签
+            if (marker.showLabel) {
+                renderLabel(guiGraphics, marker, partialTick);
             }
         }
     }

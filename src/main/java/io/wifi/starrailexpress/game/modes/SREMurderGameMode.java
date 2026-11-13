@@ -156,11 +156,9 @@ public class SREMurderGameMode extends GameMode {
         gameWorldComponent.syncRolesNow();
         // 同步职业
 
+        // 玩家阵营权重统一由 PlayerRoleWeightManager 在 OnGameEnd 按结算时的实际职业记账。
         for (ServerPlayer player : players) {
             var role = gameWorldComponent.getRole(player);
-            var roleType = PlayerRoleWeightManager.getRoleType(role);
-            PlayerRoleWeightManager.addWeight(player, roleType, 1);
-            // PlayerRoleWeightManager.
             var welcomePayload = new AnnounceWelcomePayload(role.getIdentifier().toString(), (int) killCount,
                     (int) (players.size() - killCount));
             ServerPlayNetworking.send(player, GameplayExtensionEvents.WELCOME_PAYLOAD.invoker()

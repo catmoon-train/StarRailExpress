@@ -177,6 +177,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.KeyMapping;
@@ -559,6 +560,7 @@ public class SREClient implements ClientModInitializer {
             moodComponent = null;
             timeComponent = null;
             io.wifi.starrailexpress.anticheat.ClickAntiCheatClient.clear();
+            WaypointHUD.resetForNewGame();
         });
         // 公平性选项由 LockedOptionInstanceMixin 在构造、读写与按钮层统一锁定。
         // 不再向已被屏蔽的 Ratatouille OptionLocker 注册无效规则。
@@ -962,6 +964,7 @@ public class SREClient implements ClientModInitializer {
             MapStatusBarClientState.set(MapStatusBarType.NONE, 20, 20);
             io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.clear();
             io.wifi.starrailexpress.client.gui.MobRiotHudRenderer.reset();
+            context.client().execute(WaypointHUD::resetForNewGame);
             OnGameFinishedClient.EVENT.invoker().gameFinished();
         });
         ClientPlayNetworking.registerGlobalReceiver(OnGameStartedPayload.TYPE, (payload, context) -> {
@@ -973,6 +976,7 @@ public class SREClient implements ClientModInitializer {
                 ClientPlayNetworking.send(new io.wifi.starrailexpress.network.MapIntroRequestPayload());
                 io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.onGameStarted(payload.mapId());
             });
+            context.client().execute(WaypointHUD::resetForNewGame);
             OnGameStartedClient.EVENT.invoker().gameStarted();
         });
         ClientPlayNetworking.registerGlobalReceiver(SyncRoomToPlayerPayload.ID, (payload, context) -> {
@@ -1210,6 +1214,17 @@ public class SREClient implements ClientModInitializer {
             net.exmo.sre.camera.client.AdvancedCameraDirector.renderOverlay(guiGraphics);
             // 亡命徒登场演出：与运镜同步的血色滤镜
             org.agmas.noellesroles.client.RefugeeDesperadoClientFx.renderOverlay(guiGraphics, deltaTick);
+        });
+        // 路径点在世界空间中的信标光柱：HudRenderCallback 只能画屏幕边缘指示器，
+        // 世界内标记必须接进世界渲染事件，否则"局内看不到标点"。
+        WorldRenderEvents.AFTER_TRANSLUCENT.register(context -> {
+            if (context.matrixStack() == null) {
+                return;
+            }
+            var buffers = Minecraft.getInstance().renderBuffers().bufferSource();
+            WaypointHUD.renderWorldBeacons(context.matrixStack(), buffers, context.camera().getPosition(),
+                    context.tickCounter().getGameTimeDeltaPartialTick(false));
+            buffers.endBatch(WaypointHUD.BEAM_RENDER_TYPE);
         });
         // Run map rules inside the project's frame lifecycle so text remains visible
         // while a Letter is held.

@@ -19,15 +19,15 @@ import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.data.WaypointVisibilityManager;
-import io.wifi.starrailexpress.network.PacketTracker;
+import io.wifi.starrailexpress.game.data.WaypointManager;
+import io.wifi.starrailexpress.util.WaypointSync;
 import org.agmas.noellesroles.ConfigWorldComponent;
-import io.wifi.starrailexpress.network.packet.SyncWaypointVisibilityPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.role.ModRoles;
@@ -50,6 +50,8 @@ public class AdventurerRoleData extends SimpleRoleData {
     private static final int MESSAGE_COOLDOWN_TICKS = 70; // 3.5 s
     private static final int WAYPOINT_COOLDOWN_TICKS = 120 * 20;
     private static final int WAYPOINT_DURATION_TICKS = 180 * 20; // 3 minutes
+    /** 冒险家标点的颜色：ARGB 金色。 */
+    private static final int ADVENTURER_WAYPOINT_COLOR = 0xFFFFD479;
 
     /** Death reasons the adventurer is immune to. */
     public static final Set<ResourceLocation> ENVIRONMENTAL_DEATHS = Set.of(
@@ -101,6 +103,11 @@ public class AdventurerRoleData extends SimpleRoleData {
 
     @Override
     public void clear() {
+        // 冒险家死亡 / 换职业 / 局末重置后 serverTick 不再运行，3 分钟计时器会半路停摆。
+        // 无条件清一次临时标点（幂等），避免它残留到下一局。
+        if (player instanceof ServerPlayer sp && sp.getServer() != null) {
+            WaypointSync.clearAdventurerWaypoints(sp.getServer());
+        }
         init();
     }
 
@@ -116,7 +123,7 @@ public class AdventurerRoleData extends SimpleRoleData {
         if (waypointTimer > 0) {
             waypointTimer--;
             if (waypointTimer == 0) {
-                waypointOff(false);
+                waypointOff(true);
             }
         }
 
@@ -146,7 +153,12 @@ public class AdventurerRoleData extends SimpleRoleData {
         return true;
     }
 
-    /** Toggle map waypoints. */
+    /**
+     * 在当前位置创建一个全队可见的临时标点，{@link #WAYPOINT_DURATION_TICKS} 后自动清除。
+     *
+     * <p>标点放在 {@link WaypointManager#ADVENTURER_PATH} 这条独立通道里：不落盘、
+     * 不受 OP 的全局路径点开关影响，由全量同步下发给所有客户端。</p>
+     */
     public void useWaypointAbility() {
         if (!(player instanceof ServerPlayer sp))
             return;
@@ -158,44 +170,39 @@ public class AdventurerRoleData extends SimpleRoleData {
             return;
         }
 
-        waypointCooldown = WAYPOINT_COOLDOWN_TICKS;
-        boolean currentlyVisible = WaypointVisibilityManager.get(sp.serverLevel())
-                .getWaypointsVisibility();
+        MinecraftServer server = sp.getServer();
+        if (server == null)
+            return;
 
-        if (!currentlyVisible) {
-            // Turn waypoints ON
-            setWaypointVisibility(sp, true);
-            waypointTimer = WAYPOINT_DURATION_TICKS;
-            sp.displayClientMessage(
-                    Component.translatable("message.noellesroles.adventurer.waypoint_on")
-                            .withStyle(ChatFormatting.GOLD),
-                    true);
-        } else {
-            // Turn waypoints OFF
-            waypointOff(true);
-        }
+        // 同名覆盖：冷却 120s 短于持续 180s，冷却结束后再按技能即把标点移到脚下并重新计时。
+        WaypointManager.get(server).addAdventurerWaypoint(
+                sp.getName().getString(), sp.blockPosition(), ADVENTURER_WAYPOINT_COLOR);
+        // 全量重广播后客户端立即出现该标点；清除时同样靠全量重广播把它撤掉。
+        WaypointSync.syncToAll(server);
+
+        waypointCooldown = WAYPOINT_COOLDOWN_TICKS;
+        waypointTimer = WAYPOINT_DURATION_TICKS;
+        sp.displayClientMessage(
+                Component.translatable("message.noellesroles.adventurer.waypoint_on")
+                        .withStyle(ChatFormatting.GOLD),
+                true);
         ConfigWorldComponent.onPlayerUsedSkill(sp);
         sync();
     }
 
-    /** Turn waypoints off and optionally notify the player. */
+    /** 清除本局临时标点并按需提示（技能到时 / 职业被移除 / 生命周期复位）。 */
     private void waypointOff(boolean notify) {
         waypointTimer = 0;
         if (player instanceof ServerPlayer sp) {
-            setWaypointVisibility(sp, false);
+            if (sp.getServer() != null) {
+                WaypointSync.clearAdventurerWaypoints(sp.getServer());
+            }
             if (notify) {
                 sp.displayClientMessage(
                         Component.translatable("message.noellesroles.adventurer.waypoint_off")
                                 .withStyle(ChatFormatting.GRAY),
                         true);
             }
-        }
-    }
-
-    private static void setWaypointVisibility(ServerPlayer sp, boolean visible) {
-        WaypointVisibilityManager.get(sp.serverLevel()).setWaypointsVisibility(visible);
-        for (ServerPlayer target : sp.serverLevel().players()) {
-            PacketTracker.sendToClient(target, new SyncWaypointVisibilityPacket(visible));
         }
     }
 

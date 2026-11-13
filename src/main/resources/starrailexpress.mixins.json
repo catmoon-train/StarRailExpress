@@ -55,7 +55,8 @@
     "server.PlayerDiscard",
     "util.EntitySelectorMixin",
     "world.ChunkSerializerMixin",
-    "world.SceneAssetDirtyMixin"
+    "world.SceneAssetDirtyMixin",
+    "server.ChunkMapInvoker"
   ],
   "injectors": {
     "defaultRequire": 1

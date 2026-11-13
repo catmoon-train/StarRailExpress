@@ -20,10 +20,15 @@ import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.block.CameraBlock;
 import io.wifi.starrailexpress.content.block_entity.SecurityMonitorBlockEntity;
+import io.wifi.starrailexpress.mixin.server.ChunkMapInvoker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ChunkTrackingView;
+import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -126,14 +131,91 @@ public final class SecurityCameraChunkTickets {
             return;
         }
         Set<Long> pinned = PINNED.remove(level.dimension().location());
-        if (pinned == null || pinned.isEmpty()) {
+        if (pinned != null && !pinned.isEmpty()) {
+            for (long packed : pinned) {
+                ChunkPos pos = new ChunkPos(packed);
+                level.getChunkSource().removeRegionTicket(TICKET, pos, TICKET_RADIUS, pos);
+            }
+            SRE.LOGGER.info("已卸载监控摄像头强加载的 {} 个区块", pinned.size());
+        }
+        // 同时撤销本局所有观战玩家被强制推送到客户端的远端区块，避免残留空洞或泄漏。
+        for (ServerPlayer player : level.players()) {
+            untrackForPlayer(level, player, null);
+        }
+    }
+
+    /**
+     * 让某个玩家开始在客户端渲染指定摄像头视野覆盖的区块。
+     *
+     * <p>监控画面是客户端把相机放到摄像头位置渲染的，而客户端只会收到「玩家本体所在位置
+     * 视距内」的区块。光在服务端用 region ticket 强加载（{@link #onGameStarted}）只能让区块
+     * 留在服务端内存里，客户端仍然收不到远端摄像头所在的区块，于是画面出现全透明空洞。
+     *
+     * <p>这里把摄像头视野区块并入该玩家的区块追踪视图，再直接调用服务端私有的
+     * {@code ChunkMap.applyChunkTrackingView}（经由 {@link ChunkMapInvoker}），
+     * 复用服务端现成的 {@code ChunkTrackingView.difference} 逻辑把新增的摄像头区块推送给该客户端。
+     * 不能只调 {@code ServerChunkCache.move}：玩家站着不动时 {@code updateChunkTracking}
+     * 会因「视图中心与视距都未变」而提前返回，一个区块都不会下发。
+     *
+     * @param level      摄像头所在世界
+     * @param player    正在观看该摄像头的玩家
+     * @param cameraPos 摄像头方块坐标
+     */
+    public static void trackForPlayer(ServerLevel level, ServerPlayer player, BlockPos cameraPos) {
+        if (level == null || player == null || cameraPos == null) {
             return;
         }
-        for (long packed : pinned) {
-            ChunkPos pos = new ChunkPos(packed);
-            level.getChunkSource().removeRegionTicket(TICKET, pos, TICKET_RADIUS, pos);
+        Set<ChunkPos> extra = collectCameraChunks(level, cameraPos);
+        if (extra.isEmpty()) {
+            return;
         }
-        SRE.LOGGER.info("已卸载监控摄像头强加载的 {} 个区块", pinned.size());
+        ChunkMap chunkMap = ((ServerChunkCache) level.getChunkSource()).chunkMap;
+        ChunkTrackingView base = player.getChunkTrackingView();
+        if (base instanceof SecurityCameraChunkTrackingView wrapper) {
+            base = wrapper.delegate();
+        }
+        ((ChunkMapInvoker) chunkMap).sre$applyChunkTrackingView(
+                player, new SecurityCameraChunkTrackingView(base, extra));
+    }
+
+    /**
+     * 撤销 {@link #trackForPlayer} 对某个摄像头的追踪：把玩家区块追踪视图恢复成并入摄像头
+     * 之前的原始视图，服务端会按正常流程通知客户端卸载这些摄像头区块。
+     *
+     * @param cameraPos 仅用于调用方语义，实际以玩家当前视图是否被包装过为准，可为 {@code null}
+     */
+    public static void untrackForPlayer(ServerLevel level, ServerPlayer player, BlockPos cameraPos) {
+        if (level == null || player == null) {
+            return;
+        }
+        ChunkTrackingView current = player.getChunkTrackingView();
+        if (!(current instanceof SecurityCameraChunkTrackingView wrapper)) {
+            return;
+        }
+        ChunkMap chunkMap = ((ServerChunkCache) level.getChunkSource()).chunkMap;
+        ((ChunkMapInvoker) chunkMap).sre$applyChunkTrackingView(player, wrapper.delegate());
+    }
+
+    /**
+     * 计算某摄像头视野覆盖的区块集合（已裁剪到游玩区域），供 {@link #trackForPlayer} 并入追踪视图。
+     */
+    public static Set<ChunkPos> collectCameraChunks(ServerLevel level, BlockPos cameraPos) {
+        Set<ChunkPos> result = new HashSet<>();
+        if (level == null || cameraPos == null) {
+            return result;
+        }
+        AreasWorldComponent areas = AreasWorldComponent.KEY.get(level);
+        AABB playArea = areas == null ? null : areas.getPlayArea();
+        Set<Long> tmp = new HashSet<>();
+        if (playArea != null) {
+            addViewChunks(level, cameraPos, playArea, tmp);
+        } else {
+            tmp.add(ChunkPos.asLong(cameraPos.getX() >> 4, cameraPos.getZ() >> 4));
+        }
+        for (long packed : tmp) {
+            result.add(new ChunkPos(packed));
+        }
+        return result;
     }
 
     /**

@@ -29,6 +29,9 @@ public class PlayerWeightResetMixin {
     @Inject(method = "remove", at = @At("HEAD"))
     public void onPlayerDisconnect(ServerPlayer player,
             CallbackInfo ci) {
-        PlayerRoleWeightManager.clearWeight(player.getUUID());
+        // 玩家阵营权重是跨对局的历史数据，退出 / 重连不能清空，
+        // 否则轮选、海选这类较长流程中掉线重连的玩家权重会直接归零，无法正确升降。
+        // 这里只清掉本局的临时强制阵营请求；历史数据随服务器进程一起释放。
+        PlayerRoleWeightManager.ForcePlayerTeam.remove(player.getUUID());
     }
 }

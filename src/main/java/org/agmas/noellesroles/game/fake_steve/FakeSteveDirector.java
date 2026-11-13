@@ -49,9 +49,12 @@ import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
+import org.agmas.noellesroles.game.moment.MomentManager;
+import org.agmas.noellesroles.game.moment.MomentType;
 import org.agmas.noellesroles.init.ModEffects;
 // import org.agmas.noellesroles.packet.FakeSteveHuntS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.ArrayList;
@@ -194,6 +197,8 @@ public final class FakeSteveDirector {
             session.activationSource = forced
                     ? ActivationSource.COMMAND_NEXT
                     : ActivationSource.NATURAL_ROLL;
+            // 接入统一时刻系统，并在本局首次开启时写入「伪人时刻已开启」回放。
+            startMoment(level);
             announceNaturalEvent(level);
         }
     }
@@ -208,6 +213,8 @@ public final class FakeSteveDirector {
         if (!(SREGameWorldComponent.KEY.get(level).getGameMode() instanceof SREMurderGameMode)) {
             return;
         }
+        // 与统一时刻系统对齐：出栈并刷新音乐裁决（MomentManager 在 OnGameEnd 还会整体清一次）。
+        MomentManager.end(level, MomentType.FAKE_STEVE);
         resetSession(level);
     }
 
@@ -261,6 +268,20 @@ public final class FakeSteveDirector {
                 && canGenerate(level) && isRoundAcceptingCommands(level) && !MeetingManager.isActive();
     }
 
+    /**
+     * 把伪人事件登记进统一时刻系统。
+     *
+     * <p>{@link MomentManager#trigger} 保证一局只登记一次；仅本局第一次触发时写
+     * 回放，避免掷骰启用后又用管理员命令激活时重复记一条。伪人事件是全局随机事件，
+     * 没有具体触发者，所以回放文案不带玩家名。音效与全场公告仍由
+     * {@link #announceNaturalEvent} 负责，不在这里重复播放。</p>
+     */
+    private static void startMoment(ServerLevel level) {
+        if (MomentManager.trigger(level, MomentType.FAKE_STEVE)) {
+            ReplayEventLog.record("replay.event.moment.fake_steve");
+        }
+    }
+
     public static boolean activate(ServerLevel level, ActivationSource source) {
         if (!canGenerate(level) || !isRoundAcceptingCommands(level)) {
             return false;
@@ -271,6 +292,8 @@ public final class FakeSteveDirector {
         }
         session.active = true;
         session.activationSource = source;
+        // 管理员命令在局内强开伪人事件时，也要进统一时刻系统并留下回放。
+        startMoment(level);
         return true;
     }
 
