@@ -219,11 +219,12 @@ public class SniperRifleItem extends Item implements HeldLikeRevolver {
 
     public static HitResult getGunTarget(Player user) {
         return SniperProjectileUtil.getSniperHitResult(user,
-                entity -> entity instanceof Player player && GameUtils.isPlayerAliveAndSurvival(player)
+                entity -> io.wifi.starrailexpress.event.TargetingEvents.ALLOW_GUN_TARGET.invoker().allow(user, entity)
+                        && (entity instanceof Player player && GameUtils.isPlayerAliveAndSurvival(player)
                         || entity instanceof RainbowHorseEntity
                         || entity instanceof CanyuesaHorseEntity
                         || entity instanceof SuperPigHorseEntity
-                        || org.agmas.noellesroles.game.command_block.CommandBlockCracks.isCrack(entity), 200F);
+                        || org.agmas.noellesroles.game.command_block.CommandBlockCracks.isCrack(entity)), 200F);
     }
 
     // 倍镜相关方法

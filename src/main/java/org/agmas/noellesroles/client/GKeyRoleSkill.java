@@ -96,7 +96,7 @@ public final class GKeyRoleSkill {
             var hitResult = client.hitResult;
             if (hitResult != null && hitResult.getType() == net.minecraft.world.phys.HitResult.Type.ENTITY) {
                 net.minecraft.world.phys.EntityHitResult entityHit = (net.minecraft.world.phys.EntityHitResult) hitResult;
-                if (entityHit.getEntity() instanceof Player targetPlayer) {
+                if (entityHit.getEntity() instanceof Player targetPlayer && allowTarget(client, targetPlayer)) {
                     ClientPlayNetworking.send(new AbilityWithTargetC2SPacket(targetPlayer));
                 }
             } else {
@@ -108,7 +108,7 @@ public final class GKeyRoleSkill {
             var hitResult = client.hitResult;
             if (hitResult != null && hitResult.getType() == net.minecraft.world.phys.HitResult.Type.ENTITY) {
                 net.minecraft.world.phys.EntityHitResult entityHit = (net.minecraft.world.phys.EntityHitResult) hitResult;
-                if (entityHit.getEntity() instanceof Player targetPlayer) {
+                if (entityHit.getEntity() instanceof Player targetPlayer && allowTarget(client, targetPlayer)) {
                     ClientPlayNetworking.send(new AbilityWithTargetC2SPacket(targetPlayer));
                 }
             } else {
@@ -161,7 +161,7 @@ public final class GKeyRoleSkill {
             return true;
         });
         register(THMountainRoles.NITORI, false, (client, gameWorld) -> {
-            if (NoellesrolesClient.targetPlayer == null) {
+            if (NoellesrolesClient.targetPlayer == null || !allowTarget(client, NoellesrolesClient.targetPlayer)) {
                 return true;
             }
             ClientPlayNetworking.send(new AbilityWithTargetC2SPacket(NoellesrolesClient.targetPlayer));
@@ -183,7 +183,7 @@ public final class GKeyRoleSkill {
             var hitResult = client.hitResult;
             if (hitResult != null && hitResult.getType() == net.minecraft.world.phys.HitResult.Type.ENTITY) {
                 net.minecraft.world.phys.EntityHitResult entityHit = (net.minecraft.world.phys.EntityHitResult) hitResult;
-                if (entityHit.getEntity() instanceof Player targetPlayer) {
+                if (entityHit.getEntity() instanceof Player targetPlayer && allowTarget(client, targetPlayer)) {
                     ClientPlayNetworking.send(new AbilityWithTargetC2SPacket(targetPlayer));
                     return true;
                 }
@@ -244,7 +244,7 @@ public final class GKeyRoleSkill {
             var hitResult = client.hitResult;
             if (hitResult != null && hitResult.getType() == net.minecraft.world.phys.HitResult.Type.ENTITY) {
                 net.minecraft.world.phys.EntityHitResult entityHit = (net.minecraft.world.phys.EntityHitResult) hitResult;
-                if (entityHit.getEntity() instanceof Player targetPlayer) {
+                if (entityHit.getEntity() instanceof Player targetPlayer && allowTarget(client, targetPlayer)) {
                     ClientPlayNetworking.send(new AbilityWithTargetC2SPacket(targetPlayer));
                 }
             } else {
@@ -270,6 +270,10 @@ public final class GKeyRoleSkill {
         boolean handle(Minecraft client, SREGameWorldComponent gameWorldComponent);
     }
 
+    private static boolean allowTarget(Minecraft client, Player target) {
+        return io.wifi.starrailexpress.event.TargetingEvents.ALLOW_SKILL_TARGET.invoker().allow(client.player, target);
+    }
+
     /**
      * 教父招募瞄准判定：沿视线（准星指向）在 {@link GodfatherRoleData#RECRUIT_RANGE} 格内
      * 找到第一个可瞄准的玩家，且视线不能被方块挡住；找不到返回 {@code null}。
@@ -285,7 +289,7 @@ public final class GKeyRoleSkill {
         Vec3 end = eye.add(look.scale(range));
         AABB searchBox = self.getBoundingBox().expandTowards(look.scale(range)).inflate(1.0D);
         EntityHitResult hit = ProjectileUtil.getEntityHitResult(self, eye, end, searchBox,
-                entity -> entity instanceof Player && !entity.isSpectator(), range * range);
+                entity -> entity instanceof Player target && !target.isSpectator() && allowTarget(client, target), range * range);
         if (hit == null || !(hit.getEntity() instanceof Player target)) {
             return null;
         }

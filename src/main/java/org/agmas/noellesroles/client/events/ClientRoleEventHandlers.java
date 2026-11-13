@@ -211,9 +211,10 @@ public final class ClientRoleEventHandlers {
 
     private static HitResult getGunTarget(Player user) {
         HitResult result = ProjectileUtil.getHitResultOnViewVector(user,
-                entity -> entity instanceof Player player && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
+                entity -> io.wifi.starrailexpress.event.TargetingEvents.ALLOW_GUN_TARGET.invoker().allow(user, entity)
+                        && (entity instanceof Player player && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
                         || entity instanceof PuppeteerBodyEntity || entity instanceof PigeonEntity
-                        || entity instanceof MorphlingKnifeDummyEntity || entity instanceof UndeadEntity,
+                        || entity instanceof MorphlingKnifeDummyEntity || entity instanceof UndeadEntity),
                 20f);
         if (!(result instanceof EntityHitResult)) {
             HitResult wire = ProjectileUtil.getHitResultOnViewVector(user,

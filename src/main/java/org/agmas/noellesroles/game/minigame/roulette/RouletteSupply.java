@@ -24,7 +24,7 @@ public final class RouletteSupply extends SavedData {
     }
     public int pending(UUID player) { return pending.getOrDefault(player, new ArrayDeque<>()).size(); }
     public int reserve(ServerPlayer player, int requested) {
-        int amount = RouletteItems.grantCount(RouletteItems.count(player), pending(player.getUUID()), requested);
+        int amount = RouletteItems.grantCount(RouletteItems.count(player), pending(player.getUUID()), RouletteBalance.supply(requested));
         if (amount == 0) {
             player.displayClientMessage(Component.translatable("roulette.hint.supply_full"), true);
             return 0;

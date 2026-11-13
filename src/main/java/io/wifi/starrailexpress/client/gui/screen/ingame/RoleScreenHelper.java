@@ -45,6 +45,17 @@ public class RoleScreenHelper<T> {
     private final Supplier<List<T>> entriesSupplier;
     private final Predicate<LocalPlayer> isActivePredicate;
     private final LocalPlayer player;
+    private List<T> lastVisibleEntries = List.of();
+
+    /** 共享头像候选门禁；非玩家条目与暂未加载的玩家资料保持原有行为。 */
+    public boolean isSkillTargetEntry(T entry) {
+        java.util.UUID id = entry instanceof java.util.UUID uuid ? uuid
+                : entry instanceof net.minecraft.client.multiplayer.PlayerInfo info ? info.getProfile().getId()
+                : entry instanceof net.minecraft.world.entity.player.Player target ? target.getUUID() : null;
+        var target = id == null ? null : player.level().getPlayerByUUID(id);
+        return target == null || io.wifi.starrailexpress.event.TargetingEvents.ALLOW_SKILL_TARGET
+                .invoker().allow(player, target);
+    }
 
     /**
      * @param player          客户端玩家实体
@@ -79,6 +90,7 @@ public class RoleScreenHelper<T> {
             Supplier<List<T>> entriesSupplier, Predicate<LocalPlayer> isActivePredicate) {
         this.player = player;
         this.paginationHelper = new PlayerPaginationHelper<>(widgetCreator, textProvider);
+        this.paginationHelper.setEntryFilter(this::isSkillTargetEntry);
         this.extraDrawer = extraDrawer;
         this.entriesSupplier = entriesSupplier;
         this.isActivePredicate = isActivePredicate;
@@ -113,6 +125,12 @@ public class RoleScreenHelper<T> {
         if (!isRoleActive()) {
             return;
         }
+        // 同一背包打开期间效果也可能改变，重建本扩展控件而非整个背包。
+        List<T> visible = paginationHelper.getVisibleEntries();
+        if (!visible.equals(lastVisibleEntries)) {
+            lastVisibleEntries = List.copyOf(visible);
+            paginationHelper.refreshPage(screen);
+        }
         int y = (screen.height - 32) / 2;
         int x = screen.width / 2;
         if (extraDrawer != null) {
@@ -131,6 +149,7 @@ public class RoleScreenHelper<T> {
         paginationHelper.clearManagedWidgets(screen);
         List<T> entries = entriesSupplier.get();
         paginationHelper.setPlayerEntries(entries);
+        lastVisibleEntries = List.copyOf(paginationHelper.getVisibleEntries());
         paginationHelper.addPageWidgets(screen);
     }
 

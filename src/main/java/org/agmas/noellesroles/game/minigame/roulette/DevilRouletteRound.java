@@ -7,7 +7,7 @@ import java.util.random.RandomGenerator;
 
 /** 只维护赌局规则与暗弹序；动画、补弹、补给和道具库存由调用方管理。 */
 public final class DevilRouletteRound {
-    private static final int MAX_HEALTH = 5;
+    private static final int MAX_HEALTH = RouletteBalance.HEALTH;
 
     private final UUID front;
     private final UUID back;
@@ -22,6 +22,7 @@ public final class DevilRouletteRound {
     private int cursor;
     private int loadedLive;
     private int loadedBlanks;
+    private final RouletteAmmo publicAmmo = new RouletteAmmo();
     private boolean saw;
     private UUID cuffed;
     private boolean cuffsUsedThisTurn;
@@ -67,6 +68,7 @@ public final class DevilRouletteRound {
     public UUID winner() { return winner; }
     public boolean ended() { return winner != null; }
     public int remaining() { return chamber.length - cursor; }
+    public RouletteAmmo.Counts publicAmmo() { return publicAmmo.snapshot(); }
     public int loadedLive() { return loadedLive; }
     public int loadedBlanks() { return loadedBlanks; }
     public boolean saw() { return saw; }
@@ -115,6 +117,7 @@ public final class DevilRouletteRound {
         if (!isParticipant(target)) return invalid(target, "roulette.error.target");
         UUID actor = operator;
         int shell = chamber[cursor++] ? 1 : 0;
+        publicAmmo.consume(shell == 1);
         int damage = shell == 1 ? (saw ? 2 : 1) : 0;
         saw = false;
         int delta = changeHealth(target, -damage);
@@ -165,7 +168,7 @@ public final class DevilRouletteRound {
                 knownOffset = 1;
                 knownShell = chamber[cursor] ? 1 : 0;
             }
-            case BEER -> shell = chamber[cursor++] ? 1 : 0;
+            case BEER -> { shell = chamber[cursor++] ? 1 : 0; publicAmmo.consume(shell == 1); }
             case CIGARETTE -> delta = changeHealth(actor, 1);
             case HANDSAW -> saw = true;
             case HANDCUFFS -> {
@@ -173,7 +176,7 @@ public final class DevilRouletteRound {
                 cuffed = target;
                 cuffsUsedThisTurn = true;
             }
-            case INVERTER -> chamber[cursor] = !chamber[cursor];
+            case INVERTER -> { chamber[cursor] = !chamber[cursor]; publicAmmo.invert(); }
             case TELEPHONE -> {
                 knownOffset = 2 + random.nextInt(remaining() - 1);
                 knownShell = chamber[cursor + knownOffset - 1] ? 1 : 0;
@@ -220,6 +223,7 @@ public final class DevilRouletteRound {
         loadedLive = 0;
         for (boolean shell : shells) if (shell) loadedLive++;
         loadedBlanks = shells.length - loadedLive;
+        publicAmmo.reload(loadedLive, loadedBlanks);
     }
 
     /** shell 仅包含公开结果；knownOffset / knownShell 只能私下发送给 actor。 */

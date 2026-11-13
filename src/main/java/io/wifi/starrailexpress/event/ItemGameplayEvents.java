@@ -20,6 +20,21 @@ public final class ItemGameplayEvents {
     private ItemGameplayEvents() {
     }
 
+    /** 地面物品接触的最早许可，早于特殊金币兑换；不影响直接 setItem 发放。 */
+    public static final Event<WorldPickup> ALLOW_WORLD_PICKUP = pickupGate();
+
+    static Event<WorldPickup> pickupGate() {
+        return EventFactory.createArrayBacked(WorldPickup.class, listeners -> (player, stack) -> {
+            for (WorldPickup listener : listeners) if (!listener.allow(player, stack)) return false;
+            return true;
+        });
+    }
+
+    @FunctionalInterface
+    public interface WorldPickup {
+        boolean allow(Player player, ItemStack stack);
+    }
+
     /** 职业丢弃判定之前查询，首个非 PASS 短路；双端调用，不修改物品栈。 */
     public static final Event<DropItem> BEFORE_ROLE_DROP = dropGate();
 

@@ -100,6 +100,10 @@ public final class SREHitManager {
         if (entity == null || entity.isRemoved() || entity == attacker) {
             return null;
         }
+        if (type.isRanged() && !io.wifi.starrailexpress.event.TargetingEvents.ALLOW_GUN_TARGET
+                .invoker().allow(attacker, entity)) {
+            return null;
+        }
         if (entity instanceof Player player) {
             return isAlivePlayerTarget(player, type) ? HitPriority.PRIMARY : null;
         }

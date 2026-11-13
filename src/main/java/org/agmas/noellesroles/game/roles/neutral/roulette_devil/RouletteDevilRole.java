@@ -14,6 +14,9 @@ import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.event.GameUtilityEvents;
 import io.wifi.starrailexpress.event.OnGameStarted;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.event.TargetingEvents;
+import io.wifi.starrailexpress.util.TrueFalseResult;
+import net.minecraft.world.item.ItemStack;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -42,6 +45,29 @@ public final class RouletteDevilRole extends CustomWinnerRole {
     public static final ResourceLocation INVENTORY = Noellesroles.id("roulette_devil_inventory");
     public static final ResourceLocation DEATH = Noellesroles.id("roulette_devil_duel");
     private static boolean registered;
+    private static final int PASSIVE_TICKS = 40;
+    private static final List<Holder<MobEffect>> PASSIVES = List.of(ModEffects.NO_COLLIDE,
+            ModEffects.GUN_TARGET_IMMUNITY, ModEffects.SKILL_TARGET_IMMUNITY);
+
+    /** 短时环境标记可随背包/会话快照恢复；不覆盖长效、高等级或可见的外部效果。 */
+    private static boolean isPassiveInstance(MobEffectInstance effect) {
+        return effect != null && !effect.isInfiniteDuration() && effect.getDuration() <= PASSIVE_TICKS
+                && effect.getAmplifier() == 0 && effect.isAmbient() && !effect.isVisible() && !effect.showIcon();
+    }
+    private static void refreshPassives(ServerPlayer p) {
+        if (!p.isAlive() || !GameUtils.isPlayerAliveAndSurvival(p)) return;
+        for (var effect : PASSIVES) {
+            var current = p.getEffect(effect);
+            if (current == null || isPassiveInstance(current) && current.getDuration() <= PASSIVE_TICKS / 2)
+                p.addEffect(new MobEffectInstance(effect, PASSIVE_TICKS, 0, true, false, false));
+        }
+    }
+    private static void removePassives(ServerPlayer p) {
+        for (var effect : PASSIVES) if (isPassiveInstance(p.getEffect(effect))) p.removeEffect(effect);
+    }
+    @Override public TrueFalseResult onPickUpItem(Player player, ItemStack item) {
+        return TrueFalseResult.FALSE;
+    }
     private static final List<Holder<MobEffect>> VOICES = List.of(ModEffects.VOICE_UNDERWATER,
             ModEffects.HEAVY_METAL_VOICE, ModEffects.VOICE_HELMET, ModEffects.VOICE_ROBOT);
     public RouletteDevilRole(ResourceLocation id) {
@@ -70,6 +96,10 @@ public final class RouletteDevilRole extends CustomWinnerRole {
     public static void register() {
         if (registered) return;
         registered = true;
+        // 特殊金币掉落会在普通职业拾取钩子前兑换，统一地面拾取门禁也转交职业判断。
+        io.wifi.starrailexpress.event.ItemGameplayEvents.ALLOW_WORLD_PICKUP.register((player, item) ->
+                !isDevil(player) || io.wifi.starrailexpress.api.RoleMethodDispatcher.callOnPickupItem(player, item)
+                        != TrueFalseResult.FALSE);
         RoleSkill.register(ModRoles.ROULETTE_DEVIL,
                 RoleSkill.skill(Noellesroles.id("roulette_devil_seed"), "skill.noellesroles.roulette_devil.seed", ctx -> {
                     var target = ctx.getTargetAsPlayer();
@@ -173,7 +203,8 @@ public final class RouletteDevilRole extends CustomWinnerRole {
     public static boolean plant(ServerPlayer p, ServerPlayer target) {
         var d = data(p);
         if (d == null || !usable(p) || target == p || target.level() != p.level()
-                || !GameUtils.isPlayerAliveAndSurvival(target) || p.distanceToSqr(target) > 64 || !p.hasLineOfSight(target)) return false;
+                || !GameUtils.isPlayerAliveAndSurvival(target) || !TargetingEvents.ALLOW_SKILL_TARGET.invoker().allow(p, target)
+                || p.distanceToSqr(target) > 64 || !p.hasLineOfSight(target)) return false;
         if (d.seeds.containsKey(target.getUUID())) { tell(p, "seed_exists"); return false; }
         d.seeds.put(target.getUUID(), p.level().getGameTime()); d.sync();
         p.displayClientMessage(Component.translatable("message.noellesroles.roulette_devil.seed_planted", target.getName()), true);
@@ -181,6 +212,7 @@ public final class RouletteDevilRole extends CustomWinnerRole {
     }
     public static void tick(ServerPlayer p, RouletteDevilRoleData d) {
         if (updateRefugee(p, d, refugeeActive(p)) || !GameUtils.isGameStarted || !GameUtils.isPlayerAliveAndSurvival(p)) return;
+        refreshPassives(p);
         if (d.startingPlayers == 0) d.startingPlayers = SREGameWorldComponent.KEY.get(p.level()).getStartingPlayerCount();
         boolean duel = RouletteDevilSessions.inDuel(p.getUUID());
         p.setInvulnerable(!duel);
@@ -234,11 +266,12 @@ public final class RouletteDevilRole extends CustomWinnerRole {
     }
     @Override public void onInit(MinecraftServer server, ServerPlayer p) {
         super.onInit(server, p);
+        refreshPassives(p);
         var d = data(p);
         if (d != null) d.startingPlayers = SREGameWorldComponent.KEY.get(p.level()).getStartingPlayerCount();
     }
     @Override public void onRemove(ServerPlayer p) {
-        RouletteDevilSessions.cancel(p.getUUID(), p.getServer()); removeVoices(p); p.setInvulnerable(false);
+        RouletteDevilSessions.cancel(p.getUUID(), p.getServer()); removeVoices(p); removePassives(p); p.setInvulnerable(false);
     }
     @Override public GameUtils.WinStatus checkWin(ServerPlayer p, GameUtils.WinStatus original) {
         var d = data(p);

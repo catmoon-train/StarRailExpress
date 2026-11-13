@@ -57,7 +57,10 @@ public class GameRendererMixin {
         float advancedFov = net.exmo.sre.camera.client.AdvancedCameraDirector.getFovOverride(partialTick);
         if (advancedFov > 0f) {
             cir.setReturnValue((double) advancedFov);
+            return;
         }
+        if (bobbing) cir.setReturnValue(io.wifi.starrailexpress.event.client.ClientGameplayEvents.WORLD_FOV
+                .invoker().modify(minecraft.player, cir.getReturnValue(), partialTick));
     }
 
     @Inject(method = "bobView", at = @At("HEAD"), cancellable = true)

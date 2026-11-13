@@ -922,11 +922,11 @@ public final class CustomItemRuntime {
         CustomItemLoader.executeCommands(data.shootCommands, shooter);
 
         // 射线是否允许穿过屏障：开启后与狙击枪一致，忽略屏障类方块继续向后命中
+        java.util.function.Predicate<Entity> gunTargets = entity -> isValidTarget(shooter, entity)
+                && io.wifi.starrailexpress.event.TargetingEvents.ALLOW_GUN_TARGET.invoker().allow(shooter, entity);
         HitResult hit = data.tracerThroughBarrier
-                ? io.wifi.starrailexpress.util.SniperProjectileUtil.getSniperHitResult(shooter,
-                        entity -> isValidTarget(shooter, entity), data.gunRange)
-                : ProjectileUtil.getHitResultOnViewVector(shooter,
-                        entity -> isValidTarget(shooter, entity), data.gunRange);
+                ? io.wifi.starrailexpress.util.SniperProjectileUtil.getSniperHitResult(shooter, gunTargets, data.gunRange)
+                : ProjectileUtil.getHitResultOnViewVector(shooter, gunTargets, data.gunRange);
 
         // 弹道射线：是否显示 / 样式完全由物品自身配置决定，不受服务端总开关影响
         if (data.showTracer) {

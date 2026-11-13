@@ -22,6 +22,23 @@ public final class ClientGameplayEvents {
     private ClientGameplayEvents() {
     }
 
+    /** 辅助 HUD 绘制前的许可，不包含快捷栏、准星或独立小游戏界面。 */
+    public static final Event<HudVisibility> ALLOW_AUXILIARY_HUD = EventFactory.createArrayBacked(
+            HudVisibility.class, listeners -> player -> {
+                for (HudVisibility listener : listeners) if (!listener.allow(player)) return false;
+                return true;
+            });
+
+    /** 世界视野的后置修饰，保留开镜与高级相机的更高优先级。 */
+    public static final Event<WorldFov> WORLD_FOV = EventFactory.createArrayBacked(WorldFov.class,
+            listeners -> (player, fov, partial) -> {
+                for (WorldFov listener : listeners) fov = listener.modify(player, fov, partial);
+                return fov;
+            });
+
+    @FunctionalInterface public interface HudVisibility { boolean allow(Player player); }
+    @FunctionalInterface public interface WorldFov { double modify(Player player, double fov, float partial); }
+
     /** 伪装临时实体的玩家状态复制完成后通知，不推进实体 tick。 */
     public static final Event<DisguiseStateCopied> DISGUISE_STATE_COPIED = EventFactory.createArrayBacked(
             DisguiseStateCopied.class, listeners -> (player, dummy) -> {

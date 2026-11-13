@@ -680,6 +680,13 @@ public final class RoleSkill {
         if (blockForSpectator(player, ignoreEffect)) {
             return false;
         }
+        // RELEASE 仍需终止旧施法；PRESS/HOLD 在任何监听器、冷却或技能处理器之前验目标。
+        if (target != null && phase != Phase.RELEASE) {
+            Entity candidate = player.serverLevel().getEntity(target);
+            if (candidate == null && server != null) candidate = server.getPlayerList().getPlayer(target);
+            if (candidate != null && !io.wifi.starrailexpress.event.TargetingEvents.ALLOW_SKILL_TARGET
+                    .invoker().allow(player, candidate)) return false;
+        }
         List<Definition> definitions = getDefinitions(role);
         if (!definitions.isEmpty()) {
             return useUnified(player, role, definitions, target, requestedSlot, phase, shifted);

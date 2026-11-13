@@ -22,6 +22,8 @@ import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.game.data.MapStatusBarType;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameConstants;
+import io.wifi.starrailexpress.event.ItemGameplayEvents;
+import io.wifi.starrailexpress.event.TargetingEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -75,6 +77,12 @@ public class ModEffects {
     /** 禁止技能使用 */
     public static final Holder<MobEffect> SKILL_BANED = register("skill_baned",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFFFFFF));
+    /** 枪械射线跳过持有效果的实体，仍可命中其后方目标。 */
+    public static final Holder<MobEffect> GUN_TARGET_IMMUNITY = register("gun_target_immunity",
+            new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0x384B89));
+    /** 不可作为职业技能的指定目标；不阻止已建立的小游戏内部结算。 */
+    public static final Holder<MobEffect> SKILL_TARGET_IMMUNITY = register("skill_target_immunity",
+            new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0x7664AC));
     /** 显示真容，不走皮肤替换逻辑 */
     public static final Holder<MobEffect> TRUE_SKIN = register("true_skin",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFFFFFF));
@@ -1185,6 +1193,15 @@ public class ModEffects {
     public static boolean pierceDeath = false;
 
     public static void init() {
+        TargetingEvents.ALLOW_GUN_TARGET.register((actor, target) ->
+                !(target instanceof LivingEntity living) || !living.hasEffect(GUN_TARGET_IMMUNITY));
+        TargetingEvents.ALLOW_SKILL_TARGET.register((actor, target) ->
+                !(target instanceof LivingEntity living) || !living.hasEffect(SKILL_TARGET_IMMUNITY));
+        // 客户端传入实体编号的旧枪械协议也不能伪造命中免疫目标。
+        ItemGameplayEvents.ALLOW_GUN_FIRE.register((player, targetId) -> {
+            var target = player.serverLevel().getEntity(targetId);
+            return target == null || TargetingEvents.ALLOW_GUN_TARGET.invoker().allow(player, target);
+        });
         StatusAilmentHandler.register();
         DeathReactionHandler.register();
         // 把说话者侧的语音效果（重金属/回响）同步给所有客户端，
@@ -1207,6 +1224,9 @@ public class ModEffects {
         EffectBroadcastSync.register(INSTINCT_CONCEAL);
         // 重力颠倒要让玩家在「别人眼中」也倒立渲染，所以同样需要广播（隐藏图标与粒子）。
         EffectBroadcastSync.register(GRAVITY_FLIP);
+        EffectBroadcastSync.register(GUN_TARGET_IMMUNITY);
+        EffectBroadcastSync.register(SKILL_TARGET_IMMUNITY);
+        EffectBroadcastSync.register(NO_COLLIDE);
         EffectBroadcastSync.init();
         WraithDimensionEffectSync.init();
         AllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {

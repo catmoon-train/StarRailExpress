@@ -4,7 +4,8 @@ import net.minecraft.nbt.CompoundTag;
 import java.util.List;
 import java.util.UUID;
 
-/** 可公开的画面快照：严禁在此添加弹序、当前暗弹类型或私密道具结果。 */
+/** 可公开的画面快照：严禁添加弹序、当前暗弹类型或私密道具结果。
+ * live/blanks 为公开事实能确认的剩余数量，remaining 还包含逆转后的未知弹型。 */
 public record RouletteView(UUID session, long sequence, RoulettePhase phase, long startedAt, int duration,
         UUID front, UUID back, UUID operator, String frontName, String backName,
         int frontHealth, int backHealth, int frontMaxHealth, int backMaxHealth,
@@ -16,19 +17,19 @@ public record RouletteView(UUID session, long sequence, RoulettePhase phase, lon
         frontItems = List.copyOf(frontItems.subList(0, Math.min(8, frontItems.size())));
         backItems = List.copyOf(backItems.subList(0, Math.min(8, backItems.size())));
     }
-    /** 兼容普通赌桌原有的五点生命快照构造入口。 */
+    /** 未指定上限的新快照使用普通局默认生命；旧 NBT 仍按历史五点上限读取。 */
     public RouletteView(UUID session, long sequence, RoulettePhase phase, long startedAt, int duration,
             UUID front, UUID back, UUID operator, String frontName, String backName,
             int frontHealth, int backHealth, int live, int blanks, int remaining, boolean saw, UUID cuffed,
             RouletteItem item, RouletteItem stolen, UUID actor, UUID target, int shell, int delta,
             List<Integer> frontItems, List<Integer> backItems, String message, int seconds, UUID winner) {
         this(session, sequence, phase, startedAt, duration, front, back, operator, frontName, backName,
-                frontHealth, backHealth, 5, 5, live, blanks, remaining, saw, cuffed, item, stolen,
+                frontHealth, backHealth, RouletteBalance.HEALTH, RouletteBalance.HEALTH, live, blanks, remaining, saw, cuffed, item, stolen,
                 actor, target, shell, delta, frontItems, backItems, message, seconds, winner);
     }
     public static RouletteView idle() {
         return new RouletteView(NONE, 0, RoulettePhase.WAITING, 0, 0, NONE, NONE, NONE, "", "",
-                5, 5, 0, 0, 0, false, NONE, null, null, NONE, NONE, -1, 0,
+                RouletteBalance.HEALTH, RouletteBalance.HEALTH, 0, 0, 0, false, NONE, null, null, NONE, NONE, -1, 0,
                 List.of(), List.of(), "roulette.hint.sit", 30, NONE);
     }
     public boolean supersedes(RouletteView old) {
@@ -38,6 +39,7 @@ public record RouletteView(UUID session, long sequence, RoulettePhase phase, lon
     public boolean isFront(UUID player) { return front.equals(player); }
     public int health(UUID player) { return isFront(player) ? frontHealth : backHealth; }
     public int maxHealth(UUID player) { return isFront(player) ? frontMaxHealth : backMaxHealth; }
+    public int unknownAmmo() { return Math.max(0, remaining - live - blanks); }
     public String name(UUID player) { return isFront(player) ? frontName : backName; }
     public List<Integer> items(UUID player) { return isFront(player) ? frontItems : backItems; }
     public float age(long ticks, float partial) { return Math.max(0, ticks - startedAt + partial); }

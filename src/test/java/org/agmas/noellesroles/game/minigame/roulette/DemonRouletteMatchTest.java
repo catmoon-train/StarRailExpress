@@ -15,16 +15,16 @@ class DemonRouletteMatchTest {
     private static final UUID OPPONENT = new UUID(2, 2);
 
     @Test void asymmetricInitialAndMaximumHealthDoNotChangeOrdinaryDefaults() {
-        var round = new DevilRouletteRound(DEMON, OPPONENT, new Random(0), 6, 5);
-        assertEquals(6, round.health(DEMON));
-        assertEquals(6, round.maxHealth(DEMON));
-        assertEquals(5, round.health(OPPONENT));
-        assertEquals(5, round.maxHealth(OPPONENT));
+        var round = new DevilRouletteRound(DEMON, OPPONENT, new Random(0), RouletteBalance.DEVIL_HEALTH, RouletteBalance.HEALTH);
+        assertEquals(4, round.health(DEMON));
+        assertEquals(4, round.maxHealth(DEMON));
+        assertEquals(3, round.health(OPPONENT));
+        assertEquals(3, round.maxHealth(OPPONENT));
         assertEquals(0, round.maxHealth(new UUID(3, 3)));
         var ordinary = new DevilRouletteRound(DEMON, OPPONENT, new Random(0));
-        assertEquals(5, ordinary.health(DEMON));
-        assertEquals(5, ordinary.maxHealth(DEMON));
-        assertEquals(5, ordinary.maxHealth(OPPONENT));
+        assertEquals(3, ordinary.health(DEMON));
+        assertEquals(3, ordinary.maxHealth(DEMON));
+        assertEquals(3, ordinary.maxHealth(OPPONENT));
         round.forfeit(DEMON);
         assertEquals(0, round.health(DEMON));
         assertEquals(OPPONENT, round.winner());
@@ -33,7 +33,7 @@ class DemonRouletteMatchTest {
     @Test void cigarettesHealEachSideToItsOwnMaximum() {
         for (UUID operator : List.of(DEMON, OPPONENT)) {
             var round = new DevilRouletteRound(DEMON, OPPONENT, new Random(0), List.of(false, true),
-                    5, 4, operator, 6, 5);
+                    3, 2, operator, 4, 3);
             assertNull(round.failure(RouletteItem.CIGARETTE));
             assertEquals(1, round.use(RouletteItem.CIGARETTE).delta());
             assertEquals(round.maxHealth(operator), round.health(operator));
@@ -42,13 +42,13 @@ class DemonRouletteMatchTest {
         }
     }
 
-    @Test void medicineCanReachSixButNeverRaisesOpponentAboveFive() {
+    @Test void medicineCanReachFourButNeverRaisesOpponentAboveThree() {
         for (UUID operator : List.of(DEMON, OPPONENT)) {
             Random healing = new Random(0) {
                 @Override public double nextDouble() { return 0; }
             };
             var round = new DevilRouletteRound(DEMON, OPPONENT, healing, List.of(false, true),
-                    4, 4, operator, 6, 5);
+                    2, 2, operator, 4, 3);
             assertEquals(operator.equals(DEMON) ? 2 : 1, round.use(RouletteItem.EXPIRED_MEDICINE).delta());
             assertEquals(round.maxHealth(operator), round.health(operator));
             assertEquals(0, round.use(RouletteItem.EXPIRED_MEDICINE).delta());
@@ -60,12 +60,12 @@ class DemonRouletteMatchTest {
             var match = new DemonMatch(DEMON, OPPONENT, (winner, loser) -> fail("Unexpected settlement"));
             var random = new Random(0);
             match.reserve(amount, 0, 0, random);
-            assertEquals(amount + 1, drain(match, DEMON));
-            assertEquals(amount, drain(match, OPPONENT));
+            assertEquals(RouletteBalance.supply(amount) + 1, drain(match, DEMON));
+            assertEquals(RouletteBalance.supply(amount), drain(match, OPPONENT));
             for (int reload = 2; reload <= 5; reload++) {
                 match.reserve(reload, 0, 0, random);
-                assertEquals(reload, drain(match, DEMON));
-                assertEquals(reload, drain(match, OPPONENT));
+                assertEquals(RouletteBalance.supply(reload), drain(match, DEMON));
+                assertEquals(RouletteBalance.supply(reload), drain(match, OPPONENT));
             }
         }
     }
@@ -77,11 +77,11 @@ class DemonRouletteMatchTest {
         assertEquals(1, drain(match, DEMON));
         assertEquals(1, drain(match, OPPONENT));
         match.reserve(2, 0, 0, new Random(0));
-        assertEquals(2, match.pending(DEMON)); // 首次被容量截断的奖励不顺延。
-        assertEquals(2, match.pending(OPPONENT));
+        assertEquals(1, match.pending(DEMON)); // 首次被容量截断的奖励不顺延。
+        assertEquals(1, match.pending(OPPONENT));
         match.reserve(5, 1, 1, new Random(0));
-        assertEquals(7, match.pending(DEMON));
-        assertEquals(7, match.pending(OPPONENT));
+        assertEquals(5, match.pending(DEMON));
+        assertEquals(5, match.pending(OPPONENT));
         match.reserve(5, 1, 1, new Random(0));
         assertEquals(7, match.pending(DEMON));
         assertEquals(7, match.pending(OPPONENT));
@@ -133,15 +133,16 @@ class DemonRouletteMatchTest {
         var tag = RouletteView.idle().toTag();
         tag.putUUID("Front", DEMON);
         tag.putUUID("Back", OPPONENT);
-        tag.putInt("FrontMaxHealth", 6);
-        tag.putInt("FrontHealth", 6);
-        tag.putInt("BackHealth", 6);
+        tag.putInt("FrontMaxHealth", 4);
+        tag.putInt("FrontHealth", 4);
+        tag.putInt("BackHealth", 4);
         var view = RouletteView.fromTag(tag);
-        assertEquals(6, view.health(DEMON));
-        assertEquals(6, view.maxHealth(DEMON));
-        assertEquals(5, view.health(OPPONENT));
-        assertEquals(5, view.maxHealth(OPPONENT));
+        assertEquals(4, view.health(DEMON));
+        assertEquals(4, view.maxHealth(DEMON));
+        assertEquals(3, view.health(OPPONENT));
+        assertEquals(3, view.maxHealth(OPPONENT));
         assertEquals(view, RouletteView.fromTag(view.toTag()));
+        tag.putInt("FrontHealth", 5);
         tag.remove("FrontMaxHealth");
         tag.remove("BackMaxHealth");
         var old = RouletteView.fromTag(tag);

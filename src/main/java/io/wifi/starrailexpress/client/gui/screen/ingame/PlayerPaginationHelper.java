@@ -54,6 +54,12 @@ public class PlayerPaginationHelper<T> {
     private Function<T, String> nameExtractor = null; // 设置后启用"按名搜索 + 默认按名排序"
     private Comparator<T> sortComparator = null;      // 自定义排序；为空时若启用 nameExtractor 则按名排序
     private String searchQuery = "";
+    private java.util.function.Predicate<T> entryFilter = entry -> true;
+
+    /** 选人入口的通用候选过滤，搜索与分页之前执行，刷新列表也无法绕过。 */
+    public void setEntryFilter(java.util.function.Predicate<T> entryFilter) {
+        this.entryFilter = entryFilter;
+    }
     private EditBox searchBox = null;
 
     // 受管控件
@@ -173,10 +179,10 @@ public class PlayerPaginationHelper<T> {
 
     /** 经过搜索过滤 + 排序后的可见条目。 */
     public List<T> getVisibleEntries() {
-        List<T> visible = playerEntries;
+        List<T> visible = playerEntries.stream().filter(entryFilter).collect(Collectors.toList());
         if (isSearchActive()) {
             String needle = searchQuery.toLowerCase(Locale.ROOT);
-            visible = playerEntries.stream()
+            visible = visible.stream()
                     .filter(e -> nameOf(e).toLowerCase(Locale.ROOT).contains(needle))
                     .collect(Collectors.toList());
         }

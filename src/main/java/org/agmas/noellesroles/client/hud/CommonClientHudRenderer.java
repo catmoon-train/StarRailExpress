@@ -165,6 +165,7 @@ public class CommonClientHudRenderer {
       if (io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.shouldSuppressGameplayHud()) {
         return;
       }
+      if (!io.wifi.starrailexpress.event.client.ClientGameplayEvents.ALLOW_AUXILIARY_HUD.invoker().allow(client.player)) return;
       final LocalPlayer player = client.player;
       final boolean echoMode=SREClient.gameComponent.getGameMode() instanceof org.agmas.noellesroles.game.modes.echo.EchoGameMode;
       {

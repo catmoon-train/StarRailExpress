@@ -31,7 +31,7 @@ import java.util.random.RandomGenerator;
 
 /** 赌桌与纯规则之间的薄适配；物品、动画和外层比赛结算均由赌桌统一调度。 */
 public final class DevilRouletteGame {
-    public static final int MAX_HEALTH = 5;
+    public static final int MAX_HEALTH = org.agmas.noellesroles.game.minigame.roulette.RouletteBalance.HEALTH;
     public enum GameMode { Lobby, Roulette }
     private final ArrayList<UUID> players;
     private final RandomSource random;
@@ -80,8 +80,9 @@ public final class DevilRouletteGame {
         public void reserve(int amount, int demonCarried, int opponentCarried, RandomGenerator random) {
             if (settlement == null) return;
             if (amount < 2 || amount > 5) throw new IllegalArgumentException("Supply must be between 2 and 5");
-            reserve(demon, demonCarried, amount + (initialSupply ? 1 : 0), random);
-            reserve(opponent, opponentCarried, amount, random);
+            int reduced = org.agmas.noellesroles.game.minigame.roulette.RouletteBalance.supply(amount);
+            reserve(demon, demonCarried, reduced + (initialSupply ? 1 : 0), random);
+            reserve(opponent, opponentCarried, reduced, random);
             initialSupply = false;
         }
 

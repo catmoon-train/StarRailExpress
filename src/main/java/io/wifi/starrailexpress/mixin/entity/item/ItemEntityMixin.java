@@ -64,6 +64,8 @@ public abstract class ItemEntityMixin {
 
     @WrapMethod(method = "playerTouch")
     public void tmm$preventGunPickup(Player player, Operation<Void> original) {
+        if (!io.wifi.starrailexpress.event.ItemGameplayEvents.ALLOW_WORLD_PICKUP
+                .invoker().allow(player, this.getItem())) return;
         if (BrokenGunDropUtils.isBrokenGun(this.getItem())) {
             return;
         }

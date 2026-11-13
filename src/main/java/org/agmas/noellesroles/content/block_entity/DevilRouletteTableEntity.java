@@ -116,9 +116,9 @@ public class DevilRouletteTableEntity extends BlockEntity {
         int seconds = Math.max(0, (budget() - readyTicks + 19) / 20);
         view = new RouletteView(session, ++sequence, phase, startedAt, duration, id(front), id(back),
                 r == null ? RouletteView.NONE : r.operator(), frontName, backName,
-                r == null ? 5 : r.health(front), r == null ? 5 : r.health(back),
-                r == null ? 5 : r.maxHealth(front), r == null ? 5 : r.maxHealth(back),
-                r == null ? 0 : r.loadedLive(), r == null ? 0 : r.loadedBlanks(), r == null ? 0 : r.remaining(),
+                r == null ? RouletteBalance.HEALTH : r.health(front), r == null ? RouletteBalance.HEALTH : r.health(back),
+                r == null ? RouletteBalance.HEALTH : r.maxHealth(front), r == null ? RouletteBalance.HEALTH : r.maxHealth(back),
+                r == null ? 0 : r.publicAmmo().live(), r == null ? 0 : r.publicAmmo().blanks(), r == null ? 0 : r.remaining(),
                 r != null && (phase == RoulettePhase.SHOOT ? shotSaw : r.saw()), r == null ? RouletteView.NONE : id(r.cuffed()),
                 actionItem, stolenItem, actor, target, shell, delta, RouletteItems.visible(p1), RouletteItems.visible(p2),
                 message, seconds, r == null ? RouletteView.NONE : id(r.winner()));
@@ -429,7 +429,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
         if (isFront) { front = null; frontName = ""; } else { back = null; backName = ""; }
         message = "roulette.hint.wait_opponent"; publish(); hint(player, "roulette.hint.unregistered"); return true;
     }
-    public void startGame() { startMatch(5, 5, null); }
+    public void startGame() { startMatch(RouletteBalance.HEALTH, RouletteBalance.HEALTH, null); }
     /** 调用方负责清空并托管背包、安排座位，以及在结算或取消后恢复玩家。 */
     public boolean startDemonMatch(ServerPlayer demon, ServerPlayer opponent, BiConsumer<UUID, UUID> settlement) {
         if (game != null || isRemoved() || !(level instanceof ServerLevel) || demon == null || opponent == null
@@ -438,7 +438,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
                 || front != null && !front.equals(demon.getUUID()) || back != null && !back.equals(opponent.getUUID())
                 || !validParticipant(demon, true) || !validParticipant(opponent, false)) return false;
         front = demon.getUUID(); back = opponent.getUUID();
-        return startMatch(6, 5, new DevilRouletteGame.DemonMatch(front, back, settlement));
+        return startMatch(RouletteBalance.DEVIL_HEALTH, RouletteBalance.HEALTH, new DevilRouletteGame.DemonMatch(front, back, settlement));
     }
     private boolean startMatch(int frontMaxHealth, int backMaxHealth, DevilRouletteGame.DemonMatch dedicated) {
         if (game != null || !checkCanStartGame() || !(level instanceof ServerLevel)) return false;

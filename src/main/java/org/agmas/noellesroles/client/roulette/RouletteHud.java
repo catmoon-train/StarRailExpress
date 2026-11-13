@@ -10,7 +10,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.agmas.noellesroles.content.block_entity.DevilRouletteTableEntity;
 import org.agmas.noellesroles.game.minigame.roulette.*;
 
-/** 仅对参与者显示操作信息；旁观者只能看到桌面公开信息。 */
+/** 屏幕下部仅保留对局核心信息，详细规则与道具说明通过桌面帮助查看。 */
 final class RouletteHud {
     static final int TEXT=0xFFFFF4DC, GOLD=0xFFD4AF37, MUTED=0xFF9E8B6E, RED=0xFFE06B65, BLUE=0xFF5EB7D8;
     private RouletteHud() {}
@@ -18,63 +18,53 @@ final class RouletteHud {
     static void render(GuiGraphics g, DeltaTracker tracker) {
         var mc=Minecraft.getInstance();
         var state=RouletteClient.participant();
-        if (state==null || mc.player==null || mc.level==null || mc.options.hideGui || AdvancedCameraDirector.shouldHideHudForCamera()) return;
+        if (state==null || mc.player==null || mc.level==null || mc.screen!=null || mc.options.hideGui
+                || !(mc.player.getVehicle() instanceof io.wifi.starrailexpress.content.block.entity.SeatEntity)
+                || mc.player.distanceToSqr(net.minecraft.world.phys.Vec3.atCenterOf(state.pos))>36
+                || AdvancedCameraDirector.shouldHideHudForCamera()) return;
         RouletteView v=state.view;
         float partial=tracker.getGameTimeDeltaPartialTick(false);
         vignette(g,state,partial);
-        int w=Math.min(400,g.guiWidth()-16), x=(g.guiWidth()-w)/2, y=8;
-        int zone=zone(state);
-        var held=mc.player.getMainHandItem();
-        if (held.isEmpty() && RouletteItems.kind(mc.player.getOffhandItem())!=null) held=mc.player.getOffhandItem();
-        RouletteItem kind=RouletteItems.kind(held);
-        Component hint=hint(state,zone,kind,held.isEmpty());
-        var reason=mc.font.split(Component.translatable(v.message()),w-20);
-        var hints=mc.font.split(hint,w-20);
-        var secret=RouletteClient.privateInfo(state);
-        Component privateText=secret==null?Component.empty():secret.index()>0
-                ? Component.translatable(secret.key(),secret.index(),Component.translatable(secret.shell()==1?"roulette.ui.live":"roulette.ui.blank"))
-                : Component.translatable(secret.key());
-        var privateLines=mc.font.split(privateText,w-20);
-        var status=Component.empty();
-        if (v.saw()) status.append(Component.translatable(RouletteItem.HANDSAW.titleKey())).append(" ×2");
-        if (!v.cuffed().equals(RouletteView.NONE)) {
-            if (v.saw()) status.append("  |  ");
-            status.append(Component.translatable(RouletteItem.HANDCUFFS.titleKey())).append(": ").append(v.name(v.cuffed()));
-        }
-        int statusHeight=status.getString().isEmpty()?0:11;
-        int h=69+statusHeight+reason.size()*11+hints.size()*11+(secret==null?0:14+privateLines.size()*11);
-        panel(g,x,y,w,h);
-        Component phase=Component.translatable(v.phase().titleKey());
-        var actor=(v.phase()==RoulettePhase.SHOOT || v.phase()==RoulettePhase.ITEM || v.phase()==RoulettePhase.ADRENALINE)?v.actor():v.operator();
-        fitted(g,Component.translatable("roulette.ui.actor",actor.equals(RouletteView.NONE)
-                ? Component.translatable("roulette.ui.empty_seat"):Component.literal(v.name(actor))),x+10,y+8,w-mc.font.width(phase)-30,GOLD);
-        g.drawString(mc.font,phase,x+w-10-mc.font.width(phase),y+8,TEXT,false);
+        RouletteAmmoHud.render(g,v);
         var self=mc.player.getUUID();
         var opponent=v.front().equals(self)?v.back():v.front();
-        Component hp=Component.translatable("roulette.ui.health_max",v.health(self),v.maxHealth(self),
-                v.health(opponent),v.maxHealth(opponent));
-        g.drawString(mc.font,hp,x+10,y+23,TEXT,false);
-        Component time=Component.translatable("roulette.ui.seconds",state.seconds());
-        if (v.phase()==RoulettePhase.READY) g.drawString(mc.font,time,x+w-10-mc.font.width(time),y+23,
-                state.seconds()<=5 && mc.level.getGameTime()%10<5?RED:BLUE,false);
-        g.drawString(mc.font,Component.translatable("roulette.ui.loaded",v.live(),v.blanks(),v.remaining()),x+10,y+37,MUTED,false);
-        if (statusHeight>0) fitted(g,status,x+10,y+48,w-20,GOLD);
-        int controlsY=y+50+statusHeight;
-        int cell=(w-20)/3;
-        for (int i=0;i<3;i++) {
-            int left=x+10+i*cell;
-            g.fill(left,controlsY,left+cell-2,controlsY+14,zone==i?0x554D3B18:0x55120A04);
-            if (zone==i) g.renderOutline(left,controlsY,cell-2,14,GOLD);
-            Component label=Component.translatable(i==0?"roulette.ui.self":i==1?"roulette.ui.item_help":"roulette.ui.opponent");
-            fitted(g,label,left+3,controlsY+3,cell-8,zone==i?GOLD:MUTED);
+        boolean myTurn=v.phase()==RoulettePhase.READY && v.operator().equals(self);
+        var secret=RouletteClient.privateInfo(state);
+        boolean hasStatus=v.saw() || !v.cuffed().equals(RouletteView.NONE);
+        var box=RouletteHudLayout.bottom(g.guiWidth(),g.guiHeight(),(myTurn?1:0)+(secret==null?0:1)+(hasStatus?1:0));
+        int x=box.x(), y=box.y(), w=box.width();
+        if (w<100) return;
+        g.fillGradient(x,y,x+w,y+box.height(),0xB01A1008,0xB00E0905);
+        g.renderOutline(x,y,w,box.height(),0xAA8B6914);
+        Component phase=v.phase()==RoulettePhase.READY
+                ? Component.translatable(myTurn?"roulette.hud.your_turn":"roulette.hud.other_turn")
+                : Component.translatable(v.phase().titleKey());
+        fitted(g,phase,x+8,y+7,w-75,myTurn?GOLD:TEXT);
+        if (v.phase()==RoulettePhase.READY) {
+            Component time=Component.translatable("roulette.ui.seconds",state.seconds());
+            g.drawString(mc.font,time,x+w-8-mc.font.width(time),y+7,state.seconds()<=5?RED:BLUE,false);
         }
-        int row=controlsY+19;
-        for (var line:reason) { g.drawString(mc.font,line,x+10,row,TEXT,false); row+=11; }
-        for (var line:hints) { g.drawString(mc.font,line,x+10,row,zone==1&&kind!=null?GOLD:MUTED,false); row+=11; }
+        fitted(g,Component.translatable("roulette.hud.health",v.health(self),v.maxHealth(self),
+                v.health(opponent),v.maxHealth(opponent)),x+8,y+20,w-16,TEXT);
+        var status=Component.empty();
+        if (v.saw()) status.append(Component.translatable("roulette.hud.saw"));
+        if (!v.cuffed().equals(RouletteView.NONE)) {
+            if (v.saw()) status.append(" · ");
+            status.append(Component.translatable(v.cuffed().equals(self)?"roulette.hud.cuffed_self":"roulette.hud.cuffed_other"));
+        }
+        int row=y+33;
+        if (hasStatus) { fitted(g,status,x+8,row,w-16,GOLD); row+=12; }
+        if (myTurn) {
+            var held=mc.player.getMainHandItem();
+            if (held.isEmpty() && RouletteItems.kind(mc.player.getOffhandItem())!=null) held=mc.player.getOffhandItem();
+            fitted(g,hint(state,zone(state),RouletteItems.kind(held),held.isEmpty()),x+8,row,w-16,MUTED);
+            row+=12;
+        }
         if (secret!=null) {
-            g.fill(x+9,row+2,x+w-9,row+3,0x448B6914); row+=7;
-            g.drawString(mc.font,Component.translatable("roulette.ui.private"),x+10,row,BLUE,false); row+=11;
-            for (var line:privateLines) { g.drawString(mc.font,line,x+10,row,secret.shell()==1?RED:BLUE,false); row+=11; }
+            Component text=secret.index()>0
+                    ? Component.translatable(secret.key(),secret.index(),Component.translatable(secret.shell()==1?"roulette.ui.live":"roulette.ui.blank"))
+                    : Component.translatable(secret.key());
+            fitted(g,Component.translatable("roulette.hud.private",text),x+8,row,w-16,secret.shell()==1?RED:BLUE);
         }
     }
 
@@ -89,13 +79,10 @@ final class RouletteHud {
     private static Component hint(RouletteClient.State state,int zone,RouletteItem kind,boolean empty) {
         var mc=Minecraft.getInstance();
         RouletteView v=state.view;
-        if (v.phase()==RoulettePhase.WAITING) return Component.translatable("roulette.hint.sit");
-        if (v.phase()!=RoulettePhase.READY) return Component.translatable("roulette.hint.wait_animation");
-        if (!v.operator().equals(mc.player.getUUID())) return Component.translatable("roulette.hint.wait_turn");
-        if (zone==0) return Component.translatable("roulette.hint.aim_self");
-        if (zone==2) return Component.translatable("roulette.hint.aim_opponent");
-        if (zone!=1) return Component.translatable("roulette.hint.aim_zone");
-        if (empty) return Component.translatable("roulette.hint.help");
+        if (zone==0) return Component.translatable("roulette.hud.shoot_self");
+        if (zone==2) return Component.translatable("roulette.hud.shoot_other");
+        if (zone!=1) return Component.translatable("roulette.hud.aim");
+        if (empty) return Component.translatable("roulette.hud.help");
         if (kind==null) return Component.translatable("roulette.hint.invalid_item");
         if (kind==RouletteItem.HANDSAW && v.saw()) return Component.translatable("roulette.hint.already_sawn");
         if (kind==RouletteItem.HANDCUFFS && !v.cuffed().equals(RouletteView.NONE)) return Component.translatable("roulette.hint.already_cuffed");
@@ -103,7 +90,7 @@ final class RouletteHud {
         if (kind==RouletteItem.TELEPHONE && v.remaining()<2) return Component.translatable("roulette.error.no_future");
         var opponent=v.front().equals(mc.player.getUUID())?v.back():v.front();
         if (kind==RouletteItem.ADRENALINE && v.items(opponent).isEmpty()) return Component.translatable("roulette.hint.no_choices");
-        return Component.translatable(kind.descriptionKey());
+        return Component.translatable("roulette.hud.use",Component.translatable(kind.titleKey()));
     }
 
     static void panel(GuiGraphics g,int x,int y,int w,int h) {
@@ -122,8 +109,8 @@ final class RouletteHud {
     private static void vignette(GuiGraphics g,RouletteClient.State state,float partial) {
         var mc=Minecraft.getInstance();
         int hp=state.view.health(mc.player.getUUID());
-        float low=hp>0&&hp<=2&&state.view.phase()!=RoulettePhase.ENDING
-                ? .055F+.035F*(float)Math.sin((mc.level.getGameTime()+partial)*.28):0;
+        float low=hp==1&&state.view.phase()!=RoulettePhase.ENDING
+                ? .035F+.02F*(float)Math.sin((mc.level.getGameTime()+partial)*.28):0;
         float strength=Mth.clamp(low+RouletteEffects.hurtPulse(partial),0,.38F);
         int alpha=(int)(strength*110), w=g.guiWidth(),h=g.guiHeight(),edge=Math.min(28,h/8);
         int color=alpha<<24|0x771B18;

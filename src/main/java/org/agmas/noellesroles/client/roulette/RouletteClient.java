@@ -37,6 +37,7 @@ public final class RouletteClient {
         ClientTickEvents.END_CLIENT_TICK.register(RouletteClient::tick);
         HudRenderCallback.EVENT.register(RouletteHud::render);
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> clear());
+        RoulettePresentation.register();
     }
 
     private static void checkWorld() {

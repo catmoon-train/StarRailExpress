@@ -46,8 +46,10 @@ public class RenderEffectMixin {
     @Unique
     private boolean sre$pushed = false;
 
-    @Inject(method = "renderEffects", at = @At(value = "HEAD"))
+    @Inject(method = "renderEffects", at = @At(value = "HEAD"), cancellable = true)
     private void sre$renderEffects(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+        if (!io.wifi.starrailexpress.event.client.ClientGameplayEvents.ALLOW_AUXILIARY_HUD
+                .invoker().allow(minecraft.player)) { ci.cancel(); return; }
         customRenderEffect(guiGraphics, deltaTracker);
     }
 

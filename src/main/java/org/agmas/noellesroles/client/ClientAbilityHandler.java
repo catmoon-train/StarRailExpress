@@ -86,7 +86,9 @@ public class ClientAbilityHandler {
                 var hitResult = client.hitResult;
                 if (hitResult != null && hitResult.getType() == net.minecraft.world.phys.HitResult.Type.ENTITY) {
                     net.minecraft.world.phys.EntityHitResult entityHit = (net.minecraft.world.phys.EntityHitResult) hitResult;
-                    if (entityHit.getEntity() instanceof net.minecraft.world.entity.player.Player) {
+                    if (entityHit.getEntity() instanceof net.minecraft.world.entity.player.Player
+                            && io.wifi.starrailexpress.event.TargetingEvents.ALLOW_SKILL_TARGET.invoker()
+                                    .allow(client.player, entityHit.getEntity())) {
                         // 有目标，继续走统一技能发包（带target）
                         var ability = io.wifi.starrailexpress.cca.SREAbilityPlayerComponent.KEY.get(client.player);
                         heldSlot = ability.getSelectedSkill();
@@ -255,7 +257,9 @@ public class ClientAbilityHandler {
 
     private static UUID findTarget(Minecraft client, Predicate<Entity> targetType) {
         if (client.hitResult instanceof net.minecraft.world.phys.EntityHitResult entityHit
-                && targetType.test(entityHit.getEntity())) {
+                && targetType.test(entityHit.getEntity())
+                && io.wifi.starrailexpress.event.TargetingEvents.ALLOW_SKILL_TARGET.invoker()
+                        .allow(client.player, entityHit.getEntity())) {
             return entityHit.getEntity().getUUID();
         }
         return null;

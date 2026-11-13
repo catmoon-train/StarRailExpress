@@ -118,6 +118,7 @@ public class StandardRevolverItem extends SkinableItem {
         // 优先判定玩家等常规目标；设陷者绊线只作兜底，避免挡在玩家前面的绊线抢走子弹
         HitResult result = ProjectileUtil.getHitResultOnViewVector(user,
                 entity -> {
+                    if (!io.wifi.starrailexpress.event.TargetingEvents.ALLOW_GUN_TARGET.invoker().allow(user, entity)) return false;
                     return entity instanceof Player player && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
                             || entity instanceof PuppeteerBodyEntity
                             || entity instanceof org.agmas.noellesroles.content.entity.PigeonEntity

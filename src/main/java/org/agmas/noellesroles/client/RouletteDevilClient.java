@@ -17,7 +17,6 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -52,8 +51,10 @@ public final class RouletteDevilClient {
             });
         });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> clear());
-        ClientTickEvents.END_CLIENT_TICK.register(client -> checkWorld());
-        WorldRenderEvents.AFTER_ENTITIES.register(RouletteDevilSmokeRenderer::render);
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            checkWorld();
+            RouletteDevilSmokeRenderer.tick(client);
+        });
         HudRenderCallback.EVENT.register((graphics, delta) ->
                 renderTransition(graphics, delta.getGameTimeDeltaPartialTick(false)));
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.ROULETTE_DEVIL.identifier(),
@@ -86,6 +87,7 @@ public final class RouletteDevilClient {
 
     public static void clear() {
         state = EMPTY;
+        RouletteDevilSmokeRenderer.clear();
         demons = visible = lowSan = seeded = mature = Set.of();
         world = null;
     }

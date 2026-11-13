@@ -114,7 +114,7 @@ public final class RouletteTableRenderer implements BlockEntityRenderer<DevilRou
             p.mulPose(Axis.ZP.rotationDegrees(age*15));
             drawItem(table,RouletteItem.HANDCUFFS,.23F*(1-age/12),p,b,light,overlay); p.popPose();
         }
-        if (v.phase()!=RoulettePhase.WAITING) text(p,b,Component.translatable("roulette.ui.loaded",v.live(),v.blanks(),v.remaining()),
+        if (v.phase()!=RoulettePhase.WAITING) text(p,b,Component.translatable("roulette.hud.ammo_remaining",v.remaining()),
                 0,.025,.37,0,0xFFC8B898,.004F);
         p.popPose();
     }

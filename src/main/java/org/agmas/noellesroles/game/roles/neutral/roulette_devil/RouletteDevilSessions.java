@@ -97,7 +97,8 @@ public final class RouletteDevilSessions {
         RouletteDevilRoleData data = RouletteDevilRole.data(demon);
         if (data == null || !RouletteDevilRole.isDevil(demon) || !GameUtils.isGameStarted
                 || !GameUtils.isPlayerAliveAndSurvival(demon) || opponent == null || opponent == demon
-                || opponent.level() != demon.level() || !GameUtils.isPlayerAliveAndSurvival(opponent)) return false;
+                || opponent.level() != demon.level() || !GameUtils.isPlayerAliveAndSurvival(opponent)
+                || !io.wifi.starrailexpress.event.TargetingEvents.ALLOW_SKILL_TARGET.invoker().allow(demon, opponent)) return false;
         if (RouletteDevilRole.refugeeActive(demon) || data.refugee.pending()) {
             RouletteDevilRole.tell(demon, "refugee_suspended"); return false;
         }

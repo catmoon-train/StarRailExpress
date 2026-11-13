@@ -27,8 +27,8 @@ class DevilRouletteRoundTest {
             random.bool = frontFirst;
             DevilRouletteRound round = new DevilRouletteRound(FRONT, BACK, random);
             assertEquals(frontFirst ? FRONT : BACK, round.operator());
-            assertEquals(5, round.health(FRONT));
-            assertEquals(5, round.health(BACK));
+            assertEquals(3, round.health(FRONT));
+            assertEquals(3, round.health(BACK));
             assertEquals(0, round.remaining());
             assertEquals(0, round.loadedLive());
             assertEquals(0, round.loadedBlanks());
@@ -383,7 +383,7 @@ class DevilRouletteRoundTest {
     @Test
     void deterministicConstructorCopiesChamberAndRejectsInvalidState() {
         List<Boolean> shells = new ArrayList<>(List.of(true, false));
-        DevilRouletteRound round = new DevilRouletteRound(FRONT, BACK, new FixedRandom(), shells, 5, 5, FRONT);
+        DevilRouletteRound round = new DevilRouletteRound(FRONT, BACK, new FixedRandom(), shells, 3, 3, FRONT);
         shells.set(0, false);
         shells.clear();
         assertTrue(round.peek());
@@ -393,7 +393,7 @@ class DevilRouletteRoundTest {
         assertThrows(IllegalArgumentException.class,
                 () -> new DevilRouletteRound(FRONT, BACK, new FixedRandom(), List.of(), 5, 6, FRONT));
         assertThrows(IllegalArgumentException.class,
-                () -> new DevilRouletteRound(FRONT, BACK, new FixedRandom(), List.of(), 5, 5, UNKNOWN));
+                () -> new DevilRouletteRound(FRONT, BACK, new FixedRandom(), List.of(), 3, 3, UNKNOWN));
     }
 
     @Test
@@ -456,7 +456,8 @@ class DevilRouletteRoundTest {
 
     private static DevilRouletteRound round(RandomGenerator random, int frontHealth, int backHealth,
             UUID operator, Boolean... shells) {
-        return new DevilRouletteRound(FRONT, BACK, random, List.of(shells), frontHealth, backHealth, operator);
+        // 显式五点上限夹具继续覆盖不同治疗余量；正式默认生命由构造测试独立校验。
+        return new DevilRouletteRound(FRONT, BACK, random, List.of(shells), frontHealth, backHealth, operator, 5, 5);
     }
 
     private static void assertNonTurn(DevilRouletteRound.Outcome outcome) {

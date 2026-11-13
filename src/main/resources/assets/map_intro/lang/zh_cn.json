@@ -87,7 +87,7 @@
   "map_intro.block.noellesroles.trash_can.desc": "玩家手持物品右键垃圾桶时，会按配置直接清除手中物品。创造模式玩家空手右键可配置销毁白名单和黑名单。",
   "map_intro.block.noellesroles.vending_machines.desc": "自动售货机可配置商品，玩家可与其交互购买地图内补给。",
   "map_intro.block.noellesroles.lottery_machine.desc": "抽奖机可配置奖池和权重，用于地图内获得随机奖励。",
-  "map_intro.block.noellesroles.devil_roulette_table.desc": "两名玩家坐在赌桌相对两侧的座位上，右键桌面中央报名，双方就绪后再次点击中央开始。轮到你时，右键靠近自己的左侧区域向自己开枪，中间区域使用手持轮盘道具，右侧区域向对手开枪；空手右键中间区域查看帮助。双方各5点生命，自射空弹继续操作，其余开枪交棒（手铐可跳过）；使用道具不结束回合，离座判负。",
+  "map_intro.block.noellesroles.devil_roulette_table.desc": "两名玩家坐在赌桌相对两侧的座位上，右键桌面中央报名，双方就绪后再次点击中央开始。轮到你时，右键靠近自己的左侧区域向自己开枪，中间区域使用手持轮盘道具，右侧区域向对手开枪；空手右键中间区域查看帮助。普通玩家初始3点生命，轮盘恶魔为4点，每次补给数量减少30%并四舍五入；自射空弹继续操作，其余开枪交棒（手铐可跳过）；使用道具不结束回合，离座判负。",
   "map_intro.block.noellesroles.supply_crate.desc": "物资箱用于地图补给，可配置并周期性生成特定物资。",
   "map_intro.block.noellesroles.kill_block.desc": "碰到击杀方块的玩家立刻死亡，可含水。",
   "map_intro.block.noellesroles.kill_block_panel.desc": "碰到击杀方块镶板的玩家立刻死亡，可含水。",
