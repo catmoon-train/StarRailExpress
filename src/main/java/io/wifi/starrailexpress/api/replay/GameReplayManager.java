@@ -20,6 +20,7 @@ import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
@@ -58,6 +59,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Predicate;
 
 public class GameReplayManager implements IGameReplayRecorder {
   protected static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -341,26 +343,7 @@ public class GameReplayManager implements IGameReplayRecorder {
     }
     currentReplayData.setPlayerCount(players.size());
     // Set roles based on the provided HashMap
-    currentReplayData.setCivilianPlayers(roles.entrySet().stream()
-        .filter(entry -> entry.getValue().identifier()
-            .equals(io.wifi.starrailexpress.api.TMMRoles.CIVILIAN.identifier()))
-        .map(Map.Entry::getKey)
-        .collect(java.util.ArrayList::new, java.util.ArrayList::add, java.util.ArrayList::addAll));
-    currentReplayData.setKillerPlayers(roles.entrySet().stream()
-        .filter(entry -> entry.getValue().identifier()
-            .equals(io.wifi.starrailexpress.api.TMMRoles.KILLER.identifier()))
-        .map(Map.Entry::getKey)
-        .collect(java.util.ArrayList::new, java.util.ArrayList::add, java.util.ArrayList::addAll));
-    currentReplayData.setVigilantePlayers(roles.entrySet().stream()
-        .filter(entry -> entry.getValue().identifier()
-            .equals(io.wifi.starrailexpress.api.TMMRoles.VIGILANTE.identifier()))
-        .map(Map.Entry::getKey)
-        .collect(java.util.ArrayList::new, java.util.ArrayList::add, java.util.ArrayList::addAll));
-    currentReplayData.setLooseEndPlayers(roles.entrySet().stream()
-        .filter(entry -> entry.getValue().identifier()
-            .equals(io.wifi.starrailexpress.api.TMMRoles.LOOSE_END.identifier()))
-        .map(Map.Entry::getKey)
-        .collect(java.util.ArrayList::new, java.util.ArrayList::add, java.util.ArrayList::addAll));
+    applyReplayTeams(roles);
 
     // 填充玩家角色映射
     Map<UUID, String> roleMap = new HashMap<>();
@@ -382,20 +365,40 @@ public class GameReplayManager implements IGameReplayRecorder {
   }
 
   public void updateRolesFromComponent(io.wifi.starrailexpress.cca.SREGameWorldComponent component) {
-    currentReplayData
-        .setCivilianPlayers(component.getAllWithRole(io.wifi.starrailexpress.api.TMMRoles.CIVILIAN));
-    currentReplayData
-        .setKillerPlayers(component.getAllWithRole(io.wifi.starrailexpress.api.TMMRoles.KILLER));
-    currentReplayData
-        .setVigilantePlayers(component.getAllWithRole(io.wifi.starrailexpress.api.TMMRoles.VIGILANTE));
-    currentReplayData
-        .setLooseEndPlayers(component.getAllWithRole(io.wifi.starrailexpress.api.TMMRoles.LOOSE_END));
+    Map<UUID, SRERole> roles = component.getRoles();
+    applyReplayTeams(roles);
 
     Map<UUID, String> roleMap = new HashMap<>();
-    for (Map.Entry<UUID, io.wifi.starrailexpress.api.SRERole> entry : component.getRoles().entrySet()) {
-      roleMap.put(entry.getKey(), entry.getValue().identifier().toString());
+    for (Map.Entry<UUID, SRERole> entry : roles.entrySet()) {
+      SRERole role = entry.getValue();
+      if (role != null) {
+        roleMap.put(entry.getKey(), role.identifier().toString());
+      }
     }
     currentReplayData.setPlayerRoles(roleMap);
+  }
+
+  /** 按权威阵营枚举归类，避免只认 4 个原版职业导致 modded 对局的阵营列表恒为空。 */
+  private void applyReplayTeams(Map<UUID, SRERole> roles) {
+    currentReplayData.setCivilianPlayers(playersWithRole(roles, RoleTeam.CIVILIAN::matches));
+    currentReplayData.setKillerPlayers(playersWithRole(roles, RoleTeam.KILLER::matches));
+    currentReplayData.setVigilantePlayers(playersWithRole(roles, RoleTeam.SHERIFF::matches));
+    currentReplayData.setLooseEndPlayers(playersWithRole(roles,
+        role -> role.identifier().equals(TMMRoles.LOOSE_END.identifier())));
+  }
+
+  private static List<UUID> playersWithRole(Map<UUID, SRERole> roles, Predicate<SRERole> filter) {
+    List<UUID> result = new ArrayList<>();
+    if (roles == null) {
+      return result;
+    }
+    for (Map.Entry<UUID, SRERole> entry : roles.entrySet()) {
+      SRERole role = entry.getValue();
+      if (role != null && filter.test(role)) {
+        result.add(entry.getKey());
+      }
+    }
+    return result;
   }
 
   public void finalizeReplay(GameUtils.WinStatus winStatus, SREGameRoundEndComponent roundEndData) {

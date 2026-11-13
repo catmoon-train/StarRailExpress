@@ -415,6 +415,17 @@ public class SREMurderGameMode extends GameMode {
         return playerModifiers == null ? 0 : playerModifiers.size();
     }
 
+    /**
+     * 警长池抽不满时用于补位的保底职业。优先用谋杀模式的警卫，
+     * 若它被职业启用管理禁用则退回基础义警；两者都禁用时返回 null（不强行分配被禁用的职业）。
+     */
+    private static SRERole vigilanteFallback() {
+        if (ModRoles.SHERIFF != null && !SREDisableManager.isRoleDisabled(ModRoles.SHERIFF)) {
+            return ModRoles.SHERIFF;
+        }
+        return SREDisableManager.isRoleDisabled(TMMRoles.VIGILANTE) ? null : TMMRoles.VIGILANTE;
+    }
+
     public static List<RoleInstance> getAllRoles(int killerCount, int vigilanteCount, int neutralsCount, int playerSize,
             int forcedRoleSize) {
         return getAllRoles(killerCount, vigilanteCount, neutralsCount, playerSize, forcedRoleSize, List.of());
@@ -426,6 +437,12 @@ public class SREMurderGameMode extends GameMode {
      */
     public static List<RoleInstance> getAllRoles(int killerCount, int vigilanteCount, int neutralsCount, int playerSize,
             int forcedRoleSize, List<SRERole> forcedRoles) {
+        // 警长池是限量池（每个职业默认只有 1 个名额），必须让警卫可重复抽取才能填满警长名额。
+        // 必须在建池前设置：RoleAssignmentPool 会把 ROLE_MAX 快照进自己的 countMap，
+        // 建池之后再改全局 ROLE_MAX 对本次分配无效；InitModRolesMax 每局也会把它重设回 1。
+        if (vigilanteCount > 0) {
+            Harpymodloader.setRoleMaximum(ModRoles.SHERIFF_ID, 100);
+        }
         HarpyModLoaderConfig config = HarpyModLoaderConfig.HANDLER.instance();
         boolean enableCivilianInPool = config.enableCivilianInPool;
         RoleAssignmentPool killerPool = RoleAssignmentPool.create("Killer",
@@ -509,9 +526,7 @@ public class SREMurderGameMode extends GameMode {
             return GameplayExtensionEvents.ROLE_POOL_RESULT.invoker().apply(List.of());
         List<SRERole> assignedKillers = killerPool.selectRoles(killerCount);
 
-        // 警卫池 - 使用无限重复模式，因为警卫职业数量有限
-        Harpymodloader.setRoleMaximum(ModRoles.SHERIFF_ID, 100);
-
+        // 警卫的重复上限已在 6 参数重载建池前设置；此处再改 ROLE_MAX 对本局池无效。
         List<SRERole> assignedVigilantes = vigilantePool.selectRoles(vigilanteCount);
 
         List<SRERole> assignedNatures = neutralsPool.selectRoles(neutralsCount);
@@ -531,6 +546,14 @@ public class SREMurderGameMode extends GameMode {
         }
         if (zeroNeutrals > 0) {
             assignedNatures.addAll(neutralsPool.selectRoles((int) zeroNeutrals));
+        }
+
+        // 保底：警长职业被禁用 / 数量上限耗尽时 selectRoles 会静默少抽，
+        // 缺额随后会被算进 civilianCount 变成平民，使警长阵营人数少于杀手。
+        // 用可重复的保底警长补满，确保名额不被平民吞掉。
+        SRERole fallbackVigilante = vigilanteFallback();
+        while (fallbackVigilante != null && assignedVigilantes.size() < vigilanteCount) {
+            assignedVigilantes.add(fallbackVigilante);
         }
 
         // ===== 领袖特判 =====
@@ -606,6 +629,8 @@ public class SREMurderGameMode extends GameMode {
         Map<UUID, SRERole> forcedRolesMap = new HashMap<>(Harpymodloader.FORCED_MODDED_ROLE);
         int killerCount = RoleCountManager.getKillerCount(players.size());
         int vigilanteCount = RoleCountManager.getVigilanteCount(players.size());
+        // 本局警长阵营的目标总数（强制分配的警长也算在内），用于收尾校验。
+        final int targetVigilantes = vigilanteCount;
         int neutralsCount = RoleCountManager.getNeutralCount(players.size());
 
         List<SRERole> forcedRoles = new ArrayList<>();
@@ -765,6 +790,41 @@ public class SREMurderGameMode extends GameMode {
             // 职业不够分配平民
             roleAssignments.put(up, TMMRoles.CIVILIAN);
             ProgressionDataManager.onRoleAssigned((ServerPlayer) up, TMMRoles.CIVILIAN);
+        }
+
+        // 最终兜底：对立职业移除、关联角色替换、池耗尽等都可能把已抽到的警长换回平民。
+        // 按本局目标把多余的平民位补成保底警长，保证警长阵营人数与杀手一致，并留下告警。
+        long vigilanteAssigned = roleAssignments.values().stream()
+                .filter(role -> role != null && role.isVigilanteTeam())
+                .count();
+        SRERole fallbackVigilante = vigilanteFallback();
+        if (vigilanteAssigned < targetVigilantes && fallbackVigilante != null) {
+            List<Player> candidates = new ArrayList<>();
+            for (Map.Entry<Player, SRERole> entry : roleAssignments.entrySet()) {
+                SRERole role = entry.getValue();
+                if (role == null || !role.isInnocent() || role.isVigilanteTeam()) {
+                    continue;
+                }
+                if (forcedRolesMap.containsKey(entry.getKey().getUUID())) {
+                    continue;
+                }
+                if (role == TMMRoles.CIVILIAN) {
+                    candidates.add(0, entry.getKey());
+                } else {
+                    candidates.add(entry.getKey());
+                }
+            }
+            int filled = 0;
+            for (Player player : candidates) {
+                if (vigilanteAssigned + filled >= targetVigilantes) {
+                    break;
+                }
+                roleAssignments.put(player, fallbackVigilante);
+                filled++;
+            }
+            Harpymodloader.LOGGER.warn(
+                    "[RoleAssignment] Vigilante count below target: expected {}, got {}, filled {} civilian slot(s) with {}",
+                    targetVigilantes, vigilanteAssigned, filled, fallbackVigilante.identifier());
         }
         return roleAssignments;
     }
