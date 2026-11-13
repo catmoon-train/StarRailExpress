@@ -23,7 +23,9 @@ import io.wifi.starrailexpress.content.block_entity.SecurityMonitorBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -36,6 +38,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * 远距离监控摄像头的区块票据管理。
@@ -76,6 +79,13 @@ public final class SecurityCameraChunkTickets {
 
     /** 按维度记录本类实际加过的票据，释放时只撤销这些。 */
     private static final Map<ResourceLocation, Set<Long>> PINNED = new HashMap<>();
+
+    /**
+     * 按玩家记录被「强制推送到客户端」的区块及引用计数。
+     * 同一区块可能被多台摄像头视野覆盖、或被多个玩家同时观看，因此用计数去重，
+     * 只有计数为 1 时才真正调用 {@code ChunkMap.updateChunkForced}，归零时才撤销。
+     */
+    private static final Map<UUID, Map<Long, Integer>> PLAYER_PINNED = new HashMap<>();
 
     private SecurityCameraChunkTickets() {
     }
@@ -126,14 +136,122 @@ public final class SecurityCameraChunkTickets {
             return;
         }
         Set<Long> pinned = PINNED.remove(level.dimension().location());
-        if (pinned == null || pinned.isEmpty()) {
+        if (pinned != null && !pinned.isEmpty()) {
+            for (long packed : pinned) {
+                ChunkPos pos = new ChunkPos(packed);
+                level.getChunkSource().removeRegionTicket(TICKET, pos, TICKET_RADIUS, pos);
+            }
+            SRE.LOGGER.info("已卸载监控摄像头强加载的 {} 个区块", pinned.size());
+        }
+        // 同时撤销本局所有观战玩家被强制推送到客户端的远端区块，避免残留空洞或泄漏。
+        for (ServerPlayer player : level.players()) {
+            untrackAll(player);
+        }
+    }
+
+    /**
+     * 让某个玩家强制收到并保留指定摄像头视野覆盖的区块。
+     *
+     * <p>监控画面是客户端把相机放到摄像头位置渲染的，而客户端只会收到「玩家本体所在位置
+     * 视距内」的区块。光在服务端用 region ticket 强加载（{@link #onGameStarted}）只能让区块
+     * 留在服务端内存里，客户端仍然收不到远端摄像头所在的区块，于是画面出现全透明空洞。
+     * 这里把这些区块登记为该玩家的「强制追踪区块」，由服务端直接推送给观看者，
+     * 无论其本体离摄像头多远，客户端都能正常渲染方块。
+     *
+     * @param level      摄像头所在世界
+     * @param player    正在观看该摄像头的玩家
+     * @param cameraPos 摄像头方块坐标
+     */
+    public static void trackForPlayer(ServerLevel level, ServerPlayer player, BlockPos cameraPos) {
+        if (level == null || player == null || cameraPos == null) {
             return;
         }
-        for (long packed : pinned) {
-            ChunkPos pos = new ChunkPos(packed);
-            level.getChunkSource().removeRegionTicket(TICKET, pos, TICKET_RADIUS, pos);
+        Set<Long> chunks = new HashSet<>();
+        AreasWorldComponent areas = AreasWorldComponent.KEY.get(level);
+        AABB playArea = areas == null ? null : areas.getPlayArea();
+        if (playArea != null) {
+            addViewChunks(level, cameraPos, playArea, chunks);
+        } else {
+            chunks.add(ChunkPos.asLong(cameraPos.getX() >> 4, cameraPos.getZ() >> 4));
         }
-        SRE.LOGGER.info("已卸载监控摄像头强加载的 {} 个区块", pinned.size());
+        trackChunks(player, chunks, true);
+    }
+
+    /**
+     * 撤销 {@link #trackForPlayer} 对某个摄像头的强制追踪；与 track 一一对应、引用计数去重。
+     */
+    public static void untrackForPlayer(ServerLevel level, ServerPlayer player, BlockPos cameraPos) {
+        if (level == null || player == null || cameraPos == null) {
+            return;
+        }
+        Set<Long> chunks = new HashSet<>();
+        AreasWorldComponent areas = AreasWorldComponent.KEY.get(level);
+        AABB playArea = areas == null ? null : areas.getPlayArea();
+        if (playArea != null) {
+            addViewChunks(level, cameraPos, playArea, chunks);
+        } else {
+            chunks.add(ChunkPos.asLong(cameraPos.getX() >> 4, cameraPos.getZ() >> 4));
+        }
+        trackChunks(player, chunks, false);
+    }
+
+    /**
+     * 引用计数版强制追踪：count 归零时才真正调用 {@code ChunkMap.updateChunkForced} 撤销，
+     * 避免多摄像头视野重叠、或多玩家同看一台摄像头时互相抵消。
+     */
+    private static void trackChunks(ServerPlayer player, Set<Long> chunks, boolean add) {
+        if (chunks.isEmpty()) {
+            return;
+        }
+        ServerLevel level = (ServerLevel) player.level();
+        if (level == null) {
+            return;
+        }
+        ChunkMap chunkMap = level.getChunkSource().getChunkMap();
+        Map<Long, Integer> owned = PLAYER_PINNED.computeIfAbsent(player.getUUID(), k -> new HashMap<>());
+        for (long packed : chunks) {
+            int count = owned.getOrDefault(packed, 0);
+            if (add) {
+                count++;
+                owned.put(packed, count);
+                if (count == 1) {
+                    chunkMap.updateChunkForced(player, new ChunkPos(packed), true);
+                }
+            } else {
+                if (count <= 0) {
+                    continue;
+                }
+                count--;
+                if (count <= 0) {
+                    owned.remove(packed);
+                    chunkMap.updateChunkForced(player, new ChunkPos(packed), false);
+                } else {
+                    owned.put(packed, count);
+                }
+            }
+        }
+        if (owned.isEmpty()) {
+            PLAYER_PINNED.remove(player.getUUID());
+        }
+    }
+
+    /** 玩家掉线 / 离开时清掉其全部强制追踪区块，避免区块泄漏。 */
+    public static void untrackAll(ServerPlayer player) {
+        if (player == null) {
+            return;
+        }
+        Map<Long, Integer> owned = PLAYER_PINNED.remove(player.getUUID());
+        if (owned == null || owned.isEmpty()) {
+            return;
+        }
+        ServerLevel level = (ServerLevel) player.level();
+        if (level == null) {
+            return;
+        }
+        ChunkMap chunkMap = level.getChunkSource().getChunkMap();
+        for (long packed : owned.keySet()) {
+            chunkMap.updateChunkForced(player, new ChunkPos(packed), false);
+        }
     }
 
     /**
