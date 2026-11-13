@@ -1262,7 +1262,8 @@ public class ModRoles {
             .setCanUseInstinctAndNightVision(true)
             .setDefaultEnableChance(2000).setDefaultEnableNeededPlayerCount(12)
             .setAddedVersion("4.4")
-            .setDefaultMax(1);
+            .setDefaultMax(1)
+            .setCannotAppearInCommandBlockEvent(true);
 
     // 无妄（Asatya）：独立胜利中立，职业定义与无我一致（绑定/互斥在 init 中由无我设置）
     public static final ResourceLocation ASATYA_ID = Noellesroles.id("asatya");
@@ -1275,7 +1276,8 @@ public class ModRoles {
             .setCanBeRandomedByOtherRoles(false)
             .setCanUseInstinctAndNightVision(true)
             .setDefaultMax(0)
-            .setAddedVersion("4.4");
+            .setAddedVersion("4.4")
+            .setCannotAppearInCommandBlockEvent(true);
 
     // 骷髅：PEAK 爬山图专属中立职业，常态不刷新，只能由骸骨之书把死亡玩家复活而来
     public static SRERole SKELETON = TMMRoles.registerRole(
@@ -3148,7 +3150,8 @@ public class ModRoles {
             (int) (TMMRoles.CIVILIAN.getMaxSprintTime() * 1.5), // 1.5倍体力
             true // 隐藏计分板
     ).setRoleData(NianShouRoleData::new).setCanSeeCoin(true).setNeutrals(true))
-            .setDefaultEnableChance(2000);
+            .setDefaultEnableChance(2000)
+            .setCannotAppearInCommandBlockEvent(true);
 
     /**
      * 小偷角色 - 中立阵营
@@ -3230,6 +3233,7 @@ public class ModRoles {
      * - 技能：消耗所有逐日时刻使局内时间快进对应数值，冷却150秒
      * - 距胜利还剩1个任务时全程发光并播放音效，直至游戏结束；死亡返还所有逐日时刻并恢复正常流速
      * - 商店：200金币购买「跳过任务」
+     * - 无法在命令方块事件中出现
      */
     public static SRERole DAYWALKER = TMMRoles.registerRole(new DaywalkerRole(
             DAYWALKER_ID,
@@ -3245,7 +3249,8 @@ public class ModRoles {
             .setCanUseInstinctAndNightVision(false)
             .setDefaultMax(1)
             .setDefaultEnableChance(5000) // 刷新概率 5000/10000
-            .setDefaultEnableNeededPlayerCount(12); // 12人时才启用
+            .setDefaultEnableNeededPlayerCount(12) // 12人时才启用
+            .setCannotAppearInCommandBlockEvent(true);
             // 被看直觉保持默认（DEFAULT）：其他玩家可透视逐日者，但仅限20格范围内
             // （距离限制见 RoleInstinctRegister 的 ALIVE_COMMON_BEFORE_EVENT）
 
@@ -3259,7 +3264,8 @@ public class ModRoles {
             true))
             .setRoleData(RavenRoleData::new).setCanSeeCoin(true).setNeutrals(true).setCanBeRandomedByOtherRoles(false)
             .setCanSeeTeammateKillerRole(false).setCanUseInstinctAndNightVision(true)
-            .setDefaultEnableNeededPlayerCount(10);
+            .setDefaultEnableNeededPlayerCount(10)
+            .setCannotAppearInCommandBlockEvent(true);
 
     public static SRERole ECHO_LISTENER = TMMRoles.registerRole(new EggRole(
             ECHO_LISTENER_ID, new Color(78, 110, 122).getRGB(), false, false,
@@ -3362,7 +3368,8 @@ public class ModRoles {
             .setCanBeRandomedByOtherRoles(false)
             .setDefaultMax(1)
             .setDefaultEnableNeededPlayerCount(10)
-            .setDefaultEnableChance(2500);
+            .setDefaultEnableChance(2500)
+            .setCannotAppearInCommandBlockEvent(true);
 
     /**
      * 宿命的罪人 —— 中立独立胜利角色。
@@ -3479,7 +3486,8 @@ public class ModRoles {
             .setDefaultEnableChance(2500)
             .setDefaultEnableNeededPlayerCount(16)
             .setHiddenForRoleRotation(true)
-            .setRoleData(MagicianRoleData::new);
+            .setRoleData(MagicianRoleData::new)
+            .setCannotAppearInCommandBlockEvent(true);
 
     /**
      * 钟表匠角色 - 好人阵营

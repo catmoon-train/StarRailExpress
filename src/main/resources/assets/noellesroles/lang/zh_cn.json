@@ -2218,6 +2218,7 @@
   "screen.roleintroduce.flag.mafia_team": "Mafia 家族",
   "screen.roleintroduce.flag.creator_team": "制作组成员相关",
   "screen.roleintroduce.flag.Command_Role": "命令方块事件",
+  "screen.roleintroduce.flag.command_block_exclusive": "与命令方块事件互斥的职业",
   "screen.roleintroduce.flag.echo_freight": "回声托运站模式",
   "====== filter flag 显示区域结束 ======": "",
   "gui.roleintroduce.details.tip": "%s【%s】\n\n%s",

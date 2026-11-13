@@ -65,6 +65,7 @@ import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.config.SpawnInfoConfig.SpawnInfo;
 import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -77,6 +78,12 @@ import java.util.function.*;
 // 禁止AI直接修改，如需修改请询问用户许可。
 // 请先阅读根目录的 AGENT.md 获取项目架构。
 public abstract class SRERole extends SREAbstractInfoClass {
+    /**
+     * 「无法在命令方块事件中出现的职业」自动补上的标签，用于职业介绍页的标签与筛选。
+     * 显示名走翻译键 {@code screen.roleintroduce.flag.command_block_exclusive}。
+     */
+    public static final String COMMAND_BLOCK_EVENT_EXCLUSIVE_FLAG = "command_block_exclusive";
+
     protected ResourceLocation identifier;
     protected boolean canSetSpawnInfoInConfig = true;
     protected boolean canSeeCoin = true;
@@ -99,6 +106,8 @@ public abstract class SRERole extends SREAbstractInfoClass {
     protected boolean canUseSpVanillaWeapon = false; // 能用特殊原版武器（Dream 铁斧/钻石剑/重锤）削减他人虚拟血量
     protected boolean canBeXiaonao = false;
     protected boolean canXiaonao = false;
+    /** 是否为「无法在命令方块事件中出现的职业」。 */
+    protected boolean cannotAppearInCommandBlockEvent = false;
     protected Function<RoleDataContext, RoleData> roleDataFunc = null;
 
     public final HashSet<SREModifier> boundModifiers = new HashSet<>();
@@ -768,8 +777,43 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return this;
     }
 
+    /**
+     * 设置本职业为「无法在命令方块事件中出现的职业」。
+     *
+     * <p>命令方块事件局不会刷新这类职业（判定见 {@code CommandBlockRules#isEventBanned}）；
+     * 同时自动补上标签 {@link #COMMAND_BLOCK_EVENT_EXCLUSIVE_FLAG}，并在职业介绍
+     * 「关联内容 → 对立职业」里自动列出命令方块事件本体。</p>
+     *
+     * @param flag 是否为无法在命令方块事件中出现的职业
+     * @return this
+     */
+    public SRERole setCannotAppearInCommandBlockEvent(boolean flag) {
+        this.cannotAppearInCommandBlockEvent = flag;
+        if (flag) {
+            this.addFlag(COMMAND_BLOCK_EVENT_EXCLUSIVE_FLAG);
+        } else {
+            this.removeFlag(COMMAND_BLOCK_EVENT_EXCLUSIVE_FLAG);
+        }
+        return this;
+    }
+
+    /** 是否为「无法在命令方块事件中出现的职业」。 */
+    public boolean isCannotAppearInCommandBlockEvent() {
+        return this.cannotAppearInCommandBlockEvent;
+    }
+
+    /**
+     * 获取互斥职业，用于职业介绍「关联内容 → 对立职业」。
+     *
+     * <p>被标记为「无法在命令方块事件中出现的职业」时，自动把命令方块事件本体列入其中；
+     * 只影响介绍展示，不写回 {@link #opposingRoles}，避免影响开局互斥刷新的判定。</p>
+     */
     public Set<SRERole> getOpposingRoles() {
-        return new HashSet<>(this.opposingRoles);
+        Set<SRERole> result = new HashSet<>(this.opposingRoles);
+        if (this.cannotAppearInCommandBlockEvent && ModRoles.COMMAND_BLOCK != null) {
+            result.add(ModRoles.COMMAND_BLOCK);
+        }
+        return result;
     }
 
     /**

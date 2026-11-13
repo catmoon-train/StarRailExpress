@@ -51,7 +51,8 @@ public class SERoles {
 
     public static SRERole ARSONIST = registerRole(new pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRole())
             .setCanUseInstinctAndNightVision(true).setDefaultEnableNeededPlayerCount(12)
-            .setRoleData(pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRoleData::new);
+            .setRoleData(pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRoleData::new)
+            .setCannotAppearInCommandBlockEvent(true);
 
     public static SRERole AVARICIOUS = registerRole(new NormalRole(
             StupidExpress.id("avaricious"),

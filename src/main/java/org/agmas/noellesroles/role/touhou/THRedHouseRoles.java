@@ -119,7 +119,8 @@ public class THRedHouseRoles {
       .setCanUseInstinctAndNightVision(true)
       .setCanIgnoreBlackout(true)
       .setKillExtraCoinAwards(25)
-      .setCanEarnKillerCoinAwardsFromKills(false);
+      .setCanEarnKillerCoinAwardsFromKills(false)
+      .setCannotAppearInCommandBlockEvent(true);
   // 好人：MAID_SAKUYA 十六夜咲夜
   public static SRERole MAID_SAKUYA = TMMRoles.registerRole(new TouhouRole(
       MAID_SAKUYA_ID, // 角色 ID

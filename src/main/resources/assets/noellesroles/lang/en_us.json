@@ -2143,6 +2143,7 @@
   "screen.roleintroduce.flag.th_human_village": "Touhou · Human Village",
   "screen.roleintroduce.flag.mafia_team": "Mafia Family",
   "screen.roleintroduce.flag.creator_team": "Dev-team related",
+  "screen.roleintroduce.flag.command_block_exclusive": "Mutually exclusive with the Command Block event",
   "====== filter flag 显示区域结束 ======": "",
   "gui.roleintroduce.details.tip": "%s【%s】\n\n%s",
   "gui.roleintroduce.details.close": "Close",
