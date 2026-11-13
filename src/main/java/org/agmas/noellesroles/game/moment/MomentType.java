@@ -69,7 +69,15 @@ public enum MomentType {
     /** 亡命徒时刻（难民修饰符触发，可随时插队、允许一局内反复触发）。 */
     DESPERADO("desperado", StupidExpress.SOUND_REGUGEE, null, 1.0F, SoundSource.AMBIENT, 10, 20, true),
     /** 逐日时刻（终末追逐）。 */
-    DAYWALKER("daywalker", NRSounds.DAYWALKER, null, 1.0F, SoundSource.MASTER, 10, 20);
+    DAYWALKER("daywalker", NRSounds.DAYWALKER, null, 1.0F, SoundSource.MASTER, 10, 20),
+    /**
+     * 伪人时刻（开局掷骰或管理员命令启用伪人事件）。
+     *
+     * <p>没有专属循环音乐；开场音效由 {@code FakeSteveDirector#announceNaturalEvent}
+     * 自行播放幽匿尖啸，因此 music/cue 都留空避免叠音。接入统一时刻系统是为了让
+     * 「一局一次」登记、活动栈、进度记录与音乐裁决和其它时刻保持一致。</p>
+     */
+    FAKE_STEVE("fake_steve", null, null, 1.0F, SoundSource.MASTER, 10, 20);
 
     /**
      * 触发瞬间的一次性音效及其播放参数（不是音乐、不循环、不参与音乐裁决）。
