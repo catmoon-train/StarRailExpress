@@ -280,6 +280,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
         for (ServerPlayer target : owner.serverLevel().players()) {
             if (!GameUtils.isPlayerAliveAndSurvival(target)) continue;
             lease(target, ModEffects.OTHERWORLD_AURA, otherworldDuration, stage >= 4 ? 1 : 0);
+            target.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 60, 0, false, false, false));
             if (target != owner && isEnemy(target)) {
                 lease(target, ModEffects.MOVE_BANED, OPENING_LOCK, 0);
                 lease(target, ModEffects.USED_BANED, OPENING_LOCK, 0);
@@ -391,12 +392,16 @@ public class MaChenXuRoleData extends SimpleRoleData {
 
     private void refreshRealmEffects(ServerPlayer owner) {
         lease(owner, ModEffects.OTHERWORLD_AURA, otherworldDuration + 2, stage >= 4 ? 1 : 0);
-        // 不授予常驻青色互透，避免绕过法器的20格私有照诡。
+        // 布袋鬼本人不授予常驻青色互透，避免绕过法器的20格私有照诡。
         lease(owner, MobEffects.MOVEMENT_SPEED, otherworldDuration + 2, 1);
         for (ServerPlayer target : owner.serverLevel().players()) {
             if (!isEnemy(target)) continue;
+            lease(target, MobEffects.MOVEMENT_SPEED, otherworldDuration + 2, 2);
             lease(target, ModEffects.OTHERWORLD_AURA, otherworldDuration + 2, stage >= 4 ? 1 : 0);
+            lease(target, ModEffects.BACKWORLD_OUTLINE, otherworldDuration + 2, 0);
             lease(target, ModEffects.INFINITE_STAMINA, otherworldDuration + 2, 0);
+            lease(target, ModEffects.LOW_SAN_SHADER_RESISTANCE, otherworldDuration + 2, 10);
+            lease(target, ModEffects.MOOD_DRAIN_REDUCTION, otherworldDuration + 2, 1);
         }
         for (UUID id : verdicts.snapshot()) {
             ServerPlayer target = owner.server.getPlayerList().getPlayer(id);
