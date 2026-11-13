@@ -54,6 +54,8 @@ public final class TrainingScreen extends Screen {
     private final List<CompoundTag> roles = new ArrayList<>();
     private final List<CompoundTag> modifiers = new ArrayList<>();
     private final Map<String, EditBox> searches = new HashMap<>();
+    private final Map<String, EditBox> numberInputs = new HashMap<>();
+    private int shownHitRate = -1;
     private final Map<String, Integer> pages = new HashMap<>();
     private final Map<String, AbstractWidget> keyed = new LinkedHashMap<>();
     private final List<Runnable> bindings = new ArrayList<>();
@@ -108,9 +110,11 @@ public final class TrainingScreen extends Screen {
                 awaiting = false;
                 uncertain = false;
                 localMessage = "";
+                if (expected.contains("botHitRate")) shownHitRate = -1;
             }
         }
         if (catalogueChanged || rosterChanged) rebuild = true;
+        syncHitRateInput();
     }
 
     private void readCatalogues() {
@@ -592,6 +596,8 @@ public final class TrainingScreen extends Screen {
             for (String field : new String[]{"unlimitedStamina", "speedBoost", "noCooldown", "paused", "autoRespawn", "friendlyFirePenalty"})
                 rows.add(new FormRow("toggle:" + field, tr(toggleHint(field)), () -> tr(field), () -> {}));
             rows.add(new FormRow("delay", tr("number_hint", 1, 30), () -> tr("delay_value", settings().getInt("respawnDelay")), () -> {}));
+            rows.add(new FormRow("hitRate", tr("bot_hit_rate_hint"),
+                    () -> tr("bot_hit_rate", settings().getInt("botHitRate")), () -> {}));
             form("rules", content, rows);
         } else {
             List<FormRow> rows = new ArrayList<>();
@@ -625,7 +631,8 @@ public final class TrainingScreen extends Screen {
                 button("delayValue", new Rect(pos.x + 28, pos.y, pos.w - 56, 20), row.text, row.hint, () -> false, () -> {}, false);
                 button("delayPlus", new Rect(pos.right() - 24, pos.y, 24, 20), () -> Component.literal("+"), row.hint,
                         () -> settings().getInt("respawnDelay") < 30, () -> configure(integer("respawnDelay", settings().getInt("respawnDelay") + 1)), true);
-            } else button(row.id, pos, row.text, row.hint,
+            } else if (row.id.equals("hitRate")) botHitRateInput(pos);
+            else button(row.id, pos, row.text, row.hint,
                     () -> (!row.id.equals("rebuild") || !TrainingClient.isDedicated()) && (!id.equals("botFields") || botReady()), row.run, true);
         }
         if (paginate) pager(id, new Rect(r.x, r.bottom() - 20, r.w, 20), rows.size(), capacity);
@@ -659,6 +666,61 @@ public final class TrainingScreen extends Screen {
         box.setHint(SREPanelStyle.hint(Component.literal(MapUiGraphics.clip(font, hint.getString(), r.w - 12))));
         box.setTooltip(Tooltip.create(hint));
         add("search" + id, box);
+    }
+
+    private void botHitRateInput(Rect r) {
+        int buttonW = Math.min(44, r.w / 4);
+        int inputW = Math.min(56, r.w / 3);
+        int labelW = Math.max(1, r.w - inputW - buttonW - 8);
+        label(new Rect(r.x, r.y + 5, labelW, 12),
+                () -> tr("bot_hit_rate", settings().getInt("botHitRate")), SREPanelStyle.BODY);
+        Rect input = new Rect(r.x + labelW + 4, r.y, inputW, 20);
+        EditBox box = numberInputs.get("botHitRate");
+        if (box == null) {
+            box = new EditBox(font, input.x, input.y, input.w, input.h, tr("bot_hit_rate")) {
+                @Override public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+                    if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
+                        submitBotHitRate();
+                        return true;
+                    }
+                    return super.keyPressed(keyCode, scanCode, modifiers);
+                }
+            };
+            box.setMaxLength(3);
+            box.setFilter(value -> value.matches("[0-9]*"));
+            box.setTextColor(SREPanelStyle.TEXT);
+            box.setTooltip(Tooltip.create(tr("bot_hit_rate_hint")));
+            numberInputs.put("botHitRate", box);
+            syncHitRateInput();
+        }
+        box.setX(input.x); box.setY(input.y); box.setWidth(input.w); box.setHeight(input.h);
+        add("hitRateInput", box);
+        button("hitRateApply", new Rect(r.right() - buttonW, r.y, buttonW, 20),
+                () -> tr("bot_hit_rate_apply"), tr("bot_hit_rate_hint"), () -> true, this::submitBotHitRate, true);
+    }
+
+    private void submitBotHitRate() {
+        EditBox box = numberInputs.get("botHitRate");
+        if (box == null) return;
+        int current = settings().getInt("botHitRate");
+        int value;
+        try { value = Integer.parseInt(box.getValue().trim()); }
+        catch (NumberFormatException ignored) { value = current; }
+        value = Math.clamp(value, 0, 100);
+        box.setValue(Integer.toString(value));
+        shownHitRate = value;
+        if (value != current && !configure(integer("botHitRate", value))) {
+            shownHitRate = -1;
+            syncHitRateInput();
+        }
+    }
+
+    private void syncHitRateInput() {
+        EditBox box = numberInputs.get("botHitRate");
+        int value = settings().getInt("botHitRate");
+        if (box == null || shownHitRate == value) return;
+        box.setValue(Integer.toString(value));
+        shownHitRate = value;
     }
 
     private void filter(Rect r, String prefix, String[] values, Supplier<String> value, java.util.function.Consumer<String> change) {

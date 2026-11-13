@@ -19,7 +19,11 @@ public final class TrainingCombat {
         if (target == null || !bot.getMainHandItem().is(TMMItemTags.GUNS)) return false;
         var role = SREGameWorldComponent.KEY.get(bot.level()).getRole(bot);
         if (role != null && !role.onUseGun(bot)) return false;
-        GunShootPayload.Receiver.shoot(bot, target.getId());
+        var session = TrainingRules.session(bot);
+        int hitRate = session == null ? 100 : session.settings().botHitRate;
+        // 未命中仍走完整开枪流程（枪声、弹药、冷却、枪口特效），只是不结算对玩家的致死伤害。
+        boolean hit = hitRate >= 100 || bot.getRandom().nextFloat() * 100 < hitRate;
+        GunShootPayload.Receiver.shoot(bot, hit ? target.getId() : -1);
         return true;
     }
     public static boolean knife(ServerPlayer bot) {

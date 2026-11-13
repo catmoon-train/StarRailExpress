@@ -382,6 +382,7 @@ public final class TrainingSession {
         if (data.contains("paused")) settings.paused = data.getBoolean("paused");
         if (data.contains("autoRespawn")) settings.autoRespawn = data.getBoolean("autoRespawn");
         if (data.contains("respawnDelay")) settings.respawnDelay = data.getInt("respawnDelay");
+        if (data.contains("botHitRate")) settings.botHitRate = data.getInt("botHitRate");
         if (data.contains("friendlyFirePenalty")) settings.friendlyFirePenalty = data.getBoolean("friendlyFirePenalty");
         if (data.contains("unlimitedStamina")) settings.unlimitedStamina = data.getBoolean("unlimitedStamina");
         if (data.contains("speedBoost")) settings.speedBoost = data.getBoolean("speedBoost");
@@ -419,7 +420,8 @@ public final class TrainingSession {
         t.putInt("enemyCount", settings.enemyCount); t.putString("enemyRole", settings.enemyRole);
         t.putString("behavior", settings.behavior); t.putString("equipment", settings.equipment); t.putString("area", settings.area);
         t.putBoolean("paused", settings.paused); t.putBoolean("autoRespawn", settings.autoRespawn);
-        t.putInt("respawnDelay", settings.respawnDelay); t.putBoolean("friendlyFirePenalty", settings.friendlyFirePenalty);
+        t.putInt("respawnDelay", settings.respawnDelay); t.putInt("botHitRate", settings.botHitRate);
+        t.putBoolean("friendlyFirePenalty", settings.friendlyFirePenalty);
         t.putBoolean("unlimitedStamina", settings.unlimitedStamina); t.putBoolean("speedBoost", settings.speedBoost);
         t.putBoolean("noCooldown", settings.noCooldown);
         t.put("myModifiers", TrainingModifiers.tag(settings.myModifiers));

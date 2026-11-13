@@ -17,6 +17,7 @@ public final class TrainingSettings {
     public boolean paused;
     public boolean autoRespawn = true;
     public int respawnDelay = 3;
+    public int botHitRate = 100;
     public boolean friendlyFirePenalty;
     public boolean unlimitedStamina;
     public boolean speedBoost;
@@ -28,6 +29,7 @@ public final class TrainingSettings {
     public void normalize() {
         enemyCount = Math.clamp(enemyCount, 0, MAX_ENEMIES);
         respawnDelay = Math.clamp(respawnDelay, 1, 30);
+        botHitRate = Math.clamp(botHitRate, 0, 100);
         behavior = validBehavior(behavior);
         equipment = validEquipment(equipment);
         area = validArea(area);
