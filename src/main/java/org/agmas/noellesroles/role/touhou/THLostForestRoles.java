@@ -54,7 +54,8 @@ public class THLostForestRoles {
       .setCanBeRandomedByOtherRoles(false)
       .setCanUseInstinctAndNightVision(true)
       .setHiddenForRoleRotation(true)
-      .setRoleData(MagicianRoleData::new);
+      .setRoleData(MagicianRoleData::new)
+      .setCannotAppearInCommandBlockEvent(true);
 
   // 藤原妹红
   public static final ResourceLocation MOKOU_ID = id("huziwara_no_mokou");
@@ -72,7 +73,8 @@ public class THLostForestRoles {
       .addRelatedModifier(SEModifiers.LOVERS)
       .setInstinctType(InstinctType.DEFAULT, InstinctType.KILLER_INSTINCT)
       .setCanBeRandomedByOtherRoles(false)
-      .setHiddenForRoleRotation(true);
+      .setHiddenForRoleRotation(true)
+      .setCannotAppearInCommandBlockEvent(true);
 
   public static void init() {
   }
