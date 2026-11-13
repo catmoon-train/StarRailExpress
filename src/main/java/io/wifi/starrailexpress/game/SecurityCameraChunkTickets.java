@@ -20,9 +20,12 @@ import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.block.CameraBlock;
 import io.wifi.starrailexpress.content.block_entity.SecurityMonitorBlockEntity;
+import io.wifi.starrailexpress.mixin.server.ChunkMapInvoker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ChunkTrackingView;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -38,7 +41,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * 远距离监控摄像头的区块票据管理。
@@ -79,14 +81,6 @@ public final class SecurityCameraChunkTickets {
 
     /** 按维度记录本类实际加过的票据，释放时只撤销这些。 */
     private static final Map<ResourceLocation, Set<Long>> PINNED = new HashMap<>();
-
-    /**
-     * 记录「某玩家当前正在观看哪台摄像头」：玩家 UUID -> 摄像头方块坐标。
-     * 监控画面是客户端虚拟相机，必须把摄像头视野区块并入该玩家的区块追踪视图
-     * （见 ChunkMapSecurityCameraMixin），客户端才能收到并渲染这些远端区块；
-     * 否则画面就是全透明的空洞。
-     */
-    private static final Map<UUID, BlockPos> VIEWING = new HashMap<>();
 
     private SecurityCameraChunkTickets() {
     }
@@ -146,7 +140,7 @@ public final class SecurityCameraChunkTickets {
         }
         // 同时撤销本局所有观战玩家被强制推送到客户端的远端区块，避免残留空洞或泄漏。
         for (ServerPlayer player : level.players()) {
-            untrackAll(player);
+            untrackForPlayer(level, player, null);
         }
     }
 
@@ -156,9 +150,12 @@ public final class SecurityCameraChunkTickets {
      * <p>监控画面是客户端把相机放到摄像头位置渲染的，而客户端只会收到「玩家本体所在位置
      * 视距内」的区块。光在服务端用 region ticket 强加载（{@link #onGameStarted}）只能让区块
      * 留在服务端内存里，客户端仍然收不到远端摄像头所在的区块，于是画面出现全透明空洞。
-     * 这里把该玩家正在观看的摄像头记下来，并通过 {@code ServerChunkCache.move} 重新计算其
-     * 区块追踪视图；ChunkMapSecurityCameraMixin 会把摄像头视野区块并入该视图，
-     * 由服务端按正常的区块下发流程推送给观看者，无论其本体离摄像头多远。
+     *
+     * <p>这里把摄像头视野区块并入该玩家的区块追踪视图，再直接调用服务端私有的
+     * {@code ChunkMap.applyChunkTrackingView}（经由 {@link ChunkMapInvoker}），
+     * 复用服务端现成的 {@code ChunkTrackingView.difference} 逻辑把新增的摄像头区块推送给该客户端。
+     * 不能只调 {@code ServerChunkCache.move}：玩家站着不动时 {@code updateChunkTracking}
+     * 会因「视图中心与视距都未变」而提前返回，一个区块都不会下发。
      *
      * @param level      摄像头所在世界
      * @param player    正在观看该摄像头的玩家
@@ -168,49 +165,39 @@ public final class SecurityCameraChunkTickets {
         if (level == null || player == null || cameraPos == null) {
             return;
         }
-        VIEWING.put(player.getUUID(), cameraPos);
-        forceTrackingUpdate(level, player);
+        Set<ChunkPos> extra = collectCameraChunks(level, cameraPos);
+        if (extra.isEmpty()) {
+            return;
+        }
+        ChunkMap chunkMap = ((ServerChunkCache) level.getChunkSource()).chunkMap;
+        ChunkTrackingView base = player.getChunkTrackingView();
+        if (base instanceof SecurityCameraChunkTrackingView wrapper) {
+            base = wrapper.delegate();
+        }
+        ((ChunkMapInvoker) chunkMap).sre$applyChunkTrackingView(
+                player, new SecurityCameraChunkTrackingView(base, extra));
     }
 
     /**
-     * 撤销 {@link #trackForPlayer} 对某个摄像头的追踪：从记录里移除该玩家，
-     * 再重新计算其区块追踪视图，摄像头视野区块便不再并入视图，服务端会通知客户端卸载。
+     * 撤销 {@link #trackForPlayer} 对某个摄像头的追踪：把玩家区块追踪视图恢复成并入摄像头
+     * 之前的原始视图，服务端会按正常流程通知客户端卸载这些摄像头区块。
+     *
+     * @param cameraPos 仅用于调用方语义，实际以玩家当前视图是否被包装过为准，可为 {@code null}
      */
     public static void untrackForPlayer(ServerLevel level, ServerPlayer player, BlockPos cameraPos) {
-        if (level == null || player == null || cameraPos == null) {
-            return;
-        }
-        if (cameraPos.equals(VIEWING.get(player.getUUID()))) {
-            VIEWING.remove(player.getUUID());
-        }
-        forceTrackingUpdate(level, player);
-    }
-
-    /** 玩家掉线 / 离开时清掉其观看记录，避免泄漏（区块会随正常退出流程卸载）。 */
-    public static void untrackAll(ServerPlayer player) {
-        if (player == null) {
-            return;
-        }
-        VIEWING.remove(player.getUUID());
-    }
-
-    /** 强制重新计算某玩家的区块追踪视图，触发 ChunkMapSecurityCameraMixin 并入摄像头区块。 */
-    private static void forceTrackingUpdate(ServerLevel level, ServerPlayer player) {
         if (level == null || player == null) {
             return;
         }
-        ((ServerChunkCache) level.getChunkSource()).move(player);
+        ChunkTrackingView current = player.getChunkTrackingView();
+        if (!(current instanceof SecurityCameraChunkTrackingView wrapper)) {
+            return;
+        }
+        ChunkMap chunkMap = ((ServerChunkCache) level.getChunkSource()).chunkMap;
+        ((ChunkMapInvoker) chunkMap).sre$applyChunkTrackingView(player, wrapper.delegate());
     }
 
     /**
-     * 供 ChunkMapSecurityCameraMixin 查询：该玩家当前正在观看的摄像头方块坐标，没有则返回 null。
-     */
-    public static BlockPos getViewingCamera(UUID playerUuid) {
-        return VIEWING.get(playerUuid);
-    }
-
-    /**
-     * 供 ChunkMapSecurityCameraMixin 使用：计算某摄像头视野覆盖的区块集合（已裁剪到游玩区域）。
+     * 计算某摄像头视野覆盖的区块集合（已裁剪到游玩区域），供 {@link #trackForPlayer} 并入追踪视图。
      */
     public static Set<ChunkPos> collectCameraChunks(ServerLevel level, BlockPos cameraPos) {
         Set<ChunkPos> result = new HashSet<>();

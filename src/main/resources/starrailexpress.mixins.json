@@ -56,7 +56,7 @@
     "util.EntitySelectorMixin",
     "world.ChunkSerializerMixin",
     "world.SceneAssetDirtyMixin",
-    "server.ChunkMapSecurityCameraMixin"
+    "server.ChunkMapInvoker"
   ],
   "injectors": {
     "defaultRequire": 1

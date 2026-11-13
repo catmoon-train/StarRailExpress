@@ -13,7 +13,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.wifi.starrailexpress.mixin.server;
+package io.wifi.starrailexpress.game;
 
 import net.minecraft.server.level.ChunkTrackingView;
 import net.minecraft.world.level.ChunkPos;
@@ -35,18 +35,23 @@ public class SecurityCameraChunkTrackingView implements ChunkTrackingView {
         this.extra = extra;
     }
 
+    /** 并入摄像头区块之前的原始视图，用于退出监控时精确还原。 */
+    public ChunkTrackingView delegate() {
+        return this.delegate;
+    }
+
     @Override
     public boolean contains(int x, int z, boolean boundaryOnly) {
-        if (delegate.contains(x, z, boundaryOnly)) {
+        if (this.delegate.contains(x, z, boundaryOnly)) {
             return true;
         }
-        return extra.contains(new ChunkPos(x, z));
+        return this.extra.contains(new ChunkPos(x, z));
     }
 
     @Override
     public void forEach(Consumer<ChunkPos> consumer) {
-        delegate.forEach(consumer);
-        for (ChunkPos chunkPos : extra) {
+        this.delegate.forEach(consumer);
+        for (ChunkPos chunkPos : this.extra) {
             consumer.accept(chunkPos);
         }
     }
