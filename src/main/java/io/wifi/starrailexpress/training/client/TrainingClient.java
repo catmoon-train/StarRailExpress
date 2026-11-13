@@ -79,7 +79,7 @@ public final class TrainingClient {
 
     private static void accept(CompoundTag incoming) {
         Minecraft client = Minecraft.getInstance();
-        if (!isPrivateLocalServer() && !(client.level != null && client.getConnection() != null
+        if (!isLocalTrainingServer() && !(client.level != null && client.getConnection() != null
                 && !client.hasSingleplayerServer() && incoming.getBoolean("dedicated"))) return;
         if (incoming.getBoolean("full")) {
             hasCatalogue = true;
@@ -96,15 +96,16 @@ public final class TrainingClient {
         if (client.screen instanceof TrainingScreen panel) panel.acceptState();
     }
 
-    private static boolean isPrivateLocalServer() {
+    /** 本地集成服（含已开放到局域网的主机）继续使用训练状态；客人仍由服务端状态过滤。 */
+    private static boolean isLocalTrainingServer() {
         Minecraft client = Minecraft.getInstance();
         return client.level != null && client.hasSingleplayerServer()
-                && client.getSingleplayerServer() != null && !client.getSingleplayerServer().isPublished();
+                && client.getSingleplayerServer() != null;
     }
 
     public static boolean isTraining() {
         Minecraft client = Minecraft.getInstance();
-        return state.getBoolean("active") && (isPrivateLocalServer()
+        return state.getBoolean("active") && (isLocalTrainingServer()
                 || state.getBoolean("dedicated") && !client.hasSingleplayerServer() && client.level != null && client.getConnection() != null);
     }
 

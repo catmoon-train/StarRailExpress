@@ -4,12 +4,16 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TrainingAccessPolicyTest {
-    @Test void onlyUnpublishedLocalOwnerInMarkedWorldHasAccess() {
-        for (int mask = 0; mask < 32; mask++) {
+    /** 开放到局域网不再是拒绝条件：集成服主人仍需是训练会话标记、非专服、同维度的请求者。 */
+    @Test void onlyLocalOwnerInMarkedWorldHasAccess() {
+        for (int mask = 0; mask < 16; mask++) {
             boolean marked = (mask & 1) != 0, dedicated = (mask & 2) != 0;
-            boolean published = (mask & 4) != 0, owner = (mask & 8) != 0, sameWorld = (mask & 16) != 0;
-            assertEquals(mask == 25, TrainingAccessPolicy.permits(marked, dedicated, published, owner, sameWorld), "mask=" + mask);
+            boolean owner = (mask & 4) != 0, sameWorld = (mask & 8) != 0;
+            assertEquals(mask == 13, TrainingAccessPolicy.permits(marked, dedicated, owner, sameWorld), "mask=" + mask);
         }
+    }
+    @Test void localTrainingOutlivesPublishingToLan() {
+        assertTrue(TrainingAccessPolicy.permits(true, false, true, true));
     }
     @Test void dedicatedRequiresEnabledBackendExclusiveLeaseOwnerAndMatchingWorld() {
         for (int mask = 0; mask < 16; mask++) {

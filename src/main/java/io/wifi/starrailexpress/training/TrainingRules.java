@@ -110,7 +110,7 @@ public final class TrainingRules {
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             if (!isTrainingServer(server)) return;
             if (dedicated) { tickDedicated(server); return; }
-            if (server.isPublished()) { if (session != null) { session.close(); session = null; } return; }
+            // 开放到局域网不结束训练：场地仍只归集成服主人管理，客人不会收到训练状态。
             if (session == null && !failed && server.getTickCount() >= 20) {
                 var owner = server.getPlayerList().getPlayers().stream().filter(p -> server.isSingleplayerOwner(p.getGameProfile())).findFirst().orElse(null);
                 if (owner == null) return;
@@ -274,7 +274,7 @@ public final class TrainingRules {
         boolean allowed = dedicated
                 ? TrainingAccessPolicy.permitsDedicated(isDedicatedTrainingServer(server), camp != null && pool.owns(actor.getUUID(), camp.lease.slot()),
                         camp != null && camp.player.connection == actor.connection, actor.serverLevel() == own.level())
-                : TrainingAccessPolicy.permits(isTrainingServer(server), server.isDedicatedServer(), server.isPublished(),
+                : TrainingAccessPolicy.permits(isTrainingServer(server), server.isDedicatedServer(),
                         server.isSingleplayerOwner(actor.getGameProfile()), actor.serverLevel() == server.overworld());
         if (!allowed) return;
         try { own.handle(actor, payload); }

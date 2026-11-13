@@ -82,7 +82,7 @@ public final class TrainingSession {
     public MinecraftServer server() { return server; }
     public ServerLevel level() { return level; }
     public boolean dedicated() { return dedicated; }
-    public boolean authorized() { return dedicated ? TrainingRules.isDedicatedTrainingServer(server) : server.isSingleplayer() && !server.isPublished(); }
+    public boolean authorized() { return dedicated ? TrainingRules.isDedicatedTrainingServer(server) : server.isSingleplayer(); }
     public ServerPlayer owner() {
         ServerPlayer current = server.getPlayerList().getPlayer(ownerId);
         if (current != null && current.connection == lastOwner.connection) lastOwner = current;
