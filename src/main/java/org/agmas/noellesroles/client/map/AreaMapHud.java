@@ -63,6 +63,7 @@ public final class AreaMapHud {
         g.fillGradient(x - 3, y - 3, x + size + 3, y + size + 3, 0xD81A1008, 0xD820140A);
         g.renderOutline(x - 3, y - 3, size + 6, size + 6, 0xFF8B6914);
         g.fill(x - 2, y - 2, x + size + 2, y - 1, 0x33FFE8C0);
+        g.fill(x, y, x + size, y + size, 0xFF141B21);
         if (echo) {
             var hint = EchoFacilityMapClient.tr("open_hint", io.wifi.starrailexpress.client.InputHandler.getOpenVotingScreenKeybind().getTranslatedKeyMessage());
             g.enableScissor(x - 3, y + size + 4, x + size + 4, y + size + 15);

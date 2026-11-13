@@ -137,9 +137,18 @@ class SettlementPresentationTest {
 
     @Test void heroEntranceHoldsItsPoseAndThenLeavesCleanly() {
         var snapshot=snapshot(List.of(event("STORE_BUY")));
-        assertEquals(0,frame(snapshot,List.of(),202).hero());
-        assertEquals(1,frame(snapshot,List.of(),220).hero());
-        assertEquals(1,frame(snapshot,List.of(),280).hero());
+        assertEquals(0,frame(snapshot,List.of(),0).hero());
+        assertEquals(1,frame(snapshot,List.of(),18).hero());
+        assertEquals(1,frame(snapshot,List.of(),78).hero());
+        assertEquals(0,frame(snapshot,List.of(),POSTER_TICKS).hero());
+        assertEquals(0,frame(snapshot,List.of(),250).hero());
+        for(int tick=0;tick<=POSTER_TICKS;tick++) {
+            assertEquals(0,curtainOpen(tick),"海报展示时帷幕必须关闭");
+            assertEquals(0,stageTime(tick));
+            assertEquals(ENTRANCE_HEIGHT,winnerLift(tick,0),1e-9);
+        }
+        assertTrue(curtainOpen(POSTER_TICKS+30)>0);
+        assertEquals(1,curtainOpen(POSTER_TICKS+52));
         assertEquals(0,frame(snapshot,List.of(),320).hero());
     }
 
@@ -170,7 +179,7 @@ class SettlementPresentationTest {
     @Test void entranceHeightIsSharedBoundedAndEndsOnTheFloor() {
         for (int order : new int[]{0,1,8,31,511}) {
             double previous=Double.POSITIVE_INFINITY;
-            for (int tick=0;tick<=160;tick++) {
+            for (int tick=0;tick<=ENTRANCE_END+20;tick++) {
                 double lift=winnerLift(tick,order);
                 assertTrue(lift>=0 && lift<=ENTRANCE_HEIGHT);
                 assertTrue(lift<=previous+1e-9);
@@ -186,7 +195,7 @@ class SettlementPresentationTest {
     @Test void descendingWinnersStayInFrameAndCameraStaysInsidePaperShell() {
         var s=snapshot(List.of());
         for (int count:new int[]{1,2,8,24,32}) for(int[] size:new int[][]{{320,180},{480,360},{854,480},{1280,540},{360,480}})
-            for(int tick:new int[]{0,20,26,36,48,56,62,80}) {
+            for(int tick:new int[]{POSTER_TICKS,POSTER_TICKS+20,ENTRANCE_START,POSTER_TICKS+36,POSTER_TICKS+48,POSTER_TICKS+56,ENTRANCE_END,POSTER_TICKS+80}) {
                 Bounds b=null;
                 for(int i=0;i<count;i++) {
                     var slot=SettlementChoreography.winner(i,count);
@@ -269,7 +278,7 @@ class SettlementPresentationTest {
             assertEquals(names.size(),new java.util.HashSet<>(names).size());
             assertTrue(names.contains(MVP));
             assertEquals(List.of(MVP),identityActors(snapshot,frame,null),"全景只保留 MVP 焦点信息");
-            assertTrue(nameActors(snapshot,frame(snapshot,List.of(),250),event).isEmpty(),"海报段不叠加姓名条");
+            assertTrue(nameActors(snapshot,frame(snapshot,List.of(),60),event).isEmpty(),"海报段不叠加姓名条");
         }
     }
 
@@ -300,14 +309,14 @@ class SettlementPresentationTest {
         assertTrue(cast.safe().y()<480*.20,"紧凑标题不再吃掉大半个上半画面");
     }
 
-    @Test void fastEntranceFinishesWithinThreePointOneSeconds() {
-        assertEquals(62,ENTRANCE_END);assertEquals(30,ENTRANCE_TICKS);
+    @Test void fastEntranceFinishesWithinThreePointOneSecondsAfterPoster() {
+        assertEquals(62,ENTRANCE_END-POSTER_TICKS);assertEquals(30,ENTRANCE_TICKS);
         for(int order:new int[]{0,1,8,31,511}) {
             assertEquals(ENTRANCE_HEIGHT,winnerLift(ENTRANCE_START,order),1e-9);
-            assertTrue(winnerLift(48,order)<ENTRANCE_HEIGHT*.65);
-            assertEquals(0,winnerLift(62,order),1e-9);
-            assertEquals(0,winnerLift(120,order),1e-9);
+            assertTrue(winnerLift(POSTER_TICKS+48,order)<ENTRANCE_HEIGHT*.65);
+            assertEquals(0,winnerLift(POSTER_TICKS+62,order),1e-9);
+            assertEquals(0,winnerLift(POSTER_TICKS+120,order),1e-9);
         }
-        assertTrue(ENTRANCE_END<SettlementChoreography.DROP_START,"仍先让胜者落地，再安排后台尸体");
+        assertTrue(ENTRANCE_END<POSTER_TICKS+SettlementChoreography.DROP_START,"仍先让胜者落地，再安排后台尸体");
     }
 }

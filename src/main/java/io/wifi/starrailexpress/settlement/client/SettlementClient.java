@@ -235,16 +235,16 @@ public final class SettlementClient {
         // 皮肤专属音效：本体只问「这个 tick 有没有专属音效」，
         // 具体播放什么由已注册的皮肤实现决定。
         SettlementSkin skin = SettlementSkins.byId(snapshot.mvpSkin());
-        if (skin != null) {
+        if (skin != null && playTick >= SettlementPresentation.POSTER_TICKS) {
             try {
-                skin.cueSound(playTick);
+                skin.cueSound(playTick-SettlementPresentation.POSTER_TICKS);
             } catch (RuntimeException error) {
                 SRE.LOGGER.warn("结算皮肤音效回调失败: {}", snapshot.mvpSkin(), error);
             }
         }
         int losers = physics.bodies.size() - (int)actors.stream().filter(a -> a.fact.winner()).count();
         for (ActorState actor : actors) {
-            if (!actor.fact.winner() && playTick >= SettlementChoreography.dropTick(actor.order, losers) && !actor.body.active) {
+            if (!actor.fact.winner() && playTick-SettlementPresentation.POSTER_TICKS >= SettlementChoreography.dropTick(actor.order, losers) && !actor.body.active) {
                 var drop = SettlementChoreography.drop(actor.order, losers);
                 actor.body.release(drop.x(), drop.y(), drop.z());
             }
@@ -382,7 +382,7 @@ public final class SettlementClient {
     static SettlementPresentation.Layout layout(float partial) {
         var mc = Minecraft.getInstance(); var window = mc.getWindow();
         int w = window.getGuiScaledWidth(), h = window.getGuiScaledHeight();
-        boolean hero = playTick + partial >= 202 && playTick + partial < 320;
+        boolean hero = playTick + partial < SettlementPresentation.POSTER_TICKS;
         if (cachedLayout == null || layoutWidth != w || layoutHeight != h || layoutEvent != eventIndex || layoutHero != hero) {
             var probe = SettlementPresentation.layout(w,h,hero,eventIndex >= 0,1);
             captionLines = mc.font.split(eventText, Math.max(1,(int)((probe.caption().w()-24*probe.ui())/probe.ui())));
@@ -424,7 +424,7 @@ public final class SettlementClient {
             }
             if (entering != null) all = entering;
         }
-        if (frame.time() >= 150 && actors.size() > actors.stream().filter(a -> a.fact.winner()).count())
+        if (SettlementPresentation.stageTime(frame.time()) >= 150 && actors.size() > actors.stream().filter(a -> a.fact.winner()).count())
             all = all.union(new SettlementPresentation.Bounds(-1.5,0,4.5,1.5,3.6,7.5));
         ActorState primary = byId.get(frame.primary()), secondary = byId.get(frame.secondary());
         var subject = primary == null ? all : bounds(primary,frame.time());
@@ -433,7 +433,7 @@ public final class SettlementClient {
         double lift = 0;
         SettlementSkin skin = SettlementSkins.byId(snapshot.mvpSkin());
         if (skin != null) {
-            try { lift = skin.cameraLift(frame.time()); }
+            try { lift = skin.cameraLift(SettlementPresentation.stageTime(frame.time())); }
             catch (RuntimeException error) { SRE.LOGGER.warn("结算皮肤镜头回调失败: {}",snapshot.mvpSkin(),error); }
         }
         Vec3 origin = new Vec3(snapshot.x()+.5,snapshot.y()+1+lift,snapshot.z()+.5);
@@ -468,11 +468,40 @@ public final class SettlementClient {
         double t = Math.max(0, Math.min(1, value)); return t * t * (3 - 2 * t);
     }
 
+    /** 只生成展示用副本，不购买、不发物品，也不修改职业的初始物品模板。 */
+    private static net.minecraft.world.item.ItemStack chooseHeldItem(SettlementSnapshot.Actor actor) {
+        var id = net.minecraft.resources.ResourceLocation.tryParse(actor.role());
+        var role = id == null ? null : io.wifi.starrailexpress.api.TMMRoles.ROLES.get(id);
+        List<net.minecraft.world.item.ItemStack> candidates = new ArrayList<>();
+        if (role != null) {
+            for (var stack : role.getDefaultItems()) {
+                if (!stack.isEmpty()) candidates.add(stack);
+            }
+        }
+        if (candidates.isEmpty()) {
+            var entries = role == null ? List.<io.wifi.starrailexpress.util.ShopEntry>of()
+                    : io.wifi.starrailexpress.game.ShopContent.getShopEntries(role);
+            for (var entry : entries) {
+                if (!entry.stack().isEmpty()) candidates.add(entry.stack());
+            }
+            if (candidates.isEmpty()) {
+                for (var entry : io.wifi.starrailexpress.game.ShopContent.getDefaultKnifeEntries()) {
+                    if (!entry.stack().isEmpty()) candidates.add(entry.stack());
+                }
+            }
+        }
+        if (candidates.isEmpty()) return net.minecraft.world.item.ItemStack.EMPTY;
+        var stack = candidates.get(java.util.concurrent.ThreadLocalRandom.current().nextInt(candidates.size())).copy();
+        stack.setCount(1);
+        return stack;
+    }
+
     static final class ActorState {
         final SettlementSnapshot.Actor fact;
         final double x, y, z;
         final int order;
         final SettlementPhysics.Body body;
+        final net.minecraft.world.item.ItemStack heldItem;
         String role;
         String initialRole;
         boolean dead;
@@ -483,6 +512,7 @@ public final class SettlementClient {
             this.fact = fact; this.x = x; this.y = y; this.z = z; this.order = order;
             initialRole = role = fact.role(); dead = fact.dead();
             body = new SettlementPhysics.Body(x, 1, z, order);
+            heldItem = chooseHeldItem(fact);
         }
     }
 }

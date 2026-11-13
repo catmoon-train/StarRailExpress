@@ -151,6 +151,18 @@ public class AccessorySettingsScreen extends Screen {
         addRenderableWidget(ownOnly);
         rowY += 28;
 
+        // ── 批量显隐：覆盖整个列表，不只处理当前滚动页 ──────────────────
+        int bulkWidth = (innerWidth - 6) / 2;
+        addRenderableWidget(Button.builder(
+                Component.translatable("screen.sre.skins.accessory_settings.hide_all"),
+                b -> setAllSkinTypesHidden(true))
+                .bounds(innerX, rowY, bulkWidth, 18).build());
+        addRenderableWidget(Button.builder(
+                Component.translatable("screen.sre.skins.accessory_settings.show_all"),
+                b -> setAllSkinTypesHidden(false))
+                .bounds(innerX + bulkWidth + 6, rowY, innerWidth - bulkWidth - 6, 18).build());
+        rowY += 24;
+
         // ── 隐藏指定皮肤（本地，按类别）──────────────────────────────────
         this.listX = innerX;
         this.listY = rowY + 12;
@@ -185,6 +197,30 @@ public class AccessorySettingsScreen extends Screen {
                 .pos(panelX + panelWidth - 10 - 70, panelY + panelHeight - 12 - 16)
                 .size(70, 16)
                 .build());
+    }
+
+    /** 一次保存所有类别的显隐，自己的皮肤及随从公开状态不受影响。 */
+    private void setAllSkinTypesHidden(boolean hidden) {
+        SREClientConfig config = SREClientConfig.instance();
+        if (config.hiddenSkinTypes == null) {
+            config.hiddenSkinTypes = new ArrayList<>();
+        }
+        for (String type : HIDEABLE_TYPES) {
+            if (!SkinVisibility.isHideableType(type)) {
+                continue;
+            }
+            config.hiddenSkinTypes.removeIf(type::equals);
+            if (hidden) {
+                config.hiddenSkinTypes.add(type);
+            }
+        }
+        // 统一由类别开关控制，避免旧的全局隐藏／仅自己可见覆盖「一键打开」。
+        config.hideAllHats = false;
+        config.hideAllPets = false;
+        config.showOwnHatOnly = false;
+        config.showOwnPetOnly = false;
+        config.save();
+        rebuildWidgets();
     }
 
     @Override

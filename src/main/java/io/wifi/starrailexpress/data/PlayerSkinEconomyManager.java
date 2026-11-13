@@ -104,6 +104,7 @@ public final class PlayerSkinEconomyManager {
         String normalizedType = normalizeItemName(itemType);
         Entry entry = get(player.getUUID());
         entry.state.equipped.put(normalizedType, skinName == null || skinName.isBlank() ? "default" : skinName);
+        entry.equippedChanged = true;
         markDirty(player, entry);
         mirrorToSkinsComponent(player, sc -> sc.setEquippedSkinForItemType(normalizedType,
                 skinName == null || skinName.isBlank() ? "default" : skinName));
@@ -216,6 +217,9 @@ public final class PlayerSkinEconomyManager {
                                         : economyRecord;
                         if (primary != null && primary.payload() != null && !primary.payload().isBlank()) {
                             EconomyState loaded = fromJson(primary.payload());
+                            if (entry.equippedChanged) {
+                                loaded.equipped = new ConcurrentHashMap<>(entry.state.equipped);
+                            }
                             entry.state.copyFrom(loaded);
                             entry.updatedAt = Math.max(entry.updatedAt, primary.updatedAt());
                             entry.dirty = false;
@@ -338,6 +342,7 @@ public final class PlayerSkinEconomyManager {
         private volatile boolean loadInFlight;
         private volatile boolean saveInFlight;
         private volatile long updatedAt;
+        private boolean equippedChanged;
         private volatile long lastFlushAt;
     }
 

@@ -3033,6 +3033,8 @@
     "screen.sre.skins.show_pet_to_others": "Show pet to others",
     "screen.sre.skins.accessory_settings.open": "Accessory Settings",
     "screen.sre.skins.accessory_settings.open.tooltip": "Choose which skins to hide and whether to show only your own",
+    "screen.sre.skins.accessory_settings.hide_all": "Hide All",
+    "screen.sre.skins.accessory_settings.show_all": "Show All",
     "screen.sre.skins.accessory_settings.title": "Accessory Settings",
     "screen.sre.skins.accessory_settings.own_only": "Show only my own accessories",
     "screen.sre.skins.accessory_settings.own_only.tip": "Hats, back and hand accessories, and pets from other players will be hidden",

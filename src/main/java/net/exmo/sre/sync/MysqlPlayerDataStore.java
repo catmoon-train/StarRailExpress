@@ -55,6 +55,7 @@ public final class MysqlPlayerDataStore {
     private static volatile long fastFailUntil = 0L;
     private static volatile boolean shutdownFlushMode = false;
     private static final Map<RecordKey, Long> KNOWN_REVISIONS = new ConcurrentHashMap<>();
+    private static final Map<UUID, CompletableFuture<Boolean>> EQUIPPED_UPLOADS = new ConcurrentHashMap<>();
 
     private MysqlPlayerDataStore() {
     }
@@ -179,6 +180,77 @@ public final class MysqlPlayerDataStore {
         }
         return CompletableFuture.supplyAsync(() -> saveBatch(playerUuid, normalizedPayloads, updatedAt, force),
                 EXECUTOR);
+    }
+
+    /** 仅替换 skins 分区中的 equipped；不使用本地快照覆盖网站的解锁和经济数据。 */
+    public static CompletableFuture<Boolean> saveEquippedSkinsAsync(UUID playerUuid, String equippedJson,
+            long updatedAt) {
+        if (playerUuid == null || equippedJson == null || dataSource == null) {
+            return CompletableFuture.completedFuture(false);
+        }
+        CompletableFuture<Boolean> next = EQUIPPED_UPLOADS.compute(playerUuid, (uuid, previous) -> {
+            CompletableFuture<?> ready = previous == null ? CompletableFuture.completedFuture(null)
+                    : previous.handle((result, failure) -> null);
+            return ready.thenApplyAsync(ignored -> saveEquippedSkins(uuid, equippedJson, updatedAt), EXECUTOR);
+        });
+        next.whenComplete((result, failure) -> EQUIPPED_UPLOADS.remove(playerUuid, next));
+        return next;
+    }
+
+    /** 关服前等待已提交的装备上传，即使它已从防抖队列移除。 */
+    public static void awaitEquippedSkinsUploads(long timeoutMs) {
+        try {
+            CompletableFuture.allOf(EQUIPPED_UPLOADS.values().toArray(CompletableFuture[]::new))
+                    .get(Math.max(1000L, timeoutMs), TimeUnit.MILLISECONDS);
+        } catch (Exception exception) {
+            logger.warn("等待装备皮肤上传队列完成失败。", exception);
+        }
+    }
+
+    public static boolean saveEquippedSkinsBlocking(UUID playerUuid, String equippedJson, long updatedAt,
+            long timeoutMs) {
+        try {
+            return saveEquippedSkinsAsync(playerUuid, equippedJson, updatedAt)
+                    .get(Math.max(1000L, timeoutMs), TimeUnit.MILLISECONDS);
+        } catch (Exception exception) {
+            logger.warn("等待玩家 {} 的装备皮肤上传失败。", playerUuid, exception);
+            return false;
+        }
+    }
+
+    private static boolean saveEquippedSkins(UUID playerUuid, String equippedJson, long updatedAt) {
+        HikariDataSource source = dataSource;
+        if (source == null || isFastFailActive()) {
+            return false;
+        }
+        // JSON_SET 在数据库持有行锁时只替换 equipped，网站同时发奖也不会被本地旧快照覆盖。
+        String sql = "INSERT INTO " + tableName
+                + " (player_uuid, data_key, payload_json, updated_at, record_version, created_at, updated_by) "
+                + "VALUES (?, 'skins', JSON_OBJECT('equipped', JSON_EXTRACT(?, '$')), ?, 1, ?, ?) "
+                + "ON DUPLICATE KEY UPDATE "
+                + "payload_json = JSON_SET(payload_json, '$.equipped', JSON_EXTRACT(?, '$')), "
+                + "updated_at = GREATEST(updated_at, VALUES(updated_at)), "
+                + "updated_by = VALUES(updated_by), record_version = record_version + 1";
+        try (Connection connection = source.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setQueryTimeout(getStatementTimeoutSeconds());
+            statement.setString(1, playerUuid.toString());
+            statement.setString(2, equippedJson);
+            statement.setLong(3, updatedAt);
+            statement.setLong(4, updatedAt);
+            statement.setString(5, GAME_SERVER_WRITER);
+            statement.setString(6, equippedJson);
+            statement.executeUpdate();
+            // 此次没有读取完整数据，不能把新版本当作本地完整快照的基线。
+            KNOWN_REVISIONS.remove(new RecordKey(playerUuid, "skins"));
+            TrafficRecorder.sql("INSERT", tableName).text(sql).param(playerUuid.toString())
+                    .param(equippedJson).param(equippedJson).param(GAME_SERVER_WRITER).numbers(2).record();
+            clearFastFail();
+            return true;
+        } catch (SQLException exception) {
+            handleSqlFailure("上传装备皮肤", playerUuid, exception);
+            return false;
+        }
     }
 
     public static boolean saveBatchBlocking(UUID playerUuid, Map<String, String> payloads, long updatedAt,

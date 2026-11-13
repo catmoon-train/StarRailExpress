@@ -11,13 +11,18 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /** 训练面板的会话缓存与原版菜单接入；不依据存档名推断训练权限。 */
 @Environment(EnvType.CLIENT)
@@ -66,9 +71,11 @@ public final class TrainingClient {
             if (anchor == null || anchor.getWidth() < 100) return;
             // 复用一行，避免在 GUI 高缩放时把断开连接按钮挤出屏幕。
             int oldWidth = anchor.getWidth();
-            int leftWidth = (oldWidth - 4) / 2;
+            boolean compact = screen instanceof PauseScreen;
+            int leftWidth = compact ? oldWidth - 24 : (oldWidth - 4) / 2;
             anchor.setWidth(leftWidth);
-            Button entry = createEntryButton(screen, oldWidth - leftWidth - 4);
+            Button entry = compact ? createEntryIconButton(screen)
+                    : createEntryButton(screen, oldWidth - leftWidth - 4);
             entry.setX(anchor.getX() + leftWidth + 4);
             entry.setY(anchor.getY());
             entry.setHeight(anchor.getHeight());
@@ -143,6 +150,13 @@ public final class TrainingClient {
         return button;
     }
 
+    /** 暂停菜单的紧凑入口，保留完整名称供悬停提示与无障碍朗读使用。 */
+    public static Button createEntryIconButton(Screen parent) {
+        Button button = new TrainingEntryIconButton(parent);
+        updateEntry(button);
+        return button;
+    }
+
     private static void updateEntry(Button button) {
         button.setMessage(buttonLabel());
         button.active = !TrainingWorldLauncher.isBusy();
@@ -164,6 +178,28 @@ public final class TrainingClient {
         if (!isTraining() || TrainingWorldLauncher.isBusy() || !ClientPlayNetworking.canSend(TrainingActionPayload.ID)) return false;
         ClientPlayNetworking.send(new TrainingActionPayload(action, data));
         return true;
+    }
+
+    private static final class TrainingEntryIconButton extends Button {
+        private final ItemStack icon = new ItemStack(Items.TARGET);
+
+        TrainingEntryIconButton(Screen parent) {
+            super(0, 0, 20, 20, buttonLabel(), b -> openEntry(parent), DEFAULT_NARRATION);
+            setTooltip(Tooltip.create(getMessage()));
+        }
+
+        @Override
+        public void setMessage(Component message) {
+            if (message.equals(getMessage())) return;
+            super.setMessage(message);
+            setTooltip(Tooltip.create(message));
+        }
+
+        @Override
+        public void renderString(GuiGraphics graphics, Font font, int color) {
+            graphics.renderItem(icon, getX() + (getWidth() - 16) / 2,
+                    getY() + (getHeight() - 16) / 2);
+        }
     }
 
     private static final class TrainingEntryButton extends SreButton {

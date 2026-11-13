@@ -62,9 +62,13 @@ public abstract class AbstractClientPlayerSkinMixin {
         if (client == null || client.level == null)
             return originalSkin;
         final int tick = self.tickCount;
+        final int delta = tick - lastResolveTick;
+        // 两种模式的间隔都至少为 1 Tick；同 Tick 命中无需反复查 AutoConfig。
+        if (cacheResult != null && delta == 0) {
+            return cacheResult;
+        }
         final int gap = SREClientConfig.instance().ultraPerfMode ? CACHE_TICK_GAP_ULTRA : CACHE_TICK_GAP;
         // delta < 0 是 tickCount 被重置（重生 / 换维度）时的兜底，避免缓存一直不刷新。
-        final int delta = tick - lastResolveTick;
         if (cacheResult == null || delta >= gap || delta < 0) {
             cacheResult = getResult(client, self, originalSkin);
             lastResolveTick = tick;

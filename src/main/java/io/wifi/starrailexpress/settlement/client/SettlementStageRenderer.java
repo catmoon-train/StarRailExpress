@@ -100,7 +100,7 @@ public final class SettlementStageRenderer {
         }
         if (settlementSkin != null) {
             try {
-                settlementSkin.renderBackdrop(pose, buffer, time);
+                settlementSkin.renderBackdrop(pose, buffer, SettlementPresentation.stageTime(time));
             } catch (RuntimeException error) {
                 io.wifi.starrailexpress.SRE.LOGGER.warn("结算皮肤布景回调失败: {}", snapshot.mvpSkin(), error);
             }
@@ -156,7 +156,7 @@ public final class SettlementStageRenderer {
             // 皮肤专属的获胜者特效（本体不区分是哪款皮肤）
             if (settlementSkin != null && actor.fact.winner()) {
                 try {
-                    settlementSkin.renderWinnerEffect(pose, buffer, x, y, z, time, actor.order);
+                    settlementSkin.renderWinnerEffect(pose, buffer, x, y, z, SettlementPresentation.stageTime(time), actor.order);
                 } catch (RuntimeException error) {
                     io.wifi.starrailexpress.SRE.LOGGER.warn("结算皮肤获胜者特效回调失败: {}",
                             snapshot.mvpSkin(), error);
@@ -184,25 +184,24 @@ public final class SettlementStageRenderer {
             part.render(pose, vertices, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, tint);
         if(stage) captureLabel(pose,model,actor,mvp);
         if(mvp) SettlementCrown.render(pose,buffer,model.head);
-        if(stage) renderHeldItem(pose,buffer,model,actor,partial);
+        renderHeldItem(pose,buffer,model,actor,partial,stage);
         pose.popPose();
     }
 
-    /**
-     * 回放事件涉及物品时，把该物品握在右手。
-     * <p>只在事件发生的动作窗口内显示，并复用右臂骨骼变换，因此会随动作一起挥动。</p>
-     */
+    /** 默认握持职业/商店道具；舞台事件动作期间优先展示该事件物品。 */
     private static void renderHeldItem(PoseStack pose, MultiBufferSource buffer, PlayerModel<Player> model,
-                                       SettlementClient.ActorState actor, float partial) {
-        var snapshot = SettlementClient.snapshot();
-        var event=actor.actionEvent;
-        if (event==null || event.item()==null || event.item().isBlank() || !actor.fact.id().equals(event.source())) return;
-        double action=Math.max(0,1-(SettlementClient.tick()+partial-actor.actionAt)/22);
-        if (action <= 0) return;
-        ResourceLocation id = ResourceLocation.tryParse(event.item());
-        if (id == null) return;
-        var item = net.minecraft.core.registries.BuiltInRegistries.ITEM.getOptional(id).orElse(null);
-        if (item == null || item == net.minecraft.world.item.Items.AIR) return;
+                                       SettlementClient.ActorState actor, float partial, boolean stage) {
+        var stack = actor.heldItem;
+        var event = actor.actionEvent;
+        double action = Math.max(0, 1 - (SettlementClient.tick() + partial - actor.actionAt) / 22);
+        if (stage && action > 0 && event != null && event.item() != null
+                && !event.item().isBlank() && actor.fact.id().equals(event.source())) {
+            ResourceLocation id = ResourceLocation.tryParse(event.item());
+            var item = id == null ? null : net.minecraft.core.registries.BuiltInRegistries.ITEM.getOptional(id).orElse(null);
+            if (item != null && item != net.minecraft.world.item.Items.AIR)
+                stack = new net.minecraft.world.item.ItemStack(item);
+        }
+        if (stack.isEmpty()) return;
 
         pose.pushPose();
         model.rightArm.translateAndRotate(pose);
@@ -210,7 +209,7 @@ public final class SettlementStageRenderer {
         pose.mulPose(Axis.XP.rotationDegrees(-90));
         pose.mulPose(Axis.YP.rotationDegrees(180));
         pose.translate(-1 / 16f, .125, -.625);
-        Minecraft.getInstance().getItemRenderer().renderStatic(new net.minecraft.world.item.ItemStack(item),
+        Minecraft.getInstance().getItemRenderer().renderStatic(stack,
                 net.minecraft.world.item.ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, LightTexture.FULL_BRIGHT,
                 OverlayTexture.NO_OVERLAY, pose, buffer, Minecraft.getInstance().level,
                 actor.fact.id().hashCode());
@@ -228,13 +227,13 @@ public final class SettlementStageRenderer {
         double celebrationAt=SettlementPresentation.ENTRANCE_END+6;
         float ceremony=(float)SettlementClient.smooth((time-celebrationAt-actor.order%5)/16);
         float wave=(float)Math.sin((time-celebrationAt)*.14+phase);
-        float celebration = (float) (1 - SettlementClient.smooth((time - 205) / 65));
+        float celebration = (float) (1 - SettlementClient.smooth((SettlementPresentation.stageTime(time) - 205) / 65));
         model.head.xRot = -.035f; model.head.yRot = (float) Math.sin(time * .025 + phase) * .05f;
         model.leftArm.zRot = -.08f; model.rightArm.zRot = .08f;
         if (!actor.fact.winner()) {
             // 尸体四肢缓慢停摆；不再有“坐在舞台上”的待机姿势。
             float tumble = (float) Math.sin(time * .14 + actor.order) * .16f
-                    * (float) (1 - SettlementClient.smooth((time - 185) / 65));
+                    * (float) (1 - SettlementClient.smooth((SettlementPresentation.stageTime(time) - 185) / 65));
             model.head.xRot = .18f;
             model.leftArm.xRot = -.18f; model.rightArm.xRot = .15f;
             model.leftArm.zRot = -.35f + tumble; model.rightArm.zRot = .35f - tumble;

@@ -52,6 +52,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
 
     private final Player player;
     private Map<String, String> equippedSkins; // 存储当前装备的皮肤 {itemName -> skinName}
+    private long equippedRevision;
     /**
      * 「随机」皮肤的当局解析结果 {itemName -> 实际皮肤名}。
      * <p>
@@ -185,6 +186,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     public void setEquippedSkin(ItemStack itemStack, String skinName) {
         String itemName = ItemSkinManager.getItemTypeName(itemStack);
         equippedSkins.put(itemName, skinName);
+        equippedRevision++;
         EquippedSkinsDatabaseSync.queueUpload(this.player);
         markSkinDataChanged();
     }
@@ -294,6 +296,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     public void setEquippedSkinForItemType(String itemTypeName, String skinName) {
         String normalizedItemName = normalizeItemName(itemTypeName);
         equippedSkins.put(normalizedItemName, skinName);
+        equippedRevision++;
         EquippedSkinsDatabaseSync.queueUpload(this.player);
         markSkinDataChanged();
     }
@@ -413,6 +416,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     public void setSkinInDataSync(ItemStack itemStack, String skinName) {
         // 只在客户端上传数据
         KEY.get(player).equippedSkins.put(ItemSkinManager.getItemTypeName(itemStack), skinName);
+        equippedRevision++;
         EquippedSkinsDatabaseSync.queueUpload(this.player);
         markSkinDataChanged();
     }
@@ -430,8 +434,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
 
     /**
      * 标记皮肤数据已改变，需要网络同步。
-     * 皮肤/经济同步只读策略：仅同步到客户端（this.sync()），不再将本地数据写入远程数据库。
-     * 远程数据库由网站端（邮箱/兑换码/抽奖/管理员发放）唯一写入，游戏端只读取。
+     * 解锁与经济数据保持只读；装备字段由 EquippedSkinsDatabaseSync 单独上传。
      */
     private void markSkinDataChanged() {
         this.sync();
@@ -467,7 +470,11 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
                             @SuppressWarnings("unchecked")
                             Map<String, Object> skinData = GSON.fromJson(record.payload(), Map.class);
                             if (skinData != null) {
+                                Map<String, String> localEquipped = this.equippedSkins;
                                 this.applyNetworkSkinData(skinData);
+                                if (equippedRevision != 0L) {
+                                    this.equippedSkins = localEquipped;
+                                }
                                 this.sync();
                                 logger.debug("玩家 {} 的皮肤数据已从 MySQL 拉取", this.player.getName().getString());
                             }
