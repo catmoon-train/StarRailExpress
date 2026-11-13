@@ -605,6 +605,7 @@ public final class TrainingScreen extends Screen {
                 for (String area : new String[]{"lobby", "range", "arena", "train"})
                     rows.add(new FormRow("area" + area, tr("teleport_hint"), () -> tr("area." + area), () -> send("teleport", string("area", area))));
             } else {
+                rows.add(new FormRow("spawn_body", tr("spawn_body_hint"), () -> tr("spawn_body"), () -> send("spawn_body")));
                 rows.add(new FormRow("cleanup", tr("cleanup_hint"), () -> tr("cleanup"), () -> send("cleanup")));
                 rows.add(new FormRow("reset", tr("reset_hint"), () -> tr("reset"), () -> confirm("reset_confirm", () -> send("reset"))));
                 rows.add(new FormRow("rebuild", tr(TrainingClient.isDedicated() ? "server_rebuild" : "rebuild_hint"), () -> tr("rebuild"),

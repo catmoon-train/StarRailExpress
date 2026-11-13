@@ -311,6 +311,7 @@ public final class TrainingSession {
                 if (!id.equals("lobby")) { settings.area = id; bots.teleport(); }
             }
             case "cleanup" -> cleanup(true);
+            case "spawn_body" -> spawnBody(actor);
             case "reset" -> {
                 bots.reset(); cleanup(true); reviveOwner(actor); bots.reconcile();
             }
@@ -402,12 +403,30 @@ public final class TrainingSession {
     private void kit(ServerPlayer actor, String id) {
         List<ItemStack> stacks = switch (id) {
             case "melee" -> List.of(TMMItems.KNIFE.getDefaultInstance());
-            case "ranged" -> List.of(TMMItems.REVOLVER.getDefaultInstance(), org.agmas.noellesroles.init.ModItems.SHERIFF_REVOLVER.getDefaultInstance(), TMMItems.MAGNUM_BULLET.getDefaultInstance().copyWithCount(64));
+            case "ranged" -> List.of(TMMItems.REVOLVER.getDefaultInstance(), TMMItems.SNIPER_RIFLE.getDefaultInstance(), TMMItems.MAGNUM_BULLET.getDefaultInstance().copyWithCount(64));
             case "utility" -> List.of(TMMItems.LOCKPICK.getDefaultInstance(), TMMItems.CROWBAR.getDefaultInstance(), TMMItems.DEFENSE_VIAL.getDefaultInstance(), TMMItems.BODY_BAG.getDefaultInstance());
             default -> List.of();
         };
         stacks.forEach(stack -> { if (!actor.addItem(stack.copy())) error("training.sre.error.inventory"); });
         actor.containerMenu.broadcastChanges();
+    }
+
+    /** 只生成本人的空尸体，不执行死亡结算，也不复制或扣除背包物品。 */
+    private void spawnBody(ServerPlayer actor) {
+        if (!TrainingRules.isAlive(actor)
+                || !TrainingLayout.box(TrainingLayout.get().bounds).contains(actor.position())) {
+            error("training.sre.error.spawn_body"); return;
+        }
+        int count = 0;
+        for (var entity : level().getAllEntities()) {
+            if (entity instanceof PlayerBodyEntity && ++count >= 48) {
+                error("training.sre.error.body_limit"); return;
+            }
+        }
+        var body = GameUtils.spawnBodyEntity(actor, null, SREGameWorldComponent.KEY.get(level()).getRole(actor),
+                io.wifi.starrailexpress.game.GameConstants.DeathReasons.GENERIC, false,
+                actor.position(), actor.getYHeadRot(), 0);
+        if (body == null || level().getEntity(body.getId()) != body) error("training.sre.error.spawn_body");
     }
 
     public void cleanup(boolean all) {
