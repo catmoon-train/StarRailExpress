@@ -16,10 +16,14 @@
 package org.agmas.harpymodloader.modded_murder;
 
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.event.OnGameEnd;
+import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.agmas.harpymodloader.modded_murder.ForceTeamInfo.ForceTeamType;
@@ -125,11 +129,65 @@ public class PlayerRoleWeightManager {
         return weightManager.getWeight(type);
     }
 
+    /**
+     * 注册统一的权重记账钩子。
+     * <p>
+     * 旧实现由各模式在「分配完职业」时各自调用 {@link #addWeight}：轮选 / 海选模式开局先给全员
+     * 挂 CUSTOM_PENDING 占位职业，直到 completeRoleSelection / completeDraft 才按最终职业记账；
+     * 超时强制结算、玩家离线、漏分配、职业中途转换都会造成漏记、记到占位职业（type 2 中立）
+     * 或重复记账，导致玩家实际游玩职业对应的权重不能正确升降。
+     * <p>
+     * 这里统一在 {@link OnGameEnd}（所有模式都会经过，且此时角色表尚未被清空）按结算时的
+     * 实际职业为每位本局玩家记录一次，与各模式的分配流程解耦。
+     */
+    public static void registerEvents() {
+        OnGameEnd.EVENT.register((world, gameComponent) -> recordRoundRoles(gameComponent));
+    }
+
+    /** 按本局结算时的实际职业记账；角色表按 UUID 保存，离线玩家同样会被覆盖。 */
+    private static void recordRoundRoles(SREGameWorldComponent gameComponent) {
+        if (gameComponent == null) {
+            return;
+        }
+        Map<UUID, SRERole> roles = gameComponent.getRoles();
+        if (roles == null) {
+            return;
+        }
+        for (Map.Entry<UUID, SRERole> entry : roles.entrySet()) {
+            recordPlayedRole(entry.getKey(), entry.getValue());
+        }
+    }
+
+    /**
+     * 只排除轮选 / 海选 / 自定义职业模式在玩家选完职业前挂在全员身上的待选占位职业，
+     * 躲猫猫寻找者等其它模式专属职业是真实游玩职业，仍需正常记账。
+     */
+    private static boolean shouldRecordRole(SRERole role) {
+        return role != null
+                && !role.identifier().equals(SpecialGameModeRoles.CUSTOM_PENDING.identifier());
+    }
+
+    /** 记录一名玩家本局实际游玩职业对应的阵营权重；未知阵营直接跳过。 */
+    public static void recordPlayedRole(UUID player, SRERole role) {
+        if (player == null || !shouldRecordRole(role)) {
+            return;
+        }
+        int type = getRoleType(role);
+        if (type < 1 || type > 5) {
+            return;
+        }
+        addWeight(player, type, 1);
+    }
+
     public static void addWeight(Player player, int type, int weightPlus) {
         addWeight(player.getUUID(), type, weightPlus);
     }
 
     public static void addWeight(UUID player, int type, int weightPlus) {
+        // 未知阵营（例如 getRoleType 返回 -1）不再落到 type<=1 分支被误记成平民。
+        if (type < 1 || type > 5) {
+            return;
+        }
         var weightManager = PlayerRoleWeightManager.playerWeights.get(player);
         if (weightManager == null) {
             weightManager = new PlayerRoleWeightManager.WeightInfo();

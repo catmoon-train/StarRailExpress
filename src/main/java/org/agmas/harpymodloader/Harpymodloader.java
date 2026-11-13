@@ -31,6 +31,7 @@ import org.agmas.harpymodloader.commands.*;
 import org.agmas.harpymodloader.commands.argument.ModifierArgumentType;
 import org.agmas.harpymodloader.commands.argument.RoleArgumentType;
 import org.agmas.harpymodloader.modded_murder.ModdedWeights;
+import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -107,6 +108,8 @@ public class Harpymodloader {
         OVERWRITE_ROLES.add(TMMRoles.KILLER);
 
         ModdedWeights.init();
+        // 所有模式统一在结算时按实际游玩职业记账（含轮选 / 海选 / 传统模式）。
+        PlayerRoleWeightManager.registerEvents();
 
         registerCommands();
         HMLModifiers.init();
