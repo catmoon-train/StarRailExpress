@@ -25,7 +25,8 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 import java.util.Set;
 
@@ -44,19 +45,21 @@ public abstract class ChunkMapSecurityCameraMixin {
     @Final
     private ServerLevel level;
 
-    @ModifyArg(method = "applyChunkTrackingView", at = @At("HEAD"), index = 1)
-    private ChunkTrackingView expandViewForSecurityCamera(ServerPlayer player, ChunkTrackingView original) {
+    @ModifyArgs(method = "applyChunkTrackingView", at = @At("HEAD"))
+    private void expandViewForSecurityCamera(Args args) {
+        ServerPlayer player = args.get(0);
         if (player == null) {
-            return original;
+            return;
         }
         BlockPos camera = SecurityCameraChunkTickets.getViewingCamera(player.getUUID());
         if (camera == null) {
-            return original;
+            return;
         }
         Set<ChunkPos> extra = SecurityCameraChunkTickets.collectCameraChunks(level, camera);
         if (extra.isEmpty()) {
-            return original;
+            return;
         }
-        return new SecurityCameraChunkTrackingView(original, extra);
+        ChunkTrackingView original = args.get(1);
+        args.set(1, new SecurityCameraChunkTrackingView(original, extra));
     }
 }
