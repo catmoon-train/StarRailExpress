@@ -69,9 +69,6 @@ import java.util.OptionalDouble;
 public class TaskBlockOverlayRenderer {
     // 创建带厚度的永远不被遮挡线框
     public static ArrayList<BlockPos> RoomDoorPositions = new ArrayList<>();
-    /** 透视指示器的最大渲染距离（方块），更远的方块直接跳过。 */
-    private static final int MAX_OVERLAY_DISTANCE_SQ = 128 * 128;
-    private static final int MAX_OVERLAY_DISTANCE_ULTRA_SQ = 64 * 64;
     /**
      * 独立的线条缓冲：任务点/箭头/指引线都写进这里，并在 AFTER_TRANSLUCENT
      * 回调末尾统一冲刷。避免线条滞留/混入 GUI 共享缓冲 —— 共享缓冲的冲刷时机
@@ -130,19 +127,19 @@ public class TaskBlockOverlayRenderer {
         if (world == null)
             return;
 
-        // 距离裁剪：太远的方块跳过，避免逐帧做 AABB 与顶点计算
         Vec3 cameraPos = context.camera().getPosition();
-        double dx = blockPos.getX() + 0.5 - cameraPos.x;
-        double dy = blockPos.getY() + 0.5 - cameraPos.y;
-        double dz = blockPos.getZ() + 0.5 - cameraPos.z;
-        int maxRenderDistance = MAX_OVERLAY_DISTANCE_SQ;
-        if (SREClientConfig.instance().isUltraPerfMode()) {
-            maxRenderDistance = MAX_OVERLAY_DISTANCE_ULTRA_SQ;
-        }
-        if (dx * dx + dy * dy + dz * dz > maxRenderDistance) {
+        int maxRenderDistance = TaskBlockOverlayVisibility.maxDistanceSquared(
+                SREClientConfig.instance().isUltraPerfMode());
+        if (TaskBlockOverlayVisibility.isOutsideDistance(blockPos.getX(), blockPos.getY(), blockPos.getZ(),
+                cameraPos.x, cameraPos.y, cameraPos.z, maxRenderDistance)) {
             return;
         }
+        renderVisibleBlockOverlay(context, blockPos, color, alpha, world, cameraPos);
+    }
 
+    /** 仅供已通过距离剔除的候选调用，复用本次绘制的世界和相机位置。 */
+    private static void renderVisibleBlockOverlay(WorldRenderContext context, BlockPos blockPos,
+            Color color, float alpha, Level world, Vec3 cameraPos) {
         BlockState state = world.getBlockState(blockPos);
         AABB localAABB = getCombinedAABB(world, blockPos, state);
 
@@ -295,9 +292,12 @@ public class TaskBlockOverlayRenderer {
                 shouldDisplay[i] = true;
             }
         }
-        Minecraft client = Minecraft.getInstance();
+        Minecraft client = instance;
         var player = client.player;
         var world = client.level;
+        Vec3 cameraPos = renderContext.camera().getPosition();
+        int maxRenderDistance = TaskBlockOverlayVisibility.maxDistanceSquared(
+                SREClientConfig.instance().isUltraPerfMode());
         if (SREClient.isPlayerAliveAndInSurvival()) {
             var item = player.getMainHandItem();
             if (TaskInstinctManager.isTaskInstinctTypeShowable(-1) && item.is(TMMItems.KEY)) {
@@ -305,12 +305,15 @@ public class TaskBlockOverlayRenderer {
                 if (lore != null && !lore.lines().isEmpty()) {
                     NoellesrolesClient.myRoomNumber = lore.lines().getFirst().getString();
                     for (var ele : TaskBlockOverlayRenderer.RoomDoorPositions) {
+                        if (TaskBlockOverlayVisibility.isOutsideDistance(ele.getX(), ele.getY(), ele.getZ(),
+                                cameraPos.x, cameraPos.y, cameraPos.z, maxRenderDistance)) {
+                            continue;
+                        }
                         if (world.getBlockEntity(ele) instanceof SmallDoorBlockEntity entity) {
                             if (entity.getKeyName().equals(NoellesrolesClient.myRoomNumber)) {
-                                TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, ele,
+                                renderVisibleBlockOverlay(renderContext, ele,
                                         new Color(255, 247, 155),
-                                        1f,
-                                        true, 0f);
+                                        1f, world, cameraPos);
                             }
                         }
 
@@ -409,116 +412,120 @@ public class TaskBlockOverlayRenderer {
             shouldDisplay[i] = shouldDisplay[i] && TaskInstinctManager.isTaskInstinctTypeShowable(i);
         }
 
-        // 渲染
+        // 遍历已收集的任务点：先沿用绘制入口的距离剔除，再读取实时方块状态。
         for (var set : NoellesrolesClient.taskBlocks.entrySet()) {
             var pos = set.getKey();
+            if (TaskBlockOverlayVisibility.isOutsideDistance(pos.getX(), pos.getY(), pos.getZ(),
+                    cameraPos.x, cameraPos.y, cameraPos.z, maxRenderDistance)) {
+                continue;
+            }
             int type = set.getValue();
             BlockState block = renderContext.world().getBlockState(pos);
+            // 损坏修复点优先于类型开关，不能按 shouldDisplay 提前跳过。
             if (isActiveSabotageRepairBlock(block)) {
                 TaskInstinctShowableInterface it = (TaskInstinctShowableInterface) block.getBlock();
                 java.awt.Color c = it.taskInstinctRenderColor(block, pos, player);
                 float alpha = c.getAlpha() / 255f;
-                TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos,
-                        c, alpha,
-                        true, 0f);
+                renderVisibleBlockOverlay(renderContext, pos,
+                        c, alpha, world, cameraPos);
                 continue;
             }
             switch (type) { // 1: 食物 2: 水 3: 洗澡 4: 床 5: 跑步机 6: 讲台
                 case 1:
                     if (shouldDisplay[type])
-                        TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos, Color.GREEN, 1f, true, 0f);
+                        renderVisibleBlockOverlay(renderContext, pos, Color.GREEN, 1f, world, cameraPos);
                     break;
                 case 2:
                     if (shouldDisplay[type])
-                        TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos, new Color(234, 88, 88), 1f,
-                                true, 0f);
+                        renderVisibleBlockOverlay(renderContext, pos, new Color(234, 88, 88), 1f,
+                                world, cameraPos);
                     break;
                 case 3:
                     if (shouldDisplay[type])
-                        TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos, new Color(141, 234, 189), 1f,
-                                true, 0f);
+                        renderVisibleBlockOverlay(renderContext, pos, new Color(141, 234, 189), 1f,
+                                world, cameraPos);
                     break;
                 case 4:
                     if (shouldDisplay[type])
-                        TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos, new Color(0, 255, 220), 1f,
-                                true, 0f);
+                        renderVisibleBlockOverlay(renderContext, pos, new Color(0, 255, 220), 1f,
+                                world, cameraPos);
                     break;
                 case 5:
                     if (shouldDisplay[type])
-                        TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos, new Color(255, 242, 0), 1f,
-                                true, 0f);
+                        renderVisibleBlockOverlay(renderContext, pos, new Color(255, 242, 0), 1f,
+                                world, cameraPos);
                     break;
                 case 6:
                     if (shouldDisplay[type])
-                        TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos,
+                        renderVisibleBlockOverlay(renderContext, pos,
                                 new Color(255, 127, 39), 1f,
-                                true, 0f);
+                                world, cameraPos);
                     break;
                 case 7:
                     break;
                 case 8:
                     if (shouldDisplay[type])
-                        TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos,
+                        renderVisibleBlockOverlay(renderContext, pos,
                                 new Color(255, 174, 201), 1f,
-                                true, 0f);
+                                world, cameraPos);
                     break;
                 case 9:
                     if (shouldDisplay[type])
-                        TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos,
+                        renderVisibleBlockOverlay(renderContext, pos,
                                 new Color(126, 255, 228), 1f,
-                                true, 0f);
+                                world, cameraPos);
                     break;
                 case 10:
                     if (shouldDisplay[type])
-                        TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos,
+                        renderVisibleBlockOverlay(renderContext, pos,
                                 new Color(121, 148, 255), 1f,
-                                true, 0f);
+                                world, cameraPos);
                     break;
                 case 11:
                     if (shouldDisplay[type])
-                        TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos,
+                        renderVisibleBlockOverlay(renderContext, pos,
                                 new Color(255, 174, 201), 1f,
-                                true, 0f);
+                                world, cameraPos);
                     break;
                 case 16:
                     if (shouldDisplay[type])
-                        TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos,
-                                new Color(255, 165, 0), 1f, true, 0f);
+                        renderVisibleBlockOverlay(renderContext, pos,
+                                new Color(255, 165, 0), 1f, world, cameraPos);
                     break;
                 case 17:
                     if (shouldDisplay[type])
-                        TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos,
-                                new Color(192, 192, 192), 1f, true, 0f);
+                        renderVisibleBlockOverlay(renderContext, pos,
+                                new Color(192, 192, 192), 1f, world, cameraPos);
                     break;
                 case 18:
                     if (shouldDisplay[type])
-                        TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos,
-                                new Color(0, 150, 50), 1f, true, 0f);
+                        renderVisibleBlockOverlay(renderContext, pos,
+                                new Color(0, 150, 50), 1f, world, cameraPos);
                     break;
                 case 19:
                     if (shouldDisplay[type])
-                        TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos,
-                                new Color(180, 40, 40), 1f, true, 0f);
+                        renderVisibleBlockOverlay(renderContext, pos,
+                                new Color(180, 40, 40), 1f, world, cameraPos);
                     break;
                 case 20:
                     if (shouldDisplay[type])
-                        TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos,
-                                new Color(255, 255, 180), 1f, true, 0f);
+                        renderVisibleBlockOverlay(renderContext, pos,
+                                new Color(255, 255, 180), 1f, world, cameraPos);
                     break;
                 case 21:
                     if (shouldDisplay[type])
-                        TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos,
-                                new Color(173, 255, 47), 1f, true, 0f);
+                        renderVisibleBlockOverlay(renderContext, pos,
+                                new Color(173, 255, 47), 1f, world, cameraPos);
                     break;
                 case 22:
                     if (shouldDisplay[type])
-                        TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos,
-                                new Color(218, 165, 32), 1f, true, 0f);
+                        renderVisibleBlockOverlay(renderContext, pos,
+                                new Color(218, 165, 32), 1f, world, cameraPos);
                     break;
                 case 24:
                     if (isBellMeetingEnabled(renderContext)) {
-                        TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos,
-                                new Color(255, 215, 0), 1f, true, 0f);
+                        renderVisibleBlockOverlay(renderContext, pos,
+                                new Color(255, 215, 0), 1f, world, cameraPos);
                     }
                     break;
                 default:
@@ -528,9 +535,8 @@ public class TaskBlockOverlayRenderer {
                             if (it.shouldRenderTaskInstinct(renderContext.world(), block, pos, player)) {
                                 java.awt.Color c = it.taskInstinctRenderColor(block, pos, player);
                                 float alpha = c.getAlpha() / 255f;
-                                TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos,
-                                        c, alpha,
-                                        true, 0f);
+                                renderVisibleBlockOverlay(renderContext, pos,
+                                        c, alpha, world, cameraPos);
                             }
                         }
                     }

@@ -114,6 +114,8 @@
     "defaultRequire": 1
   },
   "client": [
+    "client.map.AreaMapSpriteContentsAccessor",
+    "client.map.AreaMapBlockUpdateMixin",
     "client.KnifeGlintRenderMixin",
     "client.KnifeGlintStackMixin",
     "halloween.ambience.HalloweenSkyColorMixin",

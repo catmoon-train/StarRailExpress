@@ -9,13 +9,17 @@ import java.util.UUID;
 
 /** 漫画分镜的纯计算层：语义、镜头、排版共用同一时钟，不依赖客户端注册表。 */
 public final class SettlementPresentation {
-    public static final int ENTRANCE_START=26, ENTRANCE_TICKS=30, ENTRANCE_STAGGER=6;
+    public static final int POSTER_TICKS=118;
+    public static final int ENTRANCE_START=POSTER_TICKS+26, ENTRANCE_TICKS=30, ENTRANCE_STAGGER=6;
     public static final int ENTRANCE_END=ENTRANCE_START+ENTRANCE_TICKS+ENTRANCE_STAGGER;
     public static final double ENTRANCE_HEIGHT=3.8;
     public static final int MAX_NAME_MARKERS=3, NAME_MARKER_WIDTH=78, NAME_MARKER_HEIGHT=12;
     public enum Action { STILL, PURCHASE, INTERACT, STRIKE, THROW, CAST, TRANSFORM }
     public enum Category { PURCHASE, INTERACTION, CONFLICT, CHANGE, STORY }
     public record Cue(int tick, UUID primary, UUID secondary, Category category) { }
+    /** 海报结束后才推进舞台入场，供帷幕和扩展皮肤共用。 */
+    public static double stageTime(double time) { return Math.max(0,time-POSTER_TICKS); }
+    public static double curtainOpen(double time) { return smooth((time-POSTER_TICKS-8)/44); }
     public record Frame(double time, double detail, double hero, double impact, double orbit,
                         double roll, UUID primary, UUID secondary, Category category, boolean closing) { }
     public record Rect(double x, double y, double w, double h) {
@@ -133,12 +137,12 @@ public final class SettlementPresentation {
 
     public static Frame frame(SettlementSnapshot snapshot, List<Cue> cues, double time) {
         boolean closing = time >= snapshot.durationTicks() - 80;
-        double hero = smooth((time-202)/14) * (1-smooth((time-304)/16));
+        double hero = smooth(time/14) * (1-smooth((time-POSTER_TICKS+16)/16));
         double detail = time < 320 ? hero : .94;
         UUID primary = snapshot.mvp(), secondary = null;
         Category category = Category.STORY;
-        double impact = pulse(time,ENTRANCE_END,13)*.45 + pulse(time,220,16)*.90;
-        double orbit = -.13*(1-smooth((time-18)/65)) + .12*hero*(1-smooth((time-230)/16));
+        double impact = pulse(time,ENTRANCE_END,13)*.45 + pulse(time,18,16)*.90;
+        double orbit = -.13*(1-smooth((stageTime(time)-18)/65));
         double roll = -.018*hero;
         // 二分查找，不在每帧遍历大量回放。
         int low = 0, high = cues.size();

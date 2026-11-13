@@ -55,6 +55,8 @@ public class AreaMapScreen extends Screen {
     private static final int BG_BOTTOM = 0xF0061018;
     private static final int PANEL_TOP = 0xD81A1008;
     private static final int PANEL_BOTTOM = 0xD820140A;
+    // 地图使用中性底色，避免透明边缘被棕色面板染脏；右侧仍遵循车票风格。
+    private static final int MAP_BACKGROUND = 0xFF141B21;
     private static final int BORDER = 0xFF8B6914;
     private static final int GOLD = 0xFFD4AF37;
     private static final int TEXT = 0xFFFFF4DC;
@@ -162,7 +164,7 @@ public class AreaMapScreen extends Screen {
     public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         g.fillGradient(0, 0, width, height, BG_TOP, BG_BOTTOM);
         // 画布面板
-        g.fillGradient(canvasX0, canvasY0, canvasX1, canvasY1, PANEL_TOP, PANEL_BOTTOM);
+        g.fill(canvasX0, canvasY0, canvasX1, canvasY1, MAP_BACKGROUND);
         g.renderOutline(canvasX0, canvasY0, canvasX1 - canvasX0, canvasY1 - canvasY0, BORDER);
         g.fill(canvasX0 + 1, canvasY0 + 1, canvasX1 - 1, canvasY0 + 2, 0x33FFE8C0);
         // 右侧面板

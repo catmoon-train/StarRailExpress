@@ -134,15 +134,15 @@ public class MorphApiClient {
         if (!(player instanceof AbstractClientPlayer clientPlayer)) {
             return null;
         }
-        boolean holdingPlush = stack.getItem() instanceof SREPlushItem;
-        ItemStack displayed = getDisplayedPlushStack(clientPlayer);
-        if (holdingPlush) {
-            if (displayed.isEmpty()) {
-                return ItemStack.EMPTY;
-            }
-            return ItemStack.isSameItemSameComponents(stack, displayed) ? null : displayed;
+        // 普通物品和空手不会被玩偶规则替换，不能为手臂姿势查询反复解析拥有者/扫描背包。
+        if (!(stack.getItem() instanceof SREPlushItem)) {
+            return null;
         }
-        return null;
+        ItemStack displayed = getDisplayedPlushStack(clientPlayer);
+        if (displayed.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        return ItemStack.isSameItemSameComponents(stack, displayed) ? null : displayed;
     }
 
     /**

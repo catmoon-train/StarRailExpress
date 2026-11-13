@@ -79,15 +79,15 @@ public final class SettlementOverlay {
         g.fill(margin,Math.round(25*ui),w-margin,Math.round(25*ui)+1,0x332F3432);
 
         speedLines(g,w,h,(float)frame.impact(),ui);
-        if(time>=32 && time<202) {
-            float fade=envelope(time,32,12,179,23);
+        if(time>=SettlementPresentation.POSTER_TICKS+32 && time<320) {
+            float fade=envelope(time-SettlementPresentation.POSTER_TICKS,32,12,179,23);
             int pw=Math.min(w-margin*2,Math.round(370*ui)),x=(w-pw)/2;
             text(g,Component.translatable("settlement.starrailexpress.comic.chapter"),x,Math.round(30*ui),
                     pw,.65f*ui,tint(PAPER,fade*.75f),true);
             text(g,Component.literal(SettlementClient.title().getString()).withStyle(ChatFormatting.BOLD),x,
                     Math.round(43*ui),pw,1.55f*ui,tint(PAPER,fade),true);
         }
-        if(time>=202 && time<320) drawMvp(g,layout,(float)frame.hero(),time);
+        if(time<SettlementPresentation.POSTER_TICKS) g.fill(0,0,w,h,INK);
         if(!frame.closing() && time>=320 && SettlementClient.eventIndex()>=0) drawCaption(g,layout,time);
         if(time>=SettlementPresentation.ENTRANCE_END+8 && !frame.closing() && frame.hero()<.02) drawIdentities(g,layout,frame);
 
@@ -100,6 +100,7 @@ public final class SettlementOverlay {
             if(held>0) g.fill(x,y+Math.round(10*ui),x+Math.round(pw*held),y+Math.round(12*ui),RED);
         }
         shutters(g,w,h,time,snapshot.durationTicks());
+        if(time<SettlementPresentation.POSTER_TICKS) drawMvp(g,layout,(float)frame.hero(),time+202);
         if(frame.closing()) {
             float fade=envelope(time,snapshot.durationTicks()-58,18,snapshot.durationTicks()-22,22);
             int pw=Math.min(w-margin*2,Math.round(264*ui)),ph=Math.round(72*ui),x=(w-pw)/2,y=(h-ph)/2;
@@ -223,12 +224,12 @@ public final class SettlementOverlay {
         if(SettlementStageRenderer.labelsAt!=SettlementClient.tick() || SettlementStageRenderer.labelsWidth!=layout.width()
                 || SettlementStageRenderer.labelsHeight!=layout.height()) return;
         var selected=SettlementPresentation.nameActors(snapshot,frame,event);
-        Object shot=frame.time()<202?"cast":"replay/"+frame.primary();
+        Object shot=frame.time()<320?"cast":"replay/"+frame.primary();
         nameplates.begin(shot,layout.width(),layout.height());
         nameplates.retain(selected);
         List<SettlementPresentation.Rect> occupied=new ArrayList<>();
         for(var l:SettlementStageRenderer.labels) if(l.actor().fact.winner()) occupied.add(l.head().grow(2*ui));
-        double top=(frame.time()<202?62:32)*ui;
+        double top=(frame.time()<320?62:32)*ui;
         var screen=new SettlementPresentation.Rect(12*ui,top,layout.width()-24*ui,Math.max(0,rail.y()-5*ui-top));
         var font=Minecraft.getInstance().font;
         for(var id:selected) {
@@ -281,7 +282,7 @@ public final class SettlementOverlay {
 
     /** 斜切黑页从两侧揭开/合上，不再保留与场景割裂的剧场侧帘。 */
     private static void shutters(GuiGraphics g, int w, int h, double time, int duration) {
-        double opened = SettlementClient.smooth((time - 8) / 44)
+        double opened = SettlementPresentation.curtainOpen(time)
                 * (1 - SettlementClient.smooth((time - duration + 66) / 46));
         float side = (float) (w * .65 * (1 - opened));
         if (side < .5f) return;

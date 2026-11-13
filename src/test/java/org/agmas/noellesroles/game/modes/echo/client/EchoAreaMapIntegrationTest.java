@@ -29,7 +29,16 @@ class EchoAreaMapIntegrationTest {
         var manager=source("org/agmas/noellesroles/client/map/AreaMapManager.java");
         assertTrue(manager.contains("isHoldingMap(mc.player) || EchoFacilityMapClient.inMatch()"));
         assertTrue(manager.contains("scannedWorld != mc.level"));
-        assertTrue(manager.contains("SCAN_BUDGET_PER_TICK = 800"));
+        assertTrue(manager.contains("System.nanoTime()"));
+        assertTrue(manager.contains("ClientChunkEvents.CHUNK_LOAD"));
+        assertTrue(manager.contains("ChunkStatus.FULL, false"));
+        assertFalse(manager.contains("UPLOAD_INTERVAL_MS"));
+        var palette=source("org/agmas/noellesroles/client/map/AreaMapPalette.java");
+        assertTrue(palette.contains("Direction.UP"));
+        assertTrue(palette.contains("mc.getBlockColors().getColor"));
+        var mixins=JsonParser.parseString(Files.readString(Path.of("src/main/resources/noellesroles.mixins.json"))).getAsJsonObject().getAsJsonArray("client");
+        assertTrue(mixins.asList().stream().anyMatch(value -> value.getAsString().equals("client.map.AreaMapBlockUpdateMixin")));
+        assertTrue(mixins.asList().stream().anyMatch(value -> value.getAsString().equals("client.map.AreaMapSpriteContentsAccessor")));
     }
     @Test void newMapStringsAndPlaceholdersExistInAllThreeLocales() throws Exception {
         var root=Path.of("src/main/resources/assets/echo_map/lang");

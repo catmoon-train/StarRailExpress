@@ -3033,6 +3033,8 @@
   "screen.sre.skins.show_pet_to_others": "展示随从给其它玩家",
   "screen.sre.skins.accessory_settings.open": "饰品设置",
   "screen.sre.skins.accessory_settings.open.tooltip": "设置隐藏哪些皮肤、是否只看自己的饰品",
+  "screen.sre.skins.accessory_settings.hide_all": "一键关闭",
+  "screen.sre.skins.accessory_settings.show_all": "一键打开",
   "screen.sre.skins.accessory_settings.title": "饰品设置",
   "screen.sre.skins.accessory_settings.own_only": "仅显示自己的饰品",
   "screen.sre.skins.accessory_settings.own_only.tip": "开启后，帽子 / 背饰 / 手饰 / 随从都只看得到自己的",

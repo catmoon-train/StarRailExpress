@@ -28,6 +28,7 @@ import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.FrameLayout;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
+import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -105,10 +106,12 @@ public class WithParentScreenPauseScreen extends PauseScreen {
         GridLayout gridLayout = new GridLayout();
         gridLayout.defaultCellSetting().padding(4, 4, 4, 0);
         GridLayout.RowHelper rowHelper = gridLayout.createRowHelper(2);
-        rowHelper.addChild(Button.builder(RETURN_TO_GAME, (button) -> {
+        LinearLayout returnRow = LinearLayout.horizontal().spacing(4);
+        returnRow.addChild(Button.builder(RETURN_TO_GAME, (button) -> {
             this.minecraft.setScreen((Screen) parent);
-        }).width(204).build(), 2, gridLayout.newCellSettings().paddingTop(50));
-        this.trainingButton = rowHelper.addChild(TrainingClient.createEntryButton(this, 204), 2);
+        }).width(180).build());
+        this.trainingButton = returnRow.addChild(TrainingClient.createEntryIconButton(this));
+        rowHelper.addChild(returnRow, 2, gridLayout.newCellSettings().paddingTop(50));
         rowHelper.addChild(this.openScreenButton(ROLE_INTRODUCTION,
                 () -> new RoleIntroduceScreen(this)));
         rowHelper.addChild(this.openScreenButton(SETTINGS, () -> new SettingMenuScreen(this, this.parent == null)));

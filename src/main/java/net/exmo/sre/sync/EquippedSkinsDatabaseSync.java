@@ -27,7 +27,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
@@ -40,15 +39,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * 解锁列表、抽奖次数、金币等其他数据维持只读策略（由网站端唯一写入），
  * 游戏端不会上传。
  * <p>
- * 上传目标为 MySQL 同步表中独立的 {@code data_key = "equipped_skins"} 分区，
- * 与网站端写入的 {@code "skins"} / {@code "economy"} 分区互不干扰，
- * 网站端可以读取该分区获知玩家当前装备的皮肤（含帽子）。
+ * 上传目标为 MySQL 同步表的 {@code data_key = "skins"} 分区，
+ * 仅原子替换其中的 {@code equipped} 字段（含帽子），保留网站写入的所有其他字段。
  * <p>
  * 上传采用 5 秒防抖合并：短时间内多次换装只会上传最后一次状态；
  * 玩家断线与服务器关闭时若有未上传的变更会强制立即上传。
  */
 public final class EquippedSkinsDatabaseSync {
-    public static final String DATA_KEY = "equipped_skins";
+    public static final String DATA_KEY = "skins";
     private static final Gson GSON = new GsonBuilder().create();
     private static final long DEBOUNCE_MS = 5_000L;
     private static final long BLOCKING_FLUSH_TIMEOUT_MS = 3_000L;
@@ -91,19 +89,19 @@ public final class EquippedSkinsDatabaseSync {
             iterator.remove();
             ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
             if (player != null) {
-                upload(player, false);
+                upload(player);
             }
         }
     }
 
     private static void flushOnDisconnect(ServerPlayer player) {
         if (PENDING.remove(player.getUUID()) != null) {
-            upload(player, true);
+            upload(player);
         }
     }
 
     private static void flushAllBlocking(MinecraftServer server) {
-        if (PENDING.isEmpty()) {
+        if (!isUploadEnabled()) {
             return;
         }
         MysqlPlayerDataStore.beginShutdownFlushMode();
@@ -115,17 +113,18 @@ public final class EquippedSkinsDatabaseSync {
                 }
                 String payload = buildPayload(player);
                 if (payload != null) {
-                    MysqlPlayerDataStore.saveBatchForceBlocking(uuid, Map.of(DATA_KEY, payload),
+                    MysqlPlayerDataStore.saveEquippedSkinsBlocking(uuid, payload,
                             System.currentTimeMillis(), BLOCKING_FLUSH_TIMEOUT_MS);
                 }
             }
+            MysqlPlayerDataStore.awaitEquippedSkinsUploads(BLOCKING_FLUSH_TIMEOUT_MS);
         } finally {
             PENDING.clear();
         }
     }
 
-    /** 立即上传（force=true 时跳过版本冲突检查，用于断线/关服兜底） */
-    private static void upload(ServerPlayer player, boolean force) {
+    /** 立即提交装备字段更新；同一玩家的请求由数据库层顺序执行。 */
+    private static void upload(ServerPlayer player) {
         if (!isUploadEnabled()) {
             return;
         }
@@ -134,12 +133,14 @@ public final class EquippedSkinsDatabaseSync {
             return;
         }
         long now = System.currentTimeMillis();
-        if (force) {
-            MysqlPlayerDataStore.saveBatchForceAsync(player.getUUID(), Map.of(DATA_KEY, payload), now);
-        } else {
-            MysqlPlayerDataStore.saveBatchAsync(player.getUUID(), Map.of(DATA_KEY, payload), now);
-        }
-        SRE.LOGGER.debug("已上传玩家 {} 的装备皮肤数据到数据库", player.getName().getString());
+        MysqlPlayerDataStore.saveEquippedSkinsAsync(player.getUUID(), payload, now)
+                .whenComplete((success, failure) -> {
+                    if (failure != null || !Boolean.TRUE.equals(success)) {
+                        PENDING.putIfAbsent(player.getUUID(), System.currentTimeMillis() + DEBOUNCE_MS);
+                    } else {
+                        SRE.LOGGER.debug("已上传玩家 {} 的装备皮肤数据到数据库", player.getUUID());
+                    }
+                });
     }
 
     /** 构造上传内容：仅包含装备中的皮肤映射 */
@@ -148,11 +149,7 @@ public final class EquippedSkinsDatabaseSync {
         if (component == null) {
             return null;
         }
-        Map<String, Object> data = new HashMap<>();
-        data.put("equipped", component.getEquippedSkins());
-        data.put("updatedAt", System.currentTimeMillis());
-        data.put("playerName", player.getName().getString());
-        return GSON.toJson(data);
+        return GSON.toJson(component.getEquippedSkins());
     }
 
     private static boolean isUploadEnabled() {

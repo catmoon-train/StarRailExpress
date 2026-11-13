@@ -1,4 +1,4 @@
-﻿{
+{
   "settlement.starrailexpress.hero.award": "本 局 最 佳",
   "settlement.starrailexpress.hero.banner": "全場焦點 / MOST VALUABLE PLAYER",
   "training.sre.missing_carpet.title": "訓練場需要 Carpet",
@@ -3033,6 +3033,8 @@
   "screen.sre.skins.show_pet_to_others": "展示隨從給其他玩家",
   "screen.sre.skins.accessory_settings.open": "飾品設置",
   "screen.sre.skins.accessory_settings.open.tooltip": "設置隱藏哪些皮膚、是否只看自己的飾品",
+  "screen.sre.skins.accessory_settings.hide_all": "一鍵關閉",
+  "screen.sre.skins.accessory_settings.show_all": "一鍵開啟",
   "screen.sre.skins.accessory_settings.title": "飾品設置",
   "screen.sre.skins.accessory_settings.own_only": "僅顯示自己的飾品",
   "screen.sre.skins.accessory_settings.own_only.tip": "開啟後，帽子 / 背飾 / 手飾 / 隨從都只看得到自己的",

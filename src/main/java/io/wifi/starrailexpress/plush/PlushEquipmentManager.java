@@ -64,21 +64,37 @@ public final class PlushEquipmentManager {
         if (player == null) {
             return null;
         }
-        PlushEquipmentIdentity sponsor = null;
-        PlushEquipmentIdentity any = null;
-        for (ItemStack stack : collectInventories(player)) {
-            PlushEquipmentIdentity identity = PlushEquipmentIdentity.fromStack(stack);
+        PlushEquipmentIdentity first = null;
+        // 直接遍历原槽位，避免每次渲染查询都复制背包；找到首个赞助者后后续候选不可能覆盖它。
+        var inventory = player.getInventory();
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            PlushEquipmentIdentity identity = PlushEquipmentIdentity.fromStack(inventory.getItem(i));
             if (identity == null) {
                 continue;
             }
-            if (any == null) {
-                any = identity;
+            if (isSponsorIdentity(identity)) {
+                return identity;
             }
-            if (sponsor == null && isSponsorIdentity(identity)) {
-                sponsor = identity;
+            if (first == null) {
+                first = identity;
             }
         }
-        return sponsor != null ? sponsor : any;
+        ExtraSlotComponent extra = ExtraSlotComponent.KEY.getNullable(player);
+        if (extra != null) {
+            for (ItemStack stack : extra.SLOTS.values()) {
+                PlushEquipmentIdentity identity = PlushEquipmentIdentity.fromStack(stack);
+                if (identity == null) {
+                    continue;
+                }
+                if (isSponsorIdentity(identity)) {
+                    return identity;
+                }
+                if (first == null) {
+                    first = identity;
+                }
+            }
+        }
+        return first;
     }
 
     private static boolean isSponsorIdentity(PlushEquipmentIdentity identity) {
@@ -92,17 +108,6 @@ public final class PlushEquipmentManager {
         return SponsorManager.getSponsorPlushNames().contains(skin);
     }
 
-    private static List<ItemStack> collectInventories(Player player) {
-        List<ItemStack> stacks = new ArrayList<>();
-        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-            stacks.add(player.getInventory().getItem(i));
-        }
-        ExtraSlotComponent extra = ExtraSlotComponent.KEY.getNullable(player);
-        if (extra != null) {
-            stacks.addAll(extra.SLOTS.values());
-        }
-        return stacks;
-    }
 
     private static void sendFullSnapshot(ServerPlayer recipient) {
         MinecraftServer server = recipient.getServer();
