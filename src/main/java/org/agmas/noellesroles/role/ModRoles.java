@@ -2365,7 +2365,8 @@ public class ModRoles {
             .setCanSetSpawnInfoInConfig(false)
             .setDefaultMax(0)
             .setHiddenForRoleRotation(true)
-            .addFlag("Command_Role");
+            .addFlag("Command_Role")
+            .setAddedVersion("4.5");
 
     /** 丝线人。只由命令方块事件改写产生。冲刺不缩短。 */
     public static final SRERole STRINGER = TMMRoles.registerRole(
