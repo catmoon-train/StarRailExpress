@@ -205,20 +205,29 @@ public class DisabledPatientRoleData extends SimpleRoleData {
     /**
      * 按残疾患者同一份权重表随机挑一种残疾，并只施加 {@code durationTicks}。
      *
-     * <p>供命令方块的「命令注入」事件复用，避免另写一份效果表。
+     * <p>供命令方块的「命令注入」事件与轮盘恶魔赌局失败结算复用，避免另写一份效果表。
      *
      * @return 成功施加时返回 true
      */
     public static boolean applyRandomTemporary(ServerPlayer player, int durationTicks) {
+        return applyRandomTemporaryNamed(player, durationTicks) != null;
+    }
+
+    /**
+     * 同 {@link #applyRandomTemporary}，但把挑中的残疾返回给调用方，便于提示具体症状。
+     *
+     * @return 实际施加的残疾，未施加（时长为 0 或权重表为空）时返回 {@code null}
+     */
+    public static Disability applyRandomTemporaryNamed(ServerPlayer player, int durationTicks) {
         if (player == null || durationTicks <= 0) {
-            return false;
+            return null;
         }
         Disability picked = pickWeighted(player);
         if (picked == null) {
-            return false;
+            return null;
         }
-        picked.applyTemporary(player, durationTicks);
-        return true;
+        // 已被更强的同名效果覆盖时不谎报「获得」，交给调用方决定是否提示。
+        return picked.applyTemporary(player, durationTicks) ? picked : null;
     }
 
     private static Disability pickWeighted(ServerPlayer player) {
@@ -316,14 +325,17 @@ public class DisabledPatientRoleData extends SimpleRoleData {
         }
 
         /**
-         * 命令方块「命令注入」用：按同一份权重表随机挑一种残疾，但只持续
-         * {@code durationTicks}，不像职业那样永久生效。已经带有同级或更久的
-         * 同名效果时不降级覆盖。
+         * 命令方块「命令注入」/ 轮盘恶魔失败结算用：按同一份权重表随机挑一种残疾，但只持续
+         * {@code durationTicks}，不像职业那样永久生效。已经带有同级或更久、
+         * 时长不少于本次的同名效果时不降级覆盖。
+         *
+         * @return 至少写入了一条效果时返回 true；全部被更强效果挡住时为 false
          */
-        public void applyTemporary(ServerPlayer player, int durationTicks) {
+        public boolean applyTemporary(ServerPlayer player, int durationTicks) {
             if (durationTicks <= 0) {
-                return;
+                return false;
             }
+            boolean applied = false;
             for (EffectSpec spec : this.effects) {
                 var current = player.getEffect(spec.effect());
                 if (current != null && current.getAmplifier() >= spec.amplifier()
@@ -337,7 +349,9 @@ public class DisabledPatientRoleData extends SimpleRoleData {
                         true,
                         false,
                         true));
+                applied = true;
             }
+            return applied;
         }
 
         public void remove(ServerPlayer player) {

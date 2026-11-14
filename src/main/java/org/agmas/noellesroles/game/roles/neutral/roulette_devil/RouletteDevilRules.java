@@ -6,8 +6,11 @@ public final class RouletteDevilRules {
     public static final int COOLDOWN_SECONDS = 90;
     public static final int MANIFEST_TICKS = 20 * 20;
     /** 同一目标再次被同一恶魔拉入赌局的冷却；从赌局结束（含中途终止）开始计算。 */
-    public static final int SAME_TARGET_COOLDOWN_SECONDS = 30;
+    public static final int SAME_TARGET_COOLDOWN_SECONDS = 60;
     public static final int SAME_TARGET_COOLDOWN_TICKS = SAME_TARGET_COOLDOWN_SECONDS * 20;
+    /** 赌局失败者存活返程时，随机获得的残疾患者负面效果时长。 */
+    public static final int LOSER_DISABILITY_SECONDS = 3 * 60;
+    public static final int LOSER_DISABILITY_TICKS = LOSER_DISABILITY_SECONDS * 20;
     /** 直视现身恶魔每秒扣除的理智上限比例。 */
     public static final float GAZE_SAN_PER_SECOND = .025F;
     public static final int ENTRY_TICKS = 20;

@@ -45,7 +45,28 @@ class RouletteDevilSafetyTest {
         assertTrue(body.contains("RouletteDevilRules.spareDefeat"));
         assertTrue(body.indexOf("DEATHS.add(loser)") < body.indexOf("GameUtils.killPlayer("));
         assertTrue(body.contains("finally { DEATHS.remove(loser); }"));
-        assertTrue(body.contains("if (!spared && victim != null"));
+        assertTrue(body.contains("if (victim != null && GameUtils.isPlayerAliveAndSurvival(victim))"));
+        assertTrue(body.contains("if (!spared) {"));
+    }
+    @Test void sparedLoserGetsAThreeMinuteDisabilityButTheKilledOneDoesNot() throws Exception {
+        String session = read("game/roles/neutral/roulette_devil/RouletteDevilSessions.java");
+        int settle = session.indexOf("private static void settle(");
+        String body = session.substring(settle, session.indexOf("public static void cancel(", settle));
+        // 只有免死分支施加残疾，致命分支直接处死。
+        int sparedBranch = body.indexOf("} else {", body.indexOf("if (!spared) {"));
+        assertTrue(sparedBranch > 0);
+        assertTrue(body.indexOf("applyLoserDisability(victim)") > sparedBranch);
+        assertTrue(body.indexOf("GameUtils.killPlayer(") < sparedBranch);
+        int helper = session.indexOf("private static void applyLoserDisability(");
+        String helperBody = session.substring(helper, session.indexOf("public static void cancelAllForRefugee(", helper));
+        assertTrue(helperBody.contains("DisabledPatientRoleData.applyRandomTemporaryNamed("));
+        assertTrue(helperBody.contains("RouletteDevilRules.LOSER_DISABILITY_TICKS"));
+        assertTrue(helperBody.contains("\"message.noellesroles.roulette_devil.loser_disability\""));
+        // 复用残疾患者自己的权重表，不另抄一份效果清单。
+        String patient = read("role_data/innocence/DisabledPatientRoleData.java");
+        assertTrue(patient.contains("public static Disability applyRandomTemporaryNamed("));
+        assertTrue(patient.contains("return picked.applyTemporary(player, durationTicks) ? picked : null;"));
+        assertTrue(patient.contains("public boolean applyTemporary(ServerPlayer player, int durationTicks) {"));
     }
     @Test void realSanIsCapturedBeforeProtectionAndRestoredOnlyForProtectedPlayers() throws Exception {
         String session = read("game/roles/neutral/roulette_devil/RouletteDevilSessions.java");
