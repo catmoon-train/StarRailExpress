@@ -4085,6 +4085,8 @@
   "replay.pelican.spit_death": "§7💨§r %s 死亡，吐出了 %s",
   "message.replay.pachuri.be_known_role": "§d📖§r %s 已被帕秋莉 %s 得知身份。",
   "replay.event.gambler.miracle": "§6🎲§r %s 触发了赌徒的奇迹",
+  "replay.event.roulette_devil.duel_start": "§6🎰§r %s 将与 %s 进行轮盘赌对决",
+  "replay.event.roulette_devil.duel_win": "§6🎰§r %s 赢得了轮盘赌对决",
   "replay.event.thief.steal_money": "§e💰§r %s 偷了 %s %s 金币",
   "replay.event.thief.steal_item": "§e🕵️§r %s 偷了 %s 的 %s",
   "replay.event.shapeshifter.change_skin": "§d🎭§r %s 变成了 %s 的模样",
