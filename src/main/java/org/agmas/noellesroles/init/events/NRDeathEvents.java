@@ -103,6 +103,7 @@ import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.utils.AnatmanAsatyaCorpseGuard;
 import org.agmas.noellesroles.utils.MCItemsUtils;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
@@ -1396,6 +1397,9 @@ public class NRDeathEvents {
                         component.startPsycho();
                         component.psychoTicks = GameConstants.getInTicks(0, 45);
                         component.armour = 0;
+                        // 回放记录：小丑被其它玩家（击杀者）激活狂暴
+                        ReplayEventLog.record("replay.event.jester.berserk",
+                                ReplayEventLog.player(killer), ReplayEventLog.player(victim));
                         return false;
                     }
                 }
