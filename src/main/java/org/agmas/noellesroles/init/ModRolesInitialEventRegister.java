@@ -1473,7 +1473,7 @@ public class ModRolesInitialEventRegister {
                 }).announceToSelf(false).build(),
                 RoleSkill.skill(SRE.id("sack_ghost_realm"), "skill.noellesroles.sack.realm", context -> {
                     var data = RoleData.getNullable(MaChenXuRoleData.class, context.player());
-                    return data != null && data.usePrayerRain();
+                    return data != null && (data.otherworldActive ? data.drawArt() : data.usePrayerRain());
                 }).shifted(true).announceToSelf(false).build());
 
         RoleSkill.register(ModRoles.WRAITH_ASSASSIN,

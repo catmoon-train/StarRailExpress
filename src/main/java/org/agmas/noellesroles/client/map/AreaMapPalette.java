@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 /** 从当前资源包的烘焙顶面取色；只缓存材质，位置相关的群系染色仍逐列计算。 */
 final class AreaMapPalette {
@@ -83,10 +84,10 @@ final class AreaMapPalette {
         SpriteContents contents = sprite.contents();
         return sprites.computeIfAbsent(contents, key -> {
             NativeImage image = ((AreaMapSpriteContentsAccessor) key).noellesroles$originalImage();
-            int width = key.width(), height = key.height();
-            int frame = key.getUniqueFrames().findFirst().orElse(0);
-            int columns = Math.max(1, image.getWidth() / width);
-            int ox = frame % columns * width, oy = frame / columns * height;
+            SampleFrame sample = sampleFrame(image.getWidth(), image.getHeight(),
+                    key.width(), key.height(), key.getUniqueFrames());
+            int width = sample.width(), height = sample.height();
+            int ox = sample.x(), oy = sample.y();
             AreaMapColor.Average average = new AreaMapColor.Average();
             int nx = Math.min(16, width), nz = Math.min(16, height);
             for (int z = 0; z < nz; z++) {
@@ -96,5 +97,19 @@ final class AreaMapPalette {
             }
             return average.color();
         });
+    }
+
+    record SampleFrame(int x, int y, int width, int height) { }
+
+    /** 以实际 CPU 图片为边界选帧，兼容图片已被优化模组裁成单帧的情况。 */
+    static SampleFrame sampleFrame(int imageWidth, int imageHeight, int frameWidth, int frameHeight,
+                                   IntStream frames) {
+        int width = Math.min(imageWidth, Math.max(1, frameWidth));
+        int height = Math.min(imageHeight, Math.max(1, frameHeight));
+        int columns = imageWidth / width;
+        int rows = imageHeight / height;
+        int frame = frames.filter(index -> index >= 0 && (long) index < (long) columns * rows)
+                .findFirst().orElse(0);
+        return new SampleFrame(frame % columns * width, frame / columns * height, width, height);
     }
 }

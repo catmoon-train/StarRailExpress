@@ -78,7 +78,7 @@ class RouletteDevilRefugeeTest {
         assertEquals(0, restored.refugee.returnGameType());
         assertEquals(data.refugeeReturn, restored.refugeeReturn);
         assertEquals(2, restored.wins); assertEquals(1, restored.losses);
-        assertEquals(1, restored.lives()); assertEquals(4, restored.required());
+        assertEquals(1, restored.lives()); assertEquals(3, restored.required());
         assertEquals(data.seeds, restored.seeds); assertEquals(data.notified, restored.notified);
         assertEquals(RESUME, restored.refugee.update(true, false, false, true, 3));
     }

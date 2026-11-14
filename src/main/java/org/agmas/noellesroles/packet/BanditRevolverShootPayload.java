@@ -88,8 +88,9 @@ public record BanditRevolverShootPayload(int target) implements CustomPacketPayl
                                 && !ExecutionerRoleData.isInFrenzy(player)) {
                             shouldDrop = player.getRandom().nextFloat() <= 0.2F;
                         }
-                        boolean shouldDropBrokenKillerGun = BrokenGunDropUtils.shouldBreakKillerGunOnGunKill(game,
-                                player, target, mainHandStack);
+                        // 狂暴期间也跳过损坏掉枪，避免绕过免掉枪效果。
+                        boolean shouldDropBrokenKillerGun = !ExecutionerRoleData.isInFrenzy(player)
+                                && BrokenGunDropUtils.shouldBreakKillerGunOnGunKill(game, player, target, mainHandStack);
                         if (shouldDrop || shouldDropBrokenKillerGun) {
                             {
                                 if (player.getMainHandItem().is(TMMItemTags.GUNS)) {

@@ -88,6 +88,11 @@ public final class GKeyRoleSkill {
     }
 
     private static void registerDefaults() {
+        // 布袋鬼两种技能都不需要准星目标；离体后也不走目标选择或附体技能分支。
+        register(ModRoles.MA_CHEN_XU, true, (client, gameWorld) -> {
+            ClientPlayNetworking.send(new AbilityC2SPacket());
+            return true;
+        });
         register(ModRoles.BOMBER, true, (client, gameWorld) -> {
             ClientPlayNetworking.send(new AbilityC2SPacket());
             return true;

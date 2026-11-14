@@ -60,8 +60,8 @@ class DemonRouletteMatchTest {
             var match = new DemonMatch(DEMON, OPPONENT, (winner, loser) -> fail("Unexpected settlement"));
             var random = new Random(0);
             match.reserve(amount, 0, 0, random);
-            assertEquals(RouletteBalance.supply(amount) + 1, drain(match, DEMON));
-            assertEquals(RouletteBalance.supply(amount), drain(match, OPPONENT));
+            assertEquals(RouletteBalance.initialSupply(amount) + 1, drain(match, DEMON));
+            assertEquals(RouletteBalance.initialSupply(amount), drain(match, OPPONENT));
             for (int reload = 2; reload <= 5; reload++) {
                 match.reserve(reload, 0, 0, random);
                 assertEquals(RouletteBalance.supply(reload), drain(match, DEMON));

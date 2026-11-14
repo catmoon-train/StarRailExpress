@@ -1,7 +1,5 @@
 package org.agmas.noellesroles.game.command_block.item;
 
-import java.util.List;
-
 import org.agmas.noellesroles.game.command_block.CommandBlockCombat;
 import org.agmas.noellesroles.game.command_block.StringerRole;
 import org.agmas.noellesroles.init.ModEffects;
@@ -22,7 +20,7 @@ import net.minecraft.world.level.Level;
 
 /** 只割还在线上、并且正看着的那个人。落空不进长冷却。 */
 public class ThreadBladeItem extends Item {
-    public static final int COOLDOWN = 12 * 20;
+    public static final int COOLDOWN = 10 * 20;
     public static final double RANGE = 3.5D;
 
     public ThreadBladeItem(Properties properties) {
@@ -35,7 +33,7 @@ public class ThreadBladeItem extends Item {
         if (level.isClientSide || !(player instanceof ServerPlayer self)) {
             return InteractionResultHolder.success(stack);
         }
-        if (self.isSpectator() || self.getCooldowns().isOnCooldown(this)) {
+        if (!StringerRole.canAct(self) || self.getCooldowns().isOnCooldown(this)) {
             return InteractionResultHolder.fail(stack);
         }
         if (self.hasEffect(ModEffects.USED_BANED)) {
@@ -47,20 +45,14 @@ public class ThreadBladeItem extends Item {
             return InteractionResultHolder.fail(stack);
         }
         StringerRoleData data = RoleData.getNullable(StringerRoleData.class, self);
-        ServerPlayer mark = data == null ? null : data.current(self);
-        if (mark == null) {
+        ServerPlayer mark = GazeRays.firstVisiblePlayer(self, RANGE, 0.35D);
+        if (mark == null || data == null || !data.canCut(mark)) {
             self.displayClientMessage(Component.translatable("message.noellesroles.stringer.blade_none")
                     .withStyle(ChatFormatting.GRAY), true);
             return InteractionResultHolder.fail(stack);
         }
         if (self.distanceToSqr(mark) > RANGE * RANGE || !self.hasLineOfSight(mark)) {
             self.displayClientMessage(Component.translatable("message.noellesroles.stringer.blade_far")
-                    .withStyle(ChatFormatting.GRAY), true);
-            return InteractionResultHolder.fail(stack);
-        }
-        List<ServerPlayer> hit = GazeRays.playersAlong(self, RANGE, 0.35D);
-        if (hit.isEmpty() || hit.get(0) != mark) {
-            self.displayClientMessage(Component.translatable("message.noellesroles.stringer.not_mark")
                     .withStyle(ChatFormatting.GRAY), true);
             return InteractionResultHolder.fail(stack);
         }

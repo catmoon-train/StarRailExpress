@@ -126,15 +126,11 @@ public final class RouletteDevilRole extends CustomWinnerRole {
                 d.seeds.clear(); d.notified.clear(); d.refugee.reset(); d.refugeeReturn = new net.minecraft.nbt.CompoundTag(); d.sync();
             }
         });
-        GameUtilityEvents.BEFORE_KILL.register((p, body, killer, reason, force) ->
-                !GameUtils.isGameStarted || !isDevil(p) || RouletteDevilSessions.inDuel(p.getUUID())
-                        || RouletteDevilSessions.settlingDeath(p.getUUID()));
+        GameUtilityEvents.BEFORE_KILL.register((p, body, killer, reason, force) -> !isDevil(p) || deathAllowed(p));
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) ->
-                !(entity instanceof Player p) || !GameUtils.isGameStarted || !isDevil(p)
-                        || RouletteDevilSessions.inDuel(p.getUUID()));
+                !(entity instanceof Player p) || !isDevil(p) || deathAllowed(p));
         ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, amount) ->
-                !(entity instanceof Player p) || !GameUtils.isGameStarted || !isDevil(p)
-                        || RouletteDevilSessions.inDuel(p.getUUID()));
+                !(entity instanceof Player p) || !isDevil(p) || deathAllowed(p));
         ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, sender, bound) -> {
             if (!GameUtils.isGameStarted || !isDevil(sender) || RouletteDevilSessions.inDuel(sender.getUUID())) return true;
             String glyphs = "░▒▓◆◇∴∵⍟⸸⛧";
@@ -214,10 +210,13 @@ public final class RouletteDevilRole extends CustomWinnerRole {
         if (updateRefugee(p, d, refugeeActive(p)) || !GameUtils.isGameStarted || !GameUtils.isPlayerAliveAndSurvival(p)) return;
         refreshPassives(p);
         if (d.startingPlayers == 0) d.startingPlayers = SREGameWorldComponent.KEY.get(p.level()).getStartingPlayerCount();
-        boolean duel = RouletteDevilSessions.inDuel(p.getUUID());
-        p.setInvulnerable(!duel);
         long now = p.level().getGameTime();
-        if (duel) removeVoices(p);
+        // 冷却到期后清掉条目，避免同步包与存档无限增长。
+        if (now % 200 == 0 && d.retryAt.entrySet().removeIf(entry -> !RouletteDevilRules.cooling(entry.getValue(), now)))
+            d.sync();
+        boolean duel = RouletteDevilSessions.inDuel(p.getUUID());
+        p.setInvulnerable(true);
+        if (duel) RouletteDevilRole.removeVoices(p);
         else if (now % 10 == 0) for (var voice : VOICES) p.addEffect(new MobEffectInstance(voice, 30, 0, false, false, false));
         for (UUID id : List.copyOf(d.seeds.keySet())) {
             if (!d.mature(id, now) || d.notified.contains(id)) continue;
@@ -229,13 +228,8 @@ public final class RouletteDevilRole extends CustomWinnerRole {
             RoleUtils.playSound(target, SoundEvents.WITHER_SPAWN, net.minecraft.sounds.SoundSource.PLAYERS, .7f, .65f);
             RoleUtils.playSound(p, SoundEvents.EXPERIENCE_ORB_PICKUP, net.minecraft.sounds.SoundSource.PLAYERS, .8f, .5f);
         }
-        if (!duel && d.manifestUntil > now && now % 2 == 0) {
-            for (ServerPlayer viewer : p.serverLevel().players()) {
-                if (viewer == p || !GameUtils.isPlayerAliveAndSurvival(viewer) || viewer.distanceToSqr(p) > 64 * 64) continue;
-                var direction = p.getEyePosition().subtract(viewer.getEyePosition());
-                if (viewer.getLookAngle().dot(direction.normalize()) >= .5 && viewer.hasLineOfSight(p))
-                    viewer.addEffect(new MobEffectInstance(ModEffects.ROULETTE_DEVIL_DREAD, 6, 0, false, false, false));
-            }
+        if (!duel && d.manifestUntil > now && now % RouletteDevilRules.GAZE_INTERVAL_TICKS == 0) {
+            drainGazers(p, now);
         }
     }
     public static void removeVoices(ServerPlayer p) { for (var voice : VOICES) p.removeEffect(voice); }
@@ -246,6 +240,28 @@ public final class RouletteDevilRole extends CustomWinnerRole {
         p.connection.send(new ClientboundSetTitlesAnimationPacket(5, 50, 15));
         p.connection.send(new ClientboundSetTitleTextPacket(Component.translatable("message.noellesroles.roulette_devil." + title).withStyle(ChatFormatting.DARK_PURPLE)));
         p.connection.send(new ClientboundSetSubtitleTextPacket(Component.translatable("message.noellesroles.roulette_devil." + subtitle)));
+    }
+    /**
+     * 现身时对视线的玩家结算：每秒扣掉其理智上限的 2.5%，替换原来的自然流失倍率。
+     * 只处理真正有 REAL 理智、未被完全锁死、也未被自然消耗免疫保护的对象。
+     */
+    private static void drainGazers(ServerPlayer devil, long now) {
+        for (ServerPlayer viewer : devil.serverLevel().players()) {
+            if (viewer == devil || !GameUtils.isPlayerAliveAndSurvival(viewer) || viewer.distanceToSqr(devil) > 64 * 64) continue;
+            var direction = devil.getEyePosition().subtract(viewer.getEyePosition());
+            if (viewer.getLookAngle().dot(direction.normalize()) < .5 || !viewer.hasLineOfSight(devil)) continue;
+            if (!seesWithSanity(viewer)) continue;
+            var mood = SREPlayerMoodComponent.KEY.get(viewer);
+            float loss = RouletteDevilRules.gazeSanLoss(mood.getMoodMax());
+            if (loss <= 0f) continue;
+            mood.setMood(Math.max(0f, mood.getMood() - loss));
+        }
+    }
+    /** 只有真实理智且未处于完全理智锁定/自然消耗免疫的玩家才会被凝视扣理智。 */
+    private static boolean seesWithSanity(Player viewer) {
+        var role = SREGameWorldComponent.KEY.get(viewer.level()).getRole(viewer);
+        return role != null && role.getMoodType() == MoodType.REAL
+                && !ModEffects.hasFullMoodLock(viewer) && !viewer.hasEffect(ModEffects.MOOD_DRAIN_IMMUNITY);
     }
     public static void declareVictory(ServerPlayer p) {
         if (!GameUtils.isGameStarted) return;
@@ -259,14 +275,19 @@ public final class RouletteDevilRole extends CustomWinnerRole {
         RoleUtils.customWinnerWin(p.serverLevel(), GameUtils.WinStatus.CUSTOM, ModRoles.ROULETTE_DEVIL.identifier().getPath(), OptionalInt.of(ModRoles.ROULETTE_DEVIL.color()));
     }
     @Override public boolean allowDeath(Player victim, Player killer, ResourceLocation reason, boolean body) {
-        return !GameUtils.isGameStarted || RouletteDevilSessions.inDuel(victim.getUUID()) || RouletteDevilSessions.settlingDeath(victim.getUUID());
+        return deathAllowed(victim);
     }
     @Override public boolean afterShieldAllowDeath(Player victim, Player killer, ResourceLocation reason, boolean body) {
         return allowDeath(victim, killer, reason, body);
     }
+    /** 只有正式败局结算能解除死亡保护，进入赌局本身不是解除条件。 */
+    public static boolean deathAllowed(Player player) {
+        return RouletteDevilRules.allowDeath(GameUtils.isGameStarted, RouletteDevilSessions.settlingDeath(player.getUUID()));
+    }
     @Override public void onInit(MinecraftServer server, ServerPlayer p) {
         super.onInit(server, p);
         refreshPassives(p);
+        p.setInvulnerable(GameUtils.isGameStarted);
         var d = data(p);
         if (d != null) d.startingPlayers = SREGameWorldComponent.KEY.get(p.level()).getStartingPlayerCount();
     }

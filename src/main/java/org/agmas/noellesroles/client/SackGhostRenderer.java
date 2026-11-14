@@ -10,11 +10,10 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
-/** 玩家渲染入口的替代模型；不调用 PlayerRenderer，避免残影递归和装备泄露。 */
+/** 玩家黑雾替身入口；独立保留诡术所用的人形 draw，不泄露装备和名牌。 */
 public final class SackGhostRenderer {
     public static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("noellesroles", "textures/entity/sack_ghost.png");
     private static SackGhostModel model;
-    private static SackGhostHandModel hands;
 
     private SackGhostRenderer() {}
 
@@ -24,43 +23,30 @@ public final class SackGhostRenderer {
         int flags = SackGhostClient.formFlags(player);
         if (flags == 0) return false;
         boolean hidden = (flags & 4) != 0;
-        if (hidden && !SackGhostClient.shouldReveal(player)) return true;
-        if ((flags & 3) == 0 && !SackGhostClient.shouldReveal(player)) return true;
+        boolean reveal = SackGhostClient.shouldReveal(player);
+        if (hidden && !reveal) return true;
+        if ((flags & 3) == 0 && !reveal) return true;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.getCameraEntity() != null && mc.getCameraEntity().distanceToSqr(player) > 64 * 64) return true;
+        double distance = mc.getCameraEntity() == null ? 0 : mc.getCameraEntity().distanceToSqr(player);
+        if (distance > 64 * 64) return true;
         partial = SackGhostClient.visualPartial(partial);
-        float time = SackGhostClient.visualTime(partial);
-        float yaw = Mth.rotLerp(partial, player.yBodyRotO, player.yBodyRot);
-        draw(poses, buffers, light, time, yaw, player.getXRot() * 0.35F, 1, 1, 0, 0.15F);
-        // 扭曲拖影是可裁剪的装饰；主体不受“最少粒子”影响。
-        int trails = SackGhostEffects.detail();
-        if (!hidden && trails > 0) {
-            for (int i = trails; i > 0; i--) {
-                poses.pushPose();
-                double dx = Mth.lerp(partial, player.xo, player.getX()) - player.xOld;
-                double dz = Mth.lerp(partial, player.zo, player.getZ()) - player.zOld;
-                double length = Math.sqrt(dx * dx + dz * dz);
-                double scale = length > 0.001 ? Math.min(0.45 / length, 3) * i : 0;
-                poses.translate(-dx * scale + Mth.sin(time * 0.14F + i) * 0.05F, -i * 0.04F, -dz * scale);
-                draw(poses, buffers, light, time - i * 3, yaw + i * 5, 0, 1 + i * 0.025F,
-                        0.13F / i, 0, 0.2F);
-                poses.popPose();
-            }
-        }
+        int detail = distance > 32 * 32 ? 0 : SackGhostEffects.detail();
+        // 连续、上宽下收的黑雾剪影，不再用公转烟球或硬质人形堆叠主体。
+        // 隐身只向合法法器持有者提交原生红色轮廓，不提交可见雾体。
+        SackGhostMist.body(player, poses, buffers, partial, SackGhostClient.visualTime(partial), detail, hidden);
         return true;
     }
 
     public static void drawFirstPerson(PoseStack poses, MultiBufferSource buffers, float partial) {
-        if (hands == null) hands = new SackGhostHandModel();
         float time = SackGhostClient.visualTime(partial);
+        // 常态鬼影只留屏幕下缘的轻雾，实体鬼手仅在真正施术时出现。
         for (int side : new int[]{-1, 1}) {
-            poses.pushPose();
-            poses.translate(side * 0.48, -0.42 + Mth.sin(time * 0.08F) * 0.025, -0.8);
-            poses.mulPose(Axis.XP.rotationDegrees(-35));
-            poses.mulPose(Axis.ZP.rotationDegrees(side * 18));
-            poses.scale(0.65F, -0.65F, 0.65F);
-            hands.render(poses, buffers, 0.3F, 0.9F);
-            poses.popPose();
+            for (int i = 0; i < 3; i++) {
+                SackGhostMist.viewPuff(poses, buffers, side * (0.72F + i * 0.08F),
+                        -0.62F + i * 0.05F + Mth.sin(time * 0.025F + i) * 0.012F,
+                        -0.96F - i * 0.08F, 0.09F + i * 0.015F, 0.23F - i * 0.02F,
+                        side * 0.22F, 0.14F * (1 - i * 0.1F));
+            }
         }
     }
 
@@ -74,12 +60,12 @@ public final class SackGhostRenderer {
         poses.translate(0, 1.75 * scale + Mth.sin(time * 0.065F) * 0.035, 0);
         poses.mulPose(Axis.YP.rotationDegrees(180 - yaw));
         poses.scale(-scale, -scale, scale);
-        int color = (Mth.clamp((int) (alpha * 255), 0, 255) << 24) | 0xFFFFFF;
+        int color = (Mth.clamp((int) (alpha * 255), 0, 255) << 24) | 0x8C8394;
         model.renderToBuffer(poses, buffers.getBuffer(RenderType.entityTranslucent(TEXTURE)), light,
                 OverlayTexture.NO_OVERLAY, color);
         // 带透明度的拖影不用加法眼层，避免黑暗中堆叠成过亮光斑。
         model.renderEyes(poses, buffers.getBuffer(RenderType.entityTranslucentEmissive(TEXTURE)),
-                (color & 0xFF000000) | 0xFF142B);
+                ((int) ((color >>> 24) * 0.65F) << 24) | 0xB02B39);
         poses.popPose();
     }
 }

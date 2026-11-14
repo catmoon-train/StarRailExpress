@@ -44,6 +44,7 @@ public final class SackGhostItems {
     static final class Round {
         final UUID id = UUID.randomUUID();
         final Set<UUID> issuedGuests = new HashSet<>();
+        final Set<UUID> issuedShrouds = new HashSet<>();
         final Set<UUID> spentArts = new HashSet<>();
         final Map<UUID, RelicState> relics = new HashMap<>();
         final Map<UUID, Long> wards = new HashMap<>();
@@ -57,6 +58,16 @@ public final class SackGhostItems {
         return Math.max(1, SREGameWorldComponent.KEY.get(level).getStartingPlayerCount());
     }
     public static MaChenXuRoleData data(Player player) { return RoleData.getNullable(MaChenXuRoleData.class, player); }
+
+    /** 获得记录留在对局中，不随丢弃、重连或职业数据回溯重置。 */
+    public static boolean hasDrawnShroud(ServerPlayer owner) {
+        return round(owner.serverLevel()).issuedShrouds.contains(owner.getUUID());
+    }
+
+    /** 仅在抽取成功入包后调用；失败不占用唯一的隐身抽取机会。 */
+    public static void recordShroudDraw(ServerPlayer owner) {
+        round(owner.serverLevel()).issuedShrouds.add(owner.getUUID());
+    }
 
     public static void grantWard(ServerPlayer target) {
         round(target.serverLevel()).wards.put(target.getUUID(), now(target.serverLevel()) + SackGhostRules.WARD_DURATION);

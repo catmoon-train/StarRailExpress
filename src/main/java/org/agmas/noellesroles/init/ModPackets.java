@@ -53,6 +53,12 @@ public class ModPackets {
     public static final CustomPacketPayload.Type<ImitatorSwitchSlotC2SPacket> IMITATOR_SWITCH_SLOT_PACKET = ImitatorSwitchSlotC2SPacket.TYPE;
 
     public static void registerPackets() {
+        PayloadTypeRegistry.playC2S().register(
+                org.agmas.noellesroles.packet.StringerLinkC2SPayload.ID,
+                org.agmas.noellesroles.packet.StringerLinkC2SPayload.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(
+                org.agmas.noellesroles.packet.StringerLinkC2SPayload.ID,
+                org.agmas.noellesroles.packet.StringerLinkC2SPayload::receive);
         org.agmas.noellesroles.game.minigame.roulette.RouletteNetworking.register();
         org.agmas.noellesroles.game.minigame.roulette.RouletteSupply.register();
         PayloadTypeRegistry.playC2S().register(RouletteDevilC2SPacket.ID, RouletteDevilC2SPacket.CODEC);

@@ -13,6 +13,9 @@ import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.event.Event;
+import net.minecraft.resources.ResourceLocation;
+import org.agmas.noellesroles.Noellesroles;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -43,6 +46,8 @@ public final class SackGhostActions {
     }
     private static final Map<ServerLevel, Map<UUID, State>> STATES = new IdentityHashMap<>();
     private static boolean registered;
+    private static final ResourceLocation REALM_MELEE = Noellesroles.id("sack_ghost_realm_melee");
+    private static final ResourceLocation REALM_KNIFE = Noellesroles.id("sack_ghost_realm_knife");
     private static java.util.function.BooleanSupplier clientVeilProbe = () -> false;
     private SackGhostActions() {}
 
@@ -208,9 +213,33 @@ public final class SackGhostActions {
         if (states.isEmpty()) STATES.remove(level);
     }
 
+    /** 在普通拳击/武器逻辑之前接管领域近战，成功和被冷却拦截都不退回普通伤害。 */
+    private static InteractionResult realmMelee(Player player, net.minecraft.world.entity.Entity target) {
+        var data = SackGhostItems.data(player);
+        if (data == null || !data.isActiveMaChenXu() || !data.otherworldActive || !(target instanceof Player victim))
+            return InteractionResult.PASS;
+        if (!allowAttack(player) || org.agmas.noellesroles.game.roles.killer.clone_doctor.CloneDoctorSessionManager.blocksDamage(player)
+                || org.agmas.noellesroles.content.effects.StatusAilmentHandler.isIntellectLocked(player)) return InteractionResult.FAIL;
+        if (player instanceof ServerPlayer owner) {
+            if (!io.wifi.starrailexpress.training.TrainingRules.canInteract(owner, target)) return InteractionResult.FAIL;
+            data.markPlayer(victim);
+        }
+        return InteractionResult.SUCCESS;
+    }
+
     public static void register() {
         if (registered) return;
         registered = true;
+        AttackEntityCallback.EVENT.addPhaseOrdering(REALM_MELEE, Event.DEFAULT_PHASE);
+        AttackEntityCallback.EVENT.register(REALM_MELEE, (player, level, hand, target, hit) -> realmMelee(player, target));
+        // 原生刀击先完成全部公共否决，再转为领域命中，不能一刀绕过SAN与归零标记。
+        ItemGameplayEvents.ALLOW_KNIFE_ATTACK.addPhaseOrdering(Event.DEFAULT_PHASE, REALM_KNIFE);
+        ItemGameplayEvents.ALLOW_KNIFE_ATTACK.register(REALM_KNIFE, (player, id) -> {
+            var data = SackGhostItems.data(player);
+            if (data == null || !data.otherworldActive) return true;
+            if (player.serverLevel().getEntity(id) instanceof Player target) data.markPlayer(target);
+            return false;
+        });
         ItemGameplayEvents.ALLOW_GUN_FIRE.register((player, target) -> allowAttack(player));
         ItemGameplayEvents.ALLOW_KNIFE_ATTACK.register((player, target) -> allowAttack(player));
         AttackEntityCallback.EVENT.register((player, level, hand, target, hit) ->

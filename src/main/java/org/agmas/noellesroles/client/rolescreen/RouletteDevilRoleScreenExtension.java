@@ -125,9 +125,14 @@ public final class RouletteDevilRoleScreenExtension extends PlayerListRoleScreen
             }
             if (!active) graphics.fill(getX(), getY(), getX() + 16, getY() + 16, 0x88000000);
             if (isHoveredOrFocused()) {
-                graphics.renderComponentTooltip(Minecraft.getInstance().font, List.of(getMessage(), seedStatus(id),
-                        Component.translatable(KEY + (RouletteDevilClient.isLowSan(id) ? "low_san" : "not_low_san")),
-                        Component.translatable(KEY + (active ? "challenge" : "unavailable"))), mouseX, mouseY);
+                var lines = new java.util.ArrayList<Component>();
+                lines.add(getMessage());
+                lines.add(seedStatus(id));
+                lines.add(Component.translatable(KEY + (RouletteDevilClient.isLowSan(id) ? "low_san" : "not_low_san")));
+                int cooldown = RouletteDevilClient.cooldownSeconds(id);
+                if (cooldown > 0) lines.add(Component.translatable(KEY + "cooldown", cooldown));
+                lines.add(Component.translatable(KEY + (active ? "challenge" : "unavailable")));
+                graphics.renderComponentTooltip(Minecraft.getInstance().font, lines, mouseX, mouseY);
             }
         }
 

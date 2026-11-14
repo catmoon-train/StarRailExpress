@@ -43,9 +43,11 @@ final class RouletteDevilRoom {
             if (y == 0 || y == 7 || Math.abs(x) == 6 || Math.abs(z) == 6)
                 set(floor.offset(x, y, z), (y == 0 && (x + z) % 3 == 0 ? Blocks.POLISHED_DEEPSLATE : Blocks.BLACK_CONCRETE));
         }
-        // 两盏低亮度红烛照亮桌面，屋顶完全遮天。
-        set(floor.offset(-3, 1, 0), Blocks.REDSTONE_TORCH);
-        set(floor.offset(3, 1, 0), Blocks.REDSTONE_TORCH);
+        // 桌边两盏灯笼提供稳定暖光，支座不占座位和桌面操作区域。
+        for (int x : new int[]{-2, 2}) {
+            set(floor.offset(x, 1, 0), Blocks.POLISHED_DEEPSLATE);
+            set(floor.offset(x, 2, 0), Blocks.LANTERN);
+        }
         level.setBlock(table(), ModBlocks.DEVIL_ROULETTE_TABLE.defaultBlockState(), Block.UPDATE_CLIENTS);
         DevilRouletteTable.placeStructure(level, table(), Direction.NORTH);
         set(seat(true), TMMBlocks.BAR_STOOL); set(seat(false), TMMBlocks.BAR_STOOL);

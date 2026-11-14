@@ -30,7 +30,7 @@ public record RouletteView(UUID session, long sequence, RoulettePhase phase, lon
     public static RouletteView idle() {
         return new RouletteView(NONE, 0, RoulettePhase.WAITING, 0, 0, NONE, NONE, NONE, "", "",
                 RouletteBalance.HEALTH, RouletteBalance.HEALTH, 0, 0, 0, false, NONE, null, null, NONE, NONE, -1, 0,
-                List.of(), List.of(), "roulette.hint.sit", 30, NONE);
+                List.of(), List.of(), "roulette.hint.sit", RouletteBalance.TURN_SECONDS, NONE);
     }
     public boolean supersedes(RouletteView old) {
         return session.equals(old.session) ? sequence >= old.sequence : startedAt >= old.startedAt;

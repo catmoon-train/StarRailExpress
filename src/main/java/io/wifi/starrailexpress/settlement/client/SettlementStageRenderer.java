@@ -80,6 +80,8 @@ public final class SettlementStageRenderer {
         Minecraft mc = Minecraft.getInstance();
         ensureModels(mc);
         var snapshot = SettlementClient.snapshot();
+        // 皮肤/物品渲染可能重入客户端任务并清空结算；本帧不能遍历可变名单。
+        var frameActors = List.copyOf(SettlementClient.actors);
         float partial = context.tickCounter().getGameTimeDeltaPartialTick(false);
         double time = SettlementClient.tick() + partial;
         var frame = SettlementClient.presentation(partial);
@@ -107,11 +109,13 @@ public final class SettlementStageRenderer {
         }
         // 快照遍历：循环体内会调用外部皮肤回调，它们可能在遍历期间触发 clear()/arrange() 重入式修改列表，
         // 直接遍历 SettlementClient.actors 会抛 ConcurrentModificationException。拷贝一份可避免崩溃。
-        for (var actor : new ArrayList<>(SettlementClient.actors)) {
+        for (var actor : frameActors) {
+            if (!SettlementClient.isPlaying() || SettlementClient.snapshot() != snapshot) break;
             var info = ClientSkinCache.getCachedPlayerInfo(actor.fact.id());
             if (info == null && mc.getConnection() != null) info = mc.getConnection().getPlayerInfo(actor.fact.id());
             // 败方只以落下的尸体出现；不在舞台上先坐成一排，也不先升到天上。
             PlayerSkin skin = info == null ? DefaultPlayerSkin.get(actor.fact.id()) : info.getSkin();
+            if (!SettlementClient.isPlaying() || SettlementClient.snapshot() != snapshot) break;
             PlayerModel<Player> model = skin.model() == PlayerSkin.Model.SLIM ? slim : wide;
             boolean physical = actor.body.active;
             if (!actor.fact.winner() && !physical) continue;

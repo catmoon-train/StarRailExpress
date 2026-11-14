@@ -14,7 +14,7 @@ import net.minecraft.world.level.Level;
 
 /** 把线上的人拽到面前。没线、线断或面前没地，都不进冷却。 */
 public class ThreadSpoolItem extends Item {
-    public static final int COOLDOWN = 8 * 20;
+    public static final int COOLDOWN = 5 * 20;
 
     public ThreadSpoolItem(Properties properties) {
         super(properties);

@@ -23,10 +23,12 @@ public final class RouletteSupply extends SavedData {
                 new SavedData.Factory<>(RouletteSupply::new, RouletteSupply::load, null), "sre_roulette_supply");
     }
     public int pending(UUID player) { return pending.getOrDefault(player, new ArrayDeque<>()).size(); }
-    public int reserve(ServerPlayer player, int requested) {
-        int amount = RouletteItems.grantCount(RouletteItems.count(player), pending(player.getUUID()), RouletteBalance.supply(requested));
+    public int reserve(ServerPlayer player, int requested) { return reserve(player, requested, false); }
+    public int reserve(ServerPlayer player, int requested, boolean initial) {
+        int adjusted = initial ? RouletteBalance.initialSupply(requested) : RouletteBalance.supply(requested);
+        int amount = RouletteItems.grantCount(RouletteItems.count(player), pending(player.getUUID()), adjusted);
         if (amount == 0) {
-            player.displayClientMessage(Component.translatable("roulette.hint.supply_full"), true);
+            if (adjusted > 0) player.displayClientMessage(Component.translatable("roulette.hint.supply_full"), true);
             return 0;
         }
         ArrayDeque<RouletteItem> queue = pending.computeIfAbsent(player.getUUID(), ignored -> new ArrayDeque<>());

@@ -114,6 +114,7 @@ public final class CommandBlockDirector {
         FarlandsRole.registerSkill();
         WhiteEyesRole.registerSkill();
         StringerRole.registerSkill();
+        FogGuestRole.registerSkill();
         PaperDollRole.registerSkill();
         MustardRole.registerEvents();
         PendulumRole.registerSkill();
@@ -290,6 +291,9 @@ public final class CommandBlockDirector {
             if (GameUtils.isPlayerAliveAndSurvival(player)
                     && WorldModifierComponent.getInstance(player).isModifier(player, NRModifiers.ABNORMAL)) {
                 player.displayClientMessage(text, false);
+                SRENetworkMessageUtils.sendTitleTime(player, 10, 80, 20);
+                SRENetworkMessageUtils.sendSubtitle(player, Component.empty());
+                SRENetworkMessageUtils.sendTitle(player, text);
             }
         }
     }

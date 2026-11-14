@@ -102,8 +102,10 @@ public final class ArsonistEvents {
             if (data == null || !data.arsonMoment) return InteractionResult.PASS;
             if (hand == InteractionHand.MAIN_HAND && player.getMainHandItem().is(SEItems.FLAMETHROWER)) {
                 SEItems.FLAMETHROWER.use(level, player, hand);
+                return InteractionResult.CONSUME;
             }
-            return InteractionResult.CONSUME;
+            // 其他物品继续正常方块交互，避免纵火时刻吞掉开锁器等道具的使用。
+            return InteractionResult.PASS;
         });
     }
 

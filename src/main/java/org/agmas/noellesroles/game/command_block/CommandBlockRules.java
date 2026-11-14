@@ -89,7 +89,7 @@ public final class CommandBlockRules {
     public static List<SRERole> pool() {
         List<SRERole> all = List.of(ModRoles.STONE_MAN, ModRoles.HIM, ModRoles.ERROR_404, ModRoles.DREAM,
                 ModRoles.ENTITY_303, ModRoles.ENTITY_NULL, ModRoles.FARLANDS, ModRoles.WHITE_EYES,
-                ModRoles.STRINGER, ModRoles.PAPER_DOLL, ModRoles.MUSTARD, ModRoles.PENDULUM,
+                ModRoles.STRINGER, ModRoles.FOG_GUEST, ModRoles.PAPER_DOLL, ModRoles.MUSTARD, ModRoles.PENDULUM,
                 ModRoles.CANDLE_SHADE, ModRoles.DREADLORD);
         return all.stream().filter(role -> !SREDisableManager.isRoleDisabled(role)).toList();
     }
