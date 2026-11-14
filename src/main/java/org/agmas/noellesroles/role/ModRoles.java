@@ -2109,7 +2109,8 @@ public class ModRoles {
             .setCanSeeCoin(true)
             .setCanBeRandomedByOtherRoles(false)
             .setDefaultEnableChance(5000)
-            .setDefaultEnableNeededPlayerCount(12);
+            .setDefaultEnableNeededPlayerCount(12)
+            .setCannotAppearInCommandBlockEvent(true);
 
     /**
      * 葬仪角色 - 杀手方中立阵营
