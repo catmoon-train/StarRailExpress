@@ -161,6 +161,19 @@ public class MaChenXuRoleData extends SimpleRoleData {
                 && !SREGameWorldComponent.KEY.get(player.level()).isKillerTeam(target);
     }
 
+    /** 中立与假心情职业没有可削减的真实SAN，改走虚拟血量；真实心情职业仍削SAN。 */
+    public boolean usesVirtualHealth(Player target) {
+        var role = SREGameWorldComponent.KEY.get(player.level()).getAllegianceRole(target);
+        return SackGhostRules.usesVirtualHealth(role != null && role.isNeutrals(),
+                role == null || role.getMoodType() != io.wifi.starrailexpress.api.SRERole.MoodType.REAL);
+    }
+
+    /** 目标当前虚拟血量；仅对走虚拟血量结算的目标有意义。 */
+    private int virtualHealth(Player target) {
+        return org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent.KEY.get(target)
+                .getEffectiveHealth(target.level().getGameTime());
+    }
+
     private void refreshSkills() {
         ghostSkills.clear();
         for (GhostArt art : GhostArt.unlocked(stage)) ghostSkills.add(art.id);
@@ -332,6 +345,23 @@ public class MaChenXuRoleData extends SimpleRoleData {
                 || !player.hasLineOfSight(target) || now() < hitReadyAt || verdicts.contains(target.getUUID())) return false;
         hitReadyAt = now() + SackGhostRules.REALM_ATTACK_INTERVAL;
         breakShroud();
+        if (usesVirtualHealth(target)) {
+            var victim = (ServerPlayer) target;
+            var virtual = org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent.KEY.get(victim);
+            int damage = SackGhostRules.realmAttackVirtual(stage);
+            virtual.hurtWithoutKilling(owner, damage);
+            owner.playNotifySound(SoundEvents.PLAYER_ATTACK_STRONG, SoundSource.PLAYERS, 0.7F, 0.65F);
+            victim.playNotifySound(SoundEvents.WARDEN_HEARTBEAT, SoundSource.HOSTILE, 0.7F, 0.8F);
+            victim.displayClientMessage(Component.translatable("message.noellesroles.sack.realm_hit_virtual", damage), true);
+            if (verdicts.markAfterVirtualHit(victim.getUUID(),
+                    virtual.getEffectiveHealth(victim.level().getGameTime()))) {
+                lease(victim, ModEffects.GHOST_CONDEMNED, otherworldDuration + 10, 0);
+                victim.sendSystemMessage(Component.translatable("message.noellesroles.sack.condemned"));
+            }
+            updateCooldowns();
+            sync();
+            return true;
+        }
         drainSan(target, SackGhostRules.realmAttackSan(stage));
         owner.playNotifySound(SoundEvents.PLAYER_ATTACK_STRONG, SoundSource.PLAYERS, 0.7F, 0.65F);
         if (target instanceof ServerPlayer victim) {
@@ -339,7 +369,6 @@ public class MaChenXuRoleData extends SimpleRoleData {
             victim.displayClientMessage(Component.translatable("message.noellesroles.sack.realm_hit", SackGhostRules.realmAttackSan(stage)), true);
         }
         if (verdicts.markAfterHit(target.getUUID(), SREPlayerMoodComponent.KEY.get(target).getMood())) {
-            lease((ServerPlayer) target, ModEffects.GHOST_CONDEMNED, otherworldDuration + 10, 0);
             target.sendSystemMessage(Component.translatable("message.noellesroles.sack.condemned"));
         }
         updateCooldowns();
@@ -407,7 +436,9 @@ public class MaChenXuRoleData extends SimpleRoleData {
         if (!(player instanceof ServerPlayer owner) || otherworldActive || !canCast() || SackGhostActions.attacksBlocked(owner) || !isEnemy(target)
                 || target.hasEffect(ModEffects.GHOST_WARD) || now() < hitReadyAt
                 || player.distanceToSqr(target) > SackGhostRules.REALM_ATTACK_RANGE * SackGhostRules.REALM_ATTACK_RANGE
-                || !owner.hasLineOfSight(target) || SREPlayerMoodComponent.KEY.get(target).getMood() > 0.15F) return false;
+                || !owner.hasLineOfSight(target)
+                || (usesVirtualHealth(target) ? virtualHealth(target) <= 0
+                : SREPlayerMoodComponent.KEY.get(target).getMood() > 0.15F)) return false;
         hitReadyAt = now() + SackGhostRules.REALM_ATTACK_INTERVAL;
         breakShroud();
         GameUtils.forceKillPlayer(target, true, owner, Noellesroles.id("machenxu"));

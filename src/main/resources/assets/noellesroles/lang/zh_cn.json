@@ -2741,6 +2741,7 @@
   "message.noellesroles.sack.realm_locked": "阶段3才可开启里世界。",
   "message.noellesroles.sack.realm_begins": "里世界降临！前2秒敌人无法移动、使用物品或技能，布袋鬼也无法攻击。",
   "message.noellesroles.sack.realm_hit": "里世界近战：-%s SAN。SAN归零将被打上死亡标记！",
+  "message.noellesroles.sack.realm_hit_virtual": "里世界近战：-%s 点虚拟血量。归零将被打上死亡标记！",
   "message.noellesroles.sack.condemned": "你已被打上死亡标记！里世界自然结束时将被处死。净雨可解标记，镇魂印可破境免死。",
   "message.noellesroles.sack.mark_cleansed": "净雨已清除你的领域死亡标记。",
   "message.noellesroles.sack.realm_ended": "里世界自然结束，未清除的死亡标记开始结算。",

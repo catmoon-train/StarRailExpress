@@ -2677,6 +2677,7 @@
   "message.noellesroles.sack.realm_locked": "The Inner World unlocks at stage 3.",
   "message.noellesroles.sack.realm_begins": "The Inner World descends! Enemies cannot move or use items/skills for 2 seconds; the Sack Ghost cannot attack during this opening.",
   "message.noellesroles.sack.realm_hit": "Realm melee: -%s SAN. Reaching zero SAN applies a death mark!",
+  "message.noellesroles.sack.realm_hit_virtual": "Realm melee: -%s virtual health. Reaching zero applies a death mark!",
   "message.noellesroles.sack.condemned": "You bear a death mark and will be executed when the realm expires naturally! Purifying Rain cleanses marks; Soul Seal breaks realms to save you.",
   "message.noellesroles.sack.mark_cleansed": "Purifying Rain removed your realm death mark.",
   "message.noellesroles.sack.realm_ended": "The Inner World expired naturally. Uncleansed death marks are being resolved.",

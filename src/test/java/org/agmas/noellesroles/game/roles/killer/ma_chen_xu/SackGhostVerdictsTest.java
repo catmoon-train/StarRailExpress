@@ -58,8 +58,8 @@ class SackGhostVerdictsTest {
     @Test void syncRestorationIsBoundedDeduplicatedAndSnapshotsAreImmutable() {
         var verdicts = new SackGhostVerdicts();
         var targets = new ArrayList<UUID>();
-        targets.add(null);
         for (int i = 0; i < 200; i++) targets.add(UUID.randomUUID());
+        targets.add(null);
         verdicts.restore(targets);
         assertEquals(128, verdicts.size());
         assertThrows(UnsupportedOperationException.class, () -> verdicts.snapshot().clear());
@@ -68,5 +68,18 @@ class SackGhostVerdictsTest {
         assertEquals(1, verdicts.size());
         verdicts.clear();
         assertTrue(verdicts.snapshot().isEmpty());
+    }
+
+    @Test void virtualHealthTargetsMarkOnlyAtZeroVirtualHealthAndShareOneMarkSlot() {
+        var verdicts = new SackGhostVerdicts();
+        UUID target = UUID.randomUUID();
+        assertFalse(verdicts.markAfterVirtualHit(target, 4));
+        assertFalse(verdicts.markAfterVirtualHit(target, 1));
+        assertFalse(verdicts.markAfterVirtualHit(null, 0));
+        assertTrue(verdicts.markAfterVirtualHit(target, 0));
+        assertEquals(1, verdicts.size());
+        assertFalse(verdicts.markAfterVirtualHit(target, 0));
+        assertFalse(verdicts.markAfterHit(target, 0));
+        assertEquals(List.of(target), verdicts.finish(true));
     }
 }

@@ -147,6 +147,18 @@ class SackGhostRulesTest {
         assertTrue(SackGhostRules.parasiteShouldExecute(true, Double.NaN));
     }
 
+    @Test void neutralAndFakeSanTargetsUseVirtualHealthWithScaledDamage() {
+        assertFalse(SackGhostRules.usesVirtualHealth(false, false));
+        assertTrue(SackGhostRules.usesVirtualHealth(true, false));
+        assertTrue(SackGhostRules.usesVirtualHealth(false, true));
+        assertTrue(SackGhostRules.usesVirtualHealth(true, true));
+        assertEquals(10, SackGhostRules.realmAttackVirtual(3));
+        assertEquals(14, SackGhostRules.realmAttackVirtual(4));
+        assertEquals(10, SackGhostRules.toVirtualDamage(SackGhostRules.realmAttackSan(3)));
+        assertEquals(14, SackGhostRules.toVirtualDamage(SackGhostRules.realmAttackSan(4)));
+        assertTrue(SackGhostRules.toVirtualDamage(0) > 0);
+    }
+
     @Test void gunWarningsRespectAllegianceAndFifteenBlockBoundary() {
         assertEquals(0, SackGhostRules.gunThreat(false, 1, true, true));
         assertEquals(0, SackGhostRules.gunThreat(true, 1, false, false));
