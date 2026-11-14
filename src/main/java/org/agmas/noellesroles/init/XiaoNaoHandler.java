@@ -50,7 +50,11 @@ public class XiaoNaoHandler {
             if (GameUtils.isPlayerAliveAndSurvival(killer)) {
                 if (isInnocent) {
                     // 复制了好人能力的克隆仍是杀手：双方任一为实际杀手，都不算好人误杀。
-                    if (gameWorldComponent.isKillerTeam(killer) || gameWorldComponent.isKillerTeam(victim)) {
+                    // 注意用「真实阵营」判定：隐藏身份为杀手阵营的职业（魔术师）真实仍是平民，
+                    // 不能在这里被一刀切豁免，必须继续走到下方 canBeXiaonao / canXiaonao，
+                    // 由职业自己决定小脑收不收得到（魔术师：可以被小脑，但不能小脑别人）。
+                    if (gameWorldComponent.isActualKillerTeam(killer.getUUID())
+                            || gameWorldComponent.isActualKillerTeam(victim.getUUID())) {
                         return;
                     }
                     if (gameWorldComponent.isRole(victim, TMMRoles.DISCOVERY_CIVILIAN)) {

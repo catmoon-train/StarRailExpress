@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.role_data.killer;
 
+import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.SRE;
@@ -285,7 +286,7 @@ public class SilencerRoleData extends SimpleRoleData {
 
                 // Check if target is isKillerTeam — skip punishment phase
                 var targetRole = gameWorld.getRole(targetPlayer);
-                boolean targetIsKillerTeam = targetRole != null && (targetRole.isKillerTeam() || targetRole.isKiller());
+                boolean targetIsKillerTeam = RoleTeam.isKillerTeam(targetRole);
 
                 if (useReduced && !targetIsKillerTeam) {
                     // Skip phases 2 and 3, just end
@@ -326,7 +327,7 @@ public class SilencerRoleData extends SimpleRoleData {
             if (phaseTimer <= 0) {
                 // Check if target is isKillerTeam — skip punishment
                 var targetRole = gameWorldComponent.getRole(targetPlayer);
-                boolean targetIsKillerTeam = targetRole != null && (targetRole.isKillerTeam() || targetRole.isKiller());
+                boolean targetIsKillerTeam = RoleTeam.isKillerTeam(targetRole);
                 if (targetIsKillerTeam) {
                     // isKillerTeam 目标不受惩罚，直接结束
                     endSkill();

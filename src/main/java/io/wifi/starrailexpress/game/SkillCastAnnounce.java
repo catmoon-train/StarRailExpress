@@ -17,6 +17,7 @@ package io.wifi.starrailexpress.game;
 
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.RoleSkill;
+import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.network.SkillCastAnnouncePayload;
@@ -106,7 +107,7 @@ public final class SkillCastAnnounce {
         if (role.isHideRoleInfoWhenSeen()) {
             return false;
         }
-        if (!role.isNeutralForInnocent() && (role.isNeutrals() || role.isNeutralForKiller())) {
+        if (!RoleTeam.isNeutralForInnocent(role) && RoleTeam.isNeutral(role)) {
             return false;
         }
         if (role.isKillerTeam()) {

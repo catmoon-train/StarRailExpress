@@ -17,6 +17,7 @@ package org.agmas.noellesroles.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
@@ -116,7 +117,7 @@ public class TripwireTrapEntityRenderer extends EntityRenderer<TripwireTrapEntit
             return false;
         }
         SRERole role = game.getRole(client.player);
-        return role != null && (role.canUseKiller() || role.isNeutralForKiller());
+        return RoleTeam.isKillerTeam(role);
     }
 
     /** 双面四边形。 */

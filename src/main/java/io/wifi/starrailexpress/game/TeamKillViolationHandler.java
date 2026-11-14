@@ -89,7 +89,9 @@ public class TeamKillViolationHandler {
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
         SRERole killerRole = gameWorldComponent.getAllegianceRole(killer);
         SRERole victimRole = gameWorldComponent.getAllegianceRole(victim);
-        if (isInnocent && (gameWorldComponent.isKillerTeam(killer) || gameWorldComponent.isKillerTeam(victim))) {
+        // 用「真实阵营」判定：隐藏身份为杀手阵营的职业（魔术师）真实仍是平民，照常计入误杀违规。
+        if (isInnocent && (gameWorldComponent.isActualKillerTeam(killer.getUUID())
+                || gameWorldComponent.isActualKillerTeam(victim.getUUID()))) {
             return;
         }
 

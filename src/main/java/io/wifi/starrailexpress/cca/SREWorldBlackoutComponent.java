@@ -243,7 +243,8 @@ public class SREWorldBlackoutComponent implements AutoSyncedComponent, ServerTic
                 if (GameUtils.isPlayerAliveAndSurvival(player)) {
                     final var role = SREGameWorldComponent.KEY.get(world).getRole(player);
                     if (role != null) {
-                        if ((!role.canUseKiller() && !role.isNeutralForKiller()
+                        // 关灯盲视按真实杀手阵营：隐藏身份为杀手阵营的职业（魔术师）仍会被关灯致盲。
+                        if ((!role.isActualKillerTeam()
                                 && !role.canIgnoreBlackout(player))) {
                             player.addEffect(
                                     new MobEffectInstance(MobEffects.BLINDNESS, 200, 0, false, false, false));

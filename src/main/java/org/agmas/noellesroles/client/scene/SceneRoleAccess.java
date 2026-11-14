@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.scene;
 
+import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -41,7 +42,7 @@ public final class SceneRoleAccess {
     /** 是否为中立或杀手阵营。 */
     public static boolean isKillerOrNeutral(Player player) {
         SRERole role = roleOf(player);
-        return role != null && (role.canUseKiller() || role.isNeutrals() || role.isNeutralForKiller());
+        return RoleTeam.isKillerTeam(role) || RoleTeam.isNeutral(role);
     }
 
     /**

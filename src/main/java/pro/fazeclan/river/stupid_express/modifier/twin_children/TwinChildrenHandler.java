@@ -526,28 +526,24 @@ public final class TwinChildrenHandler {
     }
 
     /**
-     * 是否属于杀手阵营（杀手 / 杀手方中立）。
+     * 是否属于杀手团队（杀手阵营 + 杀手方中立 + 隐藏身份为杀手团队）。
      *
      * <p>
-     * 判据与「阵营」标准定义 {@link RoleTeam#KILLER}、{@link RoleTeam#NEUTRAL_KILLER} 一致
-     * （{@code !isInnocent() && (canUseKiller() || isNeutralForKiller())}），
+     * 统一走权威阵营枚举 {@link RoleTeam#isKillerTeam(SRERole)}，
      * 这样随机分配层的 {@code setCannotAppliedToTeam} 与本类的兜底判定不会出现分歧。
      */
     static boolean isKillerFaction(@Nullable SRERole role) {
-        return RoleTeam.KILLER.matches(role) || RoleTeam.NEUTRAL_KILLER.matches(role);
+        return RoleTeam.isKillerTeam(role);
     }
 
     static Faction factionOf(SRERole role) {
         if (role == null) {
             return Faction.INDEPENDENT_NEUTRAL;
         }
-        if (role.isNeutrals() && !role.isNeutralForKiller()) {
-            return Faction.INDEPENDENT_NEUTRAL;
-        }
-        if (role.isNeutralForKiller() || SREGameWorldComponent.isKillerTeamRoleStatic(role)) {
+        if (RoleTeam.isKillerTeam(role)) {
             return Faction.KILLER;
         }
-        if (role.isInnocent()) {
+        if (RoleTeam.isInnocentTeam(role)) {
             return Faction.INNOCENT;
         }
         return Faction.INDEPENDENT_NEUTRAL;

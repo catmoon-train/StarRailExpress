@@ -20,6 +20,7 @@ import io.wifi.starrailexpress.api.AreasSettings.BackgroundAmbienceSound;
 import io.wifi.starrailexpress.event.OnGameServerTick;
 import io.wifi.starrailexpress.event.RoleAllegianceEvents;
 import io.wifi.starrailexpress.api.GameMode;
+import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -599,9 +600,9 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         return roleWorldComponent.isRole(uuid, role);
     }
 
+    /** 杀手方中立（权威实现 {@link RoleTeam#isNeutralForKiller(SRERole)}）。 */
     public boolean isNeutralForKiller(@NotNull Player player) {
-        var role = getAllegianceRole(player);
-        return role != null && role.isNeutralForKiller();
+        return RoleTeam.isNeutralForKiller(getAllegianceRole(player));
     }
 
     public boolean canUseKillerFeatures(@NotNull Player player) {
@@ -1071,7 +1072,8 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                 return;
             }
             var role = RoleUtils.getPlayerRole(player);
-            if (role == null || role.isKillerTeam()) {
+            // 黑暗致死按真实阵营：隐藏身份为杀手阵营的职业（魔术师）仍会像平民一样被黑暗吞没。
+            if (role == null || role.isActualKillerTeam()) {
                 if (perPlayerDarknessTime.containsKey(player.getUUID()))
                     perPlayerDarknessTime.remove(player.getUUID());
                 return;
@@ -1370,25 +1372,37 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         return role != null && role.canSeeTeammateKillerRole();
     }
 
+    /**
+     * 杀手团队（判定层，权威实现 {@link RoleTeam#isKillerTeam(SRERole)}）：
+     * 杀手阵营 + 杀手方中立 + 隐藏身份为杀手团队（含杀手阵营）的职业，如魔术师。
+     * <p>胜利结算 / 存活人数统计不适用，请用 {@code canIncreaseSurviving*} 等真实阵营口径。
+     */
     public boolean isKillerTeamRole(SRERole role) {
-        if (role == null)
-            return false;
-        if (role.canUseKiller())
-            return true;
-        if (role.isNeutralForKiller())
-            return true;
-        return false;
+        return RoleTeam.isKillerTeam(role);
+    }
+
+    /**
+     * 杀手团队（真实层，{@link RoleTeam#isKillerTeamReal(SRERole)}）：忽略隐藏身份，
+     * 如魔术师真实仍是平民。
+     * <p>用于小脑（误杀）判定这类必须按真实阵营结算的地方。
+     */
+    public boolean isActualKillerTeamRole(SRERole role) {
+        return RoleTeam.isKillerTeamReal(role);
+    }
+
+    /** 真正的杀手（{@link RoleTeam#isKiller(SRERole)}，不含隐藏身份为杀手阵营的职业）。 */
+    public boolean isKillerRole(SRERole role) {
+        return RoleTeam.isKiller(role);
+    }
+
+    /** 真实层：该玩家是否属于杀手阵营（不看隐藏身份）。 */
+    public boolean isActualKillerTeam(UUID player) {
+        return player != null && isActualKillerTeamRole(this.getAllegianceRole(player));
     }
 
     public boolean isKillerTeam(UUID player) {
         if (player != null) {
-            var role = this.getAllegianceRole(player);
-            if (role == null)
-                return false;
-            if (role.canUseKiller())
-                return true;
-            if (role.isNeutralForKiller())
-                return true;
+            return isKillerTeamRole(this.getAllegianceRole(player));
         }
         return false;
     }
@@ -1414,37 +1428,29 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         return false;
     }
 
+    /** 杀手团队（判定层）：权威实现 {@link RoleTeam#isKillerTeam(SRERole)}。 */
     public static boolean isKillerTeamRoleStatic(SRERole role) {
-        if (role == null)
-            return false;
-        if (role.canUseKiller())
-            return true;
-        if (role.isNeutralForKiller())
-            return true;
-        return false;
+        return RoleTeam.isKillerTeam(role);
+    }
+
+    /** 真正的杀手：权威实现 {@link RoleTeam#isKiller(SRERole)}。 */
+    public static boolean isKillerRoleStatic(SRERole role) {
+        return RoleTeam.isKiller(role);
     }
 
     /**
-     * 好人方阵营判定（{@link #isKillerTeamRoleStatic(SRERole)} 的好人方对偶）。
-     *
-     * <p>包含：平民阵营、以及好人方中立（{@code isNeutralForInnocent}）。
-     * <p>排除：
-     * <ul>
-     * <li>可以使用杀手道具的职业（{@code canUseKiller}）；</li>
-     * <li>杀手阵营与杀手方中立（{@code isKillerTeam} / {@code isNeutralForKiller}）；</li>
-     * <li>其余中立：既非好人方中立、也非杀手方的独立/事件中立一律不算好人方。</li>
-     * </ul>
+     * 好人团队判定（{@link #isKillerTeamRoleStatic(SRERole)} 的对偶），
+     * 权威实现 {@link RoleTeam#isInnocentTeam(SRERole)}：
+     * 乘客阵营 + 警长阵营 + 好人方中立 + 隐藏身份为好人团队（含乘客 / 警长 / 好人方中立）的职业。
+     * <p>与杀手团队互斥（隐藏身份优先）。
      */
     public static boolean isInnocentTeamRoleStatic(SRERole role) {
-        if (role == null)
-            return false;
-        if (role.canUseKiller())
-            return false;
-        if (role.isKillerTeam())
-            return false;
-        if (role.isNeutralForKiller())
-            return false;
-        return role.isInnocent() || role.isNeutralForInnocent();
+        return RoleTeam.isInnocentTeam(role);
+    }
+
+    /** 好人团队（真实层，忽略隐藏身份）：{@link RoleTeam#isInnocentTeamReal(SRERole)}。 */
+    public static boolean isActualInnocentTeamRoleStatic(SRERole role) {
+        return RoleTeam.isInnocentTeamReal(role);
     }
 
     public boolean isInnocentTeam(UUID player) {

@@ -17,6 +17,7 @@ package org.agmas.noellesroles.init.events;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.LooseEndRole;
+import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -332,7 +333,7 @@ public class NRDeathEvents {
             if (!(p instanceof ServerPlayer sp))
                 continue;
             SRERole role = gameWorld.getRole(p);
-            if (role != null && (role.canUseKiller() || role.isNeutralForKiller())) {
+            if (RoleTeam.isKillerTeam(role)) {
                 int r = victim.getRandom().nextInt(100);
                 ItemStack horse;
                 if (r < 40)
@@ -1270,8 +1271,7 @@ public class NRDeathEvents {
                 var targetRole = gameWorldComponent.getRole(player);
                 if (targetRole == null)
                     continue;
-                if (!targetRole.canUseKiller() && !targetRole.isNeutralForKiller()
-                        && !gameWorldComponent.isRole(player, ModRoles.MAGICIAN))
+                if (!RoleTeam.isKillerTeam(targetRole))
                     continue;
                 if (player instanceof ServerPlayer sp) {
                     org.agmas.noellesroles.commands.BroadcastCommand.BroadcastMessage(sp, deathMessage);

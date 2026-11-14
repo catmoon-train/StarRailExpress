@@ -7,6 +7,7 @@
 
 package org.agmas.noellesroles.content.item;
 
+import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -124,6 +125,6 @@ public class NiaoshoushouFamilyPhotoItem extends Item {
     private static boolean isAllowedMember(ServerPlayer target) {
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(target.level());
         SRERole role = gameWorld.getRole(target);
-        return role != null && (role.isKillerTeam() || gameWorld.isRole(target, ModRoles.MAGICIAN));
+        return RoleTeam.isKillerTeam(role);
     }
 }

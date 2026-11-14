@@ -29,6 +29,7 @@ import org.agmas.noellesroles.role.touhou.THLostForestRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import io.wifi.starrailexpress.api.InstinctType;
+import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
@@ -389,7 +390,7 @@ public class InstinctManager {
             return TrueFalseAndCustomResult.custom(Color.WHITE.getRGB());
         if (target_role.canUseKiller()) {
             return TrueFalseAndCustomResult.custom(Color.RED.getRGB());
-        } else if (target_role.isNeutralForKiller()) {
+        } else if (RoleTeam.isKillerTeam(target_role)) {
             return TrueFalseAndCustomResult.custom(Color.ORANGE.getRGB());
         } else {
             if (SREClient.gameComponent.isRole(self, ModRoles.MA_CHEN_XU)) {

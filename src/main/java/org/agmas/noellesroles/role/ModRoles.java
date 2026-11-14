@@ -105,6 +105,7 @@ import io.wifi.starrailexpress.api.ExtraEffectRole;
 import io.wifi.starrailexpress.api.InstinctType;
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.RoleSkill;
+import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.NormalRole.RoleType;
@@ -2943,7 +2944,8 @@ public class ModRoles {
             return false;
         if (role.hasKillerTeammateVisibilityOverride())
             return role.canBeSeenAsKillerTeammate();
-        if (role.isKillerTeam() || role.isKiller() || role.isNeutralForKiller()) {
+        // 杀手团队（含隐藏身份为杀手团队）：权威判定见 RoleTeam.isKillerTeam。
+        if (RoleTeam.isKillerTeam(role) || RoleTeam.isKiller(role)) {
             return true;
         }
         return false;
@@ -3494,12 +3496,16 @@ public class ModRoles {
 
     /**
      * 魔术师角色 - 好人阵营（从模仿者移植）
-     * - 好人阵营 (isInnocent = true)
+     * - 好人阵营 (isInnocent = true)，胜利结算按平民阵营
+     * - 隐藏身份为杀手阵营 (setHiddenTeam(RoleTeam.KILLER))：指挥官频道、葬仪死亡报幕、
+     * 杀手透视红框、杀手同伙列表等「阵营判定」全部按杀手处理，但真实阵营仍是平民
      * - 能捡枪 (setCanPickUpRevolver(true))
      * - 做任务维持san值
      * - 商店购买假枪（175金币）
      * - 商店购买假疯狂模式（250金币）：获得假球棒，穿上疯狂模式外观，不播放音乐
      * - 如果指挥官在场，加入指挥官频道
+     * - 小脑：魔术师<b>可以被小脑</b>（误杀平民时自己会因误杀平民而亡），
+     * 但<b>不能小脑别人</b>（好人误杀魔术师时，凶手不会因误杀平民而亡）
      */
     public static SRERole MAGICIAN = TMMRoles.registerRole(new NormalRole(
             MAGICIAN_ID, // 角色 ID
@@ -3510,7 +3516,14 @@ public class ModRoles {
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不显示计分板
     )).setCanPickUpRevolver(true).setCanSeeCoin(true)
-            .setNeutralForKiller(true).setCanSeeTeammateKillerRole(false).setNeutrals(false)
+            // 隐藏自己的身份为杀手阵营：判定层（频道/报幕/透视/同伙）按杀手处理，胜利结算仍是平民。
+            // 不要改用 setNeutralForKiller(true)：那会真的把魔术师归入中立/杀手方，影响小脑等真实阵营判定。
+            .setHiddenTeam(RoleTeam.KILLER)
+            .setCanSeeTeammateKillerRole(false).setNeutrals(false)
+            // 小脑（误杀）：true = 豁免，false = 不豁免（语义见 SRERole#canBeXiaonao / #canXiaonao）。
+            // - 不能小脑别人：好人误杀魔术师时凶手不受小脑惩罚（不把别人拖下水）。
+            // - 可以被小脑：魔术师误杀平民时同样会因误杀平民而亡。
+            .setCanBeXiaonao(true).setCanXiaonao(false)
             .setKillerTeammateScreenVisibility(true, true) // 其它职业的 screen 能看到魔术师的杀手同伙
             .setCanBeRandomedByOtherRoles(false)
             .setDefaultEnableChance(2500)

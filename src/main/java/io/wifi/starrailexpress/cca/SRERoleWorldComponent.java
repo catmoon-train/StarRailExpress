@@ -313,13 +313,7 @@ public class SRERoleWorldComponent implements AutoSyncedComponent, ServerTicking
     }
 
     public boolean isKillerTeamRole(SRERole role) {
-        if (role == null)
-            return false;
-        if (role.canUseKiller())
-            return true;
-        if (role.isNeutralForKiller())
-            return true;
-        return false;
+        return SREGameWorldComponent.isKillerTeamRoleStatic(role);
     }
 
     public boolean isKillerTeam(Player player) {
@@ -327,13 +321,12 @@ public class SRERoleWorldComponent implements AutoSyncedComponent, ServerTicking
     }
 
     public static boolean isKillerTeamRoleStatic(SRERole role) {
-        if (role == null)
-            return false;
-        if (role.canUseKiller())
-            return true;
-        if (role.isNeutralForKiller())
-            return true;
-        return false;
+        return SREGameWorldComponent.isKillerTeamRoleStatic(role);
+    }
+
+    /** 好人团队（判定层）：{@link io.wifi.starrailexpress.api.RoleTeam#isInnocentTeam(SRERole)}。 */
+    public static boolean isInnocentTeamRoleStatic(SRERole role) {
+        return SREGameWorldComponent.isInnocentTeamRoleStatic(role);
     }
 
     @Override

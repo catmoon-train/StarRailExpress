@@ -17,6 +17,7 @@ package org.agmas.noellesroles.game.roles.neutral.commander;
 
 import de.maxhenkel.voicechat.api.VoicechatConnection;
 import de.maxhenkel.voicechat.api.events.MicrophonePacketEvent;
+import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -30,14 +31,12 @@ import org.agmas.noellesroles.role.ModRoles;
 
 public class CommanderHandler {
 
+    /**
+     * 是否能使用杀手频道。
+     * <p>判定层口径：拥有杀手能力、杀手方中立、以及隐藏身份为杀手阵营的职业（魔术师）都算。
+     */
     public static boolean canUseKillerChannel(SRERole role) {
-        if (role == null)
-            return false;
-        if (role.isNeutralForKiller())
-            return true;
-        if (role.canUseKiller())
-            return true;
-        return false;
+        return RoleTeam.isKillerTeam(role);
     }
 
     public static void vcparanoidEvent(SREGameWorldComponent gameWorldComponent, ServerPlayer player,

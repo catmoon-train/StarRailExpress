@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 package io.wifi.starrailexpress.game;
 
+import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.ExtraSlotComponent;
@@ -135,15 +136,24 @@ final class GamePlayerState {
                 player.getYRot(), player.getXRot());
     }
 
+    /**
+     * 击杀是否属于「不同阵营」（用于击杀不同阵营的进度结算）。
+     * <p>
+     * 全部走权威的真实阵营 / 真实团队判定 {@link RoleTeam}，<b>不看隐藏身份</b>：
+     * 隐藏身份为杀手阵营的职业（魔术师）真实仍是平民，击杀杀手算作击杀不同阵营。
+     */
     static boolean differentTeam(SRERole role1, SRERole role2) {
         if (role1 == null || role2 == null) return false;
-        if (role1.isVigilanteTeam() && role2.isVigilanteTeam()) return false;
-        if (role1.isCanUseKiller() && role2.isCanUseKiller()) return false;
-        if (role1.isNeutralForKiller() && role2.isCanUseKiller()) return false;
-        if (role1.isCanUseKiller() && role2.isNeutralForKiller()) return false;
-        if (role1.isNeutralForKiller() && role2.isNeutralForKiller()) return false;
-        if (role1.isInnocent() && role2.isInnocent()) return false;
-        return true;
+        // 警长 ↔ 警长
+        if (RoleTeam.isSheriff(role1) && RoleTeam.isSheriff(role2)) return false;
+        // 杀手 ↔ 杀手 / 杀手方中立 / 拥有杀手能力的克隆
+        if (RoleTeam.isKillerTeamReal(role1) && RoleTeam.isKillerTeamReal(role2)) return false;
+        // 同一真实阵营（平民 ↔ 平民、同一中立细分等）
+        RoleTeam camp1 = RoleTeam.of(role1);
+        RoleTeam camp2 = RoleTeam.of(role2);
+        if (camp1 != null && camp1 == camp2) return false;
+        // 好人阵营本体（平民 ↔ 警长）算同阵营；其余一律算不同阵营
+        return !(RoleTeam.isInnocentCamp(role1) && RoleTeam.isInnocentCamp(role2));
     }
 
     static boolean differentTeam(Player player1, Player player2) {

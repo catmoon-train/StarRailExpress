@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.game.fake_steve;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
@@ -1423,7 +1424,7 @@ public class FakeSteveAi {
 
     private static boolean isKillerNeutral(ServerLevel level, ServerPlayer player) {
         SRERole role = SREGameWorldComponent.KEY.get(level).getRole(player);
-        return role != null && role.isNeutralForKiller();
+        return RoleTeam.isKillerTeam(role);
     }
 
     private static void beginStare(FakeSteveAgentState state, ServerPlayer target) {

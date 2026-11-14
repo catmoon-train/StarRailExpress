@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.role_data.killer;
 
+import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -613,7 +614,7 @@ public class UndeadLordRoleData extends SimpleRoleData {
         if (role == null) {
             return true;
         }
-        return !(role.isKillerTeam() || role.isKiller());
+        return !RoleTeam.isKillerTeam(role);
     }
 
     // ==================== 序列化 ====================
