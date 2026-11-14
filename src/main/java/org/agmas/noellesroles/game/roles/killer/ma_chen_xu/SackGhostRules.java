@@ -3,7 +3,10 @@ package org.agmas.noellesroles.game.roles.killer.ma_chen_xu;
 /** 布袋鬼与诡客的纯数值规则；不初始化物品或世界注册表。 */
 public final class SackGhostRules {
     public static final int MAX_ART_ITEMS = 4;
-    public static final int CAST_INTERVAL = 10 * 20;
+    public static final int CAST_INTERVAL = 3 * 20;
+    public static final int REALM_CAST_INTERVAL = 10 * 20;
+
+    public static int castInterval(boolean realmActive) { return realmActive ? REALM_CAST_INTERVAL : CAST_INTERVAL; }
     public static final int REALM_COOLDOWN = 120 * 20;
     public static final int REALM_ATTACK_INTERVAL = 20;
     public static final double REALM_ATTACK_RANGE = 3.3;
@@ -38,9 +41,9 @@ public final class SackGhostRules {
     public static int stageThreshold(int stage, int initialPlayers) {
         int n = Math.clamp(initialPlayers, 1, 128);
         return switch (stage) {
-            case 2 -> Math.max(90, 8 * n);
-            case 3 -> Math.max(220, 18 * n);
-            case 4 -> Math.max(400, 32 * n);
+            case 2 -> Math.max(180, 16 * n);
+            case 3 -> Math.max(440, 36 * n);
+            case 4 -> Math.max(800, 64 * n);
             default -> 0;
         };
     }

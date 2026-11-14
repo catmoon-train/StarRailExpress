@@ -87,7 +87,7 @@
   "map_intro.block.noellesroles.trash_can.desc": "玩家手持物品右鍵垃圾桶時，會按配置直接清除手中物品。創造模式玩家空手右鍵可配置銷毀白名單和黑名單。",
   "map_intro.block.noellesroles.vending_machines.desc": "自動售貨機可配置商品，玩家可與其交互購買地圖內補給。",
   "map_intro.block.noellesroles.lottery_machine.desc": "抽獎機可配置獎池和權重，用於地圖內獲得隨機獎勵。",
-  "map_intro.block.noellesroles.devil_roulette_table.desc": "兩名玩家坐在賭桌相對兩側的座位上，右鍵桌面中央報名，雙方就緒後再次點擊中央開始。輪到你時，右鍵靠近自己的左側區域向自己開槍，中間區域使用手持輪盤道具，右側區域向對手開槍；空手右鍵中間區域查看說明。普通玩家初始3點生命，輪盤惡魔為4點，每次補給數量減少30%並四捨五入；自射空彈繼續操作，其餘開槍交棒（手銬可跳過）；使用道具不結束回合，離座判負。",
+  "map_intro.block.noellesroles.devil_roulette_table.desc": "兩名玩家坐在賭桌相對兩側的座位上，右鍵桌面中央報名，雙方就緒後再次點擊中央開始。輪到你時，右鍵靠近自己的左側區域向自己開槍，中間區域使用手持輪盤道具，右側區域向對手開槍；空手右鍵中間區域查看說明。普通玩家初始3點生命，輪盤惡魔為4點，每次操作限時固定17秒，逾時自動向自己開槍。補給按原數量的70%四捨五入；僅初始補給再減1件，最低為0，普通玩家初始0–3件，惡魔保留額外1件初始獎勵，初始1–4件。後續雙方均補給1–4件，不再減1或額外獎勵；自射空彈繼續操作，其餘開槍交棒（手銬可跳過）；使用道具不結束回合，離座判負。",
   "map_intro.block.noellesroles.supply_crate.desc": "物資箱用於地圖補給，可配置並週期性生成特定物資。",
   "map_intro.block.noellesroles.kill_block.desc": "碰到擊殺方塊的玩家立刻死亡，可含水。",
   "map_intro.block.noellesroles.kill_block_panel.desc": "碰到擊殺方塊鑲板的玩家立刻死亡，可含水。",

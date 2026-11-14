@@ -28,11 +28,15 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * 里世界的纯渲染符纹与薄雾：绝不替换、隐藏或扫描方块，不创建假实体。
- * 固定 12 个复用槽位，每 8 tick 只重定位一个；距离与视锥裁剪后再提交顶点。
+ * 里世界的局部客户端方块换肤、符纹与薄雾；永不修改服务端世界。
+ * 方块只在 tick 内按预算处理；固定 12 个符纹槽位经距离与视锥裁剪后提交顶点。
  */
 public class OtherworldSceneManager {
     public static final OtherworldSceneManager INSTANCE = new OtherworldSceneManager();
+
+    static {
+        SackGhostBlockChanges.registerLifecycle();
+    }
 
     private static final int MAX_GLYPHS = 12;
     private static final int RELOCATE_INTERVAL = 8;
@@ -71,25 +75,28 @@ public class OtherworldSceneManager {
         if (mc.level == null || mc.player == null) return;
         level = mc.level;
         active = true;
+        SackGhostBlockChanges.INSTANCE.activate(level);
         for (int i = 0; i < glyphs.length; i++) relocate(mc, i);
     }
 
-    /** 纯渲染数据可以立即丢弃，不再有分批还原和错位的碰撞体。 */
+    /** 普通退出分批还原方块；独立清理 tick 不受暂停和时停影响。 */
     public void deactivate() {
-        reset();
+        SackGhostBlockChanges.INSTANCE.deactivate();
+        clearGlyphs();
     }
 
     public void tick() {
         Minecraft mc = Minecraft.getInstance();
         if (level != mc.level || mc.level == null || mc.player == null
                 || !OtherworldShader.isAnyOtherworldActive()) {
-            reset();
+            deactivate();
             return;
         }
-        if (!active || mc.isPaused() || lastPlayerTick == mc.player.tickCount) return;
+        if (!active || !SackGhostClient.clockRunning() || lastPlayerTick == mc.player.tickCount) return;
         // 兼容旧初始化代码仍调用 tick 的情况，同一玩家 tick 只推进一次。
         lastPlayerTick = mc.player.tickCount;
         ticks++;
+        SackGhostBlockChanges.INSTANCE.tick(mc);
         for (Glyph glyph : glyphs) glyph.age++;
         if (ticks % RELOCATE_INTERVAL == 0) {
             relocate(mc, nextGlyph);
@@ -122,7 +129,7 @@ public class OtherworldSceneManager {
             case MINIMAL -> 0;
         };
         if (limit == 0) return;
-        float partial = context.tickCounter().getGameTimeDeltaPartialTick(false);
+        float partial = SackGhostClient.visualPartial(context.tickCounter().getGameTimeDeltaPartialTick(false));
         float pressure = SackGhostRealmFx.pressure(partial);
         float strength = SackGhostRealmFx.strength(partial);
         Vec3 camera = context.camera().getPosition();
@@ -186,12 +193,17 @@ public class OtherworldSceneManager {
                 .setOverlay(OverlayTexture.NO_OVERLAY).setLight(0xF000F0).setNormal(pose, 0.0F, 0.0F, 1.0F);
     }
 
-    /** 兼容旧调用方：现在只清理渲染数据，不向世界写回任何方块。 */
+    /** 生命周期强制清理：只还原当前世界中仍归本地替换持有的方块。 */
     public void forceRestore() {
         reset();
     }
 
     public void reset() {
+        SackGhostBlockChanges.INSTANCE.forceRestore();
+        clearGlyphs();
+    }
+
+    private void clearGlyphs() {
         active = false;
         level = null;
         ticks = 0;
@@ -208,7 +220,7 @@ public class OtherworldSceneManager {
     }
 
     public boolean isRestoring() {
-        return false;
+        return SackGhostBlockChanges.INSTANCE.isRestoring();
     }
 
     private static final class Glyph {

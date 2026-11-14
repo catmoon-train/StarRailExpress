@@ -1569,6 +1569,12 @@ public class ModItems {
     public static final Item EYE_NEEDLE = register(
             new org.agmas.noellesroles.game.command_block.item.EyeNeedleItem(new Item.Properties().stacksTo(1)),
             "eye_needle", ROLE_ITEMS_GROUP, WEAPONS_GROUP);
+    public static final Item THREAD_BALL = register(
+            new org.agmas.noellesroles.game.command_block.item.ThreadBallItem(new Item.Properties().stacksTo(16)),
+            "thread_ball", ROLE_ITEMS_GROUP, WEAPONS_GROUP);
+    public static final Item MINUTE_NEEDLE = register(
+            new org.agmas.noellesroles.game.command_block.item.MinuteNeedleItem(new Item.Properties().stacksTo(16)),
+            "minute_needle", ROLE_ITEMS_GROUP, WEAPONS_GROUP);
     public static final Item THREAD_SPOOL = register(
             new org.agmas.noellesroles.game.command_block.item.ThreadSpoolItem(new Item.Properties().stacksTo(1)),
             "thread_spool", ROLE_ITEMS_GROUP, WEAPONS_GROUP);

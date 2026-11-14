@@ -6,6 +6,7 @@ import com.mojang.math.Axis;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.client.particle.CustomParticleHandlers;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.Minecraft;
@@ -25,9 +26,9 @@ import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.List;
 
-/** 通用包驱动的本地网格演出；不创建实体，不发包，不以烟雾代替鬼形。 */
+/** 通用包驱动的本地网格演出；不创建实体，不发包，最少档也保留关键命中/施术反馈。 */
 public final class SackGhostEffects {
-    private enum Kind { VEIL, PUSH, EFFIGY, ECHO_DEPART, ECHO_RETURN, WAIL, PARASITE, SEIZE, ESCAPE, REALM_DEPART, REALM_RETURN }
+    private enum Kind { VEIL, PUSH, EFFIGY, ECHO_DEPART, ECHO_RETURN, WAIL, PARASITE, SEIZE, ESCAPE, REALM_DEPART, REALM_RETURN, REALM_HIT }
     private static final int MAX_EFFECTS = 48;
     private static final List<Effect> EFFECTS = new ArrayList<>();
     private static final RenderType INK = RenderType.entityTranslucent(SackGhostRenderer.TEXTURE);
@@ -42,17 +43,24 @@ public final class SackGhostEffects {
         final int owner;
         final int target;
         final float radius;
+        final Entity sourceEntity;
+        final Entity targetEntity;
+        final boolean marked;
         final SackGhostEffigyRenderer.Echo echo;
         int age;
 
-        Effect(Kind kind, Vec3 origin, int duration, int owner, int target, float radius, Player player) {
+        Effect(Kind kind, Vec3 origin, int duration, int owner, int target, float radius, boolean marked,
+               Entity sourceEntity, Entity targetEntity) {
             this.kind = kind;
             this.origin = origin;
             this.duration = duration;
             this.owner = owner;
             this.target = target;
             this.radius = radius;
-            echo = SackGhostEffigyRenderer.snapshot(player);
+            this.marked = marked;
+            this.sourceEntity = sourceEntity;
+            this.targetEntity = targetEntity;
+            echo = SackGhostEffigyRenderer.snapshot(sourceEntity instanceof Player player ? player : null);
         }
     }
 
@@ -66,6 +74,7 @@ public final class SackGhostEffects {
             CustomParticleHandlers.register(id, (level, origin, duration, params) -> receive(level, kind, origin, duration, params));
         }
         WorldRenderEvents.AFTER_ENTITIES.register(SackGhostEffects::render);
+        HudRenderCallback.EVENT.register((gui, delta) -> renderFeedback(gui, delta.getGameTimeDeltaPartialTick(false)));
     }
 
     private static int id(float[] params, int index) {
@@ -82,21 +91,25 @@ public final class SackGhostEffects {
         if (world != level) { clear(); world = level; }
         if (mc.player == null || !mc.player.isAlive() || !SackGhostClient.playable()) return;
         int owner = switch (kind) {
-            case PUSH, PARASITE, SEIZE -> id(params, 1);
+            case PUSH, PARASITE, SEIZE, REALM_HIT -> id(params, 1);
             case VEIL -> -1;
             default -> id(params, 0);
         };
         int target = switch (kind) {
-            case PARASITE, SEIZE -> id(params, 0);
+            case PARASITE, SEIZE, REALM_HIT -> id(params, 0);
             case EFFIGY -> id(params, 1);
             default -> -1;
         };
+        // 先撤销再做视距判断：持续型 0 时长包不能因目标离开视距而失效。
+        if (duration <= 0) {
+            EFFECTS.removeIf(effect -> effect.kind == kind && effect.owner == owner
+                    && (target < 0 || effect.target == target));
+            return;
+        }
         if (kind == Kind.PARASITE || kind == Kind.WAIL || kind == Kind.ECHO_DEPART || kind == Kind.ESCAPE) {
             EFFECTS.removeIf(effect -> effect.kind == kind && effect.owner == owner && (kind != Kind.PARASITE || effect.target == target));
         }
         if (kind == Kind.ECHO_RETURN) EFFECTS.removeIf(effect -> effect.kind == Kind.ECHO_DEPART && effect.owner == owner);
-        // 0 时长寄生包必须先处理，即使目标已在视距外，也必须撤销旧附着。
-        if (duration <= 0) return;
         if (mc.gameRenderer.getMainCamera().getPosition().distanceToSqr(origin) > 64 * 64) return;
         int max = switch (kind) {
             case PARASITE -> 300;
@@ -105,6 +118,7 @@ public final class SackGhostEffects {
             case WAIL -> 100;
             case VEIL -> 60;
             case SEIZE -> 10;
+            case REALM_HIT -> 20;
             default -> 25;
         };
         float radius = switch (kind) {
@@ -114,17 +128,28 @@ public final class SackGhostEffects {
             case ECHO_RETURN -> radius(params, 1, 4);
             default -> 2;
         };
-        if (EFFECTS.size() >= MAX_EFFECTS) EFFECTS.removeFirst();
         Entity source = level.getEntity(owner);
-        EFFECTS.add(new Effect(kind, origin, Math.min(duration, max), owner, target, radius, source instanceof Player p ? p : null));
+        boolean marked = kind == Kind.REALM_HIT && id(params, 2) == 1;
+        Entity victim = level.getEntity(target);
+        if (dead(source) || dead(victim)) return;
+        if (EFFECTS.size() >= MAX_EFFECTS) EFFECTS.removeFirst();
+        EFFECTS.add(new Effect(kind, origin, Math.min(duration, max), owner, target, radius, marked, source, victim));
+        // 映射为 LivingEntity.animateHurt(float)。仅远端实体变红，不扣血，也不给本地受害者施加相机晃动。
+        if (kind == Kind.REALM_HIT && victim instanceof LivingEntity living && victim != mc.player) {
+            float direction = source == null ? 0 : (float) (Math.atan2(source.getZ() - victim.getZ(), source.getX() - victim.getX()) * Mth.RAD_TO_DEG - 90);
+            living.animateHurt(direction);
+        }
     }
 
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
         if (world != mc.level) { clear(); world = mc.level; }
-        if (world == null) return;
+        if (world == null || !SackGhostClient.playable() || mc.player == null
+                || !GameUtils.isPlayerAliveAndSurvival(mc.player)) { clear(); return; }
+        SackGhostMist.tick();
         // 死亡/实体消失清理不依赖时钟；暂停期间不推进任何演出寿命。
-        EFFECTS.removeIf(effect -> dead(world.getEntity(effect.owner)) || dead(world.getEntity(effect.target))
+        EFFECTS.removeIf(effect -> dead(effect.sourceEntity) || dead(effect.targetEntity)
+                || dead(world.getEntity(effect.owner)) || dead(world.getEntity(effect.target))
                 || (effect.age > 10 && ((effect.owner >= 0 && world.getEntity(effect.owner) == null)
                 || (followsTarget(effect.kind) && world.getEntity(effect.target) == null))));
         if (!SackGhostClient.clockRunning()) return;
@@ -137,7 +162,7 @@ public final class SackGhostEffects {
     }
 
     private static boolean followsOwner(Kind kind) { return kind == Kind.WAIL || kind == Kind.ESCAPE; }
-    private static boolean followsTarget(Kind kind) { return kind == Kind.PARASITE || kind == Kind.SEIZE; }
+    private static boolean followsTarget(Kind kind) { return kind == Kind.PARASITE || kind == Kind.SEIZE || kind == Kind.REALM_HIT; }
 
     public static int detail() {
         return switch (Minecraft.getInstance().options.particles().get()) {
@@ -156,26 +181,27 @@ public final class SackGhostEffects {
         if (world == null || world != mc.level || !SackGhostClient.playable() || EFFECTS.isEmpty()
                 || context.matrixStack() == null || context.consumers() == null) return;
         int detail = detail();
-        int budget = detail == 2 ? MAX_EFFECTS : detail == 1 ? 24 : 8;
+        int budget = detail == 2 ? MAX_EFFECTS : detail == 1 ? 24 : 12;
         float partial = SackGhostClient.visualPartial(context.tickCounter().getGameTimeDeltaPartialTick(false));
         Vec3 camera = context.camera().getPosition();
         PoseStack poses = context.matrixStack();
-        for (Effect effect : EFFECTS) {
-            if (budget <= 0) break;
+        // 优先最新事件，避免最少档的长时附着占满预算而吞掉刚发生的命中。
+        for (int index = EFFECTS.size() - 1; index >= 0 && budget > 0; index--) {
+            Effect effect = EFFECTS.get(index);
             Entity attached = world.getEntity(followsTarget(effect.kind) ? effect.target : effect.owner);
             Vec3 center = (followsOwner(effect.kind) || followsTarget(effect.kind)) && attached != null ? position(attached, partial) : effect.origin;
             double distance = camera.distanceToSqr(center);
-            int range = detail == 2 ? 48 : detail == 1 ? 32 : 20;
+            int range = effect.kind == Kind.REALM_HIT || effect.kind == Kind.PUSH ? 48 : detail == 2 ? 48 : detail == 1 ? 32 : 20;
             if (distance > range * range || (context.frustum() != null && !context.frustum().isVisible(new AABB(center, center).inflate(effect.radius + 3)))) continue;
-            // 最少档只保留关键技能轮廓，不画鬼群、碎布和多层音浪。
-            if (detail == 0 && (effect.kind == Kind.ESCAPE || effect.kind == Kind.REALM_DEPART || effect.kind == Kind.REALM_RETURN)) continue;
+            // 粒子设置只减少细节，不取消技能主体。
             budget--;
             float age = effect.age + partial;
             float progress = Mth.clamp(age / effect.duration, 0, 1);
             float fade = Math.min(1, age / 3) * Math.min(1, (effect.duration - age) / 5);
             poses.pushPose();
             poses.translate(center.x - camera.x, center.y - camera.y, center.z - camera.z);
-            renderEffect(effect, attached, poses, context.consumers(), age, progress, fade, detail, partial);
+            int effectDetail = distance > 24 * 24 ? 0 : detail;
+            renderEffect(effect, attached, poses, context.consumers(), age, progress, fade, effectDetail, partial);
             poses.popPose();
         }
     }
@@ -185,19 +211,8 @@ public final class SackGhostEffects {
         float time = SackGhostClient.visualTime(partial);
         float yaw = attached instanceof LivingEntity living ? Mth.rotLerp(partial, living.yBodyRotO, living.yBodyRot) : effect.echo.yaw();
         switch (effect.kind) {
-            case PUSH -> {
-                float radius = effect.radius * (1 - (1 - progress) * (1 - progress));
-                groundFace(poses, buffers, Math.min(3.8F, effect.radius * 0.65F), fade);
-                ring(poses, buffers, radius, 0.12F, 0.65F * (1 - progress), fade * 0.7F, detail);
-                if (detail > 0) for (int i = 0; i < detail * 3; i++) {
-                    float angle = i * Mth.TWO_PI / (detail * 3) + progress * 0.6F;
-                    poses.pushPose();
-                    poses.translate(Mth.cos(angle) * radius, 0, Mth.sin(angle) * radius);
-                    SackGhostRenderer.draw(poses, buffers, 0x900090, time, -angle * Mth.RAD_TO_DEG, -20,
-                            0.65F, fade * 0.6F, 0.5F, 0.9F);
-                    poses.popPose();
-                }
-            }
+            case PUSH -> push(effect, poses, buffers, age, progress, fade, detail);
+            case REALM_HIT -> realmHit(effect, attached, poses, buffers, age, progress, fade, detail);
             case VEIL -> {
                 ring(poses, buffers, effect.radius, 0.04F, 0.15F, fade * 0.5F, detail);
                 if (detail > 0) for (int i = 0; i < detail * 2; i++) {
@@ -275,9 +290,121 @@ public final class SackGhostEffects {
                 float rise = effect.kind == Kind.REALM_RETURN ? 1 - progress : progress;
                 ring(poses, buffers, 0.4F + 2.3F * progress, 0.04F, 0.25F, fade * 0.65F, detail);
                 poses.translate(0, rise * 0.5, 0);
-                SackGhostRenderer.draw(poses, buffers, 0x900090, time, yaw, -10, 1, fade * 0.8F, 0.3F, 0.4F);
+                SackGhostMist.cloud(poses, buffers, time, 0.85F + rise * 0.25F, fade * 0.8F, detail);
             }
         }
+    }
+
+    /** 地面鬼面、向外扫过的风壁与雾团都保留最少档轮廓；不模拟服务端击退。 */
+    private static void push(Effect effect, PoseStack poses, MultiBufferSource buffers,
+                             float age, float progress, float fade, int detail) {
+        float radius = Math.max(0.4F, effect.radius * (1 - (1 - progress) * (1 - progress)));
+        groundFace(poses, buffers, Math.min(3.8F, effect.radius * 0.65F), fade * (1 - progress * 0.65F));
+        ring(poses, buffers, radius, 0.08F, 0.3F + (1 - progress) * 0.95F, fade * 0.85F, detail);
+        if (detail > 0) ring(poses, buffers, radius * 0.84F, 0.13F, 0.28F, fade * 0.4F, detail);
+        int count = 12 + detail * 8;
+        VertexConsumer out = buffers.getBuffer(INK);
+        for (int i = 0; i < count; i++) {
+            float angle = i * Mth.TWO_PI / count;
+            float c = Mth.cos(angle), s = Mth.sin(angle);
+            float front = radius * (0.88F + i % 4 * 0.04F);
+            float tail = Math.max(0.15F, front - 1.15F);
+            float width = 0.07F + (1 - progress) * 0.06F;
+            quad(out, poses.last(), c * tail - s * width, 0.07F, s * tail + c * width,
+                    c * front - s * width, 0.07F, s * front + c * width,
+                    c * front + s * width, 0.07F, s * front - c * width,
+                    c * tail + s * width, 0.07F, s * tail - c * width, 0x651C31, fade * 0.75F);
+            SackGhostMist.puff(poses, buffers, c * front, 0.35F + Mth.sin(age * 0.16F + i) * 0.12F,
+                    s * front, 0.43F + progress * 0.25F, 0.5F + (1 - progress) * 0.24F,
+                    angle + age * 0.035F, fade * 0.72F, i % 3 == 0 ? 0x28101A : 0x0B0810);
+            if (detail > 0) SackGhostMist.puff(poses, buffers, c * tail, 0.18F + progress * 0.35F,
+                    s * tail, 0.34F, 0.28F, -angle, fade * 0.4F, 0x1B1220);
+        }
+    }
+
+    /** 三道鬼爪、黑红冲击和向外碎裂的魂影，所有观察者均能看到，不修改原版血量。 */
+    private static void realmHit(Effect effect, Entity target, PoseStack poses, MultiBufferSource buffers,
+                                 float age, float progress, float fade, int detail) {
+        float strength = effect.marked ? 1.2F : 1;
+        float impact = Math.min(1, (age + 1) / 2) * Math.min(1, (effect.duration - age) / 5);
+        poses.pushPose();
+        poses.translate(0, target == null ? 1 : target.getBbHeight() * 0.57F, 0);
+        int clouds = 6 + detail * 4;
+        for (int i = 0; i < clouds; i++) {
+            float angle = i * 2.39996F;
+            float radius = (0.16F + progress * 0.85F) * strength;
+            SackGhostMist.puff(poses, buffers, Mth.cos(angle) * radius,
+                    Mth.sin(angle * 1.7F) * radius * 0.55F, Mth.sin(angle) * radius,
+                    (0.32F + progress * 0.12F) * strength, 0.4F, angle + age * 0.035F,
+                    impact * (1 - progress) * 0.85F, i % 3 == 0 ? 0x64192E : 0x09060D);
+        }
+        poses.mulPose(Minecraft.getInstance().getEntityRenderDispatcher().cameraOrientation());
+        VertexConsumer out = buffers.getBuffer(INK);
+        float swipe = Math.min(1, (age + 1) / 3);
+        for (int i = -1; i <= 1; i++) {
+            float x = i * 0.22F, y = i * 0.07F;
+            float half = 0.38F * strength * swipe;
+            float endX = x + half * 0.7F, endY = y - half;
+            float startX = x - half * 0.7F, startY = y + half;
+            quad(out, poses.last(), startX - 0.065F, startY, 0.05F, startX + 0.065F, startY, 0.05F,
+                    endX + 0.02F, endY, 0.05F, endX - 0.02F, endY, 0.05F, 0x08050C, impact);
+            quad(out, poses.last(), startX - 0.026F, startY - 0.025F, 0.06F, startX + 0.026F, startY - 0.025F, 0.06F,
+                    endX + 0.006F, endY, 0.06F, endX - 0.006F, endY, 0.06F, effect.marked ? 0xDA3D51 : 0xAF2943, impact * 0.95F);
+        }
+        int pieces = 6 + detail * 4 + (effect.marked ? 4 : 0);
+        for (int i = 0; i < pieces; i++) {
+            float angle = i * 2.39996F + i % 2 * 0.4F;
+            float radius = (0.22F + progress * (0.8F + i % 3 * 0.12F)) * strength;
+            float x = Mth.cos(angle) * radius, y = Mth.sin(angle) * radius;
+            float size = (1 - progress) * (0.09F + i % 3 * 0.025F);
+            quad(out, poses.last(), x - size, y, 0.02F, x + size * 0.4F, y + size, 0.02F,
+                    x + size, y - size * 1.8F, 0.02F, x - size, y, 0.02F,
+                    i % 3 == 0 ? 0x9D2943 : 0x211327, fade * (1 - progress));
+        }
+        poses.popPose();
+    }
+
+    /** 私有边缘确认独立于原版挥手入口：第一人称取消手持动画后仍有反馈，中央视野始终留空。 */
+    private static void renderFeedback(GuiGraphics gui, float partial) {
+        Minecraft mc = Minecraft.getInstance();
+        if (world == null || world != mc.level || !SackGhostClient.playable() || mc.player == null
+                || !GameUtils.isPlayerAliveAndSurvival(mc.player)) return;
+        partial = SackGhostClient.visualPartial(partial);
+        float cast = 0, hurt = 0;
+        for (Effect effect : EFFECTS) {
+            float age = effect.age + partial;
+            float pulse = Math.min(1, (age + 1) / 2) * Mth.clamp(1 - age / 12, 0, 1);
+            if (effect.owner == mc.player.getId()) cast = Math.max(cast, pulse * (effect.marked ? 1.15F : 1));
+            if (effect.kind == Kind.REALM_HIT && effect.target == mc.player.getId())
+                hurt = Math.max(hurt, pulse * (effect.marked ? 1.15F : 1));
+        }
+        if (cast <= 0 && hurt <= 0) return;
+        int width = gui.guiWidth(), height = gui.guiHeight();
+        int edge = Math.max(3, (int) (width * 0.025F));
+        gui.pose().pushPose();
+        gui.pose().translate(0, 0, 450);
+        // 最外侧窄带，峰值不超过约四分之一不透明；没有全屏闪烁和相机改动。
+        if (hurt > 0) {
+            int color = ((int) (55 * hurt) << 24) | 0x64152C;
+            gui.fill(0, 0, edge, height, color);
+            gui.fill(width - edge, 0, width, height, color);
+            gui.fillGradient(edge, 0, width - edge, Math.max(2, height / 28), color, 0x0064152C);
+        }
+        float alpha = Math.max(cast * 0.75F, hurt);
+        for (int side : new int[]{-1, 1}) {
+            gui.pose().pushPose();
+            gui.pose().translate(side < 0 ? width * 0.07F : width * 0.93F, height * 0.78F, 0);
+            gui.pose().scale(side < 0 ? 1 : -1, 1, 1);
+            gui.pose().mulPose(Axis.ZP.rotationDegrees(-28));
+            for (int i = 0; i < 3; i++) {
+                int x = i * Math.max(3, width / 110);
+                int length = Math.max(7, height / 12) - i * 2;
+                gui.fill(x - 1, -length, x + 2, 2, ((int) (120 * alpha) << 24) | 0x100916);
+                gui.fill(x, -length + 2, x + 1, -1, ((int) (155 * alpha) << 24) | 0x9C2943);
+            }
+            gui.pose().popPose();
+        }
+        gui.pose().popPose();
     }
 
     private static void drawHand(PoseStack poses, MultiBufferSource buffers, float time, float grip, float alpha, float scale) {
@@ -389,5 +516,5 @@ public final class SackGhostEffects {
         gui.pose().popPose();
     }
 
-    public static void clear() { EFFECTS.clear(); world = null; }
+    public static void clear() { EFFECTS.clear(); world = null; SackGhostMist.clear(); }
 }

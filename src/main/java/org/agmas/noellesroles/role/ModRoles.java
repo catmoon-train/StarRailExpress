@@ -2356,6 +2356,15 @@ public class ModRoles {
             .addFlag("Command_Role")
             .setAddedVersion("4.5");
 
+    /** 雾客。只由命令方块事件改写产生。 */
+    public static final SRERole FOG_GUEST = TMMRoles.registerRole(
+            new org.agmas.noellesroles.game.command_block.FogGuestRole())
+            .setCanBeRandomedByOtherRoles(false)
+            .setCanSetSpawnInfoInConfig(false)
+            .setDefaultMax(0)
+            .setHiddenForRoleRotation(true)
+            .addFlag("Command_Role");
+
     /** 丝线人。只由命令方块事件改写产生。冲刺不缩短。 */
     public static final SRERole STRINGER = TMMRoles.registerRole(
             new StringerRole(STRINGER_ID, new Color(214, 176, 64).getRGB(),

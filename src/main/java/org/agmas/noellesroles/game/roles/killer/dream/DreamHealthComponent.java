@@ -254,6 +254,16 @@ public class DreamHealthComponent implements RoleComponent {
      */
     public boolean hurt(@Nullable ServerPlayer attacker, int damage, ResourceLocation deathReason,
             boolean ignoreVirtualShield, boolean pierceOtherShields) {
+        return hurtInternal(attacker, damage, deathReason, ignoreVirtualShield, pierceOtherShields, null);
+    }
+
+    /** 扣血可归零，归零只通知调用方而不处死；格挡与虚拟护盾仍走同一条伤害流程。 */
+    public boolean hurtDeferred(@Nullable ServerPlayer attacker, int damage, ResourceLocation deathReason, Runnable onZeroHealth) {
+        return hurtInternal(attacker, damage, deathReason, false, false, java.util.Objects.requireNonNull(onZeroHealth));
+    }
+
+    private boolean hurtInternal(@Nullable ServerPlayer attacker, int damage, ResourceLocation deathReason,
+            boolean ignoreVirtualShield, boolean pierceOtherShields, @Nullable Runnable onZeroHealth) {
         if (!(player instanceof ServerPlayer sp) || damage <= 0) {
             return false;
         }
@@ -280,7 +290,7 @@ public class DreamHealthComponent implements RoleComponent {
             var data = io.wifi.starrailexpress.api.data.RoleData.getNullable(
                     org.agmas.noellesroles.role_data.killer.EntityNullRoleData.class, sp);
             if (data != null && data.deferHit(sp,
-                    () -> hurt(attacker, damage, deathReason, ignoreVirtualShield, pierceOtherShields))) {
+                    () -> hurtInternal(attacker, damage, deathReason, ignoreVirtualShield, pierceOtherShields, onZeroHealth))) {
                 return true;
             }
         }
@@ -305,6 +315,10 @@ public class DreamHealthComponent implements RoleComponent {
         if (baseHealth <= 0) {
             baseHealth = 0;
             sync();
+            if (onZeroHealth != null) {
+                onZeroHealth.run();
+                return true;
+            }
             // 打标：本条命是「虚拟血量归零」判死的（护士尸体透视据此判定，不依赖具体死因）
             VIRTUAL_HEALTH_DEATH_MARKS.put(sp.getUUID(), gameTime);
             if (pierceOtherShields) {

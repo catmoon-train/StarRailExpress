@@ -62,6 +62,9 @@ import org.agmas.noellesroles.game.roles.killer.pooler.PoolerDomainManager;
 import org.agmas.noellesroles.role_data.innocence.FoolRoleData;
 
 public class ModEffects {
+    /** 雾铃遮眼的来源标记，避免其他来源的失明或黑暗触发雾刃。 */
+    public static final Holder<MobEffect> FOG_BLINDED = register("fog_blinded",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xA9BBC1));
     /** 律令领域标记，具体禁令由服务端领域状态决定。 */
     public static final Holder<MobEffect> DECREE_RANGE = register("decree_range",
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xEED796));
@@ -967,7 +970,7 @@ public class ModEffects {
         return entity != null && entity.hasEffect(MENTAL_DEAFNESS);
     }
 
-    /** 欲望显现的视线标记；由职业短时刷新，不另行固定扣除 SAN。 */
+    /** 欲望凝视的视线标记；显现期间只做弱化提示，理智扣减由职业按秒结算。 */
     public static final Holder<MobEffect> ROULETTE_DEVIL_DREAD = register("roulette_devil_dread",
             new MobEffect(MobEffectCategory.HARMFUL, 0x15101F) {});
 
@@ -976,9 +979,7 @@ public class ModEffects {
             return 0f;
         }
         int amp = getAmplifier(entity, MOOD_DRAIN_REDUCTION);
-        float base = amp < 0 ? 1f : Mth.clamp(1f - 0.3f * (amp + 1), 0f, 1f);
-        return org.agmas.noellesroles.game.roles.neutral.roulette_devil.RouletteDevilRules
-                .manifestationDrain(base, entity.hasEffect(ROULETTE_DEVIL_DREAD));
+        return amp < 0 ? 1f : Mth.clamp(1f - 0.3f * (amp + 1), 0f, 1f);
     }
 
     public static float getMoodRegenPerTick(LivingEntity entity) {

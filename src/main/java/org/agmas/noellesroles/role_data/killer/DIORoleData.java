@@ -25,6 +25,7 @@ import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.AllowPlayerDeath;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
@@ -38,6 +39,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.init.ModEffects;
@@ -502,6 +504,17 @@ public class DIORoleData extends SimpleRoleData {
 
     private static int tickCounter = 0;
 
+    /** 头顶任意非空气方块都能遮阳（含透明方块），屏障不计入遮挡。 */
+    private boolean hasSunlightCover(Level level) {
+        BlockPos.MutableBlockPos pos = BlockPos.containing(player.getX(), player.getEyeY(), player.getZ())
+                .above().mutable();
+        for (; pos.getY() < level.getMaxBuildHeight(); pos.move(0, 1, 0)) {
+            var state = level.getBlockState(pos);
+            if (!state.isAir() && !state.is(Blocks.BARRIER)) return true;
+        }
+        return false;
+    }
+
     @Override
     public void serverTick() {
         if (getPlayer() == null)
@@ -512,11 +525,9 @@ public class DIORoleData extends SimpleRoleData {
         }
         if (!GameUtils.isPlayerAliveAndSurvival(player))
             return;
-        if (level.canSeeSky(getPlayer().blockPosition())) {
-            if (level.isDay() && level.getGameTime() % 20 == 0) {
-                if (getPlayer().getRemainingFireTicks() <= 0) {
-                    getPlayer().setRemainingFireTicks(30);
-                }
+        if (level.isDay() && level.getGameTime() % 20 == 0 && !hasSunlightCover(level)) {
+            if (getPlayer().getRemainingFireTicks() <= 0) {
+                getPlayer().setRemainingFireTicks(30);
             }
         }
         tickCounter++;

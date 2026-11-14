@@ -485,6 +485,13 @@ public class NoellesrolesClient implements ClientModInitializer {
                         trashCan.getWhitelist(), trashCan.isBlacklistEnabled(), trashCan.getBlacklist()));
             }
         };
+        EntityRendererRegistry.register(ModEntities.THREAD_BALL,
+                net.minecraft.client.renderer.entity.ThrownItemRenderer::new);
+        EntityRendererRegistry.register(ModEntities.MINUTE_NEEDLE,
+                net.minecraft.client.renderer.entity.ThrownItemRenderer::new);
+        FogGuestClient.register();
+        EntityRendererRegistry.register(ModEntities.FOG_GUEST_ZONE,
+                org.agmas.noellesroles.client.renderer.FogGuestZoneRenderer::new);
         EntityRendererRegistry.register(ModEntities.WHEELCHAIR, WheelchairEntityRenderer::new);
         EntityRendererRegistry.register(ModEntities.COMMAND_BLOCK_CRACK,
                 org.agmas.noellesroles.client.renderer.CommandBlockCrackRenderer::new);

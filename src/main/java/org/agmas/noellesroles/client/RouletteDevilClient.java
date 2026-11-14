@@ -13,6 +13,7 @@ import io.wifi.starrailexpress.event.client.RoleInstinctEvents;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.util.SREPlayerUtils;
 import io.wifi.starrailexpress.util.TrueFalseAndCustomResult;
+import org.agmas.noellesroles.game.roles.neutral.roulette_devil.RouletteDevilRules;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -27,7 +28,7 @@ import net.minecraft.world.entity.player.Player;
 /** 只缓存服务端授权的可见性和选人状态，不在客户端推算理智或改变对决结果。 */
 public final class RouletteDevilClient {
     private static final RouletteDevilStateS2CPacket EMPTY = new RouletteDevilStateS2CPacket(
-            List.of(), List.of(), List.of(), List.of(), List.of(), 0, 0, 0, 0L, null, 0L);
+            List.of(), List.of(), List.of(), List.of(), List.of(), List.of(), 0, 0, 0, 0L, null, 0L);
     private static RouletteDevilStateS2CPacket state = EMPTY;
     private static Set<UUID> demons = Set.of();
     private static Set<UUID> visible = Set.of();
@@ -35,6 +36,8 @@ public final class RouletteDevilClient {
     private static Set<UUID> seeded = Set.of();
     private static Set<UUID> mature = Set.of();
     private static ClientLevel world;
+    /** 所有玩家共用的统一轮廓色；不再区分理智高低。 */
+    private static final int OBSERVER_COLOR = 0xFF3388FF;
     private static boolean registered;
 
     private RouletteDevilClient() {}
@@ -59,8 +62,11 @@ public final class RouletteDevilClient {
                 renderTransition(graphics, delta.getGameTimeDeltaPartialTick(false)));
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.ROULETTE_DEVIL.identifier(),
                 (client, viewer, target, enabled) -> {
-                    if (enabled && target instanceof Player && target != viewer && isLowSan(target.getUUID())) {
-                        return TrueFalseAndCustomResult.custom(0xFF3388FF);
+                    // 所有存活玩家统一同一种蓝色轮廓，不再按理智高低区分颜色。
+                    if (enabled && target instanceof Player player && target != viewer
+                            && world != null && target.level() == world
+                            && GameUtils.isPlayerAliveAndSurvival(player)) {
+                        return TrueFalseAndCustomResult.custom(OBSERVER_COLOR);
                     }
                     return TrueFalseAndCustomResult.pass();
                 });
@@ -134,6 +140,7 @@ public final class RouletteDevilClient {
     }
 
     /** 仅控制按钮可用性；距离、理智、种子和对决占用仍须由服务端复核。 */
+    /** 仅控制按钮可用性；距离、理智、种子、冷却和对决占用仍须由服务端复核。 */
     public static boolean canChallenge(UUID target) {
         Minecraft client = Minecraft.getInstance();
         checkWorld();
@@ -144,7 +151,15 @@ public final class RouletteDevilClient {
                 && client.getConnection().getPlayerInfo(target) != null
                 && SREPlayerUtils.isPlayerAlive(world, target)
                 && !client.player.getUUID().equals(target)
-                && state.duelOpponent() == null && (lowSan.contains(target) || mature.contains(target));
+                && state.duelOpponent() == null && (lowSan.contains(target) || mature.contains(target))
+                && cooldownSeconds(target) <= 0;
+    }
+
+    /** 同一目标的剩余冷却秒数；0 表示可以再次挑战。 */
+    public static int cooldownSeconds(UUID target) {
+        checkWorld();
+        if (world == null) return 0;
+        return RouletteDevilRules.cooldownSeconds(state.retryAt(target), world.getGameTime());
     }
 
     /** 一秒入场只使用世界时间与临时绘制，不修改亮度、相机或后处理配置。 */

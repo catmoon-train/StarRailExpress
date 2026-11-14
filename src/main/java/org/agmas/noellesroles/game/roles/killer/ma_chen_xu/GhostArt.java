@@ -19,4 +19,9 @@ public enum GhostArt {
     public static List<GhostArt> unlocked(int stage) {
         return Arrays.stream(values()).filter(art -> art.stage <= stage).toList();
     }
+
+    /** 隐身每局只成功抽取一次；已学会列表不变，其余诡物仍可重复抽取。 */
+    public static List<GhostArt> drawPool(int stage, boolean shroudDrawn) {
+        return unlocked(stage).stream().filter(art -> art != SHROUD || !shroudDrawn).toList();
+    }
 }

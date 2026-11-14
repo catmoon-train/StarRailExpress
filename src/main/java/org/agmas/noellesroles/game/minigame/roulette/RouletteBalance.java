@@ -4,6 +4,9 @@ package org.agmas.noellesroles.game.minigame.roulette;
 public final class RouletteBalance {
     public static final int HEALTH = 3;
     public static final int DEVIL_HEALTH = HEALTH + 1;
+    public static final int TURN_SECONDS = 17;
+    public static final int TURN_TICKS = TURN_SECONDS * 20;
     private RouletteBalance() {}
     public static int supply(int requested) { return Math.max(0, (int) Math.round(requested * .7D)); }
+    public static int initialSupply(int requested) { return Math.max(0, supply(requested) - 1); }
 }

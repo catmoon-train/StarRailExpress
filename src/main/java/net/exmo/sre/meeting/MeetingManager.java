@@ -35,6 +35,7 @@ import io.wifi.starrailexpress.content.vote.VoteSession.VoteResultOption;
 import io.wifi.starrailexpress.event.AllowPlayerDeath;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.MeetingEndEvent;
+import io.wifi.starrailexpress.event.MeetingParticipantEvent;
 import io.wifi.starrailexpress.event.MeetingStartEvent;
 import io.wifi.starrailexpress.event.MeetingVoteEndEvent;
 import io.wifi.starrailexpress.event.MeetingVoteOutEvent;
@@ -452,6 +453,8 @@ public final class MeetingManager {
 
         List<ServerPlayer> alive = new ArrayList<>(serverLevel.getServer().getPlayerList().getPlayers()).stream()
                 .filter(GameUtils::isPlayerAliveAndSurvival)
+                // 进行中专属场景（如轮盘赌局）可以把自己的人留在场景里：不传送、不就座、不参会。
+                .filter(MeetingParticipantEvent.ALLOW_PARTICIPANT.invoker()::allowParticipant)
                 .toList();
         List<BlockPos> chairs = scanChairs(serverLevel, settings);
 
@@ -642,9 +645,7 @@ public final class MeetingManager {
         ServerLevel serverLevel = level;
         broadcastSkipState(serverLevel);
         // 超过二分之一的存活玩家投了跳过 → 跳过会议（有投票则直接进入投票阶段）
-        long alive = new ArrayList<>(serverLevel.getServer().getPlayerList().getPlayers()).stream()
-                .filter(GameUtils::isPlayerAliveAndSurvival)
-                .count();
+        long alive = participantPopulation(serverLevel);
         if (alive > 0 && skipVoters.size() > alive / 2) {
             skipMeeting(serverLevel);
         }
@@ -674,13 +675,15 @@ public final class MeetingManager {
 
     /** 向全体玩家同步跳过计票状态。 */
     private static void broadcastSkipState(ServerLevel serverLevel) {
-        long alive = new ArrayList<>(serverLevel.getServer().getPlayerList().getPlayers()).stream()
-                .filter(GameUtils::isPlayerAliveAndSurvival)
-                .count();
+        long alive = participantPopulation(serverLevel);
         MeetingSkipStateS2CPayload payload = new MeetingSkipStateS2CPayload(skipVoters.size(), (int) alive);
         for (ServerPlayer player : serverLevel.getServer().getPlayerList().getPlayers()) {
             ServerPlayNetworking.send(player, payload);
         }
+    }
+    /** 参会人数：跳过的阈值与计票分母都只算本场实际参与者，被专属场景排除的人不参与。 */
+    private static long participantPopulation(ServerLevel serverLevel) {
+        return participants.size();
     }
 
     // ==================== 发言 ====================
@@ -897,8 +900,10 @@ public final class MeetingManager {
         final AreasSettings areasSettings = areaCCA.areasSettings;
         final int voteTime = Math.max(VOTE_DURATION_MIN_SECONDS * 20, areasSettings.meetingVoteTimeSeconds * 20);
         phaseEndTick = serverLevel.getGameTime() + voteTime;
-        List<ServerPlayer> alive = new ArrayList<>(serverLevel.getServer().getPlayerList().getPlayers()).stream()
+        List<ServerPlayer> alive = serverLevel.getServer().getPlayerList().getPlayers().stream()
                 .filter(GameUtils::isPlayerAliveAndSurvival)
+                // 被专属场景（如轮盘赌局）留在场景里的玩家既不在参会名单，也不该成为投票选项。
+                .filter(p -> participants.containsKey(p.getUUID()))
                 .toList();
         if (alive.size() <= 1) {
             endMeeting(false);

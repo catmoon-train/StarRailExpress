@@ -15,17 +15,18 @@ class SackGhostRulesTest {
     }
 
     @Test void fourStagesAdvanceAtActualSanThresholds() {
-        assertEquals(90, SackGhostRules.stageThreshold(2, 1));
-        assertEquals(220, SackGhostRules.stageThreshold(3, 1));
-        assertEquals(400, SackGhostRules.stageThreshold(4, 1));
-        assertEquals(192, SackGhostRules.stageThreshold(2, 24));
-        assertEquals(432, SackGhostRules.stageThreshold(3, 24));
-        assertEquals(768, SackGhostRules.stageThreshold(4, 24));
-        assertEquals(1, SackGhostRules.stageForFear(191.99, 24));
-        assertEquals(2, SackGhostRules.stageForFear(192, 24));
-        assertEquals(2, SackGhostRules.stageForFear(431.99, 24));
-        assertEquals(3, SackGhostRules.stageForFear(432, 24));
-        assertEquals(4, SackGhostRules.stageForFear(768, 24));
+        assertEquals(180, SackGhostRules.stageThreshold(2, 1));
+        assertEquals(440, SackGhostRules.stageThreshold(3, 1));
+        assertEquals(800, SackGhostRules.stageThreshold(4, 1));
+        assertEquals(384, SackGhostRules.stageThreshold(2, 24));
+        assertEquals(864, SackGhostRules.stageThreshold(3, 24));
+        assertEquals(1536, SackGhostRules.stageThreshold(4, 24));
+        assertEquals(1, SackGhostRules.stageForFear(383.99, 24));
+        assertEquals(2, SackGhostRules.stageForFear(384, 24));
+        assertEquals(2, SackGhostRules.stageForFear(863.99, 24));
+        assertEquals(3, SackGhostRules.stageForFear(864, 24));
+        assertEquals(3, SackGhostRules.stageForFear(1535.99, 24));
+        assertEquals(4, SackGhostRules.stageForFear(1536, 24));
         assertEquals(4, SackGhostRules.stageForFear(100000, 24));
         assertEquals(1, SackGhostRules.stageForFear(Double.NaN, 24));
     }
@@ -44,6 +45,7 @@ class SackGhostRulesTest {
 
     @Test void stagesUnlockDeterministicArtPoolsWithoutRealm() {
         assertTrue(GhostArt.unlocked(0).isEmpty());
+        assertTrue(GhostArt.drawPool(0, true).isEmpty());
         assertEquals(List.of(GhostArt.VEIL, GhostArt.PUSH, GhostArt.SHROUD), GhostArt.unlocked(1));
         assertEquals(5, GhostArt.unlocked(2).size());
         assertEquals(7, GhostArt.unlocked(3).size());
@@ -52,6 +54,11 @@ class SackGhostRulesTest {
             int current = stage;
             assertTrue(GhostArt.unlocked(stage).stream().allMatch(art -> art.stage <= current));
             assertTrue(GhostArt.unlocked(stage).stream().noneMatch(art -> art.id.contains("realm")));
+            assertEquals(GhostArt.unlocked(stage), GhostArt.drawPool(stage, false));
+            var afterShroud = GhostArt.drawPool(stage, true);
+            assertEquals(GhostArt.unlocked(stage).size() - 1, afterShroud.size());
+            assertFalse(afterShroud.contains(GhostArt.SHROUD));
+            assertTrue(afterShroud.containsAll(List.of(GhostArt.VEIL, GhostArt.PUSH)));
         }
     }
 
@@ -64,7 +71,10 @@ class SackGhostRulesTest {
         assertFalse(SackGhostRules.canReceiveArts(-1, 1));
         assertFalse(SackGhostRules.canReceiveArts(0, 0));
         assertFalse(SackGhostRules.canReceiveArts(0, Integer.MAX_VALUE));
-        assertEquals(200, SackGhostRules.CAST_INTERVAL);
+        assertEquals(60, SackGhostRules.CAST_INTERVAL);
+        assertEquals(200, SackGhostRules.REALM_CAST_INTERVAL);
+        assertEquals(60, SackGhostRules.castInterval(false));
+        assertEquals(200, SackGhostRules.castInterval(true));
     }
 
     @Test void relicRevelationIncludesTwentyBlockBoundaryAndRequiresBothPermissions() {
@@ -134,7 +144,7 @@ class SackGhostRulesTest {
         assertEquals(1300, SackGhostRules.SHROUD_COOLDOWN);
         assertEquals(300, SackGhostRules.SHROUD_DURATION);
         assertEquals(160, SackGhostRules.ECHO_WINDOW);
-        assertTrue(SackGhostRules.ECHO_WINDOW < SackGhostRules.CAST_INTERVAL);
+        assertTrue(SackGhostRules.ECHO_WINDOW < SackGhostRules.REALM_CAST_INTERVAL);
     }
 
     @Test void parasiteExecutesOnlyZeroSanOrTheExplicitRobotException() {

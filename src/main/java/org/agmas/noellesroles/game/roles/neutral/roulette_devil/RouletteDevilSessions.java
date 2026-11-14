@@ -12,6 +12,7 @@ import io.wifi.starrailexpress.content.block.entity.SeatEntity;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameUtils;
+import net.exmo.sre.meeting.MeetingApi;
 import io.wifi.starrailexpress.index.TMMEntities;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -42,10 +43,13 @@ public final class RouletteDevilSessions {
         final UUID demon, opponent;
         final RouletteDevilRoleData data;
         final RouletteDevilRoom room;
-        final long enterAt;
+        /** 入场计时随会议顺延，避免开会期间到达入场时刻导致传送被锁拦截。 */
+        long enterAt;
         final List<SeatEntity> seats = new ArrayList<>();
         DevilRouletteTableEntity table;
         boolean entered, closed;
+        /** 会议期间暂停：赌桌冻结在当前相位，散会后从同一进度继续。 */
+        boolean paused;
         Session(ServerPlayer demon, ServerPlayer opponent, RouletteDevilRoom room, RouletteDevilRoleData data) {
             this.demon = demon.getUUID(); this.opponent = opponent.getUUID(); this.room = room; this.data = data;
             enterAt = room.level.getGameTime() + RouletteDevilRules.ENTRY_TICKS;
@@ -92,6 +96,9 @@ public final class RouletteDevilSessions {
             for (Session s : new HashSet<>(PLAYERS.values())) close(s, server);
             LAST.clear(); BYPASS.clear(); DEATHS.clear();
         });
+        // 开会时把正在赌局里的两人留在原地：不参会、不传送、也不投票。
+        io.wifi.starrailexpress.event.MeetingParticipantEvent.ALLOW_PARTICIPANT.register(
+                player -> !inDuel(player.getUUID()));
     }
     public static boolean challenge(ServerPlayer demon, ServerPlayer opponent) {
         RouletteDevilRoleData data = RouletteDevilRole.data(demon);
@@ -102,10 +109,19 @@ public final class RouletteDevilSessions {
         if (RouletteDevilRole.refugeeActive(demon) || data.refugee.pending()) {
             RouletteDevilRole.tell(demon, "refugee_suspended"); return false;
         }
+        if (MeetingApi.isMeetingActive()) {
+            RouletteDevilRole.tell(demon, "meeting_busy"); return false;
+        }
         if (inDuel(demon.getUUID()) || inDuel(opponent.getUUID()) || ModEffects.isInAnyDomain(demon)
                 || ModEffects.isInAnyDomain(opponent) || ModEffects.hasDomainSanctuary(opponent)
                 || demon.hasEffect(ModEffects.SKILL_BANED)) { RouletteDevilRole.tell(demon, "busy"); return false; }
-        if (!RouletteDevilRules.eligible(RouletteDevilRole.lowSan(opponent), data.mature(opponent.getUUID(), demon.level().getGameTime()))) {
+        long now = demon.level().getGameTime();
+        if (data.cooling(opponent.getUUID(), now)) {
+            demon.displayClientMessage(Component.translatable("message.noellesroles.roulette_devil.cooldown",
+                    data.cooldownSeconds(opponent.getUUID(), now)), true);
+            return false;
+        }
+        if (!RouletteDevilRules.eligible(RouletteDevilRole.lowSan(opponent), data.mature(opponent.getUUID(), now))) {
             RouletteDevilRole.tell(demon, "ineligible"); return false;
         }
         RouletteDevilRoom room = RouletteDevilRoom.create(demon.serverLevel());
@@ -116,13 +132,14 @@ public final class RouletteDevilSessions {
             for (ServerPlayer p : List.of(demon, opponent)) {
                 p.closeContainer();
                 RouletteDevilRecovery.get(p.serverLevel()).capture(p);
+                keepSanHigh(p);
                 p.getInventory().clearContent(); p.getInventory().selected = 0; p.inventoryMenu.broadcastChanges();
                 BYPASS.add(p.getUUID());
                 try { p.stopSleeping(); p.stopRiding(); } finally { BYPASS.remove(p.getUUID()); }
                 p.addEffect(new MobEffectInstance(ModEffects.DOMAIN_MARK, -1, 7, false, false, false));
                 p.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, -1, 0, false, false, false));
                 p.addEffect(new MobEffectInstance(ModEffects.BLACK_MONITOR, 20, 0, false, false, false));
-                p.setInvulnerable(false); p.setDeltaMovement(0, 0, 0);
+                p.setInvulnerable(RouletteDevilRole.isDevil(p)); p.setDeltaMovement(0, 0, 0);
                 RouletteDevilRole.title(p, "entry_title", "entry_subtitle");
             }
             data.manifestUntil = 0; data.sync(); RouletteDevilRole.removeVoices(demon);
@@ -132,6 +149,7 @@ public final class RouletteDevilSessions {
         }
     }
     private static void tick(MinecraftServer server) {
+        boolean meeting = MeetingApi.isMeetingActive();
         for (Session s : new HashSet<>(PLAYERS.values())) {
             if (s.closed) continue;
             ServerPlayer demon = server.getPlayerList().getPlayer(s.demon), other = server.getPlayerList().getPlayer(s.opponent);
@@ -139,6 +157,10 @@ public final class RouletteDevilSessions {
                     || !demon.isAlive() || !other.isAlive() || !GameUtils.isPlayerAliveAndSurvival(demon) || !GameUtils.isPlayerAliveAndSurvival(other)) {
                 close(s, server); continue;
             }
+            keepSanHigh(other);
+            // 会议期间对局暂停：不推进相位、不判定入场，也不在会议里把玩家送回列车。
+            if (meeting) { pause(s); continue; }
+            if (s.paused) resume(s);
             if (!s.entered && s.room.level.getGameTime() >= s.enterAt) {
                 try {
                     seat(s, demon, true); seat(s, other, false);
@@ -153,6 +175,27 @@ public final class RouletteDevilSessions {
             if (s.entered && (s.table.isRemoved() || !s.table.isGameActive() || s.seats.stream().anyMatch(Entity::isRemoved))) close(s, server);
         }
         if (server.overworld().getGameTime() % 5 == 0) syncAll(server);
+    }
+    /** 会议开始时冻结专属局：入场计时顺延，已开局的赌桌停在同一相位。 */
+    private static void pause(Session s) {
+        if (s.paused) return;
+        s.paused = true;
+        s.enterAt = Math.max(s.enterAt, s.room.level.getGameTime()) + RouletteDevilRules.ENTRY_TICKS;
+        if (s.table != null) s.table.pauseForMeeting(s.room.level.getGameTime());
+    }
+    private static void resume(Session s) {
+        if (!s.paused) return;
+        s.paused = false;
+        if (s.table != null) s.table.resumeFromMeeting(s.room.level.getGameTime());
+    }
+    /** 高 SAN 仅限对局内；原值和原有保护由返程保险保存并恢复。 */
+    private static void keepSanHigh(ServerPlayer p) {
+        var role = io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY.get(p.level()).getRole(p);
+        if (role == null || role.getMoodType() != io.wifi.starrailexpress.api.SRERole.MoodType.REAL) return;
+        if (!p.hasEffect(ModEffects.MOOD_DRAIN_IMMUNITY))
+            p.addEffect(new MobEffectInstance(ModEffects.MOOD_DRAIN_IMMUNITY, -1, 0, true, false, false));
+        var mood = io.wifi.starrailexpress.cca.SREPlayerMoodComponent.KEY.get(p);
+        mood.setMood(mood.getMoodMax());
     }
     private static void seat(Session s, ServerPlayer p, boolean front) {
         BlockPos pos = s.room.seat(front);
@@ -208,6 +251,12 @@ public final class RouletteDevilSessions {
         if (s.closed) return;
         s.closed = true; PLAYERS.remove(s.demon, s); PLAYERS.remove(s.opponent, s);
         if (s.table != null) s.table.reset();
+        // 同目标冷却只在一次真正开始的赌局结束时写入；开会时间不计入冷却。
+        if (s.entered) {
+            long now = s.room.level.getGameTime();
+            s.data.startCooldown(s.opponent, now);
+            s.data.sync();
+        }
         for (UUID id : List.of(s.demon, s.opponent)) {
             ServerPlayer p = server.getPlayerList().getPlayer(id);
             if (p == null) continue; // 保险记录保留到该玩家下次登录。
@@ -234,9 +283,17 @@ public final class RouletteDevilSessions {
                     own ? players.stream().filter(p -> p.level() == viewer.level() && GameUtils.isPlayerAliveAndSurvival(p) && RouletteDevilRole.lowSan(p)).map(Entity::getUUID).toList() : List.of(),
                     own ? d.seeds.keySet().stream().sorted().toList() : List.of(),
                     own ? d.seeds.keySet().stream().filter(id -> d.mature(id, now)).sorted().toList() : List.of(),
+                    own ? cooldowns(d, now) : List.of(),
                     own ? d.wins : 0, own ? d.required() : 0, own ? d.lives() : 0, own ? d.manifestUntil : 0,
                     s == null ? null : s.demon.equals(viewer.getUUID()) ? s.opponent : s.demon, s == null ? 0 : s.enterAt);
             if (!packet.equals(LAST.put(viewer.getUUID(), packet))) ServerPlayNetworking.send(viewer, packet);
         }
     }
+    /** 只发送仍在冷却中的目标；已到期的条目不进入包体。 */
+    private static List<RouletteDevilStateS2CPacket.Retry> cooldowns(RouletteDevilRoleData d, long now) {
+        return d.retryAt.entrySet().stream().filter(entry -> RouletteDevilRules.cooling(entry.getValue(), now))
+                .sorted(java.util.Map.Entry.comparingByKey())
+                .map(entry -> RouletteDevilStateS2CPacket.Retry.of(entry.getKey(), entry.getValue()))
+                .toList();
+}
 }

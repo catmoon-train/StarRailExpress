@@ -87,9 +87,9 @@ public class MaChenXuRoleData extends SimpleRoleData {
     public int stage = 1;
     public int totalSanLoss;
     public int initialPlayers = 1;
-    public int STAGE_2_THRESHOLD = 90;
-    public int STAGE_3_THRESHOLD = 220;
-    public int STAGE_4_THRESHOLD = 400;
+    public int STAGE_2_THRESHOLD = SackGhostRules.stageThreshold(2, initialPlayers);
+    public int STAGE_3_THRESHOLD = SackGhostRules.stageThreshold(3, initialPlayers);
+    public int STAGE_4_THRESHOLD = SackGhostRules.stageThreshold(4, initialPlayers);
     public int generationCooldown;
     public int castCooldown;
     public int ultimateCooldown;
@@ -151,10 +151,13 @@ public class MaChenXuRoleData extends SimpleRoleData {
                 && !SREGameTimeComponent.KEY.get(player.level()).isTimeFrozen();
     }
 
-    private boolean canCast() {
+    private boolean canUseSkill() {
         return isActiveMaChenXu() && clockRunning() && GameUtils.isPlayerAliveAndSurvival(player)
-                && now() >= escapeUntil && !player.hasEffect(ModEffects.SKILL_BANED) && !player.hasEffect(ModEffects.USED_BANED);
+                && now() >= escapeUntil && !player.hasEffect(ModEffects.SKILL_BANED)
+                && !player.hasEffect(ModEffects.SKILL_FREEZED);
     }
+
+    private boolean canCast() { return canUseSkill() && !player.hasEffect(ModEffects.USED_BANED); }
 
     public boolean isEnemy(Player target) {
         return target != player && target.level() == player.level() && GameUtils.isPlayerAliveAndSurvival(target)
@@ -169,7 +172,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
     }
 
     /** 目标当前虚拟血量；仅对走虚拟血量结算的目标有意义。 */
-    private int virtualHealth(Player target) {
+    public int virtualHealth(Player target) {
         return org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent.KEY.get(target)
                 .getEffectiveHealth(target.level().getGameTime());
     }
@@ -200,13 +203,14 @@ public class MaChenXuRoleData extends SimpleRoleData {
     }
 
     public boolean drawArt() {
-        if (!(player instanceof ServerPlayer owner) || !canCast()) return false;
+        if (!(player instanceof ServerPlayer owner) || !canUseSkill()) return false;
         updateCooldowns();
         if (generationCooldown > 0) return fail("message.noellesroles.sack.cooldown", (generationCooldown + 19) / 20);
         if (SackGhostItems.artCount(owner) >= SackGhostRules.MAX_ART_ITEMS) return fail("message.noellesroles.sack.full");
-        var pool = GhostArt.unlocked(stage);
+        var pool = GhostArt.drawPool(stage, SackGhostItems.hasDrawnShroud(owner));
         GhostArt art = pool.get(owner.getRandom().nextInt(pool.size()));
         if (!giveArt(owner, art)) return fail("message.noellesroles.sack.inventory_full");
+        if (art == GhostArt.SHROUD) SackGhostItems.recordShroudDraw(owner);
         generationReadyAt = now() + SackGhostRules.generationCooldownSeconds(initialPlayers) * 20L;
         owner.displayClientMessage(Component.translatable("message.noellesroles.sack.drawn", Component.translatable(art.nameKey())), true);
         owner.playNotifySound(SoundEvents.BUNDLE_INSERT, SoundSource.PLAYERS, 0.7F, 0.75F);
@@ -237,7 +241,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
         };
         if (!used) return false;
         if (art != GhostArt.ECHO && SackGhostRules.consumesOnCast(art, otherworldActive)) SackGhostItems.consumeArt(owner, stack);
-        castReadyAt = now() + SackGhostRules.CAST_INTERVAL;
+        castReadyAt = now() + SackGhostRules.castInterval(otherworldActive);
         owner.getInventory().setChanged();
         owner.containerMenu.broadcastChanges();
         updateCooldowns();
@@ -294,7 +298,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
     }
 
     public boolean usePrayerRain() {
-        if (!(player instanceof ServerPlayer owner) || !canCast() || otherworldActive) return false;
+        if (!(player instanceof ServerPlayer owner) || !canUseSkill() || otherworldActive) return false;
         if (stage < 3) return fail("message.noellesroles.sack.realm_locked");
         updateCooldowns();
         if (ultimateCooldown > 0) return fail("message.noellesroles.sack.cooldown", (ultimateCooldown + 19) / 20);
@@ -337,43 +341,52 @@ public class MaChenXuRoleData extends SimpleRoleData {
         return true;
     }
 
-    /** 命中削SAN，归零才标记；同一秒不能通过连点重复结算。 */
+    /** 里世界近战只结算本职业伤害；虚血和SAN归零都登记同一份延迟处死标记。 */
     public boolean markPlayer(Player target) {
-        if (!(player instanceof ServerPlayer owner) || !otherworldActive || !canCast() || SackGhostActions.attacksBlocked(owner) || !isEnemy(target)
-                || target.hasEffect(ModEffects.GHOST_WARD) || otherworldTimer < OPENING_LOCK
-                || player.distanceToSqr(target) > SackGhostRules.REALM_ATTACK_RANGE * SackGhostRules.REALM_ATTACK_RANGE
-                || !player.hasLineOfSight(target) || now() < hitReadyAt || verdicts.contains(target.getUUID())) return false;
+        if (!(player instanceof ServerPlayer owner) || !(target instanceof ServerPlayer victim)
+                || !otherworldActive || !canCast() || SackGhostActions.attacksBlocked(owner) || !isEnemy(victim)
+                || victim.hasEffect(ModEffects.GHOST_WARD) || otherworldTimer < OPENING_LOCK
+                || !withinRealmReach(owner, victim) || !owner.hasLineOfSight(victim)
+                || now() < hitReadyAt) return false;
         hitReadyAt = now() + SackGhostRules.REALM_ATTACK_INTERVAL;
         breakShroud();
-        if (usesVirtualHealth(target)) {
-            var victim = (ServerPlayer) target;
-            var virtual = org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent.KEY.get(victim);
-            int damage = SackGhostRules.realmAttackVirtual(stage);
-            virtual.hurtWithoutKilling(owner, damage);
-            owner.playNotifySound(SoundEvents.PLAYER_ATTACK_STRONG, SoundSource.PLAYERS, 0.7F, 0.65F);
-            victim.playNotifySound(SoundEvents.WARDEN_HEARTBEAT, SoundSource.HOSTILE, 0.7F, 0.8F);
-            victim.displayClientMessage(Component.translatable("message.noellesroles.sack.realm_hit_virtual", damage), true);
-            if (verdicts.markAfterVirtualHit(victim.getUUID(),
-                    virtual.getEffectiveHealth(victim.level().getGameTime()))) {
-                lease(victim, ModEffects.GHOST_CONDEMNED, otherworldDuration + 10, 0);
-                victim.sendSystemMessage(Component.translatable("message.noellesroles.sack.condemned"));
+        boolean alreadyMarked = verdicts.contains(victim.getUUID());
+        boolean virtual = usesVirtualHealth(victim);
+        int amount = virtual ? SackGhostRules.realmAttackVirtual(stage) : SackGhostRules.realmAttackSan(stage);
+        String message = virtual ? "message.noellesroles.sack.realm_hit_virtual" : "message.noellesroles.sack.realm_hit";
+        if (!alreadyMarked) {
+            if (virtual) {
+                var health = org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent.KEY.get(victim);
+                if (!health.hurtDeferred(owner, amount, Noellesroles.id("machenxu"), () -> registerRealmMark(victim))) return false;
+            } else {
+                drainSan(victim, amount);
+                if (SackGhostRules.isCondemned(SREPlayerMoodComponent.KEY.get(victim).getMood())) registerRealmMark(victim);
             }
-            updateCooldowns();
-            sync();
-            return true;
         }
-        drainSan(target, SackGhostRules.realmAttackSan(stage));
-        owner.playNotifySound(SoundEvents.PLAYER_ATTACK_STRONG, SoundSource.PLAYERS, 0.7F, 0.65F);
-        if (target instanceof ServerPlayer victim) {
-            victim.playNotifySound(SoundEvents.WARDEN_HEARTBEAT, SoundSource.HOSTILE, 0.7F, 0.8F);
-            victim.displayClientMessage(Component.translatable("message.noellesroles.sack.realm_hit", SackGhostRules.realmAttackSan(stage)), true);
-        }
-        if (verdicts.markAfterHit(target.getUUID(), SREPlayerMoodComponent.KEY.get(target).getMood())) {
-            target.sendSystemMessage(Component.translatable("message.noellesroles.sack.condemned"));
-        }
+        fx(owner, "realm_hit", victim.position(), 16, victim.getId(), owner.getId(), verdicts.contains(victim.getUUID()) ? 1 : 0);
+        owner.playNotifySound(SoundEvents.PLAYER_ATTACK_STRONG, SoundSource.PLAYERS, 0.8F, 0.6F);
+        victim.playNotifySound(SoundEvents.WARDEN_HEARTBEAT, SoundSource.HOSTILE, 0.8F, 0.8F);
+        if (!alreadyMarked) victim.displayClientMessage(Component.translatable(message, amount), true);
         updateCooldowns();
         sync();
         return true;
+    }
+
+    private void registerRealmMark(ServerPlayer target) {
+        if (!otherworldActive || !isActiveMaChenXu() || !isEnemy(target) || target.hasEffect(ModEffects.GHOST_WARD)
+                || !verdicts.markAfterVirtualHit(target.getUUID(), 0)) return;
+        lease(target, ModEffects.GHOST_CONDEMNED, otherworldDuration + 10, 0);
+        target.sendSystemMessage(Component.translatable("message.noellesroles.sack.condemned"));
+        sync();
+    }
+
+    private static boolean withinRealmReach(ServerPlayer owner, Player target) {
+        Vec3 eye = owner.getEyePosition();
+        AABB box = target.getBoundingBox();
+        double dx = eye.x - Math.clamp(eye.x, box.minX, box.maxX);
+        double dy = eye.y - Math.clamp(eye.y, box.minY, box.maxY);
+        double dz = eye.z - Math.clamp(eye.z, box.minZ, box.maxZ);
+        return dx * dx + dy * dy + dz * dz <= SackGhostRules.REALM_ATTACK_RANGE * SackGhostRules.REALM_ATTACK_RANGE;
     }
 
     public boolean cleanse(Player target) {
@@ -397,6 +410,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
         otherworldActive = false;
         otherworldDuration = 0;
         realmReadyAt = now() + SackGhostRules.REALM_COOLDOWN;
+        castReadyAt = Math.min(castReadyAt, now() + SackGhostRules.CAST_INTERVAL);
         owner.setInvulnerable(previousInvulnerable);
         restoreRealmEffects(owner);
         if (body != null) {
@@ -437,8 +451,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
                 || target.hasEffect(ModEffects.GHOST_WARD) || now() < hitReadyAt
                 || player.distanceToSqr(target) > SackGhostRules.REALM_ATTACK_RANGE * SackGhostRules.REALM_ATTACK_RANGE
                 || !owner.hasLineOfSight(target)
-                || (usesVirtualHealth(target) ? virtualHealth(target) <= 0
-                : SREPlayerMoodComponent.KEY.get(target).getMood() > 0.15F)) return false;
+                || SREPlayerMoodComponent.KEY.get(target).getMood() > 0.15F) return false;
         hitReadyAt = now() + SackGhostRules.REALM_ATTACK_INTERVAL;
         breakShroud();
         GameUtils.forceKillPlayer(target, true, owner, Noellesroles.id("machenxu"));
@@ -840,7 +853,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
         for (int i = 1; i <= steps; i++) {
             Vec3 offset = delta.scale(i / (double) steps);
             if (!level.hasChunkAt(BlockPos.containing(entity.position().add(offset)))
-                    || !level.noCollision(entity, entity.getBoundingBox().move(offset))) return false;
+                    || level.getBlockCollisions(entity, entity.getBoundingBox().move(offset).deflate(1.0E-7)).iterator().hasNext()) return false;
         }
         return true;
     }
@@ -909,7 +922,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
     private boolean collisionFree(ServerLevel level, Entity entity, Vec3 destination) {
         BlockPos pos = BlockPos.containing(destination);
         return level.hasChunkAt(pos) && level.getWorldBorder().isWithinBounds(pos)
-                && level.noCollision(entity, entity.getBoundingBox().move(destination.subtract(entity.position())));
+                && !level.getBlockCollisions(entity, entity.getBoundingBox().move(destination.subtract(entity.position())).deflate(1.0E-7)).iterator().hasNext();
     }
 
     private void tickMotions(ServerPlayer owner) {
@@ -923,7 +936,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
             if (!clearPath(motion.level(), target, next) || !collisionFree(motion.level(), target, next)) { iterator.remove(); continue; }
             target.stopRiding();
             target.setDeltaMovement(Vec3.ZERO);
-            target.teleportTo(next.x, next.y, next.z);
+            target.connection.teleport(next.x, next.y, next.z, target.getYRot(), target.getXRot());
             target.hurtMarked = true;
             if (elapsed >= motion.duration()) {
                 iterator.remove();

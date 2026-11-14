@@ -80,7 +80,8 @@ public final class DevilRouletteGame {
         public void reserve(int amount, int demonCarried, int opponentCarried, RandomGenerator random) {
             if (settlement == null) return;
             if (amount < 2 || amount > 5) throw new IllegalArgumentException("Supply must be between 2 and 5");
-            int reduced = org.agmas.noellesroles.game.minigame.roulette.RouletteBalance.supply(amount);
+            int reduced = initialSupply ? org.agmas.noellesroles.game.minigame.roulette.RouletteBalance.initialSupply(amount)
+                    : org.agmas.noellesroles.game.minigame.roulette.RouletteBalance.supply(amount);
             reserve(demon, demonCarried, reduced + (initialSupply ? 1 : 0), random);
             reserve(opponent, opponentCarried, reduced, random);
             initialSupply = false;

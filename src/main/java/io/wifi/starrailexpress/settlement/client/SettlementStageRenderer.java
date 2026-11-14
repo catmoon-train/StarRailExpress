@@ -80,6 +80,8 @@ public final class SettlementStageRenderer {
         Minecraft mc = Minecraft.getInstance();
         ensureModels(mc);
         var snapshot = SettlementClient.snapshot();
+        // 皮肤/物品渲染可能重入客户端任务并清空结算；本帧不能遍历可变名单。
+        var frameActors = List.copyOf(SettlementClient.actors);
         float partial = context.tickCounter().getGameTimeDeltaPartialTick(false);
         double time = SettlementClient.tick() + partial;
         var frame = SettlementClient.presentation(partial);
@@ -105,11 +107,13 @@ public final class SettlementStageRenderer {
                 io.wifi.starrailexpress.SRE.LOGGER.warn("结算皮肤布景回调失败: {}", snapshot.mvpSkin(), error);
             }
         }
-        for (var actor : SettlementClient.actors) {
+        for (var actor : frameActors) {
+            if (!SettlementClient.isPlaying() || SettlementClient.snapshot() != snapshot) break;
             var info = ClientSkinCache.getCachedPlayerInfo(actor.fact.id());
             if (info == null && mc.getConnection() != null) info = mc.getConnection().getPlayerInfo(actor.fact.id());
             // 败方只以落下的尸体出现；不在舞台上先坐成一排，也不先升到天上。
             PlayerSkin skin = info == null ? DefaultPlayerSkin.get(actor.fact.id()) : info.getSkin();
+            if (!SettlementClient.isPlaying() || SettlementClient.snapshot() != snapshot) break;
             PlayerModel<Player> model = skin.model() == PlayerSkin.Model.SLIM ? slim : wide;
             boolean physical = actor.body.active;
             if (!actor.fact.winner() && !physical) continue;

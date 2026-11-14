@@ -57,7 +57,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
     public static class TableItemDisplay extends Display.ItemDisplay {
         public TableItemDisplay(EntityType<?> type, Level level) { super(type, level); }
     }
-    public static final int AFK_TICK = 20 * 30;
+    public static final int AFK_TICK = RouletteBalance.TURN_TICKS;
     public final Vec3 CENTER_POS;
     public final Vec3 TIME_POS;
     private UUID front, back;
@@ -65,6 +65,9 @@ public class DevilRouletteTableEntity extends BlockEntity {
     private long sequence, startedAt;
     private RoulettePhase phase = RoulettePhase.WAITING;
     private int duration, readyTicks, idleTicks, autoStreak;
+    private boolean firstSupply;
+    /** 会议期间冻结：>0 表示暂停开始的世界刻，恢复时把相位起点整体后移。 */
+    private long meetingPausedAt;
     private DevilRouletteGame game;
     private DevilRouletteGame.DemonMatch demonMatch;
     private DevilRouletteGame.GameMode gameMode = DevilRouletteGame.GameMode.Lobby;
@@ -114,7 +117,9 @@ public class DevilRouletteTableEntity extends BlockEntity {
         if (p2 != null) backName = p2.getName().getString();
         var r = game == null ? null : round();
         int seconds = Math.max(0, (budget() - readyTicks + 19) / 20);
-        view = new RouletteView(session, ++sequence, phase, startedAt, duration, id(front), id(back),
+        // 会议暂停时把画面起点推到当前时刻，让客户端动画与倒计时停在原处。
+        long frozenAt = meetingPausedAt > 0 ? level.getGameTime() : startedAt;
+        view = new RouletteView(session, ++sequence, phase, frozenAt, duration, id(front), id(back),
                 r == null ? RouletteView.NONE : r.operator(), frontName, backName,
                 r == null ? RouletteBalance.HEALTH : r.health(front), r == null ? RouletteBalance.HEALTH : r.health(back),
                 r == null ? RouletteBalance.HEALTH : r.maxHealth(front), r == null ? RouletteBalance.HEALTH : r.maxHealth(back),
@@ -163,7 +168,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
         selection = null;
         publish();
     }
-    private int budget() { return Math.max(40, AFK_TICK / Math.max(1, autoStreak)); }
+    private int budget() { return AFK_TICK; }
     private void ready() { readyTicks = 0; begin(RoulettePhase.READY); }
     private void reload() {
         if (round().ended()) { begin(RoulettePhase.ENDING); return; }
@@ -178,8 +183,25 @@ public class DevilRouletteTableEntity extends BlockEntity {
         return player.getVehicle() instanceof SeatEntity seat && seat.getSeatPos() != null
                 && isSeatAvailable(seat.getSeatPos()) && isFrontSeat(seat.getSeatPos()) == isFront;
     }
+    /** 会议暂停：只冻结进度，不重置对局，也不改相位与剩余时间。 */
+    public void pauseForMeeting(long now) {
+        if (game != null && meetingPausedAt == 0 && !isRemoved()) meetingPausedAt = Math.max(1, now);
+    }
+    public boolean pausedForMeeting() { return meetingPausedAt > 0; }
+    /** 暂停期间重发冻结画面：客户端按收到时刻倒计时，重发即可让倒计时停在原处。 */
+    public void keepPausedView() { if (meetingPausedAt > 0) publish(); }
+    /** 会议结束：把相位起点后移暂停时长，让下次渲染/操作从同一进度继续。 */
+    public void resumeFromMeeting(long now) {
+        long frozen = Math.max(0, now - meetingPausedAt);
+        meetingPausedAt = 0;
+        if (game == null) return;
+        startedAt += frozen;
+        publish();
+    }
     public void serverTick(Level level, BlockPos pos, BlockState state) {
         if (isRemoved()) return;
+        // 暂停期间只续发冻结画面，让客户端倒计时停在原处。
+        if (meetingPausedAt > 0) { if (level.getGameTime() % 10 == 0) publish(); return; }
         if (game == null) {
             if (front != null && !validParticipant(player(front), true)) { front = null; frontName = ""; publish(); }
             if (back != null && !validParticipant(player(back), false)) { back = null; backName = ""; publish(); }
@@ -230,8 +252,9 @@ public class DevilRouletteTableEntity extends BlockEntity {
                             new Random(level.random.nextLong()));
                 } else {
                     RouletteSupply supply = RouletteSupply.get((ServerLevel) level);
-                    supply.reserve(player(front), amount); supply.reserve(player(back), amount);
+                    supply.reserve(player(front), amount, firstSupply); supply.reserve(player(back), amount, firstSupply);
                 }
+                firstSupply = false;
                 message = "roulette.hint.supply"; begin(RoulettePhase.SUPPLY);
             }
             case SUPPLY -> {
@@ -304,6 +327,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
         clearSelection(); begin(stolen == null ? RoulettePhase.ITEM : RoulettePhase.ADRENALINE);
     }
     private void clearSelection() { selection = null; }
+    /** 会议暂停期间不接受任何操作：赌局停在同一相位，等散会后继续。 */
     public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
             Player player, InteractionHand hand, BlockHitResult hit) {
         if (level.isClientSide || !(player instanceof ServerPlayer serverPlayer)) return ItemInteractionResult.SUCCESS;
@@ -317,7 +341,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
         if (operation == 1 && stack.isEmpty()) {
             privatePacket(serverPlayer, RouletteNetworking.HELP, new CompoundTag()); return ItemInteractionResult.CONSUME;
         }
-        if (phase != RoulettePhase.READY || game == null || round().ended()) {
+        if (phase != RoulettePhase.READY || game == null || round().ended() || pausedForMeeting()) {
             hint(player, "roulette.error.busy"); return ItemInteractionResult.CONSUME;
         }
         if (!game.canOperate(player.getUUID())) { hint(player, "roulette.error.turn"); return ItemInteractionResult.CONSUME; }
@@ -450,6 +474,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
         matchInGlobalGame = GameUtils.isGameStarted;
         matchMode = SREGameWorldComponent.KEY.get(level).getGameMode().identifier;
         settled = false; autoStreak = 0; readyTicks = 0; message = "roulette.hint.controls";
+        firstSupply = true;
         begin(RoulettePhase.INTRO);
         return true;
     }
@@ -491,6 +516,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
         session = UUID.randomUUID(); sequence = 0; phase = RoulettePhase.WAITING; startedAt = level == null ? 0 : level.getGameTime();
         duration = 0; readyTicks = 0; idleTicks = 0; autoStreak = 0; settled = false; actionGate.reset();
         matchInGlobalGame = false; matchMode = null; shotSaw = false;
+        firstSupply = false; meetingPausedAt = 0;
         actionItem = null; stolenItem = null; effect = null; result = null; shell = -1; delta = 0;
         actor = RouletteView.NONE; target = RouletteView.NONE; message = "roulette.hint.sit";
         publish();

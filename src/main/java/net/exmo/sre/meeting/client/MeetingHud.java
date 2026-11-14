@@ -64,7 +64,10 @@ public final class MeetingHud {
 
     private static void render(GuiGraphics g, DeltaTracker deltaTracker) {
         Minecraft client = Minecraft.getInstance();
-        if (client.player == null || client.level == null || client.options.hideGui) {
+        // 正在进行专属场景（如轮盘赌局）却不参会的玩家看不到会议界面，避免误以为自己在会中。
+        if (client.player == null || client.level == null || client.options.hideGui
+                || (MeetingClientHandler.phase != MeetingManager.PHASE_NONE
+                        && !MeetingClientHandler.participants.contains(client.player.getUUID()))) {
             return;
         }
         int phase = MeetingClientHandler.phase;

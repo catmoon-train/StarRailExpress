@@ -688,6 +688,33 @@ public class ModEntities {
                     .trackedUpdateRate(2)
                     .build());
 
+    /** 丝线团投掷物，沿用手榴弹的碰撞引爆方式。 */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<org.agmas.noellesroles.game.command_block.entity.ThreadBallEntity> THREAD_BALL = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE, Noellesroles.id("thread_ball"),
+            FabricEntityTypeBuilder.<org.agmas.noellesroles.game.command_block.entity.ThreadBallEntity>create(
+                    MobCategory.MISC, org.agmas.noellesroles.game.command_block.entity.ThreadBallEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.25F, 0.25F))
+                    .trackRangeBlocks(64).trackedUpdateRate(1).build());
+
+    /** 钟摆蓄力投出的分针。 */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<org.agmas.noellesroles.game.command_block.MinuteNeedleEntity> MINUTE_NEEDLE = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE, Noellesroles.id("minute_needle"),
+            FabricEntityTypeBuilder.<org.agmas.noellesroles.game.command_block.MinuteNeedleEntity>create(
+                    MobCategory.MISC, org.agmas.noellesroles.game.command_block.MinuteNeedleEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.25F, 0.25F))
+                    .trackRangeBlocks(64).trackedUpdateRate(1).build());
+
+    /** 雾客的圆柱形雾区，尺寸覆盖完整作用范围。 */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<org.agmas.noellesroles.game.command_block.FogGuestZoneEntity> FOG_GUEST_ZONE = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE, Noellesroles.id("fog_guest_zone"),
+            FabricEntityTypeBuilder.<org.agmas.noellesroles.game.command_block.FogGuestZoneEntity>create(
+                    MobCategory.MISC, org.agmas.noellesroles.game.command_block.FogGuestZoneEntity::new)
+                    .dimensions(EntityDimensions.fixed(30.0F, 5.0F))
+                    .trackRangeBlocks(96).trackedUpdateRate(20).build());
+
     /** 命令方块投掷物：石头、火球和石枪都沿抛物线飞。石枪命中后飞回手里。 */
     @SuppressWarnings("deprecation")
     public static final EntityType<CommandBlockThrownEntity> COMMAND_BLOCK_THROWN = Registry.register(

@@ -29,6 +29,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 import org.agmas.noellesroles.content.entity.NiaoshoushouMissileEntity;
+import org.agmas.noellesroles.content.item.GhostArtItem;
 import org.agmas.noellesroles.content.item.HandCuffsItem;
 import org.agmas.noellesroles.content.item.StalkerKnifeItem;
 import org.agmas.noellesroles.init.FunnyItems;
@@ -43,7 +44,9 @@ public class InvisbleHandItem {
 
     public static void register() {
         AllowItemShowInHand.EVENT.register((player, itemStack, mainHand) -> {
-            if (itemStack.is(FunnyItems.BOWEN_BADGE) || itemStack.is(ModItems.PORTABLE_IDENTITY_SCANNER)) {
+            // 诡物仅隐藏手持模型，背包与快捷栏图标照常显示。
+            if (itemStack.getItem() instanceof GhostArtItem || itemStack.is(FunnyItems.BOWEN_BADGE)
+                    || itemStack.is(ModItems.PORTABLE_IDENTITY_SCANNER)) {
                 return ItemStack.EMPTY;
             }
             if (!mainHand && OraPunchManager.isRushing(player) && OraPunchManager.isHoldingOraPunch(player)) {
