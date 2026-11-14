@@ -56,6 +56,7 @@ public class ModItems {
 
     public static final Item GHOST_ART_VEIL = register(new GhostArtItem(GhostArt.VEIL), "ghost_art_veil", TOOLS_GROUP);
     public static final Item GHOST_ART_PUSH = register(new GhostArtItem(GhostArt.PUSH), "ghost_art_push", TOOLS_GROUP);
+    public static final Item GHOST_ART_SHROUD = register(new GhostArtItem(GhostArt.SHROUD), "ghost_art_shroud", TOOLS_GROUP);
     public static final Item GHOST_ART_EFFIGY = register(new GhostArtItem(GhostArt.EFFIGY), "ghost_art_effigy", TOOLS_GROUP);
     public static final Item GHOST_ART_ECHO = register(new GhostArtItem(GhostArt.ECHO), "ghost_art_echo", TOOLS_GROUP);
     public static final Item GHOST_ART_WAIL = register(new GhostArtItem(GhostArt.WAIL), "ghost_art_wail", TOOLS_GROUP);

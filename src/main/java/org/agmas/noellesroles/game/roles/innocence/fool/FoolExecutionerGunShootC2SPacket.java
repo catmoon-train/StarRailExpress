@@ -55,6 +55,7 @@ public record FoolExecutionerGunShootC2SPacket(int targetId) implements CustomPa
                 ServerPlayNetworking.@NotNull Context context) {
             ServerPlayer shooter = context.player();
             if (org.agmas.noellesroles.game.roles.innocence.decree.DecreeService.blocksGun(shooter)) return;
+            if (!org.agmas.noellesroles.game.roles.killer.ma_chen_xu.SackGhostActions.allowAttack(shooter)) return;
             ItemStack mainHandStack = shooter.getMainHandItem();
             if (!mainHandStack.is(ModItems.EXECUTIONER_GUN)) {
                 return;

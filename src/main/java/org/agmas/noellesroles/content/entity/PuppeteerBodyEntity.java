@@ -36,6 +36,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.SackGhostItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jspecify.annotations.Nullable;
 
@@ -53,6 +54,10 @@ public class PuppeteerBodyEntity extends LivingEntity {
 
     @Override
     public void kill() {
+        if (isSackGhostBody()) {
+            forwardSackGhostHit(damageSources().genericKill());
+            return;
+        }
         this.discard();
     }
 
@@ -62,6 +67,9 @@ public class PuppeteerBodyEntity extends LivingEntity {
 
     /** 克隆替身与普通傀儡共用实体类型，但不继承伤害转移和十分钟寿命。 */
     private static final EntityDataAccessor<Boolean> CLONE_SUBSTITUTE = SynchedEntityData.defineId(
+            PuppeteerBodyEntity.class, EntityDataSerializers.BOOLEAN);
+    /** 布袋鬼本体复用替身的睡姿和渲染，但伤害及生命周期独立处理。 */
+    private static final EntityDataAccessor<Boolean> SACK_GHOST_BODY = SynchedEntityData.defineId(
             PuppeteerBodyEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Direction> SUBSTITUTE_DIRECTION = SynchedEntityData.defineId(
             PuppeteerBodyEntity.class, EntityDataSerializers.DIRECTION);
@@ -84,6 +92,9 @@ public class PuppeteerBodyEntity extends LivingEntity {
     private Player ownerCache = null;
     /** 替身固定在制作时的坐标，避免水流等物理影响使其离开记录位置。 */
     private Vec3 substitutePosition;
+    private boolean forwardingSackGhostHit;
+    private long lastSackGhostHitTick = Long.MIN_VALUE;
+    private net.minecraft.world.entity.Entity lastSackGhostAttacker;
 
     public boolean isPersistenceRequired() {
         return this.persistenceRequired;
@@ -129,6 +140,7 @@ public class PuppeteerBodyEntity extends LivingEntity {
         super.defineSynchedData(builder);
         builder.define(OWNER_UUID, Optional.empty());
         builder.define(CLONE_SUBSTITUTE, false);
+        builder.define(SACK_GHOST_BODY, false);
         builder.define(SUBSTITUTE_DIRECTION, Direction.SOUTH);
     }
 
@@ -161,6 +173,27 @@ public class PuppeteerBodyEntity extends LivingEntity {
         this.setDeltaMovement(Vec3.ZERO);
         this.substitutePosition = position();
         // 只设置睡姿，不占用真实床，也不会清掉其他玩家的床占用。
+        this.setPose(Pose.SLEEPING);
+        this.setBoundingBox(this.makeBoundingBox());
+    }
+
+    /** 启用布袋鬼本体；替身标志仅用于复用现有躺卧外观，受击优先走独立分支。 */
+    public void configureSackGhostBody(Direction direction) {
+        this.entityData.set(SACK_GHOST_BODY, true);
+        configureCloneSubstitute(direction);
+    }
+
+    /** 是否为布袋鬼离体后留下的本体。 */
+    public boolean isSackGhostBody() {
+        return this.entityData != null && this.entityData.get(SACK_GHOST_BODY);
+    }
+
+    /** 床损坏后更新固定坐标，不设置真实睡眠位置或修改任何床占用。 */
+    public void moveSackGhostBody(Vec3 position) {
+        if (!isSackGhostBody()) return;
+        this.substitutePosition = position;
+        this.setPos(position);
+        this.setDeltaMovement(Vec3.ZERO);
         this.setPose(Pose.SLEEPING);
         this.setBoundingBox(this.makeBoundingBox());
     }
@@ -269,6 +302,11 @@ public class PuppeteerBodyEntity extends LivingEntity {
                 discard();
                 return;
             }
+            if (isSackGhostBody() && (SackGhostItems.data(target) == null
+                    || !SackGhostItems.data(target).isActiveMaChenXu())) {
+                discard();
+                return;
+            }
             if (substitutePosition != null) {
                 this.setPos(substitutePosition);
             }
@@ -313,6 +351,9 @@ public class PuppeteerBodyEntity extends LivingEntity {
             return false;
         if (org.agmas.noellesroles.game.roles.killer.clone_doctor.CloneDoctorSessionManager.blocksDamage(player))
             return false;
+        if (isSackGhostBody()) {
+            return forwardSackGhostHit(damageSources().playerAttack(player));
+        }
         if (isCloneSubstitute()) {
             discard();
             return true;
@@ -323,6 +364,43 @@ public class PuppeteerBodyEntity extends LivingEntity {
             discard();
         }
         return true;
+    }
+
+    @Override
+    public boolean skipAttackInteraction(net.minecraft.world.entity.Entity attacker) {
+        if (isSackGhostBody() && attacker instanceof Player player) {
+            playerHurt(player);
+            // 消费这次普通攻击，避免同一挥击再走 hurt 重复消耗护盾。
+            return true;
+        }
+        return super.skipAttackInteraction(attacker);
+    }
+
+    /** 只转发有效受击；正常护盾、替死及最终死亡全部由职业数据决定。 */
+    private boolean forwardSackGhostHit(DamageSource source) {
+        if (level().isClientSide() || isRemoved() || forwardingSackGhostHit
+                || isInvulnerableTo(source) || source.is(DamageTypes.IN_WALL)
+                || source.is(DamageTypes.FREEZE) || source.is(DamageTypes.CACTUS)) return false;
+        if (source.getEntity() instanceof Player attacker
+                && org.agmas.noellesroles.game.roles.killer.clone_doctor.CloneDoctorSessionManager.blocksDamage(attacker)) {
+            return false;
+        }
+        Player owner = getOwner();
+        if (!(owner instanceof ServerPlayer serverOwner) || serverOwner.hasDisconnected()
+                || owner.level() != level() || !owner.isAlive() || !GameUtils.isPlayerAliveAndSurvival(owner)) return false;
+        var data = SackGhostItems.data(owner);
+        if (data == null || !data.isActiveMaChenXu() || !data.combatClockRunning()) return false;
+        long tick = level().getGameTime();
+        if (lastSackGhostHitTick == tick && lastSackGhostAttacker == source.getEntity()) return false;
+        lastSackGhostHitTick = tick;
+        lastSackGhostAttacker = source.getEntity();
+        forwardingSackGhostHit = true;
+        try {
+            data.onBodyHit(this, source);
+            return true;
+        } finally {
+            forwardingSackGhostHit = false;
+        }
     }
 
     /**
@@ -355,6 +433,9 @@ public class PuppeteerBodyEntity extends LivingEntity {
     public boolean hurt(DamageSource source, float amount) {
         if (level().isClientSide())
             return false;
+        if (isSackGhostBody()) {
+            return amount > 0 && Float.isFinite(amount) && forwardSackGhostHit(source);
+        }
         if (isCloneSubstitute()) {
             if (amount <= 0 || isInvulnerableTo(source) || source.is(DamageTypes.IN_WALL)) {
                 return false;
@@ -387,6 +468,12 @@ public class PuppeteerBodyEntity extends LivingEntity {
 
     @Override
     public void die(DamageSource damageSource) {
+        if (isSackGhostBody()) {
+            // 外部直接归零生命值时也不得先进入原傀儡死亡或丢弃路径。
+            if (getHealth() <= 0) setHealth(getMaxHealth());
+            forwardSackGhostHit(damageSource);
+            return;
+        }
         if (isCloneSubstitute()) {
             discard();
             return;

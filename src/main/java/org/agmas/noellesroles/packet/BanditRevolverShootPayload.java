@@ -67,6 +67,7 @@ public record BanditRevolverShootPayload(int target) implements CustomPacketPayl
 
     public static void extracted(ServerPlayer player, Entity var6) {
         if (org.agmas.noellesroles.game.roles.innocence.decree.DecreeService.blocksGun(player)) return;
+        if (!org.agmas.noellesroles.game.roles.killer.ma_chen_xu.SackGhostActions.allowAttack(player)) return;
 
         ItemStack mainHandStack = player.getMainHandItem();
         if (mainHandStack.is(TMMItemTags.GUNS)) {

@@ -117,6 +117,7 @@ public final class SackGhostItems {
             case ECHO -> ModItems.GHOST_ART_ECHO;
             case WAIL -> ModItems.GHOST_ART_WAIL;
             case PARASITE -> ModItems.GHOST_ART_PARASITE;
+            case SHROUD -> ModItems.GHOST_ART_SHROUD;
             case SEIZE -> ModItems.GHOST_ART_SEIZE;
         };
     }
@@ -144,6 +145,21 @@ public final class SackGhostItems {
         CompoundTag tag = tag(stack);
         if (tag.hasUUID("Token")) round(owner.serverLevel()).spentArts.add(tag.getUUID("Token"));
         stack.shrink(1);
+    }
+
+    /** 回响在返回或超时后结清同一令牌，搬动物品与回溯副本都不能增加次数。 */
+    public static void consumeToken(ServerPlayer owner, UUID token, ServerLevel origin) {
+        round(origin).spentArts.add(token);
+        for (int i = 0; i <= owner.getInventory().getContainerSize(); i++) {
+            boolean cursor = i == owner.getInventory().getContainerSize();
+            ItemStack stack = cursor ? owner.containerMenu.getCarried() : owner.getInventory().getItem(i);
+            CompoundTag state = tag(stack);
+            if (stack.getItem() instanceof GhostArtItem && state.hasUUID("Token") && token.equals(state.getUUID("Token"))) {
+                if (cursor) owner.containerMenu.setCarried(ItemStack.EMPTY); else owner.getInventory().setItem(i, ItemStack.EMPTY);
+            }
+        }
+        owner.getInventory().setChanged();
+        owner.containerMenu.broadcastChanges();
     }
 
     public static int artCount(Player owner) {
@@ -288,6 +304,8 @@ public final class SackGhostItems {
             for (ServerPlayer owner : handler.player.serverLevel().players()) {
                 var data = data(owner);
                 if (data != null && data.otherworldActive) SackGhostPackets.send(handler.player, owner, data);
+                if (data != null && data.formFlags() != 0) net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(handler.player,
+                        new SackGhostPackets.FormS2C(owner.getUUID(), data.formFlags(), data.formRemaining()));
             }
         });
         ServerTickEvents.END_WORLD_TICK.register(level -> {

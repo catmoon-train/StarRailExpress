@@ -27,6 +27,7 @@ public final class SackGhostRewind {
     public static void register() {
         TimeRewindEvents.CAPTURE.register((player, state) -> {
             stripRelics(state);
+            SackGhostActions.filterRewindSnapshot(player, state);
             for (var owner : player.server.getPlayerList().getPlayers()) {
                 var data = SackGhostItems.data(owner);
                 if (data != null) data.filterRewindSnapshot(player, state);

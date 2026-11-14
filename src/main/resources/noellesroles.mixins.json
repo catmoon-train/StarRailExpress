@@ -215,6 +215,8 @@
     "client.roles.phantom_spirit.PhantomSpiritLerpMixin",
     "client.roles.chino.ChinoHeadRideLerpMixin",
     "client.roles.ma_chen_xu.OtherworldShaderMixin",
+    "client.roles.ma_chen_xu.SackGhostPlayerRenderMixin",
+    "client.roles.ma_chen_xu.SackGhostHandRenderMixin",
     "client.roles.manipulator.CameraMixin",
     "client.roles.manipulator.KeyBindingMixin",
     "client.roles.manipulator.ManipulatorControllerInputMixin",

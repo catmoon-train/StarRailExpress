@@ -48,4 +48,49 @@ class SackGhostLifecycleWiringTest {
         assertTrue(items.contains("SackGhostRewind.register()"));
         assertTrue(items.contains("maintainWards(level, round)"));
     }
+
+    @Test void echoReturnBypassesSharedCooldownWithoutStartingAnotherOne() throws Exception {
+        String role = source("role_data/killer/MaChenXuRoleData.java");
+        String use = role.substring(role.indexOf("public boolean useArt("), role.indexOf("public double drainSan("));
+        assertTrue(use.indexOf("return returnEcho(owner)") < use.indexOf("if (castCooldown > 0)"));
+        String returning = role.substring(role.indexOf("private boolean returnEcho("), role.indexOf("public void onEffigyHit("));
+        assertFalse(returning.contains("castReadyAt ="));
+        assertTrue(returning.contains("finishEcho(owner)"));
+        String items = source("game/roles/killer/ma_chen_xu/SackGhostItems.java");
+        assertTrue(items.contains("spentArts.add(token)"));
+    }
+
+    @Test void parasiteAndBodyUseShieldAwareDeathInsteadOfForcedDeath() throws Exception {
+        String role = source("role_data/killer/MaChenXuRoleData.java");
+        String parasite = role.substring(role.indexOf("private void executeParasite("), role.indexOf("private boolean castSeize("));
+        assertTrue(parasite.indexOf("parasites.remove") < parasite.indexOf("GameUtils.killPlayer("));
+        assertFalse(parasite.contains("forceKillPlayer"));
+        String body = role.substring(role.indexOf("public void onBodyHit("), role.indexOf("private boolean tryEscape("));
+        assertTrue(body.contains("GameUtils.killPlayer("));
+        assertFalse(body.contains("forceKillPlayer"));
+        assertTrue(body.contains("bodyDeathCheck = true"));
+        assertTrue(body.contains("bodyDeathCheck = false"));
+    }
+
+    @Test void escapeStaysInPlaceAndCancelsRatherThanExecutesRealmMarks() throws Exception {
+        String role = source("role_data/killer/MaChenXuRoleData.java");
+        String escape = role.substring(role.indexOf("private boolean tryEscape("), role.indexOf("private void endEscape("));
+        assertTrue(escape.contains("endOtherworld(false)"));
+        assertTrue(escape.contains("SackGhostRules.ESCAPE_DURATION"));
+        assertFalse(escape.contains("teleport"));
+        String events = source("game/roles/killer/ma_chen_xu/MaChenXuEventHandler.java");
+        assertTrue(events.contains("AfterShieldAllowPlayerDeathWithKiller.EVENT.register(ESCAPE_PHASE"));
+        assertTrue(events.contains("clone_substitute_after_shields"));
+    }
+
+    @Test void temporaryGhostAndControlEffectsAreFilteredFromRewind() throws Exception {
+        String role = source("role_data/killer/MaChenXuRoleData.java");
+        assertTrue(role.contains("state.putBoolean(\"Invulnerable\", escapePreviousInvulnerable)"));
+        assertTrue(role.contains("effects.putAll(formEffects)"));
+        assertTrue(role.contains("escapeReadyAt = Math.max(escapeReadyAt, liveEscapeReadyAt)"));
+        assertTrue(source("game/roles/killer/ma_chen_xu/SackGhostRewind.java").contains("SackGhostActions.filterRewindSnapshot(player, state)"));
+        String config = Files.readString(Path.of("src/main/resources/noellesroles.mixins.json"));
+        assertTrue(config.contains("client.roles.ma_chen_xu.SackGhostPlayerRenderMixin"));
+        assertTrue(config.contains("client.roles.ma_chen_xu.SackGhostHandRenderMixin"));
+    }
 }

@@ -13,6 +13,9 @@ import java.util.UUID;
 
 /** 公开领域开关与计时；不包含私有诡术、怨念或背包信息。 */
 public final class SackGhostPackets {
+    public static final int FORM_REALM = 1;
+    public static final int FORM_ESCAPE = 2;
+    public static final int FORM_SHROUD = 4;
     private SackGhostPackets() {}
 
     public record RealmS2C(UUID owner, int remaining, int duration, int stage) implements CustomPacketPayload {
@@ -23,7 +26,28 @@ public final class SackGhostPackets {
         @Override public Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
-    public static void register() { PayloadTypeRegistry.playS2C().register(RealmS2C.ID, RealmS2C.CODEC); }
+    /** 只公开外观状态，不公开背包、威胁来源或替死冷却。 */
+    public record FormS2C(UUID owner, int flags, int remaining) implements CustomPacketPayload {
+        public static final Type<FormS2C> ID = new Type<>(Noellesroles.id("sack_ghost_form"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, FormS2C> CODEC = StreamCodec.of(
+                (buf, packet) -> { buf.writeUUID(packet.owner()); buf.writeVarInt(packet.flags()); buf.writeVarInt(packet.remaining()); },
+                buf -> new FormS2C(buf.readUUID(), buf.readVarInt(), buf.readVarInt()));
+        @Override public Type<? extends CustomPacketPayload> type() { return ID; }
+    }
+
+    /** 蒙眼只发受害者；计时由有效对局时钟维护。 */
+    public record VeilS2C(int remaining) implements CustomPacketPayload {
+        public static final Type<VeilS2C> ID = new Type<>(Noellesroles.id("sack_ghost_veil"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, VeilS2C> CODEC = StreamCodec.of(
+                (buf, packet) -> buf.writeVarInt(packet.remaining()), buf -> new VeilS2C(buf.readVarInt()));
+        @Override public Type<? extends CustomPacketPayload> type() { return ID; }
+    }
+
+    public static void register() {
+        PayloadTypeRegistry.playS2C().register(RealmS2C.ID, RealmS2C.CODEC);
+        PayloadTypeRegistry.playS2C().register(FormS2C.ID, FormS2C.CODEC);
+        PayloadTypeRegistry.playS2C().register(VeilS2C.ID, VeilS2C.CODEC);
+    }
 
     public static void send(ServerPlayer recipient, ServerPlayer owner, MaChenXuRoleData data) {
         ServerPlayNetworking.send(recipient, new RealmS2C(owner.getUUID(), data.otherworldActive ? data.otherworldDuration : 0,
@@ -36,5 +60,10 @@ public final class SackGhostPackets {
 
     public static void publish(ServerLevel level, ServerPlayer owner, MaChenXuRoleData data) {
         for (ServerPlayer recipient : level.players()) send(recipient, owner, data);
+    }
+
+    public static void publishForm(ServerLevel level, ServerPlayer owner, int flags, int remaining) {
+        FormS2C packet = new FormS2C(owner.getUUID(), flags, Math.max(0, remaining));
+        for (ServerPlayer recipient : level.players()) ServerPlayNetworking.send(recipient, packet);
     }
 }

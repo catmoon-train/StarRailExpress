@@ -6,12 +6,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SackGhostRulesTest {
     @Test void generationUsesFixedOpeningPopulationWithTenSecondFloor() {
-        assertEquals(48, SackGhostRules.generationCooldownSeconds(12));
-        assertEquals(36, SackGhostRules.generationCooldownSeconds(24));
-        assertEquals(20, SackGhostRules.generationCooldownSeconds(40));
+        assertEquals(43, SackGhostRules.generationCooldownSeconds(12));
+        assertEquals(31, SackGhostRules.generationCooldownSeconds(24));
+        assertEquals(15, SackGhostRules.generationCooldownSeconds(40));
         assertEquals(10, SackGhostRules.generationCooldownSeconds(50));
         assertEquals(10, SackGhostRules.generationCooldownSeconds(128));
-        assertEquals(60, SackGhostRules.generationCooldownSeconds(-5));
+        assertEquals(55, SackGhostRules.generationCooldownSeconds(-5));
     }
 
     @Test void fourStagesAdvanceAtActualSanThresholds() {
@@ -44,9 +44,9 @@ class SackGhostRulesTest {
 
     @Test void stagesUnlockDeterministicArtPoolsWithoutRealm() {
         assertTrue(GhostArt.unlocked(0).isEmpty());
-        assertEquals(List.of(GhostArt.VEIL, GhostArt.PUSH), GhostArt.unlocked(1));
-        assertEquals(4, GhostArt.unlocked(2).size());
-        assertEquals(6, GhostArt.unlocked(3).size());
+        assertEquals(List.of(GhostArt.VEIL, GhostArt.PUSH, GhostArt.SHROUD), GhostArt.unlocked(1));
+        assertEquals(5, GhostArt.unlocked(2).size());
+        assertEquals(7, GhostArt.unlocked(3).size());
         assertEquals(List.of(GhostArt.values()), GhostArt.unlocked(4));
         for (int stage = 1; stage <= 4; stage++) {
             int current = stage;
@@ -64,7 +64,7 @@ class SackGhostRulesTest {
         assertFalse(SackGhostRules.canReceiveArts(-1, 1));
         assertFalse(SackGhostRules.canReceiveArts(0, 0));
         assertFalse(SackGhostRules.canReceiveArts(0, Integer.MAX_VALUE));
-        assertEquals(40, SackGhostRules.CAST_INTERVAL);
+        assertEquals(200, SackGhostRules.CAST_INTERVAL);
     }
 
     @Test void relicRevelationIncludesTwentyBlockBoundaryAndRequiresBothPermissions() {
@@ -79,8 +79,8 @@ class SackGhostRulesTest {
     }
 
     @Test void chaseAndRescueHaveIndependentBudgets() {
-        assertEquals(20, SackGhostRules.realmAttackSan(3));
-        assertEquals(25, SackGhostRules.realmAttackSan(4));
+        assertEquals(50, SackGhostRules.realmAttackSan(3));
+        assertEquals(70, SackGhostRules.realmAttackSan(4));
         assertEquals(600, SackGhostRules.realmDuration(3));
         assertEquals(800, SackGhostRules.realmDuration(4));
         assertEquals(20, SackGhostRules.REALM_ATTACK_INTERVAL);
@@ -122,5 +122,56 @@ class SackGhostRulesTest {
         assertEquals(0, SackGhostRules.remainingEffectTicks(120, 120));
         assertEquals(0, SackGhostRules.remainingEffectTicks(120, 121));
         assertEquals(120, SackGhostRules.remainingEffectTicks(120, -5));
+    }
+
+    @Test void reusableShroudAndRealmSpellsKeepSeparateConsumptionRules() {
+        for (GhostArt art : GhostArt.values()) {
+            assertEquals(art != GhostArt.SHROUD, SackGhostRules.consumesOnCast(art, false));
+            assertFalse(SackGhostRules.consumesOnCast(art, true));
+        }
+        assertEquals(3000, SackGhostRules.ESCAPE_COOLDOWN);
+        assertEquals(240, SackGhostRules.ESCAPE_DURATION);
+        assertEquals(1300, SackGhostRules.SHROUD_COOLDOWN);
+        assertEquals(300, SackGhostRules.SHROUD_DURATION);
+        assertEquals(160, SackGhostRules.ECHO_WINDOW);
+        assertTrue(SackGhostRules.ECHO_WINDOW < SackGhostRules.CAST_INTERVAL);
+    }
+
+    @Test void parasiteExecutesOnlyZeroSanOrTheExplicitRobotException() {
+        assertTrue(SackGhostRules.parasiteShouldExecute(false, 0));
+        assertTrue(SackGhostRules.parasiteShouldExecute(false, -0.01));
+        assertFalse(SackGhostRules.parasiteShouldExecute(false, 0.001));
+        assertFalse(SackGhostRules.parasiteShouldExecute(false, Double.NaN));
+        assertFalse(SackGhostRules.parasiteShouldExecute(false, Double.NEGATIVE_INFINITY));
+        assertTrue(SackGhostRules.parasiteShouldExecute(true, 1));
+        assertTrue(SackGhostRules.parasiteShouldExecute(true, Double.NaN));
+    }
+
+    @Test void gunWarningsRespectAllegianceAndFifteenBlockBoundary() {
+        assertEquals(0, SackGhostRules.gunThreat(false, 1, true, true));
+        assertEquals(0, SackGhostRules.gunThreat(true, 1, false, false));
+        assertEquals(1, SackGhostRules.gunThreat(true, 225, true, false));
+        assertEquals(2, SackGhostRules.gunThreat(true, 225, true, true));
+        assertEquals(0, SackGhostRules.gunThreat(true, 225.01, true, true));
+        assertEquals(0, SackGhostRules.gunThreat(true, -1, true, true));
+        assertEquals(0, SackGhostRules.gunThreat(true, Double.NaN, true, true));
+        assertEquals(0, SackGhostRules.gunThreat(true, Double.POSITIVE_INFINITY, true, true));
+    }
+
+    @Test void finalArtNumbersAndGradualWailMatchConfirmedDesign() {
+        assertEquals(32, SackGhostRules.VEIL_SAN);
+        assertEquals(60, SackGhostRules.VEIL_DURATION);
+        assertEquals(7, SackGhostRules.PUSH_RADIUS);
+        assertEquals(9, SackGhostRules.PUSH_DISTANCE);
+        assertEquals(35, SackGhostRules.EFFIGY_SAN);
+        assertEquals(12, SackGhostRules.ECHO_DISTANCE);
+        assertEquals(24, SackGhostRules.ECHO_SAN);
+        assertEquals(40, SackGhostRules.WAIL_DURATION / 20 * SackGhostRules.WAIL_SAN);
+        assertEquals(75, SackGhostRules.PARASITE_DURATION / 20 * SackGhostRules.PARASITE_SAN);
+        assertEquals(30, SackGhostRules.SEIZE_SAN);
+        assertEquals(0, SackGhostRules.wailSlowAmplifier(1));
+        assertEquals(1, SackGhostRules.wailSlowAmplifier(40));
+        assertEquals(2, SackGhostRules.wailSlowAmplifier(80));
+        assertEquals(2, SackGhostRules.wailSlowAmplifier(1000));
     }
 }

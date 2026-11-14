@@ -51,6 +51,7 @@ public record ZeroOneFiveShootPayload(int target) implements CustomPacketPayload
         public void receive(@NotNull ZeroOneFiveShootPayload payload, ServerPlayNetworking.@NotNull Context context) {
             ServerPlayer player = context.player();
             if (org.agmas.noellesroles.game.roles.innocence.decree.DecreeService.blocksGun(player)) return;
+            if (!org.agmas.noellesroles.game.roles.killer.ma_chen_xu.SackGhostActions.allowAttack(player)) return;
             ItemStack mainHandStack = player.getMainHandItem();
 
             if (player.isSpectator()) {

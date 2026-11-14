@@ -326,6 +326,13 @@ public class ModEntities {
                     .trackedUpdateRate(2)
                     .build());
 
+    /** 布袋鬼活化草人，使用独立地面寻路实体与本人皮肤渲染。 */
+    public static final EntityType<SackGhostEffigyEntity> SACK_GHOST_EFFIGY = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE, Noellesroles.id("sack_ghost_effigy"),
+            EntityType.Builder.of(SackGhostEffigyEntity::new, MobCategory.CREATURE)
+                    .sized(0.6F, 1.8F).clientTrackingRange(16).updateInterval(1)
+                    .noSave().build("sack_ghost_effigy"));
+
     /**
      * 咸鱼假尸体实体 - 咸鱼晒咸鱼技能时生成的假尸体
      */
@@ -790,6 +797,7 @@ public class ModEntities {
         FabricDefaultAttributeRegistry.register(WHEELCHAIR, WheelchairEntity.createAttributes());
         // 注册傀儡本体实体属性（LivingEntity 必须注册属性才能生成）
         FabricDefaultAttributeRegistry.register(PUPPETEER_BODY, LivingEntity.createLivingAttributes());
+        FabricDefaultAttributeRegistry.register(SACK_GHOST_EFFIGY, SackGhostEffigyEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(SALTED_FISH_BODY,
                 io.wifi.starrailexpress.content.entity.PlayerBodyEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(DOOMED_SINNER_BODY,

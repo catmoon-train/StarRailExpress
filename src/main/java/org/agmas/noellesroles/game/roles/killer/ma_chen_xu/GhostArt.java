@@ -5,7 +5,7 @@ import java.util.List;
 
 /** 已学会的诡术才进入抽取池；不再区分主诡术与自动释放的小诡术。 */
 public enum GhostArt {
-    VEIL("veil", 1), PUSH("push", 1),
+    VEIL("veil", 1), PUSH("push", 1), SHROUD("shroud", 1),
     EFFIGY("effigy", 2), ECHO("echo", 2),
     WAIL("wail", 3), PARASITE("parasite", 3),
     SEIZE("seize", 4);
