@@ -107,6 +107,8 @@ public final class SettlementStageRenderer {
                 io.wifi.starrailexpress.SRE.LOGGER.warn("结算皮肤布景回调失败: {}", snapshot.mvpSkin(), error);
             }
         }
+        // 快照遍历：循环体内会调用外部皮肤回调，它们可能在遍历期间触发 clear()/arrange() 重入式修改列表，
+        // 直接遍历 SettlementClient.actors 会抛 ConcurrentModificationException。拷贝一份可避免崩溃。
         for (var actor : frameActors) {
             if (!SettlementClient.isPlaying() || SettlementClient.snapshot() != snapshot) break;
             var info = ClientSkinCache.getCachedPlayerInfo(actor.fact.id());
