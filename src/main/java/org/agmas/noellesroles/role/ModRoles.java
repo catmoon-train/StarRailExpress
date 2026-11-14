@@ -3882,7 +3882,8 @@ public class ModRoles {
      */
     public static final ResourceLocation ROULETTE_DEVIL_ID = Noellesroles.id("roulette_devil");
     public static final SRERole ROULETTE_DEVIL = TMMRoles.registerRole(
-            new org.agmas.noellesroles.game.roles.neutral.roulette_devil.RouletteDevilRole(ROULETTE_DEVIL_ID));
+            new org.agmas.noellesroles.game.roles.neutral.roulette_devil.RouletteDevilRole(ROULETTE_DEVIL_ID))
+            .setDefaultEnableChance(3000);
 
     public static void init() {
         BounsRoles.init();
