@@ -1212,7 +1212,8 @@ public class ModRoles {
             .setTaskReward(1, -1, ModItems.FOOD_STUFF.getDefaultInstance())
             .setTaskRewardSilent(true); // 每完成一个任务给 1 个食材，不限次数，静默发放
     public static final SRERole DECREE_MAGE = TMMRoles.registerRole(
-            new org.agmas.noellesroles.game.roles.innocence.decree.DecreeMageRole());
+            new org.agmas.noellesroles.game.roles.innocence.decree.DecreeMageRole())
+            .setAddedVersion("4.5");
     public static SRERole MUSHROOM_SCHOLAR = TMMRoles.registerRole(
             new MushroomScholarRole(MUSHROOM_SCHOLAR_ID, new Color(116, 87, 58).getRGB(),
                     true, false, SRERole.MoodType.REAL,
@@ -2109,7 +2110,8 @@ public class ModRoles {
             .setCanSeeCoin(true)
             .setCanBeRandomedByOtherRoles(false)
             .setDefaultEnableChance(5000)
-            .setDefaultEnableNeededPlayerCount(12);
+            .setDefaultEnableNeededPlayerCount(12)
+            .setCannotAppearInCommandBlockEvent(true);
 
     /**
      * 葬仪角色 - 杀手方中立阵营
@@ -2413,7 +2415,8 @@ public class ModRoles {
             .setDefaultMax(0)
             .setHiddenForRoleRotation(true)
             .setPassiveIncome(false)
-            .setCanSeeCoin(false);
+            .setCanSeeCoin(false)
+            .setAddedVersion("4.5");
 
     /** 钟摆。只由命令方块事件改写产生。先记下位置，再摆回去。 */
     public static final SRERole PENDULUM = TMMRoles.registerRole(
@@ -3890,7 +3893,9 @@ public class ModRoles {
      */
     public static final ResourceLocation ROULETTE_DEVIL_ID = Noellesroles.id("roulette_devil");
     public static final SRERole ROULETTE_DEVIL = TMMRoles.registerRole(
-            new org.agmas.noellesroles.game.roles.neutral.roulette_devil.RouletteDevilRole(ROULETTE_DEVIL_ID));
+            new org.agmas.noellesroles.game.roles.neutral.roulette_devil.RouletteDevilRole(ROULETTE_DEVIL_ID))
+            .setDefaultEnableChance(3000)
+            .setAddedVersion("4.5");
 
     public static void init() {
         BounsRoles.init();

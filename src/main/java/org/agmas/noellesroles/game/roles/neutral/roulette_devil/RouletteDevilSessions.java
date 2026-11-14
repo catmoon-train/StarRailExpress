@@ -28,6 +28,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.phys.AABB;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.block_entity.DevilRouletteTableEntity;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.RouletteDevilC2SPacket;
 import org.agmas.noellesroles.packet.RouletteDevilStateS2CPacket;
@@ -168,6 +169,9 @@ public final class RouletteDevilSessions {
                     s.table = table;
                     if (!table.startDemonMatch(demon, other, (winner, loser) -> settle(s, server, winner, loser))) throw new IllegalStateException("Cannot start roulette");
                     s.entered = true;
+                    // 回放记录：轮盘恶魔玩家将与对手进行轮盘赌对决
+                    ReplayEventLog.record("replay.event.roulette_devil.duel_start",
+                            ReplayEventLog.player(demon), ReplayEventLog.player(other));
                 } catch (RuntimeException error) {
                     close(s, server); Noellesroles.LOGGER.error("轮盘恶魔房间启动失败，已返还玩家", error); continue;
                 }
@@ -228,6 +232,8 @@ public final class RouletteDevilSessions {
         }
         ServerPlayer victim = server.getPlayerList().getPlayer(loser);
         ServerPlayer victor = server.getPlayerList().getPlayer(winner);
+        // 回放记录：轮盘赌对决结果已明，记录获胜者
+        if (victor != null) ReplayEventLog.record("replay.event.roulette_devil.duel_win", ReplayEventLog.player(victor));
         if (!spared && victim != null && GameUtils.isPlayerAliveAndSurvival(victim)) {
             DEATHS.add(loser);
             try { victim.setInvulnerable(false); GameUtils.killPlayer(victim, true, victor, RouletteDevilRole.DEATH, true); }
