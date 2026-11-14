@@ -381,6 +381,13 @@ public class GameConstants {
         public static ResourceLocation MELT = Noellesroles.id("melt");
         /** 雪傀儡推出的雪球把玩家的虚拟生命撞空 */
         public static ResourceLocation SNOWBALL_CRUSH = Noellesroles.id("snowball_crush");
+
+        // 钟摆（Pendulum）：分针命中处决死因
+        public static ResourceLocation MINUTE_NEEDLE = Noellesroles.id("minute_needle");
+        // 轮盘恶魔（Roulette Devil）：对决落败死因
+        public static ResourceLocation ROULETTE_DEVIL_DUEL = Noellesroles.id("roulette_devil_duel");
+        // 马辰虚（布袋鬼）寄生噬魂死因
+        public static ResourceLocation GHOST_PARASITE = Noellesroles.id("ghost_parasite");
         private static ResourceLocation itemId(Item item) {
             return BuiltInRegistries.ITEM.getKey(item);
         }

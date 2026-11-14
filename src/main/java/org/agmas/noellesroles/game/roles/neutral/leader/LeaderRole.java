@@ -120,8 +120,12 @@ public class LeaderRole extends CustomWinnerRole implements EggRoleInterface {
             if (fr == null) {
                 continue;
             }
-            // 初学者追随者一旦转职（不再是初学者），领袖不再随其获胜
-            if (originalRolePath.equals("initiate") && !fr.identifier().getPath().equals("initiate")) {
+            // 追随者一旦不再是招募时的中立职业（转职 / 被其它机制转换），
+            // 它就是"以后来的职业身份"获胜，没有以原本的中立职业身份获胜，
+            // 领袖不可再随其判定胜利。
+            // 例外：失忆患者被领袖强制转型为杀手后，设计上领袖随杀手身份获胜。
+            if (!originalRolePath.isEmpty() && !originalRolePath.equals(fr.identifier().getPath())
+                    && !originalRolePath.equals("amnesiac")) {
                 continue;
             }
             // 森近霖之助 / 河城荷取：金币依附（任意胜利，非独立）
