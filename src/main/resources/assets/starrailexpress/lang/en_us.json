@@ -4087,6 +4087,7 @@
   "replay.event.gambler.miracle": "§6🎲§r %s triggered the Gambler's miracle",
   "replay.event.roulette_devil.duel_start": "§6🎰§r %s will duel %s in roulette",
   "replay.event.roulette_devil.duel_win": "§6🎰§r %s won the roulette duel",
+  "replay.event.jester.berserk": "§6🤡§r %s activated %s's clown berserk",
   "replay.event.thief.steal_money": "§e💰§r %s stole %s %s coins",
   "replay.event.thief.steal_item": "§e🕵️§r %s stole %s's %s",
   "replay.event.shapeshifter.change_skin": "§d🎭§r %s took on %s's appearance",

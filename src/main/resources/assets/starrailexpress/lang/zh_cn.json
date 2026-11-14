@@ -4087,6 +4087,7 @@
   "replay.event.gambler.miracle": "§6🎲§r %s 触发了赌徒的奇迹",
   "replay.event.roulette_devil.duel_start": "§6🎰§r %s 将与 %s 进行轮盘赌对决",
   "replay.event.roulette_devil.duel_win": "§6🎰§r %s 赢得了轮盘赌对决",
+  "replay.event.jester.berserk": "§6🤡§r %s 激活了 %s 的小丑狂暴",
   "replay.event.thief.steal_money": "§e💰§r %s 偷了 %s %s 金币",
   "replay.event.thief.steal_item": "§e🕵️§r %s 偷了 %s 的 %s",
   "replay.event.shapeshifter.change_skin": "§d🎭§r %s 变成了 %s 的模样",
