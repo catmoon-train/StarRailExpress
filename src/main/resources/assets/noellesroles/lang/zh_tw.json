@@ -3242,6 +3242,7 @@
   "message.noellesroles.sack.realm_locked": "階段3才可開啟裏世界。",
   "message.noellesroles.sack.realm_begins": "裏世界降臨！前2秒敵人無法移動、使用物品或技能，布袋鬼也無法攻擊。",
   "message.noellesroles.sack.realm_hit": "裏世界近戰：-%s SAN。SAN歸零將被打上死亡標記！",
+  "message.noellesroles.sack.realm_hit_virtual": "裏世界近戰：-%s 點虛擬血量。歸零將被打上死亡標記！",
   "message.noellesroles.sack.condemned": "你已被打上死亡標記！裏世界自然結束時將被處死。淨雨可解標記，鎮魂印可破境免死。",
   "message.noellesroles.sack.mark_cleansed": "淨雨已清除你的領域死亡標記。",
   "message.noellesroles.sack.realm_ended": "裏世界自然結束，未清除的死亡標記開始結算。",

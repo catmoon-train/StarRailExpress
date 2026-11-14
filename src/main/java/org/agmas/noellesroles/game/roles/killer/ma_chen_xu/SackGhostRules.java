@@ -59,6 +59,14 @@ public final class SackGhostRules {
     }
 
     public static int realmAttackSan(int stage) { return stage >= 4 ? 70 : 50; }
+
+    /** 中立与大妖精这类没有真实SAN的目标改扣虚拟血量，保证每两次命中可清空默认20点虚拟血量。 */
+    public static boolean usesVirtualHealth(boolean neutral, boolean fakeSan) { return neutral || fakeSan; }
+
+    public static int realmAttackVirtual(int stage) { return Math.max(1, toVirtualDamage(realmAttackSan(stage))); }
+
+    public static int toVirtualDamage(int sanDamage) { return Math.max(1, sanDamage * 2 / 10); }
+
     public static int realmDuration(int stage) { return stage >= 4 ? 800 : 600; }
 
     public static boolean consumesOnCast(GhostArt art, boolean realmActive) {
