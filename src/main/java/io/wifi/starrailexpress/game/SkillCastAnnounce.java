@@ -122,9 +122,9 @@ public final class SkillCastAnnounce {
         return isCivilianFaction(role);
     }
 
-    /** 平民阵营：乘客侧（含警长），不含杀手与中立。 */
+    /** 平民阵营：乘客侧（含警长），不含杀手与中立；按判定层口径（含隐藏身份为好人团队）。 */
     private static boolean isCivilianFaction(SRERole role) {
-        return role.isInnocent() && !role.isNeutrals() && !role.isKiller();
+        return RoleTeam.isInnocentCampJudged(role);
     }
 
     private static boolean hasEntries(List<String> list) {

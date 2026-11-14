@@ -21,6 +21,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.AreasSettings;
+import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SREAbstractInfoClass;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -367,10 +368,11 @@ public class RoleUtils extends MCItemsUtils {
         if (modifier == null || role == null) {
             return false;
         }
-        if (modifier.civilianOnly && !role.isInnocent()) {
+        // 修饰符的阵营生成判断统一走最真实的阵营（RoleTeam，不看隐藏身份）
+        if (modifier.civilianOnly && !RoleTeam.isInnocentCamp(role)) {
             return false;
         }
-        if (modifier.killerOnly && !role.canUseKiller()) {
+        if (modifier.killerOnly && !RoleTeam.isKillerTeamReal(role)) {
             return false;
         }
         if (modifier.cannotBeAppliedTo != null && modifier.cannotBeAppliedTo.contains(role)) {

@@ -675,6 +675,7 @@ public class SREModifier extends SREAbstractInfoClass {
             return false;
         }
         for (RoleTeam team : this.cannotBeAppliedToTeams) {
+            // 专属修饰符按「真实阵营」口径：隐藏身份不参与修饰符适用性判定。
             if (team.matches(role)) {
                 return true;
             }
@@ -740,6 +741,7 @@ public class SREModifier extends SREAbstractInfoClass {
             return true;
         }
         for (RoleTeam team : this.canOnlyBeAppliedToTeams) {
+            // 专属修饰符按「真实阵营」口径：隐藏身份不参与修饰符适用性判定。
             if (team.matches(role)) {
                 return true;
             }

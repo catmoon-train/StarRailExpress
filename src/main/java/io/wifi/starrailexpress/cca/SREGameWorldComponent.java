@@ -1453,6 +1453,11 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         return RoleTeam.isInnocentTeamReal(role);
     }
 
+    /**
+     * 好人团队（判定层，{@link RoleTeam#isInnocentTeam(SRERole)}）：
+     * 乘客 + 警长 + 好人方中立 + 隐藏身份为好人团队（含乘客 / 警长 / 好人方中立）的职业。
+     * <p>需要真实阵营口径请用 {@link RoleTeam#isInnocentTeamReal(SRERole)}。
+     */
     public boolean isInnocentTeam(UUID player) {
         if (player != null) {
             return isInnocentTeamRoleStatic(this.getAllegianceRole(player));
@@ -1460,6 +1465,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         return false;
     }
 
+    /** 好人团队（判定层），与 {@link #isInnocentTeam(UUID)} 同义。 */
     public boolean isInnocentTeam(Player player) {
         if (player != null) {
             return isInnocentTeam(player.getUUID());
@@ -1467,11 +1473,22 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         return false;
     }
 
+    /** 好人团队（判定层），静态入口。 */
     public static boolean isInnocentTeamStatic(Player player) {
         if (player != null) {
             return getInstance(player).isInnocentTeam(player.getUUID());
         }
         return false;
+    }
+
+    /** 中立团队（判定层，{@link RoleTeam#isNeutralTeam(SRERole)}）。 */
+    public boolean isNeutralTeam(@NotNull UUID player) {
+        return RoleTeam.isNeutralTeam(getAllegianceRole(player));
+    }
+
+    /** 中立团队（判定层）。 */
+    public boolean isNeutralTeam(@NotNull Player player) {
+        return isNeutralTeam(player.getUUID());
     }
 
     public boolean canAutoAddMoney(ServerPlayer player) {

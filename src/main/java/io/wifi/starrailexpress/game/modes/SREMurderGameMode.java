@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.CustomWinnerRoleInterface;
 import io.wifi.starrailexpress.api.GameMode;
+import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -396,13 +397,14 @@ public class SREMurderGameMode extends GameMode {
         if (!modifier.isTeamApplicable(role)) {
             return false;
         }
-        if (modifier.killerOnly && (role == null || !role.canUseKiller())) {
+        // 修饰符的阵营生成判断统一走最真实的阵营（RoleTeam，不看隐藏身份）
+        if (modifier.killerOnly && !RoleTeam.isKillerTeamReal(role)) {
             return false;
         }
-        if (modifier.civilianOnly && !gameWorldComponent.isInnocent(player)) {
+        if (modifier.civilianOnly && !RoleTeam.isInnocentCamp(role)) {
             return false;
         }
-        if (modifier.notVigilante && gameWorldComponent.isVigilanteTeam(player)) {
+        if (modifier.notVigilante && RoleTeam.isSheriff(role)) {
             return false;
         }
         return true;

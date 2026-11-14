@@ -526,24 +526,29 @@ public final class TwinChildrenHandler {
     }
 
     /**
-     * 是否属于杀手团队（杀手阵营 + 杀手方中立 + 隐藏身份为杀手团队）。
+     * 是否属于杀手团队（杀手阵营 + 杀手方中立），<b>按真实阵营</b>判定。
      *
      * <p>
-     * 统一走权威阵营枚举 {@link RoleTeam#isKillerTeam(SRERole)}，
+     * 统一走权威阵营枚举 {@link RoleTeam#isKillerTeamReal(SRERole)}（不看隐藏身份，
+     * 例如隐藏为杀手团队的魔术师真实仍是平民），
      * 这样随机分配层的 {@code setCannotAppliedToTeam} 与本类的兜底判定不会出现分歧。
      */
     static boolean isKillerFaction(@Nullable SRERole role) {
-        return RoleTeam.isKillerTeam(role);
+        return RoleTeam.isKillerTeamReal(role);
     }
 
+    /**
+     * 阵营归类，<b>按真实阵营</b>：杀手团队 → KILLER，好人阵营本体（乘客 / 警长）→ INNOCENT，
+     * 其余（含好人方中立、杀手方中立之外的各中立细分）→ INDEPENDENT_NEUTRAL。
+     */
     static Faction factionOf(SRERole role) {
         if (role == null) {
             return Faction.INDEPENDENT_NEUTRAL;
         }
-        if (RoleTeam.isKillerTeam(role)) {
+        if (RoleTeam.isKillerTeamReal(role)) {
             return Faction.KILLER;
         }
-        if (RoleTeam.isInnocentTeam(role)) {
+        if (RoleTeam.isInnocentCamp(role)) {
             return Faction.INNOCENT;
         }
         return Faction.INDEPENDENT_NEUTRAL;

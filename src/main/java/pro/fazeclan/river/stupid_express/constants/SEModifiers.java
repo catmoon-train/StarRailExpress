@@ -397,11 +397,12 @@ public class SEModifiers {
              */
             int fatherRoleType = 0;
             if (fatherRole != null) {
-                if (fatherRole.isInnocent()) {
+                // 阵营归类统一按「真实阵营」（RoleTeam，不看隐藏身份）
+                if (RoleTeam.isInnocentCamp(fatherRole)) {
                     fatherRoleType = 0;
-                } else if (fatherRole.isNeutralForKiller() && fatherRole.isNeutrals()) {
+                } else if (RoleTeam.NEUTRAL_KILLER.matches(fatherRole)) {
                     fatherRoleType = 3;
-                } else if (SREGameWorldComponent.isKillerTeamRoleStatic(fatherRole)) {
+                } else if (RoleTeam.isKillerTeamReal(fatherRole)) {
                     fatherRoleType = 2;
                 } else {
                     fatherRoleType = 1;
@@ -417,23 +418,23 @@ public class SEModifiers {
                             var role = gameComponent.getRole(candidate);
                             if (role != null) {
                                 if (fatherRoleType == 0) {
-                                    if (role.isInnocent() && !role.isVigilanteTeam()) {
+                                    if (RoleTeam.CIVILIAN.matches(role)) {
                                         secondPersonality = candidate;
                                         break;
                                     }
                                 } else if (fatherRoleType == 1) {
-                                    if ((!role.isInnocent() && !role.canUseKiller())
-                                            || (role.isNeutrals()) && !role.isNeutralForKiller()) {
+                                    if (RoleTeam.NEUTRAL.matches(role)
+                                            && !RoleTeam.NEUTRAL_KILLER.matches(role)) {
                                         secondPersonality = candidate;
                                         break;
                                     }
                                 } else if (fatherRoleType == 3) {
-                                    if ((role.isNeutrals() && role.isNeutralForKiller())) {
+                                    if (RoleTeam.NEUTRAL_KILLER.matches(role)) {
                                         secondPersonality = candidate;
                                         break;
                                     }
                                 } else {
-                                    if (!role.isInnocent() && role.canUseKiller() && !role.isNeutrals()) {
+                                    if (RoleTeam.isKiller(role)) {
                                         secondPersonality = candidate;
                                         break;
                                     }
@@ -506,7 +507,7 @@ public class SEModifiers {
                     var gameComponent = SREGameWorldComponent.KEY.get(sp.serverLevel());
                     if (gameComponent != null) {
                         var role = gameComponent.getRole(player);
-                        if (role != null && role.isNeutrals()) {
+                        if (RoleTeam.NEUTRAL.matches(role)) {
                             sp.addEffect(
                                     new MobEffectInstance(ModEffects.STAMINA_BOOST, 10000000, 1, false, false, false));
                         }

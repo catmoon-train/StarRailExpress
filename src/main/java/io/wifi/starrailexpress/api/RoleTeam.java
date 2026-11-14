@@ -30,19 +30,24 @@ import net.minecraft.world.entity.player.Player;
  * <li><b>阵营（camp）</b>：{@link #matches(SRERole)}，职业<b>真实</b>属于哪个阵营，
  * 用于展示、筛选、胜利结算。</li>
  * <li><b>团队（team）</b>：{@link #isKillerTeam(SRERole)} / {@link #isInnocentTeam(SRERole)}，
- * 把若干阵营合并成一个「大团队」，并按 {@link SRERole#setHiddenTeam(RoleTeam)} 生效
+ * 把若干阵营合并成一个「大团队」，并按 {@link SRERole#setHiddenTeam(RoleTeam.Team)} 生效
  * （隐藏身份优先于真实阵营）。</li>
  * <li><b>判定层 vs 真实层</b>：判定层（{@code isXxxTeam}）含隐藏身份，用于频道、报幕、透视、同伙可见性等；
  * 真实层（{@code isXxxTeamReal}）忽略隐藏身份，用于胜利结算、存活统计、小脑（误杀）判定。</li>
  * </ol>
  *
- * <h2>团队构成</h2>
+ * <h2>团队构成（{@link Team}）</h2>
  * <ul>
- * <li><b>杀手团队</b>：{@link #KILLER}（杀手阵营）+ {@link #NEUTRAL_KILLER}（杀手方中立）
+ * <li><b>好人团队</b>（{@link Team#INNOCENT}）：{@link #CIVILIAN}（乘客）+ {@link #SHERIFF}（警长）
+ * + {@link #NEUTRAL_INNOCENT}（好人方中立）+ 隐藏身份为好人团队的职业。</li>
+ * <li><b>杀手团队</b>（{@link Team#KILLER}）：{@link #KILLER}（杀手）+ {@link #NEUTRAL_KILLER}（杀手方中立）
  * + 隐藏身份为杀手团队的职业（如魔术师）。</li>
- * <li><b>好人团队</b>：{@link #CIVILIAN}（乘客）+ {@link #SHERIFF}（警长）+ {@link #NEUTRAL_INNOCENT}
- * （好人方中立）+ 隐藏身份为好人团队的职业。</li>
+ * <li><b>中立团队</b>（{@link Team#NEUTRAL}）：{@link #NEUTRAL} 及全部中立细分
+ * + 隐藏身份为中立团队的职业；隐藏为中立团队时，中立细分（偏好 / 杀手方 / 特殊 / 事件 / 独立胜利）
+ * 仍按真实阵营细分判定。</li>
  * </ul>
+ * <p>隐藏身份（{@link SRERole#setHiddenTeam(Team)}）只能伪装到「团队」这一层，
+ * 不能指定团队内部的具体阵营。
  *
  * <h2>阵营细则</h2>
  * <ul>
@@ -117,20 +122,75 @@ public enum RoleTeam {
 
     // ───────────────────────── 阵营 → 团队 ─────────────────────────
 
+    /**
+     * 大团队。<b>唯一</b>用于 {@link SRERole#setHiddenTeam(RoleTeam.Team)} 的入参 ——
+     * 隐藏身份只伪装到「团队」这一层，不区分团队内部的具体阵营（平民 / 警长 / 各中立细分）。
+     */
+    public enum Team {
+        /** 好人团队：乘客 + 警长 + 好人方中立。 */
+        INNOCENT,
+        /** 杀手团队：杀手 + 杀手方中立。 */
+        KILLER,
+        /** 中立团队：全部中立细分。 */
+        NEUTRAL;
+
+        /** 该团队是否包含 {@code camp} 阵营。 */
+        public boolean contains(RoleTeam camp) {
+            return camp != null && camp.team() == this;
+        }
+
+        /** 阵营 → 团队；{@code camp} 为 {@code null} 时返回 {@code null}。 */
+        public static RoleTeam.Team of(RoleTeam camp) {
+            return camp == null ? null : camp.team();
+        }
+
+        /** 真实团队（不读隐藏身份）；未归类职业兜底为 {@link #NEUTRAL}。 */
+        public static RoleTeam.Team actualOf(SRERole role) {
+            RoleTeam camp = RoleTeam.of(role);
+            return camp == null ? NEUTRAL : camp.team();
+        }
+
+        /** 判定团队（隐藏身份优先）；未设置隐藏身份时与 {@link #actualOf(SRERole)} 相同。 */
+        public static RoleTeam.Team of(SRERole role) {
+            if (role == null) {
+                return NEUTRAL;
+            }
+            RoleTeam.Team hidden = role.getHiddenTeam();
+            return hidden != null ? hidden : actualOf(role);
+        }
+    }
+
+    /** 该阵营所属团队。 */
+    public Team team() {
+        return switch (this) {
+            case CIVILIAN, SHERIFF, NEUTRAL_INNOCENT -> Team.INNOCENT;
+            case KILLER, NEUTRAL_KILLER -> Team.KILLER;
+            case NEUTRAL, NEUTRAL_SPECIAL, NEUTRAL_EVENT, NEUTRAL_INDEPENDENT_WIN -> Team.NEUTRAL;
+        };
+    }
+
+    /**
+     * 该阵营是否是「团队代表阵营」（{@link #CIVILIAN} / {@link #KILLER} / {@link #NEUTRAL}）。
+     * <p>隐藏身份只到团队层，因此团队一致时代表阵营直接命中；团队内部细分（警长 / 各中立细分）
+     * 仍按真实阵营判定，见 {@link #matchesJudged(SRERole)}。
+     */
+    public boolean isTeamRepresentative() {
+        return this == CIVILIAN || this == KILLER || this == NEUTRAL;
+    }
+
     /** 该阵营是否属于「杀手团队」：{@link #KILLER} 与 {@link #NEUTRAL_KILLER}。 */
     public boolean isKillerTeam() {
-        return this == KILLER || this == NEUTRAL_KILLER;
+        return team() == Team.KILLER;
     }
 
     /** 该阵营是否属于「好人团队」：{@link #CIVILIAN}、{@link #SHERIFF} 与 {@link #NEUTRAL_INNOCENT}。 */
     public boolean isInnocentTeam() {
-        return this == CIVILIAN || this == SHERIFF || this == NEUTRAL_INNOCENT;
+        return team() == Team.INNOCENT;
     }
 
-    /** 该阵营是否属于「中立」大类（含全部中立细分）。 */
+    /** 该阵营是否属于「中立团队」（含全部中立细分）。 */
     public boolean isNeutralTeam() {
-        return this == NEUTRAL || this == NEUTRAL_INNOCENT || this == NEUTRAL_KILLER
-                || this == NEUTRAL_SPECIAL || this == NEUTRAL_EVENT || this == NEUTRAL_INDEPENDENT_WIN;
+        return team() == Team.NEUTRAL;
     }
 
     // ───────────────────────── 阵营判定 ─────────────────────────
@@ -158,20 +218,26 @@ public enum RoleTeam {
     }
 
     /**
-     * 该职业是否属于此阵营（<b>判定层</b>）：真实阵营命中，或隐藏身份恰好就是此阵营
-     * （{@link SRERole#setHiddenTeam(RoleTeam)}）。
-     * <p>
-     * 跨阵营但同团队的隐藏（例如隐藏为 {@link #KILLER}、询问 {@link #NEUTRAL_KILLER}）请用
-     * {@link #isKillerTeam(SRERole)} / {@link #isInnocentTeam(SRERole)} 这类团队级判定。
+     * 该职业是否属于此阵营（<b>判定层</b>，隐藏身份优先）。
+     * <ul>
+     * <li>未设置隐藏身份：等价于真实阵营 {@link #matches(SRERole)}；</li>
+     * <li>隐藏身份的团队与 {@link #team()} 不同：返回 false（伪装成别的团队后不再按本阵营算）；</li>
+     * <li>团队相同：{@link #isTeamRepresentative()} 的代表阵营直接命中；
+     * 团队内部细分（警长 / 各中立细分）仍按真实阵营 {@link #matches(SRERole)} 判定。</li>
+     * </ul>
      */
     public boolean matchesJudged(SRERole role) {
         if (role == null) {
             return false;
         }
-        if (role.isHidingAsTeam(this)) {
-            return true;
+        RoleTeam.Team hidden = role.getHiddenTeam();
+        if (hidden == null) {
+            return this.matches(role);
         }
-        return this.matches(role);
+        if (hidden != this.team()) {
+            return false;
+        }
+        return this.isTeamRepresentative() || this.matches(role);
     }
 
     /** 玩家维度的实际阵营判断；职业池筛选仍使用 {@link #matches(SRERole)}。 */
@@ -205,17 +271,39 @@ public enum RoleTeam {
         return role != null && (CIVILIAN.matches(role) || SHERIFF.matches(role));
     }
 
-    /** 中立大类（任意中立细分，判定层：含隐藏身份为该中立细分的职业）。 */
+    /**
+     * <b>好人阵营（判定层）</b>：隐藏身份属于好人团队（{@link #isInnocentTeam()}）时按好人阵营对待，
+     * 否则回退到真实好人阵营 {@link #isInnocentCamp(SRERole)}。
+     * <p>用于「这个职业算不算好人」的判定（修饰符适用、播报、目标筛选等）；
+     * 结算 / 数值仍请用 {@link #isInnocentCamp(SRERole)} 或 {@code role.isInnocent()}。
+     */
+    public static boolean isInnocentCampJudged(SRERole role) {
+        if (role == null) {
+            return false;
+        }
+        RoleTeam.Team hidden = role.getHiddenTeam();
+        if (hidden != null) {
+            return hidden == RoleTeam.Team.INNOCENT;
+        }
+        return isInnocentCamp(role);
+    }
+
+    /** <b>中立团队（判定层）</b>：隐藏身份为中立团队时命中，否则回退真实中立判定。 */
+    public static boolean isNeutralTeam(SRERole role) {
+        return NEUTRAL.matchesJudged(role);
+    }
+
+    /** 中立大类（任意中立细分，判定层：隐藏为中立团队也算）。 */
     public static boolean isNeutral(SRERole role) {
         return NEUTRAL.matchesJudged(role);
     }
 
-    /** 杀手方中立（随杀手一同胜利的中立，判定层：含隐藏身份为杀手方中立的职业）。 */
+    /** 杀手方中立（随杀手一同胜利的中立，判定层：隐藏为中立团队时按真实阵营细分）。 */
     public static boolean isNeutralForKiller(SRERole role) {
         return NEUTRAL_KILLER.matchesJudged(role);
     }
 
-    /** 好人方中立（随好人一同胜利的中立，判定层：含隐藏身份为好人方中立的职业）。 */
+    /** 好人方中立（随好人一同胜利的中立，判定层：隐藏为中立团队时按真实阵营细分）。 */
     public static boolean isNeutralForInnocent(SRERole role) {
         return NEUTRAL_INNOCENT.matchesJudged(role);
     }
@@ -230,10 +318,10 @@ public enum RoleTeam {
         if (role == null) {
             return false;
         }
-        RoleTeam hidden = role.getHiddenTeam();
+        RoleTeam.Team hidden = role.getHiddenTeam();
         if (hidden != null) {
             // 隐藏身份优先：隐藏成杀手团队 → 算杀手团队；隐藏成别的团队 → 不再算杀手团队。
-            return hidden.isKillerTeam();
+            return hidden == RoleTeam.Team.KILLER;
         }
         return isKillerTeamReal(role);
     }
@@ -259,9 +347,9 @@ public enum RoleTeam {
         if (role == null) {
             return false;
         }
-        RoleTeam hidden = role.getHiddenTeam();
+        RoleTeam.Team hidden = role.getHiddenTeam();
         if (hidden != null) {
-            return hidden.isInnocentTeam();
+            return hidden == RoleTeam.Team.INNOCENT;
         }
         return isInnocentTeamReal(role);
     }

@@ -3497,8 +3497,8 @@ public class ModRoles {
     /**
      * 魔术师角色 - 好人阵营（从模仿者移植）
      * - 好人阵营 (isInnocent = true)，胜利结算按平民阵营
-     * - 隐藏身份为杀手阵营 (setHiddenTeam(RoleTeam.KILLER))：指挥官频道、葬仪死亡报幕、
-     * 杀手透视红框、杀手同伙列表等「阵营判定」全部按杀手处理，但真实阵营仍是平民
+     * - 隐藏身份为杀手团队 (setHiddenTeam(RoleTeam.Team.KILLER))：指挥官频道、葬仪死亡报幕、
+     * 杀手透视红框、杀手同伙列表等「阵营判定」全部按杀手团队处理，但真实阵营仍是平民
      * - 能捡枪 (setCanPickUpRevolver(true))
      * - 做任务维持san值
      * - 商店购买假枪（175金币）
@@ -3516,9 +3516,9 @@ public class ModRoles {
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不显示计分板
     )).setCanPickUpRevolver(true).setCanSeeCoin(true)
-            // 隐藏自己的身份为杀手阵营：判定层（频道/报幕/透视/同伙）按杀手处理，胜利结算仍是平民。
+            // 隐藏自己的身份为杀手团队：判定层（频道/报幕/透视/同伙）按杀手处理，胜利结算仍是平民。
             // 不要改用 setNeutralForKiller(true)：那会真的把魔术师归入中立/杀手方，影响小脑等真实阵营判定。
-            .setHiddenTeam(RoleTeam.KILLER)
+            .setHiddenTeam(RoleTeam.Team.KILLER)
             .setCanSeeTeammateKillerRole(false).setNeutrals(false)
             // 小脑（误杀）：true = 豁免，false = 不豁免（语义见 SRERole#canBeXiaonao / #canXiaonao）。
             // - 不能小脑别人：好人误杀魔术师时凶手不受小脑惩罚（不把别人拖下水）。

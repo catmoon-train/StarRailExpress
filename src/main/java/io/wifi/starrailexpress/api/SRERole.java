@@ -542,7 +542,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
 
     /**
      * <b>杀手团队（真实层）</b>：杀手阵营 + 杀手方中立，<b>忽略</b>隐藏身份
-     * （{@link #setHiddenTeam(RoleTeam)}）。
+     * （{@link #setHiddenTeam(RoleTeam.Team)}）。
      * <p>
      * 小脑（误杀）判定这类「必须按真实阵营结算」的地方要用这个：
      * 隐藏成杀手阵营的平民（魔术师）在真实阵营上仍然是平民。
@@ -572,6 +572,16 @@ public abstract class SRERole extends SREAbstractInfoClass {
     /** <b>好人团队（真实层）</b>：乘客阵营 + 警长阵营 + 好人方中立，<b>忽略</b>隐藏身份。 */
     public boolean isActualInnocentTeam() {
         return RoleTeam.isInnocentTeamReal(this);
+    }
+
+    /** <b>中立团队（判定层）</b>：隐藏身份为中立团队时命中，否则回退真实中立判定。 */
+    public boolean isNeutralTeam() {
+        return RoleTeam.isNeutralTeam(this);
+    }
+
+    /** <b>中立团队（真实层）</b>：忽略隐藏身份。 */
+    public boolean isActualNeutralTeam() {
+        return RoleTeam.NEUTRAL.matches(this);
     }
 
     public boolean isMafiaTeam() {
@@ -1033,16 +1043,16 @@ public abstract class SRERole extends SREAbstractInfoClass {
     protected boolean isNeutralForKiller = false;
     protected boolean isNeutralForInnocent = false;
     /**
-     * 隐藏身份阵营（判定层）：该职业在「阵营判定」中按此阵营对待（频道、报幕、透视 / 本能、同伙可见性等），
+     * 隐藏身份团队（判定层）：该职业在「阵营判定」中按此团队对待（频道、报幕、透视 / 本能、同伙可见性等），
      * 但真实阵营（{@link #isInnocent()}、胜利结算、存活人数统计）保持不变。
      * <p>
      * 具体生效方式见 {@link RoleTeam}：{@link #isKillerTeam()} / {@link #isInnocentTeam()} 等团队判定会优先
      * 读取这里（隐藏成杀手团队就只算杀手团队，不再算自己真实团队）。
      * <p>
-     * 典型用途：魔术师真实属于平民阵营，但为了让他在杀手队伍中隐藏身份，所有判定都按杀手阵营处理。
-     * 用法：{@code setHiddenTeam(RoleTeam.KILLER)}。
+     * 典型用途：魔术师真实属于平民阵营，但为了让他在杀手队伍中隐藏身份，所有判定都按杀手团队处理。
+     * 用法：{@code setHiddenTeam(RoleTeam.Team.KILLER)}。
      */
-    protected @Nullable RoleTeam hiddenTeam = null;
+    protected @Nullable RoleTeam.Team hiddenTeam = null;
     /** 是否为「事件中立」职业：其登场由局内随机事件决定的中立（如假史蒂夫、紫怪）。 */
     protected boolean isEventNeutral = false;
     /** 是否为「特殊中立」职业：不属于偏好 / 杀手方 / 事件 / 独立胜利，单独归类展示的中立。 */
@@ -1082,7 +1092,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
      * 杀手方中立的<b>原始标记</b>（中立细分的前提之一，供 {@link RoleTeam#NEUTRAL_KILLER} 使用）。
      * <p>
      * 要判断「是否属于杀手方中立」请用权威入口 {@link RoleTeam#isNeutralForKiller(SRERole)}
-     * （它会同时考虑 {@link #setHiddenTeam(RoleTeam)}），不要直接读这个字段。
+     * （它会同时考虑 {@link #setHiddenTeam(RoleTeam.Team)}），不要直接读这个字段。
      */
     public boolean isNeutralForKiller() {
         return this.isNeutralForKiller;
@@ -1099,16 +1109,20 @@ public abstract class SRERole extends SREAbstractInfoClass {
     // ---------- 隐藏身份阵营 / Hidden identity team ----------
 
     /**
-     * 隐藏自己的身份为某阵营（判定层）。
+     * 隐藏自己的身份为某个<b>团队</b>（判定层）。只分三个团队：
+     * {@link RoleTeam.Team#INNOCENT 好人团队}、{@link RoleTeam.Team#KILLER 杀手团队}、
+     * {@link RoleTeam.Team#NEUTRAL 中立团队}；不区分团队内部的具体阵营。
      * <p>
-     * 设置后，该职业在「阵营判定」中会被当作 {@code team} 阵营对待，例如：
+     * 设置后，该职业在「阵营判定」中按该团队对待，例如：
      * <ul>
-     * <li>{@link RoleTeam#KILLER}（或 {@link RoleTeam#NEUTRAL_KILLER}）：视为「杀手团队」，
-     * 即 {@link RoleTeam#isKillerTeam(SRERole)} 为 true——加入指挥官频道、收到葬仪死亡报幕、
-     * 被杀手透视时显示为杀手红框、出现在杀手同伙列表等，同时不再计入真实的团队；</li>
-     * <li>{@link RoleTeam#CIVILIAN} / {@link RoleTeam#SHERIFF} / {@link RoleTeam#NEUTRAL_INNOCENT}：
-     * 视为「好人团队」，即 {@link RoleTeam#isInnocentTeam(SRERole)} 为 true；</li>
-     * <li>其余中立细分：按对应阵营的判定口径处理（{@link RoleTeam#matchesJudged(SRERole)}）。</li>
+     * <li>{@link RoleTeam.Team#KILLER}：{@link RoleTeam#isKillerTeam(SRERole)} 为 true——
+     * 加入指挥官频道、收到葬仪死亡报幕、被杀手透视时显示为杀手红框、出现在杀手同伙列表等，
+     * 同时不再计入自己真实的好人 / 中立团队；</li>
+     * <li>{@link RoleTeam.Team#INNOCENT}：{@link RoleTeam#isInnocentTeam(SRERole)} 为 true，
+     * {@link RoleTeam#isInnocentCampJudged(SRERole)} 也为 true，不再算真实的杀手 / 中立团队；</li>
+     * <li>{@link RoleTeam.Team#NEUTRAL}：{@link RoleTeam#isNeutralTeam(SRERole)} 为 true，
+     * 不再算真实的好人 / 杀手团队；其中立细分（偏好 / 杀手方 / 特殊 / 事件 / 独立胜利）
+     * 仍按真实阵营细分判定。</li>
      * </ul>
      * <p>
      * <b>真实阵营不变</b>：{@link #isInnocent()}、存活人数统计（{@link #canIncreaseSurvivingInnocents()}）、
@@ -1116,50 +1130,68 @@ public abstract class SRERole extends SREAbstractInfoClass {
      * <p>
      * <b>不参与胜利结算</b>：胜利与否只看真实阵营——
      * <ul>
-     * <li>伪装成某阵营时，该阵营获胜<b>不会</b>判定该职业胜利（{@link #winWithKiller()} /
+     * <li>伪装成某团队时，该团队获胜<b>不会</b>判定该职业胜利（{@link #winWithKiller()} /
      * {@link #winWithInnocent()} 都不读取 {@code hiddenTeam}）；</li>
      * <li>真实阵营获胜时才判定该职业胜利。</li>
      * </ul>
-     * 例如魔术师隐藏为杀手阵营，但杀手获胜时不算魔术师胜利，只有好人阵营获胜才算。
+     * 例如魔术师隐藏为杀手团队，但杀手获胜时不算魔术师胜利，只有好人阵营获胜才算。
      * <p>
      * 示例（魔术师）：
      * 
      * <pre>{@code
-     * new NormalRole(id, color, true, false, ...).setHiddenTeam(RoleTeam.KILLER)
+     * new NormalRole(id, color, true, false, ...).setHiddenTeam(RoleTeam.Team.KILLER)
      * }</pre>
      *
-     * @param team 要隐藏成的阵营，{@code null} 表示取消隐藏
+     * @param team 要隐藏成的团队，{@code null} 表示取消隐藏
      * @return this
      */
-    public SRERole setHiddenTeam(@Nullable RoleTeam team) {
+    public SRERole setHiddenTeam(@Nullable RoleTeam.Team team) {
         this.hiddenTeam = team;
         return this;
     }
 
-    /** 隐藏身份阵营；没有隐藏任何身份时返回 {@code null}。 */
-    public @Nullable RoleTeam getHiddenTeam() {
+    /** 隐藏身份团队；没有隐藏任何身份时返回 {@code null}。 */
+    public @Nullable RoleTeam.Team getHiddenTeam() {
         return this.hiddenTeam;
     }
 
-    /** 是否设置了「隐藏身份阵营」。 */
+    /** 是否设置了「隐藏身份团队」。 */
     public boolean hasHiddenTeam() {
         return this.hiddenTeam != null;
     }
 
-    /** 是否把身份隐藏成了 {@code team} 阵营。 */
-    public boolean isHidingAsTeam(@Nullable RoleTeam team) {
+    /** 是否把身份隐藏成了 {@code team} 团队。 */
+    public boolean isHidingAsTeam(@Nullable RoleTeam.Team team) {
         return team != null && this.hiddenTeam == team;
     }
 
+    /** 是否把身份隐藏成了杀手团队。 */
+    public boolean isHidingAsKillerTeam() {
+        return this.hiddenTeam == RoleTeam.Team.KILLER;
+    }
+
+    /** 是否把身份隐藏成了好人团队。 */
+    public boolean isHidingAsInnocentTeam() {
+        return this.hiddenTeam == RoleTeam.Team.INNOCENT;
+    }
+
+    /** 是否把身份隐藏成了中立团队。 */
+    public boolean isHidingAsNeutralTeam() {
+        return this.hiddenTeam == RoleTeam.Team.NEUTRAL;
+    }
+
     /**
-     * 判定层：该职业在阵营判定中是否按 {@code team} 对待。
-     * <p>
-     * 隐藏身份命中（{@link #isHidingAsTeam(RoleTeam)}）优先；否则回退到真实阵营
-     * {@link RoleTeam#matchesJudged(SRERole)}。跨阵营但同团队的隐藏请用团队级判定
-     * （{@link #isKillerTeam()} / {@link #isInnocentTeam()}）。
+     * 判定层：该职业在阵营判定中是否按 {@code team} 阵营对待（隐藏身份优先）。
+     * <p>团队级口径请用 {@link RoleTeam#matchesJudged(SRERole)} 或
+     * {@link #isKillerTeam()} / {@link #isInnocentTeam()} / {@link RoleTeam#isNeutralTeam(SRERole)}。
      */
-    public boolean isJudgedAsTeam(@Nullable RoleTeam team) {
+    public boolean isJudgedAsCamp(@Nullable RoleTeam team) {
         return team != null && team.matchesJudged(this);
+    }
+
+    /** 判定层：该职业在阵营判定中是否按 {@code team} 团队对待（隐藏身份优先）。 */
+    public boolean isJudgedAsTeam(@Nullable RoleTeam.Team team) {
+        return team != null && RoleTeam.Team.of(this) == team;
     }
 
     public boolean canSeeTeammateKillerRole() {
@@ -3045,7 +3077,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
     /**
      * 好人（乘客）阵营获胜时该职业是否一同获胜。
      * <p>
-     * <b>只看真实阵营</b>：隐藏身份阵营（{@link #setHiddenTeam(RoleTeam)}）不参与判断。
+     * <b>只看真实阵营</b>：隐藏身份团队（{@link #setHiddenTeam(RoleTeam.Team)}）不参与判断。
      */
     public boolean winWithInnocent() {
         return this.isNeutralForInnocent() || this.isInnocent();

@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.role;
 
+import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -319,10 +320,11 @@ public class ModifierEffects {
                 mood.sync();
             }
 
-            // 根据阵营判断金币奖励
+            // 根据阵营判断金币奖励（真实阵营口径：隐藏身份不影响数值结算）
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
+            var playerRole = gameWorld.getRole(player);
             int coinReward;
-            if (gameWorld.isInnocent(player) || gameWorld.getRole(player).isNeutrals()) {
+            if (RoleTeam.isInnocentCamp(playerRole) || RoleTeam.NEUTRAL.matches(playerRole)) {
                 // 平民/中立阵营：25金币
                 coinReward = 25;
             } else {

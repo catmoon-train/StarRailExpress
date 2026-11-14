@@ -329,6 +329,11 @@ public class SRERoleWorldComponent implements AutoSyncedComponent, ServerTicking
         return SREGameWorldComponent.isInnocentTeamRoleStatic(role);
     }
 
+    /** 好人团队（判定层）。 */
+    public boolean isInnocentTeam(Player player) {
+        return SREGameWorldComponent.KEY.get(world).isInnocentTeam(player);
+    }
+
     @Override
     public void readFromNbt(@NotNull CompoundTag nbtCompound, HolderLookup.Provider wrapperLookup) {
         // this.lockedToSupporters = nbtCompound.getBoolean("LockedToSupporters");

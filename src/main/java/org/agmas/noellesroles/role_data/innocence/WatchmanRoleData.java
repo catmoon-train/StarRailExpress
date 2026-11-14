@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.role_data.innocence;
 
+import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
@@ -261,10 +262,10 @@ public class WatchmanRoleData extends SimpleRoleData {
         return result;
     }
 
-    /** 目标是否属于「非平民 / 非警长」阵营（即杀手与中立）。 */
+    /** 目标是否属于「非平民 / 非警长」阵营（即杀手与中立），按判定层口径（含隐藏身份为好人团队）。 */
     public static boolean isNonInnocentNonVigilante(ServerPlayer target) {
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(target.level());
-        return !gameWorld.isInnocent(target) && !gameWorld.isVigilanteTeam(target);
+        return !RoleTeam.isInnocentCampJudged(gameWorld.getRole(target));
     }
 
     /** 道具冷却：固定 120 秒，不随购买次数增加。 */
