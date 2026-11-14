@@ -32,6 +32,7 @@ import org.agmas.noellesroles.utils.ReplayEventLog;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.RouletteDevilC2SPacket;
 import org.agmas.noellesroles.packet.RouletteDevilStateS2CPacket;
+import org.agmas.noellesroles.role_data.innocence.DisabledPatientRoleData;
 import org.agmas.noellesroles.role_data.neutral.RouletteDevilRoleData;
 
 /** 单局持有两人的锁、背包保险和房间；所有终止路径共用幂等关闭操作。 */
@@ -234,15 +235,27 @@ public final class RouletteDevilSessions {
         ServerPlayer victor = server.getPlayerList().getPlayer(winner);
         // 回放记录：轮盘赌对决结果已明，记录获胜者
         if (victor != null) ReplayEventLog.record("replay.event.roulette_devil.duel_win", ReplayEventLog.player(victor));
-        if (!spared && victim != null && GameUtils.isPlayerAliveAndSurvival(victim)) {
-            DEATHS.add(loser);
-            try { victim.setInvulnerable(false); GameUtils.killPlayer(victim, true, victor, RouletteDevilRole.DEATH, true); }
-            finally { DEATHS.remove(loser); }
+        if (victim != null && GameUtils.isPlayerAliveAndSurvival(victim)) {
+            if (!spared) {
+                DEATHS.add(loser);
+                try { victim.setInvulnerable(false); GameUtils.killPlayer(victim, true, victor, RouletteDevilRole.DEATH, true); }
+                finally { DEATHS.remove(loser); }
+            } else {
+                // 免死返程的输家仍活着，随机背上一种残疾患者症状三分钟。
+                applyLoserDisability(victim);
+            }
         }
         if (demonWon && demon != null) RouletteDevilRole.declareVictory(demon);
         syncAll(server);
     }
     public static void cancel(UUID player, MinecraftServer server) { Session s = PLAYERS.get(player); if (s != null) close(s, server); }
+    /** 失败者随机获得一种残疾患者症状，持续三分钟；已有同级或更久的同名效果时不降级覆盖。 */
+    private static void applyLoserDisability(ServerPlayer loser) {
+        var picked = DisabledPatientRoleData.applyRandomTemporaryNamed(loser, RouletteDevilRules.LOSER_DISABILITY_TICKS);
+        if (picked == null) return;
+        loser.displayClientMessage(Component.translatable("message.noellesroles.roulette_devil.loser_disability",
+                picked.displayName(), RouletteDevilRules.LOSER_DISABILITY_SECONDS / 60), false);
+    }
     /** 必须在难民保存玩家快照之前返程，避免将黑室位置和临时背包写入回溯节点。 */
     public static void cancelAllForRefugee(MinecraftServer server) {
         for (Session s : new HashSet<>(PLAYERS.values())) {

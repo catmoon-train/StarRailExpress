@@ -63,16 +63,21 @@ class RouletteDevilRulesTest {
         assertEquals(400, RouletteDevilRules.MANIFEST_TICKS);
         assertEquals(600, RouletteDevilRules.SEED_TICKS);
     }
-    @Test void sameTargetCooldownRunsThirtySecondsFromDuelEnd() {
-        assertEquals(30, RouletteDevilRules.SAME_TARGET_COOLDOWN_SECONDS);
-        assertEquals(600, RouletteDevilRules.SAME_TARGET_COOLDOWN_TICKS);
-        assertTrue(RouletteDevilRules.cooling(1600, 1000));
-        assertFalse(RouletteDevilRules.cooling(1600, 1600));
-        assertFalse(RouletteDevilRules.cooling(1600, 2200));
-        assertEquals(30, RouletteDevilRules.cooldownSeconds(1600, 1000));
-        assertEquals(1, RouletteDevilRules.cooldownSeconds(1600, 1599));
+    @Test void sameTargetCooldownRunsSixtySecondsFromDuelEnd() {
+        assertEquals(60, RouletteDevilRules.SAME_TARGET_COOLDOWN_SECONDS);
+        assertEquals(1200, RouletteDevilRules.SAME_TARGET_COOLDOWN_TICKS);
+        assertTrue(RouletteDevilRules.cooling(2200, 1000));
+        assertTrue(RouletteDevilRules.cooling(2200, 2199));
+        assertFalse(RouletteDevilRules.cooling(2200, 2200));
+        assertFalse(RouletteDevilRules.cooling(2200, 2800));
+        assertEquals(60, RouletteDevilRules.cooldownSeconds(2200, 1000));
+        assertEquals(1, RouletteDevilRules.cooldownSeconds(2200, 2199));
         assertEquals(0, RouletteDevilRules.cooldownSeconds(0, 1000));
-        assertEquals(0, RouletteDevilRules.cooldownSeconds(1600, 1600));
+        assertEquals(0, RouletteDevilRules.cooldownSeconds(2200, 2200));
+    }
+    @Test void loserDisabilityLastsThreeMinutes() {
+        assertEquals(180, RouletteDevilRules.LOSER_DISABILITY_SECONDS);
+        assertEquals(3600, RouletteDevilRules.LOSER_DISABILITY_TICKS);
     }
     @Test void seatBoundsRejectTeleportAndNonFiniteCoordinates() {
         assertTrue(RouletteDevilRules.withinSeat(0, .8, 0));
