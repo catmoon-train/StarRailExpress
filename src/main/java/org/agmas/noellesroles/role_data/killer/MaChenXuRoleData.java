@@ -75,7 +75,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/** 四阶段诡物成长与里世界判死的服务端权威状态；不再存在自动小诡术或七套独立冷却。 */
+/** 四阶段诡物成长、按诡术种类独立冷却与里世界判死的服务端权威状态。 */
 public class MaChenXuRoleData extends SimpleRoleData {
     public static final int ULTIMATE_DURATION_STAGE_3 = 600;
     public static final int ULTIMATE_DURATION_STAGE_4 = 800;
@@ -91,7 +91,6 @@ public class MaChenXuRoleData extends SimpleRoleData {
     public int STAGE_3_THRESHOLD = SackGhostRules.stageThreshold(3, initialPlayers);
     public int STAGE_4_THRESHOLD = SackGhostRules.stageThreshold(4, initialPlayers);
     public int generationCooldown;
-    public int castCooldown;
     public int ultimateCooldown;
     public int realmHitCooldown;
     public boolean otherworldActive;
@@ -110,7 +109,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
     private long activeTicks;
     private ServerLevel realmLevel;
     private long generationReadyAt;
-    private long castReadyAt;
+    private final Map<GhostArt, Long> artReadyAt = new java.util.EnumMap<>(GhostArt.class);
     private long realmReadyAt;
     private long hitReadyAt;
     private UUID effigyEntity;
@@ -224,11 +223,12 @@ public class MaChenXuRoleData extends SimpleRoleData {
                 || art.stage > stage || !SackGhostItems.validArt(owner, stack, sessionId)) return false;
         if (SackGhostItems.artCount(owner) > SackGhostRules.MAX_ART_ITEMS) return fail("message.noellesroles.sack.full");
         updateCooldowns();
-        // 解除隐身和回响折返是同次施法的收尾，不再消耗或重置共用冷却。
+        // 解除隐身和回响折返是同次施法的收尾，不再消耗或重置该诡术冷却。
         if (art == GhostArt.SHROUD && shroudTicks > 0) { breakShroud(); return true; }
         if (art == GhostArt.ECHO && echoTicks > 0 && echoToken != null
                 && echoToken.equals(SackGhostItems.tag(stack).getUUID("Token"))) return returnEcho(owner);
-        if (castCooldown > 0) return fail("message.noellesroles.sack.cast_wait");
+        int remaining = artCooldown(art);
+        if (remaining > 0) return fail("message.noellesroles.sack.cooldown", (remaining + 19) / 20);
         boolean used = switch (art) {
             case VEIL -> castVeil(owner);
             case PUSH -> castPush(owner);
@@ -240,8 +240,9 @@ public class MaChenXuRoleData extends SimpleRoleData {
             case SEIZE -> castSeize(owner);
         };
         if (!used) return false;
-        if (art != GhostArt.ECHO && SackGhostRules.consumesOnCast(art, otherworldActive)) SackGhostItems.consumeArt(owner, stack);
-        castReadyAt = now() + SackGhostRules.castInterval(otherworldActive);
+        if (art != GhostArt.ECHO && SackGhostRules.consumesOnCast(art, otherworldActive, owner.getRandom().nextBoolean()))
+            SackGhostItems.consumeArt(owner, stack);
+        if (art != GhostArt.SHROUD) artReadyAt.put(art, now() + SackGhostRules.ART_COOLDOWN);
         owner.getInventory().setChanged();
         owner.containerMenu.broadcastChanges();
         updateCooldowns();
@@ -255,7 +256,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
         var mood = SREPlayerMoodComponent.KEY.get(target);
         float before = mood.getMood();
         if (!Float.isFinite(before) || before <= 0) return 0;
-        mood.addMood(-(float) (points / 100));
+        mood.addMood(-(float) (SackGhostRules.boostedSanDrain(points, otherworldActive) / 100));
         double removed = SackGhostRules.actualSanLoss(before, mood.getMood());
         if (removed > 0) {
             fear += removed;
@@ -332,6 +333,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
                             .withStyle(ChatFormatting.RED));
         }
         refreshRealmEffects(owner);
+        tickRealmPressure(owner);
         realmLevel = owner.serverLevel();
         fx(owner, "realm_depart", body.position(), 25, owner.getId());
         publishForm(owner);
@@ -366,7 +368,8 @@ public class MaChenXuRoleData extends SimpleRoleData {
         fx(owner, "realm_hit", victim.position(), 16, victim.getId(), owner.getId(), verdicts.contains(victim.getUUID()) ? 1 : 0);
         owner.playNotifySound(SoundEvents.PLAYER_ATTACK_STRONG, SoundSource.PLAYERS, 0.8F, 0.6F);
         victim.playNotifySound(SoundEvents.WARDEN_HEARTBEAT, SoundSource.HOSTILE, 0.8F, 0.8F);
-        if (!alreadyMarked) victim.displayClientMessage(Component.translatable(message, amount), true);
+        if (!alreadyMarked) victim.displayClientMessage(Component.translatable(message,
+                virtual ? amount : SackGhostRules.boostedSanDrain(amount, true)), true);
         updateCooldowns();
         sync();
         return true;
@@ -410,7 +413,6 @@ public class MaChenXuRoleData extends SimpleRoleData {
         otherworldActive = false;
         otherworldDuration = 0;
         realmReadyAt = now() + SackGhostRules.REALM_COOLDOWN;
-        castReadyAt = Math.min(castReadyAt, now() + SackGhostRules.CAST_INTERVAL);
         owner.setInvulnerable(previousInvulnerable);
         restoreRealmEffects(owner);
         if (body != null) {
@@ -470,7 +472,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
     private void refreshRealmEffects(ServerPlayer owner) {
         lease(owner, ModEffects.OTHERWORLD_AURA, otherworldDuration + 2, stage >= 4 ? 1 : 0);
         // 布袋鬼本人不授予常驻青色互透，避免绕过法器的20格私有照诡。
-        lease(owner, MobEffects.MOVEMENT_SPEED, otherworldDuration + 2, 1);
+        lease(owner, MobEffects.MOVEMENT_SPEED, otherworldDuration + 2, SackGhostRules.REALM_SPEED_AMPLIFIER);
         for (ServerPlayer target : owner.serverLevel().players()) {
             if (!isEnemy(target)) continue;
             lease(target, MobEffects.MOVEMENT_SPEED, otherworldDuration + 2, 2);
@@ -486,6 +488,24 @@ public class MaChenXuRoleData extends SimpleRoleData {
         }
     }
 
+    /** 仅里世界鬼影周围15格压制敌人；离开范围即撤销租约，保全外部效果。 */
+    private void tickRealmPressure(ServerPlayer owner) {
+        for (ServerPlayer target : owner.server.getPlayerList().getPlayers()) {
+            if (isEnemy(target) && SackGhostRules.inRealmPressureRange(owner.distanceToSqr(target))) {
+                // 原版失明在不足20 tick时淡出，需维持足够长的表现时长。
+                lease(target, MobEffects.BLINDNESS, 30, 0);
+                lease(target, ModEffects.TREMBLE, 30, 0);
+                lease(target, ModEffects.LIMP, 30, 0);
+            } else {
+                var effects = realmEffects.get(target.getUUID());
+                if (effects == null) continue;
+                for (var effect : List.of(MobEffects.BLINDNESS, ModEffects.TREMBLE, ModEffects.LIMP)) {
+                    Lease pressure = effects.remove(effect);
+                    if (pressure != null) restoreLease(target, effect, pressure);
+                }
+            }
+        }
+    }
     private void lease(ServerPlayer target, Holder<MobEffect> effect, int duration, int amplifier) {
         var effects = realmEffects.computeIfAbsent(target.getUUID(), ignored -> new HashMap<>());
         Lease old = effects.get(effect);
@@ -914,7 +934,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
         echoPosition = owner.position();
         echoLevel = owner.serverLevel();
         echoToken = SackGhostItems.tag(stack).getUUID("Token");
-        echoConsumes = SackGhostRules.consumesOnCast(GhostArt.ECHO, otherworldActive);
+        echoConsumes = SackGhostRules.consumesOnCast(GhostArt.ECHO, otherworldActive, owner.getRandom().nextBoolean());
         echoUntil = now() + SackGhostRules.ECHO_WINDOW;
         fx(owner, "echo_depart", echoPosition, SackGhostRules.ECHO_WINDOW, owner.getId());
         owner.teleportTo(destination.x, destination.y, destination.z);
@@ -1004,9 +1024,12 @@ public class MaChenXuRoleData extends SimpleRoleData {
         clearEffigy(owner);
     }
 
+    public int artCooldown(GhostArt art) {
+        return SackGhostRules.remaining(now(), art == GhostArt.SHROUD ? shroudReadyAt : artReadyAt.getOrDefault(art, 0L));
+    }
+
     private void updateCooldowns() {
         generationCooldown = SackGhostRules.remaining(now(), generationReadyAt);
-        castCooldown = SackGhostRules.remaining(now(), castReadyAt);
         ultimateCooldown = SackGhostRules.remaining(now(), realmReadyAt);
         realmHitCooldown = SackGhostRules.remaining(now(), hitReadyAt);
         escapeCooldown = SackGhostRules.remaining(now(), escapeReadyAt);
@@ -1027,6 +1050,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
         updateCooldowns();
         maintainForms(owner);
         if (otherworldActive) {
+            if (clockRunning() && now() % 5 == 0) tickRealmPressure(owner);
             maintainRealmEffects(owner);
             if (body != null) SackGhostActors.tickBody(body);
             if (body == null || body.entity().isRemoved()) endOtherworld(false);
@@ -1086,6 +1110,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
         bodyThreat = false;
         parasites.clear();
         moodDirty.clear();
+        artReadyAt.clear();
     }
 
     private boolean fail(String key, Object... args) {
@@ -1102,7 +1127,11 @@ public class MaChenXuRoleData extends SimpleRoleData {
         tag.putBoolean("started", started);
         tag.putUUID("session", sessionId);
         tag.putInt("draw", generationCooldown);
-        tag.putInt("cast", castCooldown);
+        CompoundTag artCooldowns = new CompoundTag();
+        for (GhostArt art : GhostArt.values()) {
+            if (art != GhostArt.SHROUD) artCooldowns.putInt(art.id, artCooldown(art));
+        }
+        tag.put("artCooldowns", artCooldowns);
         tag.putInt("realmCd", ultimateCooldown);
         tag.putInt("hit", realmHitCooldown);
         tag.putBoolean("realm", otherworldActive);
@@ -1133,7 +1162,11 @@ public class MaChenXuRoleData extends SimpleRoleData {
         STAGE_3_THRESHOLD = SackGhostRules.stageThreshold(3, initialPlayers);
         STAGE_4_THRESHOLD = SackGhostRules.stageThreshold(4, initialPlayers);
         generationReadyAt = now() + Math.max(0, tag.getInt("draw"));
-        castReadyAt = now() + Math.max(0, tag.getInt("cast"));
+        artReadyAt.clear();
+        CompoundTag artCooldowns = tag.getCompound("artCooldowns");
+        for (GhostArt art : GhostArt.values()) {
+            if (art != GhostArt.SHROUD) artReadyAt.put(art, now() + Math.max(0, artCooldowns.getInt(art.id)));
+        }
         realmReadyAt = now() + Math.max(0, tag.getInt("realmCd"));
         hitReadyAt = now() + Math.max(0, tag.getInt("hit"));
         escapeReadyAt = now() + Math.max(0, tag.getInt("escapeCd"));
@@ -1164,8 +1197,9 @@ public class MaChenXuRoleData extends SimpleRoleData {
             clearTricks(owner);
         }
         long liveRealmReadyAt = realmReadyAt, liveEscapeReadyAt = escapeReadyAt, liveShroudReadyAt = shroudReadyAt;
+        Map<GhostArt, Long> liveArtReadyAt = new java.util.EnumMap<>(artReadyAt);
         readFromSyncNbt(tag, provider);
-        // 成长可恢复，已消费的替死、隐身冷却与一次性令牌不能靠回溯重复获取。
+        // 成长可恢复，已消费的替死、各诡术冷却与一次性令牌不能靠回溯重复获取。
         if (player instanceof ServerPlayer owner) {
             otherworldActive = false;
             otherworldDuration = 0;
@@ -1175,6 +1209,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
             realmReadyAt = Math.max(realmReadyAt, liveRealmReadyAt);
             escapeReadyAt = Math.max(escapeReadyAt, liveEscapeReadyAt);
             shroudReadyAt = Math.max(shroudReadyAt, liveShroudReadyAt);
+            liveArtReadyAt.forEach((art, readyAt) -> artReadyAt.merge(art, readyAt, Math::max));
             if (interrupted || tag.getBoolean("realm")) realmReadyAt = Math.max(realmReadyAt, now() + SackGhostRules.REALM_COOLDOWN);
             updateCooldowns();
             publishForm(owner);
