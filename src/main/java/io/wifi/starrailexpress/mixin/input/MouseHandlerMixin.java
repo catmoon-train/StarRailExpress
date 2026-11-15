@@ -60,13 +60,8 @@ public class MouseHandlerMixin {
         }
         // 监控模式下阻止玩家本体转动，但把这份鼠标位移交给「动态模块」驱动监控画面视角。
         // 也就是说：玩家还是像平常一样拖动鼠标转视角，只是转的是摄像头画面而不是自己的身体。
-        // 记者终端页面不允许转动本体，画面完全跟随被观察的玩家
-        if (io.wifi.starrailexpress.client.ReporterTerminalClient.isActive()) {
-            this.accumulatedDX = 0.0D;
-            this.accumulatedDY = 0.0D;
-            ci.cancel();
-            return;
-        }
+        // 记者终端的小窗显示记者自己的视角，所以不拦截本体转向：鼠标照常转动自己，
+        // 小窗画面跟着自己的视角走，主画面仍然是目标玩家的视角。
         if (SecurityCameraClientState.isInSecurityMode()) {
             turnSecurityCameraByMouse();
             ci.cancel();

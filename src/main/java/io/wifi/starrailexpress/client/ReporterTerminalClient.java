@@ -115,13 +115,24 @@ public final class ReporterTerminalClient {
     }
 
     /**
-     * 相机接管：把主相机放到当前目标的眼位，并使用目标玩家自己的视角。
+     * 相机接管。主画面取当前目标的眼位与视角；小窗的离屏渲染取记者本人的眼位与视角。
      *
      * @return 是否接管了相机
      */
     public static boolean setupCamera(Camera camera, float partialTick) {
         if (!active) {
             return false;
+        }
+        Minecraft minecraft = Minecraft.getInstance();
+        // 小窗的离屏渲染：换成记者自己的第一人称视角，主画面继续看目标玩家。
+        if (SecurityMonitorFeedRenderer.isCapturing()) {
+            Player self = minecraft.player;
+            if (self == null) {
+                return false;
+            }
+            camera.setRotation(self.getViewYRot(partialTick), self.getViewXRot(partialTick));
+            camera.setPosition(self.getEyePosition(partialTick));
+            return true;
         }
         Player target = currentTarget();
         if (target == null) {

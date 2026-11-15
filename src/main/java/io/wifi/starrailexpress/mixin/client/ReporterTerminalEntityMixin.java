@@ -17,6 +17,7 @@ package io.wifi.starrailexpress.mixin.client;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import io.wifi.starrailexpress.client.ReporterTerminalClient;
+import io.wifi.starrailexpress.client.gui.SecurityMonitorFeedRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.world.entity.Entity;
@@ -44,7 +45,12 @@ public abstract class ReporterTerminalEntityMixin {
         }
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.player != null && entity == minecraft.player) {
+            // 自己的模型一律隐藏：主画面在目标眼位、小窗在自己眼位，都会穿模。
             return false;
+        }
+        // 小窗显示的是记者自己的视角，此时目标玩家应当正常可见。
+        if (SecurityMonitorFeedRenderer.isCapturing()) {
+            return original;
         }
         Player target = ReporterTerminalClient.currentTargetPlayer();
         return target == null || entity != target;
