@@ -21,6 +21,7 @@ import org.agmas.noellesroles.content.item.GhostWardRelicItem;
 import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.SackGhostItems;
 import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.SackGhostPackets;
 import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.SackGhostRules;
+import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.GhostArt;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModEntities;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
@@ -187,9 +188,13 @@ public final class SackGhostClient {
                 .append(Component.translatable("hud.noellesroles.sack.compact.draw",
                         NoellesrolesClient.abilityBind.getTranslatedKeyMessage(),
                         data.generationCooldown > 0 ? hudSeconds(data.generationCooldown) : ready));
-        if (data.castCooldown > 0) stock.append(" · ")
-                .append(Component.translatable("hud.noellesroles.sack.compact.cast", hudSeconds(data.castCooldown)));
         rows.add(new HudRow(stock, 0xFFE1D6E8));
+        for (GhostArt art : GhostArt.unlocked(data.stage)) {
+            if (art == GhostArt.SHROUD) continue;
+            int cooldown = data.artCooldown(art);
+            if (cooldown > 0) rows.add(new HudRow(Component.translatable("hud.noellesroles.sack.art_cooldown",
+                    Component.translatable(art.nameKey()), (cooldown + 19) / 20), 0xFFE1D6E8));
+        }
 
         var survival = Component.empty().append(data.escapeTicks > 0
                 ? Component.translatable("hud.noellesroles.sack.escape_active", (data.escapeTicks + 19) / 20)

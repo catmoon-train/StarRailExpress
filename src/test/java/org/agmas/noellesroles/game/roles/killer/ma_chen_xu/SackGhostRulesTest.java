@@ -5,13 +5,14 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SackGhostRulesTest {
-    @Test void generationUsesFixedOpeningPopulationWithTenSecondFloor() {
-        assertEquals(43, SackGhostRules.generationCooldownSeconds(12));
-        assertEquals(31, SackGhostRules.generationCooldownSeconds(24));
-        assertEquals(15, SackGhostRules.generationCooldownSeconds(40));
-        assertEquals(10, SackGhostRules.generationCooldownSeconds(50));
-        assertEquals(10, SackGhostRules.generationCooldownSeconds(128));
-        assertEquals(55, SackGhostRules.generationCooldownSeconds(-5));
+    @Test void generationUsesFixedOpeningPopulationWithTwentySecondFloor() {
+        assertEquals(38, SackGhostRules.generationCooldownSeconds(12));
+        assertEquals(26, SackGhostRules.generationCooldownSeconds(24));
+        assertEquals(21, SackGhostRules.generationCooldownSeconds(29));
+        assertEquals(20, SackGhostRules.generationCooldownSeconds(30));
+        assertEquals(20, SackGhostRules.generationCooldownSeconds(40));
+        assertEquals(20, SackGhostRules.generationCooldownSeconds(128));
+        assertEquals(50, SackGhostRules.generationCooldownSeconds(-5));
     }
 
     @Test void fourStagesAdvanceAtActualSanThresholds() {
@@ -71,10 +72,7 @@ class SackGhostRulesTest {
         assertFalse(SackGhostRules.canReceiveArts(-1, 1));
         assertFalse(SackGhostRules.canReceiveArts(0, 0));
         assertFalse(SackGhostRules.canReceiveArts(0, Integer.MAX_VALUE));
-        assertEquals(60, SackGhostRules.CAST_INTERVAL);
-        assertEquals(200, SackGhostRules.REALM_CAST_INTERVAL);
-        assertEquals(60, SackGhostRules.castInterval(false));
-        assertEquals(200, SackGhostRules.castInterval(true));
+        assertEquals(500, SackGhostRules.ART_COOLDOWN);
     }
 
     @Test void relicRevelationIncludesTwentyBlockBoundaryAndRequiresBothPermissions() {
@@ -134,17 +132,19 @@ class SackGhostRulesTest {
         assertEquals(120, SackGhostRules.remainingEffectTicks(120, -5));
     }
 
-    @Test void reusableShroudAndRealmSpellsKeepSeparateConsumptionRules() {
+    @Test void halfConsumptionOnlyAppliesToOrdinaryArtsOutsideRealm() {
         for (GhostArt art : GhostArt.values()) {
-            assertEquals(art != GhostArt.SHROUD, SackGhostRules.consumesOnCast(art, false));
-            assertFalse(SackGhostRules.consumesOnCast(art, true));
+            assertEquals(art != GhostArt.SHROUD, SackGhostRules.consumesOnCast(art, false, true));
+            assertFalse(SackGhostRules.consumesOnCast(art, false, false));
+            assertFalse(SackGhostRules.consumesOnCast(art, true, true));
+            assertFalse(SackGhostRules.consumesOnCast(art, true, false));
         }
         assertEquals(3000, SackGhostRules.ESCAPE_COOLDOWN);
         assertEquals(240, SackGhostRules.ESCAPE_DURATION);
-        assertEquals(1300, SackGhostRules.SHROUD_COOLDOWN);
+        assertEquals(600, SackGhostRules.SHROUD_COOLDOWN);
         assertEquals(300, SackGhostRules.SHROUD_DURATION);
         assertEquals(160, SackGhostRules.ECHO_WINDOW);
-        assertTrue(SackGhostRules.ECHO_WINDOW < SackGhostRules.REALM_CAST_INTERVAL);
+        assertTrue(SackGhostRules.ECHO_WINDOW < SackGhostRules.ART_COOLDOWN);
     }
 
     @Test void parasiteExecutesOnlyZeroSanOrTheExplicitRobotException() {
@@ -195,5 +195,26 @@ class SackGhostRulesTest {
         assertEquals(1, SackGhostRules.wailSlowAmplifier(40));
         assertEquals(2, SackGhostRules.wailSlowAmplifier(80));
         assertEquals(2, SackGhostRules.wailSlowAmplifier(1000));
+    }
+
+    @Test void sanDrainBoostsStackMultiplicativelyWithoutRounding() {
+        assertEquals(41.6, SackGhostRules.boostedSanDrain(SackGhostRules.VEIL_SAN, false), 1e-8);
+        assertEquals(6.5, SackGhostRules.boostedSanDrain(SackGhostRules.PARASITE_SAN, false), 1e-8);
+        assertEquals(52, SackGhostRules.boostedSanDrain(SackGhostRules.VEIL_SAN, true), 1e-8);
+        assertEquals(81.25, SackGhostRules.boostedSanDrain(SackGhostRules.realmAttackSan(3), true), 1e-8);
+        assertEquals(113.75, SackGhostRules.boostedSanDrain(SackGhostRules.realmAttackSan(4), true), 1e-8);
+        assertEquals(1.69, SackGhostRules.boostedSanDrain(SackGhostRules.EROSION_MULTIPLIER, false), 1e-8);
+        assertEquals(2.1125, SackGhostRules.boostedSanDrain(SackGhostRules.EROSION_MULTIPLIER, true), 1e-8);
+        assertEquals(0, SackGhostRules.boostedSanDrain(0, true));
+    }
+
+    @Test void realmPressureIncludesFifteenBlocksAndSpeedIsSeven() {
+        assertEquals(6, SackGhostRules.REALM_SPEED_AMPLIFIER);
+        assertTrue(SackGhostRules.inRealmPressureRange(0));
+        assertTrue(SackGhostRules.inRealmPressureRange(225));
+        assertFalse(SackGhostRules.inRealmPressureRange(225.01));
+        assertFalse(SackGhostRules.inRealmPressureRange(-1));
+        assertFalse(SackGhostRules.inRealmPressureRange(Double.NaN));
+        assertFalse(SackGhostRules.inRealmPressureRange(Double.POSITIVE_INFINITY));
     }
 }

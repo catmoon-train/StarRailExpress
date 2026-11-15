@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /** 不启动Minecraft注册表的生命周期接线回归；真实联机行为另行验收。 */
 class SackGhostLifecycleWiringTest {
     private String source(String path) throws Exception {
-        return Files.readString(Path.of("src/main/java/org/agmas/noellesroles", path));
+        return Files.readString(Path.of("src/main/java/org/agmas/noellesroles", path)).replace("\r\n", "\n");
     }
 
     @Test void smoothRewindGuardPrecedesSpectatorDeathCleanupAndKeepsProgress() throws Exception {
@@ -49,12 +49,14 @@ class SackGhostLifecycleWiringTest {
         assertTrue(items.contains("maintainWards(level, round)"));
     }
 
-    @Test void echoReturnBypassesSharedCooldownWithoutStartingAnotherOne() throws Exception {
+    @Test void echoReturnBypassesItsCooldownWithoutStartingAnotherOne() throws Exception {
         String role = source("role_data/killer/MaChenXuRoleData.java");
         String use = role.substring(role.indexOf("public boolean useArt("), role.indexOf("public double drainSan("));
-        assertTrue(use.indexOf("return returnEcho(owner)") < use.indexOf("if (castCooldown > 0)"));
+        assertTrue(use.indexOf("return returnEcho(owner)") < use.indexOf("int remaining = artCooldown(art)"));
+        assertTrue(use.contains("artReadyAt.put(art, now() + SackGhostRules.ART_COOLDOWN)"));
+        assertFalse(role.contains("castReadyAt"));
         String returning = role.substring(role.indexOf("private boolean returnEcho("), role.indexOf("public void onEffigyHit("));
-        assertFalse(returning.contains("castReadyAt ="));
+        assertFalse(returning.contains("artReadyAt.put"));
         assertTrue(returning.contains("finishEcho(owner)"));
         String items = source("game/roles/killer/ma_chen_xu/SackGhostItems.java");
         assertTrue(items.contains("spentArts.add(token)"));
@@ -92,5 +94,42 @@ class SackGhostLifecycleWiringTest {
         String config = Files.readString(Path.of("src/main/resources/noellesroles.mixins.json"));
         assertTrue(config.contains("client.roles.ma_chen_xu.SackGhostPlayerRenderMixin"));
         assertTrue(config.contains("client.roles.ma_chen_xu.SackGhostHandRenderMixin"));
+    }
+
+    @Test void independentCooldownsSyncAndCannotBeResetByRewind() throws Exception {
+        String role = source("role_data/killer/MaChenXuRoleData.java");
+        assertTrue(role.contains("artReadyAt.getOrDefault(art, 0L)"));
+        assertTrue(role.contains("artCooldowns.putInt(art.id, artCooldown(art))"));
+        assertTrue(role.contains("artCooldowns.getInt(art.id)"));
+        assertTrue(role.contains("artReadyAt.merge(art, readyAt, Math::max)"));
+        String client = source("client/SackGhostClient.java");
+        assertTrue(client.contains("data.artCooldown(art)"));
+        assertFalse(client.contains("data.castCooldown"));
+    }
+
+    @Test void onlySuccessfulCastsRollConsumptionAndEchoRollsOnce() throws Exception {
+        String role = source("role_data/killer/MaChenXuRoleData.java");
+        String use = role.substring(role.indexOf("public boolean useArt("), role.indexOf("public double drainSan("));
+        assertTrue(use.indexOf("if (!used) return false") < use.indexOf("owner.getRandom().nextBoolean()"));
+        assertTrue(use.contains("art != GhostArt.ECHO && SackGhostRules.consumesOnCast"));
+        String echo = role.substring(role.indexOf("private boolean castEcho("), role.indexOf("private boolean collisionFree("));
+        assertTrue(echo.indexOf("if (destination == null)") < echo.indexOf("owner.getRandom().nextBoolean()"));
+        assertEquals(1, echo.split("nextBoolean", -1).length - 1);
+        String returning = role.substring(role.indexOf("private boolean returnEcho("), role.indexOf("public void onEffigyHit("));
+        assertFalse(returning.contains("nextBoolean"));
+    }
+
+    @Test void realmPressureUsesEnemyRangeAndRestorableLeases() throws Exception {
+        String role = source("role_data/killer/MaChenXuRoleData.java");
+        String pressure = role.substring(role.indexOf("private void tickRealmPressure("), role.indexOf("private void lease("));
+        assertTrue(pressure.contains("isEnemy(target)"));
+        assertTrue(pressure.contains("inRealmPressureRange(owner.distanceToSqr(target))"));
+        assertTrue(pressure.contains("lease(target, MobEffects.BLINDNESS"));
+        assertTrue(pressure.contains("lease(target, ModEffects.TREMBLE"));
+        assertTrue(pressure.contains("lease(target, ModEffects.LIMP"));
+        assertTrue(pressure.contains("restoreLease(target, effect"));
+        String tick = role.substring(role.indexOf("@Override public void serverTick()"), role.indexOf("@Override public void clientTick()"));
+        assertTrue(tick.contains("if (otherworldActive) {\n            if (clockRunning() && now() % 5 == 0) tickRealmPressure(owner)"));
+        assertTrue(role.contains("SackGhostRules.boostedSanDrain(points, otherworldActive)"));
     }
 }

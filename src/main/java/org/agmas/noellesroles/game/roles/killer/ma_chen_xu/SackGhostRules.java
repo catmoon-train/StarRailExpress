@@ -3,10 +3,11 @@ package org.agmas.noellesroles.game.roles.killer.ma_chen_xu;
 /** 布袋鬼与诡客的纯数值规则；不初始化物品或世界注册表。 */
 public final class SackGhostRules {
     public static final int MAX_ART_ITEMS = 4;
-    public static final int CAST_INTERVAL = 3 * 20;
-    public static final int REALM_CAST_INTERVAL = 10 * 20;
-
-    public static int castInterval(boolean realmActive) { return realmActive ? REALM_CAST_INTERVAL : CAST_INTERVAL; }
+    public static final int ART_COOLDOWN = 25 * 20;
+    public static final double SAN_DRAIN_MULTIPLIER = 1.3;
+    public static final double REALM_SAN_DRAIN_MULTIPLIER = 1.25;
+    public static final double REALM_PRESSURE_RANGE = 15;
+    public static final int REALM_SPEED_AMPLIFIER = 6;
     public static final int REALM_COOLDOWN = 120 * 20;
     public static final int REALM_ATTACK_INTERVAL = 20;
     public static final double REALM_ATTACK_RANGE = 3.3;
@@ -19,7 +20,7 @@ public final class SackGhostRules {
     public static final int ESCAPE_DURATION = 12 * 20;
     public static final int ESCAPE_COOLDOWN = 150 * 20;
     public static final int SHROUD_DURATION = 15 * 20;
-    public static final int SHROUD_COOLDOWN = 65 * 20;
+    public static final int SHROUD_COOLDOWN = 30 * 20;
     public static final int ECHO_WINDOW = 8 * 20;
     public static final int VEIL_DURATION = 3 * 20;
     public static final int WAIL_DURATION = 5 * 20;
@@ -35,7 +36,7 @@ public final class SackGhostRules {
     private SackGhostRules() {}
 
     public static int generationCooldownSeconds(int initialPlayers) {
-        return Math.max(10, 55 - Math.max(0, initialPlayers));
+        return Math.max(20, 50 - Math.max(0, initialPlayers));
     }
 
     public static int stageThreshold(int stage, int initialPlayers) {
@@ -72,8 +73,17 @@ public final class SackGhostRules {
 
     public static int realmDuration(int stage) { return stage >= 4 ? 800 : 600; }
 
-    public static boolean consumesOnCast(GhostArt art, boolean realmActive) {
-        return art != GhostArt.SHROUD && !realmActive;
+    public static double boostedSanDrain(double points, boolean realmActive) {
+        return points * SAN_DRAIN_MULTIPLIER * (realmActive ? REALM_SAN_DRAIN_MULTIPLIER : 1);
+    }
+
+    public static boolean inRealmPressureRange(double distanceSquared) {
+        return Double.isFinite(distanceSquared) && distanceSquared >= 0
+                && distanceSquared <= REALM_PRESSURE_RANGE * REALM_PRESSURE_RANGE;
+    }
+
+    public static boolean consumesOnCast(GhostArt art, boolean realmActive, boolean consumeRoll) {
+        return art != GhostArt.SHROUD && !realmActive && consumeRoll;
     }
 
     public static boolean parasiteShouldExecute(boolean glitchRobot, double sanFraction) {
