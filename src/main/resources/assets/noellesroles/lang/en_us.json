@@ -2049,6 +2049,7 @@
   "=========== 魔术师 ===========": "",
   "message.magician.cosplay": "You are roleplaying as: %s",
   "message.magician.you_are_playing_as": "You are roleplaying as:",
+  "message.magician.revolver_only": "Only a revolver can kill for you; other means will not kill players",
   "message.magician.magician_are_playing_as": "Roleplaying as: %s",
   "=========== 红尘客 ===========": "",
   "hud.noellesroles.wayfarer.select": "Right-click a corpse to begin your mortal journey",

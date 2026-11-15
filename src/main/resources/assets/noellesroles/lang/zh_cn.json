@@ -2079,6 +2079,7 @@
   "=========== 魔术师 ===========": "",
   "message.magician.cosplay": "你正在扮演：%s",
   "message.magician.you_are_playing_as": "你正在扮演：",
+  "message.magician.revolver_only": "你只能使用左轮手枪致人死亡，其它手段无法击杀玩家",
   "message.magician.magician_are_playing_as": "正在扮演：%s",
   "=========== 红尘客 ===========": "",
   "hud.noellesroles.wayfarer.select": "右键尸体开始你的红尘之旅",

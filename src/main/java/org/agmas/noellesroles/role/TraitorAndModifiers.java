@@ -287,6 +287,10 @@ public class TraitorAndModifiers {
         // 起义军修饰符排除巫毒师职业与藤原妹红
         REBEL.cannotBeAppliedTo = new HashSet<>(List.of(ModRoles.VOODOO, THLostForestRoles.MOKOU));
 
+        // 鬼祟与魔术师互斥：魔术师自带假身份（杀手方按伪装身份看待），
+        // 再叠一层「靠近即不可被透视」会让伪装语义混乱。互斥关系不写进职业介绍。
+        SNEAKY.cannotBeAppliedTo = new HashSet<>(List.of(ModRoles.MAGICIAN));
+
         // 侏儒与体型类/双子修饰符互斥（与 TINY/TALL 共用同一套互斥机制）
         DWARF.addTwoWayOpposingModifier(SEModifiers.TINY, SEModifiers.TALL, SEModifiers.TWIN_CHILDREN);
         // 狂躁症与任务大师/工作狂互斥（取代 registerModifierEvents 里逐条 removeModifier 的手写逻辑）

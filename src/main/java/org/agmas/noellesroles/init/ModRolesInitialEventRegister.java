@@ -116,6 +116,7 @@ import org.agmas.noellesroles.role_data.neutral.PhantomMusicianRoleData;
 import org.agmas.noellesroles.role_data.killer.ImitatorRoleData;
 import org.agmas.noellesroles.role_data.killer.NiaoshoushouRoleData;
 import org.agmas.noellesroles.role_data.special.SuperLooseEndRoleData;
+import org.agmas.noellesroles.game.roles.innocence.magician.MagicianDisguiseHelper;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.role.touhou.THLostForestRoles;
@@ -178,6 +179,12 @@ public class ModRolesInitialEventRegister {
                     // 随机分配一个杀手身份给魔术师（原版杀手、毒师和清道夫除外）
                     if (magicianComponent != null) {
                         magicianComponent.startDisguiseRandomRole();
+                        // 被动——伪装大师：开局获得伪装职业的初始物品与初始药水效果（无敌效果除外）。
+                        // 只对魔术师生效，共用同一份 RoleData 的辉夜不受影响。
+                        if (RoleUtils.compareRole(role, ModRoles.MAGICIAN)) {
+                            MagicianDisguiseHelper.grantDisguiseKit(player,
+                                    MagicianDisguiseHelper.resolveDisguisedRole(player));
+                        }
                     }
                 }
                 // 检查是否有指挥官，如果有则加入指挥官频道

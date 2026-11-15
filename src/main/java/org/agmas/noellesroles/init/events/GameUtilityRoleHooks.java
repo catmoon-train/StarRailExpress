@@ -7,12 +7,15 @@ import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.event.GameUtilityEvents;
 import io.wifi.starrailexpress.game.GameConstants;
+import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA;
 import org.agmas.noellesroles.game.roles.killer.warlock.WarlockDomainManager;
+import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role_data.innocence.AdventurerRoleData;
 import org.agmas.noellesroles.role_data.killer.ExecutionerRoleData;
@@ -50,9 +53,38 @@ public final class GameUtilityRoleHooks {
         GameUtilityEvents.BEFORE_KILL.register((victim, body, killer, reason, force) ->
                 !force || !InControlCCA.blockHazardDeathIfControlled(victim, reason));
         GameUtilityEvents.BEFORE_KILL.register(GameUtilityRoleHooks::mercenaryConfirm);
+        GameUtilityEvents.BEFORE_KILL.register(GameUtilityRoleHooks::magicianRevolverOnly);
         GameUtilityEvents.BEFORE_KILL.register((victim, body, killer, reason, force) ->
                 reason == null || victim == null || !DOMAIN_IMMUNE.contains(reason)
                         || !WarlockDomainManager.isInDomain(victim.getUUID()));
+    }
+
+    /**
+     * 魔术师：只有左轮手枪能致人死亡。
+     *
+     * <p>非左轮手段（刀 / 手雷 / 陷阱 / 其它职业能力等）照常命中、照常产生伤害与音效，
+     * 但不会让目标进入死亡流程；强制死亡（{@code force}，如虚空、巫毒、代码处决）
+     * 不受此限制。判定放在 {@code BEFORE_KILL}，比 {@code allowDeath} /
+     * {@code AllowPlayerDeathWithKiller} 更早，且能拿到真实凶器。</p>
+     */
+    private static boolean magicianRevolverOnly(Player victim, boolean spawnBody, Player killer,
+            ResourceLocation reason, boolean force) {
+        if (force || victim == null || killer == null || victim == killer || victim.level() == null) return true;
+        var game = SREGameWorldComponent.KEY.get(victim.level());
+        if (game == null || !game.isRole(killer, ModRoles.MAGICIAN)) return true;
+        if (isRevolverWeapon(killer.getMainHandItem()) || isRevolverWeapon(killer.getOffhandItem())) return true;
+        killer.displayClientMessage(Component.translatable("message.magician.revolver_only")
+                .withStyle(net.minecraft.ChatFormatting.DARK_RED), true);
+        return false;
+    }
+
+    /** 是否为左轮手枪类武器（制式左轮 / 强盗左轮 / 假左轮都算左轮）。 */
+    private static boolean isRevolverWeapon(ItemStack stack) {
+        if (stack == null || stack.isEmpty()) return false;
+        return stack.is(TMMItems.REVOLVER)
+                || stack.is(TMMItems.STANDARD_REVOLVER)
+                || stack.is(ModItems.BANDIT_REVOLVER)
+                || stack.is(ModItems.FAKE_REVOLVER);
     }
 
     private static boolean environmentalImmunity(Player victim, boolean spawnBody, Player killer,

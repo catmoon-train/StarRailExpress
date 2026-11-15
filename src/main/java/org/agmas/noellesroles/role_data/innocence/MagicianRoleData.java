@@ -30,6 +30,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.game.roles.innocence.magician.MagicianDisguiseHelper;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
@@ -99,7 +101,51 @@ public class MagicianRoleData extends SimpleRoleData {
         return disguiseRoleId;
     }
 
+    /**
+     * 随机分配伪装身份。
+     *
+     * <p>魔术师：候选池由 {@link MagicianDisguiseHelper#collectCandidateIds(Player)} 动态生成 ——
+     * 任意「非多狼位 / 非地图特色职业 / 无绑定生成关系 / 非迷失杀手」的杀手职业，并且
+     * 不会与当前场上已有的杀手职业重复（严格池为空时退化为允许重复）。</p>
+     *
+     * <p>共用同一份 RoleData 的其它职业（蓬莱山辉夜）保留历史白名单，行为不变。</p>
+     */
     public void startDisguiseRandomRole() {
+        if (RoleUtils.isPlayerTheJob(player, ModRoles.MAGICIAN)) {
+            startDisguiseFromMagicianPool();
+            return;
+        }
+        ArrayList<ResourceLocation> killerRoles = legacyDisguiseCandidates();
+        if (killerRoles.isEmpty()) {
+            killerRoles.add(TMMRoles.KILLER.identifier());
+        }
+        Collections.shuffle(killerRoles);
+        applyDisguise(killerRoles.getFirst());
+    }
+
+    /** 魔术师专用：动态候选池（含场上去重）。 */
+    private void startDisguiseFromMagicianPool() {
+        ArrayList<ResourceLocation> candidates = new ArrayList<>(
+                MagicianDisguiseHelper.collectCandidateIds(player));
+        if (candidates.isEmpty()) {
+            candidates.add(TMMRoles.KILLER.identifier());
+        }
+        Collections.shuffle(candidates);
+        applyDisguise(candidates.getFirst());
+    }
+
+    /** 写入伪装身份并提示玩家。 */
+    private void applyDisguise(ResourceLocation disguiseRole) {
+        this.setDisguiseRoleId(disguiseRole);
+        player.displayClientMessage(Component.translatable("message.magician.you_are_playing_as")
+                .append(Component.translatable("announcement.star.role." + disguiseRole.getPath()))
+                .withStyle(ChatFormatting.GOLD), true);
+        SRE.LOGGER.info("Player {} is disguising role {}", player.getScoreboardName(), disguiseRole);
+        sync();
+    }
+
+    /** 历史上固定的伪装白名单（仅供共用本 RoleData 的其它职业使用）。 */
+    private static ArrayList<ResourceLocation> legacyDisguiseCandidates() {
         ArrayList<ResourceLocation> killerRoles = new ArrayList<>();
         // 白名单：允许模拟的杀手职业
         killerRoles.add(ModRoles.MORPHLING_ID);
@@ -126,23 +172,7 @@ public class MagicianRoleData extends SimpleRoleData {
         killerRoles.add(BounsRoles.CREEPER.identifier());
         killerRoles.add(SERoles.NECROMANCER.identifier());
         killerRoles.add(BounsRoles.CAT_NECROMANCER.identifier());
-
-        if (killerRoles.isEmpty()) {
-            killerRoles.add(TMMRoles.KILLER.identifier());
-        }
-        if (!killerRoles.isEmpty()) {
-            Collections.shuffle(killerRoles);
-            ResourceLocation disguiseRole = killerRoles.getFirst();
-            this.setDisguiseRoleId(disguiseRole);
-            // Noellesroles.LOGGER.info(this.player.level().isClientSide ? "Client" :
-            // "Server");
-            player.displayClientMessage(Component.translatable("message.magician.you_are_playing_as")
-                    .append(Component.translatable("announcement.star.role." + disguiseRole.getPath()))
-                    .withStyle(ChatFormatting.GOLD), true);
-
-            SRE.LOGGER.info("Player {} is disguising role {}", player.getScoreboardName(), disguiseRole);
-        }
-        sync();
+        return killerRoles;
     }
 
     /**

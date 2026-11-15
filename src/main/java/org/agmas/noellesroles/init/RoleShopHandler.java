@@ -64,7 +64,6 @@ import org.agmas.noellesroles.role_data.innocence.SingerRoleData;
 import org.agmas.noellesroles.role_data.innocence.FirefighterRoleData;
 import org.agmas.noellesroles.role_data.killer.ExecutionerRoleData;
 import org.agmas.noellesroles.role_data.killer.MaChenXuRoleData;
-import org.agmas.noellesroles.role_data.innocence.MagicianRoleData;
 import org.agmas.noellesroles.role_data.innocence.DiscMasterRoleData;
 import org.agmas.noellesroles.role_data.innocence.PhotographerRoleData;
 import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
@@ -345,7 +344,6 @@ public class RoleShopHandler {
         ArrayList<ShopEntry> VETERAN_SHOP = new ArrayList<>();
         ArrayList<ShopEntry> PATROLLER_SHOP = new ArrayList<>();
         ArrayList<ShopEntry> NIAN_SHOU_SHOP = new ArrayList<>();
-        ArrayList<ShopEntry> MAGICIAN_SHOP = new ArrayList<>();
         ArrayList<ShopEntry> BANDIT_SHOP = new ArrayList<>();
         ArrayList<ShopEntry> CLOCKMAKER_SHOP = new ArrayList<>();
         ArrayList<ShopEntry> WRITER_SHOP = new ArrayList<>();
@@ -698,75 +696,6 @@ public class RoleShopHandler {
                 @Override
                 public boolean onBuy(@NotNull Player player) {
                     return RoleUtils.insertStackInFreeSlot(player, attendantLantern.copy());
-                }
-            });
-        }
-
-        // 魔术师商店
-        {
-            // 假刀 - 50金币
-            MAGICIAN_SHOP.add(new ShopEntry(
-                    ModItems.FAKE_KNIFE.getDefaultInstance(),
-                    50,
-                    ShopEntry.Type.WEAPON));
-
-            // 假撬棍 - 35金币
-            MAGICIAN_SHOP.add(new ShopEntry(
-                    ModItems.FAKE_CROWBAR.getDefaultInstance(),
-                    35,
-                    ShopEntry.Type.WEAPON));
-
-            // 假开锁器 - 80金币
-            MAGICIAN_SHOP.add(new ShopEntry(
-                    ModItems.FAKE_LOCKPICK.getDefaultInstance(),
-                    80,
-                    ShopEntry.Type.WEAPON));
-
-            // 鞭炮 - 30金币
-            MAGICIAN_SHOP.add(new ShopEntry(
-                    TMMItems.FIRECRACKER.getDefaultInstance(),
-                    30,
-                    ShopEntry.Type.WEAPON));
-
-            // 假裹尸袋 - 100金币
-            MAGICIAN_SHOP.add(new ShopEntry(
-                    ModItems.FAKE_BODY_BAG.getDefaultInstance(),
-                    100,
-                    ShopEntry.Type.WEAPON));
-
-            // 便签 - 100金币
-            MAGICIAN_SHOP.add(new ShopEntry(
-                    TMMItems.NOTE.getDefaultInstance(),
-                    100,
-                    ShopEntry.Type.WEAPON));
-
-            // 假枪 - 175金币
-            MAGICIAN_SHOP.add(new ShopEntry(
-                    ModItems.FAKE_REVOLVER.getDefaultInstance(),
-                    175,
-                    ShopEntry.Type.WEAPON));
-
-            // 假手雷 - 200金币
-            MAGICIAN_SHOP.add(new ShopEntry(
-                    ModItems.FAKE_GRENADE.getDefaultInstance(),
-                    200,
-                    ShopEntry.Type.WEAPON));
-
-            // 假疯狂模式 - 325金币
-            MAGICIAN_SHOP.add(new ShopEntry(
-                    ModItems.FAKE_PSYCHO_MODE.getDefaultInstance(),
-                    325,
-                    ShopEntry.Type.WEAPON) {
-                @Override
-                public boolean onBuy(@NotNull Player player) {
-                    // 获得假球棒并启动假疯狂模式
-                    var magicianComponent = RoleData.getNullable(MagicianRoleData.class, player);
-                    if (magicianComponent != null) {
-                        if (!magicianComponent.startFakePsycho()) {
-                            return false;
-                        }
-                    }
-                    return true;
                 }
             });
         }
@@ -3118,11 +3047,8 @@ public class RoleShopHandler {
                     ModRoles.NIAN_SHOU_ID, NIAN_SHOU_SHOP);
         }
 
-        // 魔术师商店
-        {
-            ShopContent.customEntries.put(
-                    ModRoles.MAGICIAN_ID, MAGICIAN_SHOP);
-        }
+        // 魔术师没有固定商店：商店跟随开局伪装的杀手职业（价格 +20%），
+        // 见 MagicianRole / MagicianShop。
 
         // 强盗商店
         {

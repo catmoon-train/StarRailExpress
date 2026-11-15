@@ -33,6 +33,7 @@ import org.agmas.noellesroles.game.roles.innocence.mortician.MorticianRole;
 import org.agmas.noellesroles.game.roles.innocence.nurse.NurseRole;
 import org.agmas.noellesroles.game.roles.killer.boom_maniac.BoomManiacRole;
 import org.agmas.noellesroles.game.roles.innocence.watchman.WatchmanRole;
+import org.agmas.noellesroles.game.roles.innocence.magician.MagicianRole;
 import org.agmas.noellesroles.game.roles.innocence.tailor.TailorRole;
 import org.agmas.noellesroles.game.roles.innocence.insurance.InsuranceRole;
 import org.agmas.noellesroles.game.roles.innocence.waiter.WaiterRole;
@@ -3500,19 +3501,24 @@ public class ModRoles {
      * - 隐藏身份为杀手团队 (setHiddenTeam(RoleTeam.Team.KILLER))：指挥官频道、葬仪死亡报幕、
      * 杀手透视红框、杀手同伙列表等「阵营判定」全部按杀手团队处理，但真实阵营仍是平民
      * - 能捡枪 (setCanPickUpRevolver(true))
-     * - 做任务维持san值
-     * - 商店购买假枪（175金币）
-     * - 商店购买假疯狂模式（250金币）：获得假球棒，穿上疯狂模式外观，不播放音乐
+     * - 假心情 (MoodType.FAKE)：理智恒为满，无需恢复理智
+     * - 与鬼祟修饰符互斥（见 TraitorAndModifiers#init）
+     * - 被动——伪装大师：开局伪装成任意「非多狼位 / 非地图特色职业 / 无绑定生成关系 /
+     * 非迷失杀手」的杀手职业，且不与场上已有的杀手重复（见 MagicianDisguiseHelper）。
+     * 获得伪装职业的初始物品、初始药水效果（无敌除外）与该职业的商店（价格 +20%），
+     * 但不获得该职业的技能（见 MagicianRole / MagicianShop / MagicianShopEntry）
+     * - 无法使用除左轮手枪以外的手段击杀玩家（强制死亡除外），可以正常使用道具
+     * （见 GameUtilityRoleHooks#magicianKillRestriction）
      * - 如果指挥官在场，加入指挥官频道
      * - 小脑：魔术师<b>可以被小脑</b>（误杀平民时自己会因误杀平民而亡），
      * 但<b>不能小脑别人</b>（好人误杀魔术师时，凶手不会因误杀平民而亡）
      */
-    public static SRERole MAGICIAN = TMMRoles.registerRole(new NormalRole(
+    public static SRERole MAGICIAN = TMMRoles.registerRole(new MagicianRole(
             MAGICIAN_ID, // 角色 ID
             new Color(255, 165, 0).getRGB(), // 橙色 - 代表魔术师的魅力
             true, // isInnocent = 好人阵营
             false, // canUseKiller = 无杀手能力
-            SRERole.MoodType.REAL, // 真实心情
+            SRERole.MoodType.FAKE, // 假心情：无需恢复理智
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不显示计分板
     )).setCanPickUpRevolver(true).setCanSeeCoin(true)

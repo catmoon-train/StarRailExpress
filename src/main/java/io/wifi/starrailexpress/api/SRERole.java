@@ -756,6 +756,35 @@ public abstract class SRERole extends SREAbstractInfoClass {
     }
 
     /**
+     * <b>通用判定：本职业是否带有「地图特色」生成限制</b>（只在特定地图/地图特性才会生成的职业）。
+     * <p>
+     * 三类限制任一命中即算特色职业：
+     * <ul>
+     * <li>{@link #specialMapRole}：单一地图特性（如邱雨村 / 水下 / 实验室）</li>
+     * <li>{@link #specialMapRolesPredicate}：多个地图特性的组合条件</li>
+     * <li>{@link #setCanSpawnInMap} 写入的自定义生成条件</li>
+     * </ul>
+     * 供「只取通用职业」的场景使用（例如魔术师伪装候选池），判定口径与
+     * {@link #canSpawnInMap(String, AreasSettings)} 保持一致。
+     */
+    public boolean hasMapSpawnRestriction() {
+        return (specialMapRole != null && !MapSpecialFeatures.ALL.equals(specialMapRole))
+                || specialMapRolesPredicate != null
+                || canSpawnInMapPredicate != null;
+    }
+
+    /**
+     * <b>通用判定：本职业是否带有绑定生成关系</b>。
+     * <p>
+     * 双向判定：{@link #occupationRoles}（本职业会带上这些职业一起生成，如毒师→医生）与
+     * {@link #occupationedRoles}（这些职业会带上本职业一起生成）任一非空即为绑定职业。
+     * 绑定关系是成对出现的生成约束，脱离另一半单独存在会破坏配对语义。
+     */
+    public boolean hasOccupationRoleRelation() {
+        return !occupationRoles.isEmpty() || !occupationedRoles.isEmpty();
+    }
+
+    /**
      * 小游戏任务独立计算：设置该职业的小游戏任务是否不并入轮换派发，
      * 始终按独立计时刷新（不受轮换模式普通任务数量限制，见 SREPlayerMinigameTaskComponent）。
      */
