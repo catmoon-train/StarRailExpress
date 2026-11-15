@@ -20,6 +20,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.doctor4t.ratatouille.client.lib.render.helpers.Easing;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.client.ReporterTerminalClient;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.SansRenderer;
 import io.wifi.starrailexpress.client.StaminaRenderer;
@@ -84,7 +85,8 @@ public class InGameHudMixin {
             Operation<Void> original) {
         // 高级运镜动画期间整体跳过物品栏与装饰（含血量 / 经验 / 选中物品名 / 自定义火车 HUD），
         // 呈现与原版 F1 一致的纯净运镜画面。
-        if (AdvancedCameraDirector.shouldHideHudForCamera()) {
+        // 记者终端视角同理：只保留监控台/终端自己的画面，不显示自己的物品栏。
+        if (AdvancedCameraDirector.shouldHideHudForCamera() || ReporterTerminalClient.isActive()) {
             return;
         }
         original.call(context, tickCounter);
@@ -92,8 +94,8 @@ public class InGameHudMixin {
 
     @WrapMethod(method = "renderCrosshair")
     private void tmm$renderHud(GuiGraphics context, DeltaTracker tickCounter, Operation<Void> original) {
-        // 运镜动画期间不绘制任何准星。
-        if (AdvancedCameraDirector.shouldHideHudForCamera()) {
+        // 运镜动画期间、以及记者终端视角里都不绘制准星。
+        if (AdvancedCameraDirector.shouldHideHudForCamera() || ReporterTerminalClient.isActive()) {
             return;
         }
         if (SREClient.isInLobby) {

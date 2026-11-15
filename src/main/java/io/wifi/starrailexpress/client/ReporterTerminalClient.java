@@ -139,6 +139,11 @@ public final class ReporterTerminalClient {
         return target == null ? "" : target.getName().getString();
     }
 
+    /** 当前被观察的玩家实体；没有可用目标时返回 null。 */
+    public static Player currentTargetPlayer() {
+        return currentTarget();
+    }
+
     /** ESC / 潜行退出页面。 */
     public static boolean onKeyPress(int key, int action) {
         if (!active || action != GLFW.GLFW_PRESS) {

@@ -83,6 +83,8 @@
     "client.ByteBufferBuilderOverflowMixin",
     "client.CameraPositionMixin",
     "client.SecurityMonitorFeedMixin",
+    "client.ReporterTerminalEntityMixin",
+    "client.ReporterTerminalGameRendererMixin",
     "client.MinecraftRenderTargetAccessor",
     "client.CustomHeadLayerMixin",
     "client.DefaultPlayerSkinMixin",
