@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 public abstract class LockedOptionInstanceMixin<T> {
     @Shadow T value;
     @Unique private T sre$lockedValue;
+    @Unique private boolean sre$isGamma;
 
     @SuppressWarnings("unchecked")
     @Inject(method = "<init>(Ljava/lang/String;Lnet/minecraft/client/OptionInstance$TooltipSupplier;Lnet/minecraft/client/OptionInstance$CaptionBasedToString;Lnet/minecraft/client/OptionInstance$ValueSet;Lcom/mojang/serialization/Codec;Ljava/lang/Object;Ljava/util/function/Consumer;)V",
@@ -29,7 +30,8 @@ public abstract class LockedOptionInstanceMixin<T> {
                                           OptionInstance.CaptionBasedToString<T> caption,
                                           @Coerce Object values, Codec<T> codec,
                                           T initial, Consumer<T> onChange, CallbackInfo ci) {
-        sre$lockedValue = (T) ClientOptionPolicy.lockedValue(key);
+        sre$isGamma = "options.gamma".equals(key);
+        sre$lockedValue = (T) ClientOptionPolicy.lockedValue(key, false);
         if (sre$lockedValue != null) {
             value = sre$lockedValue;
         }
@@ -37,15 +39,23 @@ public abstract class LockedOptionInstanceMixin<T> {
 
     @ModifyVariable(method = "set", at = @At("HEAD"), argsOnly = true)
     private T sre$rejectLockedValueChanges(T proposed) {
-        return sre$lockedValue != null ? sre$lockedValue : proposed;
+        T locked = sre$currentLockedValue();
+        return locked != null ? locked : proposed;
     }
 
     @Inject(method = "get", at = @At("HEAD"), cancellable = true)
     private void sre$enforceLockedRead(CallbackInfoReturnable<T> cir) {
-        if (sre$lockedValue != null) {
-            value = sre$lockedValue;
-            cir.setReturnValue(sre$lockedValue);
+        T locked = sre$currentLockedValue();
+        if (locked != null) {
+            value = locked;
+            cir.setReturnValue(locked);
         }
+    }
+
+    @Unique
+    @SuppressWarnings("unchecked")
+    private T sre$currentLockedValue() {
+        return sre$isGamma ? (T) ClientOptionPolicy.lockedValue("options.gamma") : sre$lockedValue;
     }
 
     @Inject(method = "createButton(Lnet/minecraft/client/Options;IIILjava/util/function/Consumer;)Lnet/minecraft/client/gui/components/AbstractWidget;",

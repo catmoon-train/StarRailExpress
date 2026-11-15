@@ -97,7 +97,8 @@ public final class PlayerSkinEconomyManager {
             return io.wifi.starrailexpress.client.data.ClientPlayerDataCache
                     .getEquippedSkin(player.getUUID(), normalizeItemName(itemType));
         }
-        return get(player.getUUID()).state.equipped.getOrDefault(normalizeItemName(itemType), "default");
+        // 与皮肤管理界面共用组件中的装备状态，避免只恢复了界面却仍使用空的 economy 缓存。
+        return SREPlayerSkinsComponent.KEY.get(player).getEquippedSkin(normalizeItemName(itemType));
     }
 
     public static void setEquippedSkinForItemType(Player player, String itemType, String skinName) {
@@ -108,6 +109,7 @@ public final class PlayerSkinEconomyManager {
         markDirty(player, entry);
         mirrorToSkinsComponent(player, sc -> sc.setEquippedSkinForItemType(normalizedType,
                 skinName == null || skinName.isBlank() ? "default" : skinName));
+        ItemSkinManager.refreshEquippedSkins(player, normalizedType);
     }
 
     public static boolean isSkinUnlocked(Player player, ItemStack stack, String skinName) {
@@ -178,6 +180,7 @@ public final class PlayerSkinEconomyManager {
     private static void onJoin(ServerPlayer player) {
         Entry entry = get(player.getUUID());
         entry.online = true;
+        ItemSkinManager.refreshEquippedSkins(player);
         send(player, entry);
         if (!isDatabaseEnabled()) {
             return;

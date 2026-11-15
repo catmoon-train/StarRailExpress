@@ -101,6 +101,9 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         CustomMotdManager.init();
         OpenScreenManager.init();
         initConfig();
+        if (FabricLoader.getInstance().isModLoaded("cobblemon")) {
+            io.wifi.starrailexpress.compat.cobblemon.CobblemonMechanics.initialize();
+        }
         ServerLanguageManager.applyFromConfig();
         initConstants();
         initWaypoints();

@@ -233,6 +233,11 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         if (player == null) {
             return; // Player is offline
         }
+        // 布袋鬼判死是终局死亡：亡命徒的群体复活也不能把标记目标拉回来。
+        if (org.agmas.noellesroles.game.roles.killer.ma_chen_xu.SackGhostItems.isFinalDeath(player)) {
+            data.isDead = true;
+            return;
+        }
 
         var i = GameUtils.roomToPlayer.get(data.uuid);
         if (i == null) {

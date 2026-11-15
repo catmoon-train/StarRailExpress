@@ -67,8 +67,10 @@ class CloneDoctorTest {
         int teamStart = world.indexOf("public boolean isKillerTeam(UUID player)");
         String team = world.substring(teamStart, world.indexOf("\n    }", teamStart));
         assertTrue(team.contains("getAllegianceRole(player)"));
-        assertTrue(team.contains("role.canUseKiller()"));
-        assertTrue(team.contains("role.isNeutralForKiller()"));
+        assertTrue(team.contains("isKillerTeamRole(this.getAllegianceRole(player))"));
+        int roleTeamStart = world.indexOf("public boolean isKillerTeamRole(SRERole role)");
+        String roleTeam = world.substring(roleTeamStart, world.indexOf("\n    }", roleTeamStart));
+        assertTrue(roleTeam.contains("RoleTeam.isKillerTeam(role)"));
     }
 
     @Test
@@ -242,12 +244,15 @@ class CloneDoctorTest {
     void translationsAndCommonSideMixinRegistrationsAreComplete() throws Exception {
         Path assets = Path.of("src/main/resources/assets");
         for (String locale : List.of("zh_cn", "zh_tw", "en_us")) {
-            var role = JsonParser.parseString(Files.readString(assets.resolve("noellesroles/lang/" + locale + ".json")))
+            var role = JsonParser.parseString(Files.readString(assets.resolve("role_name_goals/lang/" + locale + ".json")))
                     .getAsJsonObject();
             for (String key : List.of("announcement.star.role.clone_doctor", "announcement.star.goals.clone_doctor",
-                    "announcement.star.modifier.noellesroles.cloned_person", "hud.noellesroles.clone_doctor.return")) {
+                    "announcement.star.modifier.noellesroles.cloned_person")) {
                 assertTrue(role.has(key), locale + ": " + key);
             }
+            var client = JsonParser.parseString(Files.readString(assets.resolve("noellesroles/lang/" + locale + ".json")))
+                    .getAsJsonObject();
+            assertTrue(client.has("hud.noellesroles.clone_doctor.return"), locale);
             var intro = JsonParser.parseString(Files.readString(assets.resolve("role_modifier_intro/lang/" + locale + ".json")))
                     .getAsJsonObject();
             assertTrue(intro.has("info.screen.roleid.clone_doctor"));

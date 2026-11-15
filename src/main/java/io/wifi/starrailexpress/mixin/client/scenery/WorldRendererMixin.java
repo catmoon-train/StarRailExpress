@@ -20,6 +20,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Camera;
@@ -52,6 +53,13 @@ public abstract class WorldRendererMixin {
     @WrapOperation(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/FogRenderer;setupFog(Lnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/FogRenderer$FogMode;FZF)V"))
     public void tmm$applyBlizzardFog(Camera camera, FogRenderer.FogMode fogType, float viewDistance, boolean thickFog,
             float tickDelta, Operation<Void> original) {
+        if (SRE.isLobby) {
+            tmm$echoFogApplied = false;
+            tmm$nightFogApplied = false;
+            io.wifi.starrailexpress.client.render.ShaderPackFog.beginFrame();
+            original.call(camera, fogType, viewDistance, thickFog, tickDelta);
+            return;
+        }
         boolean night = org.agmas.noellesroles.game.night.NightEvent.isActive(Minecraft.getInstance().level);
         if (tmm$nightFogApplied && !night) {
             original.call(camera, fogType, viewDistance, thickFog, tickDelta);
@@ -74,13 +82,6 @@ public abstract class WorldRendererMixin {
     @Unique
     private void tmm$applyExistingFog(Camera camera, FogRenderer.FogMode fogType, float viewDistance, boolean thickFog,
                                      float tickDelta, Operation<Void> original) {
-        if (SREClient.isInLobby) {
-            if(tmm$echoFogApplied) {
-                original.call(camera,fogType,viewDistance,thickFog,tickDelta);
-                tmm$echoFogApplied=false;
-            }
-            return;
-        }
         if (VerticalLoopingMirrorClient.applyBottomFog(camera)) {
             io.wifi.starrailexpress.client.render.ShaderPackFog.capture();
             return;

@@ -236,12 +236,13 @@ public final class RouletteDevilSessions {
         // 回放记录：轮盘赌对决结果已明，记录获胜者
         if (victor != null) ReplayEventLog.record("replay.event.roulette_devil.duel_win", ReplayEventLog.player(victor));
         if (victim != null && GameUtils.isPlayerAliveAndSurvival(victim)) {
-            if (!spared) {
+            // 只有恶魔自己会因免死次数耗尽而死于败局；对手永不因赌局被处死。
+            if (s.demon.equals(loser) && !spared) {
                 DEATHS.add(loser);
                 try { victim.setInvulnerable(false); GameUtils.killPlayer(victim, true, victor, RouletteDevilRole.DEATH, true); }
                 finally { DEATHS.remove(loser); }
             } else {
-                // 免死返程的输家仍活着，随机背上一种残疾患者症状三分钟。
+                // 失败只留下三分钟残疾症状：对手如此，恶魔免死返程时也如此。
                 applyLoserDisability(victim);
             }
         }

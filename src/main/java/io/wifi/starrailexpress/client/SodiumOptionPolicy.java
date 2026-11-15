@@ -1,11 +1,13 @@
 package io.wifi.starrailexpress.client;
 
+import io.wifi.starrailexpress.SRE;
 import net.caffeinemc.mods.sodium.api.config.option.OptionBinding;
 import net.caffeinemc.mods.sodium.client.gui.SodiumOptions;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 
 /** Sodium 0.8 配置 ID 策略；实体距离固定 100%，天气、树叶、粒子、AO 和暗角开放调整。 */
 public final class SodiumOptionPolicy {
@@ -25,16 +27,20 @@ public final class SodiumOptionPolicy {
     }
 
     public static boolean isLocked(ResourceLocation id) {
-        return lockedValue(id) != null || (id.getNamespace().equals("sodium-extra")
+        return isGamma(id) || lockedValue(id) != null || (id.getNamespace().equals("sodium-extra")
                 && (id.getPath().startsWith("fog.") || id.getPath().startsWith("fog_shape.")
                     || id.getPath().equals("fog_shape") || id.getPath().equals("panini_projection_strength")));
     }
 
     public static Object lockedValue(ResourceLocation id) {
+        return lockedValue(id, isGamma(id) && SRE.isLobby);
+    }
+
+    public static Object lockedValue(ResourceLocation id, boolean lobby) {
         String path = id.getPath();
         if (id.getNamespace().equals("sodium")) {
             return switch (path) {
-                case "general.gamma" -> 0;
+                case "general.gamma" -> lobby ? 100 : 0;
                 case "quality.clouds" -> CloudStatus.OFF;
                 case "quality.entity_distance" -> 100;
                 default -> null;
@@ -50,17 +56,31 @@ public final class SodiumOptionPolicy {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> OptionBinding<T> binding(ResourceLocation id, OptionBinding<T> original) {
+        return binding(id, original, () -> SRE.isLobby);
+    }
+
+    @SuppressWarnings("unchecked")
+    static <T> OptionBinding<T> binding(ResourceLocation id, OptionBinding<T> original, BooleanSupplier lobby) {
         if (!isLocked(id)) return original;
-        T forced = (T) lockedValue(id);
         return new OptionBinding<>() {
+            private T forced() {
+                return (T) lockedValue(id, isGamma(id) && lobby.getAsBoolean());
+            }
             @Override public void save(T proposed) {
+                T forced = forced();
                 // 没有固定标量的复合/枚举项只允许读取受运行策略修正后的值。
                 if (forced != null) original.save(forced);
             }
-            @Override public T load() { return forced != null ? forced : original.load(); }
+            @Override public T load() {
+                T forced = forced();
+                return forced != null ? forced : original.load();
+            }
         };
+    }
+
+    private static boolean isGamma(ResourceLocation id) {
+        return id.getNamespace().equals("sodium") && id.getPath().equals("general.gamma");
     }
 
     public static SodiumOptions enforce(SodiumOptions options) {

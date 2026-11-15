@@ -475,6 +475,8 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
                                 if (equippedRevision != 0L) {
                                     this.equippedSkins = localEquipped;
                                 }
+                                // 拉取完成前物品可能已盖上默认皮肤，必须同步刷新实际物品，而不只是界面。
+                                ItemSkinManager.refreshEquippedSkins(this.player);
                                 this.sync();
                                 logger.debug("玩家 {} 的皮肤数据已从 MySQL 拉取", this.player.getName().getString());
                             }

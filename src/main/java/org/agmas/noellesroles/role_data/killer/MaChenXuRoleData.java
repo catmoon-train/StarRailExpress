@@ -441,7 +441,10 @@ public class MaChenXuRoleData extends SimpleRoleData {
         if (natural && matchActive()) {
             for (UUID id : condemned) {
                 ServerPlayer target = owner.server.getPlayerList().getPlayer(id);
-                if (target != null && isEnemy(target)) GameUtils.forceKillPlayer(target, true, owner, Noellesroles.id("machenxu"));
+                if (target == null || !isEnemy(target)) continue;
+                // 判死必须真正生效：先封印复活入口，再走强制死亡，避免除颤器或搭档把人拉回来。
+                SackGhostItems.sealFinalDeath(target);
+                GameUtils.forceKillPlayer(target, true, owner, Noellesroles.id("machenxu"));
             }
         }
     }

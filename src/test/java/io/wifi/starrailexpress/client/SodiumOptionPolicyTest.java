@@ -48,11 +48,29 @@ class SodiumOptionPolicyTest {
             public void save(Integer value) { stored.set(value); }
             public Integer load() { return stored.get(); }
         };
-        var locked = SodiumOptionPolicy.binding(ResourceLocation.parse("sodium:general.gamma"), binding);
+        var locked = SodiumOptionPolicy.binding(ResourceLocation.parse("sodium:general.gamma"), binding, () -> false);
         assertEquals(0, locked.load());
         locked.save(99);
         assertEquals(0, stored.get());
         assertSame(binding, SodiumOptionPolicy.binding(ResourceLocation.parse("sodium:general.framerate_limit"), binding));
+    }
+
+    @Test void existingBrightnessBindingFollowsLobbyStateOnLoadAndSave() {
+        var lobby = new java.util.concurrent.atomic.AtomicBoolean(false);
+        var stored = new AtomicReference<>(0);
+        var id = ResourceLocation.parse("sodium:general.gamma");
+        var binding = SodiumOptionPolicy.binding(id, new OptionBinding<Integer>() {
+            public void save(Integer value) { stored.set(value); }
+            public Integer load() { return stored.get(); }
+        }, lobby::get);
+        for (boolean state : new boolean[]{false, true, false, true, false}) {
+            lobby.set(state);
+            int expected = state ? 100 : 0;
+            assertEquals(expected, SodiumOptionPolicy.lockedValue(id, state));
+            assertEquals(expected, binding.load());
+            binding.save(37);
+            assertEquals(expected, stored.get());
+        }
     }
 
     @Test void compositeLockedBindingNeverAcceptsEdits() {

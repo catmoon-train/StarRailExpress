@@ -10,11 +10,20 @@ import static org.junit.jupiter.api.Assertions.*;
 class ClientOptionPolicyTest {
     @Test void remainingVisualRulesAndEntityDistanceAreFixed() {
         assertEquals(false, ClientOptionPolicy.lockedValue("options.autoJump"));
-        assertEquals(0.0D, ClientOptionPolicy.lockedValue("options.gamma"));
+        assertEquals(0.0D, ClientOptionPolicy.lockedValue("options.gamma", false));
         assertEquals(1.0D, ClientOptionPolicy.lockedValue("options.darknessEffectScale"));
         assertEquals(false, ClientOptionPolicy.lockedValue("options.showSubtitles"));
         assertEquals(CloudStatus.OFF, ClientOptionPolicy.lockedValue("options.renderClouds"));
         assertEquals(1.0D, ClientOptionPolicy.lockedValue("options.entityDistanceScaling"));
+    }
+
+    @Test void lobbyBrightnessSwitchesBackWithoutChangingOtherRules() {
+        for (boolean lobby : new boolean[]{false, true, false, true, false}) {
+            assertEquals(lobby ? 1.0D : 0.0D, ClientOptionPolicy.lockedValue("options.gamma", lobby));
+            assertEquals(false, ClientOptionPolicy.lockedValue("options.autoJump", lobby));
+            assertEquals(1.0D, ClientOptionPolicy.lockedValue("options.darknessEffectScale", lobby));
+            assertTrue(ClientOptionPolicy.isLocked("options.gamma"));
+        }
     }
 
     @ParameterizedTest @ValueSource(strings = {"master", "music", "record", "weather", "block", "hostile", "neutral", "player", "ambient", "voice"})

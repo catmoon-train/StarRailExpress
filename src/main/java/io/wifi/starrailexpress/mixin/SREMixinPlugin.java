@@ -36,6 +36,9 @@ public class SREMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+        if (mixinClassName.startsWith("io.wifi.starrailexpress.mixin.compat.cobblemon.")) {
+            return FabricLoader.getInstance().isModLoaded("cobblemon");
+        }
         if (!FabricLoader.getInstance().isModLoaded("modernui")
                 && mixinClassName.contains("io.wifi.starrailexpress.mixin.compat.modernui.")) {
             return false;

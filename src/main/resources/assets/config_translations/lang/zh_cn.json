@@ -1,6 +1,7 @@
 {
-  "text.autoconfig.starrailexpress.option.pokmen": "启用方块宝可梦客户端功能（服务端）",
-  "text.autoconfig.starrailexpress.option.pokmen.@Tooltip": "由服务器同步给客户端。关闭时隐藏宝可梦按键、GUI、HUD，并停止相关客户端输入和事件；默认关闭。",
+  "text.autoconfig.starrailexpress.option.pokmen": "启用方块宝可梦（服务端）",
+  "text.autoconfig.starrailexpress.option.pokmen.@Tooltip": "由服务器同步给客户端。关闭时停止宝可梦玩法与新区域生成，并隐藏相关按键和界面；原版交互保持正常，已有宝可梦、建筑和玩家数据不会被删除。默认关闭。",
+  "message.starrailexpress.cobblemon_disabled": "服务器未启用方块宝可梦玩法。",
 
   "=== SODIUM-EXTRA 补充===": "",
   "sodium-extra.option.light_updates_starrailexpress": "关照更新 (已被StarRailExpress强制启用)",

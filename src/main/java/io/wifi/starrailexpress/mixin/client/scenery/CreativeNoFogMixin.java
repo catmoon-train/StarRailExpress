@@ -23,6 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Camera;
@@ -34,6 +35,7 @@ public class CreativeNoFogMixin {
     @Inject(method = "setupFog", at = @At("HEAD"), cancellable = true)
     private static void onSetupFog(Camera camera, FogMode fogMode, float viewDistance, boolean thickFog,
             float tickDelta, CallbackInfo ci) {
+        if (SRE.isLobby) return;
         if (SREClient.isPlayerCreative() && SREClientConfig.instance().creativeNoFog) {
             // 取消原版雾设置
             ci.cancel();

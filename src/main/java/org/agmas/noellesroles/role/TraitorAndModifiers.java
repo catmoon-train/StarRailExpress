@@ -414,7 +414,8 @@ public class TraitorAndModifiers {
                 return; // 这些死亡原因不触发回光返照
             }
             WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(player.level());
-            if (modifiers.isModifier(player.getUUID(), LAST_GASP) && !LAST_GASP_TRIGGERED.contains(player.getUUID())) {
+            if (modifiers.isModifier(player.getUUID(), LAST_GASP) && !LAST_GASP_TRIGGERED.contains(player.getUUID())
+                    && !org.agmas.noellesroles.game.roles.killer.ma_chen_xu.SackGhostItems.isFinalDeath(player)) {
                 LAST_GASP_TRIGGERED.add(player.getUUID());
                 sp.setGameMode(GameType.ADVENTURE);
                 TrainVoicePlugin.resetPlayer(sp.getUUID());

@@ -35,8 +35,9 @@ class MustardMechanicsTest {
     }
 
     @Test
-    void fogRoleIsRemovedWhileItemsRemainUsable() throws Exception {
-        assertFalse(source("role/ModRoles.java").contains("FOG_GUEST"));
+    void fogRoleIsRegisteredWhileItemsRemainUsableByOtherRoles() throws Exception {
+        assertTrue(source("role/ModRoles.java").contains("public static final SRERole FOG_GUEST = TMMRoles.registerRole("));
+        assertTrue(source("game/command_block/CommandBlockRules.java").contains("ModRoles.FOG_GUEST"));
         assertTrue(source("init/ModItems.java").contains("FOG_BELL"));
         assertTrue(source("init/ModItems.java").contains("FOG_BLADE"));
         assertFalse(source("game/command_block/item/FogBellItem.java").contains("isRole("));

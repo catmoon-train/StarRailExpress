@@ -406,6 +406,34 @@ public class ItemSkinManager {
     }
 
     /**
+     * 登录、加载装备数据或主动换装后，将最新选择重新应用到背包（含副手）。
+     * 不经过优先读取物品旧快照的 getEquippedSkin，也不在每 tick 覆盖转交物品的皮肤。
+     */
+    public static void refreshEquippedSkins(Player player) {
+        refreshEquippedSkins(player, null);
+    }
+
+    /** 只刷新指定类型；itemTypeName 为 null 时刷新整个背包。 */
+    public static void refreshEquippedSkins(Player player, String itemTypeName) {
+        if (player == null || player.level().isClientSide()) {
+            return;
+        }
+        SREPlayerSkinsComponent skins = SREPlayerSkinsComponent.KEY.get(player);
+        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+            ItemStack stack = player.getInventory().getItem(slot);
+            String itemType = getItemSkinType(stack.getItem());
+            if (stack.isEmpty() || itemType == null
+                    || (itemTypeName != null && !itemTypeName.equals(itemType))) {
+                continue;
+            }
+            String resolved = resolveRandomSkin(player, itemType, skins.getEquippedSkin(itemType));
+            if (!resolved.equals(stack.get(SREDataComponentTypes.SKIN))) {
+                stack.set(SREDataComponentTypes.SKIN, resolved);
+            }
+        }
+    }
+
+    /**
      * 在物品提示末尾追加「皮肤：xxx」。
      * <p>
      * 该皮肤类型还没有任何皮肤（例如弓/弩尚未添加皮肤资源）时不显示，避免无意义提示。

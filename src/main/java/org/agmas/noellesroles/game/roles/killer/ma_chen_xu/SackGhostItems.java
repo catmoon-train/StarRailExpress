@@ -3,6 +3,7 @@ package org.agmas.noellesroles.game.roles.killer.ma_chen_xu;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
+import io.wifi.starrailexpress.event.GameUtilityEvents;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.event.ShouldDropOnDeath;
@@ -45,6 +46,7 @@ public final class SackGhostItems {
         final UUID id = UUID.randomUUID();
         final Set<UUID> issuedGuests = new HashSet<>();
         final Set<UUID> issuedShrouds = new HashSet<>();
+        final Set<UUID> finalDeaths = new HashSet<>();
         final Set<UUID> spentArts = new HashSet<>();
         final Map<UUID, RelicState> relics = new HashMap<>();
         final Map<UUID, Long> wards = new HashMap<>();
@@ -67,6 +69,18 @@ public final class SackGhostItems {
     /** 仅在抽取成功入包后调用；失败不占用唯一的隐身抽取机会。 */
     public static void recordShroudDraw(ServerPlayer owner) {
         round(owner.serverLevel()).issuedShrouds.add(owner.getUUID());
+    }
+
+    /** 里世界自然结束的判死是终局死亡：本局不再接受除颤器、搭档复活或回光返照等复活手段。 */
+    public static void sealFinalDeath(ServerPlayer victim) {
+        round(victim.serverLevel()).finalDeaths.add(victim.getUUID());
+    }
+
+    /** 只读查询，未开局的世界不会因此创建对局账本。 */
+    public static boolean isFinalDeath(Player player) {
+        if (!(player.level() instanceof ServerLevel level)) return false;
+        Round round = ROUNDS.get(level);
+        return round != null && round.finalDeaths.contains(player.getUUID());
     }
 
     public static void grantWard(ServerPlayer target) {
@@ -278,6 +292,8 @@ public final class SackGhostItems {
         SackGhostPackets.register();
         SackGhostRewind.register();
         ShouldDropOnDeath.EVENT.register(stack -> stack.getItem() instanceof GhostWardRelicItem);
+        // 判死是终局死亡：该局内任何复活入口（含除颤器、搭档复活与回光返照）都不再放行。
+        GameUtilityEvents.ALLOW_REVIVE.register((player, destination) -> !isFinalDeath(player));
         OnPlayerDeath.EVENT.register((victim, reason) -> {
             if (victim instanceof ServerPlayer player) {
                 dropRelics(player);
