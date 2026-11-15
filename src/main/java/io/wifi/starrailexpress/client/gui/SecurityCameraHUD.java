@@ -17,6 +17,7 @@ package io.wifi.starrailexpress.client.gui;
 
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.cca.SREMonitorWorldComponent;
+import io.wifi.starrailexpress.client.ReporterTerminalClient;
 import io.wifi.starrailexpress.client.SecurityCameraClientState;
 import io.wifi.starrailexpress.content.block_entity.CameraBlockEntity;
 import net.minecraft.ChatFormatting;
@@ -37,7 +38,9 @@ public class SecurityCameraHUD {
     private static boolean shouldBlink = false;
 
     public static void render(GuiGraphics guiGraphics, int screenWidth, int screenHeight) {
-        if (!SecurityCameraClientState.isInSecurityMode() || !SREClientConfig.instance().enableSecurityCameraHUD) {
+        boolean reporterMode = ReporterTerminalClient.isActive();
+        if (!(SecurityCameraClientState.isInSecurityMode() || reporterMode)
+                || !SREClientConfig.instance().enableSecurityCameraHUD) {
             return;
         }
 
@@ -49,22 +52,25 @@ public class SecurityCameraHUD {
         BlockPos cameraPos = SecurityCameraClientState.getCurrentCameraPos();
         boolean isBroken = false;
 
-        if (SREMonitorWorldComponent.KEY.get(minecraft.level).isBroken()) {
-            renderRawColorBackground(guiGraphics, screenWidth, screenHeight, java.awt.Color.BLACK.getRGB());
-            isBroken = true;
-        } else {
-            if (cameraPos == null)
+        // 记者终端看的是玩家视角，与监控器的损坏状态无关
+        if (!reporterMode) {
+            if (SREMonitorWorldComponent.KEY.get(minecraft.level).isBroken()) {
+                renderRawColorBackground(guiGraphics, screenWidth, screenHeight, java.awt.Color.BLACK.getRGB());
                 isBroken = true;
-            if (!isBroken) {
-                if (minecraft.level.getBlockEntity(cameraPos) instanceof CameraBlockEntity cbe) {
-                    // SRE.LOGGER.info("brokenTime: "+cbe.getBrokenTime());
-                    if (cbe.isBroken()) {
-                        isBroken = true;
+            } else {
+                if (cameraPos == null)
+                    isBroken = true;
+                if (!isBroken) {
+                    if (minecraft.level.getBlockEntity(cameraPos) instanceof CameraBlockEntity cbe) {
+                        // SRE.LOGGER.info("brokenTime: "+cbe.getBrokenTime());
+                        if (cbe.isBroken()) {
+                            isBroken = true;
+                        }
                     }
                 }
-            }
-            if (isBroken) {
-                renderRawColorBackground(guiGraphics, screenWidth, screenHeight, java.awt.Color.BLACK.getRGB());
+                if (isBroken) {
+                    renderRawColorBackground(guiGraphics, screenWidth, screenHeight, java.awt.Color.BLACK.getRGB());
+                }
             }
         }
         // 更新闪烁效果
@@ -86,15 +92,24 @@ public class SecurityCameraHUD {
     }
 
     private static void renderCameraInfo(GuiGraphics guiGraphics, int screenWidth, int screenHeight) {
-        BlockPos cameraPos = SecurityCameraClientState.getCurrentCameraPos();
-        if (cameraPos == null) {
-            return;
-        }
-
         Minecraft minecraft = Minecraft.getInstance();
         Font font = minecraft.font;
 
-        String cameraInfo = "CAM: X=" + cameraPos.getX() + " Y=" + cameraPos.getY() + " Z=" + cameraPos.getZ();
+        String cameraInfo;
+        if (ReporterTerminalClient.isActive()) {
+            String targetName = ReporterTerminalClient.currentTargetName();
+            if (targetName.isEmpty()) {
+                return;
+            }
+            cameraInfo = "TARGET: " + targetName;
+        } else {
+            BlockPos cameraPos = SecurityCameraClientState.getCurrentCameraPos();
+            if (cameraPos == null) {
+                return;
+            }
+            cameraInfo = "CAM: X=" + cameraPos.getX() + " Y=" + cameraPos.getY() + " Z=" + cameraPos.getZ();
+        }
+
         int textWidth = font.width(cameraInfo);
         int x = (screenWidth - textWidth) / 2;
         int y = 18; // 在HUD下方显示信息
@@ -118,8 +133,10 @@ public class SecurityCameraHUD {
         Minecraft minecraft = Minecraft.getInstance();
         Font font = minecraft.font;
 
-        MutableComponent exitHint = Component.translatable("screen.starrailexpress.security_monitor.exit",
-                Component.keybind("key.sneak"));
+        MutableComponent exitHint = ReporterTerminalClient.isActive()
+                ? Component.translatable("screen.starrailexpress.reporter_terminal.exit")
+                : Component.translatable("screen.starrailexpress.security_monitor.exit",
+                        Component.keybind("key.sneak"));
         int textWidth = font.width(exitHint);
         int x = (screenWidth - textWidth) / 2;
         int y = screenHeight - 36; // 屏幕底部
@@ -129,7 +146,9 @@ public class SecurityCameraHUD {
     }
 
     public static void renderCameraFeed(GuiGraphics guiGraphics, int screenWidth, int screenHeight) {
-        if (!SecurityCameraClientState.isInSecurityMode() || !SREClientConfig.instance().enableSecurityCameraHUD) {
+        boolean reporterMode = ReporterTerminalClient.isActive();
+        if (!(SecurityCameraClientState.isInSecurityMode() || reporterMode)
+                || !SREClientConfig.instance().enableSecurityCameraHUD) {
             return;
         }
         int feedWidth = screenWidth / 4;
@@ -144,15 +163,15 @@ public class SecurityCameraHUD {
         guiGraphics.fill(x, y + feedHeight - 2, x + feedWidth, y + feedHeight, borderColor); // 底边框
         guiGraphics.fill(x + feedWidth - 2, y, x + feedWidth, y + feedHeight, borderColor); // 右边框
 
-        // 监控台自带的正面摄像头画面；离屏帧还没准备好时退回深色底。
+        // 正在观察的实时画面；离屏帧还没准备好时退回深色底。
         if (!SecurityMonitorFeedRenderer.draw(guiGraphics, x + 2, y + 2, feedWidth - 4, feedHeight - 4)) {
             guiGraphics.fill(x + 2, y + 2, x + feedWidth - 2, y + feedHeight - 2, 0xFF111111);
         }
 
-        // 绘制"SECURITY FEED"文字
+        // 绘制画面标题
         Minecraft minecraft = Minecraft.getInstance();
         Font font = minecraft.font;
-        String feedTitle = "SECURITY MONITOR";
+        String feedTitle = reporterMode ? "REPORTER FEED" : "SECURITY MONITOR";
         int titleWidth = font.width(feedTitle);
         int titleX = x + (feedWidth - titleWidth) / 2;
         int titleY = y + 8;
@@ -160,10 +179,16 @@ public class SecurityCameraHUD {
         guiGraphics.drawString(font, Component.literal(feedTitle).withStyle(ChatFormatting.GREEN), titleX, titleY,
                 0xFFFFFFFF, false);
 
-        // 绘制摄像头编号
-        String camId = "UNKNOWN";
-        if (SecurityCameraClientState.lastCameraId >= 0) {
-            camId = String.valueOf(SecurityCameraClientState.lastCameraId + 1);
+        // 绘制摄像头编号 / 目标序号
+        String camId;
+        if (reporterMode) {
+            int count = ReporterTerminalClient.targetCount();
+            camId = count > 0 ? (ReporterTerminalClient.targetNumber() + "/" + count) : "-";
+        } else {
+            camId = "UNKNOWN";
+            if (SecurityCameraClientState.lastCameraId >= 0) {
+                camId = String.valueOf(SecurityCameraClientState.lastCameraId + 1);
+            }
         }
         String camNumber = "CAM " + camId;
         int numberWidth = font.width(camNumber);

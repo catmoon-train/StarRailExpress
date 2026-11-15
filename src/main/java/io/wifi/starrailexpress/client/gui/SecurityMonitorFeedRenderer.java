@@ -26,6 +26,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexSorting;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREClientConfig;
+import io.wifi.starrailexpress.client.ReporterTerminalClient;
 import io.wifi.starrailexpress.client.SecurityCameraClientState;
 import io.wifi.starrailexpress.mixin.client.MinecraftRenderTargetAccessor;
 import io.wifi.starrailexpress.settlement.client.SettlementRenderState;
@@ -74,11 +75,18 @@ public final class SecurityMonitorFeedRenderer {
      */
     public static void capture(DeltaTracker deltaTracker) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (!SecurityCameraClientState.isInSecurityMode()
+        boolean securityMode = SecurityCameraClientState.isInSecurityMode();
+        boolean reporterMode = ReporterTerminalClient.isActive();
+        if ((!securityMode && !reporterMode)
                 || !SREClientConfig.instance().enableSecurityCameraHUD
-                || minecraft.level == null || minecraft.player == null
-                || SecurityCameraClientState.getCurrentMonitorPos() == null
-                        && SecurityCameraClientState.getCurrentCameraPos() == null) {
+                || minecraft.level == null || minecraft.player == null) {
+            return;
+        }
+        if (securityMode && SecurityCameraClientState.getCurrentMonitorPos() == null
+                && SecurityCameraClientState.getCurrentCameraPos() == null) {
+            return;
+        }
+        if (reporterMode && ReporterTerminalClient.targetCount() == 0) {
             return;
         }
         if (hasFrame && ++frameCounter % CAPTURE_INTERVAL != 0) {

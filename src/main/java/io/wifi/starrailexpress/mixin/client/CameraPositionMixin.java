@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.mixin.client;
 
+import io.wifi.starrailexpress.client.ReporterTerminalClient;
 import io.wifi.starrailexpress.client.SecurityCameraClientState;
 import net.minecraft.client.Camera;
 import net.minecraft.core.BlockPos;
@@ -56,6 +57,11 @@ public abstract class CameraPositionMixin {
             target = "Lnet/minecraft/world/entity/Entity;getViewYRot(F)F"),
             cancellable = true)
     public void setupCamera(BlockGetter blockGetter, Entity entity, boolean bl, boolean bl2, float f, CallbackInfo ci) {
+        // 记者终端优先：查看戴摄像头盔玩家的视角
+        if (ReporterTerminalClient.setupCamera((Camera) (Object) this, f)) {
+            ci.cancel();
+            return;
+        }
         if (SecurityCameraClientState.setupCameraMod((Camera) (Object) this, blockGetter, entity, bl, bl2, f)) {
             ci.cancel();
         }

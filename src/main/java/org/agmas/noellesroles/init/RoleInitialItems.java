@@ -278,6 +278,8 @@ public class RoleInitialItems {
             t.setCount(4);
             awesomeBinglusItems.add(() -> t);
         }
+        // 记者终端：查看戴摄像头盔玩家的视角
+        awesomeBinglusItems.add(() -> ModItems.REPORTER_TERMINAL.getDefaultInstance());
         INITIAL_ITEMS_MAP.put(ModRoles.AWESOME_BINGLUS, awesomeBinglusItems);
 
         // 强盗初始物品

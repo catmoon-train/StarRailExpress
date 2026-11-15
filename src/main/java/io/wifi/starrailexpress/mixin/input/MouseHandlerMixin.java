@@ -60,6 +60,13 @@ public class MouseHandlerMixin {
         }
         // 监控模式下阻止玩家本体转动，但把这份鼠标位移交给「动态模块」驱动监控画面视角。
         // 也就是说：玩家还是像平常一样拖动鼠标转视角，只是转的是摄像头画面而不是自己的身体。
+        // 记者终端页面不允许转动本体，画面完全跟随被观察的玩家
+        if (io.wifi.starrailexpress.client.ReporterTerminalClient.isActive()) {
+            this.accumulatedDX = 0.0D;
+            this.accumulatedDY = 0.0D;
+            ci.cancel();
+            return;
+        }
         if (SecurityCameraClientState.isInSecurityMode()) {
             turnSecurityCameraByMouse();
             ci.cancel();
@@ -102,6 +109,15 @@ public class MouseHandlerMixin {
     @Inject(method = "onPress", at = @At("HEAD"), cancellable = true)
     public void TMM$onPress(long window, int button, int action, int mods, CallbackInfo ci) {
         Minecraft client = Minecraft.getInstance();
+        // 记者终端页面：左键 / 右键切换正在查看的摄像头盔玩家
+        if (client != null && client.screen == null && action == GLFW.GLFW_PRESS
+                && io.wifi.starrailexpress.client.ReporterTerminalClient.isActive()
+                && (button == GLFW.GLFW_MOUSE_BUTTON_LEFT || button == GLFW.GLFW_MOUSE_BUTTON_RIGHT)) {
+            io.wifi.starrailexpress.client.ReporterTerminalClient
+                    .switchTarget(button == GLFW.GLFW_MOUSE_BUTTON_LEFT ? 1 : -1);
+            ci.cancel();
+            return;
+        }
         if (client != null && client.screen == null && action == GLFW.GLFW_PRESS
                 && (button == GLFW.GLFW_MOUSE_BUTTON_LEFT || button == GLFW.GLFW_MOUSE_BUTTON_RIGHT)
                 && ClickAntiCheatClient.isLocked()) {

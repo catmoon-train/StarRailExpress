@@ -3113,6 +3113,7 @@
   "screen.starrailexpress.sabotage_trigger_on": "破坏任务触发: 是",
   "screen.starrailexpress.save": "保存",
   "screen.starrailexpress.security_monitor.exit": "按下 %s 或 ESC 退出监控",
+  "screen.starrailexpress.reporter_terminal.exit": "按下 ESC 或 Shift 退出记者视角",
   "screen.starrailexpress.select_hint": "请选择一个项目",
   "screen.starrailexpress.ticket_office.buy": "购买",
   "screen.starrailexpress.ticket_office.config": "售票处设置",

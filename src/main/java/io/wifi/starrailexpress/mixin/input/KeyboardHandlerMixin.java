@@ -32,6 +32,11 @@ public abstract class KeyboardHandlerMixin {
                     shift = At.Shift.BEFORE),
             cancellable = true)
     protected void supp$onKeyPressCancellable(long windowPointer, int key, int scanCode, int action, int modifiers, CallbackInfo ci) {
+        // 记者终端页面：ESC / 潜行退出
+        if (io.wifi.starrailexpress.client.ReporterTerminalClient.onKeyPress(key, action)) {
+            ci.cancel();
+            return;
+        }
         if (SecurityCameraClientState.onEarlyKeyPress(key, scanCode, action, modifiers)) {
             ci.cancel();
         }

@@ -2785,13 +2785,27 @@ public class RoleShopHandler {
                     ModRoles.PHOTOGRAPHER_ID, entries);
         }
 
-        // 牛逼
+        // 牛逼（记者）：便签 / 巨大便签 / 摄像头盔 / 记者终端
         {
             ShopContent.customEntries.put(
                     ModRoles.AWESOME_BINGLUS_ID,
                     List.of(
                             new ShopEntry(TMMItems.NOTE.getDefaultInstance(), 10, ShopEntry.Type.TOOL),
-                            new ShopEntry(ModItems.GIANT_NOTE.getDefaultInstance(), 75, ShopEntry.Type.TOOL)));
+                            new ShopEntry(ModItems.GIANT_NOTE.getDefaultInstance(), 50, ShopEntry.Type.TOOL),
+                            new ShopEntry(ModItems.CAMERA_HELMET.getDefaultInstance(), 100, ShopEntry.Type.TOOL),
+                            new ShopEntry(ModItems.REPORTER_TERMINAL.getDefaultInstance(), 150,
+                                    ShopEntry.Type.TOOL) {
+                                @Override
+                                public boolean canBuy(@NotNull Player player) {
+                                    // 已持有记者终端时不允许重复购买
+                                    if (SREItemUtils.hasItem(player, ModItems.REPORTER_TERMINAL)) {
+                                        setFailedMessage(Component.translatable(
+                                                "message.noellesroles.reporter_terminal.already_owned"));
+                                        return false;
+                                    }
+                                    return super.canBuy(player);
+                                }
+                            }));
         }
 
         // 阴谋家商店

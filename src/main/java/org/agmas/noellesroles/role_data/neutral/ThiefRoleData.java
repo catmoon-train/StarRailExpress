@@ -877,6 +877,13 @@ public class ThiefRoleData extends SimpleRoleData {
             }
         }
 
+        // 记者道具：摄像头盔 / 记者终端
+        if (stack.is(ModItems.CAMERA_HELMET) || stack.is(ModItems.REPORTER_TERMINAL))
+            return true;
+        // 验尸官商店的随身身份扫描仪
+        if (stack.is(ModItems.PORTABLE_IDENTITY_SCANNER))
+            return true;
+
         // 其他物品不可偷取
         return false;
     }
@@ -1108,6 +1115,13 @@ public class ThiefRoleData extends SimpleRoleData {
             return true;
         // 时停钟
         if (stack.is(ModItems.TIME_STOP_CLOCK))
+            return true;
+
+        // 记者道具：摄像头盔 / 记者终端
+        if (stack.is(ModItems.CAMERA_HELMET) || stack.is(ModItems.REPORTER_TERMINAL))
+            return true;
+        // 验尸官商店的随身身份扫描仪
+        if (stack.is(ModItems.PORTABLE_IDENTITY_SCANNER))
             return true;
 
         // 其他物品不可出售

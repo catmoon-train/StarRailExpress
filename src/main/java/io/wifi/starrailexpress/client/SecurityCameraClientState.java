@@ -119,7 +119,8 @@ public final class SecurityCameraClientState {
     }
 
     public static void modifyInputUpdate(Input instance, LocalPlayer player) {
-        if (isInSecurityMode()) {
+        // 记者终端页面同样冻结本体移动，避免退出后位置已经跑偏
+        if (isInSecurityMode() || ReporterTerminalClient.isActive()) {
             onInputUpdate(instance);
             preventShiftTillNextKeyUp = true;
         } else if (preventShiftTillNextKeyUp) {

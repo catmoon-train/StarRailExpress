@@ -3113,6 +3113,7 @@
   "screen.starrailexpress.sabotage_trigger_on": "Sabotage Trigger: Yes",
   "screen.starrailexpress.save": "Save",
   "screen.starrailexpress.security_monitor.exit": "Press %s or ESC to exit monitor",
+  "screen.starrailexpress.reporter_terminal.exit": "Press ESC or Shift to exit the reporter view",
   "screen.starrailexpress.select_hint": "Please select an item",
   "screen.starrailexpress.ticket_office.buy": "Buy",
   "screen.starrailexpress.ticket_office.config": "Ticket Office Settings",

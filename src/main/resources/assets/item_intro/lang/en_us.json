@@ -155,6 +155,8 @@
   "item.starrailexpress.light_toilet.desc": "A light toilet, a task block. Right-click to sit on it and complete the toilet task.",
   "item.starrailexpress.security_monitor.desc": "A security monitor used to view camera feeds.",
   "item.noellesroles.monitoring_terminal.desc": "A remote monitoring terminal. First right-click a security monitor to bind it, then right-click to remotely view the bound monitor.",
+  "item.noellesroles.camera_helmet.desc": "A camera helmet. Press Q to drop it; pairs with the Reporter Terminal.",
+  "item.noellesroles.reporter_terminal.desc": "A reporter terminal. Right-click to view the perspective of a player wearing a camera helmet; left/right-click to switch targets.",
   "item.noellesroles.ninja_knife.desc": "One-time use, the Ninja's melee weapon. Right-click to instantly assassinate a target, silently.",
   "item.noellesroles.ninja_shuriken.desc": "One-time use, the Ninja's ranged weapon. Hold right-click to fire, silently.",
   "item.noellesroles.mercenary_contract.desc": "The Mercenary's exclusive item. Others may right-click to sign a hire contract, choose a target, and pay 175 coins; the Mercenary right-clicks a signed contract to receive the hire fee and gain a wanted target. Press Q to throw the contract.",

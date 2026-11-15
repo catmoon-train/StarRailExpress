@@ -154,6 +154,18 @@ public class ModItems {
                     (new Item.Properties()).stacksTo(1)),
             "diving_helmet", EQUIPMENT_GROUP);
 
+    /**
+     * 摄像头盔
+     * - 防护/外观沿用原版下界合金头盔
+     * - 戴在头上后可被「记者终端」观察
+     * - 按 Q 可以丢出
+     */
+    public static final Item CAMERA_HELMET = register(
+            new org.agmas.noellesroles.content.item.CameraHelmetItem(ArmorMaterials.NETHERITE,
+                    net.minecraft.world.item.ArmorItem.Type.HELMET,
+                    (new Item.Properties()).stacksTo(1)),
+            "camera_helmet", EQUIPMENT_GROUP);
+
     public static final Item DIVING_BOOTS = register(
             new DivingBootsItem(ArmorMaterials.GOLD, net.minecraft.world.item.ArmorItem.Type.BOOTS,
                     (new Item.Properties()).stacksTo(1)),
@@ -765,6 +777,15 @@ public class ModItems {
             new org.agmas.noellesroles.content.item.MonitoringTerminalItem(
                     new Item.Properties().stacksTo(1)),
             "monitoring_terminal", TOOLS_GROUP);
+    /**
+     * 记者终端
+     * - 图标沿用远程监控终端的材质，手持时不渲染模型（INVISIBLE_ITEMS）
+     * - 右键查看戴摄像头盔玩家的视角
+     */
+    public static final Item REPORTER_TERMINAL = register(
+            new org.agmas.noellesroles.content.item.ReporterTerminalItem(
+                    new Item.Properties().stacksTo(1)),
+            "reporter_terminal", TOOLS_GROUP);
     public static final Item DEALER_PACKAGE = register(
             new DealerPackageItem(new Item.Properties().stacksTo(1)),
             "dealer_package", ROLE_ITEMS_GROUP);
@@ -1684,6 +1705,8 @@ public class ModItems {
         TMMItems.INVISIBLE_ITEMS.add(ModItems.DEALER_PACKAGE);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.HONORED_NOTE);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.SPIRIT_CLOAK);
+        // 记者终端：手持时不渲染模型，只在物品栏里显示图标
+        TMMItems.INVISIBLE_ITEMS.add(ModItems.REPORTER_TERMINAL);
         // TMMItems.INVISIBLE_ITEMS.add(TMMItems.KNIFE);
 
         // 为潜水靴添加深海探索者3附魔
