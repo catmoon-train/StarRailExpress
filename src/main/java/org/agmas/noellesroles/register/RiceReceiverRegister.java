@@ -90,6 +90,8 @@ public class RiceReceiverRegister {
     public static void registerReceivers() {
         // 非阴谋家的阴谋书页猜测：倒计时推进
         ConspiracyPageHandler.init();
+        // 非 Dream 玩家使用「船」时的临时会话 tick
+        org.agmas.noellesroles.role_data.killer.DreamRoleData.initGenericBoatTicking();
         ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.SpeakerC2SPacket.ID,
                 (payload, context) -> {
                     context.server().execute(() -> org.agmas.noellesroles.content.speaker.SpeakerPlayback

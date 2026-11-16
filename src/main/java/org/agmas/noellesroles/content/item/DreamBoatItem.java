@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.content.item;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.util.AdventureUsable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -60,8 +59,9 @@ public class DreamBoatItem extends Item implements AdventureUsable {
         }
         BlockPos placePos = context.getClickedPos().relative(context.getClickedFace());
         Vec3 pos = Vec3.atBottomCenterOf(placePos);
-        DreamRoleData dreamData = RoleData.getNullable(DreamRoleData.class, sp);
-        if (dreamData == null || !dreamData.placeBoat(sp, pos)) {
+        // 船不再只限 Dream：其它职业用服务端临时会话承载船状态
+        DreamRoleData dreamData = DreamRoleData.resolveOrCreate(sp);
+        if (!dreamData.placeBoat(sp, pos)) {
             return InteractionResult.FAIL;
         }
         player.getCooldowns().addCooldown(this,

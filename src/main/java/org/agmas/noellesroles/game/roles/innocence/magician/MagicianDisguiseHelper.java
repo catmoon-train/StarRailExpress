@@ -79,6 +79,26 @@ public final class MagicianDisguiseHelper {
         return role;
     }
 
+    /**
+     * 「实际职业或伪装身份」判定 —— 给那些按职业 ID 查表、但客户端拿不到可委托方法的地方用
+     * （例如职业专属疯魔音乐的环境音谓词）。伪装身份 NBT 已同步到客户端，因此两端都可调用。
+     */
+    public static boolean isRoleOrDisguisedAs(@Nullable Player player, @Nullable SRERole role) {
+        if (player == null || role == null || player.level() == null) {
+            return false;
+        }
+        SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());
+        if (game == null) {
+            return false;
+        }
+        SRERole actual = game.getRole(player);
+        if (actual != null && actual.identifier().equals(role.identifier())) {
+            return true;
+        }
+        SRERole disguise = resolveDisguisedRole(player);
+        return disguise != null && disguise.identifier().equals(role.identifier());
+    }
+
     /** 伪装候选（职业 ID 形式），供开局随机抽取。 */
     public static List<ResourceLocation> collectCandidateIds(@Nullable Player player) {
         List<ResourceLocation> ids = new ArrayList<>();

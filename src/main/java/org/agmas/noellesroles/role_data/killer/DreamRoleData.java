@@ -22,6 +22,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameUtils;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -51,6 +52,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.UUID;
 
 public class DreamRoleData extends SimpleRoleData {
@@ -107,6 +111,45 @@ public class DreamRoleData extends SimpleRoleData {
         }
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         return gameWorld.isRole(player, ModRoles.DREAM);
+    }
+
+    /**
+     * 非 Dream 玩家使用「船」时的临时会话（船道具已不限制职业 / 阵营）。
+     *
+     * <p>船的会话状态（UUID / 已拉人数 / 消失时间）原本只能挂在 DreamRoleData 上，
+     * 其它职业用一份服务端临时会话承载；同步不需要（船是原版实体，强制骑乘全在服务端完成）。</p>
+     */
+    private static final Map<UUID, DreamRoleData> GENERIC_BOATS = new HashMap<>();
+
+    /** 任意玩家放船时取会话：Dream 用自身 RoleData，其它职业用临时会话。 */
+    public static DreamRoleData resolveOrCreate(Player player) {
+        DreamRoleData own = RoleData.getNullable(DreamRoleData.class, player);
+        if (own != null) {
+            return own;
+        }
+        GENERIC_BOATS.values().removeIf(data -> data.boatUuid == null);
+        return GENERIC_BOATS.computeIfAbsent(player.getUUID(),
+                id -> new DreamRoleData(new RoleDataContext(player, null, () -> {
+                }, sp -> {
+                })));
+    }
+
+    /** 注册临时会话的 tick：非 Dream 玩家不会被 RoleData 系统 tick，需要手动推进。 */
+    public static void initGenericBoatTicking() {
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            Iterator<Map.Entry<UUID, DreamRoleData>> iterator = GENERIC_BOATS.entrySet().iterator();
+            while (iterator.hasNext()) {
+                DreamRoleData data = iterator.next().getValue();
+                if (!(data.player instanceof ServerPlayer sp) || sp.hasDisconnected()) {
+                    iterator.remove();
+                    continue;
+                }
+                data.tickBoat(sp, sp.level().getGameTime());
+                if (data.boatUuid == null) {
+                    iterator.remove();
+                }
+            }
+        });
     }
 
     /**
@@ -176,7 +219,8 @@ public class DreamRoleData extends SimpleRoleData {
      * 在指定位置放一条船，之后 {@code dreamBoatDurationSeconds} 秒内强制周围玩家乘坐。
      */
     public boolean placeBoat(ServerPlayer sp, Vec3 pos) {
-        if (!isActiveDream()) {
+        // 船道具已不限制职业 / 阵营：Dream 走自身 RoleData，其它职业走临时会话
+        if (!isActiveDream() && !GENERIC_BOATS.containsValue(this)) {
             return false;
         }
         ServerLevel level = sp.serverLevel();

@@ -170,8 +170,9 @@ public class DreamClientHandler {
             return false;
         }
         for (Player p : client.level.players()) {
-            if (io.wifi.starrailexpress.client.SREClient.gameComponent.isRole(p,
-                    org.agmas.noellesroles.role.ModRoles.DREAM)
+            // 魔术师伪装成 Dream 时同样播放追杀音乐（伪装身份已同步到客户端）
+            if (org.agmas.noellesroles.game.roles.innocence.magician.MagicianDisguiseHelper
+                    .isRoleOrDisguisedAs(p, org.agmas.noellesroles.role.ModRoles.DREAM)
                     && DreamRoleData.isBerserk(p)) {
                 return true;
             }

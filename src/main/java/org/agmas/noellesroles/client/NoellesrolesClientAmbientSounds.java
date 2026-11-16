@@ -50,7 +50,8 @@ public class NoellesrolesClientAmbientSounds {
                 if (level == null)
                   return false;
                 return (level.players().stream().anyMatch((p) -> {
-                  if (SREClient.gameComponent.isRole(p, ModRoles.JESTER)) {
+                  if (org.agmas.noellesroles.game.roles.innocence.magician.MagicianDisguiseHelper
+                          .isRoleOrDisguisedAs(p, ModRoles.JESTER)) {
                     if (SREPlayerPsychoComponent.KEY.get(p).getPsychoTicks() > 0) {
                       return true;
                     }
@@ -71,7 +72,8 @@ public class NoellesrolesClientAmbientSounds {
                 if (level == null)
                   return false;
                 return (level.players().stream().anyMatch((p) -> {
-                  if (SREClient.gameComponent.isRole(p, BounsRoles.CAT_KILLER)) {
+                  if (org.agmas.noellesroles.game.roles.innocence.magician.MagicianDisguiseHelper
+                          .isRoleOrDisguisedAs(p, BounsRoles.CAT_KILLER)) {
                     if (SREPlayerPsychoComponent.KEY.get(p).getPsychoTicks() > 0) {
                       return true;
                     }
@@ -95,7 +97,8 @@ public class NoellesrolesClientAmbientSounds {
                 if (level == null)
                   return false;
                 return (level.players().stream().anyMatch((p) -> {
-                  if (SREClient.gameComponent.isRole(p, THRedHouseRoles.REMILIA)) {
+                  if (org.agmas.noellesroles.game.roles.innocence.magician.MagicianDisguiseHelper
+                          .isRoleOrDisguisedAs(p, THRedHouseRoles.REMILIA)) {
                     if (SREPlayerPsychoComponent.KEY.get(p).getPsychoTicks() > 0) {
                       return true;
                     }
