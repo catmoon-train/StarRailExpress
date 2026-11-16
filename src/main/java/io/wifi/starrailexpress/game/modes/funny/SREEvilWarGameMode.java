@@ -231,6 +231,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             // 给所有人的武器添加冷却
             ItemCooldowns itemCooldownManager = player.getCooldowns();
             itemCooldownManager.addCooldown(ModItems.PATROLLER_REVOLVER, cooldown);
+            itemCooldownManager.addCooldown(ModItems.DESPERADO_KNIFE, cooldown);
         }
     }
 
@@ -368,7 +369,10 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                 for (Supplier<ItemStack> itemSupplier : looseEndsItems) {
                     ItemStack itemStack = itemSupplier.get();
                     if (itemStack != null && !itemStack.isEmpty()) {
-                        player.addItem(itemStack);
+                        // 使用亡命徒小刀替换普通小刀
+                        player.addItem(itemStack.is(TMMItems.KNIFE)
+                                ? ModItems.DESPERADO_KNIFE.getDefaultInstance()
+                                : itemStack);
                     }
                 }
                 // 如果超出要面临敌人的 1 / 3 则额外获得一个护盾
@@ -908,7 +912,10 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
     /** 开局初始化各杀手在邪恶战争中的额外增益（仅对邪恶战争生效） */
     private void initEvilWarRoleBonuses(ServerPlayer player, SRERole role) {
         SREAbilityPlayerComponent ability = SREAbilityPlayerComponent.KEY.get(player);
-        if (role == ModRoles.WIZARD) {
+        if (role == SpecialGameModeRoles.SUPER_LOOSE_END) {
+            player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING,
+                    GameConstants.getInTicks(10, 0), 0, false, true, true));
+        } else if (role == ModRoles.WIZARD) {
             WizardRoleData wiz = RoleData.getNullable(WizardRoleData.class, player);
             if (wiz != null) {
                 wiz.mana = wiz.maxMana();
