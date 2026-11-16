@@ -76,7 +76,8 @@ public class InsaneKillerRoleData extends SimpleRoleData {
 
         boolean canRevive = entities.stream().anyMatch((p) -> {
             if (p instanceof PlayerBodyEntity b) {
-                if (b.getPlayerUuid().equals(player.getUUID())) {
+                // 无主尸体没有 Player UUID，既不是本人尸体，也不应作为复活依据。
+                if (b.getPlayerUuid() == null || player.getUUID().equals(b.getPlayerUuid())) {
                     return false;
                 }
                 if (b.distanceTo(player) <= 1.)

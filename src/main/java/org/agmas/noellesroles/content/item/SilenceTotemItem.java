@@ -56,25 +56,21 @@ public class SilenceTotemItem extends Item {
 
 
         if (user instanceof ServerPlayer player) {
-            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(level);
-            if (!gameWorld.isRole(player, ModRoles.SPELLBREAKER)) {
-                player.displayClientMessage(
-                        Component.translatable("message.noellesroles.spellbreaker.item_only")
-                                .withStyle(ChatFormatting.RED),
-                        true);
-                return itemStack;
-            }
-
+            // 不再限制职业：任何存活玩家都能放置沉默图腾；
+            // 破法者自己额外维护「当前在场的主动图腾」状态，其它职业跳过这部分即可。
             var component = RoleData.getNullable(SpellbreakerRoleData.class, player);
-            if (component == null) return itemStack;
-            component.discardActiveTotem((ServerLevel) level);
+            if (component != null) {
+                component.discardActiveTotem((ServerLevel) level);
+            }
 
             SilenceTotemEntity totem = new SilenceTotemEntity(ModEntities.SILENCE_TOTEM, level);
             totem.setOwner(player);
             totem.setPosRaw(player.getX(), player.getEyeY() - 0.1, player.getZ());
             totem.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 0.55F, 1.0F);
             level.addFreshEntity(totem);
-            component.setActiveTotem(totem);
+            if (component != null) {
+                component.setActiveTotem(totem);
+            }
             itemStack.consume(1, user);
             return itemStack ;
         }

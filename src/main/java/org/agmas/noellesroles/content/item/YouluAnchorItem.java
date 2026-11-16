@@ -68,8 +68,8 @@ public class YouluAnchorItem extends Item {
         ItemStack itemStack = user.getItemInHand(hand);
 
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(world);
-        if (!gameWorld.isRunning() || !GameUtils.isPlayerAliveAndSurvival(user)
-                || !gameWorld.isRole(user, ModRoles.YOULU)) {
+        // 不再限制职业：任何存活玩家拿到道具都能使用
+        if (!gameWorld.isRunning() || !GameUtils.isPlayerAliveAndSurvival(user)) {
             return InteractionResultHolder.pass(itemStack);
         }
         if (!(user instanceof ServerPlayer sp) || !(world instanceof ServerLevel serverLevel)) {
@@ -170,13 +170,13 @@ public class YouluAnchorItem extends Item {
     }
 
     /**
-     * 技能物品防消耗保护。
+     * 技能物品防消耗保护（不限职业：道具可被任意职业使用）。
      */
     public static void guardSkillItem(ServerPlayer sp, Item item) {
         Scheduler.schedule(() -> {
             if (!sp.isAlive() || sp.isSpectator() || sp.hasDisconnected()) return;
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(sp.level());
-            if (!gameWorld.isRunning() || !gameWorld.isRole(sp, ModRoles.YOULU)) return;
+            if (!gameWorld.isRunning()) return;
             if (io.wifi.starrailexpress.util.SREItemUtils.hasItem(sp, item)) return;
             org.agmas.noellesroles.utils.RoleUtils.insertStackInFreeSlot(sp, item.getDefaultInstance());
         }, 2);

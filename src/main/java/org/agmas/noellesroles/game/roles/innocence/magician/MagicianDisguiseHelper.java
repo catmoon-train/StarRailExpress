@@ -28,6 +28,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.agmas.harpymodloader.SREDisableManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.init.ModEffects;
@@ -220,6 +221,7 @@ public final class MagicianDisguiseHelper {
             }
             player.addEffect(new MobEffectInstance(effect));
         }
+        applyPersistentEffects(player, disguise);
     }
 
     /**
@@ -263,6 +265,12 @@ public final class MagicianDisguiseHelper {
             }
             player.removeEffect(effect.getEffect());
         }
+        for (MobEffectInstance effect : getPersistentEffects(disguise)) {
+            if (effect == null) {
+                continue;
+            }
+            player.removeEffect(effect.getEffect());
+        }
     }
 
     /** 读取职业定义里的初始药水效果（两类自带效果的职业基类都要覆盖）。 */
@@ -279,5 +287,48 @@ public final class MagicianDisguiseHelper {
     /** 是否为无敌效果（魔术师伪装时不继承）。 */
     public static boolean isInvincible(MobEffectInstance effect) {
         return effect != null && Objects.equals(effect.getEffect(), ModEffects.INVINCIBLE);
+    }
+
+    /** 续期用的效果时长（每 20 tick 续期一次，剩余 40~60 tick）。 */
+    private static final int PERSISTENT_EFFECT_TICKS = 60;
+
+    /**
+     * 「持续整局」的药水效果。
+     *
+     * <p>怀旧者 / 冤魂的部分效果不在 {@code ExtraEffectRole#getEffects()} 里，而是由各自的
+     * {@code RoleData#serverTick} 每 tick 用 60 tick 短时长续期：怀旧者的里世界、冤魂的冤魂维度。
+     * 魔术师没有对应的 RoleData，因此需要把同一组效果抄一份并自己续期。</p>
+     *
+     * <p>只取「看得见的被动」：隐身 / 无碰撞 / 无声脚步。
+     * 状态标记（{@code NOSTALGIST_BACKWORLD}、{@code WRAITH_DIMENSION}、{@code WRAITH_MANIFEST}、
+     * {@code BACKWORLD_OUTLINE}）与禁言禁操作（{@code CHAT_BAN}、{@code VOICE_SILENCE}、
+     * {@code USED_BANED}）属于对应职业的状态机，魔术师没有退出机制，给了会直接破坏正常游玩。</p>
+     */
+    public static List<MobEffectInstance> getPersistentEffects(@Nullable SRERole role) {
+        if (role == null) {
+            return List.of();
+        }
+        boolean backworldLike = role.identifier().equals(ModRoles.NOSTALGIST_ID)
+                || role.identifier().equals(ModRoles.WRAITH_ASSASSIN_ID);
+        if (!backworldLike) {
+            return List.of();
+        }
+        return List.of(
+                new MobEffectInstance(MobEffects.INVISIBILITY, PERSISTENT_EFFECT_TICKS, 0, true, false, false),
+                new MobEffectInstance(ModEffects.NO_COLLIDE, PERSISTENT_EFFECT_TICKS, 0, true, false, false),
+                new MobEffectInstance(ModEffects.FOOTSTEP_VANISH, PERSISTENT_EFFECT_TICKS, 0, true, false, false));
+    }
+
+    /** 给魔术师续期伪装职业的整局持续效果（无敌效果一律剔除）。 */
+    public static void applyPersistentEffects(@Nullable ServerPlayer player, @Nullable SRERole disguise) {
+        if (player == null) {
+            return;
+        }
+        for (MobEffectInstance effect : getPersistentEffects(disguise)) {
+            if (effect == null || isInvincible(effect)) {
+                continue;
+            }
+            player.addEffect(new MobEffectInstance(effect));
+        }
     }
 }

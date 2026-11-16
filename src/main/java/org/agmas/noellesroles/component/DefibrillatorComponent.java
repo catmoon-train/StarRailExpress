@@ -88,7 +88,9 @@ public class DefibrillatorComponent implements RoleComponent, ServerTickingCompo
             for (var bentity : entities) {
                 if (bentity instanceof PlayerBodyEntity body
                         && !org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity.isDoomedSinnerBody(body)) {
-                    if (body.getPlayerUuid().equals(serverPlayer.getUUID())) {
+                    // 尸体可能没有 Player UUID（例如被吞食后残留的无主尸体），
+                    // 用非空的一方调用 equals，避免空指针并把无主尸体跳过。
+                    if (serverPlayer.getUUID().equals(body.getPlayerUuid())) {
                         return body;
                     }
                 }

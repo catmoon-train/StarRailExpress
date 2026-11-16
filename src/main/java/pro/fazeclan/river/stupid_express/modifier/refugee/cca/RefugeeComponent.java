@@ -278,7 +278,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         List<Entity> bodiesToRemove = new ArrayList<>();
         for (var body : bodies) {
             if (body instanceof PlayerBodyEntity bodyEntity) {
-                if (bodyEntity.getPlayerUuid().equals(data.uuid)) {
+                if (data.uuid != null && data.uuid.equals(bodyEntity.getPlayerUuid())) {
                     bodiesToRemove.add(body);
                     break;
                 }
