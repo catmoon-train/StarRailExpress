@@ -1247,7 +1247,27 @@ public class RoleShopHandler {
             // 绳索（拉人）
             SUPER_LOOSE_END_SHOP.add(new ShopEntry(
                     ModItems.ROPE.getDefaultInstance(),
-                    150,
+                    125,
+                    ShopEntry.Type.TOOL));
+            // 鞘翅
+            SUPER_LOOSE_END_SHOP.add(new ShopEntry(
+                    Items.ELYTRA.getDefaultInstance(),
+                    100,
+                    ShopEntry.Type.TOOL));
+            // 烟花火箭
+            SUPER_LOOSE_END_SHOP.add(new ShopEntry(
+                    new ItemStack(Items.FIREWORK_ROCKET, 1),
+                    80,
+                    ShopEntry.Type.TOOL));
+            // 潜水头盔
+            SUPER_LOOSE_END_SHOP.add(new ShopEntry(
+                    ModItems.DIVING_HELMET.getDefaultInstance(),
+                    50,
+                    ShopEntry.Type.TOOL));
+            // 潜水靴
+            SUPER_LOOSE_END_SHOP.add(new ShopEntry(
+                    ModItems.DIVING_BOOTS.getDefaultInstance(),
+                    125,
                     ShopEntry.Type.TOOL));
         }
 
