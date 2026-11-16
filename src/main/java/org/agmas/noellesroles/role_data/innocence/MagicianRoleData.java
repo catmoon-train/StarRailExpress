@@ -24,7 +24,6 @@ import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.TriggerStatusBarPayload;
@@ -43,7 +42,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.roles.innocence.magician.MagicianDisguiseHelper;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
@@ -180,48 +178,6 @@ public class MagicianRoleData extends SimpleRoleData {
             psychoComponent.sync();
         }
         this.sync();
-    }
-
-    /**
-     * 巨幕面具的「疯魔」——仅由伪装成 Dream 时商店里的巨幕面具条目调用。
-     *
-     * <p>效果与 {@code DreamRoleData.activateMaskBerserk} 一致（面具冷却、咆哮音效、提示），
-     * 区别只在武器：Dream 覆写了 {@code onPsychoGiveItem} 不发球棒，魔术师没有这个覆写，
-     * 所以这里不走 {@code startPsycho()}，直接开疯狂模式并保证手里是左轮
-     * （左轮符合魔术师「只能用左轮」的限制），结束后由 {@link #tickFrenzy()} 还原主手。</p>
-     */
-    public boolean startDreamMaskBerserk() {
-        if (!(player instanceof ServerPlayer serverPlayer) || !GameUtils.isPlayerAliveAndSurvival(player)) {
-            return false;
-        }
-        SREPlayerPsychoComponent psychoComponent = SREPlayerPsychoComponent.KEY.get(player);
-        if (psychoComponent == null || psychoComponent.getPsychoTicks() > 0) {
-            return false;
-        }
-        if (player.getCooldowns().isOnCooldown(ModItems.DREAM_MASK)) {
-            player.displayClientMessage(Component.translatable("message.noellesroles.dream.mask_cooldown_simple")
-                    .withStyle(ChatFormatting.RED), true);
-            return false;
-        }
-        // 记住原主手，疯魔结束后还原（期间强制用左轮）
-        this.savedMainhandItem = player.getMainHandItem().copy();
-        if (!player.getMainHandItem().is(TMMItemTags.GUNS)) {
-            player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(TMMItems.REVOLVER));
-        }
-        psychoComponent.setPsychoTicks(GameConstants.getPsychoTimer());
-        psychoComponent.setArmour(GameConstants.getPsychoModeArmour());
-        psychoComponent.sync();
-        SREGameWorldComponent.KEY.get(player.level()).refreshPsychoCount(true);
-        ServerPlayNetworking.send(serverPlayer, new TriggerStatusBarPayload("Psycho"));
-        this.inFrenzy = true;
-        this.sync();
-        player.getCooldowns().addCooldown(ModItems.DREAM_MASK,
-                NoellesRolesConfig.HANDLER.instance().dreamMaskCooldownSeconds * 20);
-        player.level().playSound(null, player.blockPosition(),
-                SoundEvents.WARDEN_ROAR, SoundSource.PLAYERS, 1.5f, 0.8f);
-        player.displayClientMessage(Component.translatable("message.noellesroles.dream.berserk_start")
-                .withStyle(ChatFormatting.DARK_RED), true);
-        return true;
     }
 
     /** 魔术师是否处于射击狂热（供其它系统查询）。 */
