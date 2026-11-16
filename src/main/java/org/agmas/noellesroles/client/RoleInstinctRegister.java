@@ -74,6 +74,7 @@ import io.wifi.starrailexpress.event.client.RoleInstinctEvents;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeModifiers;
+import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.Color;
@@ -1013,6 +1014,17 @@ public class RoleInstinctRegister {
 
     // 特殊逻辑中保留不直接属于职业的全局事件
     public static void registerSpecialLogic() {
+        // 恢复邪恶战争规则：超级亡命徒的直觉不能透视处于原版隐身状态的玩家
+        // 放在 BEFORE 事件链最前面，避免后续目标职业或观察者职业的着色重新显示轮廓
+        CommonInstinctEvents.ALIVE_COMMON_BEFORE_EVENT.register((self, target, hasInstinct) -> {
+            if (!hasInstinct || !(target instanceof Player targetPlayer) || SREClient.gameComponent == null)
+                return TrueFalseAndCustomResult.pass();
+            if (SREClient.gameComponent.isRole(self, SpecialGameModeRoles.SUPER_LOOSE_END)
+                    && targetPlayer.isInvisible())
+                return TrueFalseAndCustomResult.disallow();
+            return TrueFalseAndCustomResult.pass();
+        });
+
         // ── 本能隐匿（INSTINCT_CONCEAL）：目标持有该效果 → 任何人都没有本能框 ──
         // 与「小透明」「秉烛人」「怀旧者」同样在<b>被看侧</b>返回 disallow()，区别是那三个绑职业、
         // 本效果绑药水，所以走通用事件（ALIVE_COMMON_BEFORE_EVENT 在 TARGET_HIGHLIGHT_EVENT 之前触发，
