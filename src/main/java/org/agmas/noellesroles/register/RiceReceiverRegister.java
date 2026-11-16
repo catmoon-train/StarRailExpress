@@ -92,6 +92,8 @@ public class RiceReceiverRegister {
         ConspiracyPageHandler.init();
         // 非 Dream 玩家使用「船」时的临时会话 tick
         org.agmas.noellesroles.role_data.killer.DreamRoleData.initGenericBoatTicking();
+        // 非银翼玩家使用「机械小鸟」时的临时会话 tick
+        org.agmas.noellesroles.role_data.neutral.SilverWingRoleData.initGenericBirdTicking();
         ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.SpeakerC2SPacket.ID,
                 (payload, context) -> {
                     context.server().execute(() -> org.agmas.noellesroles.content.speaker.SpeakerPlayback

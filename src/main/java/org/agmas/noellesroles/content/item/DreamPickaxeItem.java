@@ -50,6 +50,19 @@ public class DreamPickaxeItem extends LockpickItem {
         super(properties);
     }
 
+    /**
+     * 固定使用原版钻石镐材质：不接入开锁器的皮肤系统。
+     *
+     * <p>皮肤系统的唯一判定入口 {@code ItemSkinManager.getItemSkinType(Item)} 对
+     * {@code SkinableItem} 直接取本方法；返回 null 后皮肤组件、提示与 GeneralModel 包装全部短路，
+     * 普通开锁器 / 劣质开锁器仍共用 lockpick 皮肤。</p>
+     */
+    @Override
+    @org.jetbrains.annotations.Nullable
+    public String getItemSkinType() {
+        return null;
+    }
+
     @Override
     public InteractionResult useOn(UseOnContext context) {
         Level world = context.getLevel();

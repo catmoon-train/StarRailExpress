@@ -41,8 +41,8 @@ public class EmpBombItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(@NotNull Level world, @NotNull Player user, InteractionHand hand) {
         ItemStack itemStack = user.getItemInHand(hand);
-        if (user.isSpectator() || !GameUtils.isPlayerAliveAndSurvival(user)
-                || !RoleUtils.isPlayerTheJob(user, ModRoles.SILVER_WING)) {
+        // 电磁脉冲炸弹不再限制职业：任何存活玩家都能投掷
+        if (user.isSpectator() || !GameUtils.isPlayerAliveAndSurvival(user)) {
             return InteractionResultHolder.fail(itemStack);
         }
 
@@ -56,7 +56,9 @@ public class EmpBombItem extends Item {
             empBomb.setPosRaw(user.getX(), user.getEyeY() - 0.1, user.getZ());
             empBomb.shootFromRotation(user, user.getXRot(), user.getYRot(), 0.0F, 0.85F, 1.0F);
             world.addFreshEntity(empBomb);
-            if (user instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+            // 银翼技能冷却只对银翼自己有意义，其它职业不写入
+            if (user instanceof net.minecraft.server.level.ServerPlayer serverPlayer
+                    && RoleUtils.isPlayerTheJob(serverPlayer, ModRoles.SILVER_WING)) {
                 SilverWingEffects.applyEmpUseCooldownIfReady(serverPlayer);
             }
         }

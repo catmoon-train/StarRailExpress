@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.content.entity;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.particles.ParticleTypes;
@@ -325,7 +324,11 @@ public class MechanicalBirdEntity extends LivingEntity {
     private void clearOwnerBird() {
         Player owner = getOwnerPlayer();
         if (owner != null) {
-            RoleData.ifPresent(SilverWingRoleData.class, owner, SilverWingRoleData::clearActiveBird);
+            // 非银翼玩家用临时会话，不能只查 RoleData
+            SilverWingRoleData data = SilverWingRoleData.resolve(owner);
+            if (data != null) {
+                data.clearActiveBird();
+            }
         }
     }
 

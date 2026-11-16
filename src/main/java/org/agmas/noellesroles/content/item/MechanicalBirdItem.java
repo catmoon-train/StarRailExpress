@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.content.item;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -28,9 +27,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.content.entity.MechanicalBirdEntity;
 import org.agmas.noellesroles.init.ModEntities;
-import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role_data.neutral.SilverWingRoleData;
-import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 
 /** 银翼机械小鸟：使用后由玩家控制飞行，碰到玩家或敌人后爆炸。 */
@@ -42,8 +39,8 @@ public class MechanicalBirdItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (player.isSpectator() || !GameUtils.isPlayerAliveAndSurvival(player)
-                || !RoleUtils.isPlayerTheJob(player, ModRoles.SILVER_WING)) {
+        // 机械小鸟不再限制职业：任何存活玩家都能放出
+        if (player.isSpectator() || !GameUtils.isPlayerAliveAndSurvival(player)) {
             return InteractionResultHolder.fail(stack);
         }
         if (level.isClientSide) {
@@ -52,10 +49,7 @@ public class MechanicalBirdItem extends Item {
         if (!(player instanceof ServerPlayer owner)) {
             return InteractionResultHolder.fail(stack);
         }
-        SilverWingRoleData data = RoleData.getNullable(SilverWingRoleData.class, owner);
-        if (data == null) {
-            return InteractionResultHolder.fail(stack);
-        }
+        SilverWingRoleData data = SilverWingRoleData.resolveOrCreate(owner);
         if (data.hasActiveBird()) {
             owner.displayClientMessage(Component.translatable("message.noellesroles.silver_wing.bird_active"), true);
             return InteractionResultHolder.fail(stack);
