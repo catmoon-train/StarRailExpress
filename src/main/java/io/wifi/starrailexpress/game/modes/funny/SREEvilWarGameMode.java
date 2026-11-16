@@ -914,7 +914,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         SREAbilityPlayerComponent ability = SREAbilityPlayerComponent.KEY.get(player);
         if (role == SpecialGameModeRoles.SUPER_LOOSE_END) {
             player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING,
-                    GameConstants.getInTicks(10, 0), 0, false, true, true));
+                    GameConstants.getInTicks(2, 0), 0, false, true, true));
         } else if (role == ModRoles.WIZARD) {
             WizardRoleData wiz = RoleData.getNullable(WizardRoleData.class, player);
             if (wiz != null) {
