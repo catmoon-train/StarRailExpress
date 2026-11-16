@@ -1,5 +1,6 @@
 package io.wifi.srepokemoncompat.mega;
 
+import io.wifi.srepokemoncompat.CompatTargets;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import org.objectweb.asm.tree.ClassNode;
@@ -28,8 +29,11 @@ public final class MegaMixinPlugin implements IMixinConfigPlugin {
     public boolean shouldApplyMixin(String target, String mixin) {
         var loader = FabricLoader.getInstance();
         if (!applies(loader.isModLoaded("mega_showdown"), loader.getEnvironmentType() == EnvType.CLIENT, mixin)) return false;
-        if (getClass().getClassLoader().getResource(target.replace('.', '/') + ".class") == null) {
-            throw new IllegalStateException("Mega Showdown compatibility target missing: " + target);
+        // 精简壳只有注册身份，没有原玩法类：跳过兼容混入而不是让启动失败。
+        if (CompatTargets.isRegistryShell("mega_showdown")) return false;
+        if (!CompatTargets.hasTargetClass(target)) {
+            CompatTargets.warnMissingOnce("mega_showdown", target);
+            return false;
         }
         return true;
     }

@@ -12,6 +12,8 @@ public final class PokemonMixinPlugin implements IMixinConfigPlugin {
     @Override public void onLoad(String mixinPackage) { }
     @Override public boolean shouldApplyMixin(String target, String mixin) {
         var loader = FabricLoader.getInstance();
+        // 精简壳只有注册身份：Cobblemon 玩法兼容全部跳过。
+        if (CompatTargets.isRegistryShell("cobblemon")) return false;
         if (mixin.startsWith("io.wifi.srepokemoncompat.mixin.journeymap.")) {
             return loader.isModLoaded("journeymap");
         }

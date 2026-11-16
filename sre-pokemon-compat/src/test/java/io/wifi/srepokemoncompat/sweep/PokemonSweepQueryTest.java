@@ -1,72 +1,60 @@
 package io.wifi.srepokemoncompat.sweep;
 
 import org.junit.jupiter.api.Test;
-import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.ClassRemapper;
-import org.objectweb.asm.commons.SimpleRemapper;
+import org.objectweb.asm.Opcodes;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PokemonSweepQueryTest {
-    public static class Data {
-        boolean playerOwned;
-        public boolean isPlayerOwned() { return playerOwned; }
-    }
-    public static class Pokemon {
-        public boolean battling;
-        public Data data = new Data();
-        public boolean isBattling() { return battling; }
-        public Data getPokemon() { return data; }
-    }
-    public static class MissingApi { }
-    public static class BrokenGetter extends Pokemon {
-        @Override public Data getPokemon() { throw new IllegalStateException("broken getter"); }
-    }
+class PokemonSweepQueryTest {
+    private static final String POKEMON = "com/cobblemon/mod/common/entity/pokemon/PokemonEntity";
 
-    @Test void liveBattleAndPlayerOwnershipAreReadEveryTime() throws Exception {
-        var query = PokemonSweepQuery.bind(Pokemon.class);
-        var pokemon = new Pokemon();
-        assertFalse(query.test(pokemon));
-        pokemon.battling = true; assertTrue(query.test(pokemon));
-        pokemon.battling = false; assertFalse(query.test(pokemon));
-        pokemon.data.playerOwned = true; assertTrue(query.test(pokemon));
-        pokemon.data.playerOwned = false; assertFalse(query.test(pokemon));
-    }
-    @Test void battleProtectionDoesNotDependOnOwnerBeingReadable() throws Exception {
-        var pokemon = new BrokenGetter(); pokemon.battling = true;
-        assertTrue(PokemonSweepQuery.bind(Pokemon.class).test(pokemon));
-        pokemon.battling = false;
-        assertThrows(IllegalStateException.class, () -> PokemonSweepQuery.bind(Pokemon.class).test(pokemon));
-    }
-    @Test void npcAndWildStateDoesNotBecomePlayerOwned() throws Exception {
-        var pokemon = new Pokemon();
-        assertFalse(PokemonSweepQuery.bind(Pokemon.class).test(pokemon));
-        assertNull(PokemonSweepQuery.protectedState(pokemon));
-        assertNull(PokemonSweepQuery.protectedState("not a Pokemon"));
-    }
-    @Test void missingApiFailsBinding() {
-        assertThrows(NoSuchMethodException.class, () -> PokemonSweepQuery.bind(MissingApi.class));
-    }
-    @Test void realClassNameDiscoveryAndUnsupportedApiFailClosed() throws Exception {
-        for (Class<?> source : new Class<?>[]{Pokemon.class, MissingApi.class}) {
-            String name = "com.cobblemon.mod.common.entity.pokemon.PokemonEntity";
-            var writer = new ClassWriter(0);
-            try (var in = getClass().getResourceAsStream("/" + Type.getInternalName(source) + ".class")) {
-                assertNotNull(in);
-                new ClassReader(in).accept(new ClassRemapper(writer,
-                        new SimpleRemapper(Type.getInternalName(source), name.replace('.', '/'))), 0);
-            }
-            var type = new ClassLoader(getClass().getClassLoader()) {
-                Class<?> define() { var bytes = writer.toByteArray(); return defineClass(null, bytes, 0, bytes.length); }
-            }.define();
-            Object entity = type.getConstructor().newInstance();
-            if (source == MissingApi.class) assertEquals(true, PokemonSweepQuery.protectedState(entity));
-            else {
-                assertEquals(false, PokemonSweepQuery.protectedState(entity));
-                type.getField("battling").setBoolean(entity, true);
-                assertEquals(true, PokemonSweepQuery.protectedState(entity));
+    @Test void wildNpcAndOwnedPokemonAreProtectedInAndOutOfBattle() throws Exception {
+        Class<?> type = pokemonType(false);
+        Object pokemon = type.getConstructor().newInstance();
+        // 不提供 getPokemon / isBattling 等查询方法，保护不依赖它们是否存在、可用。
+        for (boolean battling : new boolean[]{false, true, false}) {
+            for (String owner : new String[]{"wild", "npc", "player"}) {
+                type.getField("battling").setBoolean(pokemon, battling);
+                type.getField("owner").set(pokemon, owner);
+                assertEquals(Boolean.TRUE, PokemonSweepQuery.protectedState(pokemon), owner + " battling=" + battling);
             }
         }
+    }
+
+    @Test void pokemonSubclassesAreAlsoProtected() throws Exception {
+        Object pokemon = pokemonType(true).getConstructor().newInstance();
+        assertEquals(Boolean.TRUE, PokemonSweepQuery.protectedState(pokemon));
+    }
+
+    @Test void unrelatedEntitiesAndNullDoNotBecomePokemon() {
+        assertNull(PokemonSweepQuery.protectedState(new Object()));
+        assertNull(PokemonSweepQuery.protectedState("PokemonEntity"));
+        assertNull(PokemonSweepQuery.protectedState(null));
+    }
+
+    private static Class<?> pokemonType(boolean subclass) {
+        return new ClassLoader(PokemonSweepQueryTest.class.getClassLoader()) {
+            Class<?> define(String name, String parent) {
+                var writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+                writer.visit(Opcodes.V21, Opcodes.ACC_PUBLIC, name, null, parent, null);
+                writer.visitField(Opcodes.ACC_PUBLIC, "battling", "Z", null, null).visitEnd();
+                writer.visitField(Opcodes.ACC_PUBLIC, "owner", "Ljava/lang/String;", null, null).visitEnd();
+                var constructor = writer.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+                constructor.visitCode();
+                constructor.visitVarInsn(Opcodes.ALOAD, 0);
+                constructor.visitMethodInsn(Opcodes.INVOKESPECIAL, parent, "<init>", "()V", false);
+                constructor.visitInsn(Opcodes.RETURN);
+                constructor.visitMaxs(0, 0);
+                constructor.visitEnd();
+                writer.visitEnd();
+                byte[] bytes = writer.toByteArray();
+                return defineClass(null, bytes, 0, bytes.length);
+            }
+            Class<?> create() {
+                Class<?> root = define(POKEMON, "java/lang/Object");
+                return subclass ? define("test/CustomPokemon", POKEMON) : root;
+            }
+        }.create();
     }
 }

@@ -1,6 +1,7 @@
 package io.wifi.srepokemoncompat.sweep;
 
 import net.fabricmc.loader.api.FabricLoader;
+import io.wifi.srepokemoncompat.CompatTargets;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -11,8 +12,11 @@ import java.util.Set;
 public final class AotakeMixinPlugin implements IMixinConfigPlugin {
     @Override public boolean shouldApplyMixin(String target, String mixin) {
         if (!FabricLoader.getInstance().isModLoaded("aotake_sweep")) return false;
-        if (getClass().getClassLoader().getResource(target.replace('.', '/') + ".class") == null) {
-            throw new IllegalStateException("Aotake Sweep compatibility target missing: " + target);
+        // 精简壳与不同构建都不含原目标类：跳过并告警，而不是让服务器启动失败。
+        if (CompatTargets.isRegistryShell("aotake_sweep")) return false;
+        if (!CompatTargets.hasTargetClass(target)) {
+            CompatTargets.warnMissingOnce("aotake_sweep", target);
+            return false;
         }
         return true;
     }

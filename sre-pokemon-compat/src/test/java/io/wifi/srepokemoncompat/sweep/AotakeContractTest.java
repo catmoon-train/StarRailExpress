@@ -87,15 +87,12 @@ class AotakeContractTest {
         }
     }
 
-    @Test void exactCobblemonJarProvidesBattleAndTypedPlayerOwnership() throws Exception {
+    @Test void exactCobblemonJarProvidesPokemonEntityIdentity() throws Exception {
         String path = System.getProperty("sre.cobblemon.jar"); assumeTrue(path != null, "Supply -PcobblemonJar");
         try (var jar = new ZipFile(Path.of(path).toFile())) {
             var entity = readJar(jar, "com.cobblemon.mod.common.entity.pokemon.PokemonEntity");
-            assertTrue(entity.methods.stream().anyMatch(m -> m.name.equals("isBattling") && m.desc.equals("()Z")));
-            assertTrue(entity.methods.stream().anyMatch(m -> m.name.equals("getPokemon")
-                    && m.desc.equals("()Lcom/cobblemon/mod/common/pokemon/Pokemon;")));
-            var pokemon = readJar(jar, "com.cobblemon.mod.common.pokemon.Pokemon");
-            assertTrue(pokemon.methods.stream().anyMatch(m -> m.name.equals("isPlayerOwned") && m.desc.equals("()Z")));
+            assertEquals("com/cobblemon/mod/common/entity/pokemon/PokemonEntity", entity.name);
+            assertTrue((entity.access & Opcodes.ACC_PUBLIC) != 0);
         }
     }
 

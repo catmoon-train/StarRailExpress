@@ -58,7 +58,7 @@ public class AotakeProtectionTest {
         public UUID getOwnerUUID() { return UUID.randomUUID(); }
     }
     public static class Query {
-        public static Boolean protectedState(Object entity) { return ((Entity) entity).pokemon; }
+        public static Boolean protectedState(Object entity) { return ((Entity) entity).pokemon == null ? null : Boolean.TRUE; }
     }
     private ClassLoader loader;
     private Method protect;
@@ -150,11 +150,14 @@ public class AotakeProtectionTest {
         pet.owner = new Player(); assertTrue(protectedEntity(pet));
         pet.owner = new Living(); assertFalse(protectedEntity(pet));
     }
-    @Test void pokemonOwnershipAnswerTakesPrecedenceOverGenericUuid() throws Exception {
-        var pokemon = new Pet(); pokemon.ownerId = UUID.randomUUID();
-        pokemon.pokemon = false; assertFalse(protectedEntity(pokemon));
-        pokemon.pokemon = true; assertTrue(protectedEntity(pokemon));
-        pokemon.pokemon = false; pokemon.named = true; assertTrue(protectedEntity(pokemon));
+    @Test void allPokemonAreProtectedRegardlessOfOwnerOrBattleState() throws Exception {
+        var pokemon = new Pet();
+        for (boolean state : new boolean[]{false, true, false}) {
+            pokemon.pokemon = state;
+            assertTrue(protectedEntity(pokemon));
+            pokemon.ownerId = UUID.randomUUID();
+            assertTrue(protectedEntity(pokemon));
+        }
     }
     @Test void multipartCanonicalIdentityPreservesNamedDragon() throws Exception {
         var part = new DragonPart(); assertFalse(protectedEntity(part));
@@ -174,14 +177,32 @@ public class AotakeProtectionTest {
     }
     @Test void schedulingAndPendingRemovalAreRecheckedAgainstCurrentState() throws Exception {
         var entity = new Living();
-        for (boolean battle : new boolean[]{false, true, false}) {
-            entity.pokemon = battle;
+        for (boolean named : new boolean[]{false, true, false}) {
+            entity.named = named;
             var scheduled = hook("AotakeRemovalMixin", "sre$protectSchedule",
                     new Class<?>[]{Entity.class, boolean.class, CallbackInfoReturnable.class}, entity, true);
             var pending = hook("AotakeRemovalMixin", "sre$protectPending",
                     new Class<?>[]{Level.class, Entity.class, Boolean.class, CallbackInfoReturnable.class}, new Level(), entity, false);
-            assertEquals(battle, scheduled.isCancelled()); assertEquals(battle, pending.isCancelled());
-            if (battle) { assertFalse(scheduled.getReturnValue()); assertTrue(pending.getReturnValue()); }
+            assertEquals(named, scheduled.isCancelled()); assertEquals(named, pending.isCancelled());
+            if (named) { assertFalse(scheduled.getReturnValue()); assertTrue(pending.getReturnValue()); }
+        }
+    }
+    @Test void everySweepHookProtectsEvenWildNonBattlingPokemon() throws Exception {
+        var entity = new Living();
+        for (boolean state : new boolean[]{false, true, false}) {
+            entity.pokemon = state;
+            var candidate = hook("AotakeCandidateMixin", "sre$protectCandidate",
+                    new Class<?>[]{Entity.class, CallbackInfoReturnable.class}, entity);
+            var recycle = hook("AotakeRecyclingMixin", "sre$protectRecycling",
+                    new Class<?>[]{Object.class, CallbackInfoReturnable.class}, entity);
+            var scheduled = hook("AotakeRemovalMixin", "sre$protectSchedule",
+                    new Class<?>[]{Entity.class, boolean.class, CallbackInfoReturnable.class}, entity, true);
+            var pending = hook("AotakeRemovalMixin", "sre$protectPending",
+                    new Class<?>[]{Level.class, Entity.class, Boolean.class, CallbackInfoReturnable.class}, new Level(), entity, false);
+            assertTrue(candidate.isCancelled()); assertFalse(candidate.getReturnValue());
+            assertTrue(recycle.isCancelled()); assertFalse(recycle.getReturnValue());
+            assertTrue(scheduled.isCancelled()); assertFalse(scheduled.getReturnValue());
+            assertTrue(pending.isCancelled()); assertTrue(pending.getReturnValue());
         }
     }
 }
