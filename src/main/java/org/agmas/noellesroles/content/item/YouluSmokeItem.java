@@ -60,8 +60,8 @@ public class YouluSmokeItem extends Item {
         ItemStack itemStack = user.getItemInHand(hand);
 
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(world);
-        if (!gameWorld.isRunning() || !GameUtils.isPlayerAliveAndSurvival(user)
-                || !gameWorld.isRole(user, ModRoles.YOULU)) {
+        // 不再限制职业：任何存活玩家拿到道具都能使用
+        if (!gameWorld.isRunning() || !GameUtils.isPlayerAliveAndSurvival(user)) {
             return InteractionResultHolder.pass(itemStack);
         }
         if (world.isClientSide() || !(user instanceof ServerPlayer sp)

@@ -66,16 +66,7 @@ public class SpellbreakerPotionItem extends Item {
     public InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
         ItemStack itemInHand = player.getItemInHand(hand);
         if (player instanceof ServerPlayer serverPlayer) {
-                
-            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(level);
-            if (!gameWorld.isRole(player, ModRoles.SPELLBREAKER)) {
-                player.displayClientMessage(
-                        Component.translatable("message.noellesroles.spellbreaker.item_only")
-                                .withStyle(ChatFormatting.RED),
-                        true);
-                return InteractionResultHolder.consume(itemInHand);
-            }
-                
+            // 不再限制职业：任何存活玩家拿到破法药剂都能使用
             // 使用 getTarget 获取目标
             HitResult hitResult = getTarget(player);
             if (hitResult instanceof EntityHitResult entityHitResult) {

@@ -23,6 +23,8 @@ import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role_data.innocence.MagicianRoleData;
 import org.jetbrains.annotations.NotNull;
@@ -108,12 +110,71 @@ public final class MagicianShop {
         if (raw == null || raw.isEmpty()) {
             raw = ShopContent.getDefaultKnifeEntries();
         }
-        List<ShopEntry> result = wrap(raw);
+        List<ShopEntry> result = wrap(adaptEntries(disguised, raw));
         if (result.isEmpty()) {
             // 极端兜底：伪装商店整体不可用时给回默认杀手商店
             result = wrap(ShopContent.getDefaultKnifeEntries());
         }
         return result;
+    }
+
+    /**
+     * 把少数依赖「职业专属数据 / 职业专属疯狂武器」的条目换成魔术师自己的实现。
+     *
+     * <ul>
+     * <li>刽子手「射击狂热」：原条目走 {@code ExecutionerRoleData#startFrenzy()}，
+     * 魔术师身上没有该组件，会直接购买失败；</li>
+     * <li>Dream「巨幕面具」：原条目走 {@code startPsycho()}，魔术师的疯狂武器是默认球棒，
+     * 会给魔术师塞一把球棒；这里只换成左轮，不改职业的疯狂模式配置。</li>
+     * </ul>
+     */
+    private static List<ShopEntry> adaptEntries(@Nullable SRERole disguised, List<ShopEntry> raw) {
+        if (disguised == null) {
+            return raw;
+        }
+        boolean executioner = ModRoles.EXECUTIONER_ID.equals(disguised.identifier());
+        boolean dream = ModRoles.DREAM_ID.equals(disguised.identifier());
+        if (!executioner && !dream) {
+            return raw;
+        }
+        List<ShopEntry> adapted = new ArrayList<>(raw.size());
+        for (ShopEntry entry : raw) {
+            ItemStack stack = entry == null ? null : entry.stack();
+            if (executioner && stack != null && stack.is(TMMItems.PSYCHO_MODE)) {
+                adapted.add(createFrenzyEntry(entry));
+            } else if (dream && stack != null && stack.is(ModItems.DREAM_MASK)) {
+                adapted.add(createDreamMaskEntry(entry));
+            } else {
+                adapted.add(entry);
+            }
+        }
+        return adapted;
+    }
+
+    /** 射击狂热：展示与价格沿用刽子手条目，触发时改用魔术师自己的狂热状态。 */
+    private static ShopEntry createFrenzyEntry(ShopEntry original) {
+        return new ShopEntry(original.stack().copy(), original.price(), original.type()) {
+            @Override
+            public boolean onBuy(@NotNull Player player) {
+                MagicianRoleData data = RoleData.getNullable(MagicianRoleData.class, player);
+                if (data == null || !data.startFrenzy()) {
+                    return false;
+                }
+                player.getCooldowns().addCooldown(TMMItems.PSYCHO_MODE, 20 * 60);
+                return true;
+            }
+        };
+    }
+
+    /** 巨幕面具：展示与价格沿用 Dream 条目，触发时进入魔术师自己的疯魔（左轮，不发球棒）。 */
+    private static ShopEntry createDreamMaskEntry(ShopEntry original) {
+        return new ShopEntry(original.stack().copy(), original.price(), original.type()) {
+            @Override
+            public boolean onBuy(@NotNull Player player) {
+                MagicianRoleData data = RoleData.getNullable(MagicianRoleData.class, player);
+                return data != null && data.startDreamMaskBerserk();
+            }
+        };
     }
 
     /** 逐条套上加价 + 防护外壳；单条装配失败只丢这一条，不影响整份商店。 */

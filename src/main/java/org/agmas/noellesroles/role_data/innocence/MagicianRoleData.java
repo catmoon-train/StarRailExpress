@@ -19,10 +19,12 @@ import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.game.GameConstants;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.TriggerStatusBarPayload;
@@ -41,6 +43,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.roles.innocence.magician.MagicianDisguiseHelper;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
@@ -51,19 +54,22 @@ import pro.fazeclan.river.stupid_express.constants.SERoles;
 import java.util.ArrayList;
 import java.util.Collections;
 
+/**
+ * 魔术师的职业数据。
+ *
+ * <p>除了伪装身份，还自己持有一份「射击狂热」状态（伪装成刽子手时可购买）：
+ * 流程与刽子手 {@code ExecutionerRoleData#startFrenzy()} 完全一致，
+ * 但状态记在本组件上，不依赖也不继承刽子手的职业数据。</p>
+ *
+ * <p>另外负责续期伪装职业的「整局持续效果」（见
+ * {@link MagicianDisguiseHelper#applyPersistentEffects}）。</p>
+ */
 public class MagicianRoleData extends SimpleRoleData {
 
-    /** 组件键 */
+    /** 伪装的角色ID */
+    public ResourceLocation disguiseRoleId = null;
 
-    public ResourceLocation disguiseRoleId = null; // 伪装的角色ID
-
-    /**
-     * 射击狂热（伪装成刽子手时可购买）。
-     *
-     * <p>与刽子手 {@code ExecutionerRoleData#startFrenzy()} 同款：复用疯狂模式计时
-     * （{@link SREPlayerPsychoComponent}，{@code type = 1}），期间自由射击。
-     * 魔术师没有 {@code ExecutionerRoleData}，所以状态由本组件自己持有。</p>
-     */
+    /** 射击狂热：复用疯狂模式计时（{@code type = 1}），期间自由射击。 */
     public boolean inFrenzy = false;
     /** 狂热前的主手物品，狂热结束时还原（避免白嫖一把枪）。 */
     private ItemStack savedMainhandItem = ItemStack.EMPTY;
@@ -116,10 +122,10 @@ public class MagicianRoleData extends SimpleRoleData {
     }
 
     /**
-     * 启动射击狂热（魔术师伪装成刽子手时的专属适配）。
+     * 启动射击狂热（伪装成刽子手时的商店条目调用）。
      *
-     * <p>流程与 {@code ExecutionerRoleData#startFrenzy()} 保持一致：已在疯狂模式则失败；
-     * 主手不是枪时先塞一把左轮；随后开疯狂模式计时、扣护甲、记状态、播报与粒子。</p>
+     * <p>已在疯狂模式则失败；主手不是枪时先塞一把左轮；随后开疯狂模式计时、扣护甲、
+     * 记状态、播报、音效与粒子。</p>
      *
      * @return 是否成功开启
      */
@@ -142,7 +148,7 @@ public class MagicianRoleData extends SimpleRoleData {
         }
         this.inFrenzy = true;
         this.sync();
-        // 回放记录与刽子手脚下的射击狂热保持一致
+        // 回放记录与刽子手的射击狂热保持一致
         SRE.REPLAY_MANAGER.recordSkillUsed(player.getUUID(), BuiltInRegistries.ITEM.getKey(TMMItems.PSYCHO_MODE));
         player.level().playSound(null, player.blockPosition(),
                 SoundEvents.WARDEN_SONIC_BOOM, SoundSource.PLAYERS, 1.0F, 1.5F);
@@ -157,7 +163,7 @@ public class MagicianRoleData extends SimpleRoleData {
         return true;
     }
 
-    /** 结束射击狂热：还原主手并清掉疯狂模式类型标记。 */
+    /** 结束射击狂热 / 面具疯魔：还原主手并清掉疯狂模式类型标记。 */
     public void stopFrenzy() {
         if (!this.inFrenzy) {
             return;
@@ -168,11 +174,54 @@ public class MagicianRoleData extends SimpleRoleData {
         }
         this.savedMainhandItem = ItemStack.EMPTY;
         SREPlayerPsychoComponent psychoComponent = SREPlayerPsychoComponent.KEY.get(player);
-        if (psychoComponent != null) {
+        // 只有射击狂热会写 type = 1；巨幕面具走的是普通疯魔，不要覆盖掉别的写入
+        if (psychoComponent != null && psychoComponent.type == 1) {
             psychoComponent.type = -1;
             psychoComponent.sync();
         }
         this.sync();
+    }
+
+    /**
+     * 巨幕面具的「疯魔」——仅由伪装成 Dream 时商店里的巨幕面具条目调用。
+     *
+     * <p>效果与 {@code DreamRoleData.activateMaskBerserk} 一致（面具冷却、咆哮音效、提示），
+     * 区别只在武器：Dream 覆写了 {@code onPsychoGiveItem} 不发球棒，魔术师没有这个覆写，
+     * 所以这里不走 {@code startPsycho()}，直接开疯狂模式并保证手里是左轮
+     * （左轮符合魔术师「只能用左轮」的限制），结束后由 {@link #tickFrenzy()} 还原主手。</p>
+     */
+    public boolean startDreamMaskBerserk() {
+        if (!(player instanceof ServerPlayer serverPlayer) || !GameUtils.isPlayerAliveAndSurvival(player)) {
+            return false;
+        }
+        SREPlayerPsychoComponent psychoComponent = SREPlayerPsychoComponent.KEY.get(player);
+        if (psychoComponent == null || psychoComponent.getPsychoTicks() > 0) {
+            return false;
+        }
+        if (player.getCooldowns().isOnCooldown(ModItems.DREAM_MASK)) {
+            player.displayClientMessage(Component.translatable("message.noellesroles.dream.mask_cooldown_simple")
+                    .withStyle(ChatFormatting.RED), true);
+            return false;
+        }
+        // 记住原主手，疯魔结束后还原（期间强制用左轮）
+        this.savedMainhandItem = player.getMainHandItem().copy();
+        if (!player.getMainHandItem().is(TMMItemTags.GUNS)) {
+            player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(TMMItems.REVOLVER));
+        }
+        psychoComponent.setPsychoTicks(GameConstants.getPsychoTimer());
+        psychoComponent.setArmour(GameConstants.getPsychoModeArmour());
+        psychoComponent.sync();
+        SREGameWorldComponent.KEY.get(player.level()).refreshPsychoCount(true);
+        ServerPlayNetworking.send(serverPlayer, new TriggerStatusBarPayload("Psycho"));
+        this.inFrenzy = true;
+        this.sync();
+        player.getCooldowns().addCooldown(ModItems.DREAM_MASK,
+                NoellesRolesConfig.HANDLER.instance().dreamMaskCooldownSeconds * 20);
+        player.level().playSound(null, player.blockPosition(),
+                SoundEvents.WARDEN_ROAR, SoundSource.PLAYERS, 1.5f, 0.8f);
+        player.displayClientMessage(Component.translatable("message.noellesroles.dream.berserk_start")
+                .withStyle(ChatFormatting.DARK_RED), true);
+        return true;
     }
 
     /** 魔术师是否处于射击狂热（供其它系统查询）。 */
@@ -291,9 +340,20 @@ public class MagicianRoleData extends SimpleRoleData {
 
     @Override
     public void serverTick() {
-        // 魔术师的疯狂模式由原版PlayerPsychoComponent处理；
-        // 这里只补「射击狂热」的收尾（狂热结束还原主手）。
+        // 射击狂热的收尾（疯狂模式结束 → 还原主手）
         tickFrenzy();
+        // 伪装职业的「整局持续效果」：怀旧者里世界 / 冤魂维度那类由职业 RoleData 续期的效果
+        if (player.tickCount % 20 == 0 && player instanceof ServerPlayer serverPlayer) {
+            MagicianDisguiseHelper.applyPersistentEffects(serverPlayer, disguisedRole());
+        }
+    }
+
+    /** 当前伪装职业（未伪装 / 已失效时返回 null）。 */
+    private SRERole disguisedRole() {
+        if (disguiseRoleId == null) {
+            return null;
+        }
+        return TMMRoles.ROLES.get(disguiseRoleId);
     }
 
     @Override

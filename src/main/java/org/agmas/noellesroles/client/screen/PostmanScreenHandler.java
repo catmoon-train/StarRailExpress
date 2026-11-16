@@ -154,7 +154,13 @@ public class PostmanScreenHandler extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         AyayayaRoleData component = AyayayaRoleData.resolve(player);
-        return component != null && component.isDeliveryActive();
+        if (component != null) {
+            return component.isDeliveryActive();
+        }
+        // 快递包裹已不限职业：非射命丸文/姬海棠的临时会话只在服务端存在，
+        // 客户端只要对方还在世界中就保持界面（结算全部在服务端完成）。
+        return this.targetPlayerUuid != null
+                && player.level().getPlayerByUUID(this.targetPlayerUuid) != null;
     }
 
     @Override

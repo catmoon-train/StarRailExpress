@@ -59,6 +59,7 @@ import org.agmas.noellesroles.role_data.innocence.LocksmithInspirationRoleData;
 import org.agmas.noellesroles.role_data.innocence.SuperStarRoleData;
 import org.agmas.noellesroles.role_data.innocence.TelegrapherRoleData;
 import org.agmas.noellesroles.game.roles.innocence.veteran.VeteranKnifeHandler;
+import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiracyPageHandler;
 import org.agmas.noellesroles.role_data.killer.ConspiratorRoleData;
 import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
 import org.agmas.noellesroles.role_data.killer.TrapperRoleData;
@@ -87,6 +88,8 @@ public class RiceReceiverRegister {
     private static final double VETERAN_DASH_SPEED = 1.25D;
 
     public static void registerReceivers() {
+        // 非阴谋家的阴谋书页猜测：倒计时推进
+        ConspiracyPageHandler.init();
         ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.SpeakerC2SPacket.ID,
                 (payload, context) -> {
                     context.server().execute(() -> org.agmas.noellesroles.content.speaker.SpeakerPlayback
@@ -254,13 +257,7 @@ public class RiceReceiverRegister {
 
         // 处理阴谋家猜测包
         ServerPlayNetworking.registerGlobalReceiver(CONSPIRATOR_PACKET, (payload, context) -> {
-            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(context.player().level());
-
-            // 验证玩家是阴谋家
-            if (!gameWorld.isRole(context.player(), ModRoles.CONSPIRATOR))
-                return;
-
-            // 验证玩家存活
+            // 阴谋书页不再限制职业：阴谋家走自身数据，其它职业走通用猜测（猜中奖励仅杀手阵营）
             if (!GameUtils.isPlayerAliveAndSurvival(context.player()))
                 return;
 
@@ -286,9 +283,13 @@ public class RiceReceiverRegister {
             if (!hasPage)
                 return;
 
-            // 执行猜测
-            RoleData.getOptional(ConspiratorRoleData.class, context.player()).ifPresent(
-                    component -> component.makeGuess(payload.targetPlayer(), roleId));
+            // 执行猜测：阴谋家用职业数据，其它职业走通用猜测
+            ConspiratorRoleData conspirator = RoleData.getNullable(ConspiratorRoleData.class, context.player());
+            if (conspirator != null) {
+                conspirator.makeGuess(payload.targetPlayer(), roleId);
+            } else {
+                ConspiracyPageHandler.makeGuess(context.player(), payload.targetPlayer(), roleId);
+            }
             // 消耗书页物品
             if (mainHand.is(ModItems.CONSPIRACY_PAGE)) {
                 mainHand.shrink(1);
@@ -332,9 +333,8 @@ public class RiceReceiverRegister {
 
             switch (payload.action()) {
                 case OPEN_DELIVERY -> {
-                    AyayayaRoleData postmanComp = RoleData.getNullable(AyayayaRoleData.class, context.player());
-                    if (postmanComp == null)
-                        return;
+                    // 快递包裹不再限制职业：射命丸文/姬海棠走职业会话，其它职业用临时会话
+                    AyayayaRoleData postmanComp = AyayayaRoleData.resolveOrCreate(context.player());
 
                     Player target = context.player().level().getPlayerByUUID(payload.targetPlayer());
                     if (target == null || !GameUtils.isPlayerAliveAndSurvival(target))

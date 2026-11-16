@@ -27,6 +27,8 @@ import org.agmas.noellesroles.ConfigWorldComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class AyayayaRoleData extends SimpleRoleData {
@@ -43,6 +45,14 @@ public class AyayayaRoleData extends SimpleRoleData {
     }
 
     /**
+     * 非射命丸文 / 姬海棠玩家临时发起的投递会话。
+     *
+     * <p>快递包裹已不限制职业，但会话状态原本只能挂在这两个职业的 RoleData 上；
+     * 这里给其它职业准备一份「无同步」的临时会话，仅服务端可见（交换结算全在服务端完成）。</p>
+     */
+    private static final Map<UUID, AyayayaRoleData> GENERIC_SESSIONS = new HashMap<>();
+
+    /**
      * 传递会话只存在于射命丸文/姬海棠侧。接收方通过扫描持有本数据的玩家读取同一份状态。
      */
     @Nullable
@@ -50,6 +60,7 @@ public class AyayayaRoleData extends SimpleRoleData {
         if (viewer == null || viewer.level() == null) {
             return null;
         }
+        GENERIC_SESSIONS.values().removeIf(data -> !data.isDeliveryActive());
         AyayayaRoleData own = RoleData.getNullable(AyayayaRoleData.class, viewer);
         if (own != null && own.isDeliveryActive()) {
             return own;
@@ -63,7 +74,32 @@ public class AyayayaRoleData extends SimpleRoleData {
                 return data;
             }
         }
+        // 通用会话：自己是发起者，或自己是本次投递的接收者
+        AyayayaRoleData generic = GENERIC_SESSIONS.get(viewer.getUUID());
+        if (generic != null && generic.isDeliveryActive()) {
+            return generic;
+        }
+        for (AyayayaRoleData data : GENERIC_SESSIONS.values()) {
+            if (data.isDeliveryActive() && viewer.getUUID().equals(data.deliveryTarget)) {
+                return data;
+            }
+        }
         return null;
+    }
+
+    /**
+     * 任意玩家发起投递时取会话：职业自带会话优先，其它职业用临时会话。
+     */
+    public static AyayayaRoleData resolveOrCreate(Player player) {
+        AyayayaRoleData own = RoleData.getNullable(AyayayaRoleData.class, player);
+        if (own != null) {
+            return own;
+        }
+        GENERIC_SESSIONS.values().removeIf(data -> !data.isDeliveryActive());
+        return GENERIC_SESSIONS.computeIfAbsent(player.getUUID(),
+                id -> new AyayayaRoleData(new RoleDataContext(player, null, () -> {
+                }, sp -> {
+                })));
     }
 
     public boolean isViewerReceiver(Player viewer) {
