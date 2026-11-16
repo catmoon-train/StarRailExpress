@@ -319,24 +319,30 @@ public final class MagicianDisguiseHelper {
      * {@code RoleData#serverTick} 每 tick 用 60 tick 短时长续期：怀旧者的里世界、冤魂的冤魂维度。
      * 魔术师没有对应的 RoleData，因此需要把同一组效果抄一份并自己续期。</p>
      *
-     * <p>只取「看得见的被动」：隐身 / 无碰撞 / 无声脚步。
-     * 状态标记（{@code NOSTALGIST_BACKWORLD}、{@code WRAITH_DIMENSION}、{@code WRAITH_MANIFEST}、
-     * {@code BACKWORLD_OUTLINE}）与禁言禁操作（{@code CHAT_BAN}、{@code VOICE_SILENCE}、
-     * {@code USED_BANED}）属于对应职业的状态机，魔术师没有退出机制，给了会直接破坏正常游玩。</p>
+     * <p>只取「看得见的被动」：隐身 / 无碰撞 / 无声脚步，以及里世界滤镜与轮廓。
+     * 状态机标记（{@code WRAITH_DIMENSION}、{@code WRAITH_MANIFEST}）与禁言禁操作
+     * （{@code CHAT_BAN}、{@code VOICE_SILENCE}、{@code USED_BANED}）属于对应职业的状态机，
+     * 魔术师没有退出机制，给了会直接破坏正常游玩。</p>
      */
     public static List<MobEffectInstance> getPersistentEffects(@Nullable SRERole role) {
         if (role == null) {
             return List.of();
         }
-        boolean backworldLike = role.identifier().equals(ModRoles.NOSTALGIST_ID)
-                || role.identifier().equals(ModRoles.WRAITH_ASSASSIN_ID);
-        if (!backworldLike) {
+        boolean nostalgist = role.identifier().equals(ModRoles.NOSTALGIST_ID);
+        boolean wraith = role.identifier().equals(ModRoles.WRAITH_ASSASSIN_ID);
+        if (!nostalgist && !wraith) {
             return List.of();
         }
-        return List.of(
-                new MobEffectInstance(MobEffects.INVISIBILITY, PERSISTENT_EFFECT_TICKS, 0, true, false, false),
-                new MobEffectInstance(ModEffects.NO_COLLIDE, PERSISTENT_EFFECT_TICKS, 0, true, false, false),
-                new MobEffectInstance(ModEffects.FOOTSTEP_VANISH, PERSISTENT_EFFECT_TICKS, 0, true, false, false));
+        List<MobEffectInstance> effects = new ArrayList<>();
+        effects.add(new MobEffectInstance(MobEffects.INVISIBILITY, PERSISTENT_EFFECT_TICKS, 0, true, false, false));
+        effects.add(new MobEffectInstance(ModEffects.NO_COLLIDE, PERSISTENT_EFFECT_TICKS, 0, true, false, false));
+        effects.add(new MobEffectInstance(ModEffects.FOOTSTEP_VANISH, PERSISTENT_EFFECT_TICKS, 0, true, false, false));
+        // 里世界滤镜只在扮演怀旧者时给；里世界轮廓两种伪装都要，魔术师视同身处里世界。
+        if (nostalgist) {
+            effects.add(new MobEffectInstance(ModEffects.NOSTALGIST_BACKWORLD, PERSISTENT_EFFECT_TICKS, 0, true, false, false));
+        }
+        effects.add(new MobEffectInstance(ModEffects.BACKWORLD_OUTLINE, PERSISTENT_EFFECT_TICKS, 0, true, false, false));
+        return effects;
     }
 
     /** 给魔术师续期伪装职业的整局持续效果（无敌效果一律剔除）。 */
