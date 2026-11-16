@@ -15,10 +15,10 @@ class TrainingAccessPolicyTest {
     @Test void localTrainingOutlivesPublishingToLan() {
         assertTrue(TrainingAccessPolicy.permits(true, false, true, true));
     }
-    @Test void dedicatedRequiresEnabledBackendExclusiveLeaseOwnerAndMatchingWorld() {
-        for (int mask = 0; mask < 16; mask++) {
-            assertEquals(mask == 15, TrainingAccessPolicy.permitsDedicated((mask & 1) != 0, (mask & 2) != 0,
-                    (mask & 4) != 0, (mask & 8) != 0), "mask=" + mask);
+    @Test void dedicatedTrainingIsNeverPermitted() {
+        for (int mask = 0; mask < 8; mask++) {
+            assertFalse(TrainingAccessPolicy.permits((mask & 1) != 0, true,
+                    (mask & 2) != 0, (mask & 4) != 0), "mask=" + mask);
         }
     }
     @Test void requestsAreBoundedAndRecoverNextSecond() {

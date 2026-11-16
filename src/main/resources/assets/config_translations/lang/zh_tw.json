@@ -1,7 +1,6 @@
 {
   "text.autoconfig.starrailexpress.option.pokmen": "啟用方塊寶可夢（服務端）",
   "text.autoconfig.starrailexpress.option.pokmen.@Tooltip": "由伺服器同步給客戶端。關閉時停止寶可夢玩法與新區域生成，並隱藏相關按鍵和介面；原版互動保持正常，已有寶可夢、建築和玩家資料不會被刪除。預設關閉。",
-  "message.starrailexpress.cobblemon_disabled": "伺服器未啟用方塊寶可夢玩法。",
 
   "=== SODIUM-EXTRA 補充===": "",
   "sodium-extra.option.light_updates_starrailexpress": "關照更新 (已被StarRailExpress強制啟用)",

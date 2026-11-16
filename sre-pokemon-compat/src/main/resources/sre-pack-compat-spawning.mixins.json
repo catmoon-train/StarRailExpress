@@ -1,0 +1,9 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.wifi.srepackcompat.mixin.spawning",
+  "plugin": "io.wifi.srepackcompat.cobblemon.SpawningMixinPlugin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": ["PlayerSpawnBudgetMixin", "SpawnPopulationBudgetMixin", "QueuedSpawnBudgetMixin", "HabitatBlockDetectorMixin"],
+  "injectors": { "defaultRequire": 1 }
+}

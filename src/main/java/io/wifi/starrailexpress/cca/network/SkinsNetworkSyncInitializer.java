@@ -69,7 +69,6 @@ public class SkinsNetworkSyncInitializer {
         });
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
             serverStopping = true;
-            MysqlPlayerDataStore.beginShutdownFlushMode();
             flushOnlinePlayersBeforeShutdown(server);
             isEnabled = false;
         });
@@ -134,23 +133,9 @@ public class SkinsNetworkSyncInitializer {
         }
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             try {
-                boolean wroteAny = false;
-
-                wroteAny |= PlayerStatsManager.flushDatabaseBlocking(player.getUUID());
-
-                SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
-                if (skinsComponent != null && skinsComponent.isNetworkSyncEnabled()) {
-                    wroteAny |= skinsComponent.flushNetworkSyncBlocking();
-                }
-
-                NameTagInventoryComponent nameTagInventoryComponent = NameTagInventoryComponent.KEY.get(player);
-                if (nameTagInventoryComponent != null && nameTagInventoryComponent.isNetworkSyncEnabled()) {
-                    wroteAny |= nameTagInventoryComponent.flushNetworkSyncBlocking();
-                }
-
-                if (wroteAny) {
-                    logger.info("玩家 {} 的 MySQL 停服同步已完成", player.getName().getString());
-                }
+                PlayerStatsManager.submitFinalDatabaseSnapshot(player.getUUID());
+                // 先在服务端线程构造快照并提交；禁用组件同步，避免随后踢人时重复提交/重新拉取。
+                onPlayerDisconnect(player);
             } catch (Exception exception) {
                 logger.warn("停服同步玩家 {} 的 MySQL 数据失败。", player.getName().getString(), exception);
             }

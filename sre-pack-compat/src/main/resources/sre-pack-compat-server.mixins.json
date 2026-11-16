@@ -1,0 +1,8 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.wifi.srepackcompat.mixin.server",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": ["TrackedEntityRangeMixin"],
+  "injectors": { "defaultRequire": 1 }
+}

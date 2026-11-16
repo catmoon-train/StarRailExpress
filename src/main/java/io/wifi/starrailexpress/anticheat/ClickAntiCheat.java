@@ -30,6 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 点击频率反作弊：左右键合计 CPS 超过阈值后锁定左右键一段时间。
  * 对空左键只能从挥手包统计，因此检测挂在数据包层。
+ * 玩家状态仅由服务端主线程读写；数据包 HEAD 注入在 Netty 首次进入时必须让原版完成调度，
+ * 避免两个线程同时修改 ArrayDeque，导致 peekFirst() 的空值被拆箱。
  */
 public final class ClickAntiCheat {
     public static final int CPS_LIMIT = 24;
@@ -50,7 +52,7 @@ public final class ClickAntiCheat {
     }
 
     public static boolean isLocked(ServerPlayer player) {
-        if (!isEnabled() || player == null) {
+        if (player == null || !player.server.isSameThread() || !isEnabled()) {
             return false;
         }
         PlayerClickState state = STATES.get(player.getUUID());
@@ -61,7 +63,8 @@ public final class ClickAntiCheat {
      * @return {@code true} 时应取消本次左右键相关数据包
      */
     public static boolean onClick(ServerPlayer player, ClickType type) {
-        if (!isEnabled() || player == null || player.isCreative() || player.isSpectator() || player.hasPermissions(1)) {
+        if (player == null || !player.server.isSameThread() || !isEnabled()
+                || player.isCreative() || player.isSpectator() || player.hasPermissions(1)) {
             return false;
         }
         PlayerClickState state = STATES.computeIfAbsent(player.getUUID(), unused -> new PlayerClickState());

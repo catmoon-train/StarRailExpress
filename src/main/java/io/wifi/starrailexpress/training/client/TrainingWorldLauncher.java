@@ -51,11 +51,6 @@ public final class TrainingWorldLauncher {
 
     /** 两次确认后才退出、原版备份、重建；备份异常绝不调用安装器重建。 */
     public static void rebuild(Screen parent) {
-        if (TrainingClient.isDedicated()) {
-            Minecraft client = Minecraft.getInstance();
-            if (client.player != null) client.player.displayClientMessage(Component.translatable("training.sre.ui.server_rebuild"), false);
-            return;
-        }
         if (!isBusy()) {
             request(parent, true);
         }

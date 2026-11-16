@@ -55,10 +55,9 @@ public final class ObsoleteModRemoval {
         Path list = work.resolve("matches.txt");
         Path ready = work.resolve("ready.txt");
         Files.write(list, matches, StandardCharsets.UTF_8);
-        Path javaBin = Path.of(System.getProperty("java.home"), "bin");
-        Path executable = javaBin.resolve("javaw.exe");
-        if (!Files.isRegularFile(executable)) executable = javaBin.resolve("java");
         var self = ProcessHandle.current();
+        Path executable = resolveJavaExecutable(Path.of(System.getProperty("java.home")),
+                self.info().command().orElse(null));
         Process process = new ProcessBuilder(executable.toString(), "-cp", work.toString(),
                 ModRemovalWorker.class.getName(), Long.toString(self.pid()),
                 Long.toString(self.info().startInstant().orElseThrow().toEpochMilli()),
@@ -70,5 +69,24 @@ public final class ObsoleteModRemoval {
             process.destroyForcibly();
             throw new IllegalStateException("清理窗口未就绪，详见 " + work.resolve("worker.log"));
         }
+    }
+
+    /** 优先复用实际运行的 Java，避免启动器改写 java.home 后拼出不存在的路径。 */
+    static Path resolveJavaExecutable(Path javaHome, String currentCommand) {
+        if (currentCommand != null && !currentCommand.isBlank()) {
+            Path current = Path.of(currentCommand);
+            String name = current.getFileName().toString();
+            if ((name.equalsIgnoreCase("java.exe") || name.equalsIgnoreCase("javaw.exe")
+                    || name.equals("java")) && Files.isRegularFile(current)) {
+                return current.toAbsolutePath();
+            }
+        }
+        Path bin = javaHome.resolve("bin");
+        for (String name : List.of("javaw.exe", "java.exe", "java")) {
+            Path candidate = bin.resolve(name);
+            if (Files.isRegularFile(candidate)) return candidate.toAbsolutePath();
+        }
+        throw new IllegalStateException("找不到独立清理器所需的 Java 可执行文件：java.home="
+                + javaHome + "，当前进程=" + currentCommand);
     }
 }

@@ -1,7 +1,6 @@
 {
     "text.autoconfig.starrailexpress.option.pokmen": "Enable Cobblemon (server)",
     "text.autoconfig.starrailexpress.option.pokmen.@Tooltip": "Synced by the server. Disabling stops Cobblemon gameplay and generation in new areas, and hides related keys and interfaces. Vanilla interactions remain available. Existing Pokemon, buildings and player data are retained. Disabled by default.",
-    "message.starrailexpress.cobblemon_disabled": "Cobblemon gameplay is disabled on this server.",
     "=== SODIUM-EXTRA 补充===": "",
     "sodium-extra.option.light_updates_starrailexpress": "Light updates (forced on by StarRailExpress)",
     "sodium-extra.option.light_updates_starrailexpress.tooltip": "Processes light updates. Lighting is always updated regardless of this option. (Forced on by StarRailExpress)",

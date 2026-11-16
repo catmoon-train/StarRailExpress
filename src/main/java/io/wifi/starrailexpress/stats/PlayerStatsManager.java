@@ -94,6 +94,17 @@ public final class PlayerStatsManager {
         }
     }
 
+    /** 断线/停服时提交最终快照，不等待 JDBC；即使已有保存正在执行也不能漏掉最后一次变更。 */
+    public static void submitFinalDatabaseSnapshot(UUID playerUuid) {
+        Entry entry = STATS.get(playerUuid);
+        if (entry == null || !isDatabaseEnabled() || !entry.databaseLoaded) {
+            return;
+        }
+        long updatedAt = Math.max(1L, entry.updatedAt);
+        MysqlPlayerDataStore.saveBatchAsync(playerUuid,
+                Map.of(DATABASE_KEY, PlayerStatsSerializer.toJson(entry.stats, updatedAt)), updatedAt);
+    }
+
     public static boolean flushDatabaseBlocking(UUID playerUuid) {
         Entry entry = STATS.get(playerUuid);
         if (entry == null || STATS.get(playerUuid) != entry || !isDatabaseEnabled() || !entry.databaseLoaded) {
@@ -142,9 +153,9 @@ public final class PlayerStatsManager {
             return;
         }
         // 周期同步间隔内断线时，若只写本地文件会让数据库权威副本落后一局数据。
-        // 断线仅发生一次，因此在移除内存条目前用受限阻塞写入收口；失败仍保留原子本地备份。
-        if (entry.databaseDirty) {
-            flushDatabaseBlocking(player.getUUID());
+        // 在移除内存条目前捕获最终快照；数据库慢/离线时不阻塞 Netty 或关服线程。
+        if (entry.databaseDirty || entry.databaseSaveInFlight) {
+            submitFinalDatabaseSnapshot(player.getUUID());
         }
         entry.online = false;
         entry.forceDatabaseFlushPending = false;

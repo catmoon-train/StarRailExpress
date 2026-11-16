@@ -1,6 +1,6 @@
 # SRE Pack Compat
 
-独立客户端 Mod，MC 1.21.1 / Java 21，Mod ID `sre_pack_compat`，源码位于当前项目的 `sre-pack-compat/`。
+整合包兼容 Mod，MC 1.21.1 / Java 21，Mod ID `sre_pack_compat`，源码位于当前项目的 `sre-pack-compat/`。客户端保留资源、输入与 JEI 大厅补丁；专用服务器只加载通用实体追踪减负。
 
 ## 范围
 
@@ -13,6 +13,10 @@
 - 内置自定义/实验性世界提示跳过：客户端加载时仅将该警告检查读取到的生命周期视为 stable，创建时跳过对应确认。存档数据不改写，旧自定义世界的备份提示、版本兼容和数据包错误等其它检查保持原样。
 
 迁移代码保留原 Java 包名以维持既有映射和工具接口，但不再编译进核心 JAR。兼容包不依赖 SRE 核心进行编译：列车加载层为可选字符串目标，自定义模型 ID 为可选反射接入。独立 ZIP URI 工具使用新类名，避免与核心仍用于 Lightspeed 的类重复。
+
+## 模块边界
+
+宝可梦专用代码、配置资源、入口与测试已全部移到同级 [sre-pokemon-compat](../sre-pokemon-compat/README.md)。通用实体无乘客追踪快速路径仍留在本包；独立内存与性能诊断见 [sre-performance](../sre-performance/README.md)。
 
 ## 构建
 
@@ -33,7 +37,7 @@
 
 ## 安装／升级
 
-**这次拆分必须同时替换核心并新增兼容 JAR。** 客户端 `mods/` 中只保留一份新核心和一份 `sre-pack-compat-1.0.0.jar`。不安装到专用服务器。
+**升级时同时替换核心和本兼容 JAR。** 使用宝可梦时还需在客户端、服务端安装同级 `sre-pokemon-compat-1.0.0.jar`，不能和仍内置旧宝可梦补丁的核心/兼容包混用。本包不再提供宝可梦专用补丁。
 
 旧核心仍内置同名补丁，不能只把本包加到旧核心旁边。启动检查会检测旧 `starrailexpress.mixins.json` 的重复注册并明确报错，避免双注入。主模组版本号没有擅自增加，不能仅凭版本名判断是否已换成拆分版。
 
@@ -135,16 +139,10 @@ Android（Pojav/Fold Craft/Zalith 等启动器）不能执行独立 Java 或显�
 
 仅替换服务端同步的隐藏群组 `Train Spectators`：左侧竖排显示正在说话的成员头像，停止说话后随 Voice Chat 自带说话状态缓存消失。按住左/右 Alt 时在头像右侧显示发言者名字，松开隐藏名字；不会展开未发言成员。沿用 Voice Chat 的 HUD 总开关、头像缩放及显示自己头像设置，普通群组不变。无需新增按键绑定，不改变语音路由或群组成员。
 
-## 方块宝可梦（Cobblemon 1.8.4 / Fabric 1.21.1）
+## JEI（19.70.0.469 / Fabric 1.21.1）
 
-服务端核心的 `config/starrailexpress.json` 新增 `"pokmen": false`（保留该拼写），默认关闭。设为 `true` 后重启服务端，或执行 `/tmm:config reload`（需要 3 级权限）重新加载文件并同步给在线客户端；客户端通过现有 `@ConfigSync` 配置包接收，不能用本地配置自行启用。服务端需更新核心，客户端需更新核心及兼容包，无需给专用服务器安装客户端兼容包。
+仅在已进入世界且本体 `SRE.isLobby=true` 时显示 JEI 物品/书签叠加层和配方页，并接受 JEI 的键盘、字符与鼠标输入。非大厅时返回“未消费输入”，普通背包和列车按键继续处理；已打开的 JEI 页会在下一个客户端 tick 正常关闭。
 
-- 未连接、尚未收到配置、旧服未提供此字段及断线/换服时均关闭；收到服务器 `true` 后启用，无需重启客户端。
-- 关闭时从原版按键设置展示副本及有效输入映射中排除 Cobblemon 按键，不抢占同键的列车/原版操作；注册与玩家保存的绑定值不变。切换时清空残留点击/长按状态。
-- 阻止 Cobblemon GUI（包括服务器请求打开的容器，正常发送关闭包）、队伍/战斗/骑乘 HUD、图鉴扫描 HUD/操作、教程 Toast、客户端 tick/render/tooltip 玩法事件及骑乘镜头接管；关闭时清理已打开的界面、扫描状态和战斗音乐。
-- 登录/退出清理、数据包、存储同步、资源加载、物品实体注册及服务端事件保留，避免损坏存档或联网协议。这个选项控制客户端功能，不等于卸载 Cobblemon，也不关闭服务端世界生成/宝可梦生成。
-- Cobblemon 为可选模组，未安装时所有相关 Mixin 自动跳过；不新增 Cobblemon/Kotlin 硬依赖，不改模组版本号。
+不重写 JEI 配置，不动态注册/注销按键，返回大厅后保留玩家原有显示偏好。JEI 或本体缺失时跳过补丁，无 JEI 编译或运行硬依赖。本补丁不卸载 JEI 已建立的配方索引，因此隐藏界面不等于释放其内存。
 
-针对性验证：`./gradlew :sre-pack-compat:test --tests '*CobblemonPolicyTest' :remapJar :sre-pack-compat:remapJar --offline --console=plain`。
-
-本次验证：核心与兼容包正式 `remapJar` 成功，5 项 `CobblemonPolicyTest` 通过；实际 Cobblemon 1.8.4 + Fabric Loader 0.19.3 的生产命名隔离客户端完成 31 项检查并正常退出（`COBBLEMON_GATE_PASS checks=31`）。覆盖配置接收 Mixin、默认关闭/开启/再次关闭/连接重置、按键冲突与列表即时刷新、GUI、Toast、HUD 入口、图鉴、镜头回退及事件门控。配置接收使用同签名测试桩，未连接真实 SRE 服务器；没有声称完成整包联机或服务端生成验证。临时验证器不包含在正式 JAR 中。
+宝可梦开关、Mega Showdown、刷新预算、AI 和原 Java 覆盖说明已移至 [独立宝可梦兼容模组](../sre-pokemon-compat/README.md)。

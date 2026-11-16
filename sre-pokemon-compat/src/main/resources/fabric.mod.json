@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "sre_pokemon_compat",
+  "version": "${version}",
+  "name": "SRE Pokemon Compat",
+  "description": "独立的 Cobblemon / Mega Showdown 开关隔离、刷新与 AI 性能兼容，以及竹叶清实体保护。",
+  "authors": ["Catmoon Train Team"],
+  "license": "GPL-3.0-only",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["io.wifi.srepokemoncompat.PokemonCompatServer", "io.wifi.srepokemoncompat.mega.MegaCompat"],
+    "client": ["io.wifi.srepokemoncompat.PokemonCompatClient"],
+    "preLaunch": ["io.wifi.srepokemoncompat.PokemonConfigInstaller"]
+  },
+  "mixins": [
+    "sre-pokemon-compat-core.mixins.json",
+    "sre-pack-compat-spawning.mixins.json",
+    "sre-pokemon-compat-performance.mixins.json",
+    "sre-pokemon-compat-mega.mixins.json",
+    "sre-pokemon-compat-aotake.mixins.json",
+    {"config": "sre-pack-compat-cobblemon.mixins.json", "environment": "client"},
+    {"config": "sre-pokemon-compat-journeymap.mixins.json", "environment": "client"}
+  ],
+  "depends": {"fabricloader": ">=0.16.0", "minecraft": "1.21.1", "java": ">=21", "fabric-api": "*", "starrailexpress": "*"},
+  "suggests": {"cobblemon": "*", "mega_showdown": "*", "aotake_sweep": "*"}
+}

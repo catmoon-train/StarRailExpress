@@ -9,7 +9,4 @@ public final class TrainingAccessPolicy {
     public static boolean permits(boolean marked, boolean dedicated, boolean owner, boolean sameWorld) {
         return marked && !dedicated && owner && sameWorld;
     }
-    public static boolean permitsDedicated(boolean enabled, boolean leased, boolean owner, boolean sameWorld) {
-        return enabled && leased && owner && sameWorld;
-    }
 }

@@ -49,7 +49,6 @@ public final class EquippedSkinsDatabaseSync {
     public static final String DATA_KEY = "skins";
     private static final Gson GSON = new GsonBuilder().create();
     private static final long DEBOUNCE_MS = 5_000L;
-    private static final long BLOCKING_FLUSH_TIMEOUT_MS = 3_000L;
 
     /** 待上传的玩家及其到期时间 */
     private static final Map<UUID, Long> PENDING = new ConcurrentHashMap<>();
@@ -60,7 +59,7 @@ public final class EquippedSkinsDatabaseSync {
     public static void registerEvents() {
         ServerTickEvents.END_SERVER_TICK.register(EquippedSkinsDatabaseSync::tick);
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> flushOnDisconnect(handler.getPlayer()));
-        ServerLifecycleEvents.SERVER_STOPPING.register(EquippedSkinsDatabaseSync::flushAllBlocking);
+        ServerLifecycleEvents.SERVER_STOPPING.register(EquippedSkinsDatabaseSync::submitAllBeforeShutdown);
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> PENDING.clear());
     }
 
@@ -100,27 +99,17 @@ public final class EquippedSkinsDatabaseSync {
         }
     }
 
-    private static void flushAllBlocking(MinecraftServer server) {
+    private static void submitAllBeforeShutdown(MinecraftServer server) {
         if (!isUploadEnabled()) {
             return;
         }
-        MysqlPlayerDataStore.beginShutdownFlushMode();
-        try {
-            for (UUID uuid : PENDING.keySet()) {
-                ServerPlayer player = server.getPlayerList().getPlayer(uuid);
-                if (player == null) {
-                    continue;
-                }
-                String payload = buildPayload(player);
-                if (payload != null) {
-                    MysqlPlayerDataStore.saveEquippedSkinsBlocking(uuid, payload,
-                            System.currentTimeMillis(), BLOCKING_FLUSH_TIMEOUT_MS);
-                }
+        for (UUID uuid : PENDING.keySet()) {
+            ServerPlayer player = server.getPlayerList().getPlayer(uuid);
+            if (player != null && PENDING.remove(uuid) != null) {
+                upload(player);
             }
-            MysqlPlayerDataStore.awaitEquippedSkinsUploads(BLOCKING_FLUSH_TIMEOUT_MS);
-        } finally {
-            PENDING.clear();
         }
+        // 包括已离开防抖队列的在途任务，由数据库层在 STOPPED 阶段统一限时等待。
     }
 
     /** 立即提交装备字段更新；同一玩家的请求由数据库层顺序执行。 */

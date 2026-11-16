@@ -75,6 +75,7 @@ public final class BundledConfigInstaller {
         return changed;
     }
 
+
     /** 内置配置继续覆盖受限项，但不重置已开放的窗口模式。 */
     private static byte[] preserveFullscreenMode(byte[] bundled, String existing) {
         var section = java.util.regex.Pattern.compile("(?ms)(^\\[fullscreen\\][^\\r\\n]*\\R)(.*?)(?=^\\[|\\z)");

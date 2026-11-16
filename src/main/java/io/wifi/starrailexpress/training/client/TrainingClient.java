@@ -86,8 +86,7 @@ public final class TrainingClient {
 
     private static void accept(CompoundTag incoming) {
         Minecraft client = Minecraft.getInstance();
-        if (!isLocalTrainingServer() && !(client.level != null && client.getConnection() != null
-                && !client.hasSingleplayerServer() && incoming.getBoolean("dedicated"))) return;
+        if (!isLocalTrainingServer()) return;
         if (incoming.getBoolean("full")) {
             hasCatalogue = true;
         } else if (hasCatalogue) {
@@ -112,11 +111,9 @@ public final class TrainingClient {
 
     public static boolean isTraining() {
         Minecraft client = Minecraft.getInstance();
-        return state.getBoolean("active") && (isLocalTrainingServer()
-                || state.getBoolean("dedicated") && !client.hasSingleplayerServer() && client.level != null && client.getConnection() != null);
+        return state.getBoolean("active") && isLocalTrainingServer();
     }
 
-    public static boolean isDedicated() { return isTraining() && state.getBoolean("dedicated"); }
 
     public static void openPanel(Screen parent) {
         Minecraft client = Minecraft.getInstance();

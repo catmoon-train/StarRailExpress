@@ -1,0 +1,58 @@
+plugins {
+    id 'fabric-loom'
+}
+
+version = '1.0.0'
+group = 'io.wifi'
+base { archivesName = 'sre-performance' }
+repositories.addAll(rootProject.repositories)
+
+sourceSets {
+    smoke {
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+
+loom {
+    mods {
+        sre_performance { sourceSet sourceSets.main }
+        sre_performance_smoke { sourceSet sourceSets.smoke }
+    }
+    runs {
+        remove(getByName('client'))
+        perfClient {
+            client()
+            source sourceSets.main
+            runDir project.findProperty('perfRunDir') ?: 'run'
+        }
+        perfSmoke {
+            client()
+            source sourceSets.smoke
+            runDir((System.getenv('PI_SCRATCH_DIR') ?: project.layout.buildDirectory.get().asFile.absolutePath) + '/sre-performance-smoke')
+            vmArg '-Xmx1536M'
+            vmArg '-Dsreperf.smoke=true'
+        }
+    }
+}
+
+tasks.named('runClient') { enabled = false; setDependsOn([]) }
+
+dependencies {
+    minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
+    testImplementation platform('org.junit:junit-bom:5.11.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('fabric.mod.json') { expand version: project.version }
+}
+
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8'; options.release = 21 }
+tasks.withType(Test).configureEach { useJUnitPlatform() }
+java { withSourcesJar() }

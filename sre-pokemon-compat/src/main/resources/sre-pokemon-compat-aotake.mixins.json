@@ -1,0 +1,9 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.wifi.srepokemoncompat.mixin.sweep",
+  "plugin": "io.wifi.srepokemoncompat.sweep.AotakeMixinPlugin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": ["AotakeCandidateMixin", "AotakeRecyclingMixin", "AotakeRemovalMixin"],
+  "injectors": {"defaultRequire": 1}
+}

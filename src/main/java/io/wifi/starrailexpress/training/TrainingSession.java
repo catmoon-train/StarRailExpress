@@ -38,7 +38,6 @@ public final class TrainingSession {
     private final MinecraftServer server;
     private final UUID ownerId;
     private final ServerLevel level;
-    private final boolean dedicated;
     private ServerPlayer lastOwner;
     private final Path settingsPath;
     private final TrainingCatalogue catalogue = new TrainingCatalogue();
@@ -54,25 +53,21 @@ public final class TrainingSession {
     private final TrainingRequestLimiter limiter = new TrainingRequestLimiter();
 
     public TrainingSession(MinecraftServer server, ServerPlayer owner) {
-        this(server, owner, server.overworld(), false);
-        start(owner);
-    }
-    public TrainingSession(MinecraftServer server, ServerPlayer owner, ServerLevel level, boolean dedicated) {
         this.server = server;
         this.ownerId = owner.getUUID();
-        this.level = Objects.requireNonNull(level);
-        this.dedicated = dedicated;
+        this.level = server.overworld();
         this.lastOwner = owner;
         Path root = server.getWorldPath(LevelResource.ROOT);
-        settingsPath = dedicated ? root.resolve("training-settings").resolve(ownerId + ".json") : root.resolve("training-settings.json");
+        settingsPath = root.resolve("training-settings.json");
         settings = loadSettings();
         settings.myRole = resolveRole(settings.myRole, false).identifier().toString();
         settings.enemyRole = resolveRole(settings.enemyRole, true).identifier().toString();
         normalizeModifierSettings();
         bots = new CarpetTrainingBots(this);
+        start(owner);
     }
-    /** 专服先把会话记入租约，再初始化；失败时仍可通过同一会话完成清理。 */
-    void start(ServerPlayer owner) {
+
+    private void start(ServerPlayer owner) {
         try { initialize(owner); }
         catch (RuntimeException e) {
             try { close(); } catch (RuntimeException cleanup) { e.addSuppressed(cleanup); }
@@ -81,8 +76,7 @@ public final class TrainingSession {
     }
     public MinecraftServer server() { return server; }
     public ServerLevel level() { return level; }
-    public boolean dedicated() { return dedicated; }
-    public boolean authorized() { return dedicated ? TrainingRules.isDedicatedTrainingServer(server) : server.isSingleplayer(); }
+    public boolean authorized() { return !server.isDedicatedServer() && TrainingRules.isTrainingServer(server); }
     public ServerPlayer owner() {
         ServerPlayer current = server.getPlayerList().getPlayer(ownerId);
         if (current != null && current.connection == lastOwner.connection) lastOwner = current;
@@ -124,14 +118,7 @@ public final class TrainingSession {
         } catch (Exception e) { SRE.LOGGER.error("无法保存训练设置", e); error("training.sre.error.save"); }
     }
     private void initialize(ServerPlayer owner) {
-        if (dedicated) cleanupCampEntities();
         if (!MapManager.loadMap(level(), "training")) throw new IllegalStateException("Training map configuration could not load");
-        if (dedicated) {
-            AreasWorldComponent.KEY.get(level()).setReadyArea(TrainingLayout.get().area("lobby").box());
-            AreasWorldComponent.KEY.get(level()).sync();
-            var spawn = TrainingLayout.get().area("lobby").spawn();
-            level().setDefaultSpawnPos(net.minecraft.core.BlockPos.containing(spawn), TrainingLayout.get().area("lobby").yaw());
-        }
         var game = SREGameWorldComponent.KEY.get(level());
         game.setGameMode(SREGameModes.GAME_MODES.get(TrainingGameMode.ID));
         game.setGameStatus(SREGameWorldComponent.GameStatus.ACTIVE);
@@ -454,7 +441,7 @@ public final class TrainingSession {
         var owner = owner(); if (owner == null || !ServerPlayNetworking.canSend(owner, TrainingStatePayload.ID)) return;
         CompoundTag state = new CompoundTag();
         state.putBoolean("active", !closed && authorized()); state.putBoolean("full", full);
-        state.putBoolean("dedicated", dedicated);
+        state.putBoolean("dedicated", false); // 保留旧客户端快照字段。
         state.putString("myRole", settings.myRole); state.putString("message", message);
         state.putInt("alive", bots.alive()); state.putInt("pending", bots.pending());
         state.put("settings", settingsTag()); state.put("bots", bots.snapshot());
@@ -471,11 +458,11 @@ public final class TrainingSession {
         save(); bots.close();
         assistance.clear(level().getGameTime());
         if (lastOwner != null) clearRole(lastOwner);
-        if (dedicated) cleanupCampEntities(); else cleanup(true);
+        cleanup(true);
         SREGameWorldComponent.KEY.get(level()).setGameStatus(SREGameWorldComponent.GameStatus.INACTIVE);
         closed = true;
         try { snapshot(false); } catch (RuntimeException e) { SRE.LOGGER.debug("训练营退出通知未发送", e); }
-        if (!dedicated) GameUtils.isGameStarted = false;
+        GameUtils.isGameStarted = false;
     }
 
     private void clearRole(ServerPlayer player) {
@@ -489,18 +476,4 @@ public final class TrainingSession {
         player.removeAllEffects();
     }
 
-    /** 专属维度只保留地图，回收职业衍生假玩家及临时实体，不影响其他营地。 */
-    private void cleanupCampEntities() {
-        for (var player : new ArrayList<>(level().players())) {
-            if (TrainingRules.isManagedBot(player)) {
-                clearRole(player);
-                ((carpet.patches.EntityPlayerMPFake) player).kill(Component.translatable("multiplayer.disconnect.duplicate_login"));
-            }
-        }
-        var game = SREGameWorldComponent.KEY.get(level());
-        game.clearRoleMap(); game.clear(); game.clearBloodTrail(); game.resetPerPlayerKills(); game.resetDrawnCategories();
-        game.playerBannedBlockTime.clear();
-        for (var entity : new ArrayList<>(level().getEntitiesOfClass(Entity.class,
-                TrainingLayout.box(TrainingLayout.get().bounds).inflate(64), e -> !(e instanceof ServerPlayer)))) entity.discard();
-    }
 }

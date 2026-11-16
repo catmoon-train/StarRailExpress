@@ -96,7 +96,7 @@ public class ServerPlayerEntityMixin {
     public void tmm$disableSetSpawnpoint(ServerPlayer instance, ResourceKey<Level> dimension, @Nullable BlockPos pos,
             float angle, boolean forced, boolean sendMessage, Operation<Void> original) {
         if (SRE.isLobby) {
-            original.call(dimension, pos, angle, forced, sendMessage); // 传递正确的参数
+            original.call(instance, dimension, pos, angle, forced, sendMessage);
         }
     }
 

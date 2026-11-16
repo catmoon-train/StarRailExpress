@@ -9,3 +9,5 @@ pluginManagement {
 }
 
 include 'sre-pack-compat'
+include 'sre-performance'
+include 'sre-pokemon-compat'

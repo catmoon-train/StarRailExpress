@@ -13,7 +13,7 @@
 | 选项 | 固定值 |
 | --- | --- |
 | 自动跳跃 | 关闭，false |
-| 亮度 gamma | 0.0，最低/昏暗 |
+| 亮度 gamma | `SRE.isLobby=true` 时 1.0（100%）；false 时恢复原有 0.0（昏暗） |
 | 黑暗效果强度 | 1.0，完整黑暗效果 |
 | 字幕 | 关闭 |
 | 云 | 关闭，沿用原规则 |
@@ -26,7 +26,7 @@
 ## Sodium 0.8.13 / Sodium Extra 0.9.3
 
 - Sodium 新配置 API：在 `OptionBuilderImpl.getEnabled` 与 `StatefulOptionBuilderImpl` 的绑定、默认值和控件显示策略中按完整 `ResourceLocation` ID 处理。控件禁用后无法由后续 enabled provider 重新开启；重置默认值和直接调用配置 binding.save 也不能写入受限值。Reese's 复用同一配置对象的路径也受约束。
-- Sodium 固定：亮度 0、云关闭、实体渲染距离 100%。天气、树叶、粒子、暗角、AO 不锁定。
+- Sodium 固定：亮度随大厅状态为 100／0，云关闭、实体渲染距离 100%。天气、树叶、粒子、暗角、AO 不锁定。
 - Extra 固定开启：总动画及水/岩浆/火/传送门/方块/幽匿感测体动画；天空/太阳/月亮/星星/天气/生物群系与天空颜色；物品展示框、盔甲架、画、活塞、信标光柱、附魔台书本和名称标签显示；光照更新。
 - Extra 粒子效果开放：总粒子、雨溅、方块破坏/挖掘及所有逐类型粒子均可修改；不再清空粒子拒绝表、不再强制 `isParticleEnabled` 返回 true，保存和跨 tick 保留用户选择。
 - Extra 固定关闭：高级/分维度雾修改、失明/黑暗/流体等 gameplay 雾覆盖、限制信标光柱高度、云高度覆盖、Panini 投影和 instantSneak。雾距离恢复原版 0、起点/云雾恢复 100%、形状 VANILLA；移除维度雾覆盖表。受限配置继续在 sanitize 后恢复，不替换分组对象、不每 tick 写盘。
@@ -69,3 +69,19 @@
 `sodium-extra:prevent_shaders`（“禁止着色器”）固定为 false，不禁止游戏后处理着色器；Sodium binding、默认值和 Extra 运行/保存策略均约束此值。该项单独设置 `controlHiddenWhenDisabled=true`，配合受限项 disabled 隐藏，其他受限控件的展示规则不变。
 
 实际 LambDynamicLights 4.8.11 整合 JAR 的 Sodium 入口位于嵌套 Fabric 模块 `lambdynlights_runtime`，其 `registerOwnModOptions` 使用该 ID。兼容包同时过滤 `lambdynlights` 与 `lambdynlights_runtime`，避免只按外层 Mod ID 匹配而残留入口。不关闭动态光源渲染。
+
+## 大厅亮度与原版雾范围
+
+以 `SRE.isLobby` 为准：大厅亮度为 100%，离开大厅恢复现有锁定的 0%，不是恢复配置文件中被锁定前的任意值。
+原版 OptionInstance 的 get/set 与 Sodium 的绑定 load/save 按当前状态取值，不缓存创建时的亮度，
+因此重复进出大厅或打开过设置页后仍会恢复。其他选项锁不变，不每 tick 保存配置。
+
+大厅在自定义地图／回声／夜间雾处理之前，每次显式调用原版 FogRenderer.setupFog，
+保留原版按视距、环境和状态效果计算的雾范围，并清除旧自定义雾及光影后处理雾的活动标记。
+创造模式“无雾”在大厅也让开；`isLobby=false` 时继续走原有地图、天气、职业和夜间雾逻辑。
+本变更只调整雾的范围选择，不另改雾色、天气或资源包。
+
+验证：执行核心定向 `:test`（ClientOptionPolicyTest、SodiumOptionPolicyTest、LobbyVisualMixinTest、
+NightRoundStateTest、EchoHunterFogClientTest）及 `:remapJar --offline --console=plain` 成功，
+78 项测试通过，0 失败／错误／跳过。检查正式 JAR 包含修改类且不包含新增测试类，`git diff --check` 通过。
+构建有已有的 Cobblemon 酿造映射警告，但未导致失败；未部署或执行游戏内大厅／对局视觉验收。

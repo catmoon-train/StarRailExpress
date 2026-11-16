@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.wifi.srepokemoncompat.mixin.journeymap",
+  "plugin": "io.wifi.srepokemoncompat.PokemonMixinPlugin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "JourneyMapClientMixin", "StateTickMixin", "KeybindingMixin", "MapUiMixin", "WaypointBeaconMixin",
+    "HudOverlayMixin", "ChunkMonitorMixin", "DeathPointMixin", "ClientCommandMixin", "MiniMapMixin"
+  ],
+  "injectors": { "defaultRequire": 1 }
+}

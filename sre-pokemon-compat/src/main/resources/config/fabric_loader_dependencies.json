@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "overrides": {
+    "cobblemon": {
+      "-depends": {
+        "java": "*"
+      },
+      "+depends": {
+        "java": ["21", "25"]
+      }
+    }
+  }
+}

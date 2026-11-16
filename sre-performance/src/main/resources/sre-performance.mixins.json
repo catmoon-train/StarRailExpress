@@ -1,0 +1,8 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.wifi.sreperf.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": ["MinecraftMixin", "GameRendererMixin", "TextureManagerMixin", "SoundEngineMixin", "ParticleEngineMixin", "WindowMixin", "RenderSystemMixin", "VertexBufferMixin", "NativeImageMixin"],
+  "injectors": { "defaultRequire": 1 }
+}

@@ -843,6 +843,11 @@ SREAbilityPlayerComponent comp = SREAbilityPlayerComponent.KEY.get(player);
 
 ### RoleSkill — 技能注册
 
+统一技能定义新增开局冷却：`RoleSkill.skill(...).initialCooldownSeconds(80).cooldownSeconds(65).build()`。
+也可使用 `.initialCooldownTicks(ticks)`；`Definition.initialCooldownTicks()` 默认 0，旧构造器和旧技能行为不变。
+职业初始化器在组件与职业初始化完成后应用初始冷却，`OnGameTrueStarted` 再从完整时长计时；普通施法只使用 `cooldownTicks()`，不会重复套用开局冷却。
+
+
 **包 / Package:** `io.wifi.starrailexpress.api`（不是 `org.agmas.noellesroles`）
 
 服务端 G 键技能的注册与触发中心。玩家按下技能键时，客户端自动发送 `AbilityC2SPacket`，服务端通过 `RoleSkill` 分发处理。  
@@ -1719,6 +1724,13 @@ OnTeammateKilledTeammate.EVENT.register((victim, killer, isInnocent, deathReason
 ---
 
 ### 技能与交互事件
+
+- `ItemGameplayEvents.ALLOW_GUN_FIRE`：`boolean allow(ServerPlayer, int targetId)`，普通枪与狙击开火前的硬否决，早于耗弹、音效和冷却；狙击装弹/镜片操作不触发。
+- `ItemGameplayEvents.ALLOW_KNIFE_ATTACK`：同签名，普通刺杀入口在命中和冷却前硬否决；返回 false 不产生攻击副作用。
+- `GameUtilityEvents.ALLOW_REVIVE`：`boolean allow(ServerPlayer, @Nullable Vec3 destination)`，两个核心复活实现都在清状态/传送前查询；回房间复活 destination 为 null。首个 false 短路，默认放行。独立职业的自建复活流程需要在其扣次数前自行查询/校验，不能只依赖游戏模式切换。
+- `ItemGameplayEvents.BEFORE_ROLE_DROP`：`InteractionResult beforeDrop(Player, ItemStack)`，在 `RoleMethodDispatcher.callOnDropItem` 查询职业及后续白名单之前双端调用；首个非 `PASS` 原样返回，全部 `PASS` 继续原职业判定。监听器若拒绝客户端预测掉落，需在服务端同步对应菜单纠正物品栏。
+- `ClientGameplayEvents.DISGUISE_STATE_COPIED`：`void copied(Player, Entity dummy)`，伪装临时实体完成位置、朝向与动画状态复制后通知，保持不 tick 临时实体；适合追加模型专用动画状态。监听器仅在客户端初始化时注册一次。
+
 
 #### `OnRoleSkillUse` — 角色技能使用
 

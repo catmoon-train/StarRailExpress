@@ -608,8 +608,8 @@ public final class TrainingScreen extends Screen {
                 rows.add(new FormRow("spawn_body", tr("spawn_body_hint"), () -> tr("spawn_body"), () -> send("spawn_body")));
                 rows.add(new FormRow("cleanup", tr("cleanup_hint"), () -> tr("cleanup"), () -> send("cleanup")));
                 rows.add(new FormRow("reset", tr("reset_hint"), () -> tr("reset"), () -> confirm("reset_confirm", () -> send("reset"))));
-                rows.add(new FormRow("rebuild", tr(TrainingClient.isDedicated() ? "server_rebuild" : "rebuild_hint"), () -> tr("rebuild"),
-                        () -> { if (!TrainingClient.isDedicated()) TrainingWorldLauncher.rebuild(this); }));
+                rows.add(new FormRow("rebuild", tr("rebuild_hint"), () -> tr("rebuild"),
+                        () -> TrainingWorldLauncher.rebuild(this)));
             }
             form("settings" + settingsTab, content, rows);
         }
@@ -634,7 +634,7 @@ public final class TrainingScreen extends Screen {
                         () -> settings().getInt("respawnDelay") < 30, () -> configure(integer("respawnDelay", settings().getInt("respawnDelay") + 1)), true);
             } else if (row.id.equals("hitRate")) botHitRateInput(pos);
             else button(row.id, pos, row.text, row.hint,
-                    () -> (!row.id.equals("rebuild") || !TrainingClient.isDedicated()) && (!id.equals("botFields") || botReady()), row.run, true);
+                    () -> !id.equals("botFields") || botReady(), row.run, true);
         }
         if (paginate) pager(id, new Rect(r.x, r.bottom() - 20, r.w, 20), rows.size(), capacity);
     }
