@@ -128,6 +128,8 @@ public class MagicianRoleData extends SimpleRoleData {
         ArrayList<ResourceLocation> candidates = new ArrayList<>(
                 MagicianDisguiseHelper.collectCandidateIds(player));
         if (candidates.isEmpty()) {
+            // 极端兜底：本局没有任何「可伪装」的杀手职业时，退回普通杀手，
+            // 避免魔术师出现空身份 / 空商店（正常情况下普通杀手本身不可扮演）。
             candidates.add(TMMRoles.KILLER.identifier());
         }
         Collections.shuffle(candidates);

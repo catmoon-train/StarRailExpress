@@ -24,6 +24,7 @@ import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.resources.ResourceLocation;
+import org.agmas.harpymodloader.SREDisableManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
@@ -85,31 +86,42 @@ public final class MagicianDisguiseHelper {
         return ids;
     }
 
-    /**
-     * 伪装候选（职业对象形式）。
+    /** 伪装候选（职业对象形式）。
      *
      * <p>先按「不与场上已有杀手重复」严格筛选；若严格候选为空（例如场上的杀手已经把池子占满），
      * 退化成不排除重复的宽松候选，保证魔术师永远有身份可扮演。</p>
      */
     public static List<SRERole> collectCandidates(@Nullable Player player) {
+        List<SRERole> all = collectDisguisableRoles();
         List<SRERole> strict = new ArrayList<>();
-        List<SRERole> relaxed = new ArrayList<>();
-        // IdentityHashMap 语义的去重：职业注册表本身不含重复实例，LinkedHashSet 只用于稳定顺序
-        for (SRERole role : new LinkedHashSet<>(TMMRoles.ROLES.values())) {
-            if (!isDisguisableBase(role)) {
-                continue;
-            }
-            relaxed.add(role);
+        for (SRERole role : all) {
             if (!isAssignedOnField(role, player)) {
                 strict.add(role);
             }
         }
-        return strict.isEmpty() ? relaxed : strict;
+        return strict.isEmpty() ? all : strict;
+    }
+
+    /**
+     * 全部「可伪装」的杀手职业（不做场上去重）。
+     *
+     * <p>供开局随机抽取的宽松池与调试指令（{@code /sre:magician disguise}）的补全 / 校验共用：
+     * 调试时允许与本局已有杀手重复，因此这里只做 {@link #isDisguisableBase(SRERole)} 的基础过滤。</p>
+     */
+    public static List<SRERole> collectDisguisableRoles() {
+        List<SRERole> result = new ArrayList<>();
+        // IdentityHashMap 语义的去重：职业注册表本身不含重复实例，LinkedHashSet 只用于稳定顺序
+        for (SRERole role : new LinkedHashSet<>(TMMRoles.ROLES.values())) {
+            if (isDisguisableBase(role)) {
+                result.add(role);
+            }
+        }
+        return result;
     }
 
     /**
      * 基础可伪装性判定（不看场上已有职业）：必须是杀手职业，且
-     * 非多狼位、非地图特色职业、无绑定生成关系、非迷失杀手。
+     * 非多狼位、非地图特色职业、无绑定生成关系、非迷失杀手，并且可以自然刷新。
      */
     public static boolean isDisguisableBase(@Nullable SRERole role) {
         if (role == null) {
@@ -121,6 +133,10 @@ public final class MagicianDisguiseHelper {
         }
         // 迷失杀手：不占杀手位、没有杀手透视，属于特殊规则职业
         if (role.identifier().equals(ModRoles.LOST_KILLER_ID)) {
+            return false;
+        }
+        // 普通杀手本体（killer）不作为伪装身份
+        if (TMMRoles.KILLER != null && role.identifier().equals(TMMRoles.KILLER.identifier())) {
             return false;
         }
         // 其它模式的专属职业（游客 / 寻找者 / 超级亡命徒等）不属于本模式可扮演的杀手
@@ -142,6 +158,19 @@ public final class MagicianDisguiseHelper {
         }
         // 绑定生成关系：如毒师 ↔ 医生、纵火犯 → 消防员
         if (role.hasOccupationRoleRelation()) {
+            return false;
+        }
+        // 无法自然刷新：默认最大数量被设为 0 的杀手（只能靠绑定 / 转职 / 事件出场）。
+        // 注意 -1 是「不设置」（沿用普通刷新规则），不能被当成 0 排除。
+        if (role.defaultMaxCount == 0) {
+            return false;
+        }
+        // 已被禁用的杀手
+        if (SREDisableManager.isRoleDisabled(role)) {
+            return false;
+        }
+        // 命令方块事件专属杀手
+        if (role.isCannotAppearInCommandBlockEvent()) {
             return false;
         }
         return true;
