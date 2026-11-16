@@ -2912,6 +2912,7 @@ public class ModRoles {
      * - 杀手阵营 (isInnocent = false, canUseKiller = true)
      * - 默认杀手商店
      * - 与魔术师互斥生成
+     * - 与命令方块事件互斥 (setCannotAppearInCommandBlockEvent(true))
      * - 不占用杀手位 (setOccupiedRoleCount(0))
      * - 没有杀手透视 (setCanUseInstinct(false))
      * - 杀手本能透视你时框与平民一致，看不到杀手同伙和职业信息 (setCanSeeTeammateKiller(false))
@@ -2931,6 +2932,7 @@ public class ModRoles {
             .setKillerTeammateScreenVisibility(true, false) // 其它职业的 screen 看不到迷失杀手的杀手同伙
             .setHideRoleInfoWhenSeen(true) // 别人靠近查看时不显示身份与杀手同伙
             .setCanBeRandomedByOtherRoles(false)
+            .setCannotAppearInCommandBlockEvent(true) // 与命令方块事件互斥
             .setCanBeXiaonao(true) // 迷失可能小脑
             .setCanXiaonao(true) // 迷失可能小脑
             .setDefaultMax(1).setDefaultEnableChance(2000).setDefaultEnableNeededPlayerCount(12);

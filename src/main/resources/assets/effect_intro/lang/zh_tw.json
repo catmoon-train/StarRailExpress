@@ -120,7 +120,7 @@
   "effect.noellesroles.eerie_domain.desc": "詭域：處於鬼眼·楊間的詭域內，無法開啟殺手透視。",
   "effect.noellesroles.no_instinct.desc": "無法使用殺手透視。",
   "effect.noellesroles.no_stamina.desc": "沒有體力，無法依靠體力衝刺；會覆蓋無限體力。",
-  "effect.noellesroles.domain_mark.desc": "領域標記。0 級=愚者開會，1 級=咒術師角鬥場，2 級=冒險家遊記。持有期間無法被拉入另一個領域。",
+  "effect.noellesroles.domain_mark.desc": "領域標記。1 級=愚者開會，2 級=咒術師角鬥場，3 級=冒險家遊記，4 級=祈月者吞月，5 級=祈月者水中鏡，6 級=輪盤惡魔輪盤決鬥。一個領域對應一個等級，同級領域標記不指向多個領域。持有期間無法被拉入另一個領域。",
   "effect.noellesroles.vision_fog.desc": "視野被濃霧籠罩。1 級僅約 2 格，每升 1 級多看約 3 格。",
   "effect.noellesroles.two_dimensional_camera.desc": "2D/2.5D 視角。等級決定朝向：0-3 為側視俯視，4 為上方，5-8 為純平面側視。會顯示指向任務點的箭頭。",
   "effect.noellesroles.two_dimensional_camera_distance.desc": "2D 鏡頭距離。等級越高鏡頭越遠。",

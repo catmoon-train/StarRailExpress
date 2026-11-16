@@ -116,8 +116,11 @@ public class TarotAssemblyManager {
             return;
         }
 
-        // 愚者处于其它领域（非愚者开会领域）时，无法发起会议
-        if (ModEffects.getDomainMarkLevel(fool) >= 0 && ModEffects.getDomainMarkLevel(fool) != 0) {
+        // 愚者处于其它领域（非愚者开会领域）时，无法发起会议。
+        // 规范：一个领域对应一个等级的领域标记药水效果，同等级领域标记药水效果不应当指代多个领域；
+        // 等级 0 只属于愚者开会，因此非 0 等级一律视为其它领域。
+        int domainMarkLevel = ModEffects.getDomainMarkLevel(fool);
+        if (domainMarkLevel >= 0 && domainMarkLevel != ModEffects.FOOL_MEETING_MARK_LEVEL) {
             fool.displayClientMessage(Component
                     .translatable("message.noellesroles.fool.in_other_domain_cannot_start")
                     .withStyle(ChatFormatting.RED), true);
@@ -283,9 +286,9 @@ public class TarotAssemblyManager {
                     false));
         }
 
-        // 标记所处领域：愚者开会领域 = 1 级（amplifier 0）
-        player.addEffect(new MobEffectInstance(ModEffects.DOMAIN_MARK, -1, 0, false, false,
-                true));
+        // 标记所处领域：愚者开会领域 = 1 级（amplifier 0），该等级不与其他领域共用
+        player.addEffect(new MobEffectInstance(ModEffects.DOMAIN_MARK, -1,
+                ModEffects.FOOL_MEETING_MARK_LEVEL, false, false, true));
 
         ServerPlayNetworking.send(player, new CloseUiPayload());
         player.displayClientMessage(

@@ -674,14 +674,20 @@ public class ModEffects {
     public static final Holder<MobEffect> NO_STAMINA = register("no_stamina",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x6A5ACD));
     /**
-     * 领域标记（本模组三大领域共享）：
+     * 领域标记（本模组各领域共享同一个效果，以等级区分领域）：
      * - 中性效果，幽紫色
-     * - amplifier 0 = 愚者开会领域，1 = 咒术师角斗场领域，2 = 冒险家游记（格罗赛尔游记）领域
+     * - amplifier 0 = 愚者开会（1 级），1 = 咒术师角斗场（2 级），2 = 冒险家游记（3 级），
+     *   3 = 祈月者吞月（4 级），4 = 祈月者水中镜（5 级），5 = 轮盘恶魔轮盘决斗（6 级）
+     * - 规范：一个领域对应一个等级的领域标记药水效果，同等级领域标记药水效果不应当指代多个领域。
+     *   0~5 已全部分配，新增领域只能使用 6 及以上未占用等级，禁止复用已有等级。
      * - 拥有此效果的玩家正处于某个领域中，无法被拉入另一个领域；
-     * 由三大领域在进入时授予对应等级，离场时移除。
+     * 由各领域在进入时授予对应等级，离场时移除。
      */
     public static final Holder<MobEffect> DOMAIN_MARK = register("domain_mark",
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0x9B59B6));
+
+    /** 愚者开会领域的标记等级（amplifier 0 / 1 级），也是唯一豁免「领域庇护」的等级。 */
+    public static final int FOOL_MEETING_MARK_LEVEL = 0;
 
     /**
      * 领域庇护（摘星者「星之光环」/「庇护强化」授予）：
@@ -1133,7 +1139,10 @@ public class ModEffects {
     }
 
     /**
-     * 领域标记：返回玩家所处领域的等级（0=愚者开会，1=咒术师角斗场，2=冒险家游记）；不在任何领域返回 -1。
+     * 领域标记：返回玩家所处领域的 amplifier 等级（0=愚者开会，1=咒术师角斗场，2=冒险家游记，
+     * 3=祈月者吞月，4=祈月者水中镜，5=轮盘恶魔轮盘决斗）；不在任何领域返回 -1。
+     * 规范：一个领域对应一个等级的领域标记药水效果，同等级领域标记药水效果不应当指代多个领域，
+     * 因此本返回值可直接作为领域身份判定，不会有一个等级指向两个领域的情况。
      */
     public static int getDomainMarkLevel(LivingEntity entity) {
         return getAmplifier(entity, DOMAIN_MARK);

@@ -119,7 +119,7 @@
     "effect.noellesroles.eerie_domain.desc": "Eerie Domain: inside Ghost Eye Yang Jian's eerie domain, Killer instinct see-through cannot be activated.",
     "effect.noellesroles.no_instinct.desc": "Cannot use Killer instinct see-through.",
     "effect.noellesroles.no_stamina.desc": "No stamina; cannot sprint off stamina; overrides infinite stamina.",
-    "effect.noellesroles.domain_mark.desc": "Domain mark. Level 0 = Fool's meeting, Level 1 = Warlock's arena, Level 2 = Adventurer's travelogue. While held, cannot be pulled into another domain.",
+    "effect.noellesroles.domain_mark.desc": "Domain mark. Level 1 = Fool's meeting, Level 2 = Warlock's arena, Level 3 = Adventurer's travelogue, Level 4 = Pooler's moon, Level 5 = Pooler's aquarium, Level 6 = Roulette Devil's duel. One domain per mark level; a level never refers to multiple domains. While held, cannot be pulled into another domain.",
     "effect.noellesroles.vision_fog.desc": "Vision is shrouded in thick fog. Level 1 is only about 2 blocks; each level adds about 3 blocks.",
     "effect.noellesroles.two_dimensional_camera.desc": "2D/2.5D view. Level determines orientation: 0-3 is side/bird's-eye, 4 is top-down, 5-8 is pure flat side view. Shows an arrow pointing to the task point.",
     "effect.noellesroles.two_dimensional_camera_distance.desc": "2D camera distance. Higher level means farther camera.",

@@ -120,7 +120,7 @@
   "effect.noellesroles.eerie_domain.desc": "诡域：处于鬼眼·杨间的诡域内，无法开启杀手透视。",
   "effect.noellesroles.no_instinct.desc": "无法使用杀手透视。",
   "effect.noellesroles.no_stamina.desc": "没有体力，无法依靠体力冲刺；会覆盖无限体力。",
-  "effect.noellesroles.domain_mark.desc": "领域标记。0 级=愚者开会，1 级=咒术师角斗场，2 级=冒险家游记。持有期间无法被拉入另一个领域。",
+  "effect.noellesroles.domain_mark.desc": "领域标记。1 级=愚者开会，2 级=咒术师角斗场，3 级=冒险家游记，4 级=祈月者吞月，5 级=祈月者水中镜，6 级=轮盘恶魔轮盘决斗。持有该效果的玩家无法被拉入另一个领域。",
   "effect.noellesroles.vision_fog.desc": "视野被浓雾笼罩。1 级仅约 2 格，每升 1 级多看约 3 格。",
   "effect.noellesroles.two_dimensional_camera.desc": "2D/2.5D 视角。等级决定朝向：0-3 为侧视俯视，4 为上方，5-8 为纯平面侧视。会显示指向任务点的箭头。",
   "effect.noellesroles.two_dimensional_camera_distance.desc": "2D 镜头距离。等级越高镜头越远。",

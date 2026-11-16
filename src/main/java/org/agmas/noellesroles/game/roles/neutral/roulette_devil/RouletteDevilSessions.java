@@ -41,6 +41,12 @@ public final class RouletteDevilSessions {
     private static final Set<UUID> BYPASS = new HashSet<>();
     private static final Set<UUID> DEATHS = new HashSet<>();
     private static final Map<UUID, RouletteDevilStateS2CPacket> LAST = new HashMap<>();
+    /**
+     * 轮盘决斗领域标记等级：amplifier 5 = 游戏内 6 级。
+     * 规范：一个领域对应一个等级的领域标记药水效果，同等级领域标记药水效果不应当指代多个领域；
+     * 本等级只归轮盘决斗使用，0~4 已分别分配给愚者开会、咒术师角斗场、冒险家游记、吞月、水中镜。
+     */
+    private static final int DOMAIN_MARK_LEVEL = 5;
     private static final class Session {
         final UUID demon, opponent;
         final RouletteDevilRoleData data;
@@ -138,7 +144,8 @@ public final class RouletteDevilSessions {
                 p.getInventory().clearContent(); p.getInventory().selected = 0; p.inventoryMenu.broadcastChanges();
                 BYPASS.add(p.getUUID());
                 try { p.stopSleeping(); p.stopRiding(); } finally { BYPASS.remove(p.getUUID()); }
-                p.addEffect(new MobEffectInstance(ModEffects.DOMAIN_MARK, -1, 7, false, false, false));
+                // 轮盘决斗领域 = 6 级（amplifier 5），该等级不与其他领域共用。
+                p.addEffect(new MobEffectInstance(ModEffects.DOMAIN_MARK, -1, DOMAIN_MARK_LEVEL, false, false, false));
                 p.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, -1, 0, false, false, false));
                 p.addEffect(new MobEffectInstance(ModEffects.BLACK_MONITOR, 20, 0, false, false, false));
                 p.setInvulnerable(RouletteDevilRole.isDevil(p)); p.setDeltaMovement(0, 0, 0);
