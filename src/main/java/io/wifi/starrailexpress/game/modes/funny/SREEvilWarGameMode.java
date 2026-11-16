@@ -28,12 +28,14 @@ import io.wifi.starrailexpress.game.modes.WTLooseEndsGameMode;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.util.ItemComponentUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -415,6 +417,33 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         }
         // 一次性同步
         worldModifierComponent.sync();
+    }
+
+    /** 超级亡命徒是否可以逃离虚空伤害并回到房间，true:可以抵御(需要使用1层护盾) */
+    public boolean tryRescueSuperLooseEndFromVoid(ServerPlayer player,
+            SREGameWorldComponent gameWorldComponent) {
+        if (!gameWorldComponent.isRole(player, SpecialGameModeRoles.SUPER_LOOSE_END)
+                || GameUtils.getPlayerRoomSpawnPos(player) == null) {
+            return false;
+        }
+
+        SREArmorPlayerComponent armor = SREArmorPlayerComponent.KEY.get(player);
+        if (!armor.triggerAndRemoveArmor(1)) {
+            return false;
+        }
+
+        // 传送回房间
+        GameUtils.teleportBackToRoom(player);
+        // 重置动量
+        player.setDeltaMovement(Vec3.ZERO);
+        player.fallDistance = 0;
+        // player.setHealth(Math.max(player.getHealth(), 1.0F));
+        // 提示护盾破损
+        player.displayClientMessage(Component.translatable("message.bartender.armor_broke_self").withStyle(ChatFormatting.YELLOW), true);
+        // 播放音效
+        player.playNotifySound(TMMSounds.ITEM_PSYCHO_ARMOUR, SoundSource.MASTER, 5.0F, 1.0F);
+        SRE.REPLAY_MANAGER.breakArmor(player.getUUID());
+        return true;
     }
 
     protected void broadcastRolesAbility(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
