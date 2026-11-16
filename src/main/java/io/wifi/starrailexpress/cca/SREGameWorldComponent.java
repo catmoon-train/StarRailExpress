@@ -26,6 +26,7 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
+import io.wifi.starrailexpress.game.modes.funny.SREEvilWarGameMode;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.util.ParticleFx;
 import io.wifi.starrailexpress.util.SREPlayerUtils;
@@ -922,6 +923,11 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                 if (checkPlayerIsOutOfAreas(player, areas)) {
                     if (org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA
                             .bounceBackIfControlled(player)) {
+                        return;
+                    }
+                    if (player.getY() < areas.playArea.minY
+                            && gameCCA.getGameMode() instanceof SREEvilWarGameMode evilWar
+                            && evilWar.tryRescueSuperLooseEndFromVoid(player, gameCCA)) {
                         return;
                     }
                     GameUtils.killPlayer(player, false,
