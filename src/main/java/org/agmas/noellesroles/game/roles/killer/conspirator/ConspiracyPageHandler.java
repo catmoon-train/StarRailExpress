@@ -26,6 +26,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
@@ -98,6 +100,13 @@ public final class ConspiracyPageHandler {
                             .withStyle(ChatFormatting.RED),
                     true);
             return false;
+        }
+
+        // 与阴谋家一致：每次写人都给全场播放附魔台音效（音量/音高照抄 broadcastGuessTrace）
+        for (Player listener : player.level().players()) {
+            if (listener instanceof ServerPlayer serverListener) {
+                serverListener.playNotifySound(SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.MASTER, 0.8F, 0.55F);
+            }
         }
 
         State state = STATES.computeIfAbsent(user.getUUID(), id -> new State());
