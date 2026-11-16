@@ -3522,6 +3522,8 @@ public class ModRoles {
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不显示计分板
     )).setCanPickUpRevolver(true).setCanSeeCoin(true)
+            // 假心情条用魔术师自己的颜色（参考大妖精 setMoodColor），不沿用假心情默认的红条
+            .setMoodColor((role) -> new Color(role.getColor()))
             // 隐藏自己的身份为杀手团队：判定层（频道/报幕/透视/同伙）按杀手处理，胜利结算仍是平民。
             // 不要改用 setNeutralForKiller(true)：那会真的把魔术师归入中立/杀手方，影响小脑等真实阵营判定。
             .setHiddenTeam(RoleTeam.Team.KILLER)

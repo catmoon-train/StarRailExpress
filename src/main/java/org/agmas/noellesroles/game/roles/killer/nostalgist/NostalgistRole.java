@@ -20,7 +20,6 @@ import io.wifi.starrailexpress.api.ExtraEffectRole;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.KillerKnifeShopEntry;
-import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.starrailexpress.util.TrueFalseResult;
@@ -31,6 +30,7 @@ import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role_data.killer.NostalgistRoleData;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,7 +42,8 @@ import java.util.List;
  * （伴随音效与粒子），前摇结束才现身。当场上仅剩怀旧者一名杀手时，里世界自动崩塌，怀旧者现身为
  * 普通杀手（见 {@link org.agmas.noellesroles.role_data.killer.NostalgistRoleData}）。
  *
- * <p>商店为通用杀手商店（{@link ShopContent#defaultKnifeEntries}）。
+ * <p>商店为通用杀手商店的单份实现（见 {@link #getShopEntries()}）：内容与默认杀手商店一致，
+ * 但所有商品额外带「里世界不可购买」的显示门控。
  */
 public class NostalgistRole extends ExtraEffectRole {
 
@@ -53,16 +54,18 @@ public class NostalgistRole extends ExtraEffectRole {
 
     @Override
     public List<ShopEntry> getShopEntries() {
-
-        List<ShopEntry> defaultKnifeEntries = ShopContent.getDefaultKnifeEntries();
-        defaultKnifeEntries.add(new KillerKnifeShopEntry(SREConfig.instance().knifePrice){
+        // 只保留下面这一套（带里世界 canDisplay 门控 + 配置价格）。
+        // 以前在 ShopContent.getDefaultKnifeEntries() 的副本上再 add 一遍，
+        // 结果是同一份列表里几乎每个商品出现两次（默认套不受里世界门控影响），形成「两套商店」。
+        List<ShopEntry> entries = new ArrayList<>();
+        entries.add(new KillerKnifeShopEntry(SREConfig.instance().knifePrice){
             @Override
             public boolean canDisplay(@NotNull Player player) {
                 return !RoleData.getOptional(NostalgistRoleData.class, player).map(d -> d.inBackWorld).orElse(false);
             }
 
         });
-        defaultKnifeEntries.add(new ShopEntry(TMMItems.REVOLVER.getDefaultInstance(),
+        entries.add(new ShopEntry(TMMItems.REVOLVER.getDefaultInstance(),
                 SREConfig.instance().revolverPrice, ShopEntry.Type.WEAPON){
             @Override
             public boolean canDisplay(@NotNull Player player) {
@@ -70,17 +73,17 @@ public class NostalgistRole extends ExtraEffectRole {
             }
 
         });
-        defaultKnifeEntries.add(new ShopEntry(TMMItems.GRENADE.getDefaultInstance(),
+        entries.add(new ShopEntry(TMMItems.GRENADE.getDefaultInstance(),
                 SREConfig.instance().grenadePrice, ShopEntry.Type.WEAPON));
 
-        defaultKnifeEntries.add(new ShopEntry(ModItems.SHORT_SHOTGUN.getDefaultInstance(), SREConfig.instance().shortShotgunPrice, ShopEntry.Type.WEAPON){
+        entries.add(new ShopEntry(ModItems.SHORT_SHOTGUN.getDefaultInstance(), SREConfig.instance().shortShotgunPrice, ShopEntry.Type.WEAPON){
             @Override
             public boolean canDisplay(@NotNull Player player) {
                 return !RoleData.getOptional(NostalgistRoleData.class, player).map(d -> d.inBackWorld).orElse(false);
             }
 
         });
-        defaultKnifeEntries.add(new ShopEntry(TMMItems.PSYCHO_MODE.getDefaultInstance(),
+        entries.add(new ShopEntry(TMMItems.PSYCHO_MODE.getDefaultInstance(),
                 SREConfig.instance().psychoModePrice, ShopEntry.Type.WEAPON) {
             @Override
             public boolean canBuy(@NotNull Player player) {
@@ -110,7 +113,7 @@ public class NostalgistRole extends ExtraEffectRole {
             }
         });
 
-        defaultKnifeEntries.add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(),
+        entries.add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(),
                 SREConfig.instance().firecrackerPrice, ShopEntry.Type.TOOL){
             @Override
             public boolean canDisplay(@NotNull Player player) {
@@ -118,7 +121,7 @@ public class NostalgistRole extends ExtraEffectRole {
             }
 
         });
-        defaultKnifeEntries.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(),
+        entries.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(),
                 SREConfig.instance().lockpickPrice, ShopEntry.Type.TOOL){
             @Override
             public boolean canDisplay(@NotNull Player player) {
@@ -126,7 +129,7 @@ public class NostalgistRole extends ExtraEffectRole {
             }
 
         });
-        defaultKnifeEntries.add(new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(),
+        entries.add(new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(),
                 SREConfig.instance().crowbarPrice, ShopEntry.Type.TOOL){
             @Override
             public boolean canDisplay(@NotNull Player player) {
@@ -134,7 +137,7 @@ public class NostalgistRole extends ExtraEffectRole {
             }
 
         });
-        defaultKnifeEntries.add(new ShopEntry(TMMItems.BODY_BAG.getDefaultInstance(),
+        entries.add(new ShopEntry(TMMItems.BODY_BAG.getDefaultInstance(),
                 SREConfig.instance().bodyBagPrice, ShopEntry.Type.TOOL){
             @Override
             public boolean canDisplay(@NotNull Player player) {
@@ -144,7 +147,7 @@ public class NostalgistRole extends ExtraEffectRole {
         });
 
 
-        defaultKnifeEntries.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(),
+        entries.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(),
                 SREConfig.instance().blackoutPrice, ShopEntry.Type.TOOL) {
             @Override
             public boolean canDisplay(@NotNull Player player) {
@@ -156,9 +159,22 @@ public class NostalgistRole extends ExtraEffectRole {
                 return SREPlayerShopComponent.useBlackout(player);
             }
         });
-        defaultKnifeEntries.add(new ShopEntry(new ItemStack(TMMItems.NOTE, 4), SREConfig.instance().notePrice,
+        entries.add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(),
+                SREConfig.instance().monitorBrokenPrice, ShopEntry.Type.TOOL) {
+            @Override
+            public boolean canDisplay(@NotNull Player player) {
+                return !RoleData.getOptional(NostalgistRoleData.class, player).map(d -> d.inBackWorld).orElse(false);
+            }
+
+            @Override
+            public boolean onBuy(@NotNull Player player) {
+                return SREPlayerShopComponent.useMonitorBroken(player,
+                        SREConfig.instance().monitorBrokenDuration * 20);
+            }
+        });
+        entries.add(new ShopEntry(new ItemStack(TMMItems.NOTE, 4), SREConfig.instance().notePrice,
                 ShopEntry.Type.TOOL));
-        return defaultKnifeEntries;
+        return entries;
     }
 
     @Override

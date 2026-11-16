@@ -42,7 +42,8 @@ import java.util.concurrent.CompletableFuture;
  * 魔术师伪装测试指令。
  *
  * <p>{@code /sre:magician disguise <role>}：把自己在本局的伪装杀手身份改成指定职业，
- * 立即生效（杀手视角的身份、{@code MagicianHud}、商店都会跟着刷新）。</p>
+ * 立即生效（杀手视角的身份、{@code MagicianHud}、商店都会跟着刷新），并完整重走一遍
+ * 「伪装大师」的开局流程：收回旧身份的初始物品 / 初始药水效果，再发放新身份对应的那一套。</p>
  *
  * <p>补全 / 校验都走 {@link MagicianDisguiseHelper#isDisguisableBase(SRERole)}，
  * 因此只会列出真正可伪装的杀手职业；测试指令允许与本局已有杀手重复，
@@ -93,8 +94,12 @@ public final class MagicianDisguiseCommand {
             source.sendFailure(Component.translatable("command.noellesroles.magician.no_data"));
             return 0;
         }
+        // 先取旧身份，用于收回旧礼包
+        SRERole previous = MagicianDisguiseHelper.resolveDisguisedRole(player);
         // setDisguiseRoleId 内部会 sync，客户端 HUD / 杀手视角身份随之刷新；商店缓存按伪装职业 ID 失效。
         data.setDisguiseRoleId(role.identifier());
+        // 走完整的「伪装大师」开局流程：收回旧身份的初始物品/初始药水效果，再发放新身份的
+        MagicianDisguiseHelper.refreshDisguiseKit(player, previous, role);
         Component name = roleName(role);
         player.displayClientMessage(Component.translatable("message.magician.you_are_playing_as")
                 .append(name).withStyle(ChatFormatting.GOLD), true);

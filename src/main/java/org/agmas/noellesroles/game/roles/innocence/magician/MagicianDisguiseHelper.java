@@ -23,6 +23,7 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.util.SREItemUtils;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.harpymodloader.SREDisableManager;
 import net.minecraft.server.level.ServerPlayer;
@@ -218,6 +219,49 @@ public final class MagicianDisguiseHelper {
                 continue;
             }
             player.addEffect(new MobEffectInstance(effect));
+        }
+    }
+
+    /**
+     * 切换伪装身份时的完整开局流程：先收回旧身份的礼包，再按开局规则发放新身份的礼包。
+     *
+     * <p>与开局 {@link #grantDisguiseKit} 使用同一套逻辑（初始物品 + 初始药水效果，无敌除外）。
+     * 同一身份重复设置时直接跳过，既不重复发放，也不会误删玩家自己买的同款物品。</p>
+     */
+    public static void refreshDisguiseKit(@Nullable ServerPlayer player, @Nullable SRERole previous,
+            @Nullable SRERole next) {
+        if (player == null || next == null) {
+            return;
+        }
+        if (previous != null && previous.identifier().equals(next.identifier())) {
+            return;
+        }
+        if (previous != null) {
+            revokeDisguiseKit(player, previous);
+        }
+        grantDisguiseKit(player, next);
+    }
+
+    /** 收回伪装礼包：移除旧伪装职业的初始物品与初始药水效果（缺什么就跳过）。 */
+    public static void revokeDisguiseKit(@Nullable ServerPlayer player, @Nullable SRERole disguise) {
+        if (player == null || disguise == null) {
+            return;
+        }
+        try {
+            for (ItemStack stack : RoleInitialItems.getInitialItemsForRole(disguise)) {
+                if (stack == null || stack.isEmpty()) {
+                    continue;
+                }
+                SREItemUtils.clearItem(player, stack.getItem(), stack.getCount());
+            }
+        } catch (Exception e) {
+            SRE.LOGGER.warn("Magician disguise items revoke failed: {}", disguise.identifier(), e);
+        }
+        for (MobEffectInstance effect : getStartingEffects(disguise)) {
+            if (effect == null) {
+                continue;
+            }
+            player.removeEffect(effect.getEffect());
         }
     }
 
