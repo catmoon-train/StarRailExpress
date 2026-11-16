@@ -94,7 +94,8 @@ final class GameDeath {
     static PlayerBodyEntity findPlayerBodyEntity(ServerPlayer player) {
         // 返回顺序与原遍历相同；无需为一个结果分配临时列表。
         for (var entity : player.serverLevel().getAllEntities()) {
-            if (entity instanceof PlayerBodyEntity body && body.getPlayerUuid().equals(player.getUUID())) return body;
+            // 无主尸体（如被吞食后残留的尸体）没有 Player UUID，跳过以免空指针。
+            if (entity instanceof PlayerBodyEntity body && player.getUUID().equals(body.getPlayerUuid())) return body;
         }
         return null;
     }
