@@ -21,6 +21,17 @@ final class MobileModRemoval {
                 || vmName.toLowerCase(Locale.ROOT).contains("dalvik");
     }
 
+    /**
+     * 启动器常不设置 POJAV/ZALITH 环境变量，此时只能看游戏目录位置。
+     * Android 上游戏目录一定落在共享存储（/storage/emulated/…、Android/data/…）。
+     */
+    static boolean isMobileGameDir(Path gameDirOrMods) {
+        String path = gameDirOrMods.toAbsolutePath().toString().replace('\\', '/').toLowerCase(Locale.ROOT);
+        return path.contains("/android/data/") || path.contains("/android/media/")
+                || path.contains("/storage/emulated/") || path.startsWith("/storage/")
+                || path.contains("/sdcard/");
+    }
+
     /** 手机端清理结果：删除成功不再中断启动，下次启动自动生效；失败只告警。 */
     record Removal(List<String> removed, List<String> failed) {
         boolean nothingMatched() {

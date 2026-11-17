@@ -26,8 +26,11 @@ public final class ObsoleteModRemoval {
             protectedFiles.add(Path.of(ObsoleteModRemoval.class.getProtectionDomain().getCodeSource().getLocation().toURI()));
             List<String> matches = ModRemovalWorker.find(mods, names, protectedFiles);
             if (matches.isEmpty()) return;
+            // 启动器不一定设置 POJAV/ZALITH 环境变量；mods 落在 Android 共享存储时同样按手机处理，
+            // 否则会走桌面分支 System.exit(0)，表现为“删完就关游戏”。
             if (MobileModRemoval.isAndroidRuntime(System.getenv(),
-                    System.getProperty("java.runtime.name", ""), System.getProperty("java.vm.name", ""))) {
+                    System.getProperty("java.runtime.name", ""), System.getProperty("java.vm.name", ""))
+                    || MobileModRemoval.isMobileGameDir(mods)) {
                 // 手机端已把 JAR 交给 Loader，删文件并不能中途卸载它；
                 // 因此只清理文件、本次继续启动，避免一次清理把整局游戏挡在启动阶段。
                 var removal = MobileModRemoval.remove(mods, names, protectedFiles);
@@ -37,7 +40,18 @@ public final class ObsoleteModRemoval {
                         removal.describe() + "\n目录：" + mods.toAbsolutePath());
                 return;
             }
-            startWorker(mods, matches);
+            try {
+                startWorker(mods, matches);
+            } catch (Exception error) {
+                // 独立清理器不可用（缺 java、受限启动器等）时退化为进程内清理并继续启动，
+                // 绝不再把“清理失败”变成“游戏打不开”。
+                System.getLogger("sre_pack_compat").log(System.Logger.Level.WARNING,
+                        "过时 Mod 独立清理器启动失败，改为进程内清理并继续加载：" + error.getMessage());
+                var removal = MobileModRemoval.remove(mods, names, protectedFiles);
+                System.getLogger("sre_pack_compat").log(System.Logger.Level.WARNING,
+                        removal.describe() + "\n目录：" + mods.toAbsolutePath());
+                return;
+            }
             System.exit(0);
             throw new IllegalStateException("游戏进程未能退出，禁止继续加载过时 Mod");
         } catch (Exception error) {

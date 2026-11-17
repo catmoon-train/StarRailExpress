@@ -40,6 +40,16 @@ class MobileModRemovalTest {
                 "POJAV_NATIVEDIR", ""), "Java(TM) SE Runtime Environment", "Java HotSpot(TM) 64-Bit Server VM"));
     }
 
+    @Test void detectsMobileStorageEvenWithoutPojavOrZalithEnvironment() {
+        // 真实手机路径：启动器未设置 POJAV/ZALITH 变量，只能靠目录判断。
+        assertTrue(MobileModRemoval.isMobileGameDir(Path.of(
+                "/storage/emulated/0/Android/data/com.movtery.zalithlauncher.v2/files/.minecraft/versions/StarRailHarpyExpress/mods")));
+        assertTrue(MobileModRemoval.isMobileGameDir(Path.of("/storage/emulated/0/games/mods")));
+        assertTrue(MobileModRemoval.isMobileGameDir(Path.of("/sdcard/minecraft/mods")));
+        assertFalse(MobileModRemoval.isMobileGameDir(Path.of("C:/Users/me/AppData/Roaming/.minecraft/mods")));
+        assertFalse(MobileModRemoval.isMobileGameDir(temp.resolve("mods")));
+    }
+
     @Test void removesExactMatchesWithoutWorkerAndNextLaunchCanContinue() throws Exception {
         Path mods = Files.createDirectories(temp.resolve("实例 mods"));
         Path obsolete = mods.resolve("旧版 mod.jar");
