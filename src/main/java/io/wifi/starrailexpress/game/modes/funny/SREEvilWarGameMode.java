@@ -544,7 +544,8 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                 TrapperRoleData trapperPlayerComponent = RoleData.getNullable(TrapperRoleData.class, player);
                 if (trapperPlayerComponent != null) {
                     trapperPlayerComponent.tripwireCooldownTicks = TrapperRoleData.PLACE_COOLDOWN_TICKS;
-                    trapperPlayerComponent.mudCooldownTicks = TrapperRoleData.PLACE_COOLDOWN_TICKS;
+                    trapperPlayerComponent.mudCooldownTicks = GameConstants.getInTicks(0, 45);
+                    trapperPlayerComponent.netGunCooldownTicks = GameConstants.getInTicks(1, 30);
                     trapperPlayerComponent.sync();
                 }
             }

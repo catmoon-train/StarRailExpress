@@ -2470,7 +2470,7 @@
   "message.gamemode.evil_war.tip.role.super_loose_end": "开局获得专属物品并必定矮小；速度(2min)耗尽会死亡",
   "message.gamemode.evil_war.tip.role.remilia": "你拥有速度2效果；死亡时会给予附近非超级亡命徒护盾",
   "message.gamemode.evil_war.tip.role.imitator": "你的所有模仿技能槽会在开局填满",
-  "message.gamemode.evil_war.tip.role.trapper": "你的开局陷阱数量被削减为0",
+  "message.gamemode.evil_war.tip.role.trapper": "开局冷却：绊线35秒，泥沼45秒，捕网枪90秒",
   "message.gamemode.evil_war.tip.role.bandit": "你开局自带狙击枪、瞄准镜、64发马格南子弹和1层护盾",
   "message.gamemode.evil_war.tip.role.traitor": "你开局获得30层护盾和长时间速度效果",
   "message.gamemode.evil_war.tip.role.conspirator": "你的初始资金为-200，之后每30秒获得200金币",

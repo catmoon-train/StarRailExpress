@@ -2438,7 +2438,7 @@
   "message.gamemode.evil_war.tip.role.super_loose_end": "Starts with a unique item and is always small; dies when Speed (2 min) runs out",
   "message.gamemode.evil_war.tip.role.remilia": "You have Speed II; on death you grant a shield to nearby non-Super Loose End players",
   "message.gamemode.evil_war.tip.role.imitator": "All your mimic skill slots are filled at the start",
-  "message.gamemode.evil_war.tip.role.trapper": "Your starting trap count is reduced to 0",
+  "message.gamemode.evil_war.tip.role.trapper": "Starting cooldowns: Tripwire 35s, Mud 45s, Net Gun 90s",
   "message.gamemode.evil_war.tip.role.bandit": "You start with a sniper rifle, a scope, 64 magnum rounds, and 1 shield layer",
   "message.gamemode.evil_war.tip.role.traitor": "You start with 30 shield layers and a long Speed effect",
   "message.gamemode.evil_war.tip.role.conspirator": "Your starting funds are -200, and you gain 200 coins every 30 seconds afterward",
