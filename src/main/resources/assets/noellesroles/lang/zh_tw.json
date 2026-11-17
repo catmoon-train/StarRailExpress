@@ -2462,6 +2462,7 @@
   "announcement.star.wheelgame.win.star.prefix": "[輪椅競速] ",
   "=============== 邪惡戰爭 ===============": "",
   "message.gamemode.evil_war.tip.role.super_loose_end": "開局獲得專屬物品並必定矮小；速度(2min)耗盡會死亡",
+  "message.gamemode.evil_war.tip.role.ghost_loose_end": "開局獲得亡命徒刀、防禦藥劑、永久速度2和2分鐘隱身；隱身耗盡會死亡，擊殺可延長隱身",
   "message.gamemode.evil_war.tip.role.remilia": "你擁有速度2效果；死亡時會給予附近非超級亡命徒護盾",
   "message.gamemode.evil_war.tip.role.imitator": "你的所有模仿技能槽會在開局填滿",
   "message.gamemode.evil_war.tip.role.trapper": "開局冷卻：絆線35秒，泥沼45秒，捕網槍90秒",

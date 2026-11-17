@@ -137,7 +137,9 @@ public class TimedGrenadeItem extends SkinableItem {
             if (user instanceof Player player) {
                 if (!player.isCreative()
                         && !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
-                                SpecialGameModeRoles.SUPER_LOOSE_END)) {
+                                SpecialGameModeRoles.SUPER_LOOSE_END)
+                        && !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
+                                SpecialGameModeRoles.GHOST_LOOSE_END)) {
                     GrenadeItem.addGrenadeCooldown(player);
                 }
             }

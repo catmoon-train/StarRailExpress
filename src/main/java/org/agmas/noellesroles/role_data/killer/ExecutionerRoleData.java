@@ -149,7 +149,8 @@ public class ExecutionerRoleData extends SimpleRoleData {
     public static boolean judgeRole(Level level, SRERole t_role) {
         if (t_role == null)
             return true;
-        if (RoleUtils.compareRole(t_role, SpecialGameModeRoles.SUPER_LOOSE_END)) {
+        if (RoleUtils.compareRole(t_role, SpecialGameModeRoles.SUPER_LOOSE_END)
+                || RoleUtils.compareRole(t_role, SpecialGameModeRoles.GHOST_LOOSE_END)) {
             return false;
         }
         if (t_role.isInnocent() && !RoleUtils.compareRole(t_role, ModRoles.MAGICIAN)) {

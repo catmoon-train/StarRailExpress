@@ -21,6 +21,7 @@ import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import org.agmas.noellesroles.game.roles.special.dirt.DirtRole;
+import org.agmas.noellesroles.game.roles.special.ghost_loose_end.GhostLooseEnd;
 import org.agmas.noellesroles.game.roles.special.super_loose_end.SuperLooseEnd;
 import org.agmas.noellesroles.role_data.special.SuperLooseEndRoleData;
 
@@ -67,6 +68,29 @@ public class SpecialGameModeRoles {
       .setCanSeeCoin(true)
       .setCanUseInstinctAndNightVision(true)
       .setCanAutoAddMoney(true).setDefaultMax(0).setCanBeRandomedByOtherRoles(false).setOtherModeRole(true)
+      .setToggledOnInstinctType(InstinctType.OBSERVER_ROLE_COLOR);
+
+  /**
+   * 职业：幽灵亡命徒
+   * <p>
+   * - 以限时隐身作为邪恶战争中的生存时间
+   * - 击杀按边际递减延长隐身
+   * </p>
+   */
+  public static final SRERole GHOST_LOOSE_END = TMMRoles.registerRole(new GhostLooseEnd(
+      SRE.xiaoheihandId("ghost_loose_end"),
+      new Color(0xFF77AB).getRGB(),
+      false,
+      false,
+      SRERole.MoodType.NONE,
+      -1,
+      true))
+      .setCanSeeCoin(true)
+      .setCanUseInstinctAndNightVision(true)
+      .setCanAutoAddMoney(true)
+      .setDefaultMax(0)
+      .setCanBeRandomedByOtherRoles(false)
+      .setOtherModeRole(true)
       .setToggledOnInstinctType(InstinctType.OBSERVER_ROLE_COLOR);
 
   /**

@@ -142,7 +142,9 @@ public final class HatEquipmentApi {
         if (org.agmas.noellesroles.utils.RoleUtils.isPlayerTheJob(player,
                 io.wifi.starrailexpress.api.TMMRoles.LOOSE_END)
                 || org.agmas.noellesroles.utils.RoleUtils.isPlayerTheJob(player,
-                        io.wifi.starrailexpress.game.roles.SpecialGameModeRoles.SUPER_LOOSE_END)) {
+                        io.wifi.starrailexpress.game.roles.SpecialGameModeRoles.SUPER_LOOSE_END)
+                || org.agmas.noellesroles.utils.RoleUtils.isPlayerTheJob(player,
+                        io.wifi.starrailexpress.game.roles.SpecialGameModeRoles.GHOST_LOOSE_END)) {
             return true;
         }
         // 角色固定皮肤（与 PlayerEntityRendererMixin 的皮肤判定一致）

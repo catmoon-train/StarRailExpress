@@ -683,6 +683,8 @@
   "announcement.star.win.stupid_express.split_personality": "Split Personality wins",
   "announcement.star.role.super_loose_end": "Super Loose End",
   "announcement.star.goals.super_loose_end": "You have gained all the power...",
+  "announcement.star.role.ghost_loose_end": "Ghost Loose End",
+  "announcement.star.goals.ghost_loose_end": "Kill everyone before your invisibility expires.",
   "announcement.star.role.swapper": "Swapper",
   "announcement.star.goals.swapper": "Swap positions with another player.",
   "announcement.star.role.swast": "SWAT",

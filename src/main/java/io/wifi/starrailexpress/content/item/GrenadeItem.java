@@ -59,10 +59,12 @@ public class GrenadeItem extends SkinableItem {
 			if (user instanceof Player player && isAnyGrenadeOnCooldown(player))
 				return;
 			if (user instanceof Player player) {
-				// 创造模式和超级亡命徒手雷无cd
+				// 创造模式和 特殊亡命徒手雷无cd
 				if (!player.isCreative()
 						&& !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
-								SpecialGameModeRoles.SUPER_LOOSE_END)) {
+								SpecialGameModeRoles.SUPER_LOOSE_END)
+						&& !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
+								SpecialGameModeRoles.GHOST_LOOSE_END)) {
 					addGrenadeCooldown(player);
 				}
 			}

@@ -1014,12 +1014,33 @@ public class RoleInstinctRegister {
 
     // 特殊逻辑中保留不直接属于职业的全局事件
     public static void registerSpecialLogic() {
+        // 幽灵亡命徒：隐身期间不会被任何存活玩家的本能轮廓暴露
+        RoleInstinctEvents.TARGET_HIGHLIGHT_EVENT.register(SpecialGameModeRoles.GHOST_LOOSE_END.identifier(),
+                (client, viewer, target, isInstinctEnabled) -> {
+                    if (target instanceof Player targetPlayer && targetPlayer.isInvisible()) {
+                        return TrueFalseAndCustomResult.disallow();
+                    }
+                    return TrueFalseAndCustomResult.pass();
+                });
+
+        // 幽灵亡命徒的基础透视与超级亡命徒一致，但阴谋家显示其职业颜色
+        RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(SpecialGameModeRoles.GHOST_LOOSE_END.identifier(),
+                (client, viewer, target, isInstinctEnabled) -> {
+                    if (!isInstinctEnabled || !(target instanceof Player targetPlayer)
+                            || SREClient.gameComponent == null
+                            || !SREClient.gameComponent.isRole(targetPlayer, ModRoles.CONSPIRATOR)) {
+                        return TrueFalseAndCustomResult.pass();
+                    }
+                    return TrueFalseAndCustomResult.custom(ModRoles.CONSPIRATOR.color());
+                });
+
         // 恢复邪恶战争规则：超级亡命徒的直觉不能透视处于原版隐身状态的玩家
         // 放在 BEFORE 事件链最前面，避免后续目标职业或观察者职业的着色重新显示轮廓
         CommonInstinctEvents.ALIVE_COMMON_BEFORE_EVENT.register((self, target, hasInstinct) -> {
             if (!hasInstinct || !(target instanceof Player targetPlayer) || SREClient.gameComponent == null)
                 return TrueFalseAndCustomResult.pass();
-            if (SREClient.gameComponent.isRole(self, SpecialGameModeRoles.SUPER_LOOSE_END)
+            if ((SREClient.gameComponent.isRole(self, SpecialGameModeRoles.SUPER_LOOSE_END)
+                    || SREClient.gameComponent.isRole(self, SpecialGameModeRoles.GHOST_LOOSE_END))
                     && targetPlayer.isInvisible())
                 return TrueFalseAndCustomResult.disallow();
             return TrueFalseAndCustomResult.pass();

@@ -1324,7 +1324,8 @@ public class NRDeathEvents {
                 return true;
             }
             if (gameWorld.isRole(killer, TMMRoles.LOOSE_END)
-                    || gameWorld.isRole(killer, SpecialGameModeRoles.SUPER_LOOSE_END)) {
+                    || gameWorld.isRole(killer, SpecialGameModeRoles.SUPER_LOOSE_END)
+                    || gameWorld.isRole(killer, SpecialGameModeRoles.GHOST_LOOSE_END)) {
                 return true;
             }
             if (killer == null || gameWorld.isInnocent(killer))

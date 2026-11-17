@@ -215,18 +215,24 @@ public interface TMMItems {
         DefenseItem.canUseByRightClickRolePaths.add(TMMRoles.LOOSE_END.identifier().getPath());
         DefenseItem.canUseByRightClickRolePaths
                 .add(SpecialGameModeRoles.SUPER_LOOSE_END.identifier().getPath());
+        DefenseItem.canUseByRightClickRolePaths
+                .add(SpecialGameModeRoles.GHOST_LOOSE_END.identifier().getPath());
         DefenseItem.canUseByRightClickRolePaths.add(SpecialGameModeRoles.DIRT.identifier().getPath());
 
         // 亡命徒，超级亡命徒，土块 也可以直接使用弱效护盾试剂
         WeakDefenseItem.canUseByRightClickRolePaths.add(TMMRoles.LOOSE_END.identifier().getPath());
         WeakDefenseItem.canUseByRightClickRolePaths
                 .add(SpecialGameModeRoles.SUPER_LOOSE_END.identifier().getPath());
+        WeakDefenseItem.canUseByRightClickRolePaths
+                .add(SpecialGameModeRoles.GHOST_LOOSE_END.identifier().getPath());
         WeakDefenseItem.canUseByRightClickRolePaths.add(SpecialGameModeRoles.DIRT.identifier().getPath());
 
         // 亡命徒，超级亡命徒，土块 也可以直接使用虚拟护盾试剂
         VirtualDefenseItem.canUseByRightClickRolePaths.add(TMMRoles.LOOSE_END.identifier().getPath());
         VirtualDefenseItem.canUseByRightClickRolePaths
                 .add(SpecialGameModeRoles.SUPER_LOOSE_END.identifier().getPath());
+        VirtualDefenseItem.canUseByRightClickRolePaths
+                .add(SpecialGameModeRoles.GHOST_LOOSE_END.identifier().getPath());
         VirtualDefenseItem.canUseByRightClickRolePaths.add(SpecialGameModeRoles.DIRT.identifier().getPath());
 
         registrar.registerEntries();

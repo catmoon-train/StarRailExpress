@@ -179,7 +179,8 @@ public final class LeaderFollowerEffects {
         String path = followerRole.identifier().getPath();
 
         // 禁止释放（不应走到这里，仅防御）
-        if (path.equals("loose_end") || path.equals("super_loose_end") || path.equals("leader")) {
+        if (path.equals("loose_end") || path.equals("super_loose_end")
+                || path.equals("ghost_loose_end") || path.equals("leader")) {
             return;
         }
 
@@ -631,7 +632,8 @@ public final class LeaderFollowerEffects {
         String path = role.identifier().getPath();
 
         // 禁止：亡命徒 / 超级亡命徒 / 领袖自身
-        if (path.equals("loose_end") || path.equals("super_loose_end") || path.equals("leader")) {
+        if (path.equals("loose_end") || path.equals("super_loose_end")
+                || path.equals("ghost_loose_end") || path.equals("leader")) {
             return false;
         }
 

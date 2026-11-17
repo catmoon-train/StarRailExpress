@@ -216,8 +216,7 @@ public class StupidExpressClient {
         });
         // 难民时旁观看时全员皮肤改为默认的皮肤
         OnGettingPlayerSkin.EVENT.register((player, originalSkin) -> {
-            if (RoleUtils.isPlayerTheJob(player, TMMRoles.LOOSE_END)
-                    || RoleUtils.isPlayerTheJob(player, SpecialGameModeRoles.SUPER_LOOSE_END)) {
+            if (RoleUtils.isPlayerTheJob(player, TMMRoles.LOOSE_END)) {
                 return OnGettingPlayerSkin.PlayerSkinResult
                         .playerSkin(SRE.id("textures/entity/custom_psycho/th_sariel.png"), Model.SLIM);
             }

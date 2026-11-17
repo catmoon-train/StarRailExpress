@@ -114,7 +114,9 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
                 if (!player.isCreative()
                         && !SREGameWorldComponent.KEY.get(player.level()).isRole(player, TMMRoles.LOOSE_END)
                         && !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
-                                SpecialGameModeRoles.SUPER_LOOSE_END)) {
+                                SpecialGameModeRoles.SUPER_LOOSE_END)
+                        && !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
+                                SpecialGameModeRoles.GHOST_LOOSE_END)) {
                     applyKnifeCooldown(player.getCooldowns(), TMMItems.KNIFE, getKnifeCooldown(player), player, targetId);
                 }
                 return;
@@ -192,7 +194,9 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
             if (!player.isCreative()
                     && !SREGameWorldComponent.KEY.get(player.level()).isRole(player, TMMRoles.LOOSE_END)
                     && !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
-                            SpecialGameModeRoles.SUPER_LOOSE_END)) {
+                            SpecialGameModeRoles.SUPER_LOOSE_END)
+                    && !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
+                            SpecialGameModeRoles.GHOST_LOOSE_END)) {
                 applyKnifeCooldown(cooldowns, TMMItems.KNIFE, getKnifeCooldown(player), player, targetId);
             }
         }
