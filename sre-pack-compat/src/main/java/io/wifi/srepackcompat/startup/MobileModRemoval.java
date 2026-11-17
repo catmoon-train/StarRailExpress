@@ -21,23 +21,46 @@ final class MobileModRemoval {
                 || vmName.toLowerCase(Locale.ROOT).contains("dalvik");
     }
 
-    /** 沿用精确匹配及自身保护；Linux/Android 可 unlink 已打开的 JAR，但不得继续加载。 */
-    static String removeAndDescribe(Path mods, List<String> names, Set<Path> protectedFiles) throws Exception {
+    /** 手机端清理结果：删除成功不再中断启动，下次启动自动生效；失败只告警。 */
+    record Removal(List<String> removed, List<String> failed) {
+        boolean nothingMatched() {
+            return removed.isEmpty() && failed.isEmpty();
+        }
+
+        String describe() {
+            if (!removed.isEmpty() && failed.isEmpty()) {
+                return "手机端已删除过时的 Mod，本次仍加载已打开的旧文件，下次启动生效：\n"
+                        + String.join("\n", removed);
+            }
+            if (!failed.isEmpty()) {
+                return "手机端过时 Mod 清理未完成，本次继续启动。请退出游戏后手动删除以下文件：\n"
+                        + String.join("\n", failed);
+            }
+            return "";
+        }
+    }
+
+    /** 沿用精确匹配及自身保护；Linux/Android 可 unlink 已打开的 JAR，但清理只在下次启动生效。 */
+    static Removal remove(Path mods, List<String> names, Set<Path> protectedFiles) throws Exception {
         List<String> matches = ModRemovalWorker.find(mods, names, protectedFiles);
-        if (matches.isEmpty()) return null;
+        if (matches.isEmpty()) return new Removal(List.of(), List.of());
+        List<String> removed = new ArrayList<>();
         List<String> failures = new ArrayList<>();
         for (String name : matches) {
             try {
                 ModRemovalWorker.delete(mods, name);
+                removed.add(name);
             } catch (Exception error) {
                 failures.add(name + "：" + error.getMessage());
             }
         }
-        if (!failures.isEmpty()) {
-            return "手机端过时 Mod 清理未完成，本次加载已停止。请退出游戏后手动删除以下文件，再重启游戏：\n"
-                    + String.join("\n", failures) + "\n目录：" + mods.toAbsolutePath();
-        }
-        return "手机端已删除过时的 Mod，本次加载已停止，请重新启动游戏（无需更换 Java 或授予执行权限）：\n"
-                + String.join("\n", matches) + "\n目录：" + mods.toAbsolutePath();
+        return new Removal(List.copyOf(removed), List.copyOf(failures));
+    }
+
+    /** 保留原字符串接口，供调用方与测试复用。 */
+    static String removeAndDescribe(Path mods, List<String> names, Set<Path> protectedFiles) throws Exception {
+        Removal removal = remove(mods, names, protectedFiles);
+        if (removal.nothingMatched()) return null;
+        return removal.describe() + "\n目录：" + mods.toAbsolutePath();
     }
 }

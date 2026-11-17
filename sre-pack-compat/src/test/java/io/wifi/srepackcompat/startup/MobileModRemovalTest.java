@@ -54,8 +54,7 @@ class MobileModRemovalTest {
 
         assertNotNull(message);
         assertTrue(message.contains("已删除"));
-        assertTrue(message.contains("本次加载已停止"));
-        assertTrue(message.contains("重新启动游戏"));
+        assertTrue(message.contains("下次启动生效"));
         assertTrue(message.contains("旧版 mod.jar"));
         assertTrue(message.contains(mods.toAbsolutePath().toString()));
         assertFalse(Files.exists(obsolete));
