@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.client;
 
 import io.wifi.starrailexpress.api.RoleTeam;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.item.KnifeItem;
 import net.minecraft.world.entity.LivingEntity;
@@ -30,12 +31,15 @@ public final class KnifeGlintContext {
         boolean fake = stack.getItem() instanceof FakeKnifeItem;
         boolean knife = stack.getItem() instanceof KnifeItem;
         if (!knife && !fake) return null;
-        RoleTeam team = RoleTeam.of(SREGameWorldComponent.KEY.get(held.player.level()).getRole(held.player));
-        boolean eligible = team == RoleTeam.CIVILIAN || team != null && switch (team) {
+        SRERole role = SREGameWorldComponent.KEY.get(held.player.level()).getRole(held.player);
+        RoleTeam team = RoleTeam.of(role);
+        // 隐藏在杀手阵营的职业真实阵营虽是平民/中立，判定上仍按杀手处理，不显示光泽。
+        boolean eligible = role != null && !role.isHidingAsKillerTeam()
+                && (team == RoleTeam.CIVILIAN || team != null && switch (team) {
             case NEUTRAL, NEUTRAL_INNOCENT, NEUTRAL_KILLER, NEUTRAL_SPECIAL,
                     NEUTRAL_EVENT, NEUTRAL_INDEPENDENT_WIN -> true;
             default -> false;
-        };
+        });
         return KnifeGlintRules.foil(knife, fake, eligible);
     }
 }
