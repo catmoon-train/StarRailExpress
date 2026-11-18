@@ -276,9 +276,14 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         }
     }
 
+    // 初始化模式物品列表
     protected void initItemList() {
-        super.initItemList();
+        // 使用亡命徒小刀替换普通小刀
+        looseEndsItems.add(ModItems.DESPERADO_KNIFE::getDefaultInstance);
+        looseEndsItems.add(TMMItems.DERRINGER::getDefaultInstance);
         looseEndsItems.add(ModItems.PATROLLER_REVOLVER::getDefaultInstance);
+        looseEndsItems.add(TMMItems.CROWBAR::getDefaultInstance);
+        looseEndsItems.add(TMMItems.DEFENSE_VIAL::getDefaultInstance);
         looseEndsItems.add(TMMItems.DEFENSE_VIAL::getDefaultInstance);
     }
 
@@ -446,10 +451,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                 for (Supplier<ItemStack> itemSupplier : looseEndsItems) {
                     ItemStack itemStack = itemSupplier.get();
                     if (itemStack != null && !itemStack.isEmpty()) {
-                        // 使用亡命徒小刀替换普通小刀
-                        player.addItem(itemStack.is(TMMItems.KNIFE)
-                                ? ModItems.DESPERADO_KNIFE.getDefaultInstance()
-                                : itemStack);
+                        player.addItem(itemStack);
                     }
                 }
                 // 如果超出要面临敌人的 1 / 3 则额外获得一个护盾
@@ -460,8 +462,8 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                 player.addItem(ModItems.DESPERADO_KNIFE.getDefaultInstance());
                 for (Supplier<ItemStack> itemSupplier : looseEndsItems) {
                     ItemStack itemStack = itemSupplier.get();
-                    // 亡命徒基础物品中 仅为幽灵亡命徒添加防御药剂
-                    if (itemStack != null && itemStack.is(TMMItems.DEFENSE_VIAL)) {
+                    // 亡命徒基础物品中 仅为幽灵亡命徒添加 防御药剂 和 撬棍
+                    if (itemStack != null && (itemStack.is(TMMItems.DEFENSE_VIAL) || itemStack.is(TMMItems.CROWBAR))) {
                         player.addItem(itemStack.copy());
                     }
                 }
