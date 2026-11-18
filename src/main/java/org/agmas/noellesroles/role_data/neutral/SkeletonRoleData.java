@@ -32,10 +32,16 @@ public class SkeletonRoleData extends SimpleRoleData {
 
     @Override
     public void serverTick() {
-        // 始终伪装成原版骷髅：掉线重连 / 开局重置会丢掉伪装状态，这里每 tick 兜底补上
-        if (player instanceof ServerPlayer serverPlayer && GameUtils.isPlayerAliveAndSurvival(serverPlayer)) {
-            SkeletonRole.applySkeletonDisguise(serverPlayer);
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return;
         }
+        // 失效（死亡 / 旁观 / 转职）时主动解除伪装；此时 serverTick 不再补挂，避免旁观残留骷髅外观
+        if (SkeletonRole.isDisguiseInvalid(serverPlayer)) {
+            SkeletonRole.clearSkeletonDisguise(serverPlayer);
+            return;
+        }
+        // 始终伪装成原版骷髅：掉线重连 / 开局重置会丢掉伪装状态，这里每 tick 兜底补上
+        SkeletonRole.applySkeletonDisguise(serverPlayer);
     }
 
     // ==================== 同步 ====================
