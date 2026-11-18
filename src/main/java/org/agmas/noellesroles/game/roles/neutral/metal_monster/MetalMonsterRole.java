@@ -53,7 +53,7 @@ import java.util.List;
  * <p>运动模型：变身后静止，按住前进键才起步并每 tick 加速；松键按摩擦减速直到停下；
  * 转向只由 A/D 键驱动，每 tick 平滑转过固定小角度，不再跟随鼠标视角；
  * 竖直方向按自由落体施加重力（不悬浮、不受摔落伤害），水平与竖直速度一起参与方块碰撞；
- * 撞墙用入射速度反向反弹，反弹期间不能前进；
+ * 撞墙用入射速度反向反弹，且每次撞墙速度瞬间按 0.35 衰减，反弹期间不能前进，狭窄处会自行停下；
  * 撞到玩家时不产生生物碰撞（NO_COLLIDE），命中效果统一由撞击判定结算；
  * 速度超过 1.5 时撞到列车门 / 原版木门铜门会直接开门且不反弹。
  */
@@ -76,16 +76,19 @@ public class MetalMonsterRole extends NormalRole {
     private static final double MAX_FALL_SPEED = 3.92D;
     /** 单 tick 转向角（度）：固定小角度逐 tick 累加才能形成平滑转弯，10° ≈ 每秒 200°。 */
     private static final double TURN_RATE_DEGREES = 10.0D;
-    /** 撞墙反弹的恢复系数。 */
+    /**
+     * 撞墙时保留的速度比例：每次撞墙都瞬间掉掉大半速度（3.0 → 1.05 → 0.37 → …），
+     * 连续撞墙会一路衰减到静止，不会在狭窄空间里无限来回弹。
+     */
     private static final double RESTITUTION = 0.35D;
-    /** 反弹时至少保留的离墙速度，避免贴墙立刻停死。 */
-    private static final double MIN_BOUNCE_SPEED = 0.15D;
     /** 反弹后最长锁定期（tick）。 */
     private static final int BOUNCE_LOCK_TICKS = 30;
     /** 能撞开门的最低速度。 */
     private static final double DOOR_BREAK_SPEED = 1.5D;
     /** 二技能致命窗口时长（tick）。 */
     public static final int LETHAL_DURATION_TICKS = 50;
+    /** 撞击玩家所需的最低速度：只要滚动起来就能撞人，慢速也有基础伤害与击退。 */
+    private static final double MIN_HIT_SPEED = 0.1D;
     /** 同一目标两次受击的最小间隔。 */
     private static final int HIT_COOLDOWN_TICKS = 10;
     /** 钢卷撞击判定的半宽（格）：总宽 2 格。 */
@@ -334,6 +337,9 @@ public class MetalMonsterRole extends NormalRole {
         // 这样撞到玩家/生物时不会被当成撞墙，也就不会反弹（只走 hitPlayers 的伤害与击退）。
         boolean horizontalBlocked = !level.noCollision(player,
                 player.getBoundingBox().move(delta.x, 0.0D, delta.z));
+        // 记录移动前的位置：撞击判定要把整段位移扫过去，否则高速时会直接穿过 0.6 格宽的玩家
+        double prevX = player.getX();
+        double prevZ = player.getZ();
         // 竖直方向由钢卷自己接管重力：竖直速度记在 RoleData 里（原版 travel 每 tick 会覆盖
         // deltaMovement.y，不能依赖它），每 tick 叠加重力后与水平位移一起交给 move() 做碰撞。
         // 这样即使玩家处于飞行 / 其它没有原版重力的状态，钢卷也会正常贴地与自由落体。
@@ -361,18 +367,22 @@ public class MetalMonsterRole extends NormalRole {
             player.connection.teleport(player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot());
         }
 
+        // 撞击判定放在反弹之前：撞墙那一 tick 的入射速度同样可以撞到人
+        hitPlayers(level, player, data, gameTime, prevX, prevZ);
+
         if (horizontalBlocked && !doorOpened && !steppedUp) {
-            // 反弹必须用「入射速度」：move() 撞墙后该轴速度会被清零
+            // 反弹必须用「入射速度」：move() 撞墙后该轴速度会被清零。
+            // 每次撞墙按 RESTITUTION 瞬间掉一截速度，且不再保底，连续撞墙会衰减到静止。
             data.dirX = -data.dirX;
             data.dirZ = -data.dirZ;
-            data.speed = Math.min(MAX_SPEED,
-                    Math.max(data.speed * RESTITUTION, MIN_BOUNCE_SPEED));
+            data.speed *= RESTITUTION;
+            if (data.speed < MIN_ROLL_SPEED) {
+                data.speed = 0.0D;
+            }
             data.bounceTicks = BOUNCE_LOCK_TICKS;
             level.playSound(null, player.blockPosition(), SoundEvents.IRON_GOLEM_STEP, SoundSource.PLAYERS,
                     1.4F, 0.7F);
         }
-
-        hitPlayers(level, player, data, gameTime);
     }
 
     /**
@@ -403,14 +413,18 @@ public class MetalMonsterRole extends NormalRole {
      * 撞击判定覆盖 2 格宽（钢卷尺寸固定 2），但玩家本体碰撞箱仍是 0.6 格，能过一格宽道路。
      */
     private static void hitPlayers(ServerLevel level, ServerPlayer attacker, MetalMonsterRoleData data,
-            long gameTime) {
+            long gameTime, double prevX, double prevZ) {
         // 旁观 / 死亡 / 转职后撞击一律不生效（含二技能致命窗口）
-        if (isInvalidRoller(attacker) || data.speed < 1.0D) {
+        if (isInvalidRoller(attacker) || data.speed < MIN_HIT_SPEED) {
             return;
         }
-        AABB box = new AABB(
-                attacker.getX() - HIT_HALF_WIDTH, attacker.getY(), attacker.getZ() - HIT_HALF_WIDTH,
-                attacker.getX() + HIT_HALF_WIDTH, attacker.getY() + 2.0D, attacker.getZ() + HIT_HALF_WIDTH);
+        // 扫掠 AABB：覆盖本 tick 从移动前位置到当前位置的整段位移。
+        // 只判定终点的话，速度 1+ 时一 tick 走一格多，很容易从 0.6 格宽的玩家身上「穿过去」而不触发。
+        double minX = Math.min(prevX, attacker.getX()) - HIT_HALF_WIDTH;
+        double maxX = Math.max(prevX, attacker.getX()) + HIT_HALF_WIDTH;
+        double minZ = Math.min(prevZ, attacker.getZ()) - HIT_HALF_WIDTH;
+        double maxZ = Math.max(prevZ, attacker.getZ()) + HIT_HALF_WIDTH;
+        AABB box = new AABB(minX, attacker.getY(), minZ, maxX, attacker.getY() + 2.0D, maxZ);
         List<Player> victims = level.getEntities(EntityType.PLAYER, box,
                 p -> p != attacker && GameUtils.isPlayerAliveAndSurvival(p));
         // 速度每高 0.1 造成 1 点虚拟伤害；速度 1.0 时为 0，3.0 时为 20
@@ -437,8 +451,8 @@ public class MetalMonsterRole extends NormalRole {
                 }
             }
             if (GameUtils.isPlayerAliveAndSurvival(serverVictim)) {
-                // 钢卷专属击退公式：随速度线性增长，方向为前进方向的反方向
-                double knockback = data.speed * 0.8D;
+                // 钢卷专属击退公式：随速度线性增长，方向为前进方向的反方向；低速也保证有基础击退
+                double knockback = Math.max(0.25D, data.speed * 0.8D);
                 serverVictim.knockback(knockback, -data.dirX, -data.dirZ);
                 serverVictim.hurtMarked = true;
             }
