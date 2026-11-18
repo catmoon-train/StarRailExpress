@@ -290,17 +290,24 @@ public class MetalMonsterRole extends NormalRole {
 
         Vec3 delta = new Vec3(data.dirX * data.speed, 0.0D, data.dirZ * data.speed);
         player.move(MoverType.SELF, delta);
+
+        // 撞墙先尝试滚上台阶：能上去就不反弹、不丢速。开门优先级更高（门不该被台阶判定吞掉）
+        boolean doorOpened = false;
+        boolean steppedUp = false;
+        if (player.horizontalCollision && data.speed > DOOR_BREAK_SPEED) {
+            doorOpened = tryOpenDoorsAround(level, player, data);
+        }
+        if (player.horizontalCollision && !doorOpened) {
+            steppedUp = tryStepUp(level, player, data);
+        }
+
         player.setDeltaMovement(delta);
         player.hasImpulse = true;
         if (player.connection != null) {
             player.connection.teleport(player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot());
         }
 
-        boolean doorOpened = false;
-        if (player.horizontalCollision && data.speed > DOOR_BREAK_SPEED) {
-            doorOpened = tryOpenDoorsAround(level, player, data);
-        }
-        if (player.horizontalCollision && !doorOpened) {
+        if (player.horizontalCollision && !doorOpened && !steppedUp) {
             // 反弹必须用「入射速度」：move() 撞墙后该轴速度会被清零
             data.dirX = -data.dirX;
             data.dirZ = -data.dirZ;
@@ -311,6 +318,30 @@ public class MetalMonsterRole extends NormalRole {
         }
 
         hitPlayers(level, player, data, gameTime);
+    }
+
+    /**
+     * 自动滚上台阶：可跳跃地图上一格，不可跳跃地图只上半格（{@code isJumpAvailable()} 由地图配置）。
+     *
+     * <p>玩家本体碰撞箱 0.6×1.8，伪装不改变碰撞箱，所以抬高后必须用玩家自己的 AABB 检测，
+     * 且「抬高后」「抬高再前进一步后」都不能有方块阻挡，避免顺着墙往上爬。
+     * 上去后本 tick 的水平移动已在这里完成。
+     */
+    private static boolean tryStepUp(ServerLevel level, ServerPlayer player, MetalMonsterRoleData data) {
+        double vx = data.dirX * data.speed;
+        double vz = data.dirZ * data.speed;
+        if (vx * vx + vz * vz < 1.0E-6D) {
+            return false;
+        }
+        double stepHeight = SREGameWorldComponent.KEY.get(level).isJumpAvailable() ? 1.0D : 0.5D;
+        Vec3 step = new Vec3(vx, 0.0D, vz);
+        if (!level.noCollision(player, player.getBoundingBox().move(0.0D, stepHeight, 0.0D))
+                || !level.noCollision(player, player.getBoundingBox().move(step.x, stepHeight, step.z))) {
+            return false;
+        }
+        player.setPos(player.getX(), player.getY() + stepHeight, player.getZ());
+        player.move(MoverType.SELF, step);
+        return true;
     }
 
     /**
