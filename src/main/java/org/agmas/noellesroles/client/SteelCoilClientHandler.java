@@ -70,7 +70,11 @@ public final class SteelCoilClientHandler {
             moveYaw = (float) Math.toDegrees(Math.atan2(-dx, dz));
         }
 
-        int bits = client.options.keyUp.isDown() ? SteelCoilInputC2SPacket.BIT_FORWARD : 0;
+        int bits = 0;
+        if (client.options.keyUp.isDown()) bits |= SteelCoilInputC2SPacket.BIT_FORWARD;
+        if (client.options.keyDown.isDown()) bits |= SteelCoilInputC2SPacket.BIT_BACK;
+        if (client.options.keyLeft.isDown()) bits |= SteelCoilInputC2SPacket.BIT_LEFT;
+        if (client.options.keyRight.isDown()) bits |= SteelCoilInputC2SPacket.BIT_RIGHT;
         ClientPlayNetworking.send(new SteelCoilInputC2SPacket(bits, player.getYRot()));
     }
 

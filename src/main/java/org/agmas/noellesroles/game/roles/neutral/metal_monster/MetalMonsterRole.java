@@ -68,7 +68,7 @@ public class MetalMonsterRole extends NormalRole {
     /** 松开前进键时的摩擦系数。 */
     private static final double FRICTION = 0.98D;
     /** 单 tick 最大转向角（度）。 */
-    private static final double MAX_TURN_DEGREES = 30.0D;
+    private static final double MAX_TURN_DEGREES = 45.0D;
     /** 每转 1 度损失的速度。 */
     private static final double TURN_SPEED_LOSS = 0.01D;
     /** 撞墙反弹的恢复系数。 */
@@ -269,17 +269,28 @@ public class MetalMonsterRole extends NormalRole {
         boolean canAccelerate = data.bounceTicks <= 0 && inputFresh
                 && (data.inputBits & SteelCoilInputC2SPacket.BIT_FORWARD) != 0;
         if (canAccelerate) {
-            float targetYaw = data.inputYaw * Mth.DEG_TO_RAD;
-            double targetX = -Mth.sin(targetYaw);
-            double targetZ = Mth.cos(targetYaw);
             double current = Math.atan2(-data.dirX, data.dirZ);
-            double target = Math.atan2(-targetX, targetZ);
-            double diff = Mth.wrapDegrees((float) Math.toDegrees(target - current));
-            double turn = Mth.clamp(diff, -MAX_TURN_DEGREES, MAX_TURN_DEGREES);
-            double next = current + Math.toRadians(turn);
+            boolean left = (data.inputBits & SteelCoilInputC2SPacket.BIT_LEFT) != 0;
+            boolean right = (data.inputBits & SteelCoilInputC2SPacket.BIT_RIGHT) != 0;
+            double next;
+            if (left != right) {
+                // A/D 键直接左右转弯：相对当前朝向偏一个上限角，方向由按键决定
+                double turn = (left ? -1.0D : 1.0D) * MAX_TURN_DEGREES;
+                next = current + Math.toRadians(turn);
+            } else {
+                // 未按 A/D 时保持沿鼠标视角方向前进（仍受每 tick 上限限制）
+                float targetYaw = data.inputYaw * Mth.DEG_TO_RAD;
+                double targetX = -Mth.sin(targetYaw);
+                double targetZ = Mth.cos(targetYaw);
+                double target = Math.atan2(-targetX, targetZ);
+                double diff = Mth.wrapDegrees((float) Math.toDegrees(target - current));
+                double turn = Mth.clamp(diff, -MAX_TURN_DEGREES, MAX_TURN_DEGREES);
+                next = current + Math.toRadians(turn);
+            }
+            double turnDeg = Math.abs(Mth.wrapDegrees((float) Math.toDegrees(next - current)));
             data.dirX = -Math.sin(next);
             data.dirZ = Math.cos(next);
-            data.speed = Mth.clamp(data.speed + ACCELERATION - Math.abs(turn) * TURN_SPEED_LOSS,
+            data.speed = Mth.clamp(data.speed + ACCELERATION - turnDeg * TURN_SPEED_LOSS,
                     INITIAL_SPEED, MAX_SPEED);
         } else {
             data.speed = Math.max(INITIAL_SPEED, data.speed * FRICTION);
@@ -289,15 +300,19 @@ public class MetalMonsterRole extends NormalRole {
         }
 
         Vec3 delta = new Vec3(data.dirX * data.speed, 0.0D, data.dirZ * data.speed);
+        // 先用入射 AABB 探测「方块」阻挡：level.noCollision 只看方块，不把生物算进去。
+        // 这样撞到玩家/生物时不会被当成撞墙，也就不会反弹（只走 hitPlayers 的伤害与击退）。
+        boolean horizontalBlocked = !level.noCollision(player,
+                player.getBoundingBox().move(delta.x, 0.0D, delta.z));
         player.move(MoverType.SELF, delta);
 
         // 撞墙先尝试滚上台阶：能上去就不反弹、不丢速。开门优先级更高（门不该被台阶判定吞掉）
         boolean doorOpened = false;
         boolean steppedUp = false;
-        if (player.horizontalCollision && data.speed > DOOR_BREAK_SPEED) {
+        if (horizontalBlocked && data.speed > DOOR_BREAK_SPEED) {
             doorOpened = tryOpenDoorsAround(level, player, data);
         }
-        if (player.horizontalCollision && !doorOpened) {
+        if (horizontalBlocked && !doorOpened) {
             steppedUp = tryStepUp(level, player, data);
         }
 
@@ -307,7 +322,7 @@ public class MetalMonsterRole extends NormalRole {
             player.connection.teleport(player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot());
         }
 
-        if (player.horizontalCollision && !doorOpened && !steppedUp) {
+        if (horizontalBlocked && !doorOpened && !steppedUp) {
             // 反弹必须用「入射速度」：move() 撞墙后该轴速度会被清零
             data.dirX = -data.dirX;
             data.dirZ = -data.dirZ;

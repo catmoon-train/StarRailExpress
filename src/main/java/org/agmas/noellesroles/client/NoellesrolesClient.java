@@ -561,10 +561,6 @@ public class NoellesrolesClient implements ClientModInitializer {
 
         EntityModelLayerRegistry.registerModelLayer(WheelchairEntityModel.LAYER_LOCATION,
                 WheelchairEntityModel::createBodyLayer);
-        // 钢卷：12 边形圆柱（实体模型层，绕过方块模型角度限制）
-        EntityModelLayerRegistry.registerModelLayer(
-                org.agmas.noellesroles.client.render.SteelCoilRenderer.LAYER,
-                org.agmas.noellesroles.client.render.SteelCoilRenderer::createLayer);
         AllowNameRender.EVENT.register((target) -> {
             SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                     .get(target.level());
