@@ -50,8 +50,10 @@ import java.util.List;
  * <p>开局自带一层普通护盾。两个技能由 V 键切换：一技能化身两格宽的钢卷滚动撞击，
  * 二技能在 2.5 秒内让撞击可以真的打死人（死因「钢卷碾压」）。
  *
- * <p>运动模型：初始速度 0.4，按住前进键每 tick 加速；松键按摩擦减速但不会立刻停下；
- * 转向每 tick 最多 30° 且按转角掉速；撞墙用入射速度反向反弹，反弹期间不能前进；
+ * <p>运动模型：变身后静止，按住前进键才起步并每 tick 加速；松键按摩擦减速直到停下；
+ * 转向只由 A/D 键驱动，每 tick 平滑转过固定小角度，不再跟随鼠标视角；
+ * 撞墙用入射速度反向反弹，反弹期间不能前进；
+ * 撞到玩家时不产生生物碰撞（NO_COLLIDE），命中效果统一由撞击判定结算；
  * 速度超过 1.5 时撞到列车门 / 原版木门铜门会直接开门且不反弹。
  */
 public class MetalMonsterRole extends NormalRole {
@@ -59,20 +61,20 @@ public class MetalMonsterRole extends NormalRole {
     /** 钢卷碾压死因。定义在自身包内，避免改动主模组常量表。 */
     public static final ResourceLocation STEEL_COIL_CRUSH = Noellesroles.id("steel_coil_crush");
 
-    /** 初始速度（格 / tick）。 */
-    public static final double INITIAL_SPEED = 0.4D;
     /** 速度上限。 */
     public static final double MAX_SPEED = 3.0D;
     /** 每 tick 前进加速度。 */
     private static final double ACCELERATION = 0.04D;
     /** 松开前进键时的摩擦系数。 */
     private static final double FRICTION = 0.98D;
-    /** 单 tick 最大转向角（度）。 */
-    private static final double MAX_TURN_DEGREES = 45.0D;
-    /** 每转 1 度损失的速度。 */
-    private static final double TURN_SPEED_LOSS = 0.01D;
+    /** 低于该速度直接归零，避免无限衰减。 */
+    private static final double MIN_ROLL_SPEED = 0.01D;
+    /** 单 tick 转向角（度）：固定小角度逐 tick 累加才能形成平滑转弯，10° ≈ 每秒 200°。 */
+    private static final double TURN_RATE_DEGREES = 10.0D;
     /** 撞墙反弹的恢复系数。 */
     private static final double RESTITUTION = 0.35D;
+    /** 反弹时至少保留的离墙速度，避免贴墙立刻停死。 */
+    private static final double MIN_BOUNCE_SPEED = 0.15D;
     /** 反弹后最长锁定期（tick）。 */
     private static final int BOUNCE_LOCK_TICKS = 30;
     /** 能撞开门的最低速度。 */
@@ -138,7 +140,8 @@ public class MetalMonsterRole extends NormalRole {
     private static void startRoll(ServerPlayer player, MetalMonsterRoleData data) {
         data.reset();
         data.rolling = true;
-        data.speed = INITIAL_SPEED;
+        // 变身瞬间静止：不保留任何初速度，必须由玩家按前进键自行起步
+        data.speed = 0.0D;
         Vec3 look = player.getLookAngle();
         double len = Math.hypot(look.x, look.z);
         if (len > 1.0E-4D) {
@@ -166,6 +169,7 @@ public class MetalMonsterRole extends NormalRole {
     public static void stopRoll(ServerPlayer player) {
         EntityDisguise.clear(player);
         player.removeEffect(ModEffects.MOVE_BANED);
+        player.removeEffect(ModEffects.NO_COLLIDE);
         player.setDeltaMovement(Vec3.ZERO);
         player.hasImpulse = false;
         if (player.connection != null && !player.isRemoved()) {
@@ -264,39 +268,47 @@ public class MetalMonsterRole extends NormalRole {
         long gameTime = level.getGameTime();
         // 短时长续期：断线 / 死亡 / 异常情况时会自动失效，不会永久锁死移动
         player.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, 10, 0, true, false, true));
+        // 钢卷期间自身不带生物碰撞：撞到玩家时不会被挡住、也不会被判定成撞墙反弹，
+        // 命中该玩家的伤害 / 击退 / 附加效果全部由下方 hitPlayers 的 AABB 判定结算。
+        player.addEffect(new MobEffectInstance(ModEffects.NO_COLLIDE, 10, 0, true, false, true));
 
         boolean inputFresh = gameTime - data.inputGameTime <= 5;
-        boolean canAccelerate = data.bounceTicks <= 0 && inputFresh
-                && (data.inputBits & SteelCoilInputC2SPacket.BIT_FORWARD) != 0;
-        if (canAccelerate) {
-            double current = Math.atan2(-data.dirX, data.dirZ);
-            boolean left = (data.inputBits & SteelCoilInputC2SPacket.BIT_LEFT) != 0;
-            boolean right = (data.inputBits & SteelCoilInputC2SPacket.BIT_RIGHT) != 0;
-            double next;
-            if (left != right) {
-                // A/D 键直接左右转弯：相对当前朝向偏一个上限角，方向由按键决定
-                double turn = (left ? -1.0D : 1.0D) * MAX_TURN_DEGREES;
-                next = current + Math.toRadians(turn);
+        int bits = inputFresh ? data.inputBits : 0;
+        boolean forward = (bits & SteelCoilInputC2SPacket.BIT_FORWARD) != 0;
+        boolean left = (bits & SteelCoilInputC2SPacket.BIT_LEFT) != 0;
+        boolean right = (bits & SteelCoilInputC2SPacket.BIT_RIGHT) != 0;
+        boolean bounced = data.bounceTicks > 0;
+        if (bounced) {
+            data.bounceTicks--;
+        }
+
+        // 朝向数据异常（两个分量都接近 0）时回退到视线方向，避免后面算 atan2 得到无意义角度
+        if (data.dirX * data.dirX + data.dirZ * data.dirZ < 1.0E-6D) {
+            float yaw = player.getYRot() * Mth.DEG_TO_RAD;
+            data.dirX = -Mth.sin(yaw);
+            data.dirZ = Mth.cos(yaw);
+        }
+
+        if (!bounced) {
+            // 转向只由 A/D 键控制：每 tick 转过固定小角度，形成平滑转弯而不是瞬间改变朝向。
+            // 必须正在滚动才能转向，否则视觉朝向（由实际位移推算）会与逻辑朝向脱节。
+            boolean canSteer = forward || data.speed > 0.0D;
+            if (canSteer && left != right) {
+                double current = Math.atan2(-data.dirX, data.dirZ);
+                double next = current + Math.toRadians((left ? -1.0D : 1.0D) * TURN_RATE_DEGREES);
+                data.dirX = -Math.sin(next);
+                data.dirZ = Math.cos(next);
+            }
+            if (forward) {
+                data.speed = Math.min(MAX_SPEED, data.speed + ACCELERATION);
             } else {
-                // 未按 A/D 时保持沿鼠标视角方向前进（仍受每 tick 上限限制）
-                float targetYaw = data.inputYaw * Mth.DEG_TO_RAD;
-                double targetX = -Mth.sin(targetYaw);
-                double targetZ = Mth.cos(targetYaw);
-                double target = Math.atan2(-targetX, targetZ);
-                double diff = Mth.wrapDegrees((float) Math.toDegrees(target - current));
-                double turn = Mth.clamp(diff, -MAX_TURN_DEGREES, MAX_TURN_DEGREES);
-                next = current + Math.toRadians(turn);
+                data.speed *= FRICTION;
             }
-            double turnDeg = Math.abs(Mth.wrapDegrees((float) Math.toDegrees(next - current)));
-            data.dirX = -Math.sin(next);
-            data.dirZ = Math.cos(next);
-            data.speed = Mth.clamp(data.speed + ACCELERATION - turnDeg * TURN_SPEED_LOSS,
-                    INITIAL_SPEED, MAX_SPEED);
         } else {
-            data.speed = Math.max(INITIAL_SPEED, data.speed * FRICTION);
-            if (data.bounceTicks > 0) {
-                data.bounceTicks--;
-            }
+            data.speed *= FRICTION;
+        }
+        if (data.speed < MIN_ROLL_SPEED) {
+            data.speed = 0.0D;
         }
 
         Vec3 delta = new Vec3(data.dirX * data.speed, 0.0D, data.dirZ * data.speed);
@@ -318,7 +330,8 @@ public class MetalMonsterRole extends NormalRole {
 
         player.setDeltaMovement(delta);
         player.hasImpulse = true;
-        if (player.connection != null) {
+        // 静止时位置不变，不必每 tick 强制传送（MOVE_BANED 已锁住玩家的自主移动）
+        if (data.speed > 0.0D && player.connection != null) {
             player.connection.teleport(player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot());
         }
 
@@ -326,7 +339,8 @@ public class MetalMonsterRole extends NormalRole {
             // 反弹必须用「入射速度」：move() 撞墙后该轴速度会被清零
             data.dirX = -data.dirX;
             data.dirZ = -data.dirZ;
-            data.speed = Mth.clamp(data.speed * RESTITUTION, INITIAL_SPEED, MAX_SPEED);
+            data.speed = Math.min(MAX_SPEED,
+                    Math.max(data.speed * RESTITUTION, MIN_BOUNCE_SPEED));
             data.bounceTicks = BOUNCE_LOCK_TICKS;
             level.playSound(null, player.blockPosition(), SoundEvents.IRON_GOLEM_STEP, SoundSource.PLAYERS,
                     1.4F, 0.7F);

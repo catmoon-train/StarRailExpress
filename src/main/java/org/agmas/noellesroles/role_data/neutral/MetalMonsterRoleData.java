@@ -20,12 +20,12 @@ public class MetalMonsterRoleData extends SimpleRoleData {
 
     /** 是否正在钢卷形态。 */
     public boolean rolling;
-    /** 当前水平速度（格 / tick），范围 [INITIAL_SPEED, MAX_SPEED]。 */
+    /** 当前水平速度（格 / tick），范围 [0, MAX_SPEED]；0 表示静止，需按前进键起步。 */
     public double speed;
     /** 当前前进方向的单位向量。 */
     public double dirX;
     public double dirZ;
-    /** 反弹锁定期：必须等速度降回初始值才能再次前进。 */
+    /** 反弹锁定期：锁定期内不能前进 / 转向，结束后恢复操作。 */
     public int bounceTicks;
     /** 客户端上报的输入位与朝向，以及最后一次收到的游戏时间。 */
     public int inputBits;

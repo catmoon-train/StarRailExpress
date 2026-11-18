@@ -12,7 +12,8 @@ import org.agmas.noellesroles.Noellesroles;
  *
  * <p>服务端据此驱动带惯性的滚动，因此不需要新增按键绑定（复用原有移动键）。
  * movementBits 位定义与操纵师一致：1=前进, 2=后退, 4=左(A), 8=右(D)。
- * 其中左/右用于决定钢卷往哪边转弯。
+ * 其中左/右用于决定钢卷往哪边平滑转弯，前进键负责起步与加速；
+ * yaw 目前仅随包上报，服务端转向不再依赖视角朝向。
  */
 public record SteelCoilInputC2SPacket(int movementBits, float yaw) implements CustomPacketPayload {
 
