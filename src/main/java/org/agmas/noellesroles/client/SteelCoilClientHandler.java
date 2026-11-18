@@ -34,6 +34,9 @@ public final class SteelCoilClientHandler {
     }
 
     public static void register() {
+        // 钢卷模型需要在资源加载阶段登记，否则原版不会烘焙它
+        net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin
+                .register(new SteelCoilModelPlugin());
         ClientTickEvents.END_CLIENT_TICK.register(SteelCoilClientHandler::tick);
         ClientGameplayEvents.DISGUISE_STATE_COPIED.register(SteelCoilClientHandler::applyToDummy);
         AllowOtherCameraType.EVENT.register((original, localPlayer) ->

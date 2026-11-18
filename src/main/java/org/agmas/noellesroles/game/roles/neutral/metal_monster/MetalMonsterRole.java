@@ -64,8 +64,8 @@ public class MetalMonsterRole extends NormalRole {
 
     /** 速度上限。 */
     public static final double MAX_SPEED = 3.0D;
-    /** 每 tick 前进加速度。 */
-    private static final double ACCELERATION = 0.04D;
+    /** 每 tick 前进加速度：起步要慢，约 1.7 秒才滚到 1.0 格/秒的伤害门槛。 */
+    private static final double ACCELERATION = 0.01D;
     /** 松开前进键时的摩擦系数。 */
     private static final double FRICTION = 0.98D;
     /** 低于该速度直接归零，避免无限衰减。 */
@@ -300,12 +300,20 @@ public class MetalMonsterRole extends NormalRole {
         }
 
         if (!bounced) {
-            // 转向只由 A/D 键控制：每 tick 转过固定小角度，形成平滑转弯而不是瞬间改变朝向。
-            // 必须正在滚动才能转向，否则视觉朝向（由实际位移推算）会与逻辑朝向脱节。
-            boolean canSteer = forward || data.speed > 0.0D;
-            if (canSteer && left != right) {
-                double current = Math.atan2(-data.dirX, data.dirZ);
-                double next = current + Math.toRadians((left ? -1.0D : 1.0D) * TURN_RATE_DEGREES);
+            // 视角完全不限制：玩家怎么转鼠标都不影响任何判定，视角只用来决定「钢卷想往哪走」。
+            // 真正被限制的是钢卷的行进方向——每 tick 最多转 TURN_RATE_DEGREES：
+            //   * 按 A/D 时按玩家意愿左右打方向；
+            //   * 不按 A/D 时朝视角方向缓慢靠拢（同样受每 tick 上限约束），所以快速甩鼠标也不会瞬移转向。
+            double current = Math.atan2(-data.dirX, data.dirZ);
+            double next = current;
+            if (left != right) {
+                next = current + Math.toRadians((left ? -1.0D : 1.0D) * TURN_RATE_DEGREES);
+            } else if (inputFresh) {
+                double target = data.inputYaw * Mth.DEG_TO_RAD;
+                double diff = Mth.wrapDegrees((float) Math.toDegrees(target - current));
+                next = current + Math.toRadians(Mth.clamp(diff, -TURN_RATE_DEGREES, TURN_RATE_DEGREES));
+            }
+            if (next != current) {
                 data.dirX = -Math.sin(next);
                 data.dirZ = Math.cos(next);
             }
