@@ -52,6 +52,7 @@ import java.util.List;
  *
  * <p>运动模型：变身后静止，按住前进键才起步并每 tick 加速；松键按摩擦减速直到停下；
  * 转向只由 A/D 键驱动，每 tick 平滑转过固定小角度，不再跟随鼠标视角；
+ * 竖直方向按自由落体施加重力（不悬浮、不受摔落伤害），水平与竖直速度一起参与方块碰撞；
  * 撞墙用入射速度反向反弹，反弹期间不能前进；
  * 撞到玩家时不产生生物碰撞（NO_COLLIDE），命中效果统一由撞击判定结算；
  * 速度超过 1.5 时撞到列车门 / 原版木门铜门会直接开门且不反弹。
@@ -69,6 +70,10 @@ public class MetalMonsterRole extends NormalRole {
     private static final double FRICTION = 0.98D;
     /** 低于该速度直接归零，避免无限衰减。 */
     private static final double MIN_ROLL_SPEED = 0.01D;
+    /** 钢卷自行施加的重力（格 / tick²），与原版一致。 */
+    private static final double GRAVITY = 0.08D;
+    /** 竖直下落速度上限（原版终端速度）。 */
+    private static final double MAX_FALL_SPEED = 3.92D;
     /** 单 tick 转向角（度）：固定小角度逐 tick 累加才能形成平滑转弯，10° ≈ 每秒 200°。 */
     private static final double TURN_RATE_DEGREES = 10.0D;
     /** 撞墙反弹的恢复系数。 */
@@ -170,6 +175,8 @@ public class MetalMonsterRole extends NormalRole {
         EntityDisguise.clear(player);
         player.removeEffect(ModEffects.MOVE_BANED);
         player.removeEffect(ModEffects.NO_COLLIDE);
+        player.setNoGravity(false);
+        player.fallDistance = 0.0F;
         player.setDeltaMovement(Vec3.ZERO);
         player.hasImpulse = false;
         if (player.connection != null && !player.isRemoved()) {
@@ -271,6 +278,9 @@ public class MetalMonsterRole extends NormalRole {
         // 钢卷期间自身不带生物碰撞：撞到玩家时不会被挡住、也不会被判定成撞墙反弹，
         // 命中该玩家的伤害 / 击退 / 附加效果全部由下方 hitPlayers 的 AABB 判定结算。
         player.addEffect(new MobEffectInstance(ModEffects.NO_COLLIDE, 10, 0, true, false, true));
+        // 原版重力在飞行等状态下不生效，改为关掉后由本方法每 tick 定量施加重力
+        player.setNoGravity(true);
+        player.fallDistance = 0.0F;
 
         boolean inputFresh = gameTime - data.inputGameTime <= 5;
         int bits = inputFresh ? data.inputBits : 0;
@@ -316,7 +326,11 @@ public class MetalMonsterRole extends NormalRole {
         // 这样撞到玩家/生物时不会被当成撞墙，也就不会反弹（只走 hitPlayers 的伤害与击退）。
         boolean horizontalBlocked = !level.noCollision(player,
                 player.getBoundingBox().move(delta.x, 0.0D, delta.z));
-        player.move(MoverType.SELF, delta);
+        // 竖直方向由钢卷自己接管重力：竖直速度记在 RoleData 里（原版 travel 每 tick 会覆盖
+        // deltaMovement.y，不能依赖它），每 tick 叠加重力后与水平位移一起交给 move() 做碰撞。
+        // 这样即使玩家处于飞行 / 其它没有原版重力的状态，钢卷也会正常贴地与自由落体。
+        data.fallSpeed = Math.max(data.fallSpeed - GRAVITY, -MAX_FALL_SPEED);
+        player.move(MoverType.SELF, new Vec3(delta.x, data.fallSpeed, delta.z));
 
         // 撞墙先尝试滚上台阶：能上去就不反弹、不丢速。开门优先级更高（门不该被台阶判定吞掉）
         boolean doorOpened = false;
@@ -328,10 +342,14 @@ public class MetalMonsterRole extends NormalRole {
             steppedUp = tryStepUp(level, player, data);
         }
 
-        player.setDeltaMovement(delta);
+        if (player.onGround()) {
+            data.fallSpeed = 0.0D;
+        }
+        // 水平速度每 tick 重新设定（惯性由 data.speed 维护）；竖直速度落地即为 0
+        player.setDeltaMovement(delta.x, data.fallSpeed, delta.z);
         player.hasImpulse = true;
-        // 静止时位置不变，不必每 tick 强制传送（MOVE_BANED 已锁住玩家的自主移动）
-        if (data.speed > 0.0D && player.connection != null) {
+        // 水平静止且已落地时位置不变，不必每 tick 强制传送；下落中仍要保证客户端跟随竖直位移
+        if ((data.speed > 0.0D || !player.onGround()) && player.connection != null) {
             player.connection.teleport(player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot());
         }
 

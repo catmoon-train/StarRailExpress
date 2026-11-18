@@ -17,11 +17,22 @@ import org.agmas.noellesroles.content.entity.SteelCoilEntity;
  *
  * <p>不使用方块模型 JSON（1.21.1 不允许 30 度），也不使用 ModelPart
  * （1.21.1 的 CubeListBuilder 不支持逐面 UV），因此材质严格按模型 UV 贴合。
+ *
+ * <p>顶点坐标沿用模型文件的像素单位，绘制时按「模型宽度 12px、外径 14.93px」换算成
+ * 实体声明的 2×2×2 格，因此钢卷的可见体积与碰撞箱、滚动半径一致。
  */
 public class SteelCoilRenderer extends EntityRenderer<SteelCoilEntity> {
 
     private static final ResourceLocation TEXTURE = Noellesroles.id("textures/block/steel_coil.png");
     private static final float TEX = 128.0F;
+    /** 每个钢卷块的模型轴向宽度（像素）。 */
+    private static final float MODEL_WIDTH = 12.0F;
+    /** 每个钢卷块的外径（像素）：14.9282 = 两格外接圆在 12 边形上的实际跨度。 */
+    private static final float MODEL_DIAMETER = 14.9282F;
+    /** 像素 → 格：轴向按宽度换算，保证总宽 = SIZE。 */
+    private static final float SCALE_X = SteelCoilEntity.SIZE / MODEL_WIDTH;
+    /** 像素 → 格：截面按外径换算，保证直径 = SIZE（即滚动半径 = SIZE / 2）。 */
+    private static final float SCALE_R = SteelCoilEntity.SIZE / MODEL_DIAMETER;
 
     private record Quad(float[] pos, float[] uv, float[] normal) {}
 
@@ -100,6 +111,21 @@ public class SteelCoilRenderer extends EntityRenderer<SteelCoilEntity> {
         new Quad(new float[]{-5.99f,-1.134f,-2.9641f,5.99f,-1.134f,-2.9641f,5.99f,-3.134f,0.5f,-5.99f,-3.134f,0.5f}, new float[]{64f,34f,52f,34f,52f,30f,64f,30f}, new float[]{0f,2.4019f,-0.1603f}),
     };
 
+    static {
+        // 每个钢卷块按「北、南、西、东、下、上」输出六个面。模型里前四个侧面（含两端端面）
+        // 的 UV 角点与顶点环序错开 180°，照搬会让贴图上下左右颠倒；这里把 UV 绕面旋转 180° 校正。
+        // 下、上两个面（模型 ±Y 面）的顺序本来就正确，保持原样。
+        for (int i = 0; i < QUADS.length; i++) {
+            if (i % 6 >= 4) {
+                continue;
+            }
+            float[] uv = QUADS[i].uv;
+            QUADS[i] = new Quad(QUADS[i].pos,
+                    new float[]{uv[2], uv[3], uv[0], uv[1], uv[6], uv[7], uv[4], uv[5]},
+                    QUADS[i].normal);
+        }
+    }
+
     public SteelCoilRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
         this.shadowRadius = SteelCoilEntity.SIZE * 0.5F;
@@ -127,7 +153,8 @@ public class SteelCoilRenderer extends EntityRenderer<SteelCoilEntity> {
     }
 
     private static void emit(VertexConsumer c, PoseStack.Pose pose, Quad q, int i, int light) {
-        c.addVertex(pose, q.pos[i * 3] / 16.0F, q.pos[i * 3 + 1] / 16.0F, q.pos[i * 3 + 2] / 16.0F);
+        // 轴向按模型宽度换算、截面按外径换算，最终尺寸与实体声明的 SIZE×SIZE×SIZE 一致
+        c.addVertex(pose, q.pos[i * 3] * SCALE_X, q.pos[i * 3 + 1] * SCALE_R, q.pos[i * 3 + 2] * SCALE_R);
         c.setColor(255, 255, 255, 255);
         c.setUv(q.uv[i * 2] / TEX, q.uv[i * 2 + 1] / TEX);
         c.setOverlay(OverlayTexture.NO_OVERLAY);

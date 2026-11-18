@@ -22,6 +22,8 @@ public class MetalMonsterRoleData extends SimpleRoleData {
     public boolean rolling;
     /** 当前水平速度（格 / tick），范围 [0, MAX_SPEED]；0 表示静止，需按前进键起步。 */
     public double speed;
+    /** 当前竖直速度（格 / tick，<= 0）：钢卷自己维护的重力积分结果，落地后归零。 */
+    public double fallSpeed;
     /** 当前前进方向的单位向量。 */
     public double dirX;
     public double dirZ;
@@ -49,6 +51,7 @@ public class MetalMonsterRoleData extends SimpleRoleData {
     public void reset() {
         rolling = false;
         speed = 0.0D;
+        fallSpeed = 0.0D;
         dirX = 0.0D;
         dirZ = 0.0D;
         bounceTicks = 0;
