@@ -1,18 +1,18 @@
 package org.agmas.noellesroles.game.roles.special.ghost_loose_end;
 
-import io.wifi.starrailexpress.api.NormalRole;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.game.roles.special.variant_loose_end.VariantLooseEndRole;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * 幽灵亡命徒：以限时隐身作为生存时间，击杀可按边际递减延长隐身。
  */
-public final class GhostLooseEnd extends NormalRole {
+public final class GhostLooseEnd extends VariantLooseEndRole {
     /** 初始隐身时长：2 分钟 */
     public static final int INITIAL_INVISIBILITY_TICKS = 2 * 60 * 20;
     /**

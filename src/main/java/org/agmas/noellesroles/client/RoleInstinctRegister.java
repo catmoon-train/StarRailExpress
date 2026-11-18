@@ -47,6 +47,7 @@ import org.agmas.noellesroles.role_data.neutral.RecorderRoleData;
 import org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent;
 import org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooEggData;
 import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaEventHandler;
+import org.agmas.noellesroles.game.roles.special.variant_loose_end.VariantLooseEndRole;
 import org.agmas.noellesroles.role_data.neutral.PelicanRoleData;
 import org.agmas.noellesroles.role_data.neutral.WayfarerRoleData;
 import org.agmas.noellesroles.role_data.special.BetterVigilanteRoleData;
@@ -1039,8 +1040,7 @@ public class RoleInstinctRegister {
         CommonInstinctEvents.ALIVE_COMMON_BEFORE_EVENT.register((self, target, hasInstinct) -> {
             if (!hasInstinct || !(target instanceof Player targetPlayer) || SREClient.gameComponent == null)
                 return TrueFalseAndCustomResult.pass();
-            if ((SREClient.gameComponent.isRole(self, SpecialGameModeRoles.SUPER_LOOSE_END)
-                    || SREClient.gameComponent.isRole(self, SpecialGameModeRoles.GHOST_LOOSE_END))
+            if (VariantLooseEndRole.isVariant(SREClient.gameComponent.getRole(self))
                     && targetPlayer.isInvisible())
                 return TrueFalseAndCustomResult.disallow();
             return TrueFalseAndCustomResult.pass();

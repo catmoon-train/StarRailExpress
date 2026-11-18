@@ -25,6 +25,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.game.roles.killer.dream.VirtualShieldComponent;
+import org.agmas.noellesroles.game.roles.special.variant_loose_end.VariantLooseEndRole;
 
 import java.util.ArrayList;
 
@@ -70,7 +71,8 @@ public class VirtualDefenseItem extends Item {
         }
         if (gameWorldComponent != null) {
             var role = gameWorldComponent.getRole(player);
-            if (role != null && canUseByRightClickRolePaths.contains(role.identifier().getPath())) {
+            if (role != null && (canUseByRightClickRolePaths.contains(role.identifier().getPath())
+                    || VariantLooseEndRole.isVariant(role))) {
                 player.startUsingItem(interactionHand);
                 return InteractionResultHolder.consume(itemStack);
             }
@@ -85,7 +87,8 @@ public class VirtualDefenseItem extends Item {
         }
         if (gameWorldComponent != null) {
             var role = gameWorldComponent.getRole(livingEntity.getUUID());
-            if (role != null && canUseByRightClickRolePaths.contains(role.identifier().getPath())
+            if (role != null && (canUseByRightClickRolePaths.contains(role.identifier().getPath())
+                    || VariantLooseEndRole.isVariant(role))
                     && livingEntity instanceof Player player) {
                 VirtualShieldComponent shield = VirtualShieldComponent.KEY.get(player);
                 // 已有护盾时不叠加（护盾是点数条，不是层数），只在空条时补满

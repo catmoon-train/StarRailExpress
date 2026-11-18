@@ -16,11 +16,9 @@
 package io.wifi.starrailexpress.content.item;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.TimedGrenadeEntity;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -40,6 +38,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
+import org.agmas.noellesroles.game.roles.special.variant_loose_end.VariantLooseEndRole;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -136,10 +135,7 @@ public class TimedGrenadeItem extends SkinableItem {
                 return;
             if (user instanceof Player player) {
                 if (!player.isCreative()
-                        && !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
-                                SpecialGameModeRoles.SUPER_LOOSE_END)
-                        && !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
-                                SpecialGameModeRoles.GHOST_LOOSE_END)) {
+                        && !VariantLooseEndRole.isVariant(player)) {
                     GrenadeItem.addGrenadeCooldown(player);
                 }
             }

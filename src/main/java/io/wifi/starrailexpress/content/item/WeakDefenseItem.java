@@ -17,7 +17,6 @@ package io.wifi.starrailexpress.content.item;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREWeakArmorPlayerComponent;
-import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
@@ -26,6 +25,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
+import org.agmas.noellesroles.game.roles.special.variant_loose_end.VariantLooseEndRole;
 
 import java.util.ArrayList;
 
@@ -62,7 +62,8 @@ public class WeakDefenseItem extends Item {
         if (gameWorldComponent != null) {
             var role = gameWorldComponent.getRole(player);
             if (role != null) {
-                if (canUseByRightClickRolePaths.contains(role.identifier().getPath())) {
+                if (canUseByRightClickRolePaths.contains(role.identifier().getPath())
+                        || VariantLooseEndRole.isVariant(role)) {
                     player.startUsingItem(interactionHand);
                     return InteractionResultHolder.consume(itemStack);
                 }
@@ -79,7 +80,8 @@ public class WeakDefenseItem extends Item {
         if (gameWorldComponent != null) {
             var role = gameWorldComponent.getRole(livingEntity.getUUID());
             if (role != null) {
-                if (canUseByRightClickRolePaths.contains(role.identifier().getPath())) {
+                if (canUseByRightClickRolePaths.contains(role.identifier().getPath())
+                        || VariantLooseEndRole.isVariant(role)) {
                     if (livingEntity instanceof Player player) {
                         var weakComponent = SREWeakArmorPlayerComponent.KEY.get(player);
                         if (weakComponent != null) {
