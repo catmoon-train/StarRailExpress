@@ -1,15 +1,19 @@
 package org.agmas.noellesroles.client;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import io.wifi.starrailexpress.disguise.EntityDisguise;
 import io.wifi.starrailexpress.event.AllowOtherCameraType;
 import io.wifi.starrailexpress.event.client.ClientGameplayEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import org.lwjgl.glfw.GLFW;
 import org.agmas.noellesroles.content.entity.SteelCoilEntity;
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.packet.SteelCoilInputC2SPacket;
@@ -71,11 +75,33 @@ public final class SteelCoilClientHandler {
         }
 
         int bits = 0;
-        if (client.options.keyUp.isDown()) bits |= SteelCoilInputC2SPacket.BIT_FORWARD;
-        if (client.options.keyDown.isDown()) bits |= SteelCoilInputC2SPacket.BIT_BACK;
-        if (client.options.keyLeft.isDown()) bits |= SteelCoilInputC2SPacket.BIT_LEFT;
-        if (client.options.keyRight.isDown()) bits |= SteelCoilInputC2SPacket.BIT_RIGHT;
+        if (isRawDown(client, client.options.keyUp)) bits |= SteelCoilInputC2SPacket.BIT_FORWARD;
+        if (isRawDown(client, client.options.keyDown)) bits |= SteelCoilInputC2SPacket.BIT_BACK;
+        if (isRawDown(client, client.options.keyLeft)) bits |= SteelCoilInputC2SPacket.BIT_LEFT;
+        if (isRawDown(client, client.options.keyRight)) bits |= SteelCoilInputC2SPacket.BIT_RIGHT;
         ClientPlayNetworking.send(new SteelCoilInputC2SPacket(bits, player.getYRot()));
+    }
+
+    /**
+     * 直接读底层按键状态，而不是 {@link KeyMapping#isDown()}。
+     *
+     * <p>钢卷形态身上一直挂着 {@code MOVE_BANED}，而 {@code MobEffectKeyMixin} 会让被拦截的
+     * 移动键 {@code isDown()} 恒为 {@code false}；若用它采集输入，服务端收到的永远是没有按键，
+     * 钢卷就完全动不了。这里绕开效果拦截，只看物理按键是否真的按着。
+     */
+    private static boolean isRawDown(Minecraft client, KeyMapping mapping) {
+        InputConstants.Key key = KeyBindingHelper.getBoundKeyOf(mapping);
+        if (key == null || key.getValue() == InputConstants.UNKNOWN.getValue()) {
+            return mapping.isDown();
+        }
+        long handle = client.getWindow().getWindow();
+        if (key.getType() == InputConstants.Type.MOUSE) {
+            return GLFW.glfwGetMouseButton(handle, key.getValue()) == GLFW.GLFW_PRESS;
+        }
+        if (key.getType() == InputConstants.Type.KEYSYM) {
+            return InputConstants.isKeyDown(handle, key.getValue());
+        }
+        return mapping.isDown();
     }
 
     private static void applyToDummy(Player player, Entity dummy) {
