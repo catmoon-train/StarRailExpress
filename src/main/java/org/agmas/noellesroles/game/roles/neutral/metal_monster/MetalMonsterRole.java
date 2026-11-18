@@ -14,7 +14,6 @@ import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -424,16 +423,15 @@ public class MetalMonsterRole extends NormalRole {
         double maxX = Math.max(prevX, attacker.getX()) + HIT_HALF_WIDTH;
         double minZ = Math.min(prevZ, attacker.getZ()) - HIT_HALF_WIDTH;
         double maxZ = Math.max(prevZ, attacker.getZ()) + HIT_HALF_WIDTH;
-        AABB box = new AABB(minX, attacker.getY(), minZ, maxX, attacker.getY() + 2.0D, maxZ);
-        List<Player> victims = level.getEntities(EntityType.PLAYER, box,
+        // 竖直范围放宽半格：上下楼 / 台阶 / 半砖上时钢卷脚底与目标的脚底不一定齐平
+        AABB box = new AABB(minX, attacker.getY() - 0.5D, minZ, maxX, attacker.getY() + 2.5D, maxZ);
+        // 用 ServerPlayer 类型查询（飓风、雪球等实体都是这条路径），避免类型过滤把目标漏掉
+        List<ServerPlayer> victims = level.getEntitiesOfClass(ServerPlayer.class, box,
                 p -> p != attacker && GameUtils.isPlayerAliveAndSurvival(p));
         // 速度每高 0.1 造成 1 点虚拟伤害；速度 1.0 时为 0，3.0 时为 20
         int virtualDamage = (int) Math.floor((data.speed - 1.0D) * 10.0D + 1.0E-6D);
         boolean lethal = gameTime < data.lethalUntil;
-        for (Player victim : victims) {
-            if (!(victim instanceof ServerPlayer serverVictim)) {
-                continue;
-            }
+        for (ServerPlayer serverVictim : victims) {
             Long last = data.hitTicks.get(serverVictim.getUUID());
             if (last != null && gameTime - last < HIT_COOLDOWN_TICKS) {
                 continue;
@@ -455,6 +453,12 @@ public class MetalMonsterRole extends NormalRole {
                 double knockback = Math.max(0.25D, data.speed * 0.8D);
                 serverVictim.knockback(knockback, -data.dirX, -data.dirZ);
                 serverVictim.hurtMarked = true;
+                // 显式下发速度包：本方法跑在 END_SERVER_TICK，hurtMarked 的自动同步要等到下一个实体同步，
+                // 期间玩家自己的移动包会把速度覆盖掉，表现就是「撞到了却没被击退」
+                if (serverVictim.connection != null) {
+                    serverVictim.connection.send(
+                            new net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket(serverVictim));
+                }
             }
             level.playSound(null, serverVictim.blockPosition(), SoundEvents.IRON_GOLEM_HURT, SoundSource.PLAYERS,
                     1.0F, 0.6F);
