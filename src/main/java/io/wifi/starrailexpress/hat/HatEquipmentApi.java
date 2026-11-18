@@ -141,10 +141,7 @@ public final class HatEquipmentApi {
         // 亡命徒 / 超级亡命徒（统一皮肤）
         if (org.agmas.noellesroles.utils.RoleUtils.isPlayerTheJob(player,
                 io.wifi.starrailexpress.api.TMMRoles.LOOSE_END)
-                || org.agmas.noellesroles.utils.RoleUtils.isPlayerTheJob(player,
-                        io.wifi.starrailexpress.game.roles.SpecialGameModeRoles.SUPER_LOOSE_END)
-                || org.agmas.noellesroles.utils.RoleUtils.isPlayerTheJob(player,
-                        io.wifi.starrailexpress.game.roles.SpecialGameModeRoles.GHOST_LOOSE_END)) {
+                || org.agmas.noellesroles.game.roles.special.variant_loose_end.VariantLooseEndRole.isVariant(player)) {
             return true;
         }
         // 角色固定皮肤（与 PlayerEntityRendererMixin 的皮肤判定一致）

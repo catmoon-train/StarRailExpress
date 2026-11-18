@@ -17,9 +17,7 @@ package io.wifi.starrailexpress.content.item;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.GrenadeEntity;
-import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
@@ -34,6 +32,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
+import org.agmas.noellesroles.game.roles.special.variant_loose_end.VariantLooseEndRole;
 import org.jetbrains.annotations.NotNull;
 
 public class GrenadeItem extends SkinableItem {
@@ -61,10 +60,7 @@ public class GrenadeItem extends SkinableItem {
 			if (user instanceof Player player) {
 				// 创造模式和 特殊亡命徒手雷无cd
 				if (!player.isCreative()
-						&& !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
-								SpecialGameModeRoles.SUPER_LOOSE_END)
-						&& !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
-								SpecialGameModeRoles.GHOST_LOOSE_END)) {
+						&& !VariantLooseEndRole.isVariant(player)) {
 					addGrenadeCooldown(player);
 				}
 			}

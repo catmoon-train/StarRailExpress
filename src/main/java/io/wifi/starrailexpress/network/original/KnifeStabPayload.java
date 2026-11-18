@@ -22,7 +22,6 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.KillerKnifeDurability;
-import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.event.ItemGameplayEvents;
@@ -43,6 +42,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
+import org.agmas.noellesroles.game.roles.special.variant_loose_end.VariantLooseEndRole;
 import org.agmas.noellesroles.content.item.ThrowingKnife;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
@@ -113,10 +113,7 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
 
                 if (!player.isCreative()
                         && !SREGameWorldComponent.KEY.get(player.level()).isRole(player, TMMRoles.LOOSE_END)
-                        && !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
-                                SpecialGameModeRoles.SUPER_LOOSE_END)
-                        && !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
-                                SpecialGameModeRoles.GHOST_LOOSE_END)) {
+                        && !VariantLooseEndRole.isVariant(player)) {
                     applyKnifeCooldown(player.getCooldowns(), TMMItems.KNIFE, getKnifeCooldown(player), player, targetId);
                 }
                 return;
@@ -193,10 +190,7 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
             var cooldowns = player.getCooldowns();
             if (!player.isCreative()
                     && !SREGameWorldComponent.KEY.get(player.level()).isRole(player, TMMRoles.LOOSE_END)
-                    && !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
-                            SpecialGameModeRoles.SUPER_LOOSE_END)
-                    && !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
-                            SpecialGameModeRoles.GHOST_LOOSE_END)) {
+                    && !VariantLooseEndRole.isVariant(player)) {
                 applyKnifeCooldown(cooldowns, TMMItems.KNIFE, getKnifeCooldown(player), player, targetId);
             }
         }

@@ -27,7 +27,6 @@ import io.wifi.starrailexpress.event.AllowShootRevolverDrop;
 import io.wifi.starrailexpress.event.OnRevolverUsed;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.TriggerStatusBarPayload;
@@ -47,6 +46,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager;
+import org.agmas.noellesroles.game.roles.special.variant_loose_end.VariantLooseEndRole;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
@@ -149,8 +149,7 @@ public class ExecutionerRoleData extends SimpleRoleData {
     public static boolean judgeRole(Level level, SRERole t_role) {
         if (t_role == null)
             return true;
-        if (RoleUtils.compareRole(t_role, SpecialGameModeRoles.SUPER_LOOSE_END)
-                || RoleUtils.compareRole(t_role, SpecialGameModeRoles.GHOST_LOOSE_END)) {
+        if (VariantLooseEndRole.isVariant(t_role)) {
             return false;
         }
         if (t_role.isInnocent() && !RoleUtils.compareRole(t_role, ModRoles.MAGICIAN)) {
