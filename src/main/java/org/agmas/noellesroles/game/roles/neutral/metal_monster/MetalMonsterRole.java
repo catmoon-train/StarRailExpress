@@ -9,6 +9,7 @@ import io.wifi.starrailexpress.content.block.SmallDoorBlock;
 import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.disguise.EntityDisguise;
 import io.wifi.starrailexpress.event.OnGameEnd;
+import io.wifi.starrailexpress.event.OnPlayerDeath;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -156,25 +157,30 @@ public class MetalMonsterRole extends NormalRole {
                 1.2F, 0.5F);
     }
 
-    /** 变回人形：立即清除伪装、恢复移动、归零速度并关闭致命窗口。 */
+    /**
+     * 变回人形：立即清除伪装、恢复移动、归零速度并关闭致命窗口。
+     *
+     * <p>注意：玩家死亡 / 转职后 RoleData 可能已被替换甚至为 null，
+     * 因此伪装与视角/速度的恢复必须先做，不能依赖 RoleData 是否存在。
+     */
     public static void stopRoll(ServerPlayer player) {
-        MetalMonsterRoleData data = RoleData.getNullable(MetalMonsterRoleData.class, player);
-        if (data == null) {
-            return;
-        }
         EntityDisguise.clear(player);
         player.removeEffect(ModEffects.MOVE_BANED);
         player.setDeltaMovement(Vec3.ZERO);
+        player.hasImpulse = false;
         if (player.connection != null && !player.isRemoved()) {
             player.connection.teleport(player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot());
         }
-        data.reset();
-        data.sync();
+        MetalMonsterRoleData data = RoleData.getNullable(MetalMonsterRoleData.class, player);
+        if (data != null) {
+            data.reset();
+            data.sync();
+        }
     }
 
     /** 二技能：开启 2.5 秒致命窗口。窗口只在钢卷撞击结算时生效。 */
     public static boolean activateLethal(ServerPlayer player) {
-        if (player.isSpectator() || !GameUtils.isPlayerAliveAndSurvival(player)) {
+        if (player.isSpectator() || !isMetalMonster(player) || !GameUtils.isPlayerAliveAndSurvival(player)) {
             return false;
         }
         MetalMonsterRoleData data = RoleData.getNullable(MetalMonsterRoleData.class, player);
@@ -190,6 +196,9 @@ public class MetalMonsterRole extends NormalRole {
 
     /** 客户端输入包的服务端薄处理。 */
     public static void onInput(ServerPlayer player, int bits, float yaw) {
+        if (isInvalidRoller(player)) {
+            return;
+        }
         MetalMonsterRoleData data = RoleData.getNullable(MetalMonsterRoleData.class, player);
         if (data == null || !data.rolling) {
             return;
@@ -205,6 +214,12 @@ public class MetalMonsterRole extends NormalRole {
     public static void registerEvents() {
         ServerTickEvents.END_SERVER_TICK.register(MetalMonsterRole::tickAll);
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> stopRoll(handler.player));
+        // 死亡瞬间立即复原（不等下一 tick），避免以旁观者身份残留伪装 / 惯性
+        OnPlayerDeath.EVENT.register((player, reason) -> {
+            if (player instanceof ServerPlayer sp) {
+                stopRoll(sp);
+            }
+        });
         OnGameEnd.EVENT.register((level, game) -> {
             for (ServerPlayer player : level.players()) {
                 stopRoll(player);
@@ -222,15 +237,26 @@ public class MetalMonsterRole extends NormalRole {
     private static void tickAll(MinecraftServer server) {
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             MetalMonsterRoleData data = RoleData.getNullable(MetalMonsterRoleData.class, player);
+            boolean invalid = isInvalidRoller(player);
             if (data == null || !data.rolling) {
+                // 转职 / 死亡后 RoleData 可能已换成别的职业数据：
+                // 只要身上还残留钢卷伪装，就强制复原，避免永久卡在钢卷形态
+                if (invalid && EntityDisguise.get(player).type() == ModEntities.STEEL_COIL) {
+                    stopRoll(player);
+                }
                 continue;
             }
-            if (!isMetalMonster(player) || !GameUtils.isPlayerAliveAndSurvival(player)) {
+            if (invalid) {
                 stopRoll(player);
                 continue;
             }
             tickRoll(player, data);
         }
+    }
+
+    /** 钢卷形态的持有者是否已失效：旁观 / 死亡或非生存 / 不再是金属怪。 */
+    private static boolean isInvalidRoller(ServerPlayer player) {
+        return player.isSpectator() || !GameUtils.isPlayerAliveAndSurvival(player) || !isMetalMonster(player);
     }
 
     private static void tickRoll(ServerPlayer player, MetalMonsterRoleData data) {
@@ -292,7 +318,8 @@ public class MetalMonsterRole extends NormalRole {
      */
     private static void hitPlayers(ServerLevel level, ServerPlayer attacker, MetalMonsterRoleData data,
             long gameTime) {
-        if (data.speed < 1.0D) {
+        // 旁观 / 死亡 / 转职后撞击一律不生效（含二技能致命窗口）
+        if (isInvalidRoller(attacker) || data.speed < 1.0D) {
             return;
         }
         AABB box = new AABB(
