@@ -413,6 +413,8 @@ public class ModRoles {
     public static final ResourceLocation SKELETON_ID = Noellesroles.id("skeleton");
     // 雪傀儡 - 只在有「保暖值」状态栏的地图刷新的好人方中立
     public static final ResourceLocation SNOW_GOLEM_ID = Noellesroles.id("snow_golem");
+    // 金属怪 - 杀手方中立，化身钢卷滚动撞击
+    public static final ResourceLocation METAL_MONSTER_ID = Noellesroles.id("metal_monster");
     public static final ResourceLocation DIO_ID = Noellesroles.id("dio");
     public static final ResourceLocation JOJO_ID = Noellesroles.id("jojo");
 
@@ -1343,6 +1345,24 @@ public class ModRoles {
             .setCanSeeCoin(true)
             .setDefaultMax(1)
             .setDefaultEnableChance(3000)
+            .setAddedVersion("4.5");
+
+    /**
+     * 金属怪 —— 杀手方中立，开局自带一层护盾。
+     *
+     * <p>规则本体见 {@link org.agmas.noellesroles.game.roles.neutral.metal_monster.MetalMonsterRole}：
+     * 一技能化身两格宽钢卷滚动撞击（V 键与二技能切换），二技能 2.5 秒内让撞击致命。
+     */
+    public static SRERole METAL_MONSTER = TMMRoles.registerRole(
+            new org.agmas.noellesroles.game.roles.neutral.metal_monster.MetalMonsterRole(
+                    METAL_MONSTER_ID, new Color(150, 160, 170).getRGB(),
+                    RoleType.NEUTRALS_FOR_KILLERS, SRERole.MoodType.FAKE,
+                    Integer.MAX_VALUE, true))
+            .setRoleData(org.agmas.noellesroles.role_data.neutral.MetalMonsterRoleData::new)
+            .setNeutrals(true)
+            .setDefaultMax(1)
+            .setDefaultEnableChance(1000)
+            .setCanBeRandomedByOtherRoles(false)
             .setAddedVersion("4.5");
     public static SRERole JESTER = TMMRoles
             .registerRole(new JesterRole(JESTER_ID, new Color(186, 85, 211).getRGB(), false,

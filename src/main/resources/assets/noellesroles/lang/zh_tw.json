@@ -1,4 +1,10 @@
 ﻿{
+  "announcement.star.role.metal_monster": "金屬怪",
+  "announcement.star.goals.metal_monster": "與殺手一同獲勝。",
+  "role.noellesroles.metal_monster": "金屬怪",
+  "skill.noellesroles.metal_monster.roll": "鋼卷形態",
+  "skill.noellesroles.metal_monster.lethal": "致命強化",
+  "entity.noellesroles.steel_coil": "鋼卷",
   "announcement.star.role.fog_guest": "霧客",
   "announcement.star.goals.fog_guest": "讓濃霧吞沒你的獵物。",
   "skill.noellesroles.fog_guest.rise": "霧起",

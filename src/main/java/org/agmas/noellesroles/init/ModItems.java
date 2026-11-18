@@ -1666,6 +1666,9 @@ public class ModItems {
             new StarScepterItem(new Item.Properties().stacksTo(1)),
             "star_scepter", ROLE_ITEMS_GROUP, WEAPONS_GROUP);
 
+    /** 钢卷模型载体：不进创造栏、不进介绍面板，仅供钢卷实体渲染。 */
+    public static final Item STEEL_COIL = registrar.create("steel_coil", new Item(new Item.Properties().stacksTo(1)));
+
     public static Item register(Item item, String id, ResourceKey<CreativeModeTab>... extraGroups) {
         ResourceKey<CreativeModeTab>[] allGroups = java.util.Arrays.copyOf(extraGroups, extraGroups.length + 1);
         allGroups[extraGroups.length] = NOELLESROLES_ALL_GROUP;

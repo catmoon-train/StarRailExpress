@@ -1,4 +1,10 @@
 ﻿{
+  "announcement.star.role.metal_monster": "Metal Monster",
+  "announcement.star.goals.metal_monster": "Win alongside the killers.",
+  "role.noellesroles.metal_monster": "Metal Monster",
+  "skill.noellesroles.metal_monster.roll": "Steel Coil Form",
+  "skill.noellesroles.metal_monster.lethal": "Lethal Boost",
+  "entity.noellesroles.steel_coil": "Steel Coil",
   "announcement.star.role.fog_guest": "Fog Guest",
   "announcement.star.goals.fog_guest": "Let the fog swallow your prey.",
   "announcement.star.role.stringer": "Stringer",
