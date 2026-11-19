@@ -59,6 +59,7 @@ import org.agmas.noellesroles.game.roles.killer.imitator.ImitatorSkillRegistry;
 import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
 import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
 import org.agmas.noellesroles.role_data.killer.TrapperRoleData;
+import org.agmas.noellesroles.role_data.killer.WatcherRoleData;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.game.roles.killer.boom_maniac.BoomManiacRole;
@@ -195,7 +196,10 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
     public static final int ADD_BALANCE_TIME = 600;
     public static final int REVIVE_TIME = 200;
     public static final int ONE_SECOND_TICK = 20;
+    /** 刽子手德林加数量 */
     public static final int EXECUTIONER_GUN_NUMBER = 6;
+    /** 观者切换姿态的冷却 */
+    private static final int WATCHER_STANCE_COOLDOWN_TICKS = 5 * 20;
     protected static AttributeModifier tinyModifier = new AttributeModifier(
             StupidExpress.id("tiny_modifier"), -0.15, AttributeModifier.Operation.ADD_VALUE);
     public final List<SRERole> BANED_ROLES = new ArrayList<>();
@@ -1074,9 +1078,6 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             player.addItem(new ItemStack(ModItems.INCENDIARY_GRENADE));
         } else if (role == ModRoles.GANGSTERS) {
             player.addItem(new ItemStack(ModItems.C4, 4));
-        } else if (role == ModRoles.WATCHER) {
-            player.addItem(new ItemStack(TMMItems.SNIPER_RIFLE));
-            player.addItem(new ItemStack(TMMItems.MAGNUM_BULLET, 64));
         } else if (role == ModRoles.TARTAGLIA) {
             player.addItem(new ItemStack(Items.ARROW, 64));
         } else if (role == ModRoles.BOOM_MANIAC) {
@@ -1117,6 +1118,19 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                     || role == THMiscRoles.KIJIN_SEIJA || role == THMiscRoles.YAKUMO_YUKARI) {
                 capSkillCooldowns(ability, role);
             }
+            // 观者切换姿态耗时 5 s，每次切换到宁静后重置护盾
+            else if (role == ModRoles.WATCHER) {
+                ResourceLocation stanceSkillId = SRE.id("watcher_stance");
+                SREAbilityPlayerComponent.SkillState stanceState = ability.getSkillState(stanceSkillId);
+                // 技能刚使用时会先写入普通模式冷却；只在这一刻处理姿态切换
+                if (stanceState.cooldown > WATCHER_STANCE_COOLDOWN_TICKS) {
+                    WatcherRoleData watcher = RoleData.getNullable(WatcherRoleData.class, player);
+                    if (watcher != null && watcher.isInCalmStance()) {
+                        SREArmorPlayerComponent.KEY.get(player).setArmor(1, true);
+                    }
+                }
+                capSkillCooldown(ability, stanceSkillId, WATCHER_STANCE_COOLDOWN_TICKS);
+            }
             if (role == THMiscRoles.HAKUREI_REIMU) {
                 player.getCooldowns().removeCooldown(ModItems.DANMUKU);
             }
@@ -1129,6 +1143,23 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             if (role == ModRoles.UNDEAD_LORD) {
                 ability.setCooldown(0);
             }
+        }
+    }
+
+    /** 将单个技能的当前冷却钳制到指定上限。 */
+    private void capSkillCooldown(SREAbilityPlayerComponent ability, ResourceLocation skillId, int cap) {
+        boolean changed = false;
+        SREAbilityPlayerComponent.SkillState state = ability.getSkillState(skillId);
+        if (state.cooldown > cap) {
+            state.cooldown = cap;
+            changed = true;
+        }
+        if (ability.cooldown > cap) {
+            ability.cooldown = cap;
+            changed = true;
+        }
+        if (changed) {
+            ability.sync();
         }
     }
 
