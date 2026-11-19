@@ -1,4 +1,10 @@
 ﻿{
+  "announcement.star.role.metal_monster": "金属怪",
+  "announcement.star.goals.metal_monster": "碾碎他们！",
+  "role.noellesroles.metal_monster": "金属怪",
+  "skill.noellesroles.metal_monster.roll": "钢卷形态",
+  "skill.noellesroles.metal_monster.lethal": "致命强化",
+  "entity.noellesroles.steel_coil": "钢卷",
   "announcement.star.role.fog_guest": "雾客",
   "announcement.star.goals.fog_guest": "让浓雾吞没你的猎物。",
   "skill.noellesroles.fog_guest.rise": "雾起",

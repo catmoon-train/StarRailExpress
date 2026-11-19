@@ -710,6 +710,12 @@ public class ModPacketsReciever {
           inControlCCA.applyControlInput(payload.movementBits(), payload.yaw(), payload.pitch());
         });
 
+    // 金属怪钢卷形态输入包：薄转发到职业类（切回服务端线程再访问世界与 RoleData）
+    ServerPlayNetworking.registerGlobalReceiver(
+        org.agmas.noellesroles.packet.SteelCoilInputC2SPacket.ID, (payload, context) -> context.server()
+            .execute(() -> org.agmas.noellesroles.game.roles.neutral.metal_monster.MetalMonsterRole
+                .onInput(context.player(), payload.movementBits(), payload.yaw())));
+
     // 童子军攀爬请求：薄转发到职业类做二次校验与状态维护
     ServerPlayNetworking.registerGlobalReceiver(
         org.agmas.noellesroles.packet.ScoutClimbC2SPacket.ID, (payload, context) -> context.server()

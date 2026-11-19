@@ -13,6 +13,7 @@ import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.disguise.EntityDisguise;
 import io.wifi.starrailexpress.event.AllowPlayerPunching;
+import io.wifi.starrailexpress.event.OnPlayerDeath;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.util.TrueFalseResult;
@@ -108,7 +109,7 @@ public class SkeletonRole extends ExtraEffectRole implements CustomWinnerRoleInt
     public void onRemove(ServerPlayer player) {
         super.onRemove(player);
         // 职业被移除（换职业等）时解除伪装；局末清理由核心统一负责
-        EntityDisguise.clear(player);
+        clearSkeletonDisguise(player);
     }
 
     /** 未伪装时补上骷髅外观（已伪装成其它东西时不抢，交给调用方按需处理）。 */
@@ -122,9 +123,31 @@ public class SkeletonRole extends ExtraEffectRole implements CustomWinnerRoleInt
     }
 
     /**
+     * 仅当玩家当前挂的正是「原版骷髅」伪装时才清除，避免误删别的职业/形态施加的伪装。
+     * 死亡、转职、旁观等失效场景都走这里。
+     */
+    public static void clearSkeletonDisguise(ServerPlayer player) {
+        if (player != null && EntityDisguise.get(player).type() == EntityType.SKELETON) {
+            EntityDisguise.clear(player);
+        }
+    }
+
+    /** 骷髅伪装是否已失效：死亡 / 旁观 / 不再是骷髅职业。 */
+    public static boolean isDisguiseInvalid(ServerPlayer player) {
+        return player == null || player.isSpectator() || !GameUtils.isPlayerAliveAndSurvival(player)
+                || !isSkeleton(player);
+    }
+
+    /**
      * 注册战斗相关事件（由 {@code NRCombatEvents.registerWeaponHandlers()} 调用）。
      */
     public static void registerEvents() {
+        // 死亡瞬间立即解除骷髅伪装（旁观后 RoleData.serverTick 不再补挂，也不会主动清）
+        OnPlayerDeath.EVENT.register((player, reason) -> {
+            if (player instanceof ServerPlayer sp) {
+                clearSkeletonDisguise(sp);
+            }
+        });
         // 放行骷髅的空手近战攻击
         AllowPlayerPunching.EVENT.register(player -> {
             if (player.hasEffect(ModEffects.SAFE_TIME)) {
