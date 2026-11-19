@@ -31,7 +31,7 @@
         {"type": "show_structure", "structure": "starrailexpress:role_tutorial_bartender", "scale": 0.9, "attachKeyFrame": true},
         {"type": "create_entity", "entity": "minecraft:player", "pos": [2.0, 1.0, 2.0], "yaw": 180.0, "nbt": "{CustomName:'{role_name}',CustomNameVisible:1b}", "linkId": "bartender_self", "attachKeyFrame": true},
         {"type": "create_entity", "entity": "minecraft:player", "pos": [4.0, 1.0, 2.0], "yaw": 180.0, "nbt": "{CustomName:'中毒玩家',CustomNameVisible:1b}", "linkId": "poisoned_player", "attachKeyFrame": true},
-        {"type": "text", "duration": 100, "text": {"en_us": "Now thinking about {role_name} ({role_id}). Passenger team. Starting items: {initial_items}.", "zh_cn": "正在思索 {role_name}（{role_id}）。平民阵营。初始物品：{initial_items}。", "zh_tw": "正在思索 {role_name}（{role_id}）。平民陣營。初始物品：{initial_items}。"}, "point": [2.5, 2.0, 2.5], "color": "green", "placeNearTarget": true, "attachKeyFrame": true},
+        {"type": "text", "duration": 100, "text": {"en_us": "Passenger team; defeat all Killers or run out the game timer to win. Current role: {role_name} ({role_id}). Starting items: {initial_items}.", "zh_cn": "平民阵营，击杀所有杀手或拖到游戏时间耗尽取得胜利。当前职业：{role_name}（{role_id}）。初始物品：{initial_items}。", "zh_tw": "平民陣營，擊殺所有殺手或拖到遊戲時間耗盡取得勝利。當前職業：{role_name}（{role_id}）。初始物品：{initial_items}。"}, "point": [2.5, 2.0, 2.5], "color": "green", "placeNearTarget": true, "attachKeyFrame": true},
         {"type": "idle", "duration": 30},
         {"type": "create_item_entity", "pos": [1.5, 1.5, 1.5], "motion": [0.0, 0.0, 0.0], "count": 1, "item": "trainmurdermystery:defense_vial", "attachKeyFrame": true},
         {"type": "text", "duration": 100, "text": {"en_us": "Shop: {shop_summary}. Right-click a Defense Vial on a food plate or drink tray to shield the next eater or drinker from one non-forced lethal hit.", "zh_cn": "商店：{shop_summary}。把护盾试剂右键放在食物盘或饮料盘中，可以让下一个吃东西或喝饮料的人抵挡一次非强制死亡的致命伤害。", "zh_tw": "商店：{shop_summary}。把護盾試劑右鍵放在食物盤或飲料盤中，可以讓下一個吃東西或喝飲料的人抵擋一次非強制死亡的致命傷害。"}, "point": [2.5, 2.5, 2.5], "color": "input", "placeNearTarget": true, "attachKeyFrame": true},
@@ -68,7 +68,8 @@
       },
       "steps": [
         {"type": "show_structure", "structure": "starrailexpress:role_tutorial_bartender", "scale": 0.9, "attachKeyFrame": true},
-        {"type": "set_block", "block": "starrailexpress:scifi_door", "blockPos": [2, 1, 4], "blockPos2": [2, 1, 4], "attachKeyFrame": true},
+        {"type": "set_block", "block": "trainmurdermystery:small_glass_door", "blockProperties": {"half": "lower"}, "blockPos": [2, 1, 4], "blockPos2": [2, 1, 4], "attachKeyFrame": true},
+        {"type": "set_block", "block": "trainmurdermystery:small_glass_door", "blockProperties": {"half": "upper"}, "blockPos": [2, 2, 4], "blockPos2": [2, 2, 4], "attachKeyFrame": true},
         {"type": "rotate_camera_y", "degrees": -45.0, "attachKeyFrame": true},
         {"type": "text", "duration": 100, "text": {"en_us": "Your counterplay is {shop_first_item}, priced at {shop_first_price}. Protect yourself before entering suspicious rooms.", "zh_cn": "你的反制手段是 {shop_first_item}，价格为 {shop_first_price}。进入可疑房间前先保护自己。", "zh_tw": "你的反制手段是 {shop_first_item}，價格為 {shop_first_price}。進入可疑房間前先保護自己。"}, "point": [2.5, 2.0, 2.5], "placeNearTarget": true, "attachKeyFrame": true},
         {"type": "idle", "duration": 30},

@@ -35,7 +35,7 @@
         {"type": "idle", "duration": 30},
         {"type": "create_item_entity", "pos": [1.5, 1.5, 1.5], "motion": [0.0, 0.0, 0.0], "count": 1, "item": "noellesroles:fake_knife", "attachKeyFrame": true},
         {"type": "create_item_entity", "pos": [3.5, 1.5, 1.5], "motion": [0.0, 0.0, 0.0], "count": 1, "item": "noellesroles:fake_revolver", "attachKeyFrame": true},
-        {"type": "text", "duration": 100, "text": {"en_us": "Neutral team; wins together with the Killers. Starting items: {initial_items}. The fake knife only shows a charge animation, and the fake gun only shows shooting feedback.", "zh_cn": "中立阵营，与杀手一同获胜。初始物品：{initial_items}。假刀只有蓄力动作，假枪只有开火表现。", "zh_tw": "中立陣營，與殺手一同獲勝。初始物品：{initial_items}。假刀只有蓄力動作，假槍只有開火表現。"}, "point": [2.5, 2.5, 2.5], "color": "input", "placeNearTarget": true, "attachKeyFrame": true},
+        {"type": "text", "duration": 100, "text": {"en_us": "Neutral for the Killers; help the Killer team win from the start. Starting items: {initial_items}. The fake knife only shows a charge animation, and the fake gun only shows shooting feedback.", "zh_cn": "杀手方中立，开局就协助杀手阵营取得胜利。初始物品：{initial_items}。假刀只有蓄力动作，假枪只有开火表现。", "zh_tw": "殺手方中立，開局就協助殺手陣營取得勝利。初始物品：{initial_items}。假刀只有蓄力動作，假槍只有開火表現。"}, "point": [2.5, 2.5, 2.5], "color": "input", "placeNearTarget": true, "attachKeyFrame": true},
         {"type": "idle", "duration": 40}
       ]
     },
@@ -48,8 +48,8 @@
       },
       "steps": [
         {"type": "show_structure", "structure": "starrailexpress:role_tutorial_jester", "scale": 1.0, "attachKeyFrame": true},
-        {"type": "set_block", "block": "trainmurdermystery:navy_steel_door", "blockProperties": {"half": "lower"}, "blockPos": [2, 1, 4], "blockPos2": [2, 1, 4], "attachKeyFrame": true},
-        {"type": "set_block", "block": "trainmurdermystery:navy_steel_door", "blockProperties": {"half": "upper"}, "blockPos": [2, 2, 4], "blockPos2": [2, 2, 4], "attachKeyFrame": true},
+        {"type": "set_block", "block": "trainmurdermystery:small_glass_door", "blockProperties": {"half": "lower"}, "blockPos": [2, 1, 4], "blockPos2": [2, 1, 4], "attachKeyFrame": true},
+        {"type": "set_block", "block": "trainmurdermystery:small_glass_door", "blockProperties": {"half": "upper"}, "blockPos": [2, 2, 4], "blockPos2": [2, 2, 4], "attachKeyFrame": true},
         {"type": "text", "duration": 100, "text": {"en_us": "Jester see-through: with instinct on, other players are outlined in the Jester's own purple color.", "zh_cn": "小丑透视：开启本能后，其他玩家会被染成小丑自己的紫色轮廓。", "zh_tw": "小醜透視：開啟本能後，其他玩家會被染成小醜自己的紫色輪廓。"}, "point": [2.5, 2.5, 2.5], "placeNearTarget": true, "attachKeyFrame": true},
         {"type": "idle", "duration": 30},
         {"type": "indicate_success", "blockPos": [2, 1, 4], "attachKeyFrame": true},
