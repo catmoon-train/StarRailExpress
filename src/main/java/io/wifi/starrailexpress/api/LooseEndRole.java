@@ -18,6 +18,7 @@ package io.wifi.starrailexpress.api;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
@@ -33,7 +34,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
@@ -106,7 +106,7 @@ public class LooseEndRole extends OriginalRole {
         super.onKill(victim, spawnBody, killer, deathReason);
         if (killer == null)
             return;
-        if (!killer.hasEffect(MobEffects.WEAVING))
+        if (!killer.hasEffect(ModEffects.PURGATORY))
             return;
         CrosshairaddonsCompat.onAttack(victim);
         if (killer != null && killer.level() instanceof ServerLevel serverLevel) {

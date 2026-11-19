@@ -24,12 +24,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 
 import java.util.List;
@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * 闪光弹实体
  * - 落地时播放FIREWORK_LARGE_BLAST（烟花爆炸声）
- * - 检测玩家视野，让视野内有闪光弹的玩家获得试炼之兆效果（RAID_OMEN）3秒（60 ticks）
+ * - 检测玩家视野，让视野内有闪光弹的玩家获得黑屏效果 3秒（60 ticks）
  * - 视野判定参考巡警实现：距离检查 + 视野角度检查 + 射线检测
  * - 视野角度：70度扇形（半角35度）
  */
@@ -98,9 +98,9 @@ public class FlashGrenadeEntity extends NoHeavyWaterInfluencedThrowableItemProje
         for (ServerPlayer player : players) {
             // 检查玩家视线是否能看到闪光弹（参考巡警的视野判定）
             if (canSeeFlash(player, flashPos, world)) {
-                // 给予试炼之兆效果（RAID_OMEN）3秒
+                // 给予黑屏效果 3秒
                 player.addEffect(new MobEffectInstance(
-                        MobEffects.RAID_OMEN,
+                        ModEffects.BLACK_MONITOR,
                         EFFECT_DURATION,
                         0, // 等级0
                         false, // 不显示粒子

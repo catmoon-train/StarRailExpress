@@ -115,7 +115,7 @@ public class NoiseMakerRoleData extends SimpleRoleData {
         // player.displayClientMessage(Component.translatable("message.noellesroles.insufficient_funds"),
         // true);
         player.addEffect(
-                new MobEffectInstance(MobEffects.LUCK, 120, 0, false, false, false));
+                new MobEffectInstance(ModEffects.LOUD_VOICE, 120, 0, false, false, false));
 
         Component msg = Component.translatable("gui.noellesroles.noisemaker.ability").withStyle(ChatFormatting.AQUA,
                 ChatFormatting.BOLD);

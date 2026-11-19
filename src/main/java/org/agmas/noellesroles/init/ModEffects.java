@@ -106,6 +106,10 @@ public class ModEffects {
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF));
     public static final Holder<MobEffect> BLACK_MONITOR = register("black_monitor",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFFFFFF));
+    public static final Holder<MobEffect> INSTANT_BLACK_SCREEN = register("instant_black_screen",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x1A1A1A));
+    public static final Holder<MobEffect> PURGATORY = register("purgatory",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0x8B0000));
     public static final Holder<MobEffect> GHOST_STATE = register("ghost_state",
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF) {
                 @Override
@@ -155,6 +159,8 @@ public class ModEffects {
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFFFFFF));
     public static final Holder<MobEffect> USED_BANED = register("used_baned",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFFFFFF));
+    public static final Holder<MobEffect> MOVEMENT_KEY_BLOCK = register("movement_key_block",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFF8C00));
 
     public static final Holder<MobEffect> MOUSE_UPSIDE_DOWN = register("mouse_upside_down",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFFFFFF));
@@ -522,6 +528,11 @@ public class ModEffects {
      */
     public static final Holder<MobEffect> VOICE_RANGE_BOOST = register("voice_range_boost",
             new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0x8FD3FF));
+    /**
+     * 大嗓门：扩大语音传播范围（原版幸运的替代效果）
+     */
+    public static final Holder<MobEffect> LOUD_VOICE = register("loud_voice",
+            new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0xFFD700));
     /**
      * 回响语音：让语音出现回音
      */

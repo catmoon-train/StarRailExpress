@@ -30,6 +30,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.noellesroles.ConfigWorldComponent;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 
@@ -123,7 +124,7 @@ public class BloodFeudistRoleData extends SimpleRoleData {
         player.removeEffect(MobEffects.CONFUSION); // 反胃
         player.removeEffect(MobEffects.BLINDNESS); // 失明
         player.removeEffect(MobEffects.DARKNESS); // 黑暗
-        player.removeEffect(MobEffects.UNLUCK); // 霉运
+        player.removeEffect(ModEffects.INSTANT_BLACK_SCREEN); // 瞬时黑屏
         player.removeEffect(MobEffects.GLOWING); // 发光
     }
 

@@ -26,7 +26,6 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent.GameStatus;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
@@ -258,7 +257,7 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
                 players.forEach((p) -> {
                   if (p.getUUID() != player.getUUID()) {
                     double rangeMultiplier = 2;
-                    if (player.hasEffect(MobEffects.LUCK)) {
+                    if (player.hasEffect(ModEffects.LOUD_VOICE)) {
                       rangeMultiplier = 8;
                     }
                     if (player.distanceTo(p) <= api.getVoiceChatDistance() * rangeMultiplier) {

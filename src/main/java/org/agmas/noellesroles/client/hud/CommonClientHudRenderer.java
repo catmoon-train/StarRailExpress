@@ -472,8 +472,8 @@ public class CommonClientHudRenderer {
       Component text = null;
       int color = 0xFFFFFFFF;
       SREAbilityPlayerComponent abilityComponent = SREAbilityPlayerComponent.KEY.get(client.player);
-      if (client.player.getActiveEffectsMap().containsKey(MobEffects.LUCK)) {
-        MobEffectInstance eff = client.player.getEffect(MobEffects.LUCK);
+      if (client.player.getActiveEffectsMap().containsKey(ModEffects.LOUD_VOICE)) {
+        MobEffectInstance eff = client.player.getEffect(ModEffects.LOUD_VOICE);
         int seconds = eff.getDuration() / 20;
         text = Component.translatable("gui.noellesroles.noisemaker.during", seconds);
         color = 0x00fff7; // 青蓝色

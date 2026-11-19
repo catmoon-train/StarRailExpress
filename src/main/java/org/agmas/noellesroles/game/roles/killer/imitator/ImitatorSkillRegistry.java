@@ -428,7 +428,7 @@ public class ImitatorSkillRegistry {
         level.playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.WARDEN_SONIC_BOOM, SoundSource.PLAYERS, 1.5F, 1.0F);
 
-        player.addEffect(new MobEffectInstance(MobEffects.LUCK, 120, 0, false, false, false));
+        player.addEffect(new MobEffectInstance(ModEffects.LOUD_VOICE, 120, 0, false, false, false));
         player.displayClientMessage(Component.translatable("message.noellesroles.imitator.noisemaker_used")
                 .withStyle(ChatFormatting.AQUA), true);
     }
