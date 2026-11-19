@@ -1,0 +1,83 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.bartender",
+  "items": ["trainmurdermystery:defense_vial"],
+  "title": {
+    "en_us": "{role_name}",
+    "zh_cn": "{role_name}",
+    "zh_tw": "{role_name}"
+  },
+  "structures": ["starrailexpress:role_tutorial_bartender"],
+  "tags": ["starrailexpress:role_tutorial"],
+  "customTags": {
+    "starrailexpress:role_tutorial": {
+      "title": {
+        "en_us": "Role Ponders",
+        "zh_cn": "职业动态教程",
+        "zh_tw": "職業動態教程"
+      },
+      "icon": "trainmurdermystery:defense_vial"
+    }
+  },
+  "scenes": [
+    {
+      "id": "role",
+      "title": {
+        "en_us": "Faction and shop",
+        "zh_cn": "阵营与商店",
+        "zh_tw": "陣營與商店"
+      },
+      "steps": [
+        {"type": "show_structure", "structure": "starrailexpress:role_tutorial_bartender", "scale": 0.9, "attachKeyFrame": true},
+        {"type": "create_entity", "entity": "minecraft:player", "pos": [2.0, 1.0, 2.0], "yaw": 180.0, "nbt": "{CustomName:'{role_name}',CustomNameVisible:1b}", "linkId": "bartender_self", "attachKeyFrame": true},
+        {"type": "create_entity", "entity": "minecraft:player", "pos": [4.0, 1.0, 2.0], "yaw": 180.0, "nbt": "{CustomName:'中毒玩家',CustomNameVisible:1b}", "linkId": "poisoned_player", "attachKeyFrame": true},
+        {"type": "text", "duration": 100, "text": {"en_us": "Now thinking about {role_name} ({role_id}). Passenger team. Starting items: {initial_items}.", "zh_cn": "正在思索 {role_name}（{role_id}）。平民阵营。初始物品：{initial_items}。", "zh_tw": "正在思索 {role_name}（{role_id}）。平民陣營。初始物品：{initial_items}。"}, "point": [2.5, 2.0, 2.5], "color": "green", "placeNearTarget": true, "attachKeyFrame": true},
+        {"type": "idle", "duration": 30},
+        {"type": "create_item_entity", "pos": [1.5, 1.5, 1.5], "motion": [0.0, 0.0, 0.0], "count": 1, "item": "trainmurdermystery:defense_vial", "attachKeyFrame": true},
+        {"type": "text", "duration": 100, "text": {"en_us": "Shop: {shop_summary}. Right-click a Defense Vial on a food plate or drink tray to shield the next eater or drinker from one non-forced lethal hit.", "zh_cn": "商店：{shop_summary}。把护盾试剂右键放在食物盘或饮料盘中，可以让下一个吃东西或喝饮料的人抵挡一次非强制死亡的致命伤害。", "zh_tw": "商店：{shop_summary}。把護盾試劑右鍵放在食物盤或飲料盤中，可以讓下一個吃東西或喝飲料的人抵擋一次非強制死亡的致命傷害。"}, "point": [2.5, 2.5, 2.5], "color": "input", "placeNearTarget": true, "attachKeyFrame": true},
+        {"type": "idle", "duration": 40}
+      ]
+    },
+    {
+      "id": "inspection",
+      "title": {
+        "en_us": "Trays and outlines",
+        "zh_cn": "托盘与轮廓",
+        "zh_tw": "托盤與輪廓"
+      },
+      "steps": [
+        {"type": "show_structure", "structure": "starrailexpress:role_tutorial_bartender", "scale": 0.9, "attachKeyFrame": true},
+        {"type": "create_entity", "entity": "minecraft:player", "pos": [3.0, 1.0, 3.0], "yaw": 180.0, "nbt": "{CustomName:'喝饮料玩家',CustomNameVisible:1b}", "linkId": "drink_player", "attachKeyFrame": true},
+        {"type": "indicate_redstone", "blockPos": [2, 1, 1], "attachKeyFrame": true},
+        {"type": "text", "duration": 100, "text": {"en_us": "The Bartender can see poison and shields on the mod's food plates and drink trays.", "zh_cn": "酒保可以看到本模组食物盘和饮料盘是否被下毒或放了护盾试剂。", "zh_tw": "酒保可以看到本模組食物盤和飲料盤是否被下毒或放了護盾試劑。"}, "point": [2.5, 2.0, 1.5], "placeNearTarget": true, "attachKeyFrame": true},
+        {"type": "idle", "duration": 30},
+        {"type": "indicate_success", "blockPos": [3, 1, 1], "attachKeyFrame": true},
+        {"type": "text", "duration": 100, "text": {"en_us": "Players who drank a beverage are briefly outlined in green. Poisoned players are outlined in red.", "zh_cn": "喝了饮料的玩家会短暂显示绿色轮廓，中毒的玩家显示红色轮廓。", "zh_tw": "喝了飲料的玩家會短暫顯示綠色輪廓，中毒的玩家顯示紅色輪廓。"}, "point": [3.5, 1.5, 1.5], "color": "green", "placeNearTarget": true, "attachKeyFrame": true},
+        {"type": "idle", "duration": 30},
+        {"type": "indicate_redstone", "blockPos": [1, 1, 3], "attachKeyFrame": true},
+        {"type": "text", "duration": 100, "text": {"en_us": "Shields from a Defense Vial show a blue outline; poison plus that shield shows a yellow-green outline. Neither outline appears during Safe Time.", "zh_cn": "护盾试剂给予的护盾显示为蓝色轮廓，同时带有这种护盾和毒药的玩家显示为黄绿色轮廓。安全时间内不会显示。", "zh_tw": "護盾試劑給予的護盾顯示為藍色輪廓，同時帶有這種護盾和毒藥的玩家顯示為黃綠色輪廓。安全時間內不會顯示。"}, "point": [1.5, 1.5, 3.5], "color": "red", "placeNearTarget": true, "attachKeyFrame": true},
+        {"type": "idle", "duration": 30}
+      ]
+    },
+    {
+      "id": "counterplay",
+      "title": {
+        "en_us": "Counterplay",
+        "zh_cn": "反制思路",
+        "zh_tw": "反制思路"
+      },
+      "steps": [
+        {"type": "show_structure", "structure": "starrailexpress:role_tutorial_bartender", "scale": 0.9, "attachKeyFrame": true},
+        {"type": "set_block", "block": "starrailexpress:scifi_door", "blockPos": [2, 1, 4], "blockPos2": [2, 1, 4], "attachKeyFrame": true},
+        {"type": "rotate_camera_y", "degrees": -45.0, "attachKeyFrame": true},
+        {"type": "text", "duration": 100, "text": {"en_us": "Your counterplay is {shop_first_item}, priced at {shop_first_price}. Protect yourself before entering suspicious rooms.", "zh_cn": "你的反制手段是 {shop_first_item}，价格为 {shop_first_price}。进入可疑房间前先保护自己。", "zh_tw": "你的反制手段是 {shop_first_item}，價格為 {shop_first_price}。進入可疑房間前先保護自己。"}, "point": [2.5, 2.0, 2.5], "placeNearTarget": true, "attachKeyFrame": true},
+        {"type": "idle", "duration": 30},
+        {"type": "play_sound", "pitch": 1.1, "sound": "minecraft:entity.experience_orb.pickup", "soundVolume": 1.0, "source": "master", "attachKeyFrame": true},
+        {"type": "text", "duration": 80, "text": {"en_us": "Share what you find with the Passenger team.", "zh_cn": "把发现分享给平民阵营的队友。", "zh_tw": "把發現分享給平民陣營的隊友。"}, "point": [2.5, 1.5, 2.5], "color": "red", "placeNearTarget": true, "attachKeyFrame": true},
+        {"type": "idle", "duration": 30},
+        {"type": "clear_entities", "attachKeyFrame": true, "fullScene": true},
+        {"type": "clear_item_entities", "fullScene": true}
+      ]
+    }
+  ]
+}

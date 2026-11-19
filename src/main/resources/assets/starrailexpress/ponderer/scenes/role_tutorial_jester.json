@@ -1,0 +1,82 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.jester",
+  "items": ["noellesroles:fake_knife", "noellesroles:fake_revolver"],
+  "title": {
+    "en_us": "{role_name}",
+    "zh_cn": "{role_name}",
+    "zh_tw": "{role_name}"
+  },
+  "structures": ["starrailexpress:role_tutorial_jester"],
+  "tags": ["starrailexpress:role_tutorial"],
+  "customTags": {
+    "starrailexpress:role_tutorial": {
+      "title": {
+        "en_us": "Role Ponders",
+        "zh_cn": "职业动态教程",
+        "zh_tw": "職業動態教程"
+      },
+      "icon": "noellesroles:fake_knife"
+    }
+  },
+  "scenes": [
+    {
+      "id": "role",
+      "title": {
+        "en_us": "Faction and tools",
+        "zh_cn": "阵营与道具",
+        "zh_tw": "陣營與道具"
+      },
+      "steps": [
+        {"type": "show_structure", "structure": "starrailexpress:role_tutorial_jester", "scale": 1.0, "attachKeyFrame": true},
+        {"type": "create_entity", "entity": "minecraft:player", "pos": [2.0, 1.0, 2.0], "yaw": 180.0, "nbt": "{CustomName:'{role_name}',CustomNameVisible:1b}", "linkId": "jester_self", "attachKeyFrame": true},
+        {"type": "create_entity", "entity": "minecraft:player", "pos": [4.0, 1.0, 2.0], "yaw": 180.0, "nbt": "{CustomName:'好人玩家',CustomNameVisible:1b}", "linkId": "good_player", "attachKeyFrame": true},
+        {"type": "text", "duration": 100, "text": {"en_us": "Now thinking about {role_name} ({role_id}).", "zh_cn": "正在思索 {role_name}（{role_id}）。", "zh_tw": "正在思索 {role_name}（{role_id}）。"}, "point": [2.5, 2.0, 2.5], "color": "green", "placeNearTarget": true, "attachKeyFrame": true},
+        {"type": "idle", "duration": 30},
+        {"type": "create_item_entity", "pos": [1.5, 1.5, 1.5], "motion": [0.0, 0.0, 0.0], "count": 1, "item": "noellesroles:fake_knife", "attachKeyFrame": true},
+        {"type": "create_item_entity", "pos": [3.5, 1.5, 1.5], "motion": [0.0, 0.0, 0.0], "count": 1, "item": "noellesroles:fake_revolver", "attachKeyFrame": true},
+        {"type": "text", "duration": 100, "text": {"en_us": "Neutral team; wins together with the Killers. Starting items: {initial_items}. The fake knife only shows a charge animation, and the fake gun only shows shooting feedback.", "zh_cn": "中立阵营，与杀手一同获胜。初始物品：{initial_items}。假刀只有蓄力动作，假枪只有开火表现。", "zh_tw": "中立陣營，與殺手一同獲勝。初始物品：{initial_items}。假刀只有蓄力動作，假槍只有開火表現。"}, "point": [2.5, 2.5, 2.5], "color": "input", "placeNearTarget": true, "attachKeyFrame": true},
+        {"type": "idle", "duration": 40}
+      ]
+    },
+    {
+      "id": "perception",
+      "title": {
+        "en_us": "Instinct and doors",
+        "zh_cn": "本能和门框",
+        "zh_tw": "本能與門框"
+      },
+      "steps": [
+        {"type": "show_structure", "structure": "starrailexpress:role_tutorial_jester", "scale": 1.0, "attachKeyFrame": true},
+        {"type": "set_block", "block": "trainmurdermystery:navy_steel_door", "blockProperties": {"half": "lower"}, "blockPos": [2, 1, 4], "blockPos2": [2, 1, 4], "attachKeyFrame": true},
+        {"type": "set_block", "block": "trainmurdermystery:navy_steel_door", "blockProperties": {"half": "upper"}, "blockPos": [2, 2, 4], "blockPos2": [2, 2, 4], "attachKeyFrame": true},
+        {"type": "text", "duration": 100, "text": {"en_us": "Jester see-through: with instinct on, other players are outlined in the Jester's own purple color.", "zh_cn": "小丑透视：开启本能后，其他玩家会被染成小丑自己的紫色轮廓。", "zh_tw": "小醜透視：開啟本能後，其他玩家會被染成小醜自己的紫色輪廓。"}, "point": [2.5, 2.5, 2.5], "placeNearTarget": true, "attachKeyFrame": true},
+        {"type": "idle", "duration": 30},
+        {"type": "indicate_success", "blockPos": [2, 1, 4], "attachKeyFrame": true},
+        {"type": "text", "duration": 90, "text": {"en_us": "Near a door frame, the Jester has no collision box.", "zh_cn": "小丑靠近门框时没有碰撞体积。", "zh_tw": "小醜靠近門框時沒有碰撞體積。"}, "point": [2.5, 1.5, 4.0], "color": "green", "placeNearTarget": true, "attachKeyFrame": true},
+        {"type": "idle", "duration": 30}
+      ]
+    },
+    {
+      "id": "rampage",
+      "title": {
+        "en_us": "Rampage",
+        "zh_cn": "狂暴",
+        "zh_tw": "狂暴"
+      },
+      "steps": [
+        {"type": "show_structure", "structure": "starrailexpress:role_tutorial_jester", "scale": 0.9, "attachKeyFrame": true},
+        {"type": "create_entity", "entity": "minecraft:player", "pos": [2.0, 1.0, 2.0], "yaw": 180.0, "nbt": "{CustomName:'{role_name}（狂暴）',CustomNameVisible:1b}", "linkId": "jester_rampage", "attachKeyFrame": true},
+        {"type": "create_entity", "entity": "trainmurdermystery:player_body", "pos": [4.0, 1.0, 2.0], "yaw": 90.0, "nbt": "{CustomName:'好人玩家',CustomNameVisible:0b}", "linkId": "good_player_body", "attachKeyFrame": true},
+        {"type": "create_item_entity", "pos": [0.5, 2.0, 0.5], "motion": [0.0, 0.0, 0.0], "count": 1, "item": "noellesroles:delusion_vial", "attachKeyFrame": true},
+        {"type": "text", "duration": 110, "text": {"en_us": "Shop: {shop_summary}. Fake poison can be triggered lethal by the Poisoner's Catalyst.", "zh_cn": "商店：{shop_summary}。假毒可以被毒师的催化剂触发致死。", "zh_tw": "商店：{shop_summary}。假毒可以被毒師的催化劑觸發致死。"}, "point": [2.5, 2.5, 2.5], "placeNearTarget": true, "attachKeyFrame": true},
+        {"type": "idle", "duration": 30},
+        {"type": "rotate_camera_y", "degrees": 60.0, "attachKeyFrame": true},
+        {"type": "text", "duration": 110, "text": {"en_us": "Killed by a good player: Rampage starts for 45 seconds with no shield and its own background music. The player skin becomes starrailexpress:textures/entity/custom_psycho/jester.png.", "zh_cn": "被好人击杀后触发 45 秒狂暴，没有护盾，并有独立背景音乐。玩家皮肤会变为 starrailexpress:textures/entity/custom_psycho/jester.png。", "zh_tw": "被好人擊殺後觸發 45 秒狂暴，沒有護盾，並有獨立背景音樂。玩家皮膚會變為 starrailexpress:textures/entity/custom_psycho/jester.png。"}, "point": [2.5, 2.0, 2.5], "color": "red", "placeNearTarget": true, "attachKeyFrame": true},
+        {"type": "idle", "duration": 40},
+        {"type": "clear_entities", "attachKeyFrame": true, "fullScene": true},
+        {"type": "clear_item_entities", "fullScene": true}
+      ]
+    }
+  ]
+}

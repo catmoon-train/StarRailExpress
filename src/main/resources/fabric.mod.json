@@ -142,7 +142,8 @@
     "voicechat": "*",
     "architectury": "*",
     "exposure": "*",
-    "sre_resource": "*"
+    "sre_resource": "*",
+    "ponderer": "*"
   },
   "recommends": {
     "exposure_polaroid": "*",
