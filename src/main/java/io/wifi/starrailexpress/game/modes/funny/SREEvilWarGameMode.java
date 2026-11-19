@@ -200,6 +200,10 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
     public static final int EXECUTIONER_GUN_NUMBER = 6;
     /** 观者切换姿态的冷却 */
     private static final int WATCHER_STANCE_COOLDOWN_TICKS = 5 * 20;
+    /** 猫娘召唤师的冷却 */
+    private  static final int CAT_NECROMANCER_COOLDOWN_TICKS = 10 * 20;
+    /** 死灵法师的冷却 */
+    private  static final int NECROMANCER_COOLDOWN_TICKS = 10 * 20;
     protected static AttributeModifier tinyModifier = new AttributeModifier(
             StupidExpress.id("tiny_modifier"), -0.15, AttributeModifier.Operation.ADD_VALUE);
     public final List<SRERole> BANED_ROLES = new ArrayList<>();
@@ -705,7 +709,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             }
             curOneSecondTick = 0;
         }
-        // 复活cd事件
+        // 10s cd事件
         if (curReviveTick++ >= REVIVE_TIME) {
             boolean hasOtherKiller = false;
             for (ServerPlayer player : serverWorld.players()) {
@@ -713,13 +717,8 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                     continue;
 
                 SRERole role = gameWorldComponent.getRole(player);
-                // 猫娘可以复活cd降至10s
-                if (role == BounsRoles.CAT_NECROMANCER) {
-                    SREAbilityPlayerComponent abilityPlayerComponent = SREAbilityPlayerComponent.KEY.get(player);
-                    abilityPlayerComponent.setCooldown(0);
-                }
                 // 仇杀客每10s涨一个误杀数
-                else if (role == ModRoles.BLOOD_FEUDIST) {
+                if (role == ModRoles.BLOOD_FEUDIST) {
                     var bloodFeudistData = RoleData.getNullable(BloodFeudistRoleData.class, player);
                     if (bloodFeudistData != null)
                         bloodFeudistData.onAccidentalKill();
@@ -845,11 +844,6 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                         gun.setCount(EXECUTIONER_GUN_NUMBER - leftDerringerCount);
                         player.addItem(gun);
                     }
-                }
-                // 死灵复活cd为30s - 防止刷新过快
-                else if (role == SERoles.NECROMANCER) {
-                    SREAbilityPlayerComponent abilityPlayerComponent = SREAbilityPlayerComponent.KEY.get(player);
-                    abilityPlayerComponent.setCooldown(0);
                 }
             }
             curBalanceTick = 0;
@@ -1112,7 +1106,12 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                 continue;
             }
             SREAbilityPlayerComponent ability = SREAbilityPlayerComponent.KEY.get(player);
-            if (role == THMiscRoles.MAMIZOU) {
+            // 按上限钳制而非周期清零，使客户端 HUD 能连续显示正确的复活冷却
+            if (role == BounsRoles.CAT_NECROMANCER) {
+                capAbilityCooldown(ability, CAT_NECROMANCER_COOLDOWN_TICKS);
+            } else if (role == SERoles.NECROMANCER) {
+                capAbilityCooldown(ability, NECROMANCER_COOLDOWN_TICKS);
+            } else if (role == THMiscRoles.MAMIZOU) {
                 ability.resetAllCooldowns();
             } else if (role == THMiscRoles.REIUJI_UTSUHO || role == THMiscRoles.KOMACHI
                     || role == THMiscRoles.KIJIN_SEIJA || role == THMiscRoles.YAKUMO_YUKARI) {
@@ -1143,6 +1142,14 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             if (role == ModRoles.UNDEAD_LORD) {
                 ability.setCooldown(0);
             }
+        }
+    }
+
+    /** 将旧版总冷却钳制到指定上限 */
+    private void capAbilityCooldown(SREAbilityPlayerComponent ability, int cap) {
+        if (ability.cooldown > cap) {
+            ability.cooldown = cap;
+            ability.sync();
         }
     }
 
