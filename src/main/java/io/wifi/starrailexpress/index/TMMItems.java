@@ -195,6 +195,12 @@ public interface TMMItems {
             new io.wifi.starrailexpress.content.item.AdminDrawingBoardItem(),
             new net.minecraft.resources.ResourceKey[] {
                     net.minecraft.world.item.CreativeModeTabs.OP_BLOCKS });
+    /** 列车指令手册：面向游戏内用户的指令速查，置于原版「操作员物品」标签页。 */
+    Item TRAIN_COMMAND_MANUAL = sreRegistrar.create("train_command_manual",
+            new io.wifi.starrailexpress.content.item.TrainCommandManualItem(
+                    new Item.Properties().stacksTo(1)),
+            new net.minecraft.resources.ResourceKey[] {
+                    net.minecraft.world.item.CreativeModeTabs.OP_BLOCKS });
 
     // === 杂项 (MISC) ===
     Item BLACKOUT = registrar.create("blackout", new BlackoutItem(new Item.Properties().stacksTo(1)),
