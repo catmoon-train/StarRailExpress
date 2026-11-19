@@ -166,6 +166,27 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
     }
   }
 
+  private void forwardLoudVoice(VoicechatServerApi api, MicrophonePacketEvent event, ServerPlayer player) {
+    event.cancel();
+    var players = player.level().players();
+    if (players == null) {
+      return;
+    }
+    double maxDistance = api.getVoiceChatDistance() * 8.0;
+    players.forEach((p) -> {
+      if (p.getUUID() != player.getUUID() && player.distanceTo(p) <= maxDistance) {
+        VoicechatConnection con = api.getConnectionOf(p.getUUID());
+        if (con != null && con.isInstalled() && con.isConnected()) {
+          api.sendLocationalSoundPacketTo(con, event.getPacket()
+              .locationalSoundPacketBuilder()
+              .position(api.createPosition(p.getX(), p.getY(), p.getZ()))
+              .distance((float) api.getVoiceChatDistance())
+              .build());
+        }
+      }
+    });
+  }
+
   public void paranoidEvent(MicrophonePacketEvent event) {
     VoicechatServerApi api = event.getVoicechat();
     var connection = event.getSenderConnection();
@@ -248,6 +269,10 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
                 });
                 return;
               }
+              if (player.hasEffect(ModEffects.LOUD_VOICE)) {
+                forwardLoudVoice(api, event, player);
+                return;
+              }
               if (gameWorldComponent.isRole(player, ModRoles.NOISEMAKER)) {
                 event.cancel();
                 var players = player.level().players();
@@ -257,9 +282,6 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
                 players.forEach((p) -> {
                   if (p.getUUID() != player.getUUID()) {
                     double rangeMultiplier = 2;
-                    if (player.hasEffect(ModEffects.LOUD_VOICE)) {
-                      rangeMultiplier = 8;
-                    }
                     if (player.distanceTo(p) <= api.getVoiceChatDistance() * rangeMultiplier) {
                       VoicechatConnection con = api.getConnectionOf(p.getUUID());
                       if (con != null && con.isInstalled() && con.isConnected()) {
