@@ -75,7 +75,7 @@ does not have member field 'int field_22790'
   护盾试剂入盘是 `minecraft:effect`；其它粒子先查对应物品/技能/方块实体源码，不要自行编造。
   粒子步骤不阻塞时间轴，需要观察时补 `idle`。
 - 房间结构用 `tools/generate_ponder_structures.py` 生成，尺寸 7x4x7、顶部敞开，便于相机俯视。
-  小丑和酒保教程只保留背面（z=0）一堵墙，侧墙和前墙会挡住俯视镜头；其它新教程可复用
+  小丑和酒保教程只保留背面（z=6）一堵墙，侧墙和前墙会挡住俯视镜头；其它新教程可复用
   `starrailexpress:role_tutorial_common`。
 
 ## 5. 动态占位符
@@ -159,6 +159,8 @@ does not have member field 'int field_22790'
 - 门：只有明确说明是《我的世界》原版门时，场景才使用原版门；否则一律使用本模组门。搭建普通场景时用本模组玻璃门 `trainmurdermystery:small_glass_door`；只有搭建玩家出生房间且文案明确是房间门时，才用 `trainmurdermystery:small_wood_door`，出生房间还必须包含本模组的床 `trainmurdermystery:white_trimmed_bed`。
 - 铁门 / 钢门：使用 `trainmurdermystery:` 命名空间中的钢门，不用 `navy_steel_door`。源码注册的钢门包括 `anthracite_steel_door`、`khaki_steel_door`、`maroon_steel_door`、`muntz_steel_door`、`navy_steel_door`；按场景需要选择，不要默认用 navy。`starrailexpress:scifi_door` 不是常见房间木门。
 - 职业涉及食物 / 饮料盘时使用 `trainmurdermystery:food_platter`、`trainmurdermystery:drink_tray`；涉及床 / 马桶时选择本模组对应方块，例如 `trainmurdermystery:white_trimmed_bed`、`trainmurdermystery:light_toilet`。
+  床是两格方块：结构里必须同时放脚和头两块，并在调色板写入 `facing`、`part`、`occupied` 属性，
+  否则床不会渲染。生成器中的 `bed_palette()` 已封装这一写法。
 - 小丑：
   - 初始物品 `noellesroles:fake_knife`、`noellesroles:fake_revolver`
   - 商店 `noellesroles:master_key_p`、`noellesroles:delusion_vial`、`trainmurdermystery:firecracker`、`trainmurdermystery:note`

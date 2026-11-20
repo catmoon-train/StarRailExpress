@@ -84,11 +84,11 @@
       "title": {"en_us": "Jester", "zh_cn": "小丑", "zh_tw": "小丑"},
       "steps": [
         {"type": "show_structure", "structure": "starrailexpress:role_tutorial_jester", "scale": 1.0, "attachKeyFrame": true},
-        {"type": "set_block", "block": "trainmurdermystery:small_glass_door", "blockProperties": {"half": "lower"}, "blockPos": [3, 1, 0], "blockPos2": [3, 1, 0], "attachKeyFrame": true},
-        {"type": "set_block", "block": "trainmurdermystery:small_glass_door", "blockProperties": {"half": "upper"}, "blockPos": [3, 2, 0], "blockPos2": [3, 2, 0], "attachKeyFrame": true},
-        {"type": "starrailexpress:role_player", "pos": [3.0, 1.0, 2.0], "yaw": 180.0, "linkId": "jester", "attachKeyFrame": true},
+        {"type": "set_block", "block": "trainmurdermystery:small_glass_door", "blockProperties": {"half": "lower"}, "blockPos": [3, 1, 6], "blockPos2": [3, 1, 6], "attachKeyFrame": true},
+        {"type": "set_block", "block": "trainmurdermystery:small_glass_door", "blockProperties": {"half": "upper"}, "blockPos": [3, 2, 6], "blockPos2": [3, 2, 6], "attachKeyFrame": true},
+        {"type": "starrailexpress:role_player", "pos": [3.0, 1.0, 4.0], "yaw": 0.0, "linkId": "jester", "attachKeyFrame": true},
         {"type": "idle", "duration": 20},
-        {"type": "text", "duration": 90, "text": {"en_us": "The Jester has no collision box when near door frames.", "zh_cn": "小丑靠近门框时没有碰撞体积。", "zh_tw": "小丑靠近門框時沒有碰撞體積。"}, "point": [3.0, 2.6, 1.0], "placeNearTarget": true, "attachKeyFrame": true},
+        {"type": "text", "duration": 90, "text": {"en_us": "The Jester has no collision box when near door frames.", "zh_cn": "小丑靠近门框时没有碰撞体积。", "zh_tw": "小丑靠近門框時沒有碰撞體積。"}, "point": [3.0, 2.6, 5.0], "placeNearTarget": true, "attachKeyFrame": true},
         {"type": "idle", "duration": 40},
         {"type": "rotate_camera_y", "degrees": 20.0, "duration": 50, "attachKeyFrame": true}
       ]

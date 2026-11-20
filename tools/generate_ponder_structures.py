@@ -75,16 +75,31 @@ def block_entry(pos, state):
     return compound_payload([tag_int_list("pos", pos), tag_int("state", state)])
 
 
-def palette_entry(block_id):
-    return compound_payload([tag_string("Name", block_id)])
+def palette_entry(block_id, properties=None):
+    """调色板项；双格方块（床）需要把 facing/part/occupied 写进 Properties。"""
+    entries = [tag_string("Name", block_id)]
+    if properties:
+        entries.append(tag_compound("Properties",
+                                    [tag_string(key, value) for key, value in properties.items()]))
+    return compound_payload(entries)
+
+
+def bed_palette(block_id):
+    """床的脚/头两半；朝向北，头在脚的 -Z 方向。"""
+    return [
+        (block_id, {"facing": "north", "part": "foot", "occupied": "false"}),
+        (block_id, {"facing": "north", "part": "head", "occupied": "false"}),
+    ]
 
 
 def write_structure(path, size, blocks, palette):
+    entries = [palette_entry(*item) if isinstance(item, tuple) else palette_entry(item)
+               for item in palette]
     root = tag_compound("", [
         tag_int_list("size", size),
         tag_compound_list("entities", []),
         tag_compound_list("blocks", [block_entry(pos, state) for pos, state in blocks]),
-        tag_list_of_lists("palettes", [compound_list_payload([palette_entry(block) for block in palette])]),
+        tag_list_of_lists("palettes", [compound_list_payload(entries)]),
         tag_int("DataVersion", DATA_VERSION),
     ])
     path.write_bytes(gzip.compress(root, mtime=0))
@@ -111,7 +126,7 @@ def build_room(floor_state, wall_state, extra_blocks):
 
 
 def build_back_wall_room(floor_state, wall_state, extra_blocks):
-    """开放式房间：地板 + 只有背面（z=0）一堵墙，避免侧壁和前墙挡住俯视镜头。"""
+    """开放式房间：地板 + 只有背面（z=last）一堵墙，避免侧壁和前墙挡住俯视镜头。"""
     blocks = []
     last = SIZE - 1
     for x in range(SIZE):
@@ -119,7 +134,7 @@ def build_back_wall_room(floor_state, wall_state, extra_blocks):
             blocks.append(([x, 0, z], floor_state(x, z)))
     for x in range(SIZE):
         for y in range(1, 4):
-            blocks.append(([x, y, 0], wall_state))
+            blocks.append(([x, y, last], wall_state))
     blocks.extend(extra_blocks)
     return blocks
 
@@ -142,14 +157,15 @@ def bartender():
         "trainmurdermystery:food_platter",
         "trainmurdermystery:drink_tray",
         "trainmurdermystery:light_toilet",
-        "trainmurdermystery:white_trimmed_bed",
+        *bed_palette("trainmurdermystery:white_trimmed_bed"),
     ]
     extra = [
         ([1, 1, 1], 2),   # 吧台
         ([2, 1, 1], 3),   # 食物盘
         ([3, 1, 1], 4),   # 饮料盘
         ([1, 1, 5], 5),   # 马桶
-        ([5, 1, 5], 6),   # 床
+        ([5, 1, 5], 6),   # 床脚
+        ([5, 1, 4], 7),   # 床头（朝北，床占两格）
     ]
     blocks = build_back_wall_room(lambda x, z: 0, 1, extra)
     write_structure(OUT / "role_tutorial_bartender.nbt", [SIZE, 4, SIZE], blocks, palette)
@@ -162,12 +178,13 @@ def generic():
         "trainmurdermystery:navy_steel",
         "trainmurdermystery:marble_tiles",
         "trainmurdermystery:small_glass_door",
-        "trainmurdermystery:white_trimmed_bed",
+        *bed_palette("trainmurdermystery:white_trimmed_bed"),
     ]
     extra = [
         ([3, 1, 6], 3),  # 门下半
         ([3, 2, 6], 3),  # 门上半
-        ([5, 1, 5], 4),  # 床
+        ([5, 1, 5], 4),  # 床脚
+        ([5, 1, 4], 5),  # 床头（朝北，床占两格）
     ]
     blocks = build_room(lambda x, z: 2 if (x + z) % 4 == 0 else 0, 1, extra)
     write_structure(OUT / "role_tutorial_common.nbt", [SIZE, 4, SIZE], blocks, palette)
