@@ -106,6 +106,8 @@ dependencies {
     // Ponderer 前置：Lib 提供场景模型与运行库，本体提供从界面打开场景的入口
     modImplementation files("libs/pondererlib-1.21.1-fabric-0.1.1.jar")
     modImplementation files("libs/ponderer-1.21.1-fabric-1.12.0.jar")
+    // Ponder 本体：PondererLib 以 jarJar 形式携带，编译期只需类路径，不能再走 loom 重映射
+    compileOnly files("libs/ponder-1.0.69-fabric-1.21.1.jar")
     // fabric carpet，修bug
     modImplementation files("libs/fabric-carpet-1.21-1.4.147+v240613.jar")
     // InvMove

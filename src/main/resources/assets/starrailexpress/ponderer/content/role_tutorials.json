@@ -4,6 +4,8 @@
     "starrailexpress:ponderer/scenes/role_tutorial_jester.json",
     "starrailexpress:ponderer/scenes/role_tutorial_bartender.json"
   ],
-  "extensions": [],
+  "extensions": [
+    "starrailexpress:role_tutorial"
+  ],
   "attribution": false
 }

@@ -243,6 +243,8 @@ public class NoellesrolesClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        // 思索扩展：必须在 PondererLib 场景注册之前完成，供职业教程使用自定义步骤
+        io.wifi.starrailexpress.client.ponder.PonderSreRegistration.register();
         org.agmas.noellesroles.client.roulette.RouletteClient.register();
         org.agmas.noellesroles.client.RouletteDevilClient.register();
         org.agmas.noellesroles.client.decree.DecreeClient.register();

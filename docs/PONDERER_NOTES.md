@@ -161,27 +161,35 @@ does not have member field 'int field_22790'
 
 ## 10. 结构 NBT 最小格式
 
-Ponderer 读取的是 gzip 压缩的 StructureTemplate NBT：
+Ponderer 读取的是 gzip 压缩的 StructureTemplate NBT。**字段类型必须与
+Minecraft 1.21.1 `StructureTemplate.load` 的实际读取方式一致**，否则方块不显示：
 
 ```text
 root:
-  size: IntArray [x, y, z]
+  size: List<Int> [x, y, z]          ← 必须 TAG_List<TAG_Int>，不是 TAG_Int_Array
   entities: List<Compound> 空列表
   blocks: List<Compound>
-    pos: IntArray [x, y, z]
-    state: Int 指向 palette
-  palette: List<Compound>
+    pos: List<Int> [x, y, z]         ← 同样是 TAG_List<TAG_Int>
+    state: Int 指向 palettes[0]
+  palettes: List<List<Compound>>     ← 复数；单调色板也可用单数 palette
     Name: String 方块 id
   DataVersion: Int
 ```
 
+`StructureTemplate.load` 用 `getList("size", 3)` / `getList("pos", 3)` 读取三元组。
+把 `size` 或 `pos` 写成 `TAG_Int_Array` 时不会抛异常，而是**读成空列表**，
+整个结构退化成 `0x0x0`，表现为「思索里一个方块都没有」——这正是本模组此前
+酒保/小丑思索看不到场景方块的原因。`tools/verify_ponder_structures.py` 已按此规则校验。
+
 生成后检查：解压后的字节中不应出现 `minecraft:` 方块 id。
 
-手写 NBT 时最容易踩的坑：`TAG_List` 里的每个元素**只能写负载**，不能带类型字节和名字。手写生成器应区分两种写法：
+手写 NBT 时最容易踩的坑：`TAG_List` 里的每个元素**只能写负载**，不能带类型字节和名字。
+手写生成器应区分两种写法：
 
 ```text
 compound（作为根或具名标签时）：类型字节 0x0A + 名字 + 子标签 + 0x00
 compound（作为 TAG_List 元素时）：只有 子标签 + 0x00
+list（作为 TAG_List 元素时）：只有 元素类型字节 + 长度 + 负载，不带名字
 ```
 
 写错时文件仍然能生成，但 Minecraft 读 NBT 会越界，日志里表现为：
@@ -223,3 +231,61 @@ gradlew compileJava --offline
 - `src/main/resources/assets/starrailexpress/ponderer/scenes/role_tutorial_jester.json`
 - `src/main/resources/assets/starrailexpress/ponderer/scenes/role_tutorial_bartender.json`
 - `src/main/java/org/agmas/noellesroles/client/screen/RolePonderTutorial.java`
+
+## 13. 本项目注册的思索扩展
+
+`assets/starrailexpress/ponderer/content/role_tutorials.json` 的 `extensions`
+声明了 `starrailexpress:role_tutorial`，对应
+`io.wifi.starrailexpress.client.ponder.PonderSreExtension`。
+扩展由 `PonderSreRegistration.register()` 在客户端初始化时注册，因此场景可以直接使用：
+
+### `starrailexpress:role_player`
+
+替换 `create_entity` + `minecraft:player`，额外支持皮肤与本能透视边框。
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `pos` | `[x,y,z]` | 与 `create_entity` 同一坐标系 |
+| `yaw` | number | 模型朝向，默认 180 |
+| `skin` | string | 皮肤贴图；可写 `ns:path`，自动补 `textures/` 与 `.png` |
+| `outline` | int | 本能透视边框颜色（ARGB/0xRRGGBB）；省略则不画边框 |
+| `lineWidth` | number | 边框线宽，默认 1.0 |
+| `expand` | number | 边框相对碰撞箱外扩，默认 0.12 |
+| `linkId` | string | 存入步骤 `state`，供后续步骤引用 |
+
+边框颜色与游戏内本能透视同源：`InstinctManager` 的返回值即此处应填的颜色。
+常用值：杀手 `-65536`（红）、中立 `-26368`（橙）、护盾蓝 `-16776961`、
+护盾+毒黄绿 `-10189185`、中毒红 `-65536`、喝饮料绿 `-16711936`。
+
+皮肤覆盖由 `PonderSkinAccess` 登记，并在 `PlayerEntityRendererMixin#getTextureLocation`
+最前面返回，因此优先于职业皮肤与疯魔皮肤逻辑。小丑狂暴示例：
+
+```json
+{"type": "starrailexpress:role_player", "pos": [2.2, 1.0, 3.0], "yaw": 200.0,
+ "skin": "starrailexpress:textures/entity/custom_psycho/jester.png",
+ "outline": -65536, "linkId": "jester_rampage"}
+```
+
+### `starrailexpress:role_shop`
+
+在思索里显示该职业的真实商店陈列。数据源与游戏内商店一致
+（`ShopContent#getShopEntries`），因此商品、价格与货币都相符。
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `role` | string | 职业 id，如 `noellesroles:jester` |
+| `columns` | int | 每行商品数，默认 4 |
+
+商店界面本身依赖真实 `InventoryMenu` 与服务端同步数据，无法在 Ponder 离屏沙盒里构造，
+因此改为按同一数据源自绘陈列（`PonderShopOverlayElement`，`PonderOverlayElement` 实现）。
+
+## 14. 已知上游问题修复：编辑器 mixin 注入失败
+
+Ponderer 1.12.0 的 `EditorModule.isInstalled()` 是 **static** 方法。
+`PonderEditorModuleMixin` 原先写成非静态处理器，Mixin 在准备阶段抛：
+
+```text
+InvalidInjectionException: non-static callback method ... targets a static method which is not supported
+```
+
+并整体放弃该 mixin。现已改为 `private static void`。修复后编辑器兼容判断才能生效。

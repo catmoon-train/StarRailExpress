@@ -16,7 +16,7 @@
       "title": {"en_us": "Bartender", "zh_cn": "酒保", "zh_tw": "酒保"},
       "steps": [
         {"type": "show_structure", "structure": "starrailexpress:role_tutorial_bartender", "scale": 1.0, "attachKeyFrame": true},
-        {"type": "create_entity", "entity": "minecraft:player", "pos": [3.0, 1.0, 3.0], "yaw": 180.0, "nbt": "{CustomName:'酒保',CustomNameVisible:1b}", "linkId": "bartender", "attachKeyFrame": true},
+        {"type": "starrailexpress:role_player", "pos": [3.0, 1.0, 3.0], "yaw": 180.0, "linkId": "bartender", "attachKeyFrame": true},
         {"type": "idle", "duration": 20},
         {"type": "text", "duration": 80, "text": {"en_us": "Passenger team", "zh_cn": "平民阵营", "zh_tw": "平民陣營"}, "point": [1.0, 2.1, 1.0], "placeNearTarget": true, "attachKeyFrame": true},
         {"type": "idle", "duration": 40},
@@ -28,12 +28,12 @@
       "title": {"en_us": "Bartender", "zh_cn": "酒保", "zh_tw": "酒保"},
       "steps": [
         {"type": "show_structure", "structure": "starrailexpress:role_tutorial_bartender", "scale": 1.0, "attachKeyFrame": true},
-        {"type": "create_entity", "entity": "minecraft:player", "pos": [3.0, 1.0, 3.0], "yaw": 180.0, "nbt": "{CustomName:'酒保',CustomNameVisible:1b}", "linkId": "bartender", "attachKeyFrame": true},
-        {"type": "create_entity", "entity": "minecraft:player", "pos": [5.0, 1.0, 3.0], "yaw": 180.0, "nbt": "{CustomName:'喝饮料玩家',CustomNameVisible:1b}", "linkId": "drinker", "attachKeyFrame": true},
+        {"type": "starrailexpress:role_player", "pos": [3.0, 1.0, 3.0], "yaw": 180.0, "linkId": "bartender", "attachKeyFrame": true},
+        {"type": "starrailexpress:role_player", "pos": [5.0, 1.0, 3.0], "yaw": 180.0, "outline": -16711936, "linkId": "drinker", "attachKeyFrame": true},
         {"type": "indicate_success", "blockPos": [3, 1, 1], "attachKeyFrame": true},
         {"type": "idle", "duration": 20},
         {"type": "text", "duration": 90, "text": {"en_us": "Can temporarily see-through players who drank beverages", "zh_cn": "可以暂时透视喝了饮料的玩家", "zh_tw": "可以暫時透視喝了飲料的玩家"}, "point": [3.0, 2.8, 1.0], "placeNearTarget": true, "attachKeyFrame": true},
-        {"type": "idle", "duration": 40},
+        {"type": "idle", "duration": 50},
         {"type": "rotate_camera_y", "degrees": -20.0, "duration": 50, "attachKeyFrame": true}
       ]
     },
@@ -42,7 +42,8 @@
       "title": {"en_us": "Bartender", "zh_cn": "酒保", "zh_tw": "酒保"},
       "steps": [
         {"type": "show_structure", "structure": "starrailexpress:role_tutorial_bartender", "scale": 1.0, "attachKeyFrame": true},
-        {"type": "create_entity", "entity": "minecraft:player", "pos": [3.0, 1.0, 3.0], "yaw": 180.0, "nbt": "{CustomName:'酒保',CustomNameVisible:1b}", "linkId": "bartender", "attachKeyFrame": true},
+        {"type": "starrailexpress:role_player", "pos": [3.0, 1.0, 3.0], "yaw": 180.0, "linkId": "bartender", "attachKeyFrame": true},
+        {"type": "starrailexpress:role_player", "pos": [5.0, 1.0, 4.5], "yaw": 200.0, "outline": -65536, "linkId": "poisoned", "attachKeyFrame": true},
         {"type": "indicate_redstone", "blockPos": [2, 1, 1], "attachKeyFrame": true},
         {"type": "indicate_redstone", "blockPos": [3, 1, 1], "attachKeyFrame": true},
         {"type": "indicate_redstone", "blockPos": [1, 1, 5], "attachKeyFrame": true},
@@ -60,17 +61,45 @@
       "title": {"en_us": "Bartender", "zh_cn": "酒保", "zh_tw": "酒保"},
       "steps": [
         {"type": "show_structure", "structure": "starrailexpress:role_tutorial_bartender", "scale": 1.0, "attachKeyFrame": true},
-        {"type": "create_entity", "entity": "minecraft:player", "pos": [3.0, 1.0, 3.0], "yaw": 180.0, "nbt": "{CustomName:'酒保',CustomNameVisible:1b}", "linkId": "bartender", "attachKeyFrame": true},
+        {"type": "starrailexpress:role_player", "pos": [3.0, 1.0, 3.0], "yaw": 180.0, "linkId": "bartender", "attachKeyFrame": true},
         {"type": "create_item_entity", "pos": [2.0, 1.5, 1.0], "motion": [0.0, 0.0, 0.0], "count": 1, "item": "trainmurdermystery:defense_vial", "linkId": "defense_vial", "attachKeyFrame": true},
         {"type": "idle", "duration": 20},
         {"type": "show_controls", "action": "right", "item": "trainmurdermystery:defense_vial", "duration": 80, "point": [3.0, 2.2, 1.0], "direction": "down", "attachKeyFrame": true},
         {"type": "text", "duration": 100, "text": {"en_us": "The shop sells Shield Potions; right-click to place one on a food plate / drink plate so the next person to eat / drink blocks one lethal hit (falling, burning to death, cerebellum — no good~)", "zh_cn": "商店可购买护盾试剂，右键放在食物盘/饮料盘中可让下一个吃东西/喝饮料的人抵挡一次非强制死亡的致命伤害", "zh_tw": "商店可購買護盾試劑，右鍵放在食物盤/飲料盤中可讓下一個吃東西/喝飲料的人抵擋一次非強制死亡的致命傷害"}, "point": [3.0, 3.2, 1.0], "placeNearTarget": true, "attachKeyFrame": true},
-        {"type": "idle", "duration": 40},
+        {"type": "idle", "duration": 60},
         {"type": "text", "duration": 80, "text": {"en_us": "Shields granted by Shield Potions (regardless of team) show a blue outline to the Bartender", "zh_cn": "通过护盾试剂给予的护盾会在酒保眼中显示为蓝色边框", "zh_tw": "通過護盾試劑給予的護盾會在酒保眼中顯示為藍色邊框"}, "point": [1.0, 2.2, 1.0], "placeNearTarget": true, "attachKeyFrame": true},
-        {"type": "idle", "duration": 30},
+        {"type": "idle", "duration": 50},
         {"type": "text", "duration": 80, "text": {"en_us": "Players with such a shield plus poison show a yellow-green outline to the Bartender", "zh_cn": "同时带有这种护盾与毒药的玩家会在酒保眼中显示黄绿色边框", "zh_tw": "同時帶有這種護盾與毒藥的玩家會在酒保眼中顯示黃綠色邊框"}, "point": [5.0, 2.2, 1.0], "placeNearTarget": true, "attachKeyFrame": true},
         {"type": "idle", "duration": 40},
         {"type": "rotate_camera_y", "degrees": 15.0, "duration": 50, "attachKeyFrame": true}
+      ]
+    },
+    {
+      "id": "outline",
+      "title": {"en_us": "Bartender", "zh_cn": "酒保", "zh_tw": "酒保"},
+      "steps": [
+        {"type": "show_structure", "structure": "starrailexpress:role_tutorial_bartender", "scale": 1.0, "attachKeyFrame": true},
+        {"type": "starrailexpress:role_player", "pos": [3.0, 1.0, 3.0], "yaw": 180.0, "linkId": "bartender", "attachKeyFrame": true},
+        {"type": "starrailexpress:role_player", "pos": [2.0, 1.0, 1.5], "yaw": 0.0, "outline": -16776961, "linkId": "shielded", "attachKeyFrame": true},
+        {"type": "starrailexpress:role_player", "pos": [4.5, 1.0, 1.5], "yaw": 0.0, "outline": -10189185, "linkId": "shielded_poisoned", "attachKeyFrame": true},
+        {"type": "starrailexpress:role_player", "pos": [3.0, 1.0, 5.2], "yaw": 180.0, "outline": -65536, "linkId": "poisoned_only", "attachKeyFrame": true},
+        {"type": "idle", "duration": 20},
+        {"type": "text", "duration": 90, "text": {"en_us": "Shield shows blue, shield plus poison shows yellow-green, poison alone shows red", "zh_cn": "护盾显示蓝色，护盾加毒显示黄绿色，只有毒显示红色", "zh_tw": "護盾顯示藍色，護盾加毒顯示黃綠色，只有毒顯示紅色"}, "point": [3.0, 3.0, 1.0], "placeNearTarget": true, "attachKeyFrame": true},
+        {"type": "idle", "duration": 60},
+        {"type": "rotate_camera_y", "degrees": -15.0, "duration": 50, "attachKeyFrame": true}
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {"en_us": "Bartender", "zh_cn": "酒保", "zh_tw": "酒保"},
+      "steps": [
+        {"type": "show_structure", "structure": "starrailexpress:role_tutorial_bartender", "scale": 1.0, "attachKeyFrame": true},
+        {"type": "starrailexpress:role_player", "pos": [3.0, 1.0, 3.0], "yaw": 180.0, "linkId": "bartender", "attachKeyFrame": true},
+        {"type": "starrailexpress:role_shop", "role": "noellesroles:bartender", "columns": 4, "attachKeyFrame": true},
+        {"type": "idle", "duration": 20},
+        {"type": "text", "duration": 100, "text": {"en_us": "The shop sells Shield Potions; right-click to place one on a food plate / drink plate so the next person to eat / drink blocks one lethal hit", "zh_cn": "商店可购买护盾试剂，右键放在食物盘/饮料盘中可让下一个吃东西/喝饮料的人抵挡一次非强制死亡的致命伤害", "zh_tw": "商店可購買護盾試劑，右鍵放在食物盤/飲料盤中可讓下一個吃東西/喝飲料的人抵擋一次非強制死亡的致命傷害"}, "point": [3.0, 3.2, 1.0], "placeNearTarget": true, "attachKeyFrame": true},
+        {"type": "idle", "duration": 60},
+        {"type": "rotate_camera_y", "degrees": 10.0, "duration": 50, "attachKeyFrame": true}
       ]
     }
   ]

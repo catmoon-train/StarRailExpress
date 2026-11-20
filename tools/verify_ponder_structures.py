@@ -1,12 +1,12 @@
 """校验 Ponderer 结构 NBT 是否能被 Minecraft 正常读取。
-
 用法：在项目根目录执行
     python tools/verify_ponder_structures.py
 
-检查项：
+检查项（对齐 Minecraft 1.21.1 StructureTemplate.load 的实际读取行为）：
   1. 解压后能完整解析（消耗字节数必须等于文件长度），否则 Minecraft 会报 ReportedNbtException。
-  2. 根标签包含 size / entities / blocks / palette。
-  3. palette 里不得出现 minecraft: 开头的方块。
+  2. 根标签包含 size / entities / blocks，且 palette 或 palettes 至少一个。
+  3. size 与 blocks[].pos 必须是 TAG_List<Int>（读成 IntArray 会让结构退化成 0x0x0）。
+  4. 调色板里不得出现 minecraft: 开头的方块，且 palette 索引必须在范围内。
 """
 
 import gzip
@@ -15,6 +15,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 STRUCTURES = ROOT / "src/main/resources/assets/starrailexpress/ponder"
+
+TAG_INT = 3
+TAG_LIST = 9
 
 
 def read_string(data, offset):
@@ -49,7 +52,7 @@ def read_payload(data, offset, tag):
         for _ in range(count):
             value, offset = read_payload(data, offset, element)
             items.append(value)
-        return items, offset
+        return (element, items), offset
     if tag == 10:
         result = {}
         while True:
@@ -70,6 +73,40 @@ def read_payload(data, offset, tag):
         return list(struct.unpack_from(">" + "q" * count, data, offset)), offset + 8 * count
     raise ValueError("unknown tag %d at %d" % (tag, offset))
 
+def int_list(root, key, where):
+    """Minecraft 用 getList(key, 3) 读整数三元组；类型不对会得到空列表。"""
+    if key not in root:
+        raise ValueError("%s: missing %s" % (where, key))
+    value = root[key]
+    if not isinstance(value, tuple):
+        raise ValueError("%s: %s must be TAG_List<TAG_Int>, got TAG_Int_Array "
+                         "(Minecraft reads an empty list and collapses the structure)" % (where, key))
+    element, items = value
+    if element != TAG_INT:
+        raise ValueError("%s: %s must be TAG_List<TAG_Int>, got element type %d "
+                         "(Minecraft reads an empty list and collapses the structure)"
+                         % (where, key, element))
+    return items
+
+
+def collect_palettes(root, where):
+    if "palettes" in root:
+        element, lists = root["palettes"]
+        if element != TAG_LIST:
+            raise ValueError("%s: palettes must be TAG_List<TAG_List>" % where)
+        palettes = []
+        for index, (inner_element, entries) in enumerate(lists):
+            if inner_element != 10:
+                raise ValueError("%s: palettes[%d] must be TAG_List<TAG_Compound>" % (where, index))
+            palettes.append(entries)
+        return palettes
+    if "palette" in root:
+        element, entries = root["palette"]
+        if element != 10:
+            raise ValueError("%s: palette must be TAG_List<TAG_Compound>" % where)
+        return [entries]
+    raise ValueError("%s: missing palette or palettes" % where)
+
 
 def check(path):
     raw = path.read_bytes()
@@ -80,15 +117,39 @@ def check(path):
     root, consumed = read_payload(raw, offset, tag)
     if consumed != len(raw):
         raise ValueError("%s: parsed %d of %d bytes" % (path.name, consumed, len(raw)))
-    for key in ("size", "entities", "blocks", "palette"):
+
+    where = path.name
+    size = int_list(root, "size", where)
+    if len(size) != 3:
+        raise ValueError("%s: size must have 3 entries, got %d" % (where, len(size)))
+    for key in ("entities", "blocks"):
         if key not in root:
-            raise ValueError("%s: missing root key %s" % (path.name, key))
-    palette = [entry.get("Name") for entry in root["palette"]]
-    vanilla = [block for block in palette if block and block.startswith("minecraft:")]
-    if vanilla:
-        raise ValueError("%s: vanilla blocks in palette %s" % (path.name, vanilla))
+            raise ValueError("%s: missing root key %s" % (where, key))
+
+    palettes = collect_palettes(root, where)
+    for index, entries in enumerate(palettes):
+        names = [entry.get("Name") for entry in entries]
+        vanilla = [block for block in names if block and block.startswith("minecraft:")]
+        if vanilla:
+            raise ValueError("%s: vanilla blocks in palette %d %s" % (where, index, vanilla))
+
+    block_count = 0
+    for index, entry in enumerate(root["blocks"][1]):
+        pos = int_list(entry, "pos", "%s blocks[%d]" % (where, index))
+        if len(pos) != 3:
+            raise ValueError("%s: blocks[%d].pos must have 3 entries" % (where, index))
+        for xyz, limit in zip(pos, size):
+            if not 0 <= xyz < limit:
+                raise ValueError("%s: blocks[%d].pos %s outside size %s"
+                                 % (where, index, pos, size))
+        state = entry.get("state", 0)
+        if not 0 <= state < len(palettes[0]):
+            raise ValueError("%s: blocks[%d].state %s outside palette size %d"
+                             % (where, index, state, len(palettes[0])))
+        block_count += 1
+
     print("%s ok  size=%s blocks=%d palette=%s" % (
-        path.name, root["size"], len(root["blocks"]), palette))
+        path.name, size, block_count, [entry.get("Name") for entry in palettes[0]]))
 
 
 if __name__ == "__main__":
