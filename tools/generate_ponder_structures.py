@@ -16,6 +16,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "src/main/resources/assets/starrailexpress/ponder"
 DATA_VERSION = 3955  # Minecraft 1.21.1
+SIZE = 7  # 房间边长（格）
 
 
 def name_bytes(name):
@@ -69,20 +70,20 @@ def write_structure(path, size, blocks, palette):
 
 
 def build_room(floor_state, wall_state, extra_blocks):
+    """开放式房间：地板 + 四面墙（顶部敞开，便于相机俯视）。"""
     blocks = []
-    for x in range(5):
-        for z in range(5):
+    last = SIZE - 1
+    for x in range(SIZE):
+        for z in range(SIZE):
             blocks.append(([x, 0, z], floor_state(x, z)))
-    for x in range(5):
-        blocks.append(([x, 1, 0], wall_state))
-        blocks.append(([x, 2, 0], wall_state))
-        blocks.append(([x, 1, 4], wall_state))
-        blocks.append(([x, 2, 4], wall_state))
-    for z in range(1, 4):
-        blocks.append(([0, 1, z], wall_state))
-        blocks.append(([0, 2, z], wall_state))
-        blocks.append(([4, 1, z], wall_state))
-        blocks.append(([4, 2, z], wall_state))
+    for x in range(SIZE):
+        for y in range(1, 4):
+            blocks.append(([x, y, 0], wall_state))
+            blocks.append(([x, y, last], wall_state))
+    for z in range(1, last):
+        for y in range(1, 4):
+            blocks.append(([0, y, z], wall_state))
+            blocks.append(([last, y, z], wall_state))
     blocks.extend(extra_blocks)
     return blocks
 
@@ -93,8 +94,8 @@ def jester():
         "trainmurdermystery:navy_steel",
         "trainmurdermystery:marble_tiles",
     ]
-    blocks = build_room(lambda x, z: 2 if x in (1, 3) and z in (1, 3) else 0, 1, [])
-    write_structure(OUT / "role_tutorial_jester.nbt", [5, 3, 5], blocks, palette)
+    blocks = build_room(lambda x, z: 2 if (x + z) % 4 == 0 else 0, 1, [])
+    write_structure(OUT / "role_tutorial_jester.nbt", [SIZE, 4, SIZE], blocks, palette)
 
 
 def bartender():
@@ -108,14 +109,14 @@ def bartender():
         "trainmurdermystery:white_trimmed_bed",
     ]
     extra = [
-        ([1, 1, 1], 2),
-        ([2, 1, 1], 3),
-        ([3, 1, 1], 4),
-        ([1, 1, 3], 5),
-        ([3, 1, 3], 6),
+        ([1, 1, 1], 2),   # 吧台
+        ([2, 1, 1], 3),   # 食物盘
+        ([3, 1, 1], 4),   # 饮料盘
+        ([1, 1, 5], 5),   # 马桶
+        ([5, 1, 5], 6),   # 床
     ]
     blocks = build_room(lambda x, z: 0, 1, extra)
-    write_structure(OUT / "role_tutorial_bartender.nbt", [5, 3, 5], blocks, palette)
+    write_structure(OUT / "role_tutorial_bartender.nbt", [SIZE, 4, SIZE], blocks, palette)
 
 
 if __name__ == "__main__":

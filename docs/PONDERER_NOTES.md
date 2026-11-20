@@ -25,17 +25,27 @@
   - 右侧 banner 内自绘按钮，位置由 `getPonderButtonX/Y()` 决定
   - 仅 `selectedRole instanceof SRERole` 时显示
   - 点击失败时显示 `screen.roleintroduce.ponder.no_tutorial`
-- 反射层：`org.agmas.noellesroles.client.screen.RolePonderTutorial`
-  - `RuntimeAccess.scenes()` / `SceneVariants.activeScenes()` 查找 `DslScene`
+- 反射层已移除：`org.agmas.noellesroles.client.screen.RolePonderTutorial` 直接调用 Ponderer 公开 API
+  - `RuntimeAccess.scenes()` 取得已加载的 `DslScene` 列表
   - 按 `DslScene.id` 匹配 `starrailexpress:role_tutorial.<职业 id 路径>`
-  - 修改 `LocalizedText` 与步骤 `nbt` 字符串中的占位符
-  - 优先反射调用 `PonderScreenNavigation.openDraftScene(DslScene, int)`；不可用时回退到 `RuntimeEngine.compile(CompileRequest)` + `PonderScreenNavigation$DraftPonderUI`
+  - `PonderScreenNavigation.openPonderUIForScene(scene, 0)` 打开标准 Ponder 界面
+  - 必须走官方入口，不要自己 new PonderUI：官方入口会按物品找到已注册的 Ponder 场景、定位分段并 `begin()`，还能保留分段切换与播放控件
+- 场景文案是静态的：三语文本直接写在场景 JSON 里，标题写职业真实名称，不再做运行时注入
 - 依赖声明：
   - `fabric.mod.json` 的 `depends` 包含 `ponderer` 与 `pondererlib >=0.1.1`
   - `build.gradle` 用 `modImplementation files(...)` 加载 `libs/pondererlib-*.jar` 与 `libs/ponderer-*.jar`，不使用 `include`，不把前置打进本模组 JAR
   - 业务代码仍不直接引用 Ponderer 类，避免编译期硬依赖
 
-## 3. 动态占位符
+## 3. 场景表现规范
+
+- 一个段落只讲一个功能，段落 id 用功能名（如 `faction` / `tools` / `rampage` / `door`），这样 Ponder 界面里能按功能分段浏览。
+- 一个段落只放一个玩家模型；只有需要演示“被击杀”时才加尸体实体。
+- 物品要直观：关键物品用 `create_item_entity` 摆出来（`motion` 必须写 `[0,0,0]`，否则物品会飞走），再用 `show_controls` 带 `item` 显示物品图标与操作提示。
+- 文本位置必须错开：同一段里不同文案用不同的 `point`，高度也要错开，否则会叠在一起。
+- 动画感来自 `idle` 停顿、`rotate_camera_y` 镜头转动、`indicate_success` / `indicate_redstone` 指示块。
+- 房间结构用 `tools/generate_ponder_structures.py` 生成，尺寸 7x4x7、顶部敞开，便于相机俯视。
+
+## 4. 动态占位符
 
 `RolePonderTutorial.buildVariables(SRERole)` 提供：
 
@@ -53,7 +63,7 @@
 标题必须写成三语全是 `{role_name}`，不得写“小丑 · 俺寻思”之类附加文字。职业名称只能取自 `src/main/resources/assets/role_name_goals/lang` 的 `announcement.star.role.<id>`，不得根据常识或简称自行命名。
 教程中所有面向玩家的描述只能逐句引用 `assets/role_modifier_intro/lang/{zh_cn,en_us,zh_tw}.json` 中 `info.screen.roleid.<id>` 的原文，不得自行改写、补充或删减。代码探索结果用于决定场景中的物品、实体、方块、玩家模型与手持物，不写成额外旁白。
 
-## 4. 胜利目标对照
+## 5. 胜利目标对照
 
 第一幕必须先写清楚该职业的胜利目标；后续机制、道具、商店都不能替代这句话。
 
@@ -70,7 +80,7 @@
 
 禁止用“当某条件触发时，真正的胜利目标才开始”之类表述暗示目标尚未生效；中立职业从开局起就按其阵营归属参与胜利判定。
 
-## 5. 场景模板约定
+## 6. 场景模板约定
 
 ```json
 {
@@ -97,7 +107,7 @@
 
 `ResourceSceneContents` 要求 `tags` 和 `customTags` 字段存在且非 null；不需要标签时也必须写 `"tags": []`、`"customTags": {}`，否则整个场景会被判定为 `Incomplete scene document` 并跳过。
 
-## 6. 玩家模型与尸体
+## 7. 玩家模型与尸体
 
 - 当前 JSON 方案的玩家模型：`entity: "minecraft:player"`。
   - 使用当前观看者的玩家模型。
@@ -110,7 +120,7 @@
 - 疯狂模式默认手持球棒 `trainmurdermystery:bat`；刽子手例外拿 `trainmurdermystery:revolver`，潜行者例外拿 `trainmurdermystery:knife`，dream 例外拿 `noellesroles:dream_axe`。演示时要把对应武器放进玩家模型的主手。
 - 尸体实体：`trainmurdermystery:player_body`，可用于 `create_entity`；用 `CustomName` 标明死者身份。
 
-## 7. 方块与物品映射
+## 8. 方块与物品映射
 
 - 场景结构只用本模组方块。具体使用哪些方块必须由职业介绍和代码决定，不要限定为少数示例。
 - 门：只有明确说明是《我的世界》原版门时，场景才使用原版门；否则一律使用本模组门。搭建普通场景时用本模组玻璃门 `trainmurdermystery:small_glass_door`；只有搭建玩家出生房间且文案明确是房间门时，才用 `trainmurdermystery:small_wood_door`，出生房间还必须包含本模组的床 `trainmurdermystery:white_trimmed_bed`。
@@ -125,7 +135,7 @@
   - 护盾蓝轮廓，护盾 + 毒黄绿轮廓，中毒红轮廓，喝饮料绿轮廓
   - 试剂放在食物盘/饮料盘上，用本模组方块演示
 
-## 8. 结构 NBT 最小格式
+## 9. 结构 NBT 最小格式
 
 Ponderer 读取的是 gzip 压缩的 StructureTemplate NBT：
 
@@ -167,7 +177,7 @@ python tools/verify_ponder_structures.py
 
 生成脚本负责写出结构 NBT，校验脚本负责完整解析并检查 palette 里没有原版方块。
 
-## 9. 验证清单
+## 10. 验证清单
 
 ```bat
 python -c "import json,glob; [json.load(open(f,encoding='utf-8-sig')) for f in glob.glob('src/main/resources/assets/starrailexpress/ponderer/**/*.json', recursive=True)]"
@@ -184,7 +194,7 @@ gradlew compileJava --offline
 - 场景没有原版方块搭房；门、铁门、房间门都用本模组门。
 - 启动客户端后检查 `run/logs/latest.log`，必须出现 `loaded N scenes`（N 大于 0），且没有 `scene ... unavailable` 报错。
 
-## 10. 现有示例
+## 11. 现有示例
 
 - `src/main/resources/assets/starrailexpress/ponderer/scenes/role_tutorial_jester.json`
 - `src/main/resources/assets/starrailexpress/ponderer/scenes/role_tutorial_bartender.json`

@@ -1962,8 +1962,6 @@
   "screen.roleintroduce.ponder.button": "Ponder",
   "screen.roleintroduce.ponder.tip": "Watch this role's interactive tutorial",
   "screen.roleintroduce.ponder.no_tutorial": "This role has no dynamic tutorial yet",
-  "screen.roleintroduce.ponder.no_shop": "No role-specific items",
-  "screen.roleintroduce.ponder.no_initial": "None",
   "screen.roleintroduce.mode.all": "All",
   "screen.roleintroduce.mode.murder": "Murder Mode",
   "screen.roleintroduce.mode.repair": "Repair Mode",
