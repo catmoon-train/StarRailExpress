@@ -39,7 +39,8 @@
               3.0
             ],
             "yaw": 180.0,
-            "linkId": "jester"
+            "linkId": "jester",
+            "skin": "minecraft:textures/entity/player/wide/steve.png"
           }
         },
         {
@@ -114,7 +115,8 @@
               3.0
             ],
             "yaw": 180.0,
-            "linkId": "jester"
+            "linkId": "jester",
+            "skin": "minecraft:textures/entity/player/wide/steve.png"
           }
         },
         {
@@ -220,7 +222,8 @@
               4.0
             ],
             "yaw": 180.0,
-            "linkId": "jester"
+            "linkId": "jester",
+            "skin": "minecraft:textures/entity/player/wide/steve.png"
           }
         },
         {
@@ -228,13 +231,14 @@
           "attachKeyFrame": true,
           "parameters": {
             "pos": [
-              2.0,
+              1.5,
               1.0,
-              2.0
+              2.5
             ],
             "yaw": 0.0,
             "outline": -65536,
-            "linkId": "killer"
+            "linkId": "killer",
+            "skin": "minecraft:textures/entity/player/wide/steve.png"
           }
         },
         {
@@ -242,13 +246,14 @@
           "attachKeyFrame": true,
           "parameters": {
             "pos": [
-              4.5,
+              5.0,
               1.0,
-              2.0
+              2.5
             ],
             "yaw": 0.0,
             "outline": -26368,
-            "linkId": "neutral"
+            "linkId": "neutral",
+            "skin": "minecraft:textures/entity/player/wide/steve.png"
           }
         },
         {
@@ -403,23 +408,6 @@
           }
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.8,
-            1.6,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:bat",
-          "linkId": "rampage_weapon",
-          "attachKeyFrame": true
-        },
-        {
           "type": "create_entity",
           "entity": "trainmurdermystery:player_body",
           "pos": [
@@ -488,7 +476,8 @@
               3.0
             ],
             "yaw": 180.0,
-            "linkId": "jester"
+            "linkId": "jester",
+            "skin": "minecraft:textures/entity/player/wide/steve.png"
           }
         },
         {
@@ -524,79 +513,67 @@
           }
         },
         {
-          "type": "idle",
-          "duration": 20
-        },
-        {
-          "type": "text",
-          "duration": 90,
-          "text": {
-            "en_us": "Can buy Fake Poison, which the Poisoner's Catalyst can trigger into a lethal dose.",
-            "zh_cn": "可购买假毒，假毒可以被毒师的催化剂触发致死。",
-            "zh_tw": "可購買假毒，假毒可以被毒師的催化劑觸發致死。"
-          },
-          "point": [
-            3.0,
-            3.0,
-            3.0
+          "type": "indicate_redstone",
+          "blockPos": [
+            2,
+            1,
+            1
           ],
-          "placeNearTarget": true,
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 60
-        },
-        {
-          "type": "rotate_camera_y",
-          "degrees": 10.0,
-          "duration": 50,
-          "attachKeyFrame": true
-        }
-      ]
-    },
-    {
-      "id": "fake_poison",
-      "title": {
-        "en_us": "Jester",
-        "zh_cn": "小丑",
-        "zh_tw": "小丑"
-      },
-      "steps": [
-        {
-          "type": "show_structure",
-          "structure": "starrailexpress:role_tutorial_jester",
-          "scale": 1.0,
+          "type": "indicate_redstone",
+          "blockPos": [
+            4,
+            1,
+            1
+          ],
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "jester"
-          }
-        },
-        {
-          "type": "create_item_entity",
+          "type": "spawn_particles",
+          "particle": "wathe:poison",
           "pos": [
-            3.0,
-            1.5,
-            4.5
+            2.5,
+            1.0,
+            1.5
           ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
+          "distribution": "box",
+          "spread": [
+            0.4,
+            0.1,
+            0.4
           ],
           "count": 1,
-          "item": "noellesroles:delusion_vial",
-          "linkId": "fake_poison_item",
+          "duration": 90,
+          "motion": [
+            0,
+            0.05,
+            0
+          ],
+          "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "wathe:poison",
+          "pos": [
+            4.5,
+            1.0,
+            1.5
+          ],
+          "distribution": "box",
+          "spread": [
+            0.4,
+            0.1,
+            0.4
+          ],
+          "count": 1,
+          "duration": 90,
+          "motion": [
+            0,
+            0.05,
+            0
+          ],
           "attachKeyFrame": true
         },
         {
@@ -669,7 +646,7 @@
         },
         {
           "type": "text",
-          "duration": 100,
+          "duration": 90,
           "text": {
             "en_us": "Can buy Fake Poison, which the Poisoner's Catalyst can trigger into a lethal dose.",
             "zh_cn": "可购买假毒，假毒可以被毒师的催化剂触发致死。",
@@ -677,8 +654,8 @@
           },
           "point": [
             3.0,
-            2.6,
-            1.0
+            3.0,
+            3.0
           ],
           "placeNearTarget": true,
           "attachKeyFrame": true
@@ -755,7 +732,8 @@
               4.0
             ],
             "yaw": 0.0,
-            "linkId": "jester"
+            "linkId": "jester",
+            "skin": "minecraft:textures/entity/player/wide/steve.png"
           }
         },
         {

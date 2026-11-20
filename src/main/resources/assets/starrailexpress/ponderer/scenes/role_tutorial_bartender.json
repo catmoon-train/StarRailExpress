@@ -39,7 +39,8 @@
               3.0
             ],
             "yaw": 180.0,
-            "linkId": "bartender"
+            "linkId": "bartender",
+            "skin": "minecraft:textures/entity/player/wide/steve.png"
           }
         },
         {
@@ -108,10 +109,10 @@
             "pos": [
               5.0,
               1.0,
-              3.0
+              2.5
             ],
             "yaw": 180.0,
-            "skin": "minecraft:textures/entity/steve.png",
+            "skin": "minecraft:textures/entity/player/wide/steve.png",
             "outline": -16711936,
             "linkId": "drinker"
           }
@@ -181,7 +182,8 @@
               3.0
             ],
             "yaw": 180.0,
-            "linkId": "bartender"
+            "linkId": "bartender",
+            "skin": "minecraft:textures/entity/player/wide/steve.png"
           }
         },
         {
@@ -189,13 +191,14 @@
           "attachKeyFrame": true,
           "parameters": {
             "pos": [
-              5.0,
+              4.5,
               1.0,
-              4.5
+              3.0
             ],
             "yaw": 200.0,
             "outline": -65536,
-            "linkId": "poisoned"
+            "linkId": "poisoned",
+            "skin": "minecraft:textures/entity/player/wide/steve.png"
           }
         },
         {
@@ -402,7 +405,8 @@
               3.0
             ],
             "yaw": 180.0,
-            "linkId": "bartender"
+            "linkId": "bartender",
+            "skin": "minecraft:textures/entity/player/wide/steve.png"
           }
         },
         {
@@ -577,7 +581,8 @@
               3.0
             ],
             "yaw": 180.0,
-            "linkId": "bartender"
+            "linkId": "bartender",
+            "skin": "minecraft:textures/entity/player/wide/steve.png"
           }
         },
         {
@@ -587,11 +592,12 @@
             "pos": [
               2.0,
               1.0,
-              1.5
+              2.5
             ],
             "yaw": 0.0,
             "outline": -16776961,
-            "linkId": "shielded"
+            "linkId": "shielded",
+            "skin": "minecraft:textures/entity/player/wide/steve.png"
           }
         },
         {
@@ -601,11 +607,12 @@
             "pos": [
               4.5,
               1.0,
-              1.5
+              2.5
             ],
             "yaw": 0.0,
             "outline": -10189185,
-            "linkId": "shielded_poisoned"
+            "linkId": "shielded_poisoned",
+            "skin": "minecraft:textures/entity/player/wide/steve.png"
           }
         },
         {
@@ -619,7 +626,8 @@
             ],
             "yaw": 180.0,
             "outline": -65536,
-            "linkId": "poisoned_only"
+            "linkId": "poisoned_only",
+            "skin": "minecraft:textures/entity/player/wide/steve.png"
           }
         },
         {
@@ -678,7 +686,8 @@
               3.0
             ],
             "yaw": 180.0,
-            "linkId": "bartender"
+            "linkId": "bartender",
+            "skin": "minecraft:textures/entity/player/wide/steve.png"
           }
         },
         {
