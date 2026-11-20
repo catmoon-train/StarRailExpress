@@ -80,7 +80,6 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
     @Nullable
     private Vec3 walkDelta;
     private int walkTicks;
-    private int walkElapsed;
 
     /** 所属场景的 Outliner，在加入场景时绑定，用于绘制与保活描边。 */
     @Nullable
@@ -154,16 +153,38 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
     }
 
     /**
-     * 在 {@code ticks} 内走到绝对坐标 {@code target}。
+     * 起步走向绝对坐标 {@code target}，总时长 {@code ticks}。
      *
-     * <p>位移在 {@link #tick} 里逐 tick 推进，迈腿相位由 {@code walkAnimation} 驱动，
-     * 所以模型是走过去的，不是瞬移或滑行。
+     * <p>进度由 {@link PonderWalkInstruction} 逐 tick 通过 {@link #setWalkProgress(float)} 推进，
+     * 不依赖元素自己的 tick，这样走动一定跟着时间轴走。
      */
-    public void walkTo(Vec3 target, int ticks) {
+    public void beginWalk(Vec3 target, int ticks) {
         this.walkBase = offset;
         this.walkDelta = target.subtract(location).subtract(offset);
         this.walkTicks = Math.max(1, ticks);
-        this.walkElapsed = 0;
+    }
+
+    /** 推进走动进度（0~1）；结束时把迈腿幅度归零，模型回到站立姿态。 */
+    public void setWalkProgress(float progress) {
+        if (walkDelta == null) {
+            return;
+        }
+        float clamped = Mth.clamp(progress, 0.0F, 1.0F);
+        // 平滑起步与收尾，避免模型像被线性拖走。
+        float eased = clamped * clamped * (3.0F - 2.0F * clamped);
+        offset = walkBase.add(walkDelta.scale(eased));
+        if (puppet != null) {
+            if (clamped >= 1.0F) {
+                puppet.walkAnimation.setSpeed(0.0F);
+            } else {
+                puppet.walkAnimation.update(1.0F, 1.0F);
+                puppet.walkAnimation.setSpeed(1.0F);
+            }
+        }
+        if (clamped >= 1.0F) {
+            offset = walkBase.add(walkDelta);
+            resetWalk();
+        }
     }
 
     /** 直接落位到绝对坐标 {@code target}（传送），并中断未完成的走动。 */
@@ -176,28 +197,6 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
         this.walkBase = Vec3.ZERO;
         this.walkDelta = null;
         this.walkTicks = 0;
-        this.walkElapsed = 0;
-    }
-
-    /** 每 tick 推进走动动画；停步后把迈腿幅度归零，模型回到站立姿态。 */
-    private void tickWalk() {
-        if (walkDelta == null) {
-            puppet.walkAnimation.setSpeed(0.0F);
-            return;
-        }
-        walkElapsed++;
-        float progress = Mth.clamp(walkElapsed / (float) walkTicks, 0.0F, 1.0F);
-        // 平滑起步与收尾，避免模型像被线性拖走。
-        float eased = progress * progress * (3.0F - 2.0F * progress);
-        offset = walkBase.add(walkDelta.scale(eased));
-        if (progress >= 1.0F) {
-            offset = walkBase.add(walkDelta);
-            resetWalk();
-            puppet.walkAnimation.setSpeed(0.0F);
-            return;
-        }
-        puppet.walkAnimation.update(1.0F, 1.0F);
-        puppet.walkAnimation.setSpeed(1.0F);
     }
 
     private void registerSkinOverride() {
@@ -308,7 +307,6 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
         puppet.yBodyRotO = puppet.yBodyRot;
         puppet.yHeadRotO = puppet.yHeadRot;
         puppet.oAttackAnim = puppet.attackAnim;
-        tickWalk();
         // Outliner 条目默认 1 tick 后开始淡出，必须每 tick 保活。
         if (outliner != null && hasOutline() && isVisible()) {
             outliner.keep(this);

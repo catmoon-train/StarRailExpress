@@ -278,6 +278,9 @@ gradlew compileJava --offline
 | `linkId` | string | 存入步骤 `state`，供后续步骤引用 |
 | `heldItem` | string | 模型右手持有的物品 id，用于演示换武器/狂暴形态 |
 | `pose` | string | 模型姿态，见下表；省略为 `standing` |
+| `walkTo` | `[x,y,z]` | 建好模型后走到这个坐标（阻塞，等价于紧跟一条 `role_walk`） |
+| `walkDelay` | int | 走动前先站住多少 tick（默认 0） |
+| `walkDuration` | int | 走动耗时，默认 40 |
 
 `pose` 取值（与游戏内同一套姿态）：
 
@@ -514,6 +517,8 @@ InvalidInjectionException: non-static callback method ... targets a static metho
 ### 动画与时间轴
 
 - `role_walk` 是**阻塞**步骤：`duration` 个 tick 内模型走过去，时间轴同步推进。
+  位移由 `PonderWalkInstruction`（继承 `TickingInstruction`，和 `idle` 同一套调度）逐 tick 推进，
+  **不依赖元素的 tick**，所以只要时间轴在走，模型就一定在走。
 - `role_teleport` 只做落位，不占时间轴；粒子、音效要另外写 `spawn_particles` / `play_sound`。
 - `role_key` 不阻塞，`duration` 只是键帽存活时长（默认 60），要停顿请补 `idle`。
 - `spawn_particles`、`play_sound`、`indicate_success`、`highlight_section` 都不阻塞，
@@ -522,11 +527,17 @@ InvalidInjectionException: non-static callback method ... targets a static metho
 
 ### `starrailexpress:role_key`
 
+键帽走 Ponder 自带的 `overlay().showControls(point, Pointing, ticks).showing(icon)`，
+和鼠标左/右键提示**完全同一套摆放与对话框绘制**，只把图标换成键帽——
+所以它会贴在世界坐标上、随镜头自动挪位，不要自己算屏幕位置。
+
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
+| `point` | `[x,y,z]` | 锚点，写在模型头/胸口上方，和同段 `text` 的 `point` 靠近即可 |
+| `direction` | string | 指示方向 `down`（默认）/`up`/`left`/`right` |
 | `keyBind` | string | 取哪个绑定：`ability`（默认）、`next_ability`、`guess_role_note`、`map_intro`、`task_instinct` |
 | `key` | string | 可选，直接指定键名（写死用，一般不填） |
-| `text` | string | 说明文字；`ponder.` / `key.` 开头按翻译键解析，默认 `按下技能键` |
+| `text` | string | 键帽下方的说明；`ponder.` / `key.` 开头按翻译键解析，默认 `按下技能键` |
 | `duration` | int | 键帽存活 tick，默认 60，`<= 0` 表示整段保持 |
 | `color` | int | 键帽描边颜色，默认金色 |
 
@@ -562,11 +573,11 @@ InvalidInjectionException: non-static callback method ... targets a static metho
 
 ```text
 role_player [2,1,4] linkId=recaller       ← 站在标点处
-role_key（第一次「按下技能键」）
+role_key point=[2,2.2,4]（第一次「按下技能键」）
 highlight_section [2,0,4] duration=360    ← 标点出现并持续可见
 text duration=90 + idle 100               ← 介绍原句
 role_walk to [2,1,1] duration=60          ← 走开，阻塞 60 tick
-role_key（第二次「按下技能键」） + idle 30
+role_key point=[2,2.2,1]（第二次「按下技能键」） + idle 30
 spawn_particles minecraft:portal（起跳点）
 play_sound minecraft:entity.enderman.teleport
 role_teleport [2,1,4]                     ← 瞬移回标点，不做滑动

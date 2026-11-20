@@ -22,6 +22,7 @@ import com.nododiiiii.ponderer.runtime.api.RuntimeEngine;
 import com.nododiiiii.ponderer.runtime.api.StepBuildContext;
 import com.nododiiiii.ponderer.runtime.api.StepCodec;
 import com.nododiiiii.ponderer.runtime.api.StepType;
+import net.createmod.catnip.math.Pointing;
 import net.createmod.ponder.api.element.ElementLink;
 import net.createmod.ponder.api.scene.SceneBuilder;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -146,7 +147,8 @@ public final class PonderSreExtension {
 
     /** {@code role_player} 的参数。 */
     record RolePlayerParams(Vec3 pos, Float yaw, ResourceLocation skin, Integer outline,
-                            String linkId, Float lineWidth, Float expand, String heldItem, Pose pose) {
+                            String linkId, Float lineWidth, Float expand, String heldItem, Pose pose,
+                            Vec3 walkTo, Integer walkDelay, Integer walkDuration) {
     }
 
     /** 玩家模型步骤：可选皮肤与本能透视边框。 */
@@ -165,7 +167,10 @@ public final class PonderSreExtension {
                             readFloat(data, "lineWidth"),
                             readFloat(data, "expand"),
                             readString(data, "heldItem"),
-                            readPose(data));
+                            readPose(data),
+                            readVec(data, "walkTo", null),
+                            readInt(data, "walkDelay"),
+                            readInt(data, "walkDuration"));
                 }
 
                 @Override
@@ -196,6 +201,16 @@ public final class PonderSreExtension {
                     }
                     if (value.pose() != null && value.pose() != Pose.STANDING) {
                         data.addProperty("pose", poseName(value.pose()));
+                    }
+                    if (value.walkTo() != null) {
+                        data.addProperty("walkTo", value.walkTo().x + "," + value.walkTo().y
+                                + "," + value.walkTo().z);
+                    }
+                    if (value.walkDelay() != null) {
+                        data.addProperty("walkDelay", value.walkDelay());
+                    }
+                    if (value.walkDuration() != null) {
+                        data.addProperty("walkDuration", value.walkDuration());
                     }
                     return data;
                 }
@@ -233,12 +248,23 @@ public final class PonderSreExtension {
                 }
             }
             builder.pose(params.pose());
-            ElementLink<PonderPlayerElement> link = builder.addTo(scene);
             String linkId = params.linkId();
-            if (linkId != null && !linkId.isBlank()) {
-                // 供后续步骤按 linkId 淡出或复用同一模型。
-                context.state().put(linkId, link);
-            }
+            Vec3 walkTo = params.walkTo();
+            int walkDelay = params.walkDelay() == null ? 0 : Math.max(0, params.walkDelay());
+            int walkTicks = params.walkDuration() == null ? 40 : Math.max(1, params.walkDuration());
+            builder.addTo(scene, element -> {
+                // 直接把元素实例交给后续步骤用，不经过 ps.resolve()，少一层可能失败的查找。
+                if (linkId != null && !linkId.isBlank()) {
+                    context.state().put(linkId, element);
+                }
+                if (walkTo != null) {
+                    // 同一段里「先站住讲两句、再走过去」，免得再拆一个步骤来驱动模型。
+                    if (walkDelay > 0) {
+                        scene.idle(walkDelay);
+                    }
+                    scene.addInstruction(new PonderWalkInstruction(element, walkTo, walkTicks));
+                }
+            });
         }
     }
 
@@ -309,16 +335,10 @@ public final class PonderSreExtension {
             Vec3 to = params.to();
             String linkId = params.linkId();
 
-            ElementLink<PonderPlayerElement> existing = playerLink(context, linkId);
+            PonderPlayerElement existing = playerElement(context, linkId);
             if (existing != null) {
-                scene.addInstruction(ps -> {
-                    PonderPlayerElement element = ps.resolve(existing);
-                    if (element != null) {
-                        element.walkTo(to, ticks);
-                    }
-                });
-                // 走动本身要吃掉时间轴，后面的动作才会等模型走到位。
-                scene.idle(ticks);
+                // 走动指令本身是阻塞的，后面的动作会等模型走到位。
+                scene.addInstruction(new PonderWalkInstruction(existing, to, ticks));
                 return;
             }
 
@@ -338,13 +358,12 @@ public final class PonderSreExtension {
                 }
             }
             builder.pose(params.pose());
-            ElementLink<PonderPlayerElement> link = builder.addTo(scene, element -> {
-                scene.addInstruction(ps -> element.walkTo(to, ticks));
-                scene.idle(ticks);
+            builder.addTo(scene, element -> {
+                if (linkId != null && !linkId.isBlank()) {
+                    context.state().put(linkId, element);
+                }
+                scene.addInstruction(new PonderWalkInstruction(element, to, ticks));
             });
-            if (linkId != null && !linkId.isBlank()) {
-                context.state().put(linkId, link);
-            }
         }
     }
 
@@ -387,30 +406,26 @@ public final class PonderSreExtension {
 
         @Override
         public void build(RoleTeleportParams params, StepBuildContext context) {
-            ElementLink<PonderPlayerElement> link = playerLink(context, params.linkId());
-            if (link == null) {
+            PonderPlayerElement element = playerElement(context, params.linkId());
+            if (element == null) {
                 LOGGER.warn("role_teleport 找不到 linkId 对应的玩家模型：{}", params.linkId());
                 return;
             }
             Vec3 pos = params.pos();
-            context.builder().addInstruction(ps -> {
-                PonderPlayerElement element = ps.resolve(link);
-                if (element != null) {
-                    element.teleportTo(pos);
-                }
-            });
+            context.builder().addInstruction(ps -> element.teleportTo(pos));
         }
     }
 
     /** {@code role_key} 的参数。 */
-    record RoleKeyParams(String keyBind, String key, String text, Integer duration, Integer color) {
+    record RoleKeyParams(Vec3 point, String direction, String keyBind, String key, String text,
+                         Integer duration, Integer color) {
     }
 
     /**
-     * 按键提示步骤：在屏幕下方画一个键帽（显示当前实际绑定的按键名）与说明文字。
+     * 按键提示步骤：键帽挂在世界坐标上，走 Ponder 自带的 {@code showControls} 控件。
      *
-     * <p>Ponder 自带的 {@code show_controls} 只有鼠标键，键盘技能一律用这一步表达。
-     * 非阻塞，{@code duration} 只是提示的存活时长，要停顿请另外写 {@code idle}。
+     * <p>和鼠标左/右键提示完全同一套摆放与对话框绘制，只是把图标换成了键帽，
+     * 所以它会贴着文本框、随镜头自动挪位，而不是自己算屏幕位置。
      */
     static final class RoleKeyStep implements StepType<RoleKeyParams> {
         @Override
@@ -421,6 +436,8 @@ public final class PonderSreExtension {
                     String keyBind = readString(data, "keyBind");
                     String text = readString(data, "text");
                     return new RoleKeyParams(
+                            readVec(data, "point", null),
+                            readString(data, "direction"),
                             keyBind == null || keyBind.isBlank() ? "ability" : keyBind,
                             readString(data, "key"),
                             text == null || text.isBlank() ? "ponder.starrailexpress.ponder.press_skill" : text,
@@ -431,6 +448,13 @@ public final class PonderSreExtension {
                 @Override
                 public JsonObject encode(RoleKeyParams value) {
                     JsonObject data = new JsonObject();
+                    if (value.point() != null) {
+                        data.addProperty("point",
+                                value.point().x + "," + value.point().y + "," + value.point().z);
+                    }
+                    if (value.direction() != null) {
+                        data.addProperty("direction", value.direction());
+                    }
                     data.addProperty("keyBind", value.keyBind());
                     if (value.key() != null) {
                         data.addProperty("key", value.key());
@@ -458,8 +482,24 @@ public final class PonderSreExtension {
             String caption = resolveText(params.text());
             int accent = params.color() == null ? 0xFFFFD700 : params.color();
             int lifeTicks = params.duration() == null ? 60 : params.duration();
-            new PonderKeyHintElement(keyName, caption, accent, lifeTicks).addTo(context.builder());
+            Vec3 point = params.point() == null ? Vec3.ZERO : params.point();
+            context.builder().overlay()
+                    .showControls(point, parseDirection(params.direction()), lifeTicks)
+                    .showing(new PonderKeyCapScreenElement(keyName, caption, accent));
         }
+    }
+
+    /** 控件的指向：默认从上方指下来。 */
+    private static Pointing parseDirection(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return Pointing.DOWN;
+        }
+        return switch (raw.trim().toLowerCase(java.util.Locale.ROOT)) {
+            case "up" -> Pointing.UP;
+            case "left" -> Pointing.LEFT;
+            case "right" -> Pointing.RIGHT;
+            default -> Pointing.DOWN;
+        };
     }
 
     /** 读当前实际绑定的按键名；{@code key} 显式写了按键时优先用它。 */
@@ -492,14 +532,13 @@ public final class PonderSreExtension {
         return raw;
     }
 
-    /** 按 {@code linkId} 取出之前步骤登记的玩家模型链接。 */
-    @SuppressWarnings("unchecked")
-    private static ElementLink<PonderPlayerElement> playerLink(StepBuildContext context, String linkId) {
+    /** 按 {@code linkId} 取出之前步骤登记的玩家模型实例。 */
+    private static PonderPlayerElement playerElement(StepBuildContext context, String linkId) {
         if (linkId == null || linkId.isBlank()) {
             return null;
         }
         Object stored = context.state().get(linkId);
-        return stored instanceof ElementLink<?> ? (ElementLink<PonderPlayerElement>) stored : null;
+        return stored instanceof PonderPlayerElement element ? element : null;
     }
 
     /** 按 A→B 的水平方向求模型朝向（Minecraft 的 yaw：0 朝 +Z，180 朝 -Z）。 */
