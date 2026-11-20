@@ -110,13 +110,27 @@ def build_room(floor_state, wall_state, extra_blocks):
     return blocks
 
 
+def build_back_wall_room(floor_state, wall_state, extra_blocks):
+    """开放式房间：地板 + 只有背面（z=0）一堵墙，避免侧壁和前墙挡住俯视镜头。"""
+    blocks = []
+    last = SIZE - 1
+    for x in range(SIZE):
+        for z in range(SIZE):
+            blocks.append(([x, 0, z], floor_state(x, z)))
+    for x in range(SIZE):
+        for y in range(1, 4):
+            blocks.append(([x, y, 0], wall_state))
+    blocks.extend(extra_blocks)
+    return blocks
+
+
 def jester():
     palette = [
         "trainmurdermystery:white_hull",
         "trainmurdermystery:navy_steel",
         "trainmurdermystery:marble_tiles",
     ]
-    blocks = build_room(lambda x, z: 2 if (x + z) % 4 == 0 else 0, 1, [])
+    blocks = build_back_wall_room(lambda x, z: 2 if (x + z) % 4 == 0 else 0, 1, [])
     write_structure(OUT / "role_tutorial_jester.nbt", [SIZE, 4, SIZE], blocks, palette)
 
 
@@ -137,7 +151,7 @@ def bartender():
         ([1, 1, 5], 5),   # 马桶
         ([5, 1, 5], 6),   # 床
     ]
-    blocks = build_room(lambda x, z: 0, 1, extra)
+    blocks = build_back_wall_room(lambda x, z: 0, 1, extra)
     write_structure(OUT / "role_tutorial_bartender.nbt", [SIZE, 4, SIZE], blocks, palette)
 
 

@@ -70,7 +70,13 @@ does not have member field 'int field_22790'
 - 物品要直观：关键物品用 `create_item_entity` 摆出来（`motion` 必须写 `[0,0,0]`，否则物品会飞走），再用 `show_controls` 带 `item` 显示物品图标与操作提示。
 - 文本位置必须错开：同一段里不同文案用不同的 `point`，高度也要错开，否则会叠在一起。
 - 动画感来自 `idle` 停顿、`rotate_camera_y` 镜头转动、`indicate_success` / `indicate_redstone` 指示块。
+- 只要介绍或源码里涉及物品释放、技能释放、物品使用等会产生粒子特效的，演示中也必须补上对应的粒子特效，
+  用 Ponderer 的 `spawn_particles` 步骤实现。优先使用游戏内真实粒子 id：下毒是 `wathe:poison`、
+  护盾试剂入盘是 `minecraft:effect`；其它粒子先查对应物品/技能/方块实体源码，不要自行编造。
+  粒子步骤不阻塞时间轴，需要观察时补 `idle`。
 - 房间结构用 `tools/generate_ponder_structures.py` 生成，尺寸 7x4x7、顶部敞开，便于相机俯视。
+  小丑和酒保教程只保留背面（z=0）一堵墙，侧墙和前墙会挡住俯视镜头；其它新教程可复用
+  `starrailexpress:role_tutorial_common`。
 
 ## 5. 动态占位符
 
@@ -161,6 +167,8 @@ does not have member field 'int field_22790'
   - 商店 `trainmurdermystery:defense_vial`，价格 200，类型 `POISON`
   - 护盾蓝轮廓，护盾 + 毒黄绿轮廓，中毒红轮廓，喝饮料绿轮廓
   - 试剂放在食物盘/饮料盘上，用本模组方块演示
+  - 下毒粒子是 `wathe:poison`（盘子在方块顶部、床/马桶在方块中心上方）；护盾试剂在盘中的粒子是 `minecraft:effect`。
+    思索里直接用 `spawn_particles` 步骤即可，不需要自定义扩展，参见酒保 `poison`/`shield` 段落。
 
 ## 10. 结构 NBT 最小格式
 
