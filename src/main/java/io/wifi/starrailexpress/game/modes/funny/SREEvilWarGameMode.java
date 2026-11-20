@@ -196,6 +196,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
     public static final int ADD_BALANCE_TIME = 600;
     public static final int REVIVE_TIME = 200;
     public static final int ONE_SECOND_TICK = 20;
+    public static final int START_CROSS_BAR_COOLDOWN = 40 * 20;
     /** 刽子手德林加数量 */
     public static final int EXECUTIONER_GUN_NUMBER = 6;
     /** 观者切换姿态的冷却 */
@@ -304,6 +305,8 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             ItemCooldowns itemCooldownManager = player.getCooldowns();
             itemCooldownManager.addCooldown(ModItems.PATROLLER_REVOLVER, cooldown);
             itemCooldownManager.addCooldown(ModItems.DESPERADO_KNIFE, cooldown);
+            // 撬棍开局冷却40s
+            itemCooldownManager.addCooldown(TMMItems.CROWBAR, START_CROSS_BAR_COOLDOWN);
         }
     }
 
