@@ -671,6 +671,18 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             // 邪恶战争专属职业额外增益（护盾/弹幕/面具次数/物品/效果等）
             initEvilWarRoleBonuses(player, role);
         }
+
+        // 所有增益处理完后 给所有人25s的速度2 方便调整位置（不会被亡命徒逮着薅）
+        for (ServerPlayer player : players) {
+            if (!player.hasEffect(MobEffects.MOVEMENT_SPEED)) {
+                player.addEffect(new MobEffectInstance(
+                    MobEffects.MOVEMENT_SPEED,
+                    25 * 20,
+                    2,
+                    false,
+                    false));
+            }
+        }
         curBalanceTick = 0;
         curReviveTick = 0;
         curOneSecondTick = 0;
