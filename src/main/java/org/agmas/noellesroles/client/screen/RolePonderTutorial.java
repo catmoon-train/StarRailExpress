@@ -38,6 +38,7 @@ public final class RolePonderTutorial {
     private static final String COMPILE_REQUEST = "com.nododiiiii.ponderer.runtime.api.CompileRequest";
     private static final String RUNTIME_ENGINE = "com.nododiiiii.ponderer.runtime.api.RuntimeEngine";
     private static final String COMPILATION_RESULT = "com.nododiiiii.ponderer.runtime.api.CompilationResult";
+    private static final String PONDER_SCREEN_NAVIGATION = "com.nododiiiii.ponderer.application.ui.PonderScreenNavigation";
     private static final String DRAFT_UI = "com.nododiiiii.ponderer.application.ui.PonderScreenNavigation$DraftPonderUI";
     private static final String PONDER_UI = "net.createmod.ponder.foundation.ui.PonderUI";
 
@@ -206,6 +207,17 @@ public final class RolePonderTutorial {
     }
 
     private static boolean openCompiledScene(Object scene) throws Exception {
+        try {
+            Method openDraft = Class.forName(PONDER_SCREEN_NAVIGATION).getDeclaredMethod(
+                    "openDraftScene", Class.forName(DLS_SCENE), int.class);
+            openDraft.setAccessible(true);
+            if (Boolean.TRUE.equals(openDraft.invoke(null, scene, 0))) {
+                return true;
+            }
+        } catch (Throwable throwable) {
+            LOGGER.debug("Ponderer openDraftScene 不可用，回退到手动编译：{}", describe(throwable));
+        }
+
         Object engine = resolveEngine(scene);
         if (engine == null) {
             return false;

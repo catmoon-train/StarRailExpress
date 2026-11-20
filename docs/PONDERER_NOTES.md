@@ -29,10 +29,11 @@
   - `RuntimeAccess.scenes()` / `SceneVariants.activeScenes()` 查找 `DslScene`
   - 按 `DslScene.id` 匹配 `starrailexpress:role_tutorial.<职业 id 路径>`
   - 修改 `LocalizedText` 与步骤 `nbt` 字符串中的占位符
-  - `RuntimeEngine.compile(CompileRequest)` 生成 `CompilationResult`
-  - 反射 `PonderScreenNavigation$DraftPonderUI` 打开界面
-- 依赖声明：`fabric.mod.json` 的 `depends` 包含 `ponderer`
-  - 编译期不引用 Ponderer 类，避免硬编码加载失败
+  - 优先反射调用 `PonderScreenNavigation.openDraftScene(DslScene, int)`；不可用时回退到 `RuntimeEngine.compile(CompileRequest)` + `PonderScreenNavigation$DraftPonderUI`
+- 依赖声明：
+  - `fabric.mod.json` 的 `depends` 包含 `ponderer` 与 `pondererlib >=0.1.1`
+  - `build.gradle` 用 `modImplementation files(...)` 加载 `libs/pondererlib-*.jar` 与 `libs/ponderer-*.jar`，不使用 `include`，不把前置打进本模组 JAR
+  - 业务代码仍不直接引用 Ponderer 类，避免编译期硬依赖
 
 ## 3. 动态占位符
 
