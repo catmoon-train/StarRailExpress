@@ -16,7 +16,6 @@
 package org.agmas.noellesroles.game.roles.special.super_loose_end;
 
 import io.wifi.starrailexpress.SREConfig;
-import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ItemComponentUtils;
@@ -30,6 +29,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.content.item.TimeStopClock;
+import org.agmas.noellesroles.game.roles.special.variant_loose_end.VariantLooseEndRole;
 import org.agmas.noellesroles.init.ModItems;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,7 +37,7 @@ import org.jetbrains.annotations.Nullable;
  * 超级亡命徒
  *  - 击杀获得增益
  */
-public class SuperLooseEnd extends NormalRole {
+public class SuperLooseEnd extends VariantLooseEndRole {
     public static final RandomSource RANDOM = RandomSource.create();
     public static final int MAX_SPEED_LVL = 10;
     /**

@@ -353,6 +353,13 @@ public class SREClient implements ClientModInitializer {
         io.wifi.starrailexpress.client.mirror.MirrorReflectionManager.init();
         ClientConfigEvents.register();
         initNetworkStatisticsClient();
+        // 列车指令手册：右键在本地打开指令速查界面
+        io.wifi.starrailexpress.content.item.TrainCommandManualItem.openScreenCallback = () -> {
+            net.minecraft.client.Minecraft client = net.minecraft.client.Minecraft.getInstance();
+            if (client.player == null)
+                return;
+            client.setScreen(new io.wifi.starrailexpress.client.gui.screen.TrainCommandManualScreen());
+        };
         new EXSREClient().onInitializeClient();
         // ModVersionPacket
         checkCustomSkinLoader();

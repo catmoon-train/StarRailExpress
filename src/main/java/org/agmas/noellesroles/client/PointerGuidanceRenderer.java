@@ -80,8 +80,7 @@ public final class PointerGuidanceRenderer {
         return player.hasEffect(MobEffects.BLINDNESS)
                 || player.hasEffect(MobEffects.DARKNESS)
                 // 摄影师闪光等黑屏（BlindnessEffectMixin 用 UNLUCK / RAID_OMEN 实现全屏黑）
-                || player.hasEffect(MobEffects.UNLUCK)
-                || player.hasEffect(MobEffects.RAID_OMEN)
+                || player.hasEffect(ModEffects.INSTANT_BLACK_SCREEN)
                 || player.hasEffect(ModEffects.BLACK_MONITOR);
     }
 

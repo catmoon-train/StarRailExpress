@@ -927,7 +927,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                     }
                     if (player.getY() < areas.playArea.minY
                             && gameCCA.getGameMode() instanceof SREEvilWarGameMode evilWar
-                            && evilWar.tryRescueSuperLooseEndFromVoid(player, gameCCA)) {
+                            && evilWar.tryRescueLooseEndVariantFromVoid(player, gameCCA)) {
                         return;
                     }
                     GameUtils.killPlayer(player, false,

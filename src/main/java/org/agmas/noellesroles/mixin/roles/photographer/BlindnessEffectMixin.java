@@ -19,7 +19,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.world.effect.MobEffects;
+import org.agmas.noellesroles.init.ModEffects;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -34,15 +34,8 @@ public class BlindnessEffectMixin {
         if (player == null) {
             return;
         }
-        if (player.hasEffect(MobEffects.UNLUCK)){
+        if (player.hasEffect(ModEffects.INSTANT_BLACK_SCREEN)){
             guiGraphics.fill(0,0, Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight(), 0xFF000000);
-        }
-        if (player.hasEffect(MobEffects.RAID_OMEN)) {
-            // 试炼之兆效果 - 屏幕变黑（仿照低san值时的效果）并添加渐进渐出
-            float effectIntensity = Math.min(1.0f, player.getEffect(MobEffects.RAID_OMEN).getDuration() / 20.0f); // 假设持续时间为20 ticks
-            int alpha = (int) (effectIntensity * 255);
-            int color = (alpha << 24); // 黑色带透明度
-            guiGraphics.fill(0, 0, Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight(), color);
         }
     }
 }

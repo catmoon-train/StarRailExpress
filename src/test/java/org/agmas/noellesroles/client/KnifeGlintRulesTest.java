@@ -29,4 +29,10 @@ class KnifeGlintRulesTest {
         assertTrue(render.contains("KnifeGlintContext.render(entity, stack"));
         assertTrue(render.contains("renderStatic(Lnet/minecraft/world/entity/LivingEntity;"));
     }
+
+    @Test void contextExcludesRolesHidingAsKillerTeam() throws Exception {
+        String context = Files.readString(
+                Path.of("src/main/java/org/agmas/noellesroles/client/KnifeGlintContext.java"));
+        assertTrue(context.contains("!role.isHidingAsKillerTeam()"));
+    }
 }

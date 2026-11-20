@@ -23,7 +23,6 @@ import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
-import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.SREItemUtils;
 import net.minecraft.server.level.ServerLevel;
@@ -40,6 +39,7 @@ import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentPool;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.content.item.LetterItem;
+import org.agmas.noellesroles.game.roles.special.variant_loose_end.VariantLooseEndRole;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
@@ -540,7 +540,7 @@ public class SREClassChangeGameMode extends SREMurderGameMode {
         availableRoles.removeIf(role -> role == null
                 || role.isOtherModeRole()
                 || role == TMMRoles.LOOSE_END
-                || role == SpecialGameModeRoles.SUPER_LOOSE_END
+                || VariantLooseEndRole.isVariant(role)
                 || role == ModRoles.BETTER_VIGILANTE
                 || role == TraitorAndModifiers.TRAITOR
                 || role == ModRoles.PUPPETEER // 傀儡师在职业变换模式全局禁用

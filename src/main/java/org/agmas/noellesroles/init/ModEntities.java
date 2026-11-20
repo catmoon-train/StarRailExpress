@@ -669,6 +669,20 @@ public class ModEntities {
                     .build());
 
     /**
+     * 钢卷实体 - 金属怪一技能的伪装形态，尺寸固定 2×2×2 格。
+     * 仅作为 EntityDisguise 的渲染载体，玩家本体碰撞箱不变，因此能过一格宽道路。
+     */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<SteelCoilEntity> STEEL_COIL = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            Noellesroles.id("steel_coil"),
+            FabricEntityTypeBuilder.<SteelCoilEntity>create(MobCategory.MISC, SteelCoilEntity::new)
+                    .dimensions(EntityDimensions.fixed(SteelCoilEntity.SIZE, SteelCoilEntity.SIZE))
+                    .trackRangeBlocks(64)
+                    .trackedUpdateRate(1)
+                    .build());
+
+    /**
      * 雪傀儡推出的大雪球。
      *
      * <p>

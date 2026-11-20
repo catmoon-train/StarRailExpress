@@ -261,6 +261,10 @@ public class ModPackets {
         PayloadTypeRegistry.playC2S().register(AmonSelectTargetC2SPacket.ID, AmonSelectTargetC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(ManipulatorControlInputC2SPacket.ID,
                 ManipulatorControlInputC2SPacket.CODEC);
+        // 金属怪钢卷形态：每 tick 上报移动键与朝向
+        PayloadTypeRegistry.playC2S().register(
+                org.agmas.noellesroles.packet.SteelCoilInputC2SPacket.ID,
+                org.agmas.noellesroles.packet.SteelCoilInputC2SPacket.CODEC);
         // 童子军：空手右键紧贴的墙壁 → 开始攀爬；松手 → 结束攀爬
         PayloadTypeRegistry.playC2S().register(ScoutClimbC2SPacket.ID, ScoutClimbC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(ManipulatorAbilityC2SPacket.ID,

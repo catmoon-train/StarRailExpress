@@ -21,6 +21,7 @@ import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.ShopContent;
+import io.wifi.starrailexpress.game.modes.funny.SREEvilWarGameMode;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.progression.ProgressionDataManager;
@@ -394,6 +395,10 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
 
     public static void addGlobalPsychoCooldown(Player player) {
         var gamecca = SREGameWorldComponent.getInstance(player);
+        // 邪恶战争中的狼人各自计算狂暴冷却，允许多名狼人同时进入狂暴状态
+        if (gamecca.getGameMode() instanceof SREEvilWarGameMode) {
+            return;
+        }
         for (var p : player.level().players()) {
             if (GameUtils.isPlayerAliveAndSurvival(p) && gamecca.isKillerTeam(p)) {
                 if (!p.getCooldowns().isOnCooldown(TMMItems.PSYCHO_MODE) && !p.getUUID().equals(player.getUUID())) {

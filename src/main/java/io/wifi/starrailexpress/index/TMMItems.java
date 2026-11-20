@@ -195,6 +195,12 @@ public interface TMMItems {
             new io.wifi.starrailexpress.content.item.AdminDrawingBoardItem(),
             new net.minecraft.resources.ResourceKey[] {
                     net.minecraft.world.item.CreativeModeTabs.OP_BLOCKS });
+    /** 列车指令手册：面向游戏内用户的指令速查，置于原版「操作员物品」标签页。 */
+    Item TRAIN_COMMAND_MANUAL = sreRegistrar.create("train_command_manual",
+            new io.wifi.starrailexpress.content.item.TrainCommandManualItem(
+                    new Item.Properties().stacksTo(1)),
+            new net.minecraft.resources.ResourceKey[] {
+                    net.minecraft.world.item.CreativeModeTabs.OP_BLOCKS });
 
     // === 杂项 (MISC) ===
     Item BLACKOUT = registrar.create("blackout", new BlackoutItem(new Item.Properties().stacksTo(1)),
@@ -213,20 +219,14 @@ public interface TMMItems {
 
         // 亡命徒，超级亡命徒，土块 可以直接使用防御药剂
         DefenseItem.canUseByRightClickRolePaths.add(TMMRoles.LOOSE_END.identifier().getPath());
-        DefenseItem.canUseByRightClickRolePaths
-                .add(SpecialGameModeRoles.SUPER_LOOSE_END.identifier().getPath());
         DefenseItem.canUseByRightClickRolePaths.add(SpecialGameModeRoles.DIRT.identifier().getPath());
 
         // 亡命徒，超级亡命徒，土块 也可以直接使用弱效护盾试剂
         WeakDefenseItem.canUseByRightClickRolePaths.add(TMMRoles.LOOSE_END.identifier().getPath());
-        WeakDefenseItem.canUseByRightClickRolePaths
-                .add(SpecialGameModeRoles.SUPER_LOOSE_END.identifier().getPath());
         WeakDefenseItem.canUseByRightClickRolePaths.add(SpecialGameModeRoles.DIRT.identifier().getPath());
 
         // 亡命徒，超级亡命徒，土块 也可以直接使用虚拟护盾试剂
         VirtualDefenseItem.canUseByRightClickRolePaths.add(TMMRoles.LOOSE_END.identifier().getPath());
-        VirtualDefenseItem.canUseByRightClickRolePaths
-                .add(SpecialGameModeRoles.SUPER_LOOSE_END.identifier().getPath());
         VirtualDefenseItem.canUseByRightClickRolePaths.add(SpecialGameModeRoles.DIRT.identifier().getPath());
 
         registrar.registerEntries();

@@ -16,9 +16,7 @@
 package io.wifi.starrailexpress.content.item;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.StickyGrenadeEntity;
-import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.ChatFormatting;
@@ -34,6 +32,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
+import org.agmas.noellesroles.game.roles.special.variant_loose_end.VariantLooseEndRole;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -64,8 +63,7 @@ public class StickyGrenadeItem extends SkinableItem {
                 return;
             if (user instanceof Player player) {
                 if (!player.isCreative()
-                        && !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
-                                SpecialGameModeRoles.SUPER_LOOSE_END)) {
+                        && !VariantLooseEndRole.isVariant(player)) {
                     GrenadeItem.addGrenadeCooldown(player);
                 }
             }

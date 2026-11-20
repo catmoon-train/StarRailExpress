@@ -563,6 +563,22 @@ public class ModRolesInitialEventRegister {
                         .announceToSelf(false)
                         .build());
 
+        // 金属怪：两个非 shifted 技能，按 V 键在「钢卷形态」与「致命强化」之间切换。
+        // 一技能可 toggle（钢卷形态中再按一次变回人形并进入 30 秒冷却）；二技能开局 120 秒冷却。
+        RoleSkill.register(ModRoles.METAL_MONSTER,
+                RoleSkill.skill(SRE.id("metal_monster_roll"),
+                        "skill.noellesroles.metal_monster.roll",
+                        context -> org.agmas.noellesroles.game.roles.neutral.metal_monster.MetalMonsterRole
+                                .toggleRoll(context, context.skillReady()))
+                        .cooldownSeconds(30).toggleable(true)
+                        .showOnHud(true).announceToSelf(false).build(),
+                RoleSkill.skill(SRE.id("metal_monster_lethal"),
+                        "skill.noellesroles.metal_monster.lethal",
+                        context -> org.agmas.noellesroles.game.roles.neutral.metal_monster.MetalMonsterRole
+                                .activateLethal(context.player()))
+                        .cooldownSeconds(120).initialCooldownSeconds(120)
+                        .showOnHud(true).announceToSelf(false).build());
+
         RoleSkill.register(ModRoles.LIN_FAMILY,
                 RoleSkill.skill(SRE.id("lin_family_generosity"),
                         "skill.noellesroles.lin_family.generosity",

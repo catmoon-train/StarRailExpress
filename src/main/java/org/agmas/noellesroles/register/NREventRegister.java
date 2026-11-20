@@ -53,6 +53,8 @@ public class NREventRegister {
         org.agmas.noellesroles.game.roles.neutral.leader.LeaderEventHandler.register();
         // 雪傀儡：伪装、融化被动、雪球碰撞与开局 / 局末清场
         org.agmas.noellesroles.game.roles.neutral.snow_golem.SnowGolemRole.registerEvents();
+        // 金属怪：钢卷运动学、撞击结算、撞门与局末清理
+        org.agmas.noellesroles.game.roles.neutral.metal_monster.MetalMonsterRole.registerEvents();
         org.agmas.noellesroles.game.roles.killer.clone_doctor.CloneDoctorRole.registerEvents();
         org.agmas.noellesroles.game.scanner.IdentityScannerService.registerEvents();
 

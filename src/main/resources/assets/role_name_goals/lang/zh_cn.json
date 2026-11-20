@@ -726,6 +726,8 @@
   "announcement.star.win.stupid_express.split_personality": "双重人格胜利",
   "announcement.star.role.super_loose_end": "超级亡命徒",
   "announcement.star.goals.super_loose_end": "你获得了全部的力量...",
+  "announcement.star.role.ghost_loose_end": "幽灵亡命徒",
+  "announcement.star.goals.ghost_loose_end": "在隐身消失前杀光所有人。",
   "announcement.star.role.swapper": "交换者",
   "announcement.star.goals.swapper": "与其他玩家交换位置。",
   "announcement.star.role.swast": "特警",

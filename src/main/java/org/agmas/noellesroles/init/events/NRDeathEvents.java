@@ -35,7 +35,6 @@ import io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.forensic.ForensicCategory;
-import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
@@ -81,6 +80,7 @@ import org.agmas.noellesroles.role_data.neutral.MorticianBodyMakerRoleData;
 import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
 import org.agmas.noellesroles.role_data.neutral.MercenaryRoleData;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
+import org.agmas.noellesroles.game.roles.special.variant_loose_end.VariantLooseEndRole;
 import org.agmas.noellesroles.role_data.neutral.ThiefRoleData;
 import org.agmas.noellesroles.role_data.innocence.AvengerRoleData;
 import org.agmas.noellesroles.role_data.innocence.BoxerRoleData;
@@ -1323,8 +1323,7 @@ public class NRDeathEvents {
                     || deathReason.getPath().equals("ignited"))) {
                 return true;
             }
-            if (gameWorld.isRole(killer, TMMRoles.LOOSE_END)
-                    || gameWorld.isRole(killer, SpecialGameModeRoles.SUPER_LOOSE_END)) {
+            if (gameWorld.isRole(killer, TMMRoles.LOOSE_END) || VariantLooseEndRole.isVariant(killer)) {
                 return true;
             }
             if (killer == null || gameWorld.isInnocent(killer))

@@ -115,7 +115,7 @@ public class TrapperRoleData extends SimpleRoleData {
     /** 泥沼放置冷却（tick） */
     public int mudCooldownTicks = 0;
 
-    /** 捕网枪冷却（tick，技能冷却：购得时无初始冷却，发射后才开始计时） */
+    /** 捕网枪冷却（tick；普通模式初始为 0，特殊模式可设置开局冷却，发射后为 150s） */
     public int netGunCooldownTicks = 0;
 
     /** 是否已购买捕网枪（一局限购一次） */
@@ -488,8 +488,7 @@ public class TrapperRoleData extends SimpleRoleData {
         shop.addToBalance(-NET_GUN_COST);
         hasNetGun = true;
         RoleUtils.insertStackInFreeSlot(sp, ModItems.TRAPPER_NET_GUN.getDefaultInstance());
-        // 购得即可用：不再设初始冷却，150s 冷却只在发射捕网之后才开始计时。
-        netGunCooldownTicks = 0;
+        // 不清除模式预设的开局冷却；普通模式初始化为 0，仍然可以购得后立即使用。
         if (sp.level() instanceof ServerLevel serverLevel) {
             serverLevel.playSound(null, sp.blockPosition(),
                     SoundEvents.CROSSBOW_LOADING_END.value(), SoundSource.PLAYERS, 1.0f, 1.0f);

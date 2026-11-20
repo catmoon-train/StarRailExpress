@@ -132,7 +132,8 @@
     "starrailexpress.mixins.json",
     "starrailexpress_exmo.mixins.json",
     "wathe_blocker.mixins.json",
-    "sre_language.mixins.json"
+    "sre_language.mixins.json",
+    "sre_ponder.mixins.json"
   ],
   "depends": {
     "minecraft": "1.21.1",
@@ -142,7 +143,9 @@
     "voicechat": "*",
     "architectury": "*",
     "exposure": "*",
-    "sre_resource": "*"
+    "sre_resource": "*",
+    "ponderer": "*",
+    "pondererlib": ">=0.1.1"
   },
   "recommends": {
     "exposure_polaroid": "*",

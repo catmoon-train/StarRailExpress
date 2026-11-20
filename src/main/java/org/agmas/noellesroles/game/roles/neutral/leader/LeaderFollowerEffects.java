@@ -46,6 +46,7 @@ import org.agmas.noellesroles.role_data.neutral.NianShouRoleData;
 import org.agmas.noellesroles.game.roles.neutral.lender.LenderRoleHandler;
 import org.agmas.noellesroles.game.fake_steve.FakeSteveDirector;
 import org.agmas.noellesroles.game.roles.neutral.panda.PandaState;
+import org.agmas.noellesroles.game.roles.special.variant_loose_end.VariantLooseEndRole;
 import org.agmas.noellesroles.role_data.neutral.PelicanRoleData;
 import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
 import org.agmas.noellesroles.role_data.neutral.ReasonerRoleData;
@@ -179,7 +180,7 @@ public final class LeaderFollowerEffects {
         String path = followerRole.identifier().getPath();
 
         // 禁止释放（不应走到这里，仅防御）
-        if (path.equals("loose_end") || path.equals("super_loose_end") || path.equals("leader")) {
+        if (path.equals("loose_end") || VariantLooseEndRole.isVariant(followerRole) || path.equals("leader")) {
             return;
         }
 
@@ -631,7 +632,7 @@ public final class LeaderFollowerEffects {
         String path = role.identifier().getPath();
 
         // 禁止：亡命徒 / 超级亡命徒 / 领袖自身
-        if (path.equals("loose_end") || path.equals("super_loose_end") || path.equals("leader")) {
+        if (path.equals("loose_end") || VariantLooseEndRole.isVariant(role) || path.equals("leader")) {
             return false;
         }
 

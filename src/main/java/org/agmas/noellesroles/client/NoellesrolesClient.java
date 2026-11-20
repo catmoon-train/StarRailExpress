@@ -243,6 +243,8 @@ public class NoellesrolesClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        // 思索扩展：必须在 PondererLib 场景注册之前完成，供职业教程使用自定义步骤
+        io.wifi.starrailexpress.client.ponder.PonderSreRegistration.register();
         org.agmas.noellesroles.client.roulette.RouletteClient.register();
         org.agmas.noellesroles.client.RouletteDevilClient.register();
         org.agmas.noellesroles.client.decree.DecreeClient.register();
@@ -346,6 +348,8 @@ public class NoellesrolesClient implements ClientModInitializer {
         org.agmas.noellesroles.client.ReaperScytheClientFx.register();
         org.agmas.noellesroles.client.HamoonClientFx.register();
         org.agmas.noellesroles.client.RoadRollerClient.register();
+        // 金属怪：钢卷输入上报、滚动角与第三人称
+        org.agmas.noellesroles.client.SteelCoilClientHandler.register();
         org.agmas.noellesroles.client.CommandBlockProgressClient.register();
         org.agmas.noellesroles.client.hud.roles.PaperDollHud.register();
         org.agmas.noellesroles.client.CommandBlockAmbientSound.register();
@@ -509,6 +513,8 @@ public class NoellesrolesClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntities.WHEELCHAIR_FIELD_ITEM, WheelchairFieldItemRenderer::new);
         EntityRendererRegistry.register(ModEntities.ROLLING_STONE,
                 org.agmas.noellesroles.client.render.RollingStoneRenderer::new);
+        EntityRendererRegistry.register(ModEntities.STEEL_COIL,
+                org.agmas.noellesroles.client.render.SteelCoilRenderer::new);
         EntityRendererRegistry.register(ModEntities.ROLLING_LOG,
                 org.agmas.noellesroles.client.render.RollingLogRenderer::new);
         EntityRendererRegistry.register(ModEntities.SNOWBALL_ROLL,

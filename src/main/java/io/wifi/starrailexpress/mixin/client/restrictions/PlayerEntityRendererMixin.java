@@ -48,6 +48,14 @@ public class PlayerEntityRendererMixin {
     @Inject(method = "getTextureLocation(Lnet/minecraft/client/player/AbstractClientPlayer;)Lnet/minecraft/resources/ResourceLocation;", at = @At("HEAD"), cancellable = true)
     private void tmm$psychoSkinTexture(
             AbstractClientPlayer abstractClientPlayerEntity, CallbackInfoReturnable<ResourceLocation> cir) {
+        // 思索场景的玩家模型可以显式指定皮肤（例如小丑狂暴），优先级最高。
+        ResourceLocation ponderSkin = io.wifi.starrailexpress.client.ponder.PonderSkinAccess
+                .textureOf(abstractClientPlayerEntity);
+        if (ponderSkin != null) {
+            cir.setReturnValue(ponderSkin);
+            cir.cancel();
+            return;
+        }
         if (SREClient.gameComponent == null)
             return;
 

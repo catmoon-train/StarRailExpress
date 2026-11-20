@@ -36,6 +36,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -51,12 +52,14 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentPool;
 import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.content.item.TimeStopClock;
+import org.agmas.noellesroles.game.roles.special.variant_loose_end.VariantLooseEndRole;
 import org.agmas.noellesroles.role_data.killer.BloodFeudistRoleData;
 import org.agmas.noellesroles.role_data.killer.ImitatorRoleData;
 import org.agmas.noellesroles.game.roles.killer.imitator.ImitatorSkillRegistry;
 import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
 import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
 import org.agmas.noellesroles.role_data.killer.TrapperRoleData;
+import org.agmas.noellesroles.role_data.killer.WatcherRoleData;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.game.roles.killer.boom_maniac.BoomManiacRole;
@@ -86,14 +89,15 @@ import java.util.function.Supplier;
 /**
  * 邪恶战局
  * <p>
- * - 模式特性：每 7 狼（开局 1000 金币）对战 1 超级亡命徒（无友军透视，但是必定矮小）
+ * - 模式特性：每 7 狼（开局 1000 金币）对战 1 名变种亡命徒（无友军透视，但是必定矮小）
  * </p>
  */
 public class SREEvilWarGameMode extends WTLooseEndsGameMode {
     /** 有特殊改动的职业 */
     public static final Set<SRERole> EX_ABILITY_ROLE = new HashSet<>();
+    /** 幽灵亡命徒允许承受的、能够明确识别为单体命中的战斗死因 */
+    private static final Set<ResourceLocation> GHOST_LOOSE_END_DAMAGE_ALLOWLIST = new HashSet<>();
     static {
-        EX_ABILITY_ROLE.add(SpecialGameModeRoles.SUPER_LOOSE_END);
         EX_ABILITY_ROLE.add(THRedHouseRoles.REMILIA);
         EX_ABILITY_ROLE.add(ModRoles.IMITATOR);
         EX_ABILITY_ROLE.add(ModRoles.TRAPPER);
@@ -141,11 +145,66 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         EX_ABILITY_ROLE.add(THMiscRoles.YAKUMO_YUKARI);
         EX_ABILITY_ROLE.add(THMiscRoles.HATA_NO_KOKORO);
         EX_ABILITY_ROLE.add(THMountainRoles.AYA);
+
+        Collections.addAll(GHOST_LOOSE_END_DAMAGE_ALLOWLIST,
+            GameConstants.DeathReasons.GUN_SHOT,                 // 枪械射击
+            GameConstants.DeathReasons.KNIFE,                    // 普通小刀
+            GameConstants.DeathReasons.REVOLVER,                 // 左轮手枪
+            GameConstants.DeathReasons.DERRINGER,                // 德林杰手枪
+            GameConstants.DeathReasons.GENERAL_ATTACK,           // 通用近战攻击
+            GameConstants.DeathReasons.BAT,                      // 球棒攻击
+            GameConstants.DeathReasons.POISON,                   // 中毒
+            GameConstants.DeathReasons.ARROW,                    // 弓箭命中
+            GameConstants.DeathReasons.TRIDENT,                  // 三叉戟命中
+            GameConstants.DeathReasons.SNIPER_RIFLE,             // 狙击步枪
+            GameConstants.DeathReasons.NUNCHUCK,                 // 双截棍
+            GameConstants.DeathReasons.ZERO_ONE_FIVE,            // 015 的单体攻击
+            GameConstants.DeathReasons.ANCIENT_BITE,             // 远古生物撕咬
+            GameConstants.DeathReasons.TARTAGLIA,                // 达达利亚近战攻击
+            GameConstants.DeathReasons.TARTAGLIA_ARROW,          // 达达利亚弓箭
+            GameConstants.DeathReasons.FAKE_AI_BACKSTAB,         // 伪人背刺
+            GameConstants.DeathReasons.BOMB_DEATH,               // 炸弹直接命中结算
+            GameConstants.DeathReasons.PUPPETEER_BODY_DEATH,     // 操偶师处决傀儡本体
+            GameConstants.DeathReasons.BATON_KILL,               // 警棍攻击
+            GameConstants.DeathReasons.FIRE_AXE,                 // 消防斧攻击
+            GameConstants.DeathReasons.NINJA_KNIFE_KILL,         // 忍者小刀
+            GameConstants.DeathReasons.THROWING_KNIFE_HIT,       // 飞刀命中
+            GameConstants.DeathReasons.BAMBOO_SPEAR,             // 竹矛命中
+            GameConstants.DeathReasons.WATCHER_CALM_KILL,        // 监视者冷静击杀
+            GameConstants.DeathReasons.HOAN_MEIRIN_ATTACK,       // 红美铃攻击
+            GameConstants.DeathReasons.WRAITH_ASSAULT,           // 怨灵突袭
+            GameConstants.DeathReasons.DREAM_AXE,                // 梦境斧攻击
+            GameConstants.DeathReasons.DREAM_DIAMOND_SWORD,      // 梦境钻石剑攻击
+            GameConstants.DeathReasons.DREAM_MACE,               // 梦境重锤攻击
+            GameConstants.DeathReasons.SPEAR,                    // 长矛攻击
+            GameConstants.DeathReasons.KATANA,                   // 武士刀攻击
+            GameConstants.DeathReasons.DANMUKU,                  // 弹幕命中
+            GameConstants.DeathReasons.HIM_SWORD,                // HIM 剑攻击
+            GameConstants.DeathReasons.CANDLE_SNIP,              // 蜡烛剪击
+            GameConstants.DeathReasons.WHITE_EYES_NEEDLE,        // 白眼针攻击
+            GameConstants.DeathReasons.STRINGER_BLADE,           // 刺刃攻击
+            GameConstants.DeathReasons.ENTITY_303_PEEL,          // Entity 303 剥离攻击
+            GameConstants.DeathReasons.REAPER_SCYTHE,            // 死神镰刀攻击
+            GameConstants.DeathReasons.SECOND_NEEDLE,            // 秒针攻击
+            GameConstants.DeathReasons.PAPER_CUT,                // 纸张切割
+            GameConstants.DeathReasons.FOG_BLADE,                // 雾刃攻击
+            GameConstants.DeathReasons.STONE_SPEAR,              // 石矛攻击
+            GameConstants.DeathReasons.MINUTE_NEEDLE);           // 分针攻击
+        // 同时纳入核心注册的全部物品直接击杀死因，避免新物品型单体攻击遗漏。
+        GHOST_LOOSE_END_DAMAGE_ALLOWLIST.addAll(GameConstants.DeathReasons.getItemDeathReasons());
     }
     public static final int ADD_BALANCE_TIME = 600;
     public static final int REVIVE_TIME = 200;
     public static final int ONE_SECOND_TICK = 20;
+    public static final int START_CROSS_BAR_COOLDOWN = 40 * 20;
+    /** 刽子手德林加数量 */
     public static final int EXECUTIONER_GUN_NUMBER = 6;
+    /** 观者切换姿态的冷却 */
+    private static final int WATCHER_STANCE_COOLDOWN_TICKS = 5 * 20;
+    /** 猫娘召唤师的冷却 */
+    private  static final int CAT_NECROMANCER_COOLDOWN_TICKS = 10 * 20;
+    /** 死灵法师的冷却 */
+    private  static final int NECROMANCER_COOLDOWN_TICKS = 10 * 20;
     protected static AttributeModifier tinyModifier = new AttributeModifier(
             StupidExpress.id("tiny_modifier"), -0.15, AttributeModifier.Operation.ADD_VALUE);
     public final List<SRERole> BANED_ROLES = new ArrayList<>();
@@ -198,10 +257,17 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
     @Override
     public void killPlayer(Player victim, boolean spawnBody, @Nullable Player _killer,
             ResourceLocation deathReason, boolean forceDeath) {
+        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
+        SRERole role = gameWorldComponent.getRole(victim);
+        // 对幽灵亡命徒的专属判断 ：非强制击杀时，不在白名单的伤害来源免疫
+        if (!forceDeath
+                && role == SpecialGameModeRoles.GHOST_LOOSE_END
+                && _killer != null
+                && !GHOST_LOOSE_END_DAMAGE_ALLOWLIST.contains(deathReason)) {
+            return;
+        }
         super.killPlayer(victim, spawnBody, _killer, deathReason, forceDeath);
         Level level = victim.level();
-        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(level);
-        SRERole role = gameWorldComponent.getRole(victim);
         // 雷米莉亚死亡给予附近杀手护盾
         if (role == THRedHouseRoles.REMILIA) {
             for (Player player : level.players()) {
@@ -210,8 +276,8 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                         || player.distanceToSqr(victim) > 1.5 * 1.5)
                     continue;
                 SRERole playerRole = gameWorldComponent.getRole(player);
-                // 排除超级亡命徒
-                if (playerRole == SpecialGameModeRoles.SUPER_LOOSE_END)
+                // 排除亡命徒
+                if (VariantLooseEndRole.isVariant(playerRole))
                     continue;
                 SREArmorPlayerComponent armorComponent = SREArmorPlayerComponent.KEY.get(player);
                 armorComponent.addArmor();
@@ -219,9 +285,14 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         }
     }
 
+    // 初始化模式物品列表
     protected void initItemList() {
-        super.initItemList();
+        // 使用亡命徒小刀替换普通小刀
+        looseEndsItems.add(ModItems.DESPERADO_KNIFE::getDefaultInstance);
+        looseEndsItems.add(TMMItems.DERRINGER::getDefaultInstance);
         looseEndsItems.add(ModItems.PATROLLER_REVOLVER::getDefaultInstance);
+        looseEndsItems.add(TMMItems.CROWBAR::getDefaultInstance);
+        looseEndsItems.add(TMMItems.DEFENSE_VIAL::getDefaultInstance);
         looseEndsItems.add(TMMItems.DEFENSE_VIAL::getDefaultInstance);
     }
 
@@ -234,20 +305,25 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             ItemCooldowns itemCooldownManager = player.getCooldowns();
             itemCooldownManager.addCooldown(ModItems.PATROLLER_REVOLVER, cooldown);
             itemCooldownManager.addCooldown(ModItems.DESPERADO_KNIFE, cooldown);
+            // 撬棍开局冷却40s
+            itemCooldownManager.addCooldown(TMMItems.CROWBAR, START_CROSS_BAR_COOLDOWN);
         }
     }
 
-    protected int getSuperLooseEndCount(List<ServerPlayer> players) {
+    protected int getLooseEndVariantCount(List<ServerPlayer> players) {
         return Math.max(players.size() / (SREConfig.instance().evilWarKillGroupNumber + 1), 1);
     }
 
     @Override
     protected void initRoles(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent,ServerLevel world) {
+        RandomSource levelRandomSource = world.getRandom();
         // 处理强制角色
         Map<UUID, SRERole> forcedRoles = new HashMap<>(Harpymodloader.FORCED_MODDED_ROLE);
+        /** 非强制角色，可以随机分配玩家 */
         List<ServerPlayer> playersWithoutForcedRoles = new ArrayList<>();
-        // 每有一组狼人产生一个超级亡命徒：8人局对应 7 狼 1 亡命徒
-        int superLooseEndCount = getSuperLooseEndCount(players);
+        // 每有一组狼人产生一个变种亡命徒：8 人局对应 7 狼 1 亡命徒
+        int looseEndVariantCount = getLooseEndVariantCount(players);
+        int ghostLooseEndCount = Math.min(1, looseEndVariantCount);
         for (ServerPlayer player : players) {
             if (!forcedRoles.containsKey(player.getUUID())) {
                 playersWithoutForcedRoles.add(player);
@@ -256,38 +332,47 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         for (Map.Entry<UUID, SRERole> entry : forcedRoles.entrySet()) {
             ServerPlayer forcePlayer = null;
             for (ServerPlayer player : players) {
-                if (player.getUUID() == entry.getKey())
+                if (player.getUUID().equals(entry.getKey()))
                     forcePlayer = player;
             }
             if (forcePlayer != null) {
                 SRERole role = entry.getValue();
                 if (role != null) {
-                    if (role == SpecialGameModeRoles.SUPER_LOOSE_END)
-                        --superLooseEndCount;
+                    if (VariantLooseEndRole.isVariant(role)) {
+                        --looseEndVariantCount;
+                    }
+                    if (role == SpecialGameModeRoles.GHOST_LOOSE_END)
+                        --ghostLooseEndCount;
                     gameWorldComponent.addRole(forcePlayer, role);
                 } else
                     playersWithoutForcedRoles.add(forcePlayer);
             }
         }
-        if (superLooseEndCount < 0)
-            superLooseEndCount = 0;
-        else if (superLooseEndCount > playersWithoutForcedRoles.size()) {
-            superLooseEndCount = playersWithoutForcedRoles.size();
+        if (looseEndVariantCount < 0)
+            looseEndVariantCount = 0;
+        else if (looseEndVariantCount > playersWithoutForcedRoles.size()) {
+            looseEndVariantCount = playersWithoutForcedRoles.size();
         }
+        ghostLooseEndCount = Math.clamp(ghostLooseEndCount, 0, looseEndVariantCount);
+        // 幽灵亡命徒属于邪恶战争的特殊分配规则：每局最多一名，并有 50% 概率出现
+        ghostLooseEndCount = levelRandomSource.nextInt(0, ghostLooseEndCount + 1);
 
         // 生成杀手池
         RoleAssignmentPool killerPool = createEvilWarRolePool(world);
-        List<SRERole> assignedKillers = killerPool.selectRoles(playersWithoutForcedRoles.size() - superLooseEndCount);
+        List<SRERole> assignedKillers = killerPool.selectRoles(playersWithoutForcedRoles.size() - looseEndVariantCount);
         // 打乱需要分配的玩家列表
         Collections.shuffle(playersWithoutForcedRoles);
-        // 前 superLooseEndeCount 个是亡命徒，剩下的为普通杀手，优先分配亡命徒，然后再分配杀手
+        // 前 looseEndVariantCount 个是变种亡命徒，剩下的为普通杀手。
         if (assignedKillers.isEmpty()) {
             return;
         }
         for (int i = 0,
                 curKillerIdx = 0; i < playersWithoutForcedRoles.size(); ++i, curKillerIdx %= assignedKillers.size()) {
-            if (i < superLooseEndCount) {
-                gameWorldComponent.addRole(playersWithoutForcedRoles.get(i), SpecialGameModeRoles.SUPER_LOOSE_END);
+            if (i < looseEndVariantCount) {
+                gameWorldComponent.addRole(playersWithoutForcedRoles.get(i),
+                        i < ghostLooseEndCount
+                                ? SpecialGameModeRoles.GHOST_LOOSE_END
+                                : SpecialGameModeRoles.SUPER_LOOSE_END);
             } else if (curKillerIdx < assignedKillers.size()) {
                 SRERole role = assignedKillers.get(curKillerIdx++);
                 // 操纵师只会在有2个亡命徒以上时出现
@@ -359,8 +444,10 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
     /** 初始化物品 */
     @Override
     protected void initPlayerItems(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
-        int superLooseEndCount = getSuperLooseEndCount(players);
-        int beyondKillerCount = players.size() - superLooseEndCount * (SREConfig.instance().evilWarKillGroupNumber + 1);
+        int looseEndVariantCount = getLooseEndVariantCount(players);
+        int beyondKillerCount = players.size()- looseEndVariantCount * (SREConfig.instance().evilWarKillGroupNumber + 1);
+        // 是否需要 人数补偿护盾
+        boolean giveOverflowShield = beyondKillerCount > SREConfig.instance().evilWarKillGroupNumber / 3;
 
         for (ServerPlayer player : players) {
             player.getInventory().clearContent();
@@ -371,15 +458,24 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                 for (Supplier<ItemStack> itemSupplier : looseEndsItems) {
                     ItemStack itemStack = itemSupplier.get();
                     if (itemStack != null && !itemStack.isEmpty()) {
-                        // 使用亡命徒小刀替换普通小刀
-                        player.addItem(itemStack.is(TMMItems.KNIFE)
-                                ? ModItems.DESPERADO_KNIFE.getDefaultInstance()
-                                : itemStack);
+                        player.addItem(itemStack);
                     }
                 }
                 // 如果超出要面临敌人的 1 / 3 则额外获得一个护盾
-                if (beyondKillerCount > SREConfig.instance().evilWarKillGroupNumber / 3) {
-                    player.addItem(new ItemStack(TMMItems.DEFENSE_VIAL));
+                if (giveOverflowShield) {
+                    player.addItem(TMMItems.DEFENSE_VIAL.getDefaultInstance());
+                }
+            } else if (role == SpecialGameModeRoles.GHOST_LOOSE_END) {
+                player.addItem(ModItems.DESPERADO_KNIFE.getDefaultInstance());
+                for (Supplier<ItemStack> itemSupplier : looseEndsItems) {
+                    ItemStack itemStack = itemSupplier.get();
+                    // 亡命徒基础物品中 仅为幽灵亡命徒添加 防御药剂 和 撬棍
+                    if (itemStack != null && (itemStack.is(TMMItems.DEFENSE_VIAL) || itemStack.is(TMMItems.CROWBAR))) {
+                        player.addItem(itemStack.copy());
+                    }
+                }
+                if (giveOverflowShield) {
+                    player.addItem(TMMItems.DEFENSE_VIAL.getDefaultInstance());
                 }
             } else
                 addEvilWarItemsByRole(player, role);
@@ -406,7 +502,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(serverWorld);
         // 所有亡命徒都有矮小修饰符
         for (ServerPlayer player : players) {
-            if (gameWorldComponent.isRole(player, SpecialGameModeRoles.SUPER_LOOSE_END)) {
+            if (VariantLooseEndRole.isVariant(gameWorldComponent.getRole(player))) {
                 worldModifierComponent.addModifier(player.getUUID(), SEModifiers.TINY, false);
                 // worldModifierComponent.addModifier(player.getUUID(), SEModifiers.FEATHER,
                 // false);
@@ -419,16 +515,17 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         worldModifierComponent.sync();
     }
 
-    /** 超级亡命徒是否可以逃离虚空伤害并回到房间，true:可以抵御(需要使用1层护盾) */
-    public boolean tryRescueSuperLooseEndFromVoid(ServerPlayer player,
-            SREGameWorldComponent gameWorldComponent) {
-        if (!gameWorldComponent.isRole(player, SpecialGameModeRoles.SUPER_LOOSE_END)
+    /** 亡命徒特殊职业是否可以逃离虚空伤害并回到房间，true:可以抵御(超级亡命徒需要使用1层护盾，幽灵亡命徒不消耗) */
+    public boolean tryRescueLooseEndVariantFromVoid(ServerPlayer player, SREGameWorldComponent gameWorldComponent) {
+        SRERole role = gameWorldComponent.getRole(player);
+        if (!VariantLooseEndRole.isVariant(role)
                 || GameUtils.getPlayerRoomSpawnPos(player) == null) {
             return false;
         }
 
         SREArmorPlayerComponent armor = SREArmorPlayerComponent.KEY.get(player);
-        if (!armor.triggerAndRemoveArmor(1)) {
+        // 不是幽灵亡命徒（免疫虚空无需消耗护盾）且 无法触发护盾效果（护盾不够）  则无法从虚空中被拯救
+        if (role != SpecialGameModeRoles.GHOST_LOOSE_END && !armor.triggerAndRemoveArmor(1)) {
             return false;
         }
 
@@ -449,7 +546,8 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
     protected void broadcastRolesAbility(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
         for (ServerPlayer player : players) {
             SRERole role = gameWorldComponent.getRole(player);
-            if (!EX_ABILITY_ROLE.contains(role))
+            // 变种亡命徒自带提示
+            if (!VariantLooseEndRole.isVariant(role) && !EX_ABILITY_ROLE.contains(role))
                 continue;
             BroadcastCommand.BroadcastMessage(player, Component.translatable(
                     "message.gamemode.evil_war.tip.role." + role.identifier().getPath())
@@ -465,8 +563,8 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         assignModdedRole(players, gameWorldComponent);
         broadcastRolesAbility(players, gameWorldComponent);
 
-        int superLooseEndCount = getSuperLooseEndCount(players);
-        int beyondKillerCount = players.size() - superLooseEndCount * (SREConfig.instance().evilWarKillGroupNumber + 1);
+        int looseEndVariantCount = getLooseEndVariantCount(players);
+        int beyondKillerCount = players.size() - looseEndVariantCount * (SREConfig.instance().evilWarKillGroupNumber + 1);
 
         // 初始化后处理 component
         for (ServerPlayer player : players) {
@@ -482,8 +580,8 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             else if (role == ModRoles.DIO) {
                 playerShopComponent.setBalance(0);
             }
-            // 超级亡命徒开局 0 块，根据溢出的杀手数，每个给予 50（不足也会扣钱）
-            else if (role == SpecialGameModeRoles.SUPER_LOOSE_END) {
+            // 变种亡命徒开局根据溢出的杀手数结算资金，每名溢出杀手给予 50
+            else if (VariantLooseEndRole.isVariant(role)) {
                 playerShopComponent.setBalance(beyondKillerCount * 50);
                 // 清道夫开局700块
             } else if (role == ModRoles.CLEANER) {
@@ -544,7 +642,8 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                 TrapperRoleData trapperPlayerComponent = RoleData.getNullable(TrapperRoleData.class, player);
                 if (trapperPlayerComponent != null) {
                     trapperPlayerComponent.tripwireCooldownTicks = TrapperRoleData.PLACE_COOLDOWN_TICKS;
-                    trapperPlayerComponent.mudCooldownTicks = TrapperRoleData.PLACE_COOLDOWN_TICKS;
+                    trapperPlayerComponent.mudCooldownTicks = GameConstants.getInTicks(0, 45);
+                    trapperPlayerComponent.netGunCooldownTicks = GameConstants.getInTicks(1, 30);
                     trapperPlayerComponent.sync();
                 }
             }
@@ -572,6 +671,18 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             // 邪恶战争专属职业额外增益（护盾/弹幕/面具次数/物品/效果等）
             initEvilWarRoleBonuses(player, role);
         }
+
+        // 所有增益处理完后 给所有人25s的速度2 方便调整位置（不会被亡命徒逮着薅）
+        for (ServerPlayer player : players) {
+            if (!player.hasEffect(MobEffects.MOVEMENT_SPEED)) {
+                player.addEffect(new MobEffectInstance(
+                    MobEffects.MOVEMENT_SPEED,
+                    25 * 20,
+                    2,
+                    false,
+                    false));
+            }
+        }
         curBalanceTick = 0;
         curReviveTick = 0;
         curOneSecondTick = 0;
@@ -590,33 +701,30 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                     continue;
                 SRERole role = gameWorldComponent.getRole(player);
 
-                // 超级亡命徒速度效果降级，当将为0则死亡
+                // 超级亡命徒速度效果降级，速度效果完全消失时死亡
                 if (role == SpecialGameModeRoles.SUPER_LOOSE_END) {
-                    if (player.hasEffect(MobEffects.MOVEMENT_SPEED)) {
-                        int lastDuration = Objects.requireNonNull(player.getEffect(MobEffects.MOVEMENT_SPEED))
-                                .getDuration();
-                        if (lastDuration < 2 * ONE_SECOND_TICK) {
-                            int lastLevel = Objects.requireNonNull(player.getEffect(MobEffects.MOVEMENT_SPEED))
-                                    .getAmplifier();
-                            if (lastLevel > 2) {
-                                player.removeEffect(MobEffects.MOVEMENT_SPEED);
-                                player.addEffect(
-                                        new MobEffectInstance(
-                                                MobEffects.MOVEMENT_SPEED, // 速度效果
-                                                1200 + lastDuration, // 持续时间（tick）
-                                                lastLevel - 2, // 等级
-                                                false, // 是否显示粒子效果
-                                                false // 是否显示图标
-                                        ));
-                            }
-                        }
-                    } else
+                    MobEffectInstance speed = player.getEffect(MobEffects.MOVEMENT_SPEED);
+                    if (speed == null) {
                         GameUtils.killPlayer(player, true, null, GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
+                    } else if (speed.getDuration() < 2 * ONE_SECOND_TICK && speed.getAmplifier() > 2) {
+                        player.removeEffect(MobEffects.MOVEMENT_SPEED);
+                        player.addEffect(new MobEffectInstance(
+                                MobEffects.MOVEMENT_SPEED,
+                                1200 + speed.getDuration(),
+                                speed.getAmplifier() - 2,
+                                false,
+                                false));
+                    }
+                }
+                // 幽灵亡命徒如果隐身结束 则直接死亡 
+                else if (role == SpecialGameModeRoles.GHOST_LOOSE_END
+                        && !player.hasEffect(MobEffects.INVISIBILITY)) {
+                    GameUtils.killPlayer(player, true, null, GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
                 }
             }
             curOneSecondTick = 0;
         }
-        // 复活cd事件
+        // 10s cd事件
         if (curReviveTick++ >= REVIVE_TIME) {
             boolean hasOtherKiller = false;
             for (ServerPlayer player : serverWorld.players()) {
@@ -624,13 +732,8 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                     continue;
 
                 SRERole role = gameWorldComponent.getRole(player);
-                // 猫娘可以复活cd降至10s
-                if (role == BounsRoles.CAT_NECROMANCER) {
-                    SREAbilityPlayerComponent abilityPlayerComponent = SREAbilityPlayerComponent.KEY.get(player);
-                    abilityPlayerComponent.setCooldown(0);
-                }
                 // 仇杀客每10s涨一个误杀数
-                else if (role == ModRoles.BLOOD_FEUDIST) {
+                if (role == ModRoles.BLOOD_FEUDIST) {
                     var bloodFeudistData = RoleData.getNullable(BloodFeudistRoleData.class, player);
                     if (bloodFeudistData != null)
                         bloodFeudistData.onAccidentalKill();
@@ -666,8 +769,8 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                         }
                     }
                 }
-                // 如果没有非亡语杀手角色和超级亡命徒
-                else if (role != ModRoles.INSANE_KILLER && role != SpecialGameModeRoles.SUPER_LOOSE_END) {
+                // 如果没有非亡语杀手角色和亡命徒
+                else if (role != ModRoles.INSANE_KILLER && !VariantLooseEndRole.isVariant(role)) {
                     hasOtherKiller = true;
                 }
             }
@@ -701,7 +804,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                     SREPlayerShopComponent.KEY.get(player).addToBalance(200);
                 } else if (role == ModRoles.CONSPIRATOR) {
                     SREPlayerShopComponent.KEY.get(player).addToBalance(200);
-                } else if (role != SpecialGameModeRoles.SUPER_LOOSE_END)
+                } else if (!VariantLooseEndRole.isVariant(role))
                     // 默认获取 500 金币
                     SREPlayerShopComponent.KEY.get(player).addToBalance(500);
 
@@ -757,11 +860,6 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                         player.addItem(gun);
                     }
                 }
-                // 死灵复活cd为30s - 防止刷新过快
-                else if (role == SERoles.NECROMANCER) {
-                    SREAbilityPlayerComponent abilityPlayerComponent = SREAbilityPlayerComponent.KEY.get(player);
-                    abilityPlayerComponent.setCooldown(0);
-                }
             }
             curBalanceTick = 0;
         }
@@ -785,7 +883,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
 
             for (ServerPlayer player : serverWorld.players()) {
                 if ((gameWorldComponent.isRole(player, TMMRoles.LOOSE_END)
-                        || gameWorldComponent.isRole(player, SpecialGameModeRoles.SUPER_LOOSE_END))
+                        || VariantLooseEndRole.isVariant(gameWorldComponent.getRole(player)))
                         && !GameUtils.isPlayerEliminated(player)) {
                     hasLooseEndAlive = true;
                     lastLooseEnds.add(player);
@@ -798,7 +896,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                 boolean hasOtherAlive = false;
                 for (ServerPlayer player : serverWorld.players()) {
                     if ((!gameWorldComponent.isRole(player, TMMRoles.LOOSE_END)
-                            && !gameWorldComponent.isRole(player, SpecialGameModeRoles.SUPER_LOOSE_END))
+                            && !VariantLooseEndRole.isVariant(gameWorldComponent.getRole(player)))
                             && !GameUtils.isPlayerEliminated(player)) {
                         hasOtherAlive = true;
                         break;
@@ -941,7 +1039,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
     /** 开局初始化各杀手在邪恶战争中的额外增益（仅对邪恶战争生效） */
     private void initEvilWarRoleBonuses(ServerPlayer player, SRERole role) {
         SREAbilityPlayerComponent ability = SREAbilityPlayerComponent.KEY.get(player);
-        if (role == SpecialGameModeRoles.SUPER_LOOSE_END) {
+        if (VariantLooseEndRole.isVariant(role)) {
             player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING,
                     GameConstants.getInTicks(2, 0), 0, false, true, true));
         } else if (role == ModRoles.WIZARD) {
@@ -989,9 +1087,6 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             player.addItem(new ItemStack(ModItems.INCENDIARY_GRENADE));
         } else if (role == ModRoles.GANGSTERS) {
             player.addItem(new ItemStack(ModItems.C4, 4));
-        } else if (role == ModRoles.WATCHER) {
-            player.addItem(new ItemStack(TMMItems.SNIPER_RIFLE));
-            player.addItem(new ItemStack(TMMItems.MAGNUM_BULLET, 64));
         } else if (role == ModRoles.TARTAGLIA) {
             player.addItem(new ItemStack(Items.ARROW, 64));
         } else if (role == ModRoles.BOOM_MANIAC) {
@@ -1026,11 +1121,29 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                 continue;
             }
             SREAbilityPlayerComponent ability = SREAbilityPlayerComponent.KEY.get(player);
-            if (role == THMiscRoles.MAMIZOU) {
+            // 按上限钳制而非周期清零，使客户端 HUD 能连续显示正确的复活冷却
+            if (role == BounsRoles.CAT_NECROMANCER) {
+                capAbilityCooldown(ability, CAT_NECROMANCER_COOLDOWN_TICKS);
+            } else if (role == SERoles.NECROMANCER) {
+                capAbilityCooldown(ability, NECROMANCER_COOLDOWN_TICKS);
+            } else if (role == THMiscRoles.MAMIZOU) {
                 ability.resetAllCooldowns();
             } else if (role == THMiscRoles.REIUJI_UTSUHO || role == THMiscRoles.KOMACHI
                     || role == THMiscRoles.KIJIN_SEIJA || role == THMiscRoles.YAKUMO_YUKARI) {
                 capSkillCooldowns(ability, role);
+            }
+            // 观者切换姿态耗时 5 s，每次切换到宁静后重置护盾
+            else if (role == ModRoles.WATCHER) {
+                ResourceLocation stanceSkillId = SRE.id("watcher_stance");
+                SREAbilityPlayerComponent.SkillState stanceState = ability.getSkillState(stanceSkillId);
+                // 技能刚使用时会先写入普通模式冷却；只在这一刻处理姿态切换
+                if (stanceState.cooldown > WATCHER_STANCE_COOLDOWN_TICKS) {
+                    WatcherRoleData watcher = RoleData.getNullable(WatcherRoleData.class, player);
+                    if (watcher != null && watcher.isInCalmStance()) {
+                        SREArmorPlayerComponent.KEY.get(player).setArmor(1, true);
+                    }
+                }
+                capSkillCooldown(ability, stanceSkillId, WATCHER_STANCE_COOLDOWN_TICKS);
             }
             if (role == THMiscRoles.HAKUREI_REIMU) {
                 player.getCooldowns().removeCooldown(ModItems.DANMUKU);
@@ -1044,6 +1157,31 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             if (role == ModRoles.UNDEAD_LORD) {
                 ability.setCooldown(0);
             }
+        }
+    }
+
+    /** 将旧版总冷却钳制到指定上限 */
+    private void capAbilityCooldown(SREAbilityPlayerComponent ability, int cap) {
+        if (ability.cooldown > cap) {
+            ability.cooldown = cap;
+            ability.sync();
+        }
+    }
+
+    /** 将单个技能的当前冷却钳制到指定上限。 */
+    private void capSkillCooldown(SREAbilityPlayerComponent ability, ResourceLocation skillId, int cap) {
+        boolean changed = false;
+        SREAbilityPlayerComponent.SkillState state = ability.getSkillState(skillId);
+        if (state.cooldown > cap) {
+            state.cooldown = cap;
+            changed = true;
+        }
+        if (ability.cooldown > cap) {
+            ability.cooldown = cap;
+            changed = true;
+        }
+        if (changed) {
+            ability.sync();
         }
     }
 

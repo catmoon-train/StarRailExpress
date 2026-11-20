@@ -31,6 +31,7 @@ import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
+import io.wifi.starrailexpress.util.ItemComponentUtils;
 import io.wifi.starrailexpress.util.SREItemUtils;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.ChatFormatting;
@@ -59,6 +60,7 @@ import net.minecraft.world.item.component.*;
 import net.minecraft.world.item.enchantment.Enchantments;
 import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
+import org.agmas.noellesroles.content.item.TimeStopClock;
 import org.agmas.noellesroles.content.item.ToxinShopEntry;
 import org.agmas.noellesroles.role_data.innocence.SingerRoleData;
 import org.agmas.noellesroles.role_data.innocence.FirefighterRoleData;
@@ -355,6 +357,7 @@ public class RoleShopHandler {
         ArrayList<ShopEntry> SEA_KING_SHOP = new ArrayList<>();
         ArrayList<ShopEntry> CANDLE_BEARER_SHOP = new ArrayList<>();
         ArrayList<ShopEntry> SUPER_LOOSE_END_SHOP = new ArrayList<>();
+        ArrayList<ShopEntry> GHOST_LOOSE_END_SHOP = new ArrayList<>();
         ArrayList<ShopEntry> PILOT_SHOP = new ArrayList<>();
         ArrayList<ShopEntry> SHADOW_FALCON_SHOP = new ArrayList<>();
         ArrayList<ShopEntry> GANGSTERS_SHOP = new ArrayList<>();
@@ -1268,6 +1271,54 @@ public class RoleShopHandler {
             SUPER_LOOSE_END_SHOP.add(new ShopEntry(
                     ModItems.DIVING_BOOTS.getDefaultInstance(),
                     125,
+                    ShopEntry.Type.TOOL));
+        }
+
+        // 幽灵亡命徒商店
+        {
+            // 飞刀
+            GHOST_LOOSE_END_SHOP.add(new ShopEntry(
+                    ModItems.THROWING_KNIFE.getDefaultInstance(),
+                    200,
+                    ShopEntry.Type.TOOL));
+            // 绳索（拉人）
+            GHOST_LOOSE_END_SHOP.add(new ShopEntry(
+                    ModItems.ROPE.getDefaultInstance(),
+                    125,
+                    ShopEntry.Type.TOOL));
+            // 鞘翅
+            GHOST_LOOSE_END_SHOP.add(new ShopEntry(
+                    Items.ELYTRA.getDefaultInstance(),
+                    100,
+                    ShopEntry.Type.TOOL));
+            // 烟花火箭
+            GHOST_LOOSE_END_SHOP.add(new ShopEntry(
+                    new ItemStack(Items.FIREWORK_ROCKET, 1),
+                    80,
+                    ShopEntry.Type.TOOL));
+            // 潜水头盔
+            GHOST_LOOSE_END_SHOP.add(new ShopEntry(
+                    ModItems.DIVING_HELMET.getDefaultInstance(),
+                    50,
+                    ShopEntry.Type.TOOL));
+            // 潜水靴
+            GHOST_LOOSE_END_SHOP.add(new ShopEntry(
+                    ModItems.DIVING_BOOTS.getDefaultInstance(),
+                    125,
+                    ShopEntry.Type.TOOL));
+            // 单次时停钟（时停 3 秒）
+            ItemStack singleUseTimeStopClock = ModItems.TIME_STOP_CLOCK.getDefaultInstance();
+            ItemComponentUtils.setCustomDataTagIntValue(
+                    singleUseTimeStopClock, TimeStopClock.TAG_STOP_TIME, 3 * 20);
+            singleUseTimeStopClock.setDamageValue(TimeStopClock.MAX_DURABILITY - 1);
+            GHOST_LOOSE_END_SHOP.add(new ShopEntry(
+                    singleUseTimeStopClock,
+                    350,
+                    ShopEntry.Type.TOOL));
+            // 防御药剂
+            GHOST_LOOSE_END_SHOP.add(new ShopEntry(
+                    TMMItems.DEFENSE_VIAL.getDefaultInstance(),
+                    300,
                     ShopEntry.Type.TOOL));
         }
 
@@ -3259,10 +3310,12 @@ public class RoleShopHandler {
                     ModRoles.CANDLE_BEARER_ID, CANDLE_BEARER_SHOP);
         }
 
-        // 超级亡命徒商店
+        // 特殊亡命徒商店
         {
             ShopContent.customEntries.put(
                     SpecialGameModeRoles.SUPER_LOOSE_END.identifier(), SUPER_LOOSE_END_SHOP);
+            ShopContent.customEntries.put(
+                    SpecialGameModeRoles.GHOST_LOOSE_END.identifier(), GHOST_LOOSE_END_SHOP);
         }
 
         // 飞行员商店

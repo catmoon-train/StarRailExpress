@@ -20,7 +20,6 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.effect.MobEffects;
 import org.agmas.noellesroles.game.modes.ChairWheelRaceGame;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -41,23 +40,15 @@ public abstract class ChairWheelKeyMappingMixin {
         final var instance = Minecraft.getInstance();
         if (instance == null)
             return false;
-        final var player = instance.player;
-        if (player == null)
-            return false;
         final var options = instance.options;
         if (SREClient.gameComponent != null && SREClient.gameComponent.isRunning() && SREClient.isPlayerAliveAndInSurvival() && SREClient.gameComponent.getGameMode() instanceof ChairWheelRaceGame) {
-            final boolean actionKeys = this.same(options.keySwapOffhand) ||
+            return this.same(options.keySwapOffhand) ||
                     this.same(options.keyJump) ||
                     this.same(options.keyDrop) ||
                     this.same(options.keyAttack) ||
                     this.same(options.keyShift) ||
                     this.same(options.keyInventory) ||
                     this.same(options.keyAdvancements);
-            final boolean movementKeys = player.hasEffect(MobEffects.BAD_OMEN) && (this.same(options.keyUp) ||
-                    this.same(options.keyRight) ||
-                    this.same(options.keyDown) ||
-                    this.same(options.keyLeft));
-            return actionKeys || movementKeys;
         }
 
         return false;
