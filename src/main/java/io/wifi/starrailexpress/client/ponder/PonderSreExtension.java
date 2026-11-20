@@ -23,8 +23,8 @@ import com.nododiiiii.ponderer.runtime.api.StepBuildContext;
 import com.nododiiiii.ponderer.runtime.api.StepCodec;
 import com.nododiiiii.ponderer.runtime.api.StepType;
 import net.createmod.catnip.math.Pointing;
-import net.createmod.ponder.api.element.ElementLink;
 import net.createmod.ponder.api.scene.SceneBuilder;
+import net.createmod.ponder.foundation.PonderScene;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.core.BlockPos;
@@ -35,6 +35,7 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.client.NoellesrolesClient;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -262,7 +263,7 @@ public final class PonderSreExtension {
                     if (walkDelay > 0) {
                         scene.idle(walkDelay);
                     }
-                    scene.addInstruction(new PonderWalkInstruction(element, walkTo, walkTicks));
+                    scheduleWalk(scene, element, walkTo, walkTicks);
                 }
             });
         }
@@ -338,7 +339,7 @@ public final class PonderSreExtension {
             PonderPlayerElement existing = playerElement(context, linkId);
             if (existing != null) {
                 // 走动指令本身是阻塞的，后面的动作会等模型走到位。
-                scene.addInstruction(new PonderWalkInstruction(existing, to, ticks));
+                scheduleWalk(scene, existing, to, ticks);
                 return;
             }
 
@@ -362,7 +363,7 @@ public final class PonderSreExtension {
                 if (linkId != null && !linkId.isBlank()) {
                     context.state().put(linkId, element);
                 }
-                scene.addInstruction(new PonderWalkInstruction(element, to, ticks));
+                scheduleWalk(scene, element, to, ticks);
             });
         }
     }
@@ -407,12 +408,15 @@ public final class PonderSreExtension {
         @Override
         public void build(RoleTeleportParams params, StepBuildContext context) {
             PonderPlayerElement element = playerElement(context, params.linkId());
-            if (element == null) {
-                LOGGER.warn("role_teleport 找不到 linkId 对应的玩家模型：{}", params.linkId());
-                return;
-            }
             Vec3 pos = params.pos();
-            context.builder().addInstruction(ps -> element.teleportTo(pos));
+            context.builder().addInstruction(ps -> {
+                PonderPlayerElement target = element != null ? element : PonderPlayerElement.findInScene(ps);
+                if (target == null) {
+                    LOGGER.warn("role_teleport: 场景里没有可传送的玩家模型（linkId={}）", params.linkId());
+                    return;
+                }
+                target.teleportTo(pos);
+            });
         }
     }
 
@@ -530,6 +534,41 @@ public final class PonderSreExtension {
             return Component.translatable(raw).getString();
         }
         return raw;
+    }
+
+    /**
+     * 把「走 N tick」铺进时间轴。
+     *
+     * <p>只用两种最基础的调度片段：一次性指令（和 {@code role_player} 添加模型用的是同一种）
+     * 与 {@code idle(1)}，逐 tick 推进 {@link PonderPlayerElement#setWalkProgress(float)}。
+     * 元素实例没传进来时，运行时会回退到「在场景里找玩家模型」。
+     */
+    private static void scheduleWalk(SceneBuilder scene, @Nullable PonderPlayerElement element,
+                                     Vec3 to, int ticks) {
+        int total = Math.max(1, ticks);
+        scene.addInstruction(ps -> {
+            PonderPlayerElement target = resolvePlayer(ps, element);
+            if (target == null) {
+                LOGGER.warn("role_walk: 场景里找不到玩家模型，走动被跳过（to={}）", to);
+                return;
+            }
+            target.beginWalk(to, total);
+        });
+        for (int step = 1; step <= total; step++) {
+            final float progress = step / (float) total;
+            scene.addInstruction(ps -> {
+                PonderPlayerElement target = resolvePlayer(ps, element);
+                if (target == null) {
+                    return;
+                }
+                target.setWalkProgress(progress);
+            });
+            scene.idle(1);
+        }
+    }
+
+    private static PonderPlayerElement resolvePlayer(PonderScene ps, @Nullable PonderPlayerElement element) {
+        return element != null ? element : PonderPlayerElement.findInScene(ps);
     }
 
     /** 按 {@code linkId} 取出之前步骤登记的玩家模型实例。 */

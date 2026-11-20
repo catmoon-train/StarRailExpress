@@ -509,7 +509,7 @@ InvalidInjectionException: non-static callback method ... targets a static metho
 
 - Ponderer 内置的 `show_controls` **只支持鼠标动作**（`action: left|right|scroll`，以及
   `whileSneaking` / `whileCTRL` 修饰），没有「按下键盘技能键」的图形。鼠标交互就用它。
-- 键盘技能键一律用 `role_key`：屏幕下方画键帽 + 说明，键帽内容取自
+- 键盘技能键一律用 `role_key`：键帽挂在世界坐标上、走 Ponder 自带的控件绘制，键名取自
   `NoellesrolesClient.abilityBind` 等实际绑定（`getTranslatedKeyMessage()`），玩家改键后自动跟着变，不要写死字母。
 - `role_skill` 是右上角的信息面板，用来补充技能效果/代价，不承担「按键」的表达。
 - 面向玩家的正文仍然只能用 `text`（`en_us` / `zh_cn` / `zh_tw` 三语齐全），文案只引用职业介绍原文。
@@ -517,13 +517,55 @@ InvalidInjectionException: non-static callback method ... targets a static metho
 ### 动画与时间轴
 
 - `role_walk` 是**阻塞**步骤：`duration` 个 tick 内模型走过去，时间轴同步推进。
-  位移由 `PonderWalkInstruction`（继承 `TickingInstruction`，和 `idle` 同一套调度）逐 tick 推进，
-  **不依赖元素的 tick**，所以只要时间轴在走，模型就一定在走。
+  位移用「一次性指令 + `idle(1)`」逐 tick 推进（见下面的实现标准），不依赖元素自己的 tick。
 - `role_teleport` 只做落位，不占时间轴；粒子、音效要另外写 `spawn_particles` / `play_sound`。
 - `role_key` 不阻塞，`duration` 只是键帽存活时长（默认 60），要停顿请补 `idle`。
 - `spawn_particles`、`play_sound`、`indicate_success`、`highlight_section` 都不阻塞，
   需要观察就补 `idle`。
 - 传送类演示要写**两处**粒子：起跳点（传送前）与落点（传送后），游戏内 `teleport()` 就是两端各播一次。
+
+### 实现标准（2026-11-21 定稿，新增动画步骤照这个写）
+
+这一段是「让模型真的动起来」踩过的坑，换别的写法很容易出现「步骤执行了、模型纹丝不动」。
+
+1. **位移用「一次性指令 + `idle(1)`」铺进时间轴**
+
+   ```java
+   scene.addInstruction(ps -> target.beginWalk(to, total));      // 起算
+   for (int i = 1; i <= total; i++) {
+       final float progress = i / (float) total;
+       scene.addInstruction(ps -> target.setWalkProgress(progress));  // 每 tick 推一次
+       scene.idle(1);
+   }
+   ```
+
+   - `scene.addInstruction(Consumer<PonderScene>)` 是**时间轴指令**（Ponder 内部包成 `PonderInstruction.Simple`），
+     到点执行一次，和 `idle` 共用同一套调度；`role_player` 把模型加入场景用的就是它，最稳。
+   - **不要**把位移写进元素自己的 `tick()`，也**不要**自定义 `TickingInstruction` 子类：
+     Ponderer 会给步骤里加的每条指令再包一层 `InterfaceTargetInstruction`，
+     自定义子类的 `onScheduled` / `firstTick` 生命周期不一定按预期走。
+
+2. **跨步骤引用传元素实例，不要用 `ps.resolve(link)`**
+   `role_player` 建模型时 `context.state().put(linkId, element)` 存的是 `PonderPlayerElement` 实例，
+   `role_walk` / `role_teleport` 取实例直接调用。`ps.resolve` 找不到时会**静默返回 null**，
+   表现为「日志说步骤跑了，画面完全不动」，极难排查。
+
+3. **运行时兜底**：取不到实例时用 `PonderPlayerElement.findInScene(scene)`
+   （内部是 `PonderScene.forEach(PonderPlayerElement.class, ...)`）现找一遍，
+   找不到才 warn 并跳过，绝不能让时间轴卡住。
+
+4. **技能动作不要拆段**：一段里走完「触发 → 变化 → 结果」。拆成两段的话，
+   玩家点到中间那段只会看到一个站着不动的人。
+
+5. **按键提示用自带控件**：`scene.overlay().showControls(point, Pointing, ticks).showing(keyCap)`，
+   不要自己在屏幕固定位置画键帽。
+
+6. **排查方法**：怀疑时间轴没走时，临时在指令里打
+   `ps.getCurrentTime()` / `ps.getTotalTime()`（`PonderScene` 的场景时钟），
+   能直接区分「没走到这一步」和「总时长不够」；定位完把日志删掉。
+
+模型元素对外就四个方法：`beginWalk(to, ticks)`、`setWalkProgress(p)`、`teleportTo(pos)`、`currentLocation()`，
+外加静态的 `findInScene(scene)`。
 
 ### `starrailexpress:role_key`
 
@@ -569,66 +611,29 @@ InvalidInjectionException: non-static callback method ... targets a static metho
 - 技能事实来源：`RecallerRoleData`（标点 / 传送 / 粒子）与 `AbilityHandler` 的 `RECALLER` 分支（扣 100 金币）
 - 介绍原文只有「标点 + 花 100 金币回来」两句，没有走动、传送动画与粒子描述，
   所以动画由场景补足：**按技能键 → 原地标点 → 走开 → 再按技能键 → 传送回来**
-- `recall` 段落的时间轴：
+- 只分两段：`faction`（阵营 / 胜利目标）与 `skill`（完整动画）。技能动作**不要**拆成两段，
+  否则玩家点到中间那段就看不到走动与传送。
+- `skill` 段落的时间轴：
 
 ```text
-role_player [2,1,4] linkId=recaller       ← 站在标点处
-role_key point=[2,2.2,4]（第一次「按下技能键」）
-highlight_section [2,0,4] duration=360    ← 标点出现并持续可见
-text duration=90 + idle 100               ← 介绍原句
-role_walk to [2,1,1] duration=60          ← 走开，阻塞 60 tick
-role_key point=[2,2.2,1]（第二次「按下技能键」） + idle 30
+show_structure + role_player [2,1,4] linkId=recaller   ← 站在标点处
+idle 15
+role_key point=[2,2.2,4]                     ← 第一次「按下技能键」
+highlight_section [2,0,4] duration=400        ← 原地标点，整段可见
+idle 60
+text duration=90（介绍原句）+ idle 100
+role_walk to [2,1,1] duration=60              ← 走开，阻塞 60 tick
+idle 20
+role_key point=[2,2.2,1]                     ← 第二次「按下技能键」
+idle 30
 spawn_particles minecraft:portal（起跳点）
 play_sound minecraft:entity.enderman.teleport
-role_teleport [2,1,4]                     ← 瞬移回标点，不做滑动
+role_teleport [2,1,4]                        ← 瞬移回标点，不做滑动
 spawn_particles minecraft:portal（落点）
-indicate_success [2,0,4] + idle 80
+indicate_success [2,0,4] + idle 80 + rotate_camera_y
 ```
 
 粒子与音效直接取自源码：`ParticleTypes.PORTAL` 环绕 16 点 + 中心 10 点（`y + 0.9`），
 音效 `SoundEvents.ENDERMAN_TELEPORT`（`minecraft:entity.enderman.teleport`，`source: players`）。
 `role_teleport` 故意做成瞬移：游戏内 `teleportTo` 就是瞬移，做插值反而不符合实际表现。
 
-### `starrailexpress:role_walk`
-
-参数（都写在 `parameters` 里）：
-
-| 字段 | 类型 | 说明 |
-| --- | --- | --- |
-| `linkId` | string | 命中已有模型时驱动那个模型；不写就按 `from` 新建一个 |
-| `from` | `[x,y,z]` | 新建模型时的起点 |
-| `to` | `[x,y,z]` | 终点，必填 |
-| `duration` | int | 走动耗时（tick），默认 40，同时就是阻塞时长 |
-| `yaw` | number | 面向；省略时按 `from → to` 的水平方向自动计算 |
-| `skin` / `heldItem` / `outline` | | 同 `role_player`，只在新建模型时生效 |
-
-### `starrailexpress:role_teleport`
-
-| 字段 | 类型 | 说明 |
-| --- | --- | --- |
-| `linkId` | string | 必填，指向 `role_player` / `role_walk` 建的模型 |
-| `pos` | `[x,y,z]` | 落点 |
-
-### 参考实现：召回者（2026-11-20）
-
-- 场景：`assets/starrailexpress/ponderer/scenes/role_tutorial_recaller.json`
-- 结构：`starrailexpress:role_tutorial_recaller`（`tools/generate_ponder_structures.py` 的 `recaller()` 生成：
-  7x4x7、顶部敞开、只留背墙；标点处是 3x3 大理石方台，正中一格换船体板，让「记录的地点」有地标）
-- 技能事实来源：`RecallerRoleData`（标点 / 传送 / 粒子）与 `AbilityHandler` 的 `RECALLER` 分支（扣 100 金币）
-- `recall` 段落的时间轴：
-
-```text
-role_player [2,1,4] linkId=recaller      ← 站在标点处
-highlight_section [2,0,4] duration=320   ← 标点持续可见
-text duration=90 + idle 100              ← 介绍原句
-role_walk to [2,1,1] duration=60         ← 走开，阻塞 60 tick
-role_skill（按下技能键） + idle 40
-spawn_particles minecraft:portal（起跳点）
-play_sound minecraft:entity.enderman.teleport
-role_teleport [2,1,4]
-spawn_particles minecraft:portal（落点）
-indicate_success [2,0,4] + idle 80
-```
-
-粒子与音效直接取自源码：`ParticleTypes.PORTAL` 环绕 16 点 + 中心 10 点（`y + 0.9`），
-音效 `SoundEvents.ENDERMAN_TELEPORT`（`minecraft:entity.enderman.teleport`，`source: players`）。

@@ -92,7 +92,7 @@
       ]
     },
     {
-      "id": "mark",
+      "id": "skill",
       "title": {
         "en_us": "Recaller",
         "zh_cn": "召回者",
@@ -149,101 +149,7 @@
             0,
             4
           ],
-          "duration": 200,
-          "color": "green",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 60
-        },
-        {
-          "type": "text",
-          "duration": 100,
-          "text": {
-            "en_us": "Use the skill to mark a location; use it again to spend 100 coin and return to the marked spot",
-            "zh_cn": "使用技能可标记一个地点，再次使用可花费100金币回到标记的地点",
-            "zh_tw": "使用技能可標記一個地點，再次使用可花費100金幣回到標記的地點"
-          },
-          "point": [
-            2.0,
-            2.4,
-            4.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 110
-        },
-        {
-          "type": "rotate_camera_y",
-          "degrees": 10.0,
-          "duration": 40,
-          "attachKeyFrame": true
-        }
-      ]
-    },
-    {
-      "id": "recall",
-      "title": {
-        "en_us": "Recaller",
-        "zh_cn": "召回者",
-        "zh_tw": "召回者"
-      },
-      "steps": [
-        {
-          "type": "show_structure",
-          "structure": "starrailexpress:role_tutorial_recaller",
-          "scale": 1.0,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              2.0,
-              1.0,
-              4.0
-            ],
-            "yaw": 180.0,
-            "linkId": "recaller",
-            "skin": "minecraft:textures/entity/player/wide/steve.png"
-          }
-        },
-        {
-          "type": "idle",
-          "duration": 15
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "attachKeyFrame": true,
-          "parameters": {
-            "point": [
-              2.0,
-              2.2,
-              4.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 55
-          }
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            2,
-            0,
-            4
-          ],
-          "blockPos2": [
-            2,
-            0,
-            4
-          ],
-          "duration": 360,
+          "duration": 400,
           "color": "green",
           "attachKeyFrame": true
         },

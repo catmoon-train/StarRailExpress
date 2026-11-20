@@ -153,6 +153,19 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
     }
 
     /**
+     * 在场景里找玩家模型（场景通常只有一个，取最后一个）。
+     *
+     * <p>供走动 / 传送步骤在没有拿到元素实例时兜底：宁可运行时在场景里找一遍，
+     * 也不要因为跨步骤引用掉了就静默不播动画。
+     */
+    @Nullable
+    public static PonderPlayerElement findInScene(PonderScene scene) {
+        final PonderPlayerElement[] found = new PonderPlayerElement[1];
+        scene.forEach(PonderPlayerElement.class, element -> found[0] = element);
+        return found[0];
+    }
+
+    /**
      * 起步走向绝对坐标 {@code target}，总时长 {@code ticks}。
      *
      * <p>进度由 {@link PonderWalkInstruction} 逐 tick 通过 {@link #setWalkProgress(float)} 推进，
