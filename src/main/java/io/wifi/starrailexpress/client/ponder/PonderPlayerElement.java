@@ -322,7 +322,7 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
 
     /** 轮廓外扩量（格）：沿用 {@code outlineExpand} 的语义，线宽参与缩放。 */
     private float outlineOffset() {
-        return Math.max(0.5F, outlineExpand * 0.9F * outlineLineWidth);
+        return Math.max(0.9F, outlineExpand * 0.9F * outlineLineWidth);
     }
 
     /** InstinctManager 的颜色通常不带 alpha，这里补成不透明并按淡出缩放。 */
