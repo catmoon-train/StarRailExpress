@@ -24,6 +24,7 @@ import com.nododiiiii.ponderer.runtime.api.StepCodec;
 import com.nododiiiii.ponderer.runtime.api.StepType;
 import net.createmod.ponder.api.element.ElementLink;
 import net.createmod.ponder.api.scene.SceneBuilder;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
@@ -88,24 +89,32 @@ public final class PonderSreExtension {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PonderSreExtension.class);
 
+    /** 扩展步骤在编辑器与覆盖层里显示的文本全部走语言文件。 */
+    private static final String KEY_PREFIX = "ponder.starrailexpress.step.";
+
     private PonderSreExtension() {
+    }
+
+    /** 把翻译键解析成当前语言的文本；缺失时由 Minecraft 回退为键名。 */
+    static String text(String key) {
+        return Component.translatable(key).getString();
     }
 
     /** 把扩展安装到引擎；由 {@code ResourceSceneContents} 按清单声明调用。 */
     public static void install(RuntimeEngine engine) {
         engine.steps().register(STEP_ROLE_PLAYER, new RolePlayerStep());
         engine.steps().register(STEP_ROLE_SHOP, new RoleShopStep());
-        engine.steps().register(STEP_ROLE_MOOD, new RoleInfoStep("心情值", PonderInfoOverlayElement.Kind.MOOD));
-        engine.steps().register(STEP_ROLE_SKILL, new RoleInfoStep("技能", PonderInfoOverlayElement.Kind.SKILL));
-        engine.steps().register(STEP_ROLE_RENDER, new RoleInfoStep("职业能力", PonderInfoOverlayElement.Kind.LINES));
-        engine.steps().register(STEP_ROLE_DISGUISE, new RoleInfoStep("伪装中", PonderInfoOverlayElement.Kind.BADGE));
-        engine.steps().register(STEP_ROLE_VITALS, new RoleStateStep("虚拟状态"));
-        engine.steps().register(STEP_ROLE_CURRENCY, new RoleStateStep("金币 / 代币"));
-        engine.steps().register(STEP_ROLE_TIMER, new RoleStateStep("时间"));
-        engine.steps().register(STEP_ROLE_EFFECTS, new RoleStateStep("状态效果"));
-        engine.steps().register(STEP_ROLE_BOND, new RoleStateStep("关联角色"));
-        engine.steps().register(STEP_ROLE_PANEL, new RoleStateStep("界面"));
-        LOGGER.info("StarRailExpress Ponderer 扩展已安装：{}", EXTENSION_ID);
+        engine.steps().register(STEP_ROLE_MOOD, new RoleInfoStep(KEY_PREFIX + "role_mood", PonderInfoOverlayElement.Kind.MOOD));
+        engine.steps().register(STEP_ROLE_SKILL, new RoleInfoStep(KEY_PREFIX + "role_skill", PonderInfoOverlayElement.Kind.SKILL));
+        engine.steps().register(STEP_ROLE_RENDER, new RoleInfoStep(KEY_PREFIX + "role_render", PonderInfoOverlayElement.Kind.LINES));
+        engine.steps().register(STEP_ROLE_DISGUISE, new RoleInfoStep(KEY_PREFIX + "role_disguise", PonderInfoOverlayElement.Kind.BADGE));
+        engine.steps().register(STEP_ROLE_VITALS, new RoleStateStep(KEY_PREFIX + "role_vitals"));
+        engine.steps().register(STEP_ROLE_CURRENCY, new RoleStateStep(KEY_PREFIX + "role_currency"));
+        engine.steps().register(STEP_ROLE_TIMER, new RoleStateStep(KEY_PREFIX + "role_timer"));
+        engine.steps().register(STEP_ROLE_EFFECTS, new RoleStateStep(KEY_PREFIX + "role_effects"));
+        engine.steps().register(STEP_ROLE_BOND, new RoleStateStep(KEY_PREFIX + "role_bond"));
+        engine.steps().register(STEP_ROLE_PANEL, new RoleStateStep(KEY_PREFIX + "role_panel"));
+        LOGGER.info("StarRailExpress Ponderer extension installed: {}", EXTENSION_ID);
     }
 
     /** {@code role_player} 的参数。 */
@@ -160,7 +169,7 @@ public final class PonderSreExtension {
 
         @Override
         public String editorLabel() {
-            return "职业玩家模型";
+            return text(KEY_PREFIX + "role_player");
         }
 
         @Override
@@ -223,7 +232,7 @@ public final class PonderSreExtension {
 
         @Override
         public String editorLabel() {
-            return "职业商店";
+            return text(KEY_PREFIX + "role_shop");
         }
 
         @Override
@@ -288,7 +297,7 @@ public final class PonderSreExtension {
 
         @Override
         public String editorLabel() {
-            return defaultLabel;
+            return text(defaultLabel);
         }
 
         @Override
@@ -382,7 +391,7 @@ public final class PonderSreExtension {
 
         @Override
         public String editorLabel() {
-            return defaultTitle;
+            return text(defaultTitle);
         }
 
         @Override

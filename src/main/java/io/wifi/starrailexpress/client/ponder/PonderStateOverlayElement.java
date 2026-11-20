@@ -23,6 +23,7 @@ public class PonderStateOverlayElement implements PonderOverlayElement {
     }
 
     private static final int BAR_WIDTH = 110;
+    private static final String KEY_PREFIX = "ponder.starrailexpress.";
 
     private final String title;
     private final List<Bar> bars;
@@ -45,6 +46,12 @@ public class PonderStateOverlayElement implements PonderOverlayElement {
     public PonderStateOverlayElement addTo(SceneBuilder scene) {
         scene.addInstruction(ps -> { ps.addElement(this); this.visible = true; });
         return this;
+    }
+
+    /** 以 {@code ponder.starrailexpress.} 开头的文本按翻译键解析，其余按原文显示。 */
+    private static Component display(String value) {
+        String text = value == null ? "" : value;
+        return text.startsWith(KEY_PREFIX) ? Component.translatable(text) : Component.literal(text);
     }
 
     @Override public boolean isVisible() { return visible; }
@@ -70,12 +77,12 @@ public class PonderStateOverlayElement implements PonderOverlayElement {
         int textX = x + 10;
         int textY = y + 7;
         if (!title.isEmpty()) {
-            graphics.drawString(font, Component.literal(title), textX, textY, accent);
+            graphics.drawString(font, display(title), textX, textY, accent);
             textY += font.lineHeight + 5;
         }
 
         for (Bar bar : bars) {
-            graphics.drawString(font, Component.literal(bar.label()), textX, textY, 0xFFDDDDDD);
+            graphics.drawString(font, display(bar.label()), textX, textY, 0xFFDDDDDD);
             textY += font.lineHeight;
             int barX = textX + 2;
             graphics.fill(barX, textY, barX + BAR_WIDTH, textY + 8, 0xFF202028);
@@ -105,7 +112,7 @@ public class PonderStateOverlayElement implements PonderOverlayElement {
         }
 
         for (String line : lines) {
-            graphics.drawString(font, Component.literal(line), textX, textY, 0xFFEEEEEE);
+            graphics.drawString(font, display(line), textX, textY, 0xFFEEEEEE);
             textY += font.lineHeight + 3;
         }
     }

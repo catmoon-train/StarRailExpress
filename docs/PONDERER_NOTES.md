@@ -333,6 +333,11 @@ InvalidInjectionException: non-static callback method ... targets a static metho
 
 `lines` 里的文字必须来自职业介绍原文或源码里实际显示的内容，不要自行编写旁白。
 
+扩展步骤在编辑器列表和覆盖层默认标题里的中文已改为翻译键，
+三语文本在 `assets/starrailexpress/lang/{zh_cn,en_us,zh_tw}.json` 的
+`ponder.starrailexpress.step.*`。场景 JSON 里传入的 `label`/`title`/`lines` 仍可直接写原文；
+只有以 `ponder.starrailexpress.` 开头的字符串才会按翻译键解析，缺失时 Minecraft 会显示键名。
+
 本能透视边框必须使用 `InstinctManager` 的真实返回值：
 
 - `InstinctType.OBSERVER_ROLE_COLOR` 取**观察者自己的职业颜色**，例如小丑看别人是

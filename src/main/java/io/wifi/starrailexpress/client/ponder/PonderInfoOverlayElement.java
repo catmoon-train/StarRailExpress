@@ -17,6 +17,7 @@ public class PonderInfoOverlayElement implements PonderOverlayElement {
     public enum Kind { MOOD, SKILL, LINES, BADGE }
 
     private static final int BAR_WIDTH = 120;
+    private static final String KEY_PREFIX = "ponder.starrailexpress.";
     private final Kind kind;
     private final String label;
     private final List<String> lines;
@@ -38,6 +39,12 @@ public class PonderInfoOverlayElement implements PonderOverlayElement {
     public PonderInfoOverlayElement addTo(SceneBuilder scene) {
         scene.addInstruction(ps -> { ps.addElement(this); this.visible = true; });
         return this;
+    }
+
+    /** 以 {@code ponder.starrailexpress.} 开头的文本按翻译键解析，其余按原文显示。 */
+    private static Component display(String value) {
+        String text = value == null ? "" : value;
+        return text.startsWith(KEY_PREFIX) ? Component.translatable(text) : Component.literal(text);
     }
 
     @Override public boolean isVisible() { return visible; }
@@ -62,7 +69,7 @@ public class PonderInfoOverlayElement implements PonderOverlayElement {
         int textX = x + 10;
         int textY = y + 7;
         if (!label.isEmpty()) {
-            graphics.drawString(font, Component.literal(label), textX, textY, accent);
+            graphics.drawString(font, display(label), textX, textY, accent);
             textY += font.lineHeight + 4;
         }
         if (kind == Kind.MOOD) {
@@ -78,7 +85,7 @@ public class PonderInfoOverlayElement implements PonderOverlayElement {
             return;
         }
         for (String line : lines) {
-            graphics.drawString(font, Component.literal(line), textX, textY,
+            graphics.drawString(font, display(line), textX, textY,
                     kind == Kind.BADGE ? accent : 0xFFEEEEEE);
             textY += font.lineHeight + 3;
         }
