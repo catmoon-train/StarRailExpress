@@ -289,3 +289,47 @@ InvalidInjectionException: non-static callback method ... targets a static metho
 ```
 
 并整体放弃该 mixin。现已改为 `private static void`。修复后编辑器兼容判断才能生效。
+
+## 15. 新增扩展步骤与制作工具（2026-11-20）
+
+### 步骤
+
+`assets/starrailexpress/ponderer/content/role_tutorials.json` 仍只声明一个扩展
+`starrailexpress:role_tutorial`，`PonderSreExtension` 现在额外注册以下步骤，写场景时可以直接用：
+
+| 步骤 | 用途 | 常用字段 |
+| --- | --- | --- |
+| `starrailexpress:role_mood` | 按游戏内心情条的观感显示变化前后对比 | `label`、`before`、`after`（0~1）、`color`、`lines` |
+| `starrailexpress:role_skill` | 显示技能键与效果标签 | `label`、`lines`（可写 `"技能键 / 效果 / 持续时间"`）、`color` |
+| `starrailexpress:role_render` | 显示职业能力渲染出的文字，如验尸官看到的尸体信息 | `lines`（字符串数组，逐条来自源码）、`label` |
+| `starrailexpress:role_disguise` | 显示伪装 / 变形形态标签，与 `role_player` 的 `skin` 或 `create_entity` 配合 | `lines`、`color` |
+
+四种步骤共用 `PonderInfoOverlayElement`，绘制在思索 UI 右上角，不遮挡场景中央的玩家模型与字幕。
+`label` 省略时用各步骤默认标签；`lines` 可以是数组，也可以是带 `\n` 的字符串。
+`before/after` 代表心情值比例，灰条为变化前，彩色条为变化后，下面的百分比由代码自动计算。
+
+本能透视边框必须使用 `InstinctManager` 的真实返回值：
+
+- `InstinctType.OBSERVER_ROLE_COLOR` 取**观察者自己的职业颜色**，例如小丑看别人是
+  `new Color(186,85,211).getRGB()`（`-4562477`），不是固定的粉/红；
+- `InstinctType.TARGET_ROLE_COLOR` 取目标职业颜色；`CUSTOM` 取其固定颜色；
+- 杀手默认直觉见 `InstinctManager#getDefaultKillerAliveInstinct`：杀手红、杀手方中立橙、
+  平民蓝、小丑粉色、疫使深绿、肉汁 4 格内深蓝等，均按源码数值填写。
+- 酒保的护盾蓝、护盾+毒黄绿、中毒红、喝饮料绿沿用现有场景数值。
+
+### 工具
+
+1. `python tools/ponder_data_extract.py`  
+   扫描语言文件与职业注册源码，输出 `tools/ponder_role_data.json`：职业 id、三语名称、
+   逐行介绍原文、注册源码位置、颜色、本能类型。其它模式职业**只**按
+   `setOtherModeRole(true)` 判定（包括 `GooseDuckRole` 等基类和回声模式的循环注册），
+   不按介绍文案里的“特殊模式”字样猜测。该文件是制作具体职业教程时的查询数据，不是游戏资源。
+2. `python tools/generate_ponder_structures.py`  
+   除原有小丑/酒保结构外，新增通用房间 `starrailexpress:role_tutorial_common.nbt`，
+   供后续职业教程直接引用。
+3. `python tools/verify_ponder_structures.py`  
+   校验所有结构 NBT 的二进制格式与调色板。
+
+新增单个职业教程时：在 `content/role_tutorials.json` 的 `scenes` 追加一份场景路径，
+场景 `id` 使用 `starrailexpress:role_tutorial.<职业 path>`（与
+`RolePonderTutorial.SCENE_PREFIX` 一致），文案只引用 `role_modifier_intro` 的原文。

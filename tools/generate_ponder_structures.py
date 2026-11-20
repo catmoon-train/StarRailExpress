@@ -141,6 +141,25 @@ def bartender():
     write_structure(OUT / "role_tutorial_bartender.nbt", [SIZE, 4, SIZE], blocks, palette)
 
 
+def generic():
+    """新增职业教程可复用的通用房间：地板 + 墙 + 门框 + 床，不含职业专属方块。"""
+    palette = [
+        "trainmurdermystery:white_hull",
+        "trainmurdermystery:navy_steel",
+        "trainmurdermystery:marble_tiles",
+        "trainmurdermystery:small_glass_door",
+        "trainmurdermystery:white_trimmed_bed",
+    ]
+    extra = [
+        ([3, 1, 6], 3),  # 门下半
+        ([3, 2, 6], 3),  # 门上半
+        ([5, 1, 5], 4),  # 床
+    ]
+    blocks = build_room(lambda x, z: 2 if (x + z) % 4 == 0 else 0, 1, extra)
+    write_structure(OUT / "role_tutorial_common.nbt", [SIZE, 4, SIZE], blocks, palette)
+
+
 if __name__ == "__main__":
     jester()
     bartender()
+    generic()

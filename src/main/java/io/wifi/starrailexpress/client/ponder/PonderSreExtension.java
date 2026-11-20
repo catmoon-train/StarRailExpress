@@ -15,6 +15,8 @@
 
 package io.wifi.starrailexpress.client.ponder;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.nododiiiii.ponderer.runtime.api.RuntimeEngine;
 import com.nododiiiii.ponderer.runtime.api.StepBuildContext;
@@ -26,6 +28,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 本项目为 Ponderer 注册的内容扩展。
@@ -51,6 +56,18 @@ public final class PonderSreExtension {
     /** 显示职业商店陈列。 */
     public static final String STEP_ROLE_SHOP = "starrailexpress:role_shop";
 
+    /** 显示心情值（san 值）变化。 */
+    public static final String STEP_ROLE_MOOD = "starrailexpress:role_mood";
+
+    /** 显示技能释放与对应效果。 */
+    public static final String STEP_ROLE_SKILL = "starrailexpress:role_skill";
+
+    /** 显示职业能力渲染出的文字（例如尸体信息）。 */
+    public static final String STEP_ROLE_RENDER = "starrailexpress:role_render";
+
+    /** 显示伪装 / 变形形态标签。 */
+    public static final String STEP_ROLE_DISGUISE = "starrailexpress:role_disguise";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PonderSreExtension.class);
 
     private PonderSreExtension() {
@@ -60,6 +77,10 @@ public final class PonderSreExtension {
     public static void install(RuntimeEngine engine) {
         engine.steps().register(STEP_ROLE_PLAYER, new RolePlayerStep());
         engine.steps().register(STEP_ROLE_SHOP, new RoleShopStep());
+        engine.steps().register(STEP_ROLE_MOOD, new RoleInfoStep("心情值", PonderInfoOverlayElement.Kind.MOOD));
+        engine.steps().register(STEP_ROLE_SKILL, new RoleInfoStep("技能", PonderInfoOverlayElement.Kind.SKILL));
+        engine.steps().register(STEP_ROLE_RENDER, new RoleInfoStep("职业能力", PonderInfoOverlayElement.Kind.LINES));
+        engine.steps().register(STEP_ROLE_DISGUISE, new RoleInfoStep("伪装中", PonderInfoOverlayElement.Kind.BADGE));
         LOGGER.info("StarRailExpress Ponderer 扩展已安装：{}", EXTENSION_ID);
     }
 
@@ -192,6 +213,79 @@ public final class PonderSreExtension {
             if (overlay != null) {
                 overlay.addTo(context.builder());
             }
+        }
+    }
+
+    /** {@code role_mood/role_skill/role_render/role_disguise} 的通用参数。 */
+    record RoleInfoParams(PonderInfoOverlayElement.Kind kind, String label, List<String> lines,
+                          float before, float after, int color) {
+    }
+
+    /** 把 JSON 数据画成职业状态覆盖层；四种步骤共用同一实现，仅默认标签与类型不同。 */
+    static final class RoleInfoStep implements StepType<RoleInfoParams> {
+        private final String defaultLabel;
+        private final PonderInfoOverlayElement.Kind kind;
+
+        RoleInfoStep(String defaultLabel, PonderInfoOverlayElement.Kind kind) {
+            this.defaultLabel = defaultLabel;
+            this.kind = kind;
+        }
+
+        @Override
+        public StepCodec<RoleInfoParams> codec() {
+            return new StepCodec<>() {
+                @Override
+                public RoleInfoParams decode(JsonObject data) {
+                    String label = readString(data, "label");
+                    Float before = readFloat(data, "before");
+                    Float after = readFloat(data, "after");
+                    Integer color = readInt(data, "color");
+                    float start = before == null ? 0.0F : before;
+                    return new RoleInfoParams(kind,
+                            label == null || label.isBlank() ? defaultLabel : label,
+                            readLines(data), start, after == null ? start : after,
+                            color == null ? 0xFFD700 : color);
+                }
+
+                @Override
+                public JsonObject encode(RoleInfoParams value) {
+                    JsonObject data = new JsonObject();
+                    data.addProperty("label", value.label());
+                    JsonArray lines = new JsonArray();
+                    value.lines().forEach(lines::add);
+                    data.add("lines", lines);
+                    data.addProperty("before", value.before());
+                    data.addProperty("after", value.after());
+                    data.addProperty("color", value.color());
+                    return data;
+                }
+            };
+        }
+
+        @Override
+        public String editorLabel() {
+            return defaultLabel;
+        }
+
+        @Override
+        public void build(RoleInfoParams params, StepBuildContext context) {
+            new PonderInfoOverlayElement(params.kind(), params.label(), params.lines(),
+                    params.before(), params.after(), params.color()).addTo(context.builder());
+        }
+
+        private static List<String> readLines(JsonObject data) {
+            if (data == null || !data.has("lines") || data.get("lines").isJsonNull()) {
+                return List.of();
+            }
+            JsonElement element = data.get("lines");
+            if (element.isJsonArray()) {
+                List<String> result = new ArrayList<>();
+                for (JsonElement line : element.getAsJsonArray()) {
+                    result.add(line.getAsString());
+                }
+                return result;
+            }
+            return List.of(element.getAsString().split("\\n", -1));
         }
     }
 
