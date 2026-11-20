@@ -248,6 +248,7 @@ gradlew compileJava --offline
 
 - `src/main/resources/assets/starrailexpress/ponderer/scenes/role_tutorial_jester.json`
 - `src/main/resources/assets/starrailexpress/ponderer/scenes/role_tutorial_bartender.json`
+- `src/main/resources/assets/starrailexpress/ponderer/scenes/role_tutorial_recaller.json`（技能动画示范，见第 17 节）
 - `src/main/java/org/agmas/noellesroles/client/screen/RolePonderTutorial.java`
 
 ## 13. 本项目注册的思索扩展
@@ -276,6 +277,20 @@ gradlew compileJava --offline
 | `expand` | number | 边框相对碰撞箱外扩，默认 0.12 |
 | `linkId` | string | 存入步骤 `state`，供后续步骤引用 |
 | `heldItem` | string | 模型右手持有的物品 id，用于演示换武器/狂暴形态 |
+| `pose` | string | 模型姿态，见下表；省略为 `standing` |
+
+`pose` 取值（与游戏内同一套姿态）：
+
+| 值 | 姿态 | 对应游戏内表现 |
+| --- | --- | --- |
+| `standing` | 站立 | 默认 |
+| `crouching` | 蹲下 | `Pose.CROUCHING` + shift 状态（潜行） |
+| `swimming` | 趴下 | `Pose.SWIMMING`，玩家趴下/爬行就是这一姿态 |
+| `sleeping` | 躺下 | `Pose.SLEEPING` |
+| `spin_attack` | 旋转攻击 | `Pose.SPIN_ATTACK`（重锤类动作） |
+| `fall_flying` | 鞘翅飞行 | `Pose.FALL_FLYING` |
+
+需要演示蹲下、趴下、躺下的职业直接写 `pose`，不要用 `set_block` 摆姿势或省略。
 
 边框颜色与游戏内本能透视同源：`InstinctManager` 的返回值即此处应填的颜色。
 边框按玩家模型本身渲染：同一套顶点沿法线外扩一圈、剔除正面只画背面，
@@ -460,3 +475,149 @@ InvalidInjectionException: non-static callback method ... targets a static metho
   再在 `PonderDomains` 加枚举项、在 `PonderDomainScenes` 加同名分支。
 - 冒险家游记在原项目里是配置坐标处的一张现成地图，没有构建器，
   这里的「旅途营地」是按领域语义重建的代表性场景，后续如需更贴近原图可继续补充。
+
+## 17. 思索里「技能」怎么演（2026-11-20）
+
+技能段落的目标是让玩家看完就知道「按什么键、会看到什么、有什么代价」，不是复述介绍文案。
+
+**硬性要求：技能必须按「代码实际行为 + 职业介绍」做成具体、形象的动画，不能只写一段文字说明。**
+用之前先读这个技能的实现（`AbilityHandler` 的分支、对应 `RoleData`、HUD 与相关 mixin），确认：
+
+- 触发方式（哪个键、什么条件下按得动）；
+- 依次发生了哪些可见变化（位置、姿态、方块、界面、实体）；
+- 源码里有没有粒子 / 音效（有就照抄 id，没有就不要凭空加）；
+- 有没有代价（金币、冷却、消耗品），用 `role_currency` / `role_timer` 或文案体现。
+
+介绍里没写、但代码里确实发生的视觉细节（例如传送的粒子、蹲下的姿态）必须演出来；
+介绍里有、代码里没有的机制则不要演——两者冲突时以代码为准并在段评里记录差异。
+
+一个技能段落的固定骨架：
+
+1. **站位**：`show_structure` → `role_player` 把职业玩家模型放到演示位，`linkId` 必须写（后续要驱动它）。
+2. **触发**：`role_key` 显示「按下技能键」（键帽显示玩家当前实际绑定，改键自动跟随）。
+3. **前置状态**：标点、物品、界面、血条等，用 `highlight_section` / `create_item_entity` / `role_*` 覆盖层交代清楚。
+4. **动作**：`role_walk` 走动、`role_teleport` 落位；姿态变化写 `role_player.pose`。
+5. **结果**：`spawn_particles` 复刻源码里的粒子，`play_sound` 复刻音效，`indicate_success` 标记结果。
+6. **收尾**：`idle` 留出观察时间，最后 `rotate_camera_y` 换个角度避免段落结束太突然。
+
+多次使用同一个技能时，每次触发前都要重新显示一次 `role_key`，让「按一次 → 变一次」的因果看得见。
+
+### 按键提示的写法
+
+- Ponderer 内置的 `show_controls` **只支持鼠标动作**（`action: left|right|scroll`，以及
+  `whileSneaking` / `whileCTRL` 修饰），没有「按下键盘技能键」的图形。鼠标交互就用它。
+- 键盘技能键一律用 `role_key`：屏幕下方画键帽 + 说明，键帽内容取自
+  `NoellesrolesClient.abilityBind` 等实际绑定（`getTranslatedKeyMessage()`），玩家改键后自动跟着变，不要写死字母。
+- `role_skill` 是右上角的信息面板，用来补充技能效果/代价，不承担「按键」的表达。
+- 面向玩家的正文仍然只能用 `text`（`en_us` / `zh_cn` / `zh_tw` 三语齐全），文案只引用职业介绍原文。
+
+### 动画与时间轴
+
+- `role_walk` 是**阻塞**步骤：`duration` 个 tick 内模型走过去，时间轴同步推进。
+- `role_teleport` 只做落位，不占时间轴；粒子、音效要另外写 `spawn_particles` / `play_sound`。
+- `role_key` 不阻塞，`duration` 只是键帽存活时长（默认 60），要停顿请补 `idle`。
+- `spawn_particles`、`play_sound`、`indicate_success`、`highlight_section` 都不阻塞，
+  需要观察就补 `idle`。
+- 传送类演示要写**两处**粒子：起跳点（传送前）与落点（传送后），游戏内 `teleport()` 就是两端各播一次。
+
+### `starrailexpress:role_key`
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `keyBind` | string | 取哪个绑定：`ability`（默认）、`next_ability`、`guess_role_note`、`map_intro`、`task_instinct` |
+| `key` | string | 可选，直接指定键名（写死用，一般不填） |
+| `text` | string | 说明文字；`ponder.` / `key.` 开头按翻译键解析，默认 `按下技能键` |
+| `duration` | int | 键帽存活 tick，默认 60，`<= 0` 表示整段保持 |
+| `color` | int | 键帽描边颜色，默认金色 |
+
+### `starrailexpress:role_walk`
+
+参数（都写在 `parameters` 里）：
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `linkId` | string | 命中已有模型时驱动那个模型；不写就按 `from` 新建一个 |
+| `from` | `[x,y,z]` | 新建模型时的起点 |
+| `to` | `[x,y,z]` | 终点，必填 |
+| `duration` | int | 走动耗时（tick），默认 40，同时就是阻塞时长 |
+| `yaw` | number | 面向；省略时按 `from → to` 的水平方向自动计算 |
+| `skin` / `heldItem` / `outline` / `pose` | | 同 `role_player`，只在新建模型时生效 |
+
+### `starrailexpress:role_teleport`
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `linkId` | string | 必填，指向 `role_player` / `role_walk` 建的模型 |
+| `pos` | `[x,y,z]` | 落点 |
+
+### 参考实现：召回者（2026-11-20）
+
+- 场景：`assets/starrailexpress/ponderer/scenes/role_tutorial_recaller.json`
+- 结构：`starrailexpress:role_tutorial_recaller`（`tools/generate_ponder_structures.py` 的 `recaller()` 生成：
+  7x4x7、顶部敞开、只留背墙；标点处是 3x3 大理石方台，正中一格换船体板，让「记录的地点」有地标）
+- 技能事实来源：`RecallerRoleData`（标点 / 传送 / 粒子）与 `AbilityHandler` 的 `RECALLER` 分支（扣 100 金币）
+- 介绍原文只有「标点 + 花 100 金币回来」两句，没有走动、传送动画与粒子描述，
+  所以动画由场景补足：**按技能键 → 原地标点 → 走开 → 再按技能键 → 传送回来**
+- `recall` 段落的时间轴：
+
+```text
+role_player [2,1,4] linkId=recaller       ← 站在标点处
+role_key（第一次「按下技能键」）
+highlight_section [2,0,4] duration=360    ← 标点出现并持续可见
+text duration=90 + idle 100               ← 介绍原句
+role_walk to [2,1,1] duration=60          ← 走开，阻塞 60 tick
+role_key（第二次「按下技能键」） + idle 30
+spawn_particles minecraft:portal（起跳点）
+play_sound minecraft:entity.enderman.teleport
+role_teleport [2,1,4]                     ← 瞬移回标点，不做滑动
+spawn_particles minecraft:portal（落点）
+indicate_success [2,0,4] + idle 80
+```
+
+粒子与音效直接取自源码：`ParticleTypes.PORTAL` 环绕 16 点 + 中心 10 点（`y + 0.9`），
+音效 `SoundEvents.ENDERMAN_TELEPORT`（`minecraft:entity.enderman.teleport`，`source: players`）。
+`role_teleport` 故意做成瞬移：游戏内 `teleportTo` 就是瞬移，做插值反而不符合实际表现。
+
+### `starrailexpress:role_walk`
+
+参数（都写在 `parameters` 里）：
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `linkId` | string | 命中已有模型时驱动那个模型；不写就按 `from` 新建一个 |
+| `from` | `[x,y,z]` | 新建模型时的起点 |
+| `to` | `[x,y,z]` | 终点，必填 |
+| `duration` | int | 走动耗时（tick），默认 40，同时就是阻塞时长 |
+| `yaw` | number | 面向；省略时按 `from → to` 的水平方向自动计算 |
+| `skin` / `heldItem` / `outline` | | 同 `role_player`，只在新建模型时生效 |
+
+### `starrailexpress:role_teleport`
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `linkId` | string | 必填，指向 `role_player` / `role_walk` 建的模型 |
+| `pos` | `[x,y,z]` | 落点 |
+
+### 参考实现：召回者（2026-11-20）
+
+- 场景：`assets/starrailexpress/ponderer/scenes/role_tutorial_recaller.json`
+- 结构：`starrailexpress:role_tutorial_recaller`（`tools/generate_ponder_structures.py` 的 `recaller()` 生成：
+  7x4x7、顶部敞开、只留背墙；标点处是 3x3 大理石方台，正中一格换船体板，让「记录的地点」有地标）
+- 技能事实来源：`RecallerRoleData`（标点 / 传送 / 粒子）与 `AbilityHandler` 的 `RECALLER` 分支（扣 100 金币）
+- `recall` 段落的时间轴：
+
+```text
+role_player [2,1,4] linkId=recaller      ← 站在标点处
+highlight_section [2,0,4] duration=320   ← 标点持续可见
+text duration=90 + idle 100              ← 介绍原句
+role_walk to [2,1,1] duration=60         ← 走开，阻塞 60 tick
+role_skill（按下技能键） + idle 40
+spawn_particles minecraft:portal（起跳点）
+play_sound minecraft:entity.enderman.teleport
+role_teleport [2,1,4]
+spawn_particles minecraft:portal（落点）
+indicate_success [2,0,4] + idle 80
+```
+
+粒子与音效直接取自源码：`ParticleTypes.PORTAL` 环绕 16 点 + 中心 10 点（`y + 0.9`），
+音效 `SoundEvents.ENDERMAN_TELEPORT`（`minecraft:entity.enderman.teleport`，`source: players`）。

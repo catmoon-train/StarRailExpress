@@ -196,7 +196,30 @@ def generic():
     write_structure(OUT / "role_tutorial_common.nbt", [SIZE, 4, SIZE], blocks, palette)
 
 
+def recaller():
+    """召回者教程：只有背墙的通透房间，标点处用地砖方台做地面标记。
+
+    教程里玩家模型站在标点 [2,1,4]，走到 [2,1,1] 再被传送回来，所以房间要保持通透，
+    只留背墙，避免侧墙挡住俯视镜头。
+    """
+
+    def floor(x, z):
+        # 标点方台：3x3 大理石台面，正中一格换成船体板，让"记录的地点"有可辨认的地标。
+        if 1 <= x <= 3 and 3 <= z <= 5:
+            return 0 if (x, z) == (2, 4) else 2
+        return 2 if (x + z) % 4 == 0 else 0
+
+    palette = [
+        "trainmurdermystery:white_hull",
+        "trainmurdermystery:navy_steel",
+        "trainmurdermystery:marble_tiles",
+    ]
+    blocks = build_back_wall_room(floor, 1, [])
+    write_structure(OUT / "role_tutorial_recaller.nbt", [SIZE, 4, SIZE], blocks, palette)
+
+
 if __name__ == "__main__":
     jester()
     bartender()
     generic()
+    recaller()

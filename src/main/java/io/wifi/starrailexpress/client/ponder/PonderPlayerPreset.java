@@ -22,9 +22,12 @@ import net.createmod.ponder.foundation.element.ElementLinkImpl;
 import net.createmod.ponder.foundation.instruction.FadeOutOfSceneInstruction;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Consumer;
 
 /**
  * 在思索场景里创建「职业演示用玩家模型」。
@@ -65,6 +68,7 @@ public final class PonderPlayerPreset {
         private float bodyYaw = 180.0F;
         private float headYaw = 180.0F;
         private float pitch = 0.0F;
+        private Pose pose = Pose.STANDING;
         @Nullable
         private GameProfile profile;
         @Nullable
@@ -90,6 +94,15 @@ public final class PonderPlayerPreset {
             this.bodyYaw = bodyYaw;
             this.headYaw = headYaw;
             this.pitch = pitch;
+            return this;
+        }
+
+        /**
+         * 模型姿态：站立、蹲下（{@link Pose#CROUCHING}）、趴下（{@link Pose#SWIMMING}）、
+         * 睡眠（{@link Pose#SLEEPING}）等；缺省站立。
+         */
+        public Builder pose(Pose pose) {
+            this.pose = pose == null ? Pose.STANDING : pose;
             return this;
         }
 
@@ -131,12 +144,23 @@ public final class PonderPlayerPreset {
 
         /** 把玩家模型加入场景，返回可用于后续淡出/移动的链接。 */
         public ElementLink<PonderPlayerElement> addTo(SceneBuilder scene) {
+            return addTo(scene, null);
+        }
+
+        /**
+         * 把玩家模型加入场景，并把元素实例交给 {@code setup}，用于追加走动 / 传送指令。
+         *
+         * <p>「把元素加入场景」那条指令先追加，{@code setup} 里的指令追加在其后，
+         * 所以可以直接在 {@code setup} 里驱动元素（例如 {@code element.walkTo(...)}）。
+         */
+        public ElementLink<PonderPlayerElement> addTo(SceneBuilder scene, Consumer<PonderPlayerElement> setup) {
             PonderPlayerElement element = new PonderPlayerElement(location)
                     .profile(profile)
                     .skin(skin)
                     .heldItem(heldItem)
                     .outline(outlineColor, outlineLineWidth, outlineExpand)
-                    .facing(bodyYaw, headYaw, pitch);
+                    .facing(bodyYaw, headYaw, pitch)
+                    .pose(pose);
             ElementLink<PonderPlayerElement> link = new ElementLinkImpl<>(PonderPlayerElement.class);
             scene.addInstruction(ps -> {
                 element.bindOutliner(ps.getOutliner());
@@ -145,6 +169,9 @@ public final class PonderPlayerPreset {
                 element.setVisible(true);
                 element.forceApplyFade(1.0F);
             });
+            if (setup != null) {
+                setup.accept(element);
+            }
             return link;
         }
     }

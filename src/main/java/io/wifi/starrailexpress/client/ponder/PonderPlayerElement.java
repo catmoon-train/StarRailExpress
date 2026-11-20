@@ -35,6 +35,7 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -56,6 +57,8 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
     private float bodyYaw = 180.0F;
     private float headYaw = 180.0F;
     private float pitch = 0.0F;
+    /** 模型姿态：站立、蹲下、趴下等，决定模型是站着、蹲着还是趴着。 */
+    private Pose pose = Pose.STANDING;
 
     @Nullable
     private GameProfile profile;
@@ -69,6 +72,15 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
     private int outlineColor = PonderPlayerPreset.NO_OUTLINE;
     private float outlineLineWidth = 1.0F;
     private float outlineExpand = 0.12F;
+
+    /** 动画位移：走动与传送都写在这里，相对 {@link #location}，场景重播时归零。 */
+    private Vec3 offset = Vec3.ZERO;
+    /** 走动起点偏移；{@code walkDelta == null} 表示当前没有走动动画。 */
+    private Vec3 walkBase = Vec3.ZERO;
+    @Nullable
+    private Vec3 walkDelta;
+    private int walkTicks;
+    private int walkElapsed;
 
     /** 所属场景的 Outliner，在加入场景时绑定，用于绘制与保活描边。 */
     @Nullable
@@ -113,6 +125,13 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
         return this;
     }
 
+    /** 设置模型姿态（站立 / 蹲下 / 趴下 / 睡眠等）；{@code null} 按站立处理。 */
+    public PonderPlayerElement pose(@Nullable Pose pose) {
+        this.pose = pose == null ? Pose.STANDING : pose;
+        applyPoseToPuppet();
+        return this;
+    }
+
     /** 绑定场景 Outliner；由 {@link PonderPlayerPreset} 在加入场景时调用。 */
     public PonderPlayerElement bindOutliner(@Nullable Outliner outliner) {
         this.outliner = outliner;
@@ -122,6 +141,63 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
     /** 当前是否绘制边框。 */
     public boolean hasOutline() {
         return outlineColor != PonderPlayerPreset.NO_OUTLINE;
+    }
+
+    /** 是否正在播放走动动画。 */
+    public boolean isWalking() {
+        return walkDelta != null;
+    }
+
+    /** 当前所在位置（含走动 / 传送位移）。 */
+    public Vec3 currentLocation() {
+        return location.add(offset);
+    }
+
+    /**
+     * 在 {@code ticks} 内走到绝对坐标 {@code target}。
+     *
+     * <p>位移在 {@link #tick} 里逐 tick 推进，迈腿相位由 {@code walkAnimation} 驱动，
+     * 所以模型是走过去的，不是瞬移或滑行。
+     */
+    public void walkTo(Vec3 target, int ticks) {
+        this.walkBase = offset;
+        this.walkDelta = target.subtract(location).subtract(offset);
+        this.walkTicks = Math.max(1, ticks);
+        this.walkElapsed = 0;
+    }
+
+    /** 直接落位到绝对坐标 {@code target}（传送），并中断未完成的走动。 */
+    public void teleportTo(Vec3 target) {
+        this.offset = target.subtract(location);
+        resetWalk();
+    }
+
+    private void resetWalk() {
+        this.walkBase = Vec3.ZERO;
+        this.walkDelta = null;
+        this.walkTicks = 0;
+        this.walkElapsed = 0;
+    }
+
+    /** 每 tick 推进走动动画；停步后把迈腿幅度归零，模型回到站立姿态。 */
+    private void tickWalk() {
+        if (walkDelta == null) {
+            puppet.walkAnimation.setSpeed(0.0F);
+            return;
+        }
+        walkElapsed++;
+        float progress = Mth.clamp(walkElapsed / (float) walkTicks, 0.0F, 1.0F);
+        // 平滑起步与收尾，避免模型像被线性拖走。
+        float eased = progress * progress * (3.0F - 2.0F * progress);
+        offset = walkBase.add(walkDelta.scale(eased));
+        if (progress >= 1.0F) {
+            offset = walkBase.add(walkDelta);
+            resetWalk();
+            puppet.walkAnimation.setSpeed(0.0F);
+            return;
+        }
+        puppet.walkAnimation.update(1.0F, 1.0F);
+        puppet.walkAnimation.setSpeed(1.0F);
     }
 
     private void registerSkinOverride() {
@@ -156,6 +232,21 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
         puppet.xRotO = pitch;
     }
 
+    /**
+     * 把姿态同步给模型。
+     *
+     * <p>蹲下用 {@link Pose#CROUCHING}（配合 shift 状态），趴下用 {@link Pose#SWIMMING}
+     * ——玩家趴下时原版就是把姿态切成 SWIMMING 再渲染，这里沿用同一套。
+     */
+    private void applyPoseToPuppet() {
+        if (puppet == null) {
+            return;
+        }
+        puppet.setPose(pose);
+        puppet.setShiftKeyDown(pose == Pose.CROUCHING);
+        puppet.setSwimming(pose == Pose.SWIMMING);
+    }
+
     private void ensurePuppet(PonderLevel world) {
         if (puppet != null) {
             return;
@@ -166,6 +257,7 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
         }
         resetPuppetPose();
         applyFacingToPuppet();
+        applyPoseToPuppet();
         registerSkinOverride();
         applyHeldItem();
     }
@@ -185,11 +277,15 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
     @Override
     public void reset(PonderScene scene) {
         super.reset(scene);
+        // 重播必须回到初始站位，否则第二遍起模型会停在上一遍的终点。
+        this.offset = Vec3.ZERO;
+        resetWalk();
         if (puppet == null) {
             return;
         }
         resetPuppetPose();
         applyFacingToPuppet();
+        applyPoseToPuppet();
         registerSkinOverride();
         applyHeldItem();
     }
@@ -212,7 +308,7 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
         puppet.yBodyRotO = puppet.yBodyRot;
         puppet.yHeadRotO = puppet.yHeadRot;
         puppet.oAttackAnim = puppet.attackAnim;
-        puppet.walkAnimation.setSpeed(0);
+        tickWalk();
         // Outliner 条目默认 1 tick 后开始淡出，必须每 tick 保活。
         if (outliner != null && hasOutline() && isVisible()) {
             outliner.keep(this);
@@ -227,8 +323,9 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
         }
 
         var poseStack = graphics.pose();
+        Vec3 pos = currentLocation();
         poseStack.pushPose();
-        poseStack.translate(location.x, location.y, location.z);
+        poseStack.translate(pos.x, pos.y, pos.z);
         poseStack.translate(Mth.lerp(pt, puppet.xo, puppet.getX()),
                 Mth.lerp(pt, puppet.yo, puppet.getY()),
                 Mth.lerp(pt, puppet.zo, puppet.getZ()));
@@ -304,8 +401,9 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
         MultiBufferSource glowBuffer = renderType -> glow;
 
         var poseStack = graphics.pose();
+        Vec3 pos = currentLocation();
         poseStack.pushPose();
-        poseStack.translate(location.x, location.y, location.z);
+        poseStack.translate(pos.x, pos.y, pos.z);
         poseStack.translate(Mth.lerp(pt, puppet.xo, puppet.getX()),
                 Mth.lerp(pt, puppet.yo, puppet.getY()),
                 Mth.lerp(pt, puppet.zo, puppet.getZ()));

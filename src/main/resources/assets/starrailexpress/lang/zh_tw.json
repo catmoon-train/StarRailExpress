@@ -1,6 +1,10 @@
 {
   "gui.starrailexpress.shop.role_shop": "職業商店",
   "ponder.starrailexpress.step.role_player": "職業玩家模型",
+  "ponder.starrailexpress.step.role_walk": "職業走動",
+  "ponder.starrailexpress.step.role_teleport": "職業傳送",
+  "ponder.starrailexpress.step.role_key": "按鍵提示",
+  "ponder.starrailexpress.ponder.press_skill": "按下技能鍵",
   "ponder.starrailexpress.step.role_domain": "領域場景",
   "ponder.starrailexpress.domain.fool_meeting": "愚者開會 · 塔羅會大廳",
   "ponder.starrailexpress.domain.warlock_ash_marrow": "灰髓之境",
