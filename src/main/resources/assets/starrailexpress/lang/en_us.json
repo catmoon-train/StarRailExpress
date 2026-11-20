@@ -1,6 +1,13 @@
 {
   "gui.starrailexpress.shop.role_shop": "Role shop",
   "ponder.starrailexpress.step.role_player": "Role player model",
+  "ponder.starrailexpress.step.role_domain": "Domain scene",
+  "ponder.starrailexpress.domain.fool_meeting": "Fool's Assembly - Tarot Hall",
+  "ponder.starrailexpress.domain.warlock_ash_marrow": "Ash-Marrow Realm",
+  "ponder.starrailexpress.domain.adventurer_travelogue": "Grosell Travelogue",
+  "ponder.starrailexpress.domain.pooler_moon": "Devoured Moon",
+  "ponder.starrailexpress.domain.pooler_aquarium": "Mirror in the Water",
+  "ponder.starrailexpress.domain.devil_black_room": "Secret Black Room",
   "ponder.starrailexpress.step.role_shop": "Role shop",
   "ponder.starrailexpress.step.role_mood": "Mood",
   "ponder.starrailexpress.step.role_skill": "Skill",

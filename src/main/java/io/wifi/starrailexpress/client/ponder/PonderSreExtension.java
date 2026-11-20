@@ -25,6 +25,7 @@ import com.nododiiiii.ponderer.runtime.api.StepType;
 import net.createmod.ponder.api.element.ElementLink;
 import net.createmod.ponder.api.scene.SceneBuilder;
 import io.wifi.starrailexpress.util.ShopEntry;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -44,6 +45,7 @@ import java.util.List;
  *
  * <ul>
  *   <li>{@code starrailexpress:role_player} —— 创建可指定皮肤与本能透视边框的玩家模型；</li>
+ *   <li>{@code starrailexpress:role_domain} —— 把场景切换成领域技对应的六个领域场景之一；</li>
  *   <li>{@code starrailexpress:role_shop} —— 显示该职业的实际商店陈列。</li>
  * </ul>
  *
@@ -56,6 +58,9 @@ public final class PonderSreExtension {
 
     /** 创建职业演示玩家模型（皮肤 + 本能透视边框）。 */
     public static final String STEP_ROLE_PLAYER = "starrailexpress:role_player";
+
+    /** 把场景切换成某个领域（领域技演示）。 */
+    public static final String STEP_ROLE_DOMAIN = "starrailexpress:role_domain";
 
     /** 显示职业商店陈列。 */
     public static final String STEP_ROLE_SHOP = "starrailexpress:role_shop";
@@ -106,6 +111,7 @@ public final class PonderSreExtension {
     /** 把扩展安装到引擎；由 {@code ResourceSceneContents} 按清单声明调用。 */
     public static void install(RuntimeEngine engine) {
         engine.steps().register(STEP_ROLE_PLAYER, new RolePlayerStep());
+        engine.steps().register(STEP_ROLE_DOMAIN, new RoleDomainStep());
         engine.steps().register(STEP_ROLE_SHOP, new RoleShopStep());
         engine.steps().register(STEP_ROLE_MOOD, new RoleInfoStep(KEY_PREFIX + "role_mood", PonderInfoOverlayElement.Kind.MOOD));
         engine.steps().register(STEP_ROLE_SKILL, new RoleInfoStep(KEY_PREFIX + "role_skill", PonderInfoOverlayElement.Kind.SKILL));
@@ -210,6 +216,67 @@ public final class PonderSreExtension {
                 // 供后续步骤按 linkId 淡出或复用同一模型。
                 context.state().put(linkId, link);
             }
+        }
+    }
+
+    /** {@code role_domain} 的参数。 */
+    record RoleDomainParams(PonderDomains domain, Vec3 pos, Float scale) {
+    }
+
+    /**
+     * 领域场景步骤：演示到领域技时，把教程场景切换成对应领域。
+     *
+     * <p>场景由 {@link PonderDomainScenes} 在客户端重建，开头会先清掉以 {@code pos}
+     * 为中心的一大块区域，所以不需要额外写清场步骤。
+     */
+    static final class RoleDomainStep implements StepType<RoleDomainParams> {
+        @Override
+        public StepCodec<RoleDomainParams> codec() {
+            return new StepCodec<>() {
+                @Override
+                public RoleDomainParams decode(JsonObject data) {
+                    String raw = readString(data, "domain");
+                    PonderDomains domain = PonderDomains.byId(raw);
+                    if (domain == null) {
+                        LOGGER.warn("role_domain step has an unknown domain id: {}", raw);
+                    }
+                    return new RoleDomainParams(domain, readVec(data, "pos", Vec3.ZERO),
+                            readFloat(data, "scale"));
+                }
+
+                @Override
+                public JsonObject encode(RoleDomainParams value) {
+                    JsonObject data = new JsonObject();
+                    if (value.domain() != null) {
+                        data.addProperty("domain", value.domain().id());
+                    }
+                    data.addProperty("pos",
+                            value.pos().x + "," + value.pos().y + "," + value.pos().z);
+                    if (value.scale() != null) {
+                        data.addProperty("scale", value.scale());
+                    }
+                    return data;
+                }
+            };
+        }
+
+        @Override
+        public String editorLabel() {
+            return text(KEY_PREFIX + "role_domain");
+        }
+
+        @Override
+        public void build(RoleDomainParams params, StepBuildContext context) {
+            if (params.domain() == null) {
+                return;
+            }
+            SceneBuilder scene = context.builder();
+            if (params.scale() != null) {
+                // 领域比普通教程房间大，需要时可以用 scale 把取景框拉远（作用于整个场景）。
+                scene.scaleSceneView(params.scale());
+            }
+            BlockPos center = BlockPos.containing(params.pos().x, params.pos().y, params.pos().z);
+            params.domain().build(scene, context.util(), center);
         }
     }
 

@@ -72,6 +72,9 @@ does not have member field 'int field_22790'
 - 文本位置必须错开：同一段里不同文案用不同的 `point`，高度也要错开，否则会叠在一起。
 - 凡是对该职业玩家本身的描述（阵营、身份、状态、能力归属等），`text.point` 必须落在该段落的玩家模型坐标附近（含合适高度），让箭头/文字指向玩家；不能指向桌子、方块或空白区域。介绍道具或方块时再把 `point` 放到对应物体上。
 - 动画感来自 `idle` 停顿、`rotate_camera_y` 镜头转动、`indicate_success` / `indicate_redstone` 指示块。
+- **同一段落的多条 `text` 必须用 `idle` 错开**：`text` 的 `duration` 只是显示存活时间，不推进时间轴，
+  紧随其后的 `idle` 必须 ≥ 上一条的 `duration`（再多留 10 tick），否则文字会重叠成一片。
+  自检方法与踩坑实例见 `docs/PONDERER_SCENE_AUTHORING.md` 第 3 节。
 - 只要介绍或源码里涉及物品释放、技能释放、物品使用等会产生粒子特效的，演示中也必须补上对应的粒子特效，
   用 Ponderer 的 `spawn_particles` 步骤实现。优先使用游戏内真实粒子 id：下毒是 `wathe:poison`、
   护盾试剂入盘是 `minecraft:effect`；其它粒子先查对应物品/技能/方块实体源码，不要自行编造。
@@ -275,8 +278,14 @@ gradlew compileJava --offline
 | `heldItem` | string | 模型右手持有的物品 id，用于演示换武器/狂暴形态 |
 
 边框颜色与游戏内本能透视同源：`InstinctManager` 的返回值即此处应填的颜色。
-边框按玩家模型本身渲染（同一套顶点改写成纯色叠加层，沿法线外扩一圈），
-不是包住整个人的单个矩形盒子。
+边框按玩家模型本身渲染：同一套顶点沿法线外扩一圈、剔除正面只画背面，
+内圈被模型本体挡掉，所以屏幕上只有一圈描边，不会把模型表面涂成纯色，
+也不是包住整个人的单个矩形盒子。
+
+手持物品走原版 `ItemInHandLayer`：物品挂在模型主手槽（`setItemSlot`），
+手臂姿势与握持变换都由原版决定，不要用 `ItemRenderer#renderStatic` 自己摆位置。
+手持物品本身不参与描边：物品模型多是薄片/小盒，按背面壳外扩只会变成一块色块，
+所以描边那一遍会临时摘掉主手物品。
 
 注意不能照抄原版的发光轮廓：`OutlineBufferSource` 产出的 `RenderType.outline(...)`
 输出目标是 `LevelRenderer.entityTarget()`，只有世界渲染末尾的
@@ -384,10 +393,14 @@ InvalidInjectionException: non-static callback method ... targets a static metho
 本能透视边框必须使用 `InstinctManager` 的真实返回值：
 
 - `InstinctType.OBSERVER_ROLE_COLOR` 取**观察者自己的职业颜色**，例如小丑看别人是
-  `new Color(186,85,211).getRGB()`（`-4562477`），不是固定的粉/红；
+  `new Color(186,85,211).getRGB()`（`0xFFBA55D3`，有符号十进制 `-4565549`），不是固定的粉/红；
+- 小丑（`ModRoles.JESTER`）的直觉类型就是 `OBSERVER_ROLE_COLOR`（`setToggledOnInstinctType`），
+  并且 `setCanSeeTeammateKillerRole(false)`：**看所有人都是小丑自己的颜色，分不出队友/杀手/中立**。
+  所以小丑教程里所有其它玩家模型都用同一个 `-4565549`，不要照搬杀手那套"杀手红、其它中立橙"；
 - `InstinctType.TARGET_ROLE_COLOR` 取目标职业颜色；`CUSTOM` 取其固定颜色；
 - 杀手默认直觉见 `InstinctManager#getDefaultKillerAliveInstinct`：杀手红、杀手方中立橙、
   平民蓝、小丑粉色、疫使深绿、肉汁 4 格内深蓝等，均按源码数值填写。
+  注意这套配色是**杀手视角**的，不要套用到其它阵营的观察者。
 - 酒保的护盾蓝、护盾+毒黄绿、中毒红、喝饮料绿沿用现有场景数值。
 
 ### 工具
@@ -406,3 +419,44 @@ InvalidInjectionException: non-static callback method ... targets a static metho
 新增单个职业教程时：在 `content/role_tutorials.json` 的 `scenes` 追加一份场景路径，
 场景 `id` 使用 `starrailexpress:role_tutorial.<职业 path>`（与
 `RolePonderTutorial.SCENE_PREFIX` 一致），文案只引用 `role_modifier_intro` 的原文。
+
+## 16. 领域场景适配（2026-11-20）
+
+### `starrailexpress:role_domain`
+
+职业的介绍里出现「领域技」时，用这一步把教程场景切换成对应领域。
+领域等级与服务端 `ModEffects.DOMAIN_MARK` 的 amplifier 一一对应（见 `ModEffects` 注释），
+一个领域只占一个等级，0~5 已全部分配。
+
+| `domain` | 等级 | 场景 | 服务端原实现 |
+| --- | --- | --- | --- |
+| `fool_meeting` | 0 | 愚者开会：灰白大厅、柱廊、青铜长桌、王座高台 | `TarotAssemblySceneBuilder` |
+| `warlock_ash_marrow` | 1 | 灰髓之境：圆形凝灰岩祭场、灰玻璃雾墙、黑石祭坛、垂链 | `WarlockDomainSceneBuilder` |
+| `adventurer_travelogue` | 2 | 格罗赛尔游记：旅途营地（营火、帐篷、补给、路灯） | 配置坐标处的现成地图，无场景构建器 |
+| `pooler_moon` | 3 | 吞月：苍白月面、陨石坑、玻璃边墙、月白柱 | `PoolerDomainSceneBuilder#buildMoon` |
+| `pooler_aquarium` | 4 | 水中镜：玻璃水缸、珊瑚海草、中央气泡柱 | `PoolerDomainSceneBuilder#buildAquarium` |
+| `devil_black_room` | 5 | 秘密黑室：黑混凝土密室、深板岩地砖、中央赌桌 | `RouletteDevilRoom#build` |
+
+字段：
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `domain` | string | 必填，上表的 id；也接受 `starrailexpress:pooler_moon` / `POOLER_MOON` 写法 |
+| `pos` | `[x,y,z]` 或 `"x,y,z"` | 领域地面的中心，默认 `[0,0,0]`，与房间同一坐标系 |
+| `scale` | number | 可选，`scaleSceneView` 的取景缩放，**作用于整个场景**，只在整段都以领域为主时使用 |
+
+要点：
+
+- 服务端的领域场景全部是 `level.setBlock` 现搭，客户端没有 `ServerLevel`，
+  所以由 `io.wifi.starrailexpress.client.ponder.PonderDomainScenes` 按同样的配色与结构
+  重建一份缩小版（半径 5~8 格，能放进思索取景框）。
+- 每个领域场景开头都会把以 `pos` 为中心的一大块区域清成空气，
+  所以「切场景」不需要另写清场步骤：直接在建好的教程房间后面接 `role_domain` 即可，
+  原来的房间会被领域场景覆盖掉。
+- 领域里如果有玩家模型，继续用 `role_player`（`pos` 按领域坐标重写），
+  它的本能透视边框照常生效。
+- 目前只做了适配与六个领域场景，**具体职业的领域技段落尚未编写**。
+  新增领域时：先给 `ModEffects.DOMAIN_MARK` 分配不小于 6 的新等级，
+  再在 `PonderDomains` 加枚举项、在 `PonderDomainScenes` 加同名分支。
+- 冒险家游记在原项目里是配置坐标处的一张现成地图，没有构建器，
+  这里的「旅途营地」是按领域语义重建的代表性场景，后续如需更贴近原图可继续补充。

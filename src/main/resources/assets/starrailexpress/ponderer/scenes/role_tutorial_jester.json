@@ -61,7 +61,7 @@
         },
         {
           "type": "idle",
-          "duration": 30
+          "duration": 80
         },
         {
           "type": "text",
@@ -236,8 +236,8 @@
               2.5
             ],
             "yaw": 0.0,
-            "outline": -65536,
-            "linkId": "killer",
+            "outline": -4565549,
+            "linkId": "other_a",
             "skin": "minecraft:textures/entity/player/wide/steve.png"
           }
         },
@@ -251,8 +251,8 @@
               2.5
             ],
             "yaw": 0.0,
-            "outline": -26368,
-            "linkId": "neutral",
+            "outline": -4565549,
+            "linkId": "other_b",
             "skin": "minecraft:textures/entity/player/wide/steve.png"
           }
         },
@@ -264,9 +264,9 @@
           "type": "text",
           "duration": 90,
           "text": {
-            "en_us": "Jester see-through marks killers in red and other neutrals in orange",
-            "zh_cn": "小丑透视把杀手标为红色、其他中立标为橙色",
-            "zh_tw": "小丑透視把殺手標為紅色、其他中立標為橙色"
+            "en_us": "Jester see-through outlines everyone in the Jester's own color, so teammates and enemies look identical",
+            "zh_cn": "小丑透视把所有人的边框都标成小丑自己的颜色，且分辨不出队友",
+            "zh_tw": "小丑透視把所有人的邊框都標成小丑自己的顏色，且分辨不出隊友"
           },
           "point": [
             3.0,
@@ -403,7 +403,6 @@
             "yaw": 200.0,
             "skin": "starrailexpress:textures/entity/custom_psycho/jester.png",
             "heldItem": "trainmurdermystery:bat",
-            "outline": -65536,
             "linkId": "jester_rampage"
           }
         },

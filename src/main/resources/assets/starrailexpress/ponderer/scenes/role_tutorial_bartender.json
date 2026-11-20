@@ -351,7 +351,7 @@
         },
         {
           "type": "idle",
-          "duration": 40
+          "duration": 100
         },
         {
           "type": "text",
@@ -507,7 +507,7 @@
         },
         {
           "type": "idle",
-          "duration": 60
+          "duration": 110
         },
         {
           "type": "text",
@@ -527,7 +527,7 @@
         },
         {
           "type": "idle",
-          "duration": 50
+          "duration": 90
         },
         {
           "type": "text",
@@ -547,7 +547,7 @@
         },
         {
           "type": "idle",
-          "duration": 40
+          "duration": 80
         },
         {
           "type": "rotate_camera_y",

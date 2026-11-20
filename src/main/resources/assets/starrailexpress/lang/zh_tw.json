@@ -1,6 +1,13 @@
 {
   "gui.starrailexpress.shop.role_shop": "職業商店",
   "ponder.starrailexpress.step.role_player": "職業玩家模型",
+  "ponder.starrailexpress.step.role_domain": "領域場景",
+  "ponder.starrailexpress.domain.fool_meeting": "愚者開會 · 塔羅會大廳",
+  "ponder.starrailexpress.domain.warlock_ash_marrow": "灰髓之境",
+  "ponder.starrailexpress.domain.adventurer_travelogue": "格羅賽爾遊記",
+  "ponder.starrailexpress.domain.pooler_moon": "吞月",
+  "ponder.starrailexpress.domain.pooler_aquarium": "水中鏡",
+  "ponder.starrailexpress.domain.devil_black_room": "秘密黑室",
   "ponder.starrailexpress.step.role_shop": "職業商店",
   "ponder.starrailexpress.step.role_mood": "心情值",
   "ponder.starrailexpress.step.role_skill": "技能",
