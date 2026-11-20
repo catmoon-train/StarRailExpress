@@ -22,6 +22,7 @@ import net.createmod.ponder.foundation.element.ElementLinkImpl;
 import net.createmod.ponder.foundation.instruction.FadeOutOfSceneInstruction;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,6 +69,8 @@ public final class PonderPlayerPreset {
         private GameProfile profile;
         @Nullable
         private ResourceLocation skin;
+        @Nullable
+        private ItemStack heldItem;
         private int outlineColor = NO_OUTLINE;
         private float outlineLineWidth = 1.0F;
         private float outlineExpand = 0.12F;
@@ -102,6 +105,12 @@ public final class PonderPlayerPreset {
             return this;
         }
 
+        /** 让模型右手持有指定物品，用于演示换武器 / 狂暴形态。 */
+        public Builder heldItem(@Nullable ItemStack heldItem) {
+            this.heldItem = heldItem;
+            return this;
+        }
+
         /** 本能透视边框颜色；传 {@link #NO_OUTLINE} 表示不画边框。 */
         public Builder outline(int argb) {
             this.outlineColor = argb;
@@ -125,6 +134,7 @@ public final class PonderPlayerPreset {
             PonderPlayerElement element = new PonderPlayerElement(location)
                     .profile(profile)
                     .skin(skin)
+                    .heldItem(heldItem)
                     .outline(outlineColor, outlineLineWidth, outlineExpand)
                     .facing(bodyYaw, headYaw, pitch);
             ElementLink<PonderPlayerElement> link = new ElementLinkImpl<>(PonderPlayerElement.class);

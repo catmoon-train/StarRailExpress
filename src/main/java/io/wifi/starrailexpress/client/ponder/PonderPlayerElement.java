@@ -24,9 +24,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -55,6 +59,8 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
 
     @Nullable
     private ResourceLocation skin;
+    @Nullable
+    private ItemStack heldItem;
     private int outlineColor = PonderPlayerPreset.NO_OUTLINE;
     private float outlineLineWidth = 1.0F;
     private float outlineExpand = 0.12F;
@@ -76,6 +82,12 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
     public PonderPlayerElement skin(@Nullable ResourceLocation skin) {
         this.skin = skin;
         registerSkinOverride();
+        return this;
+    }
+
+    /** 设置模型右手持有的物品；{@code null} 表示空手。 */
+    public PonderPlayerElement heldItem(@Nullable ItemStack heldItem) {
+        this.heldItem = heldItem == null || heldItem.isEmpty() ? null : heldItem.copy();
         return this;
     }
 
@@ -201,8 +213,14 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
                 Mth.lerp(pt, puppet.yo, puppet.getY()),
                 Mth.lerp(pt, puppet.zo, puppet.getZ()));
 
+        int light = lightCoordsFromFade(fade);
         EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
-        dispatcher.render(puppet, 0, 0, 0, 0, pt, poseStack, buffer, lightCoordsFromFade(fade));
+        dispatcher.render(puppet, 0, 0, 0, 0, pt, poseStack, buffer, light);
+        if (heldItem != null) {
+            ItemRenderer renderer = Minecraft.getInstance().getItemRenderer();
+            renderer.renderStatic(puppet, heldItem, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND,
+                    false, poseStack, buffer, world, light, OverlayTexture.NO_OVERLAY, 0);
+        }
         poseStack.popPose();
 
         renderOutline(fade, pt);

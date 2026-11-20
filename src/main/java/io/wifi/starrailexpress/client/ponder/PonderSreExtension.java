@@ -122,7 +122,7 @@ public final class PonderSreExtension {
 
     /** {@code role_player} 的参数。 */
     record RolePlayerParams(Vec3 pos, Float yaw, ResourceLocation skin, Integer outline,
-                            String linkId, Float lineWidth, Float expand) {
+                            String linkId, Float lineWidth, Float expand, String heldItem) {
     }
 
     /** 玩家模型步骤：可选皮肤与本能透视边框。 */
@@ -139,7 +139,8 @@ public final class PonderSreExtension {
                             readInt(data, "outline"),
                             readString(data, "linkId"),
                             readFloat(data, "lineWidth"),
-                            readFloat(data, "expand"));
+                            readFloat(data, "expand"),
+                            readString(data, "heldItem"));
                 }
 
                 @Override
@@ -164,6 +165,9 @@ public final class PonderSreExtension {
                     }
                     if (value.expand() != null) {
                         data.addProperty("expand", value.expand());
+                    }
+                    if (value.heldItem() != null) {
+                        data.addProperty("heldItem", value.heldItem());
                     }
                     return data;
                 }
@@ -193,6 +197,12 @@ public final class PonderSreExtension {
             }
             if (params.expand() != null) {
                 builder.outlineExpand(params.expand());
+            }
+            if (params.heldItem() != null) {
+                ResourceLocation itemId = ResourceLocation.tryParse(params.heldItem());
+                if (itemId != null) {
+                    builder.heldItem(new ItemStack(BuiltInRegistries.ITEM.get(itemId)));
+                }
             }
             ElementLink<PonderPlayerElement> link = builder.addTo(scene);
             String linkId = params.linkId();
@@ -258,9 +268,11 @@ public final class PonderSreExtension {
                 return;
             }
             int columns = params.columns() == null ? 4 : params.columns();
-            List<PonderShopOverlayElement.Entry> entries = PonderShopEntries.build(role);
+            List<PonderShopOverlayElement.Entry> entries = params.items().isEmpty()
+                    ? PonderShopEntries.build(role)
+                    : buildFallbackEntries(params.items());
             if (entries.isEmpty()) {
-                entries = buildFallbackEntries(params.items());
+                entries = PonderShopEntries.build(role);
             }
             if (!entries.isEmpty()) {
                 new PonderShopOverlayElement(entries,

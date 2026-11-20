@@ -69,6 +69,7 @@ does not have member field 'int field_22790'
 - 一个段落只放一个玩家模型；只有需要演示“被击杀”时才加尸体实体。
 - 物品要直观：关键物品用 `create_item_entity` 摆出来（`motion` 必须写 `[0,0,0]`，否则物品会飞走），再用 `show_controls` 带 `item` 显示物品图标与操作提示。
 - 文本位置必须错开：同一段里不同文案用不同的 `point`，高度也要错开，否则会叠在一起。
+- 凡是对该职业玩家本身的描述（阵营、身份、状态、能力归属等），`text.point` 必须落在该段落的玩家模型坐标附近（含合适高度），让箭头/文字指向玩家；不能指向桌子、方块或空白区域。介绍道具或方块时再把 `point` 放到对应物体上。
 - 动画感来自 `idle` 停顿、`rotate_camera_y` 镜头转动、`indicate_success` / `indicate_redstone` 指示块。
 - 只要介绍或源码里涉及物品释放、技能释放、物品使用等会产生粒子特效的，演示中也必须补上对应的粒子特效，
   用 Ponderer 的 `spawn_particles` 步骤实现。优先使用游戏内真实粒子 id：下毒是 `wathe:poison`、
@@ -265,13 +266,16 @@ gradlew compileJava --offline
 | `lineWidth` | number | 边框线宽，默认 1.0 |
 | `expand` | number | 边框相对碰撞箱外扩，默认 0.12 |
 | `linkId` | string | 存入步骤 `state`，供后续步骤引用 |
+| `heldItem` | string | 模型右手持有的物品 id，用于演示换武器/狂暴形态 |
 
 边框颜色与游戏内本能透视同源：`InstinctManager` 的返回值即此处应填的颜色。
 常用值：杀手 `-65536`（红）、中立 `-26368`（橙）、护盾蓝 `-16776961`、
 护盾+毒黄绿 `-10189185`、中毒红 `-65536`、喝饮料绿 `-16711936`。
 
 皮肤覆盖由 `PonderSkinAccess` 登记，并在 `PlayerEntityRendererMixin#getTextureLocation`
-最前面返回，因此优先于职业皮肤与疯魔皮肤逻辑。小丑狂暴示例：
+最前面返回，因此优先于职业皮肤与疯魔皮肤逻辑。登记表按**玩家模型对象身份**判等，
+不能按 UUID/GameProfile 判等：不同段落的模型共用观看者身份，按 UUID 会让后一段的皮肤覆盖前一段，
+表现就是狂暴皮肤切不过去。小丑狂暴示例：
 
 ```json
 {"type": "starrailexpress:role_player", "pos": [2.2, 1.0, 3.0], "yaw": 200.0,
@@ -299,7 +303,8 @@ gradlew compileJava --offline
    介绍页构造函数里也有这段保护，缺了它商店条目表就是空的。
 2. 用 `ShopContent.getShopEntries(roleId, null)` 读取，传 `null` 表示不按当前对局状态过滤；
    传 `Minecraft.getInstance().player` 会让依赖对局状态的修改器过滤掉条目。
-`PonderShopEntries` 已按此实现；`items` 兜底只在动态数据仍为空时生效，不是主要数据源。
+`PonderShopEntries` 已按此实现。若场景显式写了 `items`，则以它为准（保证离屏演示稳定），
+动态数据只在没写 `items` 时使用。
 
 ## 14. 已知上游问题修复：编辑器 mixin 注入失败
 

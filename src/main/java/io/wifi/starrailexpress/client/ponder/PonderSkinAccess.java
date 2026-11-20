@@ -3,14 +3,6 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package io.wifi.starrailexpress.client.ponder;
@@ -19,25 +11,54 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.WeakHashMap;
 
 /**
  * 思索玩家模型的皮肤覆盖登记表。
  *
- * <p>PondererLib 创建的玩家模型是普通 {@code RemotePlayer}，皮肤由
- * {@code PlayerRenderer#getTextureLocation} 决定。本项目的
- * {@code PlayerEntityRendererMixin} 会在这个方法里优先返回职业皮肤/疯魔皮肤，
- * 因此皮肤覆盖必须在它之前生效——由 {@link PonderSkinAccessMixin} 在
- * {@code getTextureLocation} 头部查询本表完成。
- *
- * <p>用弱引用键保存，玩家模型被场景回收后登记自动失效，不会泄漏。
+ * <p>必须用对象身份判等：不同段落里的玩家模型共用观看者的 GameProfile（UUID 相同），
+ * 用普通 {@code WeakHashMap} 会让后一个模型覆盖前一个模型的皮肤，导致狂暴皮肤串成默认皮肤。
+ * 这里用带引用队列的弱身份键，模型被回收后登记自动失效。
  */
 public final class PonderSkinAccess {
 
-    private static final Map<AbstractClientPlayer, ResourceLocation> OVERRIDES = new WeakHashMap<>();
+    private static final ReferenceQueue<AbstractClientPlayer> QUEUE = new ReferenceQueue<>();
+    private static final Map<IdentityKey, ResourceLocation> OVERRIDES = new HashMap<>();
 
     private PonderSkinAccess() {
+    }
+
+    private static final class IdentityKey extends WeakReference<AbstractClientPlayer> {
+        private final int hash;
+
+        IdentityKey(AbstractClientPlayer player) {
+            super(player, QUEUE);
+            this.hash = System.identityHashCode(player);
+        }
+
+        @Override
+        public int hashCode() {
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) return true;
+            if (!(other instanceof IdentityKey key)) return false;
+            AbstractClientPlayer self = get();
+            return self != null && self == key.get();
+        }
+    }
+
+    private static void drain() {
+        Reference<? extends AbstractClientPlayer> cleared;
+        while ((cleared = QUEUE.poll()) != null) {
+            OVERRIDES.remove(cleared);
+        }
     }
 
     /** 为指定玩家模型登记皮肤覆盖。 */
@@ -46,7 +67,8 @@ public final class PonderSkinAccess {
             return;
         }
         synchronized (OVERRIDES) {
-            OVERRIDES.put(player, texture);
+            drain();
+            OVERRIDES.put(new IdentityKey(player), texture);
         }
     }
 
@@ -57,7 +79,8 @@ public final class PonderSkinAccess {
             return null;
         }
         synchronized (OVERRIDES) {
-            return OVERRIDES.get(player);
+            drain();
+            return OVERRIDES.get(new IdentityKey(player));
         }
     }
 
