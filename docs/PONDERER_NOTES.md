@@ -251,7 +251,12 @@ gradlew compileJava --offline
 `assets/starrailexpress/ponderer/content/role_tutorials.json` 的 `extensions`
 声明了 `starrailexpress:role_tutorial`，对应
 `io.wifi.starrailexpress.client.ponder.PonderSreExtension`。
-扩展由 `PonderSreRegistration.register()` 在客户端初始化时注册，因此场景可以直接使用：
+扩展由 `PonderSreRegistration.register()` 在客户端初始化时注册，因此场景可以直接使用。
+
+**自定义步骤的参数必须写在 `parameters` 子对象里**。PondererLib 的 `SceneStepExecutor`
+只把 `DslStep.parameters` 交给 `StepCodec.decode`；写在步骤顶层的字段会进入 `extensionData`，
+运行时全部读不到，表现为玩家位置/皮肤/边框/商店都变成默认值（所有玩家叠在 `[3,1,3]`、
+商店为空）。`tools/wrap_ponder_custom_step_params.py` 可以批量修正已有场景。
 
 ### `starrailexpress:role_player`
 
@@ -278,9 +283,11 @@ gradlew compileJava --offline
 表现就是狂暴皮肤切不过去。小丑狂暴示例：
 
 ```json
-{"type": "starrailexpress:role_player", "pos": [2.2, 1.0, 3.0], "yaw": 200.0,
+{"type": "starrailexpress:role_player", "parameters": {
+ "pos": [2.2, 1.0, 3.0], "yaw": 200.0,
  "skin": "starrailexpress:textures/entity/custom_psycho/jester.png",
- "outline": -65536, "linkId": "jester_rampage"}
+ "heldItem": "trainmurdermystery:bat",
+ "outline": -65536, "linkId": "jester_rampage"}}
 ```
 
 ### `starrailexpress:role_shop`
@@ -350,12 +357,12 @@ InvalidInjectionException: non-static callback method ... targets a static metho
 示例（护士的虚拟血量 + 护盾、滞时鬼的回溯进度、信使的信件界面）：
 
 ```json
-{"type": "starrailexpress:role_vitals", "bars": [
+{"type": "starrailexpress:role_vitals", "parameters": {"bars": [
   {"label": "虚拟血量", "before": 0.45, "after": 1.0, "color": -65536},
   {"label": "虚拟护盾", "before": 0.0, "after": 1.0, "color": -16776961}
-]}
-{"type": "starrailexpress:role_timer", "progress": [0.0, 1.0], "lines": ["锚定 20 秒后回溯"]}
-{"type": "starrailexpress:role_panel", "title": "信件", "lines": ["收件人：……", "附带效果：San 恢复"]}
+]}}
+{"type": "starrailexpress:role_timer", "parameters": {"progress": [0.0, 1.0], "lines": ["锚定 20 秒后回溯"]}}
+{"type": "starrailexpress:role_panel", "parameters": {"title": "信件", "lines": ["收件人：……", "附带效果：San 恢复"]}}
 ```
 
 `lines` 里的文字必须来自职业介绍原文或源码里实际显示的内容，不要自行编写旁白。
