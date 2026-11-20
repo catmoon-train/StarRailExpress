@@ -39,7 +39,28 @@
   - `build.gradle` 用 `modImplementation files(...)` 加载 `libs/pondererlib-*.jar` 与 `libs/ponderer-*.jar`，不使用 `include`，不把前置打进本模组 JAR
   - 业务代码仍不直接引用 Ponderer 类，避免编译期硬依赖
 
-## 3. 场景表现规范
+## 3. 已知上游问题：Ponderer 编辑器在 1.21.1 会崩
+
+Ponderer 1.12.0 的 `PonderEditorMixin` 仍在使用旧版 Minecraft 的 intermediary 字段名
+（`field_22789` / `field_22790`，对应旧版 `Screen.width` / `Screen.height`）。
+1.21.1 里这两个字段的 intermediary 名已经是 `field_19690` / `field_19691`，
+于是打开 PonderUI 渲染悬停提示时会抛：
+
+```text
+java.lang.NoSuchFieldError: Class net.createmod.ponder.foundation.ui.PonderUI
+does not have member field 'int field_22790'
+```
+
+本项目的处理方式（Fabric 1.21.1）：
+
+- `io.wifi.starrailexpress.mixin.client.ponder.PonderCompat` 检测运行时是否缺少这两个字段。
+- `PonderEditorModuleMixin` 在检测到缺失时让 `EditorModule.isInstalled()` 返回 false，
+  关闭 Ponderer 的场景编辑器模块，播放场景与投影仪等功能不受影响。
+- mixin 配置：`sre_ponder.mixins.json`（`required: false`，目标缺失时自动跳过）。
+
+上游修复后（字段名对得上），这段兼容逻辑会自动失效，编辑器会恢复可用。
+
+## 4. 场景表现规范
 
 - 一个段落只讲一个功能，段落 id 用功能名（如 `faction` / `tools` / `rampage` / `door`），这样 Ponder 界面里能按功能分段浏览。
 - 一个段落只放一个玩家模型；只有需要演示“被击杀”时才加尸体实体。
@@ -48,7 +69,7 @@
 - 动画感来自 `idle` 停顿、`rotate_camera_y` 镜头转动、`indicate_success` / `indicate_redstone` 指示块。
 - 房间结构用 `tools/generate_ponder_structures.py` 生成，尺寸 7x4x7、顶部敞开，便于相机俯视。
 
-## 4. 动态占位符
+## 5. 动态占位符
 
 `RolePonderTutorial.buildVariables(SRERole)` 提供：
 
@@ -66,7 +87,7 @@
 标题必须写成三语全是 `{role_name}`，不得写“小丑 · 俺寻思”之类附加文字。职业名称只能取自 `src/main/resources/assets/role_name_goals/lang` 的 `announcement.star.role.<id>`，不得根据常识或简称自行命名。
 教程中所有面向玩家的描述只能逐句引用 `assets/role_modifier_intro/lang/{zh_cn,en_us,zh_tw}.json` 中 `info.screen.roleid.<id>` 的原文，不得自行改写、补充或删减。代码探索结果用于决定场景中的物品、实体、方块、玩家模型与手持物，不写成额外旁白。
 
-## 5. 胜利目标对照
+## 6. 胜利目标对照
 
 第一幕必须先写清楚该职业的胜利目标；后续机制、道具、商店都不能替代这句话。
 
@@ -83,7 +104,7 @@
 
 禁止用“当某条件触发时，真正的胜利目标才开始”之类表述暗示目标尚未生效；中立职业从开局起就按其阵营归属参与胜利判定。
 
-## 6. 场景模板约定
+## 7. 场景模板约定
 
 ```json
 {
@@ -110,7 +131,7 @@
 
 `ResourceSceneContents` 要求 `tags` 和 `customTags` 字段存在且非 null；不需要标签时也必须写 `"tags": []`、`"customTags": {}`，否则整个场景会被判定为 `Incomplete scene document` 并跳过。
 
-## 7. 玩家模型与尸体
+## 8. 玩家模型与尸体
 
 - 当前 JSON 方案的玩家模型：`entity: "minecraft:player"`。
   - 使用当前观看者的玩家模型。
@@ -123,7 +144,7 @@
 - 疯狂模式默认手持球棒 `trainmurdermystery:bat`；刽子手例外拿 `trainmurdermystery:revolver`，潜行者例外拿 `trainmurdermystery:knife`，dream 例外拿 `noellesroles:dream_axe`。演示时要把对应武器放进玩家模型的主手。
 - 尸体实体：`trainmurdermystery:player_body`，可用于 `create_entity`；用 `CustomName` 标明死者身份。
 
-## 8. 方块与物品映射
+## 9. 方块与物品映射
 
 - 场景结构只用本模组方块。具体使用哪些方块必须由职业介绍和代码决定，不要限定为少数示例。
 - 门：只有明确说明是《我的世界》原版门时，场景才使用原版门；否则一律使用本模组门。搭建普通场景时用本模组玻璃门 `trainmurdermystery:small_glass_door`；只有搭建玩家出生房间且文案明确是房间门时，才用 `trainmurdermystery:small_wood_door`，出生房间还必须包含本模组的床 `trainmurdermystery:white_trimmed_bed`。
@@ -138,7 +159,7 @@
   - 护盾蓝轮廓，护盾 + 毒黄绿轮廓，中毒红轮廓，喝饮料绿轮廓
   - 试剂放在食物盘/饮料盘上，用本模组方块演示
 
-## 9. 结构 NBT 最小格式
+## 10. 结构 NBT 最小格式
 
 Ponderer 读取的是 gzip 压缩的 StructureTemplate NBT：
 
@@ -180,7 +201,7 @@ python tools/verify_ponder_structures.py
 
 生成脚本负责写出结构 NBT，校验脚本负责完整解析并检查 palette 里没有原版方块。
 
-## 10. 验证清单
+## 11. 验证清单
 
 ```bat
 python -c "import json,glob; [json.load(open(f,encoding='utf-8-sig')) for f in glob.glob('src/main/resources/assets/starrailexpress/ponderer/**/*.json', recursive=True)]"
@@ -197,7 +218,7 @@ gradlew compileJava --offline
 - 场景没有原版方块搭房；门、铁门、房间门都用本模组门。
 - 启动客户端后检查 `run/logs/latest.log`，必须出现 `loaded N scenes`（N 大于 0），且没有 `scene ... unavailable` 报错。
 
-## 11. 现有示例
+## 12. 现有示例
 
 - `src/main/resources/assets/starrailexpress/ponderer/scenes/role_tutorial_jester.json`
 - `src/main/resources/assets/starrailexpress/ponderer/scenes/role_tutorial_bartender.json`

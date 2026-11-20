@@ -1,0 +1,12 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "io.wifi.starrailexpress.mixin.client.ponder",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "PonderEditorModuleMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}
