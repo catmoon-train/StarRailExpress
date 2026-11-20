@@ -1,5 +1,7 @@
 # Ponderer 职业教程接入细则
 
+职业的思索（教程）本质上是对职业介绍的一种演绎，要把职业介绍演绎出来。
+
 ## 1. 必读来源
 
 - Ponderer 源码仓库 `docs/PONDERER_LIB.md`
@@ -46,6 +48,7 @@
 
 注入范围：`DslScene.title`、每个段落 `title`、每个步骤的 `text`、`hint`、`nbt`。
 标题必须写成三语全是 `{role_name}`，不得写“小丑 · 俺寻思”之类附加文字。职业名称只能取自 `src/main/resources/assets/role_name_goals/lang` 的 `announcement.star.role.<id>`，不得根据常识或简称自行命名。
+教程中所有面向玩家的描述只能逐句引用 `assets/role_modifier_intro/lang/{zh_cn,en_us,zh_tw}.json` 中 `info.screen.roleid.<id>` 的原文，不得自行改写、补充或删减。代码探索结果用于决定场景中的物品、实体、方块、玩家模型与手持物，不写成额外旁白。
 
 ## 4. 胜利目标对照
 
@@ -103,7 +106,8 @@
 - 精确皮肤限制：
   - JSON 步骤没有暴露 `GameProfile` 或直接指定本地皮肤材质的字段。
   - 要真正给玩家模型换上狂暴皮肤，必须用 Java + Lib 自定义步骤调用 `PonderPlayerSupport.addPlayer(sceneBuilder, vec3)` 并配置 `PonderPlayerElement.profile(...)`。
-  - 在纯 JSON 方案中，至少把真实皮肤资源路径写进文本，并把对应玩家模型命名为“职业名（狂暴）”。
+  - 面向玩家的教程文本禁止出现资源路径、内部 id、NBT 等技术内容；真实皮肤资源路径只记录在 Agent / 文档中，用于开发者实现，不写进教程文案。玩家模型可以命名为“职业名（狂暴）”。
+- 疯狂模式默认手持球棒 `trainmurdermystery:bat`；刽子手例外拿 `trainmurdermystery:revolver`，潜行者例外拿 `trainmurdermystery:knife`，dream 例外拿 `noellesroles:dream_axe`。演示时要把对应武器放进玩家模型的主手。
 - 尸体实体：`trainmurdermystery:player_body`，可用于 `create_entity`；用 `CustomName` 标明死者身份。
 
 ## 7. 方块与物品映射
