@@ -79,17 +79,12 @@
   "items": ["真实存在的物品 id"],
   "title": {"en_us": "{role_name}", "zh_cn": "{role_name}", "zh_tw": "{role_name}"},
   "structures": ["starrailexpress:<structure_name>"],
-  "tags": ["starrailexpress:role_tutorial"],
-  "customTags": {
-    "starrailexpress:role_tutorial": {
-      "title": {"en_us": "Role Ponders", "zh_cn": "职业动态教程", "zh_tw": "職業動態教程"},
-      "icon": "真实存在的物品 id"
-    }
-  },
+  "tags": [],
+  "customTags": {},
   "scenes": [
     {
       "id": "role",
-      "title": {"en_us": "...", "zh_cn": "...", "zh_tw": "..."},
+      "title": {"en_us": "{role_name}", "zh_cn": "{role_name}", "zh_tw": "{role_name}"},
       "steps": [
         {"type": "show_structure", "structure": "starrailexpress:<structure_name>"},
         {"type": "create_entity", "entity": "minecraft:player", "pos": [2,1,2], "nbt": "{CustomName:'{role_name}',CustomNameVisible:1b}"},
@@ -99,6 +94,8 @@
   ]
 }
 ```
+
+`ResourceSceneContents` 要求 `tags` 和 `customTags` 字段存在且非 null；不需要标签时也必须写 `"tags": []`、`"customTags": {}`，否则整个场景会被判定为 `Incomplete scene document` 并跳过。
 
 ## 6. 玩家模型与尸体
 
@@ -146,6 +143,30 @@ root:
 
 生成后检查：解压后的字节中不应出现 `minecraft:` 方块 id。
 
+手写 NBT 时最容易踩的坑：`TAG_List` 里的每个元素**只能写负载**，不能带类型字节和名字。手写生成器应区分两种写法：
+
+```text
+compound（作为根或具名标签时）：类型字节 0x0A + 名字 + 子标签 + 0x00
+compound（作为 TAG_List 元素时）：只有 子标签 + 0x00
+```
+
+写错时文件仍然能生成，但 Minecraft 读 NBT 会越界，日志里表现为：
+
+```text
+Ponderer Lib content ... scene ... unavailable: net.minecraft.nbt.ReportedNbtException: Loading NBT data
+```
+
+整个场景会被跳过，表现为点击“俺寻思”提示没有动态教程。修改结构后必须做一次二进制自检（解压后完整解析，解析消耗字节数应等于文件长度）。
+
+项目已提供工具脚本：
+
+```bat
+python tools/generate_ponder_structures.py
+python tools/verify_ponder_structures.py
+```
+
+生成脚本负责写出结构 NBT，校验脚本负责完整解析并检查 palette 里没有原版方块。
+
 ## 9. 验证清单
 
 ```bat
@@ -161,6 +182,7 @@ gradlew compileJava --offline
 - 涉及疯狂模式时写出具体皮肤路径，最好进一步用 Java 自定义步骤展示皮肤。
 - 涉及尸体时使用 `trainmurdermystery:player_body`。
 - 场景没有原版方块搭房；门、铁门、房间门都用本模组门。
+- 启动客户端后检查 `run/logs/latest.log`，必须出现 `loaded N scenes`（N 大于 0），且没有 `scene ... unavailable` 报错。
 
 ## 10. 现有示例
 

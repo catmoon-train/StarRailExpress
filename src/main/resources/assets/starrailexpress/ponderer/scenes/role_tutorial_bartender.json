@@ -8,6 +8,8 @@
     "zh_tw": "{role_name}"
   },
   "structures": ["starrailexpress:role_tutorial_bartender"],
+  "tags": [],
+  "customTags": {},
   "scenes": [
     {
       "id": "role",

@@ -74,12 +74,22 @@ public final class RolePonderTutorial {
         }
         Class<?> dslClass = Class.forName(DLS_SCENE);
         Field idField = findField(dslClass, "id");
+        List<String> available = new ArrayList<>();
+        Object match = null;
         for (Object scene : scenes) {
-            if (dslClass.isInstance(scene) && wantedId.equals(idField.get(scene))) {
-                return scene;
+            if (!dslClass.isInstance(scene)) {
+                continue;
+            }
+            String id = (String) idField.get(scene);
+            available.add(id);
+            if (wantedId.equals(id) && match == null) {
+                match = scene;
             }
         }
-        return null;
+        if (match == null) {
+            LOGGER.warn("未找到职业思索场景 {}，当前已加载 {} 个场景：{}", wantedId, available.size(), available);
+        }
+        return match;
     }
 
     private static void applyRoleContext(Object scene, SRERole role) throws Exception {
