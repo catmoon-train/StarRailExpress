@@ -293,6 +293,14 @@ gradlew compileJava --offline
 商店界面本身依赖真实 `InventoryMenu` 与服务端同步数据，无法在 Ponder 离屏沙盒里构造，
 因此改为按同一数据源自绘陈列（`PonderShopOverlayElement`，`PonderOverlayElement` 实现）。
 
+动态数据必须和 U 键职业介绍页的 `ShopTab` 用同一种取法：
+
+1. 先检查 `RoleShopHandler.haveRegistered`，为 false 时调用 `RoleShopHandler.shopRegister()`；
+   介绍页构造函数里也有这段保护，缺了它商店条目表就是空的。
+2. 用 `ShopContent.getShopEntries(roleId, null)` 读取，传 `null` 表示不按当前对局状态过滤；
+   传 `Minecraft.getInstance().player` 会让依赖对局状态的修改器过滤掉条目。
+`PonderShopEntries` 已按此实现；`items` 兜底只在动态数据仍为空时生效，不是主要数据源。
+
 ## 14. 已知上游问题修复：编辑器 mixin 注入失败
 
 Ponderer 1.12.0 的 `EditorModule.isInstalled()` 是 **static** 方法。
