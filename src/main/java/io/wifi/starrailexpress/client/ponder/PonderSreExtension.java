@@ -24,8 +24,11 @@ import com.nododiiiii.ponderer.runtime.api.StepCodec;
 import com.nododiiiii.ponderer.runtime.api.StepType;
 import net.createmod.ponder.api.element.ElementLink;
 import net.createmod.ponder.api.scene.SceneBuilder;
+import io.wifi.starrailexpress.util.ShopEntry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -200,8 +203,12 @@ public final class PonderSreExtension {
         }
     }
 
+    /** {@code role_shop} 的静态兜底商品；动态商店数据为空时使用。 */
+    record ShopFallback(String item, int price, String currency) {
+    }
+
     /** {@code role_shop} 的参数。 */
-    record RoleShopParams(ResourceLocation role, Integer columns) {
+    record RoleShopParams(ResourceLocation role, Integer columns, List<ShopFallback> items) {
     }
 
     /** 职业商店步骤：按职业实际商店数据绘制陈列。 */
@@ -213,7 +220,7 @@ public final class PonderSreExtension {
                 public RoleShopParams decode(JsonObject data) {
                     String raw = readString(data, "role");
                     ResourceLocation role = raw == null ? null : ResourceLocation.tryParse(raw);
-                    return new RoleShopParams(role, readInt(data, "columns"));
+                    return new RoleShopParams(role, readInt(data, "columns"), readFallbackItems(data));
                 }
 
                 @Override
@@ -225,6 +232,15 @@ public final class PonderSreExtension {
                     if (value.columns() != null) {
                         data.addProperty("columns", value.columns());
                     }
+                    JsonArray items = new JsonArray();
+                    for (ShopFallback item : value.items()) {
+                        JsonObject entry = new JsonObject();
+                        entry.addProperty("item", item.item());
+                        entry.addProperty("price", item.price());
+                        entry.addProperty("currency", item.currency());
+                        items.add(entry);
+                    }
+                    data.add("items", items);
                     return data;
                 }
             };
@@ -242,10 +258,58 @@ public final class PonderSreExtension {
                 return;
             }
             int columns = params.columns() == null ? 4 : params.columns();
-            PonderShopOverlayElement overlay = PonderShopOverlayElement.forRole(role, columns);
-            if (overlay != null) {
-                overlay.addTo(context.builder());
+            List<PonderShopOverlayElement.Entry> entries = PonderShopEntries.build(role);
+            if (entries.isEmpty()) {
+                entries = buildFallbackEntries(params.items());
             }
+            if (!entries.isEmpty()) {
+                new PonderShopOverlayElement(entries,
+                        Component.translatable("gui.starrailexpress.shop.role_shop"), columns)
+                        .addTo(context.builder());
+            }
+        }
+
+        private static List<PonderShopOverlayElement.Entry> buildFallbackEntries(List<ShopFallback> items) {
+            List<PonderShopOverlayElement.Entry> result = new ArrayList<>();
+            for (ShopFallback item : items) {
+                ResourceLocation id = ResourceLocation.tryParse(item.item());
+                if (id == null) {
+                    continue;
+                }
+                ItemStack stack = new ItemStack(BuiltInRegistries.ITEM.get(id));
+                if (stack.isEmpty()) {
+                    continue;
+                }
+                ShopEntry.Currency currency = ShopEntry.Currency.fromSerializedName(item.currency());
+                if (currency == null) {
+                    currency = ShopEntry.Currency.MONEY;
+                }
+                result.add(new PonderShopOverlayElement.Entry(stack, item.price(),
+                        item.price() + currency.iconText(), currency.color()));
+            }
+            return List.copyOf(result);
+        }
+
+        private static List<ShopFallback> readFallbackItems(JsonObject data) {
+            if (data == null || !data.has("items") || !data.get("items").isJsonArray()) {
+                return List.of();
+            }
+            List<ShopFallback> result = new ArrayList<>();
+            for (JsonElement element : data.getAsJsonArray("items")) {
+                if (!element.isJsonObject()) {
+                    continue;
+                }
+                JsonObject object = element.getAsJsonObject();
+                String item = readString(object, "item");
+                if (item == null || item.isBlank()) {
+                    continue;
+                }
+                Integer price = readInt(object, "price");
+                String currency = readString(object, "currency");
+                result.add(new ShopFallback(item, price == null ? 0 : price,
+                        currency == null ? "money" : currency));
+            }
+            return List.copyOf(result);
         }
     }
 

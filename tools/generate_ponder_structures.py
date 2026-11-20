@@ -144,8 +144,14 @@ def jester():
         "trainmurdermystery:white_hull",
         "trainmurdermystery:navy_steel",
         "trainmurdermystery:marble_tiles",
+        "trainmurdermystery:food_platter",
+        "trainmurdermystery:drink_tray",
     ]
-    blocks = build_back_wall_room(lambda x, z: 2 if (x + z) % 4 == 0 else 0, 1, [])
+    extra = [
+        ([2, 1, 1], 3),  # 食物盘（假毒演示）
+        ([4, 1, 1], 4),  # 饮料盘（假毒演示）
+    ]
+    blocks = build_back_wall_room(lambda x, z: 2 if (x + z) % 4 == 0 else 0, 1, extra)
     write_structure(OUT / "role_tutorial_jester.nbt", [SIZE, 4, SIZE], blocks, palette)
 
 

@@ -54,6 +54,20 @@
       ]
     },
     {
+      "id": "rampage_trigger",
+      "title": {"en_us": "Jester", "zh_cn": "小丑", "zh_tw": "小丑"},
+      "steps": [
+        {"type": "show_structure", "structure": "starrailexpress:role_tutorial_jester", "scale": 1.0, "attachKeyFrame": true},
+        {"type": "starrailexpress:role_player", "pos": [2.0, 1.0, 4.0], "yaw": 0.0, "skin": "minecraft:textures/entity/steve.png", "outline": -13179621, "linkId": "civilian", "attachKeyFrame": true},
+        {"type": "create_item_entity", "pos": [2.2, 1.4, 3.4], "motion": [0.0, 0.0, 0.0], "count": 1, "item": "trainmurdermystery:knife", "linkId": "knife", "attachKeyFrame": true},
+        {"type": "create_entity", "entity": "trainmurdermystery:player_body", "pos": [3.2, 1.0, 2.5], "yaw": 140.0, "nbt": "{CustomName:'小丑',CustomNameVisible:1b}", "linkId": "jester_body", "attachKeyFrame": true},
+        {"type": "idle", "duration": 20},
+        {"type": "text", "duration": 110, "text": {"en_us": "Starts with a Fake Gun and Fake Knife; has Jester see-through; being killed by a good player triggers Rampage (kills by Killers / neutrals do not trigger Rampage)", "zh_cn": "初始拥有假枪和假刀，拥有小丑透视，被好人击杀后会触发狂暴(杀手/中立击杀不会触发狂暴)", "zh_tw": "初始擁有假槍和假刀，擁有小丑透視，被好人擊殺後會觸發狂暴(殺手/中立擊殺不會觸發狂暴)"}, "point": [3.0, 3.2, 1.0], "placeNearTarget": true, "attachKeyFrame": true},
+        {"type": "idle", "duration": 70},
+        {"type": "rotate_camera_y", "degrees": 15.0, "duration": 50, "attachKeyFrame": true}
+      ]
+    },
+    {
       "id": "rampage",
       "title": {"en_us": "Jester", "zh_cn": "小丑", "zh_tw": "小丑"},
       "steps": [
@@ -72,9 +86,26 @@
       "steps": [
         {"type": "show_structure", "structure": "starrailexpress:role_tutorial_jester", "scale": 1.0, "attachKeyFrame": true},
         {"type": "starrailexpress:role_player", "pos": [3.0, 1.0, 3.0], "yaw": 180.0, "linkId": "jester", "attachKeyFrame": true},
-        {"type": "starrailexpress:role_shop", "role": "noellesroles:jester", "columns": 4, "attachKeyFrame": true},
+        {"type": "starrailexpress:role_shop", "role": "noellesroles:jester", "columns": 4, "items": [{"item": "noellesroles:delusion_vial", "price": 30, "currency": "money"}], "attachKeyFrame": true},
         {"type": "idle", "duration": 20},
         {"type": "text", "duration": 90, "text": {"en_us": "Can buy Fake Poison, which the Poisoner's Catalyst can trigger into a lethal dose.", "zh_cn": "可购买假毒，假毒可以被毒师的催化剂触发致死。", "zh_tw": "可購買假毒，假毒可以被毒師的催化劑觸發致死。"}, "point": [3.0, 3.0, 1.0], "placeNearTarget": true, "attachKeyFrame": true},
+        {"type": "idle", "duration": 60},
+        {"type": "rotate_camera_y", "degrees": 10.0, "duration": 50, "attachKeyFrame": true}
+      ]
+    },
+    {
+      "id": "fake_poison",
+      "title": {"en_us": "Jester", "zh_cn": "小丑", "zh_tw": "小丑"},
+      "steps": [
+        {"type": "show_structure", "structure": "starrailexpress:role_tutorial_jester", "scale": 1.0, "attachKeyFrame": true},
+        {"type": "starrailexpress:role_player", "pos": [3.0, 1.0, 3.0], "yaw": 180.0, "linkId": "jester", "attachKeyFrame": true},
+        {"type": "create_item_entity", "pos": [3.0, 1.5, 4.5], "motion": [0.0, 0.0, 0.0], "count": 1, "item": "noellesroles:delusion_vial", "linkId": "fake_poison_item", "attachKeyFrame": true},
+        {"type": "indicate_redstone", "blockPos": [2, 1, 1], "attachKeyFrame": true},
+        {"type": "indicate_redstone", "blockPos": [4, 1, 1], "attachKeyFrame": true},
+        {"type": "spawn_particles", "particle": "wathe:poison", "pos": [2.5, 1.0, 1.5], "distribution": "box", "spread": [0.4, 0.1, 0.4], "count": 1, "duration": 90, "motion": [0, 0.05, 0], "attachKeyFrame": true},
+        {"type": "spawn_particles", "particle": "wathe:poison", "pos": [4.5, 1.0, 1.5], "distribution": "box", "spread": [0.4, 0.1, 0.4], "count": 1, "duration": 90, "motion": [0, 0.05, 0], "attachKeyFrame": true},
+        {"type": "idle", "duration": 20},
+        {"type": "text", "duration": 100, "text": {"en_us": "Can buy Fake Poison, which the Poisoner's Catalyst can trigger into a lethal dose.", "zh_cn": "可购买假毒，假毒可以被毒师的催化剂触发致死。", "zh_tw": "可購買假毒，假毒可以被毒師的催化劑觸發致死。"}, "point": [3.0, 3.0, 1.0], "placeNearTarget": true, "attachKeyFrame": true},
         {"type": "idle", "duration": 60},
         {"type": "rotate_camera_y", "degrees": 10.0, "duration": 50, "attachKeyFrame": true}
       ]

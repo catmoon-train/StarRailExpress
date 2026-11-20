@@ -288,6 +288,7 @@ gradlew compileJava --offline
 | --- | --- | --- |
 | `role` | string | 职业 id，如 `noellesroles:jester` |
 | `columns` | int | 每行商品数，默认 4 |
+| `items` | array | 可选兜底商品；动态商店数据为空时使用，元素为 `{"item":"ns:path","price":200,"currency":"money"}` |
 
 商店界面本身依赖真实 `InventoryMenu` 与服务端同步数据，无法在 Ponder 离屏沙盒里构造，
 因此改为按同一数据源自绘陈列（`PonderShopOverlayElement`，`PonderOverlayElement` 实现）。
