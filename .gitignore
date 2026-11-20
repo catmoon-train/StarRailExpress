@@ -33,3 +33,6 @@ hashes/*
 /hashes/
 hashes/
 logs/
+/.codebuddy
+/sre-performance
+/sre-pokemon-compat

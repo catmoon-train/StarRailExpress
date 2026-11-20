@@ -225,6 +225,8 @@ public class RoleIntroduceScreen extends Screen {
 
     private static final int DETAIL_TAB_H = 18;
     private static final int DETAIL_TAB_GAP = 2;
+    private static final int PONDER_BTN_W = 62;
+    private static final int PONDER_BTN_H = 16;
 
     private static final ResourceLocation ICON_DEFAULT = SRE.watheId("textures/gui/sprites/hud/mood_happy.png");
     private static final Map<String, ResourceLocation> TYPE_ICON_MAP = new HashMap<>();
@@ -271,6 +273,7 @@ public class RoleIntroduceScreen extends Screen {
     private Object selectedRole = null;
     private int activeTabIndex = 0;
     private final List<DetailTab> tabs = new ArrayList<>();
+    private long ponderHintUntil = 0L;
 
     private enum FocusArea {
         SEARCH, CATEGORY_BAR, LEFT_LIST, MODE_BUTTONS, RIGHT_TABS
@@ -1903,6 +1906,12 @@ public class RoleIntroduceScreen extends Screen {
         super.render(g, mouseX, mouseY, partialTick);
         renderLeftPanel(g, mouseX, mouseY);
         renderRightPanel(g, mouseX, mouseY);
+        if (System.currentTimeMillis() < ponderHintUntil) {
+            g.renderTooltip(font, Component.translatable("screen.roleintroduce.ponder.no_tutorial"), mouseX, mouseY);
+        } else if (isPonderButtonVisible()
+                && isInRect(mouseX, mouseY, getPonderButtonX(), getPonderButtonY(), PONDER_BTN_W, PONDER_BTN_H)) {
+            g.renderTooltip(font, Component.translatable("screen.roleintroduce.ponder.tip"), mouseX, mouseY);
+        }
         boolean isSmall = this.height <= 300;
 
         int catBarX = rightX + TOP_BAR_GAP;
@@ -2302,13 +2311,18 @@ public class RoleIntroduceScreen extends Screen {
                 RoleUtils.getRoleOrModifierOrItemTypeName(selectedRole).withStyle(ChatFormatting.BOLD,
                         ChatFormatting.AQUA),
                 RoleUtils.getRoleOrModifierOrItemName(selectedRole));
-        g.drawString(font, nameLine, bIconX + bIconSize + 5, panelY + (BANNER_H - font.lineHeight) / 2, 0xFFFFFF, true);
+        int nameX = bIconX + bIconSize + 5;
+        int nameMaxW = isPonderButtonVisible() ? getPonderButtonX() - nameX - 4 : rightX + rightW - PANEL_PAD - nameX;
+        Component displayName = substrByWidth(nameLine, Math.max(16, nameMaxW));
+        g.drawString(font, displayName, nameX, panelY + (BANNER_H - font.lineHeight) / 2, 0xFFFFFF, true);
 
         if (isItemDisabled(selectedRole)) {
-            int nameWidth = font.width(nameLine);
+            int nameWidth = font.width(displayName);
             g.drawString(font, Component.translatable("screen.roleintroduce.disabled").withStyle(ChatFormatting.RED),
-                    bIconX + bIconSize + 5 + nameWidth + 5, panelY + (BANNER_H - font.lineHeight) / 2, 0xFFFFFF, true);
+                    nameX + nameWidth + 5, panelY + (BANNER_H - font.lineHeight) / 2, 0xFFFFFF, true);
         }
+
+        renderPonderButton(g, mouseX, mouseY);
 
         int tabBarH = DETAIL_TAB_H;
         int contentY = getRightContentTop();
@@ -2497,6 +2511,17 @@ public class RoleIntroduceScreen extends Screen {
                     setFocusArea(FocusArea.CATEGORY_BAR);
                     return true;
                 }
+            }
+
+            if (selectedRole instanceof SRERole role
+                    && isInRect((int) mx, (int) my, getPonderButtonX(), getPonderButtonY(),
+                            PONDER_BTN_W, PONDER_BTN_H)) {
+                this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
+                if (!RolePonderTutorial.open(role)) {
+                    ponderHintUntil = System.currentTimeMillis() + 2500L;
+                }
+                setFocusArea(FocusArea.RIGHT_TABS);
+                return true;
             }
 
             if (selectedRole != null) {
@@ -2786,6 +2811,33 @@ public class RoleIntroduceScreen extends Screen {
     // ══════════════════════════════════════════════════════════════════
     private static boolean isInRect(int px, int py, int x, int y, int w, int h) {
         return px >= x && px < x + w && py >= y && py < y + h;
+    }
+
+    private boolean isPonderButtonVisible() {
+        return selectedRole instanceof SRERole;
+    }
+
+    private int getPonderButtonX() {
+        return rightX + rightW - PANEL_PAD - PONDER_BTN_W;
+    }
+
+    private int getPonderButtonY() {
+        return panelY + (BANNER_H - PONDER_BTN_H) / 2;
+    }
+
+    private void renderPonderButton(GuiGraphics g, int mouseX, int mouseY) {
+        if (!isPonderButtonVisible()) {
+            return;
+        }
+        int x = getPonderButtonX(), y = getPonderButtonY();
+        boolean hovered = isInRect(mouseX, mouseY, x, y, PONDER_BTN_W, PONDER_BTN_H);
+        g.fillGradient(x, y, x + PONDER_BTN_W, y + PONDER_BTN_H,
+                hovered ? 0xFF8B6914 : 0xFF3A2A16, hovered ? 0xFF6B502A : 0xFF241A0F);
+        g.renderOutline(x, y, PONDER_BTN_W, PONDER_BTN_H, 0xFFD8B96C);
+        g.fill(x, y + PONDER_BTN_H - 2, x + PONDER_BTN_W, y + PONDER_BTN_H, 0xFFD8B96C);
+        Component text = Component.translatable("screen.roleintroduce.ponder.button");
+        g.drawCenteredString(font, text, x + PONDER_BTN_W / 2,
+                y + (PONDER_BTN_H - font.lineHeight) / 2, hovered ? 0xFFFFF4DC : 0xFFE4C982);
     }
 
     private static int blendColors(int c1, int c2, float t) {

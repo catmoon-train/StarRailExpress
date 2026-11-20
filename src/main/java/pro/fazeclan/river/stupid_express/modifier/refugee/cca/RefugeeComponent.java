@@ -326,7 +326,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         serverLevel.players().forEach(p -> {
             ServerPlayNetworking.send(p, new TriggerStatusBarPayload("loose_end"));
             p.playNotifySound(SoundEvents.WITHER_DEATH, SoundSource.PLAYERS, 1.0f, 1.0f);
-            p.addEffect(new MobEffectInstance(MobEffects.WEAVING, 150 * 20, 0, false, false));
+            p.addEffect(new MobEffectInstance(ModEffects.PURGATORY, 150 * 20, 0, false, false));
             p.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 40, 0, false, false));
             p.playNotifySound(SoundEvents.WITHER_SPAWN, SoundSource.PLAYERS, 1.0f, 1.0f);
 
@@ -627,8 +627,8 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
             ServerPlayNetworking.send(p, new RemoveStatusBarPayload("loose_end"));
             p.playNotifySound(SoundEvents.ENDER_DRAGON_DEATH, SoundSource.PLAYERS, 1.0f, 1.0f);
             p.addEffect(new MobEffectInstance(ModEffects.BLACK_MONITOR, 40, 0, false, false));
-            if (p.hasEffect(MobEffects.WEAVING)) {
-                p.removeEffect(MobEffects.WEAVING);
+            if (p.hasEffect(ModEffects.PURGATORY)) {
+                p.removeEffect(ModEffects.PURGATORY);
             }
             p.displayClientMessage(Component.translatable("gui.stupid_express.refugee.all_death"), true);
             StopSound(p, StupidExpress.SOUND_REGUGEE.getLocation(), SoundSource.AMBIENT);

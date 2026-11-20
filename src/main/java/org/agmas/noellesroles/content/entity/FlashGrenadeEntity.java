@@ -19,17 +19,19 @@ import io.wifi.starrailexpress.content.entity.no_water_influenced.NoHeavyWaterIn
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.util.ParticleFx;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 
 import java.util.List;
@@ -37,7 +39,7 @@ import java.util.List;
 /**
  * 闪光弹实体
  * - 落地时播放FIREWORK_LARGE_BLAST（烟花爆炸声）
- * - 检测玩家视野，让视野内有闪光弹的玩家获得试炼之兆效果（RAID_OMEN）3秒（60 ticks）
+ * - 检测玩家视野，让视野内有闪光弹的玩家获得黑屏效果 3秒（60 ticks）
  * - 视野判定参考巡警实现：距离检查 + 视野角度检查 + 射线检测
  * - 视野角度：70度扇形（半角35度）
  */
@@ -66,8 +68,10 @@ public class FlashGrenadeEntity extends NoHeavyWaterInfluencedThrowableItemProje
             world.playSound(null, this.blockPosition(),
                     SoundEvents.FIREWORK_ROCKET_LARGE_BLAST, SoundSource.PLAYERS, 1.0f, 1.0f);
 
-            // 检测玩家视野，让视野内有闪光弹的玩家获得试炼之兆效果
-            applyFlashToPlayersWithLineOfSight(world);
+            // 检测玩家视野，成功给予黑屏效果时在落地处播放原版袭击之兆音效
+            if (applyFlashToPlayersWithLineOfSight(world)) {
+                playRaidOmenSound(world);
+            }
 
             // 生成闪光粒子效果
             spawnFlashParticles(world);
@@ -77,10 +81,10 @@ public class FlashGrenadeEntity extends NoHeavyWaterInfluencedThrowableItemProje
     }
 
     /**
-     * 检测玩家视野，让视野内有闪光弹的玩家给予试炼之兆效果（RAID_OMEN）3秒
+     * 检测玩家视野，让视野内有闪光弹的玩家获得黑屏效果；至少成功施加一人时返回 true。
      * 参考巡警的视野判定实现
      */
-    private void applyFlashToPlayersWithLineOfSight(ServerLevel world) {
+    private boolean applyFlashToPlayersWithLineOfSight(ServerLevel world) {
         // 在大范围内查找玩家（视野范围）
         AABB area = new AABB(
                 this.getX() - FLASH_RADIUS, this.getY() - 2, this.getZ() - FLASH_RADIUS,
@@ -94,21 +98,36 @@ public class FlashGrenadeEntity extends NoHeavyWaterInfluencedThrowableItemProje
 
         // 闪光弹位置（稍微偏上，考虑到玩家眼睛高度）
         Vec3 flashPos = this.position().add(0, 1.0, 0);
+        boolean applied = false;
 
         for (ServerPlayer player : players) {
             // 检查玩家视线是否能看到闪光弹（参考巡警的视野判定）
             if (canSeeFlash(player, flashPos, world)) {
-                // 给予试炼之兆效果（RAID_OMEN）3秒
+                // 给予黑屏效果 3秒
                 player.addEffect(new MobEffectInstance(
-                        MobEffects.RAID_OMEN,
+                        ModEffects.BLACK_MONITOR,
                         EFFECT_DURATION,
                         0, // 等级0
                         false, // 不显示粒子
                         false, // 不显示图标
                         false  // 不显示特效动画
                 ));
+                applied = true;
             }
         }
+        return applied;
+    }
+
+    private void playRaidOmenSound(ServerLevel world) {
+        BuiltInRegistries.SOUND_EVENT
+                .getOptional(ResourceLocation.parse("event.mob_effect.raid_omen"))
+                .ifPresent(sound -> world.playSound(
+                        null,
+                        this.getX(), this.getY(), this.getZ(),
+                        sound,
+                        SoundSource.PLAYERS,
+                        1.0f,
+                        1.0f));
     }
 
     /**

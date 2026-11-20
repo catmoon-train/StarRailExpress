@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.noellesroles.init.ModEffects;
 
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -45,8 +46,8 @@ public class CursedHandler {
             MobEffects.INVISIBILITY,
             MobEffects.BLINDNESS,
             MobEffects.NIGHT_VISION,
-            MobEffects.LUCK,
-            MobEffects.UNLUCK,
+            ModEffects.LOUD_VOICE,
+            ModEffects.INSTANT_BLACK_SCREEN,
             MobEffects.GLOWING,
             MobEffects.SLOW_FALLING,
             MobEffects.DARKNESS,
