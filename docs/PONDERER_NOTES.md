@@ -13,6 +13,9 @@
   - 文本三语解析顺序：当前语言 → `en_us` → 首个可用
   - 玩家模型：`create_entity` 接受 `player` / `minecraft:player`
   - `PonderPlayerSupport.addPlayer(...)` / `PonderPlayerElement.profile(...)` 可创建带身份的玩家模型
+- 本项目整理的编写准则：`docs/PONDERER_SCENE_AUTHORING.md`
+  - 整理自 Ponderer 自带 AI 提示词 `assets/ponderer/ai/prompts/*.txt`
+  - 重点是时间轴规则（`text` 的 duration 不是停顿）、场景契约、修改场景的最小改动原则与验收方式
 - Ponderer 源码仓库 `Common/runtime/.../runtime/spi/AssetStructureSource.java`
   - 结构 ID `ns:path` 映射到 `assets/ns/ponder/path.nbt`
 - Ponderer 源码仓库 `Common/src/.../application/ui/PonderScreenNavigation.java`
