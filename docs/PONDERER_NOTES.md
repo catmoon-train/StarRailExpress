@@ -53,7 +53,10 @@ does not have member field 'int field_22790'
 
 本项目的处理方式（Fabric 1.21.1）：
 
-- `io.wifi.starrailexpress.mixin.client.ponder.PonderCompat` 检测运行时是否缺少这两个字段。
+- `io.wifi.starrailexpress.client.ponder.PondererCompat` 检测运行时是否缺少这两个字段。
+  它**不能**放在 `io.wifi.starrailexpress.mixin.client.ponder` 包内：那是
+  `sre_ponder.mixins.json` 声明的 mixin 包，普通类被注入代码直接引用时会在启动时抛
+  `IllegalClassLoadError` 并崩溃。
 - `PonderEditorModuleMixin` 在检测到缺失时让 `EditorModule.isInstalled()` 返回 false，
   关闭 Ponderer 的场景编辑器模块，播放场景与投影仪等功能不受影响。
 - mixin 配置：`sre_ponder.mixins.json`（`required: false`，目标缺失时自动跳过）。

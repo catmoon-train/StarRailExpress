@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.mixin.client.ponder;
 
 import com.nododiiiii.ponderer.editor.api.EditorModule;
+import io.wifi.starrailexpress.client.ponder.PondererCompat;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -19,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class PonderEditorModuleMixin {
     @Inject(method = "isInstalled", at = @At("HEAD"), cancellable = true, remap = false)
     private static void sre$disableBrokenPondererEditor(CallbackInfoReturnable<Boolean> cir) {
-        if (PonderCompat.isPondererEditorBroken()) {
+        if (PondererCompat.isPondererEditorBroken()) {
             cir.setReturnValue(false);
         }
     }

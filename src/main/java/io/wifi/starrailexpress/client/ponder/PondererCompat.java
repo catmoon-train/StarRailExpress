@@ -1,20 +1,21 @@
-package io.wifi.starrailexpress.mixin.client.ponder;
+/* GNU General Public License v3 or later */
+package io.wifi.starrailexpress.client.ponder;
 
 /**
  * Ponderer 与 Minecraft 1.21.1 的兼容性判断。
  *
- * <p>Ponderer 1.12.0 的 PonderEditorMixin 仍然使用旧版本 Minecraft 的 intermediary 字段名
- * （field_22789 / field_22790，对应旧版 Screen.width / Screen.height）。
- * 1.21.1 里这两个字段的 intermediary 名已经变成 field_19690 / field_19691，
- * 于是 PonderUI 渲染悬停提示时会抛 NoSuchFieldError 并崩溃。
+ * <p>不能放在 {@code io.wifi.starrailexpress.mixin.client.ponder} 包里：
+ * 那是 {@code sre_ponder.mixins.json} 声明的 mixin 包，普通类被注入代码直接引用时
+ * 会触发 {@code IllegalClassLoadError} 并让整个客户端崩溃。
  */
-public final class PonderCompat {
+public final class PondererCompat {
+
     /** Ponderer 编辑器 mixin 依赖的旧字段名。 */
     private static final String[] LEGACY_SCREEN_FIELDS = {"field_22789", "field_22790"};
 
     private static final boolean PONDERER_EDITOR_BROKEN = detectBrokenEditor();
 
-    private PonderCompat() {
+    private PondererCompat() {
     }
 
     /** Ponderer 的场景编辑器在当前环境下是否会因为字段缺失而崩溃。 */
