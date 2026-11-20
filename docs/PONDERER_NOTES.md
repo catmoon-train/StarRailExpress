@@ -304,9 +304,34 @@ InvalidInjectionException: non-static callback method ... targets a static metho
 | `starrailexpress:role_render` | 显示职业能力渲染出的文字，如验尸官看到的尸体信息 | `lines`（字符串数组，逐条来自源码）、`label` |
 | `starrailexpress:role_disguise` | 显示伪装 / 变形形态标签，与 `role_player` 的 `skin` 或 `create_entity` 配合 | `lines`、`color` |
 
-四种步骤共用 `PonderInfoOverlayElement`，绘制在思索 UI 右上角，不遮挡场景中央的玩家模型与字幕。
+基于全部 272 个普通职业介绍的词频（技能 161、商店 119、冷却 135、金币 110、死亡 108、透视 64、效果 62、时间 45、护盾 38、尸体 37、任务 36、开锁 34、绑定生成 24、隐身 19、san/心情/理智 32、伪装 13），又补了六类通用步骤：
+
+| 步骤 | 用途 | 常用字段 |
+| --- | --- | --- |
+| `starrailexpress:role_vitals` | 虚拟血量 / 虚拟护盾条，护士类职业可见 | `bars`（`label`/`before`/`after`/`color`）、`lines` |
+| `starrailexpress:role_currency` | 金币、游戏代币的数量与变化 | `lines`、`progress`、`title` |
+| `starrailexpress:role_timer` | 技能冷却、持续时限、回溯进度 | `progress`（`before`/`after` 或 `[before,after]`）、`lines` |
+| `starrailexpress:role_effects` | 速度、药水、护盾层数等状态与叠加 | `bars`、`lines` |
+| `starrailexpress:role_bond` | 绑定生成、队友/仇敌等关联关系 | `lines`、`color`；可再用 `role_player.outline` 标出对应玩家 |
+| `starrailexpress:role_panel` | 信件、笔记、任务清单、物品栏查看、身份揭示等文书界面 | `lines`、`title` |
+
+前四种原步骤共用 `PonderInfoOverlayElement`，绘制在右上角；后六种共用 `PonderStateOverlayElement`，
+绘制在左上角，两者不会互相遮挡，也不遮挡场景中央的玩家模型与字幕。
 `label` 省略时用各步骤默认标签；`lines` 可以是数组，也可以是带 `\n` 的字符串。
 `before/after` 代表心情值比例，灰条为变化前，彩色条为变化后，下面的百分比由代码自动计算。
+
+示例（护士的虚拟血量 + 护盾、滞时鬼的回溯进度、信使的信件界面）：
+
+```json
+{"type": "starrailexpress:role_vitals", "bars": [
+  {"label": "虚拟血量", "before": 0.45, "after": 1.0, "color": -65536},
+  {"label": "虚拟护盾", "before": 0.0, "after": 1.0, "color": -16776961}
+]}
+{"type": "starrailexpress:role_timer", "progress": [0.0, 1.0], "lines": ["锚定 20 秒后回溯"]}
+{"type": "starrailexpress:role_panel", "title": "信件", "lines": ["收件人：……", "附带效果：San 恢复"]}
+```
+
+`lines` 里的文字必须来自职业介绍原文或源码里实际显示的内容，不要自行编写旁白。
 
 本能透视边框必须使用 `InstinctManager` 的真实返回值：
 

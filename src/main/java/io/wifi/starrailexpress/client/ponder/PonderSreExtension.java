@@ -68,6 +68,24 @@ public final class PonderSreExtension {
     /** 显示伪装 / 变形形态标签。 */
     public static final String STEP_ROLE_DISGUISE = "starrailexpress:role_disguise";
 
+    /** 显示虚拟血量 / 护盾等数值条。 */
+    public static final String STEP_ROLE_VITALS = "starrailexpress:role_vitals";
+
+    /** 显示金币 / 代币的数量与变化。 */
+    public static final String STEP_ROLE_CURRENCY = "starrailexpress:role_currency";
+
+    /** 显示技能冷却、持续时间等时间进度。 */
+    public static final String STEP_ROLE_TIMER = "starrailexpress:role_timer";
+
+    /** 显示速度、药水等状态效果及层数。 */
+    public static final String STEP_ROLE_EFFECTS = "starrailexpress:role_effects";
+
+    /** 显示绑定生成、队伍关系等形式的关系标签。 */
+    public static final String STEP_ROLE_BOND = "starrailexpress:role_bond";
+
+    /** 显示信件、笔记、任务清单、身份揭示等文书界面。 */
+    public static final String STEP_ROLE_PANEL = "starrailexpress:role_panel";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PonderSreExtension.class);
 
     private PonderSreExtension() {
@@ -81,6 +99,12 @@ public final class PonderSreExtension {
         engine.steps().register(STEP_ROLE_SKILL, new RoleInfoStep("技能", PonderInfoOverlayElement.Kind.SKILL));
         engine.steps().register(STEP_ROLE_RENDER, new RoleInfoStep("职业能力", PonderInfoOverlayElement.Kind.LINES));
         engine.steps().register(STEP_ROLE_DISGUISE, new RoleInfoStep("伪装中", PonderInfoOverlayElement.Kind.BADGE));
+        engine.steps().register(STEP_ROLE_VITALS, new RoleStateStep("虚拟状态"));
+        engine.steps().register(STEP_ROLE_CURRENCY, new RoleStateStep("金币 / 代币"));
+        engine.steps().register(STEP_ROLE_TIMER, new RoleStateStep("时间"));
+        engine.steps().register(STEP_ROLE_EFFECTS, new RoleStateStep("状态效果"));
+        engine.steps().register(STEP_ROLE_BOND, new RoleStateStep("关联角色"));
+        engine.steps().register(STEP_ROLE_PANEL, new RoleStateStep("界面"));
         LOGGER.info("StarRailExpress Ponderer 扩展已安装：{}", EXTENSION_ID);
     }
 
@@ -286,6 +310,132 @@ public final class PonderSreExtension {
                 return result;
             }
             return List.of(element.getAsString().split("\\n", -1));
+        }
+    }
+
+    /** 通用状态面板步骤的参数。 */
+    record RoleStateParams(String title, List<PonderStateOverlayElement.Bar> bars,
+                           Float progressBefore, Float progressAfter, List<String> lines, int color) {
+    }
+
+    /** 虚拟血量、金币、冷却、效果、绑定与文书等步骤共用的状态面板。 */
+    static final class RoleStateStep implements StepType<RoleStateParams> {
+        private final String defaultTitle;
+
+        RoleStateStep(String defaultTitle) {
+            this.defaultTitle = defaultTitle;
+        }
+
+        @Override
+        public StepCodec<RoleStateParams> codec() {
+            return new StepCodec<>() {
+                @Override
+                public RoleStateParams decode(JsonObject data) {
+                    String title = readString(data, "title");
+                    Integer color = readInt(data, "color");
+                    JsonElement progress = data == null ? null : data.get("progress");
+                    Float before = null;
+                    Float after = null;
+                    if (progress != null && !progress.isJsonNull()) {
+                        if (progress.isJsonArray() && progress.getAsJsonArray().size() >= 2) {
+                            before = parseFloat(progress.getAsJsonArray().get(0));
+                            after = parseFloat(progress.getAsJsonArray().get(1));
+                        } else if (progress.isJsonObject()) {
+                            before = readFloat(progress.getAsJsonObject(), "before");
+                            after = readFloat(progress.getAsJsonObject(), "after");
+                        }
+                    }
+                    return new RoleStateParams(
+                            title == null || title.isBlank() ? defaultTitle : title,
+                            readBars(data), before, after, readLines(data),
+                            color == null ? 0xFFD700 : color);
+                }
+
+                @Override
+                public JsonObject encode(RoleStateParams value) {
+                    JsonObject data = new JsonObject();
+                    data.addProperty("title", value.title());
+                    JsonArray bars = new JsonArray();
+                    for (PonderStateOverlayElement.Bar bar : value.bars()) {
+                        JsonObject item = new JsonObject();
+                        item.addProperty("label", bar.label());
+                        item.addProperty("before", bar.before());
+                        item.addProperty("after", bar.after());
+                        item.addProperty("color", bar.color());
+                        bars.add(item);
+                    }
+                    data.add("bars", bars);
+                    if (value.progressBefore() != null || value.progressAfter() != null) {
+                        JsonObject progress = new JsonObject();
+                        progress.addProperty("before", value.progressBefore());
+                        progress.addProperty("after", value.progressAfter());
+                        data.add("progress", progress);
+                    }
+                    JsonArray lines = new JsonArray();
+                    value.lines().forEach(lines::add);
+                    data.add("lines", lines);
+                    data.addProperty("color", value.color());
+                    return data;
+                }
+            };
+        }
+
+        @Override
+        public String editorLabel() {
+            return defaultTitle;
+        }
+
+        @Override
+        public void build(RoleStateParams params, StepBuildContext context) {
+            new PonderStateOverlayElement(params.title(), params.bars(), params.progressBefore(),
+                    params.progressAfter(), params.lines(), params.color()).addTo(context.builder());
+        }
+
+        private static List<PonderStateOverlayElement.Bar> readBars(JsonObject data) {
+            if (data == null || !data.has("bars") || data.get("bars").isJsonNull()
+                    || !data.get("bars").isJsonArray()) {
+                return List.of();
+            }
+            List<PonderStateOverlayElement.Bar> result = new ArrayList<>();
+            for (JsonElement element : data.getAsJsonArray("bars")) {
+                if (!element.isJsonObject()) {
+                    continue;
+                }
+                JsonObject object = element.getAsJsonObject();
+                Float before = readFloat(object, "before");
+                Float after = readFloat(object, "after");
+                Integer color = readInt(object, "color");
+                String label = readString(object, "label");
+                result.add(new PonderStateOverlayElement.Bar(
+                        label == null ? "" : label,
+                        before == null ? 0.0F : before,
+                        after == null ? (before == null ? 0.0F : before) : after,
+                        color == null ? 0xFF55FF : color));
+            }
+            return result;
+        }
+
+        private static List<String> readLines(JsonObject data) {
+            if (data == null || !data.has("lines") || data.get("lines").isJsonNull()) {
+                return List.of();
+            }
+            JsonElement element = data.get("lines");
+            if (element.isJsonArray()) {
+                List<String> result = new ArrayList<>();
+                for (JsonElement line : element.getAsJsonArray()) {
+                    result.add(line.getAsString());
+                }
+                return result;
+            }
+            return List.of(element.getAsString().split("\\n", -1));
+        }
+
+        private static Float parseFloat(JsonElement element) {
+            try {
+                return element.getAsFloat();
+            } catch (RuntimeException error) {
+                return null;
+            }
         }
     }
 
