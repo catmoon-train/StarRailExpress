@@ -321,33 +321,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "guard_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 45
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "idle",
           "duration": 15
         },

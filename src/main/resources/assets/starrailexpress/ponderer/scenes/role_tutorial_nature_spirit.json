@@ -340,6 +340,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:bamboo",
+          "linkId": "nature_spirit_shop_line_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 101,
           "text": {
@@ -358,6 +375,88 @@
         {
           "type": "idle",
           "duration": 111
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Nature Spirit",
+        "zh_cn": "自然精灵",
+        "zh_tw": "自然精靈"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "nature_spirit_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "nature_spirit_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "Skill [Leaf Hide]: press the skill key to disguise as the block under your feet; press again to end. 60s cd.",
+                "zh_cn": "技能【叶隐】：按下技能键伪装成脚下的方块，再次按下技能键解除伪装。冷却60秒。",
+                "zh_tw": "技能【葉隱】：按下技能鍵偽裝成腳下的方塊，再次按下技能鍵解除偽裝。冷卻60秒。"
+              }
+            ],
+            "color": 16753920
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skill [Leaf Hide]: press the skill key to disguise as the block under your feet; press again to end. 60s cd.",
+            "zh_cn": "技能【叶隐】：按下技能键伪装成脚下的方块，再次按下技能键解除伪装。冷却60秒。",
+            "zh_tw": "技能【葉隱】：按下技能鍵偽裝成腳下的方塊，再次按下技能鍵解除偽裝。冷卻60秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
         },
         {
           "type": "rotate_camera_y",

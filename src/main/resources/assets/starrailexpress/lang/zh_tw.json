@@ -4785,6 +4785,8 @@
   "ponder.starrailexpress.step.role_pose": "改變姿態",
   "ponder.starrailexpress.step.role_hold": "切換手持物",
   "ponder.starrailexpress.step.role_outline": "切換透視邊框",
+  "ponder.starrailexpress.step.role_hide": "隱藏或恢復玩家模型",
+  "ponder.starrailexpress.step.role_scale": "縮放玩家模型",
   "ponder.starrailexpress.step.role_screen": "技能介面",
   "ponder.starrailexpress.step.role_ambience": "環境染色",
   "ponder.starrailexpress.screen.select_player": "選擇目標玩家",

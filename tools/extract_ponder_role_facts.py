@@ -150,6 +150,7 @@ def collect_item_constants():
         ("org/agmas/noellesroles/init/ModItems.java", "noellesroles"),
         ("org/agmas/noellesroles/init/FunnyItems.java", "noellesroles"),
         ("io/wifi/starrailexpress/index/SREItems.java", "starrailexpress"),
+        ("pro/fazeclan/river/stupid_express/constants/SEItems.java", "stupid_express"),
     ]
     for rel, namespace in files:
         text = read_java(rel)
@@ -382,6 +383,97 @@ def collect_shop_items():
     return result
 
 
+def collect_extra_initial_items():
+    """补扫 ModRolesInitialEventRegister：纵火犯等职业在这里直接 addItem。"""
+    text = strip_comments(read_java("org/agmas/noellesroles/init/ModRolesInitialEventRegister.java"))
+    if not text:
+        return {}
+    item_table = collect_item_constants()
+    id_table = collect_id_constants()
+    result = {}
+    # 这些初始化块里有嵌套花括号，用固定窗口取到下一个 if 之前即可覆盖 addItem。
+    for match in re.finditer(r'if\s*\(\s*role\.equals\(\s*([A-Za-z_][\w.]*)\s*\)\s*\)', text):
+        const = match.group(1).split(".")[-1]
+        # 外部模组（stupid_express）的角色常量不一定能被 collect_id_constants 扫到，
+        # 但这类注册用的常量名就是角色 id 的大写形式。
+        path = id_table.get(const) or const.lower()
+        window = text[match.end():match.end() + 900]
+        items = []
+        for add in re.finditer(r'player\.addItem\(\s*([A-Za-z_][\w.]*)\.getDefaultInstance', window):
+            const = add.group(1).split(".")[-1]
+            item_id = item_table.get(const)
+            if item_id and item_id not in items:
+                items.append(item_id)
+        if items:
+            result.setdefault(path, [])
+            for item_id in items:
+                if item_id not in result[path]:
+                    result[path].append(item_id)
+    return result
+
+
+def collect_handler_shop_items():
+    """补扫 RoleShopHandler 里用局部变量拼出来的职业商店。
+
+    ``collect_shop_items`` 只认 ``getShopEntries`` 方法；本工程的
+    ``RoleShopHandler`` 是把 ``ArrayList<ShopEntry> XXX_SHOP`` 填好后再
+    ``ShopContent.customEntries.put(ROLE_ID, XXX_SHOP)``，唱片师 / 纵火犯
+    等职业的商店都在这一批里。这里把「局部变量 -> 职业路径」和
+    「局部变量 -> 物品 id」两段对应关系补出来。
+    """
+    text = strip_comments(read_java("org/agmas/noellesroles/init/RoleShopHandler.java"))
+    if not text:
+        return {}
+    item_table = collect_item_constants()
+    id_table = collect_id_constants()
+
+    arrays = {}
+    for name, body in re.findall(r'\bItem\[\]\s+([A-Za-z_]\w*)\s*=\s*\{([^}]*)\}', text, re.S):
+        arrays[name] = [part.strip().split(".")[-1] for part in body.split(",") if part.strip()]
+
+    def resolve(expr):
+        expr = expr.strip()
+        if "[" in expr:
+            array = expr.split("[", 1)[0].strip().split(".")[-1]
+            names = arrays.get(array, [])
+        else:
+            # 捕获形如 ModItems.SPEAKER.getDefaultInstance( —— 取到常量名那一节即可。
+            parts = expr.split(".")
+            names = [parts[1] if len(parts) >= 2 else parts[0]]
+        result = []
+        for name in names:
+            item_id = item_table.get(name)
+            if item_id is None and name in ("BOW", "TRIDENT", "BUNDLE", "SPYGLASS"):
+                item_id = "minecraft:" + name.lower()
+            if item_id is None and name.startswith("MUSIC_DISC_"):
+                item_id = "minecraft:" + name.lower()
+            if item_id and item_id not in result:
+                result.append(item_id)
+        return result
+
+    result = {}
+    for var in set(re.findall(r'ArrayList<ShopEntry>\s+([A-Za-z_]\w*)\s*=\s*new ArrayList', text)):
+        items = []
+        pattern = (re.escape(var) + r'\.add\(\s*new ShopEntry\(\s*'
+                   r'(?:new ItemStack\(\s*)?([^,;\)]+)')
+        for match in re.finditer(pattern, text):
+            for item_id in resolve(match.group(1)):
+                if item_id not in items:
+                    items.append(item_id)
+        if not items:
+            continue
+        put = re.search(r'\.put\(\s*([A-Za-z_][\w.]*)\s*,\s*' + re.escape(var) + r'\s*\)', text)
+        if not put:
+            continue
+        path = id_table.get(put.group(1).split(".")[-1])
+        if path:
+            result.setdefault(path, [])
+            for item_id in items:
+                if item_id not in result[path]:
+                    result[path].append(item_id)
+    return result
+
+
 def main():
     global _ID_CONST_TABLE, _PATH_BY_CONST
     intros, names = {}, {}
@@ -403,8 +495,18 @@ def main():
         _PATH_BY_CONST.setdefault(const[:-3] if const.endswith("_ID") else const, path)
 
     initial_items = collect_initial_items()
+    for path, items in collect_extra_initial_items().items():
+        existing = initial_items.setdefault(path, [])
+        for item_id in items:
+            if item_id not in existing:
+                existing.append(item_id)
     globals()["_CLASS_TO_PATH"] = collect_class_to_path(registrations)
     shop_items = collect_shop_items()
+    for path, items in collect_handler_shop_items().items():
+        existing = shop_items.setdefault(path, [])
+        for item_id in items:
+            if item_id not in existing:
+                existing.append(item_id)
     screen_consts = collect_inventory_screen_roles()
 
     zh_intro = intros["zh_cn"]

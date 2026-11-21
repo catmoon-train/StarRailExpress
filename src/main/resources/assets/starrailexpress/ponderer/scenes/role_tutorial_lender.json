@@ -124,57 +124,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            3.9,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "lender_skill_item_0"
-        },
-        {
-          "type": "starrailexpress:role_currency",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.5
-            ],
-            "lines": [
-              {
-                "en_us": "Starts with 175 coins.",
-                "zh_cn": "开局拥有175金币",
-                "zh_tw": "開局擁有175金幣"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 35
-        },
-        {
           "type": "text",
           "duration": 79,
           "text": {
@@ -193,6 +142,20 @@
         {
           "type": "idle",
           "duration": 89
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "lender_skill_target_1",
+            "outline": -4684277
+          }
         },
         {
           "type": "starrailexpress:role_key",
@@ -217,6 +180,23 @@
           ],
           "duration": 220,
           "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "With a contract, interest grows 25 coins every 45s; the player may right-click the contract to pay back early.",
+                "zh_cn": "拥有贷款合同后，贷款利息每过45秒会增加25金币，期间玩家可以右键贷款合同还清金币。",
+                "zh_tw": "擁有貸款合同後，貸款利息每過45秒會增加25金幣，期間玩家可以右鍵貸款合同還清金幣。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "idle",
@@ -413,6 +393,20 @@
             ]
           },
           "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "lender_skill_target_0",
+            "outline": -4684277
+          }
         },
         {
           "type": "starrailexpress:role_key",

@@ -541,6 +541,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            4.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:master_key_p",
+          "linkId": "attendant_shop_line_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 169,
           "text": {
@@ -679,82 +696,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              6.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "attendant_main",
-            "to": [
-              4.1,
-              1.0,
-              7.0
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            7
-          ],
-          "blockPos2": [
-            5,
-            0,
-            7
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            5.0,
-            1.9,
-            7.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 6,
-          "duration": 50,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            7
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
           "type": "text",
           "duration": 112,
           "text": {
@@ -773,82 +714,6 @@
         {
           "type": "idle",
           "duration": 122
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              6.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "attendant_main",
-            "to": [
-              4.1,
-              1.0,
-              7.0
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            7
-          ],
-          "blockPos2": [
-            5,
-            0,
-            7
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            5.0,
-            1.9,
-            7.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 6,
-          "duration": 50,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            7
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
         },
         {
           "type": "text",

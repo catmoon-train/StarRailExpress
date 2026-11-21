@@ -342,6 +342,127 @@
       ]
     },
     {
+      "id": "form",
+      "title": {
+        "en_us": "Gambler",
+        "zh_cn": "赌徒",
+        "zh_tw": "賭徒"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "gambler_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "gambler_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "gambler_disguised",
+            "skin": "noellesroles:textures/entity/custom_psycho/white_psycho.png"
+          }
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "After being killed by someone: 33% chance to become a Killer-team role,",
+                "zh_cn": "被别人杀死后有33%概率变成杀手阵营职业,",
+                "zh_tw": "被別人殺死後有33%概率變成殺手陣營職業,"
+              },
+              {
+                "en_us": "33% chance to become a Sheriff-team role,",
+                "zh_cn": "33%概率变成警长阵营职业,",
+                "zh_tw": "33%概率變成警長陣營職業,"
+              }
+            ],
+            "color": 16753920
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 167,
+          "text": {
+            "en_us": "After being killed by someone: 33% chance to become a Killer-team role,",
+            "zh_cn": "被别人杀死后有33%概率变成杀手阵营职业,",
+            "zh_tw": "被別人殺死後有33%概率變成殺手陣營職業,"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 177
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "33% chance to become a Sheriff-team role,",
+            "zh_cn": "33%概率变成警长阵营职业,",
+            "zh_tw": "33%概率變成警長陣營職業,"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 123
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
       "id": "details",
       "title": {
         "en_us": "Gambler",
@@ -558,120 +679,6 @@
         {
           "type": "idle",
           "duration": 104
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "gambler_skill_target_6",
-            "outline": -12042869
-          }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "gambler_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 45
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 15
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:crit",
-          "pos": [
-            5.0,
-            2.1,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 10,
-          "duration": 30,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "gambler_skill_target_6",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:smoke",
-          "pos": [
-            5.0,
-            1.6,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 45,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 30
         },
         {
           "type": "text",

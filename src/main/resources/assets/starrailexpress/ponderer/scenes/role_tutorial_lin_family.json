@@ -213,18 +213,18 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_key",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
+            "pos": [
+              5.0,
+              1.0,
+              2.0
             ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
+            "yaw": 180.0,
+            "linkId": "lin_family_skill_target_0",
+            "outline": -3894233
+          }
         },
         {
           "type": "highlight_section",

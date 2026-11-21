@@ -454,33 +454,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              4.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "jojo_main",
-            "to": [
-              5.1,
-              1.0,
-              2.0
-            ],
-            "duration": 45
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "idle",
           "duration": 15
         },
@@ -572,33 +545,6 @@
         {
           "type": "idle",
           "duration": 177
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              4.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "jojo_main",
-            "to": [
-              5.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "highlight_section",
@@ -864,6 +810,20 @@
                 "zh_tw": "波紋之力：右鍵使用，將半徑5格內的玩家拉向自己，並使其緩慢I 5秒、理智提高30%。使用冷卻1分鐘。"
               }
             ]
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "jojo_skill_target_0",
+            "outline": -65536
           }
         },
         {

@@ -2,9 +2,8 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.godfather",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "trainmurdermystery:lockpick",
+    "noellesroles:bullet"
   ],
   "title": {
     "en_us": "Godfather",
@@ -144,6 +143,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "attachKeyFrame": true,
+          "pos": [
+            1.6,
+            1.55,
+            1.6
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:lockpick",
+          "linkId": "godfather_item"
+        },
+        {
           "type": "text",
           "duration": 74,
           "text": {
@@ -211,6 +227,20 @@
             ]
           },
           "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "godfather_skill_target_0",
+            "outline": -3730043
+          }
         },
         {
           "type": "starrailexpress:role_key",
@@ -343,6 +373,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:lockpick",
+          "linkId": "godfather_shop_line_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 166,
           "text": {
@@ -363,6 +410,23 @@
           "duration": 176
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.35,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:bullet",
+          "linkId": "godfather_shop_line_1",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 99,
           "text": {
@@ -381,6 +445,23 @@
         {
           "type": "idle",
           "duration": 109
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            3.1,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:lockpick",
+          "linkId": "godfather_shop_line_2",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

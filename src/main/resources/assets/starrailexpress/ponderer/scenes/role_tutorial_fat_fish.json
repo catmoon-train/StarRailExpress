@@ -162,6 +162,20 @@
           "attachKeyFrame": true
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              4.0
+            ],
+            "yaw": 180.0,
+            "linkId": "fat_fish_skill_target_0",
+            "outline": -12156216
+          }
+        },
+        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
@@ -482,6 +496,23 @@
             "role": "fat_fish",
             "columns": 4
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:small_dried_fish",
+          "linkId": "fat_fish_shop_line_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

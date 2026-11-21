@@ -131,6 +131,12 @@ public final class PonderSreExtension {
     /** 给已存在的玩家模型加 / 改本能透视边框。 */
     public static final String STEP_ROLE_OUTLINE = "starrailexpress:role_outline";
 
+    /** 隐藏 / 恢复已存在的玩家模型，用于「玩家变成实体 / 换形态」的交界处。 */
+    public static final String STEP_ROLE_HIDE = "starrailexpress:role_hide";
+
+    /** 缩放已存在的玩家模型（兔兔 / 侏儒被抱到头顶时用）。 */
+    public static final String STEP_ROLE_SCALE = "starrailexpress:role_scale";
+
     /** 技能界面：模拟背包里的「选人列表」面板。 */
     public static final String STEP_ROLE_SCREEN = "starrailexpress:role_screen";
 
@@ -173,6 +179,8 @@ public final class PonderSreExtension {
         engine.steps().register(STEP_ROLE_POSE, new RolePoseStep());
         engine.steps().register(STEP_ROLE_HOLD, new RoleHoldStep());
         engine.steps().register(STEP_ROLE_OUTLINE, new RoleOutlineStep());
+        engine.steps().register(STEP_ROLE_HIDE, new RoleHideStep());
+        engine.steps().register(STEP_ROLE_SCALE, new RoleScaleStep());
         engine.steps().register(STEP_ROLE_SCREEN, new RoleScreenStep());
         engine.steps().register(STEP_ROLE_AMBIENCE, new RoleAmbienceStep());
         LOGGER.info("StarRailExpress Ponderer extension installed: {}", EXTENSION_ID);
@@ -620,7 +628,8 @@ public final class PonderSreExtension {
     }
 
     /** {@code role_death} 的参数；{@code delay} 仅为兼容旧场景保留，不再生效。 */
-    record RoleDeathParams(String linkId, Vec3 pos, String name, String entity, Integer delay, Integer yaw) {
+    record RoleDeathParams(String linkId, Vec3 pos, String name, String entity, Integer delay, Integer yaw,
+                           Boolean corpse) {
     }
 
     /**
@@ -643,7 +652,8 @@ public final class PonderSreExtension {
                             readString(data, "name"),
                             readString(data, "entity"),
                             readInt(data, "delay"),
-                            readInt(data, "yaw"));
+                            readInt(data, "yaw"),
+                            data.has("corpse") ? data.get("corpse").getAsBoolean() : null);
                 }
 
                 @Override
@@ -666,6 +676,9 @@ public final class PonderSreExtension {
                     }
                     if (value.yaw() != null) {
                         data.addProperty("yaw", value.yaw());
+                    }
+                    if (value.corpse() != null) {
+                        data.addProperty("corpse", value.corpse());
                     }
                     return data;
                 }
@@ -690,7 +703,10 @@ public final class PonderSreExtension {
                     target.setVisible(false);
                 }
             });
-            // 2) 同一位置生成尸体。
+            // 2) 同一位置生成尸体；纵火犯烧死的人不留尸体，传 corpse=false 跳过。
+            if (params.corpse() != null && !params.corpse()) {
+                return;
+            }
             Vec3 pos = params.pos();
             if (pos == null) {
                 if (element != null) {
@@ -883,6 +899,102 @@ public final class PonderSreExtension {
                 PonderPlayerElement target = resolvePlayer(ps, element);
                 if (target != null) {
                     target.outline(color, width, expand);
+                }
+            });
+        }
+    }
+
+    /** {@code role_scale} 的参数。 */
+    record RoleScaleParams(String linkId, Float scale) {
+    }
+
+    /** 缩放已有玩家模型；演示兔兔 / 侏儒被抱到头顶时的小人形态。 */
+    static final class RoleScaleStep implements StepType<RoleScaleParams> {
+        @Override
+        public StepCodec<RoleScaleParams> codec() {
+            return new StepCodec<>() {
+                @Override
+                public RoleScaleParams decode(JsonObject data) {
+                    return new RoleScaleParams(readString(data, "linkId"), readFloat(data, "scale"));
+                }
+
+                @Override
+                public JsonObject encode(RoleScaleParams value) {
+                    JsonObject data = new JsonObject();
+                    if (value.linkId() != null) {
+                        data.addProperty("linkId", value.linkId());
+                    }
+                    if (value.scale() != null) {
+                        data.addProperty("scale", value.scale());
+                    }
+                    return data;
+                }
+            };
+        }
+
+        @Override
+        public String editorLabel() {
+            return text(KEY_PREFIX + "role_scale");
+        }
+
+        @Override
+        public void build(RoleScaleParams params, StepBuildContext context) {
+            if (params.scale() == null) {
+                return;
+            }
+            SceneBuilder scene = context.builder();
+            PonderPlayerElement element = playerElement(context, params.linkId());
+            float scale = params.scale();
+            scene.addInstruction(ps -> {
+                PonderPlayerElement target = resolvePlayer(ps, element);
+                if (target != null) {
+                    target.scale(scale);
+                }
+            });
+        }
+    }
+
+    /** {@code role_hide} 的参数。 */
+    record RoleHideParams(String linkId, boolean visible) {
+    }
+
+    /** 隐藏 / 恢复已有玩家模型；与 {@code create_entity} 配合演示「变成某个实体」。 */
+    static final class RoleHideStep implements StepType<RoleHideParams> {
+        @Override
+        public StepCodec<RoleHideParams> codec() {
+            return new StepCodec<>() {
+                @Override
+                public RoleHideParams decode(JsonObject data) {
+                    return new RoleHideParams(readString(data, "linkId"),
+                            !data.has("visible") || data.get("visible").getAsBoolean());
+                }
+
+                @Override
+                public JsonObject encode(RoleHideParams value) {
+                    JsonObject data = new JsonObject();
+                    if (value.linkId() != null) {
+                        data.addProperty("linkId", value.linkId());
+                    }
+                    data.addProperty("visible", value.visible());
+                    return data;
+                }
+            };
+        }
+
+        @Override
+        public String editorLabel() {
+            return text(KEY_PREFIX + "role_hide");
+        }
+
+        @Override
+        public void build(RoleHideParams params, StepBuildContext context) {
+            SceneBuilder scene = context.builder();
+            PonderPlayerElement element = playerElement(context, params.linkId());
+            boolean visible = params.visible();
+            scene.addInstruction(ps -> {
+                PonderPlayerElement target = resolvePlayer(ps, element);
+                if (target != null) {
+                    target.setVisible(visible);
                 }
             });
         }

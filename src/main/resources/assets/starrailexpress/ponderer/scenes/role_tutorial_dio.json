@@ -225,51 +225,6 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 200,
-          "color": "blue"
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "The Clockmaker, Jotaro, and Sakuya can move during time stop.",
-                "zh_cn": "在时间停止期间，除了你以外的大部分玩家将无法移动、无法使用物品。",
-                "zh_tw": "在時間停止期間，除了你以外的大部分玩家將無法移動、無法使用物品。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 40
-        },
-        {
           "type": "text",
           "duration": 149,
           "text": {

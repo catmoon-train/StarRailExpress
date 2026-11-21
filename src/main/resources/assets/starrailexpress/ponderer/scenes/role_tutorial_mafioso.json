@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.mafioso",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "trainmurdermystery:revolver"
   ],
   "title": {
     "en_us": "Mafioso",
@@ -144,6 +142,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "attachKeyFrame": true,
+          "pos": [
+            1.6,
+            1.55,
+            1.6
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:revolver",
+          "linkId": "mafioso_item"
+        },
+        {
           "type": "text",
           "duration": 74,
           "text": {
@@ -207,6 +222,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:revolver",
+          "linkId": "mafioso_shop_line_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 83,
           "text": {
@@ -225,6 +257,23 @@
         {
           "type": "idle",
           "duration": 93
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.35,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:revolver",
+          "linkId": "mafioso_shop_line_1",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

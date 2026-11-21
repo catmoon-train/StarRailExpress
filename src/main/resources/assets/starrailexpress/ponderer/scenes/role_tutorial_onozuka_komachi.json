@@ -144,6 +144,20 @@
           "attachKeyFrame": true
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "onozuka_komachi_skill_target_0",
+            "outline": -3698527
+          }
+        },
+        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
@@ -377,6 +391,23 @@
             "role": "onozuka_komachi",
             "columns": 4
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:psycho_mode",
+          "linkId": "onozuka_komachi_shop_line_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

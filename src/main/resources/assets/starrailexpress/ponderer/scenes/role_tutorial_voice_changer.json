@@ -163,6 +163,20 @@
           "attachKeyFrame": true
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "voice_changer_skill_target_0",
+            "outline": -7077677
+          }
+        },
+        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
@@ -252,6 +266,20 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "voice_changer_skill_target_1",
+            "outline": -7077677
+          }
         },
         {
           "type": "starrailexpress:role_key",

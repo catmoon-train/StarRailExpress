@@ -158,6 +158,20 @@
           "attachKeyFrame": true
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "echo_listener_skill_target_0",
+            "outline": -11637126
+          }
+        },
+        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [

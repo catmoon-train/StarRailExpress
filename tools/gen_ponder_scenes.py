@@ -371,9 +371,11 @@ def sound_for(text):
 # 这些段落里的句子才需要追加动作；body / vision / bond / form / domain / shop / screen
 # 已经有各自的专属演示，再叠一套动作只会让画面变乱。
 ACT_SEGMENTS = {"skill", "panel", "details", "items", "mood", "vitals"}
+# 「金币」「使用」太宽：商店价格、普通道具描述都会命中，给没有技能的职业
+# 平白添一个技能键帽。真正要演示的触发方式用下面这些明确的词。
 ACTION_WORDS = ("技能", "按下", "右键", "左键", "按住", "蹲下", "传送", "交换", "标记",
-                "查看", "中毒", "护盾", "治愈", "治疗", "冷却", "金币", "切换", "召回",
-                "瞬移", "施放", "释放", "使用", "打开背包", "打开物品栏")
+                "查看", "中毒", "护盾", "治愈", "治疗", "冷却", "切换", "召回",
+                "瞬移", "施放", "释放", "打开背包", "打开物品栏")
 
 
 def has_action(zh):
@@ -399,21 +401,41 @@ def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None
     item_link = rid + "_skill_item_" + suffix
     item = pick_item(facts)
 
+    # 被动描述（「拥有护盾」「击杀获得金币」）不该有技能键帽和走动；
+    # 只有明确写了触发方式的句子才演「按键 → 动作」。
+    triggered = any(word in zh for word in
+                    ("技能", "按下", "按键", "右键", "左键", "按住", "施放", "释放", "切换", "蹲下"))
+
     def key():
-        steps.append(key_cap(head))
+        if triggered:
+            steps.append(key_cap(head))
+
+    def walk_to(point, duration):
+        if triggered:
+            steps.append(custom("role_walk", {"linkId": link, "to": list(point), "duration": duration}))
 
     def particles_at(point, **kwargs):
         particle = particle_for(zh) or "minecraft:effect"
         steps.append(scene_particle(particle, point, **kwargs))
 
     # 互动类机制需要一个目标玩家；放在模型视线前方，不与主角重合。
+    target_added = False
+
     def add_target():
+        nonlocal target_added
+        if target_added:
+            return
         steps.append(player_step(target, target_link, outline=outline))
+        target_added = True
+
+    # 只要这一句在讲玩家 / 其他人，画面里就必须真的有第二个玩家。
+    if any(word in zh for word in ("玩家", "其他人", "他人", "目标", "对方")):
+        add_target()
 
     if "交换" in zh and "位置" in zh:
         add_target()
         key()
-        steps.append(custom("role_walk", {"linkId": link, "to": [tx, ty, tz - 0.8], "duration": 40}))
+        walk_to([tx, ty, tz - 0.8], 40)
         steps.append({"type": "idle", "duration": 20})
         steps.append(scene_particle("minecraft:portal", [px, py + 0.9, pz], count=12, duration=40))
         steps.append(scene_particle("minecraft:portal", [tx, ty + 0.9, tz], count=12, duration=40))
@@ -430,7 +452,7 @@ def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None
         steps.append({"type": "highlight_section", "blockPos": mark, "blockPos2": mark,
                       "duration": 380, "color": "green"})
         steps.append({"type": "idle", "duration": 35})
-        steps.append(custom("role_walk", {"linkId": link, "to": away, "duration": 50}))
+        walk_to(away, 50)
         steps.append({"type": "idle", "duration": 20})
         key()
         steps.append(scene_particle("minecraft:portal", [away[0], away[1] + 0.9, away[2]], count=12, duration=45))
@@ -471,7 +493,7 @@ def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None
     if any(word in zh for word in ("击杀", "杀死", "击倒", "尸体")):
         add_target()
         key()
-        steps.append(custom("role_walk", {"linkId": link, "to": [tx - 0.9, ty, tz], "duration": 45}))
+        walk_to([tx - 0.9, ty, tz], 45)
         steps.append({"type": "idle", "duration": 15})
         steps.append(scene_particle("minecraft:crit", [tx, ty + 1.1, tz], count=10, duration=30))
         steps.append(custom("role_death", {"linkId": target_link, "pos": [tx, ty, tz],
@@ -490,7 +512,7 @@ def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None
         steps.append({"type": "show_controls", "action": "right", "item": item,
                       "duration": 70, "point": [px, py + 2.0, pz],
                       "direction": "down"})
-        steps.append(custom("role_walk", {"linkId": link, "to": [tx - 0.9, ty, tz], "duration": 40}))
+        walk_to([tx - 0.9, ty, tz], 40)
         steps.append(scene_particle("wathe:poison", [tx, ty + 0.8, tz], count=8, duration=80))
         steps.append({"type": "idle", "duration": 35})
         return steps, panel
@@ -571,14 +593,14 @@ def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None
                       "linkId": item_link})
         steps.append({"type": "show_controls", "action": "right" if "右键" in zh else "left",
                       "item": item, "duration": 70, "point": head, "direction": "down"})
-        steps.append(custom("role_walk", {"linkId": link, "to": [tx - 0.9, ty, tz], "duration": 35}))
+        walk_to([tx - 0.9, ty, tz], 35)
         particles_at([tx, ty + 0.8, tz], count=8, duration=55)
         steps.append({"type": "idle", "duration": 25})
         return steps, panel
 
     # 兜底也是一次真实演示：键帽 + 走向目标 + 目标处指示，而不是纯文字。
     key()
-    steps.append(custom("role_walk", {"linkId": link, "to": [tx - 0.9, ty, tz], "duration": 40}))
+    walk_to([tx - 0.9, ty, tz], 40)
     steps.append({"type": "highlight_section", "blockPos": [int(tx), 0, int(tz)],
                   "blockPos2": [int(tx), 0, int(tz)], "duration": 200, "color": "green"})
     particles_at([tx, ty + 0.9, tz], count=6, duration=50)
@@ -615,8 +637,526 @@ class SceneBuilder:
                       "attachKeyFrame": True})
 
 
+# ---------------------------------------------------------------- 逐职业特写
+#
+# 这些职业的机制没法用通用模版表达（抱人上车、刀枪外观互换、浇油 / 点火、
+# 商店唱片、没有技能的 baka 等），单独写清楚每一幕放谁、拿什么、变什么。
+SKIN_REMILIA = "starrailexpress:textures/entity/custom_psycho/remilia.png"
+SKIN_BLACK = "noellesroles:textures/entity/custom_psycho/black_psycho.png"
+SKIN_WHITE = "noellesroles:textures/entity/custom_psycho/white_psycho.png"
+SKIN_JESTER = "starrailexpress:textures/entity/custom_psycho/jester.png"
+SKIN_CAT = "starrailexpress:textures/entity/custom_psycho/cat_killer.png"
+
+ROLE_ITEMS = {
+    "kafu_chino": ["noellesroles:chino_coffee"],
+    "houjuu_nue": ["trainmurdermystery:knife", "trainmurdermystery:revolver",
+                   "trainmurdermystery:lockpick", "noellesroles:master_key"],
+    "arsonist": ["stupid_express:jerry_can", "stupid_express:lighter",
+                 "stupid_express:large_oil_can", "stupid_express:fire_gun"],
+    "baka": ["noellesroles:danmuku", "noellesroles:problem_set"],
+    "disc_master": ["noellesroles:speaker", "minecraft:music_disc_13"],
+}
+
+# 这些职业没有主动技能键，不能因为介绍里写了「右键道具」就塞技能键帽和走动。
+NO_SKILL_KEY_ROLES = {"baka"}
+
+ORANGE = 0xFFA500
+GRAY = 0x808080
+
+
+def item_entity(pos, item, link_id):
+    return {"type": "create_item_entity", "pos": list(pos), "motion": [0.0, 0.0, 0.0],
+            "count": 1, "item": item, "linkId": link_id, "attachKeyFrame": True}
+
+
+def show_right_click(point, item, duration=70):
+    return {"type": "show_controls", "action": "right", "item": item, "duration": duration,
+            "point": list(point), "direction": "down", "attachKeyFrame": True}
+
+
+def override_kafu_skill(builder, ctx):
+    """咖啡师把范围内的兔兔玩家抱到头顶，目标缩小并做蹲坐姿态。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    main, rider = ctx["rid"] + "_main", ctx["rid"] + "_rider"
+    builder.add(player_step(t, rider, outline=ctx["outline_color"]))
+    builder.add({"type": "idle", "duration": 18})
+    for index, line in enumerate(ctx["lines"]):
+        head = [p[0], p[1] + 2.0, p[2]]
+        builder.add(key_cap(head))
+        # 目标先回到咖啡师脚边，再「被抱起来」落到视觉头顶；
+        # Minecraft 玩家没有 SITTING pose，用蹲下 + 0.62 缩放表达坐在头顶的小兔兔。
+        builder.add(custom("role_teleport", {"linkId": rider, "pos": [p[0] + 0.6, p[1], p[2]]}))
+        builder.add({"type": "idle", "duration": 12})
+        builder.add(custom("role_teleport", {"linkId": rider, "pos": [p[0], p[1] + 1.8, p[2]]}))
+        builder.add(custom("role_pose", {"linkId": rider, "pose": "crouching"}))
+        builder.add(custom("role_scale", {"linkId": rider, "scale": 0.62}))
+        builder.add(scene_particle("minecraft:effect", head, count=8, duration=60))
+        builder.add(custom("role_timer", {"progress": [1.0, 0.0], "lines": [line]}))
+        builder.add({"type": "indicate_success", "blockPos": [int(p[0]), 0, int(p[2])]})
+        builder.say(line)
+
+
+def override_nue_form(builder, ctx):
+    """鵺：手里拿真刀却显示枪、拿真枪却显示刀、拿开锁器显示万能钥匙。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    main = ctx["rid"] + "_main"
+    builder.add(player_step(t, ctx["rid"] + "_observer", outline=ctx["outline_color"]))
+    pairs = [
+        ("trainmurdermystery:knife", "trainmurdermystery:revolver"),
+        ("trainmurdermystery:revolver", "trainmurdermystery:knife"),
+        ("trainmurdermystery:lockpick", "noellesroles:master_key"),
+    ]
+    for index, line in enumerate(ctx["lines"]):
+        for slot, (real, shown) in enumerate(pairs):
+            ground = [p[0] - 1.2 + slot * 0.8, p[1] + 0.55, p[2] - 1.0]
+            builder.add(item_entity(ground, real, ctx["rid"] + "_real_" + str(index) + "_" + str(slot)))
+            builder.add(custom("role_hold", {"linkId": main, "item": shown}))
+            builder.add(show_right_click([p[0], p[1] + 2.0, p[2]], real, 55))
+            builder.add({"type": "idle", "duration": 18})
+        builder.say(line)
+
+
+def override_nue_skill(builder, ctx):
+    """鵺的短冷却刀击：演示挥刀 + 目标消失，不要把它演成普通击杀流程。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    rid, main = ctx["rid"], ctx["rid"] + "_main"
+    builder.add(player_step(t, rid + "_target", outline=ctx["outline_color"]))
+    for line in ctx["lines"]:
+        builder.add(custom("role_hold", {"linkId": main, "item": "trainmurdermystery:knife"}))
+        builder.add(key_cap([p[0], p[1] + 2.0, p[2]]))
+        builder.add(custom("role_walk", {"linkId": main, "to": [t[0] - 0.8, t[1], t[2]], "duration": 36}))
+        builder.add(scene_particle("minecraft:crit", [t[0], t[1] + 1.1, t[2]], count=8, duration=30))
+        builder.add(custom("role_death", {"linkId": rid + "_target", "pos": t}))
+        builder.add(custom("role_timer", {"progress": [1.0, 0.0], "lines": [line]}))
+        builder.say(line)
+
+
+def override_arsonist_items(builder, ctx):
+    """纵火犯：浇油、点火失败警告、疯魔喷火、大油罐，全程多个玩家在场。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    rid, main = ctx["rid"], ctx["rid"] + "_main"
+    currency_used = False
+    disguise_used = False
+    third = [t[0], t[1], t[2] + 1.4]
+    builder.add(player_step(t, rid + "_oiled"))
+    builder.add(player_step(third, rid + "_dry"))
+    oiled, dry = rid + "_oiled", rid + "_dry"
+    cans = ["stupid_express:jerry_can", "stupid_express:lighter"]
+    for index, line in enumerate(ctx["lines"]):
+        zh = line.get("zh_cn", "")
+        if index == 0:
+            for slot, item in enumerate(cans):
+                builder.add(item_entity([p[0] - 1.2 + slot * 0.8, p[1] + 0.55, p[2] - 1.0],
+                                        item, rid + "_start_" + str(slot)))
+            builder.add(custom("role_hold", {"linkId": main, "item": cans[0]}))
+            builder.add(custom("role_outline", {"linkId": oiled, "color": GRAY}))
+        elif "浇上汽油" in zh or "浇油" in zh:
+            builder.add(custom("role_hold", {"linkId": main, "item": cans[0]}))
+            builder.add(show_right_click([p[0], p[1] + 2.0, p[2]], cans[0]))
+            builder.add(custom("role_walk", {"linkId": main, "to": [t[0] - 0.8, t[1], t[2]], "duration": 40}))
+            builder.add(scene_particle("minecraft:effect", [t[0], t[1] + 0.9, t[2]], count=10, duration=70))
+            builder.add(custom("role_outline", {"linkId": oiled, "color": ORANGE}))
+            if not currency_used:
+                builder.add(custom("role_currency", {"progress": [0.3, 0.6], "lines": [line]}))
+                currency_used = True
+        elif "警告" in zh:
+            builder.add(custom("role_hold", {"linkId": main, "item": cans[1]}))
+            builder.add(show_right_click([p[0], p[1] + 2.0, p[2]], cans[1]))
+            builder.add(custom("role_timer", {"progress": [0.0, 1.0], "lines": [line]}))
+        elif "疯魔皮肤" in zh or "喷火枪" in zh:
+            builder.add(custom("role_hold", {"linkId": main, "item": "stupid_express:flamethrower"}))
+            if not disguise_used:
+                builder.add(custom("role_disguise", {"label": "ponder.starrailexpress.label.psycho",
+                                                     "lines": [line]}))
+                disguise_used = True
+        elif "大油罐" in zh:
+            builder.add(item_entity([p[0] - 1.0, p[1] + 0.55, p[2] - 1.0],
+                                    "stupid_express:large_oil_can", rid + "_large_can"))
+            builder.add(show_right_click([p[0], p[1] + 2.0, p[2]], "stupid_express:large_oil_can"))
+            builder.add(scene_particle("minecraft:flame", [t[0], t[1] + 0.9, t[2]], count=12, duration=70))
+            builder.add(custom("role_outline", {"linkId": oiled, "color": ORANGE}))
+            builder.add(custom("role_outline", {"linkId": dry, "color": GRAY}))
+        builder.say(line)
+
+
+def override_arsonist_skill(builder, ctx):
+    """80% 玩家被浇油后，右键打火机点火；被烧死者不留尸体。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    rid, main = ctx["rid"], ctx["rid"] + "_main"
+    third = [t[0], t[1], t[2] + 1.4]
+    builder.add(player_step(t, rid + "_burn_1", outline=ORANGE))
+    builder.add(player_step(third, rid + "_burn_2", outline=ORANGE))
+    for line in ctx["lines"]:
+        builder.add(custom("role_hold", {"linkId": main, "item": "stupid_express:lighter"}))
+        builder.add(key_cap([p[0], p[1] + 2.0, p[2]]))
+        builder.add(show_right_click([p[0], p[1] + 2.0, p[2]], "stupid_express:lighter"))
+        builder.add(scene_particle("minecraft:flame", [t[0], t[1] + 0.9, t[2]], count=14, duration=80))
+        builder.add(scene_particle("minecraft:flame", [third[0], third[1] + 0.9, third[2]],
+                                   count=14, duration=80))
+        builder.add(custom("role_death", {"linkId": rid + "_burn_1", "pos": t, "corpse": False}))
+        builder.add(custom("role_death", {"linkId": rid + "_burn_2", "pos": third, "corpse": False}))
+        builder.say(line)
+
+
+def override_arsonist_shop(builder, ctx):
+    """纵火犯商店：开锁器 / 撬棍 / 大油罐 / 火枪，每句对应商品摆在地上。"""
+    p = ctx["player_pos"]
+    rid = ctx["rid"]
+    items = ["trainmurdermystery:lockpick", "trainmurdermystery:crowbar",
+             "stupid_express:large_oil_can", "stupid_express:fire_gun"]
+    builder.add({"type": "starrailexpress:role_shop", "attachKeyFrame": True,
+                 "parameters": {"role": rid, "columns": 4}})
+    for index, line in enumerate(ctx["lines"]):
+        if index == 1:
+            for slot, item in enumerate(items):
+                builder.add(item_entity([p[0] - 1.4 + slot * 0.75, p[1] + 0.55, p[2] - 1.2],
+                                        item, rid + "_shop_" + str(slot)))
+        elif "火枪" in line.get("zh_cn", ""):
+            builder.add(custom("role_hold", {"linkId": rid + "_main", "item": "stupid_express:fire_gun"}))
+            builder.add(show_right_click([p[0], p[1] + 2.0, p[2]], "stupid_express:fire_gun"))
+        builder.say(line)
+
+
+def override_arsonist_body(builder, ctx):
+    """被烧死的玩家不留下尸体：目标消失且没有 player_body。"""
+    t = ctx["second_pos"]
+    builder.add(player_step(t, ctx["rid"] + "_burned"))
+    for line in ctx["lines"]:
+        builder.add(custom("role_death", {"linkId": ctx["rid"] + "_burned", "pos": t, "corpse": False}))
+        builder.add(scene_particle("minecraft:smoke", [t[0], t[1] + 0.8, t[2]], count=8, duration=50))
+        builder.say(line)
+
+
+def override_arsonist_vision(builder, ctx):
+    """透视颜色必须和介绍一致：浇油橙、其他人灰。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    third = [t[0], t[1], t[2] + 1.4]
+    builder.add(player_step(t, ctx["rid"] + "_oiled", outline=ORANGE))
+    builder.add(player_step(third, ctx["rid"] + "_dry", outline=GRAY))
+    builder.add({"type": "starrailexpress:role_render", "attachKeyFrame": True,
+                 "parameters": {"label": SEGMENT_TITLE_KEY["vision"],
+                                "lines": [dict(line) for line in ctx["lines"]]}})
+    for line in ctx["lines"]:
+        builder.add({"type": "idle", "duration": 20})
+        builder.say(line)
+
+
+def override_baka_items(builder, ctx):
+    """baka 没有技能键：弹幕长按右键蓄力后命中目标，目标死亡。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    rid, main = ctx["rid"], ctx["rid"] + "_main"
+    builder.add(player_step(t, rid + "_target"))
+    for line in ctx["lines"]:
+        builder.add(custom("role_hold", {"linkId": main, "item": "noellesroles:danmuku"}))
+        builder.add(item_entity([p[0] - 1.0, p[1] + 0.55, p[2] - 1.0],
+                                "noellesroles:danmuku", rid + "_danmuku"))
+        builder.add(show_right_click([p[0], p[1] + 2.0, p[2]], "noellesroles:danmuku", 90))
+        builder.add(scene_particle("minecraft:crit", [t[0], t[1] + 1.1, t[2]], count=8, duration=30))
+        builder.add(custom("role_death", {"linkId": rid + "_target", "pos": t}))
+        builder.say(line)
+
+
+def override_baka_panel(builder, ctx):
+    """习题集确实有右键打开界面，但那不是技能键，也不需要走动。"""
+    p = ctx["player_pos"]
+    rid = ctx["rid"]
+    builder.add({"type": "starrailexpress:role_panel", "attachKeyFrame": True,
+                 "parameters": {"title": SEGMENT_TITLE_KEY["panel"],
+                                "lines": [dict(line) for line in ctx["lines"]]}})
+    for line in ctx["lines"]:
+        builder.add(item_entity([p[0] - 1.0, p[1] + 0.55, p[2] - 1.0],
+                                "noellesroles:problem_set", rid + "_problem_set"))
+        builder.add(custom("role_hold", {"linkId": rid + "_main", "item": "noellesroles:problem_set"}))
+        builder.add(show_right_click([p[0], p[1] + 2.0, p[2]], "noellesroles:problem_set"))
+        builder.say(line)
+
+
+def override_baka_shop(builder, ctx):
+    p = ctx["player_pos"]
+    rid = ctx["rid"]
+    builder.add({"type": "starrailexpress:role_shop", "attachKeyFrame": True,
+                 "parameters": {"role": rid, "columns": 4}})
+    for line in ctx["lines"]:
+        builder.add(item_entity([p[0] - 1.0, p[1] + 0.55, p[2] - 1.0],
+                                "noellesroles:problem_set", rid + "_shop_book"))
+        builder.say(line)
+
+
+def override_baka_mood(builder, ctx):
+    """考试结果只改心情和金币，不额外摆物品、不加按键。"""
+    builder.add({"type": "starrailexpress:role_mood", "attachKeyFrame": True,
+                 "parameters": {"label": SEGMENT_TITLE_KEY["mood"],
+                                "before": 0.35, "after": 0.85,
+                                "lines": [dict(line) for line in ctx["lines"]]}})
+    for line in ctx["lines"]:
+        builder.say(line)
+
+
+def override_baka_details(builder, ctx):
+    """baka 的其余句子只讲结果，不要再自动加按键 / 走动 / 随手物品。"""
+    for line in ctx["lines"]:
+        builder.say(line)
+
+
+def override_disc_master_shop(builder, ctx):
+    """唱片师：商店的一句介绍对应一台音箱 + 几张真实唱片。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    rid = ctx["rid"]
+    builder.add(player_step(t, rid + "_listener", outline=ctx["outline_color"]))
+    builder.add({"type": "starrailexpress:role_shop", "attachKeyFrame": True,
+                 "parameters": {"role": rid, "columns": 4}})
+    items = ["noellesroles:speaker", "minecraft:music_disc_13",
+             "minecraft:music_disc_cat", "minecraft:music_disc_blocks"]
+    for line in ctx["lines"]:
+        for slot, item in enumerate(items):
+            builder.add(item_entity([p[0] - 1.4 + slot * 0.75, p[1] + 0.55, p[2] - 1.2],
+                                    item, rid + "_disc_" + str(slot)))
+        builder.add(custom("role_hold", {"linkId": rid + "_main", "item": "noellesroles:speaker"}))
+        builder.add(show_right_click([p[0], p[1] + 2.0, p[2]], "minecraft:music_disc_13"))
+        builder.say(line)
+
+
+def mob_entity(entity, pos, link_id, nbt=None):
+    step = {"type": "create_entity", "entity": entity, "pos": list(pos),
+            "yaw": 180.0, "linkId": link_id, "attachKeyFrame": True}
+    if nbt:
+        step["nbt"] = nbt
+    return step
+
+
+def disguise_perform(builder, ctx, lines, entity=None, skin=None, block=None,
+                     scale=None, second_skin=None, extra=None):
+    """把「玩家消失 → 新形态出现」真正画出来，而不是只丢一块文字面板。
+
+    每个职业传进来的实体 / 皮肤 / 方块都不同，这里是共用的摆放顺序，
+    具体变成什么由各职业的 override 明确指定。
+    """
+    p = ctx["player_pos"]
+    t = ctx["second_pos"]
+    rid = ctx["rid"]
+    main = rid + "_main"
+    if extra:
+        for step in extra:
+            builder.add(step)
+    if entity is None and skin is None and scale is None:
+        # 纯身份伪装（例如轮盘恶魔的黑烟）也要把玩家藏起来再贴标签。
+        builder.add(custom("role_hide", {"linkId": main, "visible": False}))
+    else:
+        if entity is not None:
+            builder.add(custom("role_hide", {"linkId": main, "visible": False}))
+            builder.add(mob_entity(entity, p, rid + "_disguised"))
+        if block is not None:
+            builder.add(custom("role_hide", {"linkId": main, "visible": False}))
+            builder.add({"type": "set_block", "block": block,
+                         "blockPos": [int(p[0]), int(p[1]), int(p[2])],
+                         "blockPos2": [int(p[0]), int(p[1]), int(p[2])]})
+        if skin is not None:
+            builder.add(custom("role_hide", {"linkId": main, "visible": False}))
+            builder.add(player_step(p, rid + "_disguised", skin=skin))
+            if second_skin is not None:
+                builder.add(custom("role_hide", {"linkId": rid + "_observer", "visible": False}))
+                builder.add(player_step(t, rid + "_observer_new", skin=second_skin))
+        if scale is not None:
+            builder.add(custom("role_scale", {"linkId": main, "scale": scale}))
+    builder.add({"type": "starrailexpress:role_disguise", "attachKeyFrame": True,
+                 "parameters": {"label": SEGMENT_TITLE_KEY["form"],
+                                "lines": [dict(line) for line in lines], "color": 0xFFA500}})
+    builder.add({"type": "idle", "duration": 25})
+    for line in lines:
+        builder.say(line)
+
+
+def override_rabbit_form(builder, ctx):
+    lines = [line for line in ctx["all_lines"] if any(
+        w in line.get("zh_cn", "") for w in ("变为兔兔", "变成兔兔", "所有玩家均变成"))]
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    third = [t[0] - 2.0, t[1], t[2]]
+    extra = [player_step(t, ctx["rid"] + "_target"), player_step(third, ctx["rid"] + "_third")]
+    disguise_perform(builder, ctx, lines or ctx["all_lines"][:2], extra=extra)
+    builder.add(custom("role_hide", {"linkId": ctx["rid"] + "_target", "visible": False}))
+    builder.add(custom("role_hide", {"linkId": ctx["rid"] + "_third", "visible": False}))
+    builder.add(mob_entity("minecraft:rabbit", t, ctx["rid"] + "_rabbit_1"))
+    builder.add(mob_entity("minecraft:rabbit", third, ctx["rid"] + "_rabbit_2"))
+
+
+def override_snow_golem_form(builder, ctx):
+    lines = ctx["lines"] or [line for line in ctx["all_lines"] if "雪傀儡" in line.get("zh_cn", "")]
+    disguise_perform(builder, ctx, lines, entity="minecraft:snow_golem")
+
+
+def override_metal_monster_form(builder, ctx):
+    lines = [line for line in ctx["all_lines"] if "钢卷" in line.get("zh_cn", "")]
+    disguise_perform(builder, ctx, lines or ctx["all_lines"][:2], block="noellesroles:steel_coil")
+
+
+def override_morphling_form(builder, ctx):
+    lines = [line for line in ctx["all_lines"] if "皮肤" in line.get("zh_cn", "")]
+    disguise_perform(builder, ctx, lines or ctx["all_lines"][:1], skin=SKIN_BLACK)
+    builder.add(custom("role_timer", {"progress": [1.0, 0.0],
+                                      "lines": lines or ctx["all_lines"][:1]}))
+
+
+def override_tomato_form(builder, ctx):
+    lines = [line for line in ctx["all_lines"] if "西红柿" in line.get("zh_cn", "")]
+    p = ctx["player_pos"]
+    disguise_perform(builder, ctx, lines or ctx["all_lines"][:1],
+                     extra=[item_entity([p[0], p[1] + 0.55, p[2]],
+                                        "noellesroles:tomato", ctx["rid"] + "_tomato")])
+    builder.add(custom("role_hide", {"linkId": ctx["rid"] + "_main", "visible": False}))
+    builder.add(custom("role_timer", {"progress": [1.0, 0.0], "lines": lines or []}))
+
+
+def override_embalmer_form(builder, ctx):
+    lines = [line for line in ctx["all_lines"] if "皮肤" in line.get("zh_cn", "")]
+    extra = [player_step(ctx["second_pos"], ctx["rid"] + "_observer")]
+    disguise_perform(builder, ctx, lines or ctx["all_lines"][:1],
+                     skin=SKIN_REMILIA, second_skin=SKIN_BLACK, extra=extra)
+
+
+def override_skincrawler_form(builder, ctx):
+    lines = [line for line in ctx["all_lines"] if "皮肤" in line.get("zh_cn", "")]
+    t = ctx["second_pos"]
+    extra = [item_entity([t[0], t[1] + 0.55, t[2]], "trainmurdermystery:player_body",
+                         ctx["rid"] + "_stolen_body")]
+    disguise_perform(builder, ctx, lines or ctx["all_lines"][:1], skin=SKIN_REMILIA, extra=extra)
+
+
+def override_doomed_sinner_form(builder, ctx):
+    lines = [line for line in ctx["all_lines"] if "皮肤" in line.get("zh_cn", "")]
+    t = ctx["second_pos"]
+    extra = [player_step(t, ctx["rid"] + "_donor")]
+    disguise_perform(builder, ctx, lines or ctx["all_lines"][:1], skin=SKIN_CAT, extra=extra)
+    builder.add(custom("role_death", {"linkId": ctx["rid"] + "_donor", "pos": t}))
+
+
+def override_amon_form(builder, ctx):
+    lines = [line for line in ctx["all_lines"] if "皮肤" in line.get("zh_cn", "")]
+    extra = [player_step(ctx["second_pos"], ctx["rid"] + "_host")]
+    disguise_perform(builder, ctx, lines or ctx["all_lines"][:1],
+                     skin=SKIN_REMILIA, scale=1.0, extra=extra)
+    builder.add(custom("role_scale", {"linkId": ctx["rid"] + "_main", "scale": 0.25}))
+
+
+def override_leather_pig_form(builder, ctx):
+    lines = [line for line in ctx["all_lines"] if "一头猪" in line.get("zh_cn", "")]
+    disguise_perform(builder, ctx, lines or ctx["all_lines"][:1], entity="minecraft:pig")
+
+
+def override_nature_spirit_form(builder, ctx):
+    lines = [line for line in ctx["all_lines"] if "伪装成脚下" in line.get("zh_cn", "")]
+    disguise_perform(builder, ctx, lines or ctx["all_lines"][:1], block="minecraft:grass_block")
+
+
+def override_pumpkin_spirit_form(builder, ctx):
+    lines = [line for line in ctx["all_lines"] if "变成蝙蝠" in line.get("zh_cn", "")]
+    disguise_perform(builder, ctx, lines or ctx["all_lines"][:1], entity="minecraft:bat")
+
+
+def override_magician_form(builder, ctx):
+    lines = [line for line in ctx["all_lines"] if "扮演" in line.get("zh_cn", "") or
+             "伪装" in line.get("zh_cn", "")]
+    disguise_perform(builder, ctx, lines or ctx["all_lines"][:2], skin=SKIN_JESTER)
+
+
+def override_vulture_form(builder, ctx):
+    lines = [line for line in ctx["all_lines"] if "变为随机杀手" in line.get("zh_cn", "") or
+             "变成杀手" in line.get("zh_cn", "")]
+    disguise_perform(builder, ctx, lines or ctx["all_lines"][:1], skin=SKIN_BLACK)
+
+
+def override_gambler_form(builder, ctx):
+    lines = [line for line in ctx["all_lines"] if "变成" in line.get("zh_cn", "")]
+    disguise_perform(builder, ctx, lines or ctx["all_lines"][:1], skin=SKIN_WHITE)
+
+
+def override_roulette_devil_form(builder, ctx):
+    lines = [line for line in ctx["all_lines"] if "常态伪装" in line.get("zh_cn", "") or
+             "黑色烟雾" in line.get("zh_cn", "")]
+    p = ctx["player_pos"]
+    disguise_perform(builder, ctx, lines or ctx["all_lines"][:2],
+                     extra=[scene_particle("minecraft:smoke", [p[0], p[1] + 0.9, p[2]],
+                                           count=12, duration=80)])
+
+
+def override_dreadlord_form(builder, ctx):
+    lines = [line for line in ctx["all_lines"] if "伪装" in line.get("zh_cn", "") or
+             "皮肤" in line.get("zh_cn", "") or "杀戮形态" in line.get("zh_cn", "")]
+    extra = [player_step(ctx["second_pos"], ctx["rid"] + "_observer")]
+    disguise_perform(builder, ctx, lines or ctx["all_lines"][:2],
+                     skin=SKIN_REMILIA, second_skin=SKIN_CAT, scale=1.5, extra=extra)
+
+
+def override_entity303_form(builder, ctx):
+    lines = [line for line in ctx["all_lines"] if "窃皮" in line.get("zh_cn", "") or
+             "偷脸" in line.get("zh_cn", "") or "伪装" in line.get("zh_cn", "")]
+    extra = [player_step(ctx["second_pos"], ctx["rid"] + "_face_donor")]
+    disguise_perform(builder, ctx, lines or ctx["all_lines"][:2], skin=SKIN_BLACK, extra=extra)
+
+
+def override_monokuma_form(builder, ctx):
+    lines = [line for line in ctx["all_lines"] if "伪装为义警" in line.get("zh_cn", "") or
+             "黑白熊" in line.get("zh_cn", "")]
+    disguise_perform(builder, ctx, lines or ctx["all_lines"][:2], skin=SKIN_WHITE, scale=1.5)
+
+
+def override_purple_monster_form(builder, ctx):
+    lines = [line for line in ctx["all_lines"] if "伪装成" in line.get("zh_cn", "") or
+             "本体" in line.get("zh_cn", "")]
+    extra = [player_step(ctx["second_pos"], ctx["rid"] + "_loved_one")]
+    disguise_perform(builder, ctx, lines or ctx["all_lines"][:2],
+                     skin=SKIN_REMILIA, second_skin=SKIN_CAT, extra=extra)
+
+
+def override_raven_form(builder, ctx):
+    lines = [line for line in ctx["all_lines"] if "黑色伪装" in line.get("zh_cn", "") or
+             "猎杀态" in line.get("zh_cn", "")]
+    disguise_perform(builder, ctx, lines or ctx["all_lines"][:1], skin=SKIN_BLACK)
+
+
+ROLE_SEGMENT_OVERRIDES = {
+    ("kafu_chino", "skill"): override_kafu_skill,
+    ("houjuu_nue", "skill"): override_nue_skill,
+    ("houjuu_nue", "form"): override_nue_form,
+    ("arsonist", "items"): override_arsonist_items,
+    ("arsonist", "skill"): override_arsonist_skill,
+    ("arsonist", "shop"): override_arsonist_shop,
+    ("arsonist", "body"): override_arsonist_body,
+    ("arsonist", "vision"): override_arsonist_vision,
+    ("baka", "items"): override_baka_items,
+    ("baka", "panel"): override_baka_panel,
+    ("baka", "shop"): override_baka_shop,
+    ("baka", "mood"): override_baka_mood,
+    ("baka", "details"): override_baka_details,
+    ("disc_master", "shop"): override_disc_master_shop,
+    ("rabbit_wansui", "form"): override_rabbit_form,
+    ("snow_golem", "form"): override_snow_golem_form,
+    ("metal_monster", "form"): override_metal_monster_form,
+    ("morphling", "form"): override_morphling_form,
+    ("tomato_head", "form"): override_tomato_form,
+    ("embalmer", "form"): override_embalmer_form,
+    ("skincrawler", "form"): override_skincrawler_form,
+    ("doomed_sinner", "form"): override_doomed_sinner_form,
+    ("amon", "form"): override_amon_form,
+    ("leather_pig", "form"): override_leather_pig_form,
+    ("nature_spirit", "form"): override_nature_spirit_form,
+    ("pumpkin_spirit", "form"): override_pumpkin_spirit_form,
+    ("magician", "form"): override_magician_form,
+    ("vulture", "form"): override_vulture_form,
+    ("gambler", "form"): override_gambler_form,
+    ("roulette_devil", "form"): override_roulette_devil_form,
+    ("dreadlord", "form"): override_dreadlord_form,
+    ("entity_303", "form"): override_entity303_form,
+    ("monokuma", "form"): override_monokuma_form,
+    ("purple_monster", "form"): override_purple_monster_form,
+    ("raven", "form"): override_raven_form,
+}
+
+
 def build_role_scene(rid, facts, intros, names, goals):
     """生成一个职业的思索场景。"""
+    facts = dict(facts)
+    if rid in ROLE_ITEMS:
+        facts["initialItems"] = list(ROLE_ITEMS[rid])
     intro = {loc: [clean(line) for line in intros[loc].get("info.screen.roleid." + rid, "").split("\n")]
              for loc in LOCALES}
     # 三语句子按索引对齐：zh_cn 的行数为准。
@@ -629,6 +1169,8 @@ def build_role_scene(rid, facts, intros, names, goals):
         en = en_lines[index] if index < len(en_lines) else zh
         tw = tw_lines[index] if index < len(tw_lines) else zh
         return {"en_us": en or zh, "zh_cn": zh, "zh_tw": tw or zh}
+
+    all_trios = [trio(i) for i in range(len(zh_lines))]
 
     if not zh_lines:
         return None
@@ -742,12 +1284,24 @@ def build_role_scene(rid, facts, intros, names, goals):
         forced = key == "screen" and bool(facts.get("inventoryScreen"))
         if key == "domain" and rid in DOMAIN_BY_ROLE:
             forced = True
+        if key == "form" and (rid, "form") in ROLE_SEGMENT_OVERRIDES:
+            # 介绍里明确写了变身 / 伪装的职业，即使没有被自动分类到 form 段也要演出来。
+            forced = True
         if not lines and not forced:
             continue
         lines = lines or []
         builder = SceneBuilder(player_pos)
         builder.add(show_structure(nbt))
         builder.add(player_step(player_pos, rid + "_main"))
+
+        override = ROLE_SEGMENT_OVERRIDES.get((rid, key))
+        if override is not None:
+            override(builder, {"rid": rid, "facts": facts, "lines": lines, "key": key,
+                               "player_pos": player_pos, "second_pos": second_pos,
+                               "outline_color": outline_color, "all_lines": all_trios})
+            builder.finish()
+            scenes.append({"id": key, "title": title, "steps": builder.steps})
+            continue
 
         if key == "items":
             initial = facts.get("initialItems") or []
@@ -835,8 +1389,14 @@ def build_role_scene(rid, facts, intros, names, goals):
                        "starrailexpress:role_bond", "starrailexpress:role_mood",
                        "starrailexpress:role_effects"}
         state_used = any(step.get("type") in state_steps for step in builder.steps)
+        shop_items = [item for item in (facts.get("shopItems") or []) if item][:4] if key == "shop" else []
         for index, line in enumerate(lines):
             zh_line = line.get("zh_cn", "")
+            if shop_items:
+                builder.add(item_entity(
+                    [player_pos[0] - 1.4 + (index % 4) * 0.75, player_pos[1] + 0.55,
+                     player_pos[2] - 1.2], shop_items[index % len(shop_items)],
+                    rid + "_shop_line_" + str(index)))
             if key in ACT_SEGMENTS and has_action(zh_line):
                 acts, _ = build_skill_act(zh_line, rid, facts,
                                           player_pos, second_pos, outline_color, str(index), line)
@@ -851,8 +1411,15 @@ def build_role_scene(rid, facts, intros, names, goals):
         builder.finish()
         scenes.append({"id": key, "title": title, "steps": builder.steps})
 
+    # 没有主动技能的职业不能被通用演绎塞进技能键帽与走动。
+    if rid in NO_SKILL_KEY_ROLES:
+        for scene in scenes:
+            scene["steps"] = [step for step in scene["steps"]
+                              if step.get("type") not in ("starrailexpress:role_key",
+                                                          "starrailexpress:role_walk")]
+
     items = []
-    for candidate in facts.get("initialItems", []) + facts.get("shopItems", []):
+    for candidate in ROLE_ITEMS.get(rid, []) + facts.get("initialItems", []) + facts.get("shopItems", []):
         if candidate not in items:
             items.append(candidate)
     if not items:

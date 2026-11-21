@@ -249,6 +249,20 @@
           "duration": 200
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "paper_doll_skill_target_1",
+            "outline": -1252146
+          }
+        },
+        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [

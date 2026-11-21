@@ -124,6 +124,20 @@
           }
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ayayaya_skill_target_0",
+            "outline": -15062470
+          }
+        },
+        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [

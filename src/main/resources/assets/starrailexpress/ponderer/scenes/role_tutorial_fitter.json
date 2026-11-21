@@ -2,9 +2,8 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.fitter",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "noellesroles:lightup",
+    "noellesroles:monitor_recovery"
   ],
   "title": {
     "en_us": "Fitter",
@@ -124,80 +123,21 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "fitter_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:explosion",
+          "type": "create_item_entity",
+          "attachKeyFrame": true,
           "pos": [
-            5.0,
-            1.9,
-            2.0
+            1.6,
+            1.55,
+            1.6
           ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 6,
-          "duration": 50,
           "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:lightup",
+          "linkId": "fitter_item"
         },
         {
           "type": "text",
@@ -246,13 +186,13 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:lightup",
           "linkId": "fitter_skill_item_1"
         },
         {
           "type": "show_controls",
           "action": "right",
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:lightup",
           "duration": 70,
           "point": [
             3.0,
@@ -321,6 +261,20 @@
           "duration": 199
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "fitter_skill_target_2",
+            "outline": -12156236
+          }
+        },
+        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
@@ -347,13 +301,13 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:lightup",
           "linkId": "fitter_skill_item_2"
         },
         {
           "type": "show_controls",
           "action": "right",
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:lightup",
           "duration": 70,
           "point": [
             3.0,
@@ -463,6 +417,23 @@
             "role": "fitter",
             "columns": 4
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:lightup",
+          "linkId": "fitter_shop_line_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -661,82 +632,6 @@
         {
           "type": "idle",
           "duration": 134
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "fitter_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            5.0,
-            1.9,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 6,
-          "duration": 50,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
         },
         {
           "type": "text",

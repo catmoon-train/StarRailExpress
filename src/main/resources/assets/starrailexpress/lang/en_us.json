@@ -4736,6 +4736,8 @@
   "ponder.starrailexpress.step.role_pose": "Change pose",
   "ponder.starrailexpress.step.role_hold": "Change held item",
   "ponder.starrailexpress.step.role_outline": "Change instinct outline",
+  "ponder.starrailexpress.step.role_hide": "Hide or restore player model",
+  "ponder.starrailexpress.step.role_scale": "Scale player model",
   "ponder.starrailexpress.step.role_screen": "Skill interface",
   "ponder.starrailexpress.step.role_ambience": "Ambience tint",
   "ponder.starrailexpress.screen.select_player": "Select a target player",

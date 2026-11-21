@@ -59,6 +59,8 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
     private float pitch = 0.0F;
     /** 模型姿态：站立、蹲下、趴下等，决定模型是站着、蹲着还是趴着。 */
     private Pose pose = Pose.STANDING;
+    /** 模型缩放：兔兔 / 侏儒这类「小人」被抱到头顶时需要缩小。 */
+    private float scale = 1.0F;
 
     @Nullable
     private GameProfile profile;
@@ -131,6 +133,12 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
         return this;
     }
 
+    /** 设置模型缩放；{@code <= 0} 视为 1，避免把顶点矩阵压成零。 */
+    public PonderPlayerElement scale(float scale) {
+        this.scale = scale > 0.0F ? scale : 1.0F;
+        return this;
+    }
+
     /** 绑定场景 Outliner；由 {@link PonderPlayerPreset} 在加入场景时调用。 */
     public PonderPlayerElement bindOutliner(@Nullable Outliner outliner) {
         this.outliner = outliner;
@@ -172,6 +180,10 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
      * 不依赖元素自己的 tick，这样走动一定跟着时间轴走。
      */
     public void beginWalk(Vec3 target, int ticks) {
+        // 上一段走动若被中断，腿可能停在半个步幅上；起步前先归零。
+        if (puppet != null) {
+            resetWalkAnimation();
+        }
         this.walkBase = offset;
         this.walkDelta = target.subtract(location).subtract(offset);
         this.walkTicks = Math.max(1, ticks);
@@ -188,7 +200,10 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
         offset = walkBase.add(walkDelta.scale(eased));
         if (puppet != null) {
             if (clamped >= 1.0F) {
-                puppet.walkAnimation.setSpeed(0.0F);
+                // 只 setSpeed(0) 会把 walkAnimation.pos 留在半个步幅上，
+                // 玩家停在终点后腿会僵在一个奇怪角度（看到的就是「鬼畜」）。
+                // 这里借 mixin accessors 同时清掉 pos 与 speed。
+                resetWalkAnimation();
             } else {
                 puppet.walkAnimation.update(1.0F, 1.0F);
                 puppet.walkAnimation.setSpeed(1.0F);
@@ -210,6 +225,17 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
         this.walkBase = Vec3.ZERO;
         this.walkDelta = null;
         this.walkTicks = 0;
+    }
+
+    /** 清零步幅与速度；思索场景不跑原版 tick，必须显式做这件事。 */
+    private void resetWalkAnimation() {
+        if (puppet == null) {
+            return;
+        }
+        // WalkAnimationState 没有 position 的 setter；用 update(-position, 1) 把相位推回 0，
+        // 再清掉 speed。MirrorReflection 里同步倒影步幅也是同一套写法。
+        puppet.walkAnimation.update(-puppet.walkAnimation.position(), 1.0F);
+        puppet.walkAnimation.setSpeed(0.0F);
     }
 
     private void registerSkinOverride() {
@@ -340,6 +366,9 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
         poseStack.translate(Mth.lerp(pt, puppet.xo, puppet.getX()),
                 Mth.lerp(pt, puppet.yo, puppet.getY()),
                 Mth.lerp(pt, puppet.zo, puppet.getZ()));
+        if (scale != 1.0F) {
+            poseStack.scale(scale, scale, scale);
+        }
 
         int light = lightCoordsFromFade(fade);
         // 手上物品由原版 ItemInHandLayer 随模型一起画，这里不需要单独摆位置。
@@ -418,6 +447,9 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
         poseStack.translate(Mth.lerp(pt, puppet.xo, puppet.getX()),
                 Mth.lerp(pt, puppet.yo, puppet.getY()),
                 Mth.lerp(pt, puppet.zo, puppet.getZ()));
+        if (scale != 1.0F) {
+            poseStack.scale(scale, scale, scale);
+        }
         // 只给人物描边：物品模型多是薄片/小方盒，按背面壳扩出来会变成一块色块，
         // 临时摘掉主手物品，画完再放回去。
         ItemStack mainHand = puppet.getMainHandItem();

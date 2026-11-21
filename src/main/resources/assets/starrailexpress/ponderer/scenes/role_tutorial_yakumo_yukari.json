@@ -247,18 +247,18 @@
           "duration": 122
         },
         {
-          "type": "starrailexpress:role_key",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
+            "pos": [
+              5.0,
+              1.0,
+              2.0
             ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
+            "yaw": 180.0,
+            "linkId": "yakumo_yukari_skill_target_1",
+            "outline": -9617280
+          }
         },
         {
           "type": "spawn_particles",
@@ -474,20 +474,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "spawn_particles",
           "particle": "minecraft:portal",
           "pos": [
@@ -583,18 +569,18 @@
           "duration": 91
         },
         {
-          "type": "starrailexpress:role_key",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
+            "pos": [
+              5.0,
+              1.0,
+              2.0
             ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
+            "yaw": 180.0,
+            "linkId": "yakumo_yukari_skill_target_1",
+            "outline": -9617280
+          }
         },
         {
           "type": "spawn_particles",
@@ -692,18 +678,18 @@
           "duration": 163
         },
         {
-          "type": "starrailexpress:role_key",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
+            "pos": [
+              5.0,
+              1.0,
+              2.0
             ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
+            "yaw": 180.0,
+            "linkId": "yakumo_yukari_skill_target_2",
+            "outline": -9617280
+          }
         },
         {
           "type": "spawn_particles",
@@ -799,20 +785,6 @@
         {
           "type": "idle",
           "duration": 195
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "spawn_particles",

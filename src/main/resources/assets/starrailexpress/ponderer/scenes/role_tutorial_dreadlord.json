@@ -236,9 +236,60 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "dreadlord_psycho",
-            "outline": -14153680
+            "linkId": "dreadlord_observer"
           }
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "dreadlord_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dreadlord_disguised",
+            "skin": "starrailexpress:textures/entity/custom_psycho/remilia.png"
+          }
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "dreadlord_observer",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dreadlord_observer_new",
+            "skin": "starrailexpress:textures/entity/custom_psycho/cat_killer.png"
+          }
+        },
+        {
+          "type": "starrailexpress:role_scale",
+          "parameters": {
+            "linkId": "dreadlord_main",
+            "scale": 1.5
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_disguise",
@@ -265,14 +316,14 @@
                 "en_us": "While disguised, getting hit staggers you for 3s; while in frenzy, getting hit locks you from attacking, moving, or using items for 8s. Slipping into Darkness does not trigger hit stagger.",
                 "zh_cn": "伪装状态下受击时僵直 3 秒；狂暴状态下受击后 8 秒无法攻击、移动或使用物品。遁入黑暗期间不触发受击僵直。",
                 "zh_tw": "偽裝狀態下受擊時僵直 3 秒；狂暴狀態下受擊後 8 秒無法攻擊、移動或使用物品。遁入黑暗期間不觸發受擊僵直。"
-              },
-              {
-                "en_us": "The scythe is usable only in frenzy; right-click to charge then swing forward, executing anyone on the arc 0.25s later, 8.5s cooldown.",
-                "zh_cn": "镰刀仅狂暴可用，右键蓄力后向前挥出，0.25 秒后处决弧线上的人，冷却 8.5 秒。",
-                "zh_tw": "鐮刀僅狂暴可用，右鍵蓄力後向前揮出，0.25 秒後處決弧線上的人，冷卻 8.5 秒。"
               }
-            ]
+            ],
+            "color": 16753920
           }
+        },
+        {
+          "type": "idle",
+          "duration": 25
         },
         {
           "type": "text",
@@ -345,26 +396,6 @@
           "point": [
             4.0,
             3.15,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "The scythe is usable only in frenzy; right-click to charge then swing forward, executing anyone on the arc 0.25s later, 8.5s cooldown.",
-            "zh_cn": "镰刀仅狂暴可用，右键蓄力后向前挥出，0.25 秒后处决弧线上的人，冷却 8.5 秒。",
-            "zh_tw": "鐮刀僅狂暴可用，右鍵蓄力後向前揮出，0.25 秒後處決弧線上的人，冷卻 8.5 秒。"
-          },
-          "point": [
-            4.0,
-            3.6,
             3.0
           ],
           "placeNearTarget": true,

@@ -230,18 +230,18 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_key",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
+            "pos": [
+              5.0,
+              1.0,
+              2.0
             ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
+            "yaw": 180.0,
+            "linkId": "tomato_head_skill_target_1",
+            "outline": -2346960
+          }
         },
         {
           "type": "highlight_section",
@@ -308,6 +308,190 @@
       ]
     },
     {
+      "id": "form",
+      "title": {
+        "en_us": "Tomato Head",
+        "zh_cn": "特码头",
+        "zh_tw": "特碼頭"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "tomato_head_main"
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            3.0,
+            1.55,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:tomato",
+          "linkId": "tomato_head_tomato",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "tomato_head_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "The skill costs 100 coin, 90-second cooldown: turn into a tomato for 30 seconds. During this you are forced into third person, appear as a tomato item, cannot move or use items, cannot open your inventory, have a tiny collision box, and gain no-clip.",
+                "zh_cn": "技能花费100金币，冷却90秒：变成一颗西红柿，持续30秒。期间强制第三人称，自己显示为西红柿掉落物，无法移动、无法使用物品、无法打开背包，碰撞体积变得很小并获得无碰撞。",
+                "zh_tw": "技能花費100金幣，冷卻90秒：變成一顆番茄，持續30秒。期間強制第三人稱，自己顯示為番茄掉落物，無法移動、無法使用物品、無法打開背包，碰撞體積變得很小並獲得無碰撞。"
+              },
+              {
+                "en_us": "Drops a tomato on death. Others can Q-throw it as a projectile; when it lands on a block it becomes an item that trips anyone walking over it for 2 seconds who then picks it up; both the thrower and the tripped player's tomato enter a 20-second cooldown.",
+                "zh_cn": "死亡后掉落一颗西红柿。其他玩家可用Q键把它作为投掷物丢出；落到方块上变成掉落物，走过会绊倒2秒并捡起，投掷方和被绊倒者的西红柿同时进入20秒冷却。",
+                "zh_tw": "死亡後掉落一顆番茄。其他玩家可用Q鍵把它作為投擲物丟出；落到方塊上變成掉落物，走過會絆倒2秒並撿起，投擲方和被絆倒者的番茄同時進入20秒冷卻。"
+              },
+              {
+                "en_us": "When it hits a player, they receive the tomato and their screen is smeared with ketchup for 3 seconds.",
+                "zh_cn": "砸中玩家时，对方会获得这颗西红柿，屏幕被番茄酱糊满3秒。",
+                "zh_tw": "砸中玩家時，對方會獲得這顆番茄，螢幕被番茄醬糊滿3秒。"
+              }
+            ],
+            "color": 16753920
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The skill costs 100 coin, 90-second cooldown: turn into a tomato for 30 seconds. During this you are forced into third person, appear as a tomato item, cannot move or use items, cannot open your inventory, have a tiny collision box, and gain no-clip.",
+            "zh_cn": "技能花费100金币，冷却90秒：变成一颗西红柿，持续30秒。期间强制第三人称，自己显示为西红柿掉落物，无法移动、无法使用物品、无法打开背包，碰撞体积变得很小并获得无碰撞。",
+            "zh_tw": "技能花費100金幣，冷卻90秒：變成一顆番茄，持續30秒。期間強制第三人稱，自己顯示為番茄掉落物，無法移動、無法使用物品、無法打開背包，碰撞體積變得很小並獲得無碰撞。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Drops a tomato on death. Others can Q-throw it as a projectile; when it lands on a block it becomes an item that trips anyone walking over it for 2 seconds who then picks it up; both the thrower and the tripped player's tomato enter a 20-second cooldown.",
+            "zh_cn": "死亡后掉落一颗西红柿。其他玩家可用Q键把它作为投掷物丢出；落到方块上变成掉落物，走过会绊倒2秒并捡起，投掷方和被绊倒者的西红柿同时进入20秒冷却。",
+            "zh_tw": "死亡後掉落一顆番茄。其他玩家可用Q鍵把它作為投擲物丟出；落到方塊上變成掉落物，走過會絆倒2秒並撿起，投擲方和被絆倒者的番茄同時進入20秒冷卻。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When it hits a player, they receive the tomato and their screen is smeared with ketchup for 3 seconds.",
+            "zh_cn": "砸中玩家时，对方会获得这颗西红柿，屏幕被番茄酱糊满3秒。",
+            "zh_tw": "砸中玩家時，對方會獲得這顆番茄，螢幕被番茄醬糊滿3秒。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "tomato_head_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
+            "lines": [
+              {
+                "en_us": "The skill costs 100 coin, 90-second cooldown: turn into a tomato for 30 seconds. During this you are forced into third person, appear as a tomato item, cannot move or use items, cannot open your inventory, have a tiny collision box, and gain no-clip.",
+                "zh_cn": "技能花费100金币，冷却90秒：变成一颗西红柿，持续30秒。期间强制第三人称，自己显示为西红柿掉落物，无法移动、无法使用物品、无法打开背包，碰撞体积变得很小并获得无碰撞。",
+                "zh_tw": "技能花費100金幣，冷卻90秒：變成一顆番茄，持續30秒。期間強制第三人稱，自己顯示為番茄掉落物，無法移動、無法使用物品、無法打開背包，碰撞體積變得很小並獲得無碰撞。"
+              },
+              {
+                "en_us": "Drops a tomato on death. Others can Q-throw it as a projectile; when it lands on a block it becomes an item that trips anyone walking over it for 2 seconds who then picks it up; both the thrower and the tripped player's tomato enter a 20-second cooldown.",
+                "zh_cn": "死亡后掉落一颗西红柿。其他玩家可用Q键把它作为投掷物丢出；落到方块上变成掉落物，走过会绊倒2秒并捡起，投掷方和被绊倒者的西红柿同时进入20秒冷却。",
+                "zh_tw": "死亡後掉落一顆番茄。其他玩家可用Q鍵把它作為投擲物丟出；落到方塊上變成掉落物，走過會絆倒2秒並撿起，投擲方和被絆倒者的番茄同時進入20秒冷卻。"
+              },
+              {
+                "en_us": "When it hits a player, they receive the tomato and their screen is smeared with ketchup for 3 seconds.",
+                "zh_cn": "砸中玩家时，对方会获得这颗西红柿，屏幕被番茄酱糊满3秒。",
+                "zh_tw": "砸中玩家時，對方會獲得這顆番茄，螢幕被番茄醬糊滿3秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
       "id": "details",
       "title": {
         "en_us": "Tomato Head",
@@ -332,6 +516,20 @@
             ],
             "yaw": 180.0,
             "linkId": "tomato_head_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "tomato_head_skill_target_0",
+            "outline": -2346960
           }
         },
         {

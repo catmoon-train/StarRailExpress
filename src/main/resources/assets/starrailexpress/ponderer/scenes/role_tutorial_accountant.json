@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.accountant",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "noellesroles:passbook"
   ],
   "title": {
     "en_us": "Accountant",
@@ -155,14 +153,14 @@
           "type": "starrailexpress:role_hold",
           "parameters": {
             "linkId": "accountant_main",
-            "item": "trainmurdermystery:note"
+            "item": "noellesroles:passbook"
           },
           "attachKeyFrame": true
         },
         {
           "type": "show_controls",
           "action": "right",
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:passbook",
           "duration": 65,
           "point": [
             3.0,
@@ -194,6 +192,20 @@
         {
           "type": "idle",
           "duration": 183
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "accountant_skill_target_1",
+            "outline": -13726889
+          }
         },
         {
           "type": "starrailexpress:role_key",
@@ -469,6 +481,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:passbook",
+          "linkId": "accountant_shop_line_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 88,
           "text": {
@@ -487,6 +516,23 @@
         {
           "type": "idle",
           "duration": 98
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.35,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:passbook",
+          "linkId": "accountant_shop_line_1",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -509,6 +555,23 @@
           "duration": 174
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            3.1,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:passbook",
+          "linkId": "accountant_shop_line_2",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -527,6 +590,23 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            3.85,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:passbook",
+          "linkId": "accountant_shop_line_3",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -549,6 +629,23 @@
           "duration": 172
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:passbook",
+          "linkId": "accountant_shop_line_4",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 94,
           "text": {
@@ -569,6 +666,23 @@
           "duration": 104
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.35,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:passbook",
+          "linkId": "accountant_shop_line_5",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 171,
           "text": {
@@ -587,6 +701,23 @@
         {
           "type": "idle",
           "duration": 181
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            3.1,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:passbook",
+          "linkId": "accountant_shop_line_6",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

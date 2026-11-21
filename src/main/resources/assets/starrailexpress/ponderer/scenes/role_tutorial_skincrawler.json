@@ -280,6 +280,144 @@
       ]
     },
     {
+      "id": "form",
+      "title": {
+        "en_us": "Skin Crawler",
+        "zh_cn": "窃皮者",
+        "zh_tw": "竊皮者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "skincrawler_main"
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            5.0,
+            1.55,
+            2.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:player_body",
+          "linkId": "skincrawler_stolen_body",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "skincrawler_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "skincrawler_disguised",
+            "skin": "starrailexpress:textures/entity/custom_psycho/remilia.png"
+          }
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "Press the skill key to aim at a corpse within 3 blocks, steal its skin and replace your appearance (60s cd).",
+                "zh_cn": "按技能键瞄准3格内的尸体，窃取其皮肤并替换自己的外观（冷却60秒）。",
+                "zh_tw": "按技能鍵瞄準3格內的屍體，竊取其皮膚並替換自己的外觀（冷卻60秒）。"
+              },
+              {
+                "en_us": "When hit by a revolver while wearing a stolen skin, consume one block charge to ignore that death and gain 5s of immobility. (Once per match.)",
+                "zh_cn": "被左轮手枪击中时若身上有偷来的皮肤，则消耗一次抵挡次数免疫本次死亡并获得5秒禁止移动效果。（每局仅可抵挡一次）",
+                "zh_tw": "被左輪手槍擊中時若身上有偷來的皮膚，則消耗一次抵擋次數免疫本次死亡並獲得5秒禁止移動效果。（每局僅可抵擋一次）"
+              }
+            ],
+            "color": 16753920
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Press the skill key to aim at a corpse within 3 blocks, steal its skin and replace your appearance (60s cd).",
+            "zh_cn": "按技能键瞄准3格内的尸体，窃取其皮肤并替换自己的外观（冷却60秒）。",
+            "zh_tw": "按技能鍵瞄準3格內的屍體，竊取其皮膚並替換自己的外觀（冷卻60秒）。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When hit by a revolver while wearing a stolen skin, consume one block charge to ignore that death and gain 5s of immobility. (Once per match.)",
+            "zh_cn": "被左轮手枪击中时若身上有偷来的皮肤，则消耗一次抵挡次数免疫本次死亡并获得5秒禁止移动效果。（每局仅可抵挡一次）",
+            "zh_tw": "被左輪手槍擊中時若身上有偷來的皮膚，則消耗一次抵擋次數免疫本次死亡並獲得5秒禁止移動效果。（每局僅可抵擋一次）"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
       "id": "details",
       "title": {
         "en_us": "Skin Crawler",

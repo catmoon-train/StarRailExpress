@@ -61,7 +61,9 @@ public class PonderStateOverlayElement implements PonderOverlayElement {
         width = Math.min(width, Math.max(150, screen.width / 2 - 24));
 
         int x = 16;
-        int y = 24;
+        // Ponder 自己的标题栏 / 段落标签占据顶部 24~80 像素；再往下放，
+        // 免得左上角的状态面板把原生 UI 盖住。
+        int y = 112;
         int rows = 1 + bars.size() * 2 + lines.size();
         if (progressBefore != null || progressAfter != null) rows += 2;
         int height = 14 + rows * (font.lineHeight + 2);

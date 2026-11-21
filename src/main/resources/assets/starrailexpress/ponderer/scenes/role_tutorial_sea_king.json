@@ -225,6 +225,20 @@
           "attachKeyFrame": true
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              4.0
+            ],
+            "yaw": 180.0,
+            "linkId": "sea_king_skill_target_0",
+            "outline": -16730920
+          }
+        },
+        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [

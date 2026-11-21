@@ -233,6 +233,20 @@
           "attachKeyFrame": true
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "roulette_devil_skill_target_0",
+            "outline": -65536
+          }
+        },
+        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
@@ -425,18 +439,18 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_key",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "point": [
-              4.0,
-              2.9,
-              3.0
+            "pos": [
+              6.0,
+              1.0,
+              2.0
             ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
+            "yaw": 180.0,
+            "linkId": "roulette_devil_skill_target_2",
+            "outline": -65536
+          }
         },
         {
           "type": "highlight_section",
@@ -817,6 +831,135 @@
             "hint": "ponder.starrailexpress.screen.pick_hint",
             "columns": 6
           }
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Roulette Devil",
+        "zh_cn": "轮盘恶魔",
+        "zh_tw": "輪盤惡魔"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "roulette_devil_main"
+          }
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:smoke",
+          "pos": [
+            4.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 12,
+          "duration": 80,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "roulette_devil_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "Outside roulette duels, your voice is unintelligible to others and your chat becomes gibberish; it returns to normal once you enter a duel.",
+                "zh_cn": "你是一团黑色烟雾，平时只有低理智的玩家能看见你，但赌局中的对手始终看得见你。",
+                "zh_tw": "技能3·輪盤賭局：在背包中點擊低理智或被你的成熟種子標記的玩家頭像，即可將雙方帶入秘密賭室坐下對決，同一目標在你上一場賭局結束後60秒內無法再次挑戰，賭桌旁的兩座台座各有1盞普通燈籠照明。賭局結束前不能離座或被傳送離開；遊戲結束或一方因其他原因死亡也會結束賭局。正在其他領域內或受到領域庇護的目標暫時無法挑戰。對手若有理智值，賭局期間會臨時補滿至其目前心情的上限，並免疫理智自然消耗；退出或中止時恢復原理智及原有的自然消耗免疫狀態，不會永久補充理智。"
+              },
+              {
+                "en_us": "Aim at a visible player within 8 blocks, regardless of faction. The seed matures after 30 seconds. You receive a notice, and the target receives a prominent alert and sound. Cooldown: 90 seconds.",
+                "zh_cn": "常态伪装",
+                "zh_tw": "贏得「開局實際參賽人數/7，向下取整後加1」場輪盤賭局即可獨立獲勝。所需勝場與免死次數在開局固定，不隨存活人數變化，最終勝利會向全場通報並播放聲音。"
+              }
+            ],
+            "color": 16753920
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Outside roulette duels, your voice is unintelligible to others and your chat becomes gibberish; it returns to normal once you enter a duel.",
+            "zh_cn": "你是一团黑色烟雾，平时只有低理智的玩家能看见你，但赌局中的对手始终看得见你。",
+            "zh_tw": "技能3·輪盤賭局：在背包中點擊低理智或被你的成熟種子標記的玩家頭像，即可將雙方帶入秘密賭室坐下對決，同一目標在你上一場賭局結束後60秒內無法再次挑戰，賭桌旁的兩座台座各有1盞普通燈籠照明。賭局結束前不能離座或被傳送離開；遊戲結束或一方因其他原因死亡也會結束賭局。正在其他領域內或受到領域庇護的目標暫時無法挑戰。對手若有理智值，賭局期間會臨時補滿至其目前心情的上限，並免疫理智自然消耗；退出或中止時恢復原理智及原有的自然消耗免疫狀態，不會永久補充理智。"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Aim at a visible player within 8 blocks, regardless of faction. The seed matures after 30 seconds. You receive a notice, and the target receives a prominent alert and sound. Cooldown: 90 seconds.",
+            "zh_cn": "常态伪装",
+            "zh_tw": "贏得「開局實際參賽人數/7，向下取整後加1」場輪盤賭局即可獨立獲勝。所需勝場與免死次數在開局固定，不隨存活人數變化，最終勝利會向全場通報並播放聲音。"
+          },
+          "point": [
+            4.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
         },
         {
           "type": "rotate_camera_y",

@@ -373,20 +373,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "spawn_particles",
           "particle": "minecraft:effect",
           "pos": [
@@ -485,8 +471,51 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "purple_monster_psycho",
-            "outline": -6862634
+            "linkId": "purple_monster_loved_one"
+          }
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "purple_monster_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "purple_monster_disguised",
+            "skin": "starrailexpress:textures/entity/custom_psycho/remilia.png"
+          }
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "purple_monster_observer",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "purple_monster_observer_new",
+            "skin": "starrailexpress:textures/entity/custom_psycho/cat_killer.png"
           }
         },
         {
@@ -496,11 +525,6 @@
             "label": "ponder.starrailexpress.label.psycho",
             "lines": [
               {
-                "en_us": "After triggering:",
-                "zh_cn": "紫怪事件触发后会进入以下阶段",
-                "zh_tw": "紫怪事件觸發後會進入以下階段"
-              },
-              {
                 "en_us": "Stage 1: the monster disguises as the skin of the target's closest person; the target looking at it for 6s gets controlled and their view locked (invincible during control)",
                 "zh_cn": "一阶段：紫怪会伪装成目标玩家最亲近的人的皮肤；目标看向伪装体超过 6 秒后会被控制并锁定视角(控制期间玩家处于无敌状态)",
                 "zh_tw": "一階段：紫怪會偽裝成目標玩家最親近的人的皮膚；目標看向偽裝體超過 6 秒後會被控制並鎖定視角(控制期間玩家處於無敵狀態)"
@@ -509,34 +533,14 @@
                 "en_us": "Stage 2: the monster reveals itself and questions the target (you can't refuse); after the target picks a revenge target, the chosen player dies by assimilation",
                 "zh_cn": "二阶段：紫怪露出本体并开始询问目标(你无法拒绝紫怪)；目标选择复仇玩家后，被选中的玩家会因紫怪同化强制死亡",
                 "zh_tw": "二階段：紫怪露出本體並開始詢問目標(你無法拒絕紫怪)；目標選擇復仇玩家後，被選中的玩家會因紫怪同化強制死亡"
-              },
-              {
-                "en_us": "Stage 3: the monster advances and assimilates the target into a Purple Monster.",
-                "zh_cn": "三阶段：紫怪进入下一阶段并将目标玩家同化为紫怪。",
-                "zh_tw": "三階段：紫怪進入下一階段並將目標玩家同化為紫怪。"
               }
-            ]
+            ],
+            "color": 16753920
           }
         },
         {
-          "type": "text",
-          "duration": 70,
-          "text": {
-            "en_us": "After triggering:",
-            "zh_cn": "紫怪事件触发后会进入以下阶段",
-            "zh_tw": "紫怪事件觸發後會進入以下階段"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
           "type": "idle",
-          "duration": 80
+          "duration": 25
         },
         {
           "type": "text",
@@ -548,7 +552,7 @@
           },
           "point": [
             3.0,
-            2.25,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,
@@ -568,7 +572,7 @@
           },
           "point": [
             3.0,
-            2.7,
+            2.25,
             3.0
           ],
           "placeNearTarget": true,
@@ -577,26 +581,6 @@
         {
           "type": "idle",
           "duration": 200
-        },
-        {
-          "type": "text",
-          "duration": 182,
-          "text": {
-            "en_us": "Stage 3: the monster advances and assimilates the target into a Purple Monster.",
-            "zh_cn": "三阶段：紫怪进入下一阶段并将目标玩家同化为紫怪。",
-            "zh_tw": "三階段：紫怪進入下一階段並將目標玩家同化為紫怪。"
-          },
-          "point": [
-            3.0,
-            3.15,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 192
         },
         {
           "type": "rotate_camera_y",

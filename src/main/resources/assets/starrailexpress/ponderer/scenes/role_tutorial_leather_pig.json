@@ -163,6 +163,20 @@
           "duration": 102
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "leather_pig_skill_target_1",
+            "outline": -24918
+          }
+        },
+        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
@@ -250,20 +264,6 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "highlight_section",
           "blockPos": [
             3,
@@ -318,6 +318,100 @@
         {
           "type": "idle",
           "duration": 73
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Leather Pig",
+        "zh_cn": "皮革噶的",
+        "zh_tw": "皮革噶的"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "leather_pig_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "leather_pig_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_entity",
+          "entity": "minecraft:pig",
+          "pos": [
+            3.0,
+            1.0,
+            3.0
+          ],
+          "yaw": 180.0,
+          "linkId": "leather_pig_disguised",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "Passive: your model is a pig.",
+                "zh_cn": "被动：你的模型变成一头猪。",
+                "zh_tw": "被動：你的模型變成一頭豬。"
+              }
+            ],
+            "color": 16753920
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 92,
+          "text": {
+            "en_us": "Passive: your model is a pig.",
+            "zh_cn": "被动：你的模型变成一头猪。",
+            "zh_tw": "被動：你的模型變成一頭豬。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 102
         },
         {
           "type": "rotate_camera_y",

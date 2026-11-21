@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.reasoner",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "noellesroles:reasoner_compass"
   ],
   "title": {
     "en_us": "Reasoner",
@@ -154,20 +152,6 @@
                 "zh_tw": "每次回答後羅盤冷卻 35 秒，全部推理正確即可獨立勝利。"
               }
             ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
           },
           "attachKeyFrame": true
         },

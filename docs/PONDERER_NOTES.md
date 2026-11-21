@@ -390,6 +390,8 @@ InvalidInjectionException: non-static callback method ... targets a static metho
 | `starrailexpress:role_pose` | 改变已建玩家模型的姿态（技能中途蹲下 / 站起） | `linkId`、`pose` |
 | `starrailexpress:role_hold` | 给已建玩家模型换手持物（切药剂 / 换武器） | `linkId`、`item` |
 | `starrailexpress:role_outline` | 给已建玩家模型加 / 改本能透视边框（施法后看见目标） | `linkId`、`color`、`lineWidth`、`expand` |
+| `starrailexpress:role_scale` | 缩放已建玩家模型（兔兔 / 侏儒被抱到头顶） | `linkId`、`scale` |
+| `starrailexpress:role_hide` | 隐藏 / 恢复已建玩家模型，配合 `create_entity` 演「变成实体」 | `linkId`、`visible` |
 
 前四种原步骤共用 `PonderInfoOverlayElement`，绘制在右上角；后六种共用 `PonderStateOverlayElement`，
 绘制在左上角，两者不会互相遮挡，也不遮挡场景中央的玩家模型与字幕。
@@ -744,4 +746,56 @@ indicate_success [2,0,4] + idle 80 + rotate_camera_y
 - 详细记录见 `docs/职业思索系统全覆盖实现记录.md`。
 - **清单里的场景路径必须是 `<命名空间>:<路径>`**（Ponderer `docs/PONDERER_LIB.md` 的格式），
   写成 `<命名空间>/<路径>` 会被 `ResourceLocation.parse` 解析不出来，场景根本不会加载。
+
+## 19. 逐职业特写与通用修正（2026-11-21 二次修订）
+
+### 通用问题
+
+- **走动终点姿势鬼畜**：`PonderWalkInstruction` 是逐 tick 手动调用
+  `setWalkProgress` 的，场景不跑原版 `Entity#tick`。原来终点只 `setSpeed(0)`，
+  `WalkAnimationState.pos` 还停在半个步幅上，腿会僵在一个奇怪角度。现在起始与终点
+  都用 `update(-position(), 1.0F)` 把相位推回 0，再 `setSpeed(0)`（与
+  `MirrorReflection` 同步倒影步幅的写法一致）。这是所有职业共用的修复。
+- **覆盖层挡住思索 UI**：`PonderStateOverlayElement` 与 `PonderInfoOverlayElement`
+  原来都画在 `y=24`，正好压在 Ponder 顶部标题 / 段落标签上。现在统一下移到 `y=112`。
+- **被动描述不再乱加技能键**：`ACTION_WORDS` 去掉了过宽的「金币」「使用」，
+  并且只有句子里明确写了触发方式（技能 / 按下 / 右键 / 按住 / 施放 / 切换等）才画
+  键帽和走动。baka 这类没有主动技能的职业不会再出现「右键便签 + 走动」。
+- **商店商品要在对应介绍处出现**：`extract_ponder_role_facts.py` 补扫
+  `RoleShopHandler` 的 `ArrayList<ShopEntry>` 局部变量，唱片师的音箱与 19 张原版唱片、
+  纵火犯等职业的商店条目现在都能提取到；`shop` 段落逐句把真实商品实体摆在玩家旁边。
+
+### 逐职业特写
+
+| 职业 | 演示 |
+| --- | --- |
+| 卡布奇诺咖啡师 | 两名玩家同场；右键目标后目标先落到脚边再被抱到咖啡师头顶，缩小为 0.62 倍并切蹲坐姿态（Minecraft 玩家没有 `SITTING` pose，这是最接近的「坐在头顶」），配 60 秒倒计时 |
+| 鵺 | 站一名观察者；地上放真刀 / 真枪 / 开锁器，手里分别显示枪 / 刀 / 万能钥匙，正好对应「持刀显示枪、持枪显示刀」；另外把短冷却击杀演成挥刀 + 计时，而不是普通击杀流程 |
+| 纵火犯 | 浇油对象与未浇油对象同时在场；浇油用真实 `jerry_can`，点火用 `lighter`，疯魔阶段换成 `flamethrower`，大油罐单独演示；透视段分别用橙色 / 灰色边框，和介绍文字一致；被烧死的目标 `role_death.corpse=false`，不留尸体 |
+| baka | 没有主动技能：只演示 `danmuku` 长按右键命中目标、`problem_set` 右键打开做题界面以及商店里的习题集；不再有技能键帽、走动或便签 |
+| 唱片师 | 商店介绍出现时同时摆出音箱与真实唱片，左侧玩家旁听 |
+
+这些职业走 `ROLE_SEGMENT_OVERRIDES` 的逐段覆写，不套用通用模版。
+
+## 20. 伪装 / 变身演示核查（2026-11-21）
+
+检查了所有介绍里出现「伪装 / 变身 / 变成 / 化身 / 改变皮肤」的职业。原来的 `form`
+段落只有一块 `role_disguise` 文字面板，画面里还是原来的玩家模型，等于没有演示；
+现在统一改成「原玩家消失 → 新形态出现」，并逐职业指定变成什么：
+
+| 类型 | 职业 | 实际画面 |
+| --- | --- | --- |
+| 变成兔兔 | 兔兔万岁 | 三名玩家消失，原位出现三只 `minecraft:rabbit`，配金币花费和限时 |
+| 变成实体 | 雪傀儡、皮革噶的、南瓜精 | 玩家消失，原位生成 `snow_golem` / `pig` / `bat` |
+| 变成方块 | 金属怪、自然精灵 | 玩家消失，原位放 `steel_coil` / `grass_block` 伪装方块 |
+| 换成皮肤 | 变形者、窃皮者、宿命的罪人、阿蒙、魔术师、秃鹫、赌徒、惧魔、 entity_303、乌鸦 | 玩家消失，换成真实存在的 psycho 皮肤贴图（Remilia / 黑白 / 白色 / 小丑 / 猫杀手） |
+| 多人形象互换 | 嬉命人、恐惧领主、紫怪 | 两名玩家分别换皮，体现「交换皮肤 / 皮肤名称混乱 / 伪装成亲近的人」 |
+| 形态缩放 | 恐惧领主、黑白熊 | 在换皮同时放大到 1.5 倍；阿蒙寄宿时缩小到 0.25 倍 |
+| 武器外观伪装 | 鵺 | 地上放真刀 / 真枪，手里显示枪 / 刀（上一节已实现） |
+
+`roulette_devil` 的「常态伪装」是黑烟形体，没有可用皮肤贴图，用玩家消失 + 黑烟粒子 + 文字标签表达。
+`best_vigilante`、`elf`、`leader` 等句子说的是身份或道具变化，不是视觉变身，仍按原段落演示。
+
+新增的 `starrailexpress:role_hide` 只控制 `setVisible`，不生成尸体；和 `role_death`
+的区别是后者会留 `player_body`（除非传 `corpse=false`）。
 

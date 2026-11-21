@@ -124,6 +124,20 @@
           }
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "sheriff_skill_target_0",
+            "outline": -14972187
+          }
+        },
+        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
@@ -361,6 +375,20 @@
         {
           "type": "idle",
           "duration": 149
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "sheriff_skill_target_2",
+            "outline": -14972187
+          }
         },
         {
           "type": "starrailexpress:role_key",

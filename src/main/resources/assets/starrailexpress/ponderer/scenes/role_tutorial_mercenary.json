@@ -150,20 +150,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "spawn_particles",
           "particle": "minecraft:effect",
           "pos": [
@@ -535,33 +521,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "mercenary_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 45
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "idle",
           "duration": 15
         },
@@ -667,20 +626,6 @@
             "linkId": "mercenary_skill_target_1",
             "outline": -5210016
           }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "spawn_particles",

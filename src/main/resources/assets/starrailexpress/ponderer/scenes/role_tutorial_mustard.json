@@ -160,120 +160,6 @@
           "linkId": "mustard_item"
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              6.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "mustard_skill_target_0",
-            "outline": -5331656
-          }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              4.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "mustard_main",
-            "to": [
-              5.1,
-              1.0,
-              2.0
-            ],
-            "duration": 45
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 15
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:crit",
-          "pos": [
-            6.0,
-            2.1,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 10,
-          "duration": 30,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "mustard_skill_target_0",
-            "pos": [
-              6.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:smoke",
-          "pos": [
-            6.0,
-            1.6,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 45,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            6,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 30
-        },
-        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -591,6 +477,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:puppet_hand",
+          "linkId": "mustard_shop_line_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -751,20 +654,6 @@
             "yaw": 180.0,
             "linkId": "mustard_main"
           }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              4.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "highlight_section",

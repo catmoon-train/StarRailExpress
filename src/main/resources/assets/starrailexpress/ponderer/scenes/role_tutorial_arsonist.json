@@ -2,9 +2,10 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.arsonist",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "stupid_express:jerry_can",
+    "stupid_express:lighter",
+    "stupid_express:large_oil_can",
+    "stupid_express:fire_gun"
   ],
   "title": {
     "en_us": "Arsonist",
@@ -144,6 +145,82 @@
           }
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "arsonist_oiled"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              3.4
+            ],
+            "yaw": 180.0,
+            "linkId": "arsonist_dry"
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            1.8,
+            1.55,
+            2.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "stupid_express:jerry_can",
+          "linkId": "arsonist_start_0",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.6,
+            1.55,
+            2.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "stupid_express:lighter",
+          "linkId": "arsonist_start_1",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "arsonist_main",
+            "item": "stupid_express:jerry_can"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "arsonist_oiled",
+            "color": 8421504
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -164,57 +241,36 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_key",
+          "type": "starrailexpress:role_hold",
           "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
+            "linkId": "arsonist_main",
+            "item": "stupid_express:jerry_can"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "arsonist_skill_item_1"
-        },
-        {
           "type": "show_controls",
           "action": "right",
-          "item": "trainmurdermystery:note",
+          "item": "stupid_express:jerry_can",
           "duration": 70,
           "point": [
             3.0,
-            2.9,
+            3.0,
             3.0
           ],
-          "direction": "down"
+          "direction": "down",
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_walk",
           "parameters": {
             "linkId": "arsonist_main",
             "to": [
-              4.1,
+              4.2,
               1.0,
               2.0
             ],
-            "duration": 35
+            "duration": 40
           },
           "attachKeyFrame": true
         },
@@ -223,7 +279,7 @@
           "particle": "minecraft:effect",
           "pos": [
             5.0,
-            1.8,
+            1.9,
             2.0
           ],
           "distribution": "box",
@@ -232,8 +288,8 @@
             0.6,
             0.35
           ],
-          "count": 8,
-          "duration": 55,
+          "count": 10,
+          "duration": 70,
           "motion": [
             0,
             0.04,
@@ -241,8 +297,29 @@
           ]
         },
         {
-          "type": "idle",
-          "duration": 25
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "arsonist_oiled",
+            "color": 16753920
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              0.3,
+              0.6
+            ],
+            "lines": [
+              {
+                "en_us": "Right-click a player with the Jerry Can to douse them in gasoline; it has a short cooldown after each use",
+                "zh_cn": "手持汽油桶右键玩家可以给对方浇上汽油，每次使用后需要等待一段时间冷却",
+                "zh_tw": "手持汽油桶右鍵玩家可以給對方澆上汽油，每次使用後需要等待一段時間冷卻"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -265,57 +342,46 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_key",
+          "type": "starrailexpress:role_hold",
           "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
+            "linkId": "arsonist_main",
+            "item": "stupid_express:jerry_can"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
+          "type": "show_controls",
+          "action": "right",
+          "item": "stupid_express:jerry_can",
+          "duration": 70,
+          "point": [
+            3.0,
+            3.0,
+            3.0
           ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "If too few players are doused, the first right-click warns you; right-click again within 3 seconds and the failed ignition kills you",
-                "zh_cn": "浇油人数不足时右键打火机会先收到一次警告，3秒内再次右键就会点火失败烧死自己",
-                "zh_tw": "澆油人數不足時右鍵打火機會先收到一次警告，3秒內再次右鍵就會點火失敗燒死自己"
-              }
-            ]
-          },
+          "direction": "down",
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 40
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "arsonist_main",
+            "to": [
+              4.2,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "spawn_particles",
           "particle": "minecraft:effect",
           "pos": [
-            3.0,
+            5.0,
             1.9,
-            3.0
+            2.0
           ],
           "distribution": "box",
           "spread": [
@@ -323,13 +389,21 @@
             0.6,
             0.35
           ],
-          "count": 8,
-          "duration": 60,
+          "count": 10,
+          "duration": 70,
           "motion": [
             0,
             0.04,
             0
           ]
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "arsonist_oiled",
+            "color": 16753920
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -352,42 +426,26 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_hold",
           "parameters": {
             "linkId": "arsonist_main",
-            "item": "trainmurdermystery:note"
+            "item": "stupid_express:flamethrower"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "show_controls",
-          "action": "right",
-          "item": "trainmurdermystery:note",
-          "duration": 65,
-          "point": [
-            3.0,
-            2.9,
-            3.0
-          ],
-          "direction": "down"
-        },
-        {
-          "type": "idle",
-          "duration": 30
+          "type": "starrailexpress:role_disguise",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "During Arson Moment you wear a Rampage skin, gain Speed I and infinite stamina, and receive a Flamethrower; you can freely switch held items, but cannot drop them",
+                "zh_cn": "纵火犯时刻内你会换上疯魔皮肤，获得速度1和无限体力，并拿到一把喷火枪；期间可以自由切换手持物品，但无法丢弃物品",
+                "zh_tw": "縱火犯時刻內你會換上瘋魔皮膚，獲得速度1和無限體力，並拿到一把噴火槍；期間可以自由切換手持物品，但無法丟棄物品"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -410,85 +468,12 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "arsonist_skill_item_4"
-        },
-        {
-          "type": "show_controls",
-          "action": "right",
-          "item": "trainmurdermystery:note",
-          "duration": 70,
-          "point": [
-            3.0,
-            2.9,
-            3.0
-          ],
-          "direction": "down"
-        },
-        {
-          "type": "starrailexpress:role_walk",
+          "type": "starrailexpress:role_hold",
           "parameters": {
             "linkId": "arsonist_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 35
+            "item": "stupid_express:flamethrower"
           },
           "attachKeyFrame": true
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:flame",
-          "pos": [
-            5.0,
-            1.8,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 55,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
         },
         {
           "type": "text",
@@ -511,49 +496,46 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_pose",
+          "type": "starrailexpress:role_hold",
           "parameters": {
             "linkId": "arsonist_main",
-            "pose": "crouching"
+            "item": "stupid_express:jerry_can"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            2,
-            0,
-            2
+          "type": "show_controls",
+          "action": "right",
+          "item": "stupid_express:jerry_can",
+          "duration": 70,
+          "point": [
+            3.0,
+            3.0,
+            3.0
           ],
-          "blockPos2": [
-            4,
-            0,
-            4
-          ],
-          "duration": 240,
-          "color": "green"
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "arsonist_main",
+            "to": [
+              4.2,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "spawn_particles",
           "particle": "minecraft:effect",
           "pos": [
-            3.0,
-            1.4,
-            3.0
+            5.0,
+            1.9,
+            2.0
           ],
           "distribution": "box",
           "spread": [
@@ -570,14 +552,10 @@
           ]
         },
         {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "starrailexpress:role_pose",
+          "type": "starrailexpress:role_outline",
           "parameters": {
-            "linkId": "arsonist_main",
-            "pose": "standing"
+            "linkId": "arsonist_oiled",
+            "color": 16753920
           },
           "attachKeyFrame": true
         },
@@ -637,16 +615,38 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "The Lighter has no cooldown; once 80% of the other living players are doused, right-click it to ignite",
-                "zh_cn": "打火机没有冷却，当其他存活玩家中有80%的人已被浇上汽油时，右键打火机即可点火",
-                "zh_tw": "打火機沒有冷卻，當其他存活玩家中有80%的人已被澆上汽油時，右鍵打火機即可點火"
-              }
-            ]
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "arsonist_burn_1",
+            "outline": 16753920
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              3.4
+            ],
+            "yaw": 180.0,
+            "linkId": "arsonist_burn_2",
+            "outline": 16753920
+          }
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "arsonist_main",
+            "item": "stupid_express:lighter"
           },
           "attachKeyFrame": true
         },
@@ -655,7 +655,7 @@
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -665,52 +665,24 @@
           "attachKeyFrame": true
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "arsonist_skill_item_0"
-        },
-        {
           "type": "show_controls",
           "action": "right",
-          "item": "trainmurdermystery:note",
+          "item": "stupid_express:lighter",
           "duration": 70,
           "point": [
             3.0,
-            2.9,
+            3.0,
             3.0
           ],
-          "direction": "down"
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "arsonist_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 35
-          },
+          "direction": "down",
           "attachKeyFrame": true
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "minecraft:flame",
           "pos": [
             5.0,
-            1.8,
+            1.9,
             2.0
           ],
           "distribution": "box",
@@ -719,8 +691,8 @@
             0.6,
             0.35
           ],
-          "count": 8,
-          "duration": 55,
+          "count": 14,
+          "duration": 80,
           "motion": [
             0,
             0.04,
@@ -728,8 +700,52 @@
           ]
         },
         {
-          "type": "idle",
-          "duration": 25
+          "type": "spawn_particles",
+          "particle": "minecraft:flame",
+          "pos": [
+            5.0,
+            1.9,
+            3.4
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 14,
+          "duration": 80,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "arsonist_burn_1",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "arsonist_burn_2",
+            "pos": [
+              5.0,
+              1.0,
+              3.4
+            ],
+            "corpse": false
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -815,6 +831,74 @@
           "duration": 200
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:lockpick",
+          "linkId": "arsonist_shop_0",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.35,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:crowbar",
+          "linkId": "arsonist_shop_1",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            3.1,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "stupid_express:large_oil_can",
+          "linkId": "arsonist_shop_2",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            3.85,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "stupid_express:fire_gun",
+          "linkId": "arsonist_shop_3",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 171,
           "text": {
@@ -833,6 +917,27 @@
         {
           "type": "idle",
           "duration": 181
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "arsonist_main",
+            "item": "stupid_express:fire_gun"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "stupid_express:fire_gun",
+          "duration": 70,
+          "point": [
+            3.0,
+            3.0,
+            3.0
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -899,22 +1004,43 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "arsonist_victim"
+            "linkId": "arsonist_burned"
           }
         },
         {
           "type": "starrailexpress:role_death",
-          "attachKeyFrame": true,
           "parameters": {
-            "linkId": "arsonist_victim",
+            "linkId": "arsonist_burned",
             "pos": [
               5.0,
               1.0,
               2.0
             ],
-            "name": "ponder.starrailexpress.label.victim",
-            "delay": 14
-          }
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:smoke",
+          "pos": [
+            5.0,
+            1.8,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 50,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
         },
         {
           "type": "text",
@@ -981,8 +1107,22 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "arsonist_target",
-            "outline": -65536
+            "linkId": "arsonist_oiled",
+            "outline": 16753920
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              3.4
+            ],
+            "yaw": 180.0,
+            "linkId": "arsonist_dry",
+            "outline": 8421504
           }
         },
         {
@@ -998,6 +1138,10 @@
               }
             ]
           }
+        },
+        {
+          "type": "idle",
+          "duration": 20
         },
         {
           "type": "text",

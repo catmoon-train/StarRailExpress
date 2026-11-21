@@ -288,6 +288,20 @@
           "duration": 200
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "central_control_skill_target_2",
+            "outline": -12532522
+          }
+        },
+        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [

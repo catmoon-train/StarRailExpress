@@ -2,9 +2,8 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.psychologist",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "noellesroles:mint_candies",
+    "noellesroles:alchemist_buff_potion"
   ],
   "title": {
     "en_us": "Psychologist",
@@ -124,6 +123,37 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "attachKeyFrame": true,
+          "pos": [
+            1.6,
+            1.55,
+            1.6
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:mint_candies",
+          "linkId": "psychologist_item"
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "psychologist_skill_target_0",
+            "outline": -12525360
+          }
+        },
+        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
@@ -150,13 +180,13 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:mint_candies",
           "linkId": "psychologist_skill_item_0"
         },
         {
           "type": "show_controls",
           "action": "right",
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:mint_candies",
           "duration": 70,
           "point": [
             3.0,
@@ -419,6 +449,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:mint_candies",
+          "linkId": "psychologist_shop_line_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 148,
           "text": {
@@ -512,6 +559,20 @@
                 "zh_tw": "3. san值恢復"
               }
             ]
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "psychologist_skill_target_0",
+            "outline": -12525360
           }
         },
         {

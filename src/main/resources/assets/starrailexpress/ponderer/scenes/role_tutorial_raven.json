@@ -259,20 +259,6 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "highlight_section",
           "blockPos": [
             3,
@@ -535,17 +521,25 @@
           }
         },
         {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "raven_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
             "pos": [
-              5.0,
+              3.0,
               1.0,
-              2.0
+              3.0
             ],
             "yaw": 180.0,
-            "linkId": "raven_psycho",
-            "outline": -8231776
+            "linkId": "raven_disguised",
+            "skin": "noellesroles:textures/entity/custom_psycho/black_psycho.png"
           }
         },
         {
@@ -560,12 +554,17 @@
                 "zh_tw": "按技能鍵消耗一次充能，在原地留下可被擊殺的本體，進入 120 秒獵殺態：獲得全場的本能透視、無敵、黑色偽裝、禁言、無碰撞、刀和開鎖器。"
               },
               {
-                "en_us": "The bottom-right shows the role to kill; killing any matching role counts.",
-                "zh_cn": "亡命时刻开始时会强制返回本体，清除猎杀效果，并返还 1 次狩猎充能。",
-                "zh_tw": "亡命時刻開始時會強制返回本體，清除獵殺效果，並返還 1 次狩獵充能。"
+                "en_us": "If your body is killed or force-killed, you die immediately.",
+                "zh_cn": "猎杀态结束后刀和开锁器会被清除，并进入 60 秒冷却。",
+                "zh_tw": "獵殺態結束後刀和開鎖器會被清除，並進入 60 秒冷卻。"
               }
-            ]
+            ],
+            "color": 16753920
           }
+        },
+        {
+          "type": "idle",
+          "duration": 25
         },
         {
           "type": "text",
@@ -589,11 +588,11 @@
         },
         {
           "type": "text",
-          "duration": 173,
+          "duration": 148,
           "text": {
-            "en_us": "The bottom-right shows the role to kill; killing any matching role counts.",
-            "zh_cn": "亡命时刻开始时会强制返回本体，清除猎杀效果，并返还 1 次狩猎充能。",
-            "zh_tw": "亡命時刻開始時會強制返回本體，清除獵殺效果，並返還 1 次狩獵充能。"
+            "en_us": "If your body is killed or force-killed, you die immediately.",
+            "zh_cn": "猎杀态结束后刀和开锁器会被清除，并进入 60 秒冷却。",
+            "zh_tw": "獵殺態結束後刀和開鎖器會被清除，並進入 60 秒冷卻。"
           },
           "point": [
             3.0,
@@ -605,7 +604,7 @@
         },
         {
           "type": "idle",
-          "duration": 183
+          "duration": 158
         },
         {
           "type": "rotate_camera_y",

@@ -139,6 +139,20 @@
           "linkId": "programmer_item"
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "programmer_skill_target_0",
+            "outline": -16733576
+          }
+        },
+        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
@@ -281,6 +295,23 @@
             "role": "programmer",
             "columns": 4
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:terminal",
+          "linkId": "programmer_shop_line_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -488,31 +519,18 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_key",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "programmer_main",
-            "to": [
-              4.1,
+            "pos": [
+              5.0,
               1.0,
               2.0
             ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
+            "yaw": 180.0,
+            "linkId": "programmer_skill_target_2",
+            "outline": -16733576
+          }
         },
         {
           "type": "highlight_section",
@@ -582,20 +600,6 @@
         {
           "type": "idle",
           "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "highlight_section",

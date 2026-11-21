@@ -122,21 +122,18 @@
           }
         },
         {
-          "type": "create_item_entity",
+          "type": "starrailexpress:role_items",
           "attachKeyFrame": true,
-          "pos": [
-            1.6,
-            1.55,
-            1.6
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:chino_coffee",
-          "linkId": "kafu_chino_item"
+          "parameters": {
+            "role": "kafu_chino",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
         },
         {
           "type": "text",
@@ -194,9 +191,110 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kafu_chino_rider",
+            "outline": -1315073
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 18
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_teleport",
+          "parameters": {
+            "linkId": "kafu_chino_rider",
+            "pos": [
+              3.6,
+              1.0,
+              3.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 12
+        },
+        {
+          "type": "starrailexpress:role_teleport",
+          "parameters": {
+            "linkId": "kafu_chino_rider",
+            "pos": [
+              3.0,
+              2.8,
+              3.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "kafu_chino_rider",
+            "pose": "crouching"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_scale",
+          "parameters": {
+            "linkId": "kafu_chino_rider",
+            "scale": 0.62
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            3.0,
+            3.0,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
             "lines": [
               {
                 "en_us": "Right-click players who have turned into a Rabbit or have the Short / Dwarf modifier to carry them on your head (up to 60 seconds, one at a time, 75-second cooldown after each carry): during this, the carrier takes no suffocation damage and the view is forced into third person; the carried player can sneak to get off early (cooldown shrinks to 10 seconds), and you can press the skill key to put the rabbit down. Either way, the rabbit is placed in a free spot in front of you (if none, they overlap with you).",
@@ -208,75 +306,12 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_pose",
-          "parameters": {
-            "linkId": "kafu_chino_main",
-            "pose": "crouching"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
+          "type": "indicate_success",
           "blockPos": [
-            2,
+            3,
             0,
-            2
-          ],
-          "blockPos2": [
-            4,
-            0,
-            4
-          ],
-          "duration": 240,
-          "color": "green"
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            3.0,
-            1.4,
-            3.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 10,
-          "duration": 70,
-          "motion": [
-            0,
-            0.04,
-            0
+            3
           ]
-        },
-        {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "starrailexpress:role_pose",
-          "parameters": {
-            "linkId": "kafu_chino_main",
-            "pose": "standing"
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -340,6 +375,23 @@
             "role": "kafu_chino",
             "columns": 4
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:chino_coffee",
+          "linkId": "kafu_chino_shop_line_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

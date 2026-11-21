@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.pelican",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "trainmurdermystery:lockpick"
   ],
   "title": {
     "en_us": "Pelican",
@@ -144,6 +142,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "attachKeyFrame": true,
+          "pos": [
+            1.6,
+            1.55,
+            1.6
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:lockpick",
+          "linkId": "pelican_item"
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -211,6 +226,20 @@
             ]
           },
           "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pelican_skill_target_0",
+            "outline": -9467356
+          }
         },
         {
           "type": "starrailexpress:role_key",
@@ -307,6 +336,20 @@
         {
           "type": "idle",
           "duration": 190
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pelican_skill_target_1",
+            "outline": -9467356
+          }
         },
         {
           "type": "starrailexpress:role_key",

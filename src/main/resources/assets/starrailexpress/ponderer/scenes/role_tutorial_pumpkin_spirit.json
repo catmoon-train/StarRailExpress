@@ -218,18 +218,18 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_key",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
+            "pos": [
+              5.0,
+              1.0,
+              2.0
             ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
+            "yaw": 180.0,
+            "linkId": "pumpkin_spirit_skill_target_0",
+            "outline": -65536
+          }
         },
         {
           "type": "highlight_section",
@@ -456,6 +456,100 @@
         {
           "type": "idle",
           "duration": 118
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Pumpkin Spirit",
+        "zh_cn": "南瓜精",
+        "zh_tw": "南瓜精"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pumpkin_spirit_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "pumpkin_spirit_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_entity",
+          "entity": "minecraft:bat",
+          "pos": [
+            3.0,
+            1.0,
+            3.0
+          ],
+          "yaw": 180.0,
+          "linkId": "pumpkin_spirit_disguised",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "按技能键变成蝙蝠并飞行15秒，冷却30秒。",
+                "zh_cn": "按技能键变成蝙蝠并飞行15秒，冷却30秒。",
+                "zh_tw": "按技能鍵變成蝙蝠並飛行15秒，冷卻30秒。"
+              }
+            ],
+            "color": 16753920
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 77,
+          "text": {
+            "en_us": "按技能键变成蝙蝠并飞行15秒，冷却30秒。",
+            "zh_cn": "按技能键变成蝙蝠并飞行15秒，冷却30秒。",
+            "zh_tw": "按技能鍵變成蝙蝠並飛行15秒，冷卻30秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 87
         },
         {
           "type": "rotate_camera_y",

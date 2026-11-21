@@ -466,20 +466,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "spawn_particles",
           "particle": "minecraft:effect",
           "pos": [
@@ -569,18 +555,34 @@
           }
         },
         {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "monokuma_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
             "pos": [
-              5.0,
+              3.0,
               1.0,
-              2.0
+              3.0
             ],
             "yaw": 180.0,
-            "linkId": "monokuma_psycho",
-            "outline": -65536
+            "linkId": "monokuma_disguised",
+            "skin": "noellesroles:textures/entity/custom_psycho/white_psycho.png"
           }
+        },
+        {
+          "type": "starrailexpress:role_scale",
+          "parameters": {
+            "linkId": "monokuma_main",
+            "scale": 1.5
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_disguise",
@@ -594,11 +596,6 @@
                 "zh_tw": "你偽裝為義警，對外顯示為義警身份。"
               },
               {
-                "en_us": "When hit by any attack, you enter [Rampage Prelude] (35 seconds):",
-                "zh_cn": "当你被任何攻击命中时，进入[狂暴前奏]阶段（35秒）：",
-                "zh_tw": "當你被任何攻擊命中時，進入[狂暴前奏]階段（35秒）："
-              },
-              {
                 "en_us": "During this, after killing total players / 7, the frenzy ends and you transform into [Monokuma].",
                 "zh_cn": "在此期间击杀总玩家数量/7后疯魔结束变身为[黑白熊]。",
                 "zh_tw": "在此期間擊殺總玩家數量/7後瘋魔結束變身為[黑白熊]。"
@@ -608,8 +605,13 @@
                 "zh_cn": "[黑白熊]形态：几乎无敌，但无法拾取物品，周围4格光环效果。",
                 "zh_tw": "[黑白熊]形態：幾乎無敵，但無法拾取物品，周圍4格光環效果。"
               }
-            ]
+            ],
+            "color": 16753920
           }
+        },
+        {
+          "type": "idle",
+          "duration": 25
         },
         {
           "type": "text",
@@ -633,26 +635,6 @@
         },
         {
           "type": "text",
-          "duration": 157,
-          "text": {
-            "en_us": "When hit by any attack, you enter [Rampage Prelude] (35 seconds):",
-            "zh_cn": "当你被任何攻击命中时，进入[狂暴前奏]阶段（35秒）：",
-            "zh_tw": "當你被任何攻擊命中時，進入[狂暴前奏]階段（35秒）："
-          },
-          "point": [
-            3.0,
-            2.25,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 167
-        },
-        {
-          "type": "text",
           "duration": 190,
           "text": {
             "en_us": "During this, after killing total players / 7, the frenzy ends and you transform into [Monokuma].",
@@ -661,7 +643,7 @@
           },
           "point": [
             3.0,
-            2.7,
+            2.25,
             3.0
           ],
           "placeNearTarget": true,
@@ -681,7 +663,7 @@
           },
           "point": [
             3.0,
-            3.15,
+            2.7,
             3.0
           ],
           "placeNearTarget": true,

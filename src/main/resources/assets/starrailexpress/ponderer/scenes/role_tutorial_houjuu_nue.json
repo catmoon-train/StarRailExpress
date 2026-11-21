@@ -2,9 +2,10 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.houjuu_nue",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "trainmurdermystery:knife",
+    "trainmurdermystery:revolver",
+    "trainmurdermystery:lockpick",
+    "noellesroles:master_key"
   ],
   "title": {
     "en_us": "Houjuu nue",
@@ -124,20 +125,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "The knife's kill cooldown is 1/6 of the original.",
-                "zh_cn": "刀的击杀冷却时间为原始冷却的 1/6。",
-                "zh_tw": "刀的擊殺冷卻時間為原始冷卻的 1/6。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -147,16 +134,24 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "houjuu_nue_skill_target_0",
+            "linkId": "houjuu_nue_target",
             "outline": -11055517
           }
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "houjuu_nue_main",
+            "item": "trainmurdermystery:knife"
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -170,17 +165,13 @@
           "parameters": {
             "linkId": "houjuu_nue_main",
             "to": [
-              4.1,
+              4.2,
               1.0,
               2.0
             ],
-            "duration": 45
+            "duration": 36
           },
           "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 15
         },
         {
           "type": "spawn_particles",
@@ -196,7 +187,7 @@
             0.6,
             0.35
           ],
-          "count": 10,
+          "count": 8,
           "duration": 30,
           "motion": [
             0,
@@ -207,49 +198,31 @@
         {
           "type": "starrailexpress:role_death",
           "parameters": {
-            "linkId": "houjuu_nue_skill_target_0",
+            "linkId": "houjuu_nue_target",
             "pos": [
               5.0,
               1.0,
               2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
+            ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "spawn_particles",
-          "particle": "minecraft:smoke",
-          "pos": [
-            5.0,
-            1.6,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 45,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 30
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
+            "lines": [
+              {
+                "en_us": "The knife's kill cooldown is 1/6 of the original.",
+                "zh_cn": "刀的击杀冷却时间为原始冷却的 1/6。",
+                "zh_tw": "刀的擊殺冷卻時間為原始冷卻的 1/6。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -399,23 +372,135 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "houjuu_nue_psycho",
+            "linkId": "houjuu_nue_observer",
             "outline": -11055517
           }
         },
         {
-          "type": "starrailexpress:role_disguise",
-          "attachKeyFrame": true,
+          "type": "create_item_entity",
+          "pos": [
+            1.8,
+            1.55,
+            2.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:knife",
+          "linkId": "houjuu_nue_real_0_0",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
           "parameters": {
-            "label": "ponder.starrailexpress.label.psycho",
-            "lines": [
-              {
-                "en_us": "Weapon appearance disguise: holding a knife shows as a gun, holding a gun shows as a knife, and holding a lockpick shows as a Skeleton Key.",
-                "zh_cn": "武器外观伪装：持刀时显示为枪，持枪时显示为刀，持开锁器时显示为万能钥匙。",
-                "zh_tw": "武器外觀偽裝：持刀時顯示為槍，持槍時顯示為刀，持開鎖器時顯示為萬能鑰匙。"
-              }
-            ]
-          }
+            "linkId": "houjuu_nue_main",
+            "item": "trainmurdermystery:revolver"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:knife",
+          "duration": 55,
+          "point": [
+            3.0,
+            3.0,
+            3.0
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 18
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.6,
+            1.55,
+            2.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:revolver",
+          "linkId": "houjuu_nue_real_0_1",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "houjuu_nue_main",
+            "item": "trainmurdermystery:knife"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:revolver",
+          "duration": 55,
+          "point": [
+            3.0,
+            3.0,
+            3.0
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 18
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            3.4000000000000004,
+            1.55,
+            2.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:lockpick",
+          "linkId": "houjuu_nue_real_0_2",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "houjuu_nue_main",
+            "item": "noellesroles:master_key"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:lockpick",
+          "duration": 55,
+          "point": [
+            3.0,
+            3.0,
+            3.0
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 18
         },
         {
           "type": "text",

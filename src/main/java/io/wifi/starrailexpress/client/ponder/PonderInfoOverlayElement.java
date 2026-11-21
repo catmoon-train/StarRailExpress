@@ -54,7 +54,8 @@ public class PonderInfoOverlayElement implements PonderOverlayElement {
         width = Math.min(width, Math.max(140, screen.width - 40));
 
         int x = screen.width - width - 16;
-        int y = 24;
+        // 与左上角状态面板统一下移，避开 Ponder 顶部的原生标题 / 段落标签。
+        int y = 112;
         int height = kind == Kind.MOOD ? 58 : 20 + lines.size() * (font.lineHeight + 3);
         graphics.fill(x, y, x + width, y + height, 0xC0101018);
         graphics.renderOutline(x, y, width, height, 0xFF3A3A4A);

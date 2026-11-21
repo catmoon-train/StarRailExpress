@@ -151,6 +151,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:fake_revolver",
+          "linkId": "huziwara_no_mokou_shop_line_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 94,
           "text": {
@@ -169,6 +186,23 @@
         {
           "type": "idle",
           "duration": 104
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.35,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:once_revolver",
+          "linkId": "huziwara_no_mokou_shop_line_1",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

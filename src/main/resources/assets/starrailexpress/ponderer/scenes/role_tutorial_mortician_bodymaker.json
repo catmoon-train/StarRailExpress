@@ -2,9 +2,9 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.mortician_bodymaker",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "noellesroles:master_key_p",
+    "trainmurdermystery:body_bag",
+    "noellesroles:blood_bottle"
   ],
   "title": {
     "en_us": "Undertaker",
@@ -144,6 +144,37 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "attachKeyFrame": true,
+          "pos": [
+            1.6,
+            1.55,
+            1.6
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:master_key_p",
+          "linkId": "mortician_bodymaker_item"
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mortician_bodymaker_skill_target_0",
+            "outline": -4939556
+          }
+        },
+        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
@@ -170,13 +201,13 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:master_key_p",
           "linkId": "mortician_bodymaker_skill_item_0"
         },
         {
           "type": "show_controls",
           "action": "right",
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:master_key_p",
           "duration": 70,
           "point": [
             3.0,
@@ -316,14 +347,14 @@
           "type": "starrailexpress:role_hold",
           "parameters": {
             "linkId": "mortician_bodymaker_main",
-            "item": "trainmurdermystery:note"
+            "item": "noellesroles:master_key_p"
           },
           "attachKeyFrame": true
         },
         {
           "type": "show_controls",
           "action": "right",
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:master_key_p",
           "duration": 65,
           "point": [
             3.0,
@@ -491,18 +522,18 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_key",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
+            "pos": [
+              5.0,
+              1.0,
+              2.0
             ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
+            "yaw": 180.0,
+            "linkId": "mortician_bodymaker_skill_target_2",
+            "outline": -4939556
+          }
         },
         {
           "type": "highlight_section",
@@ -576,20 +607,6 @@
         {
           "type": "idle",
           "duration": 186
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "highlight_section",
@@ -753,6 +770,23 @@
             "role": "mortician_bodymaker",
             "columns": 4
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:master_key_p",
+          "linkId": "mortician_bodymaker_shop_line_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
