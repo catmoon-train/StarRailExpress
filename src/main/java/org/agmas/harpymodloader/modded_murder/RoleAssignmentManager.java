@@ -70,8 +70,17 @@ public class RoleAssignmentManager {
             List<SRERole> companionRoles,
             List<SRERole> companedRoles,
             int tryLevel) {
+        return tryRemoveRoleAndGet(companion, expandedRoles, companionRoles, companedRoles, tryLevel) != null;
+    }
+
+    /** 与 {@link #tryRemoveARole} 相同的匹配规则，但返回被移除的职业，便于统计释放的槽位数。 */
+    private static SRERole tryRemoveRoleAndGet(SRERole companion,
+            List<RoleInstance> expandedRoles,
+            List<SRERole> companionRoles,
+            List<SRERole> companedRoles,
+            int tryLevel) {
         if (expandedRoles == null || expandedRoles.isEmpty()) {
-            return false;
+            return null;
         }
 
         // 预先计算 companion 的阵营类型，避免循环内重复计算
@@ -94,7 +103,7 @@ public class RoleAssignmentManager {
             final SRERole role = instance.role();
             if (role == null) {
                 iterator.remove();
-                return true;
+                continue;
             }
 
             // 若角色已在排除列表中，跳过
@@ -113,11 +122,38 @@ public class RoleAssignmentManager {
 
             if (conditionMet) {
                 iterator.remove();
-                return true;
+                return role;
             }
         }
 
-        return false;
+        return null;
+    }
+
+    /**
+     * 为关联职业释放足够的槽位。摘星者等职业一人占 2 位，
+     * 只移除 1 个角色会让该阵营凭空多出 1 个名额，最终被兜底再补一个警卫。
+     */
+    private static int removeRolesForCompanion(SRERole companion,
+            List<RoleInstance> expandedRoles,
+            List<SRERole> companionRoles,
+            List<SRERole> companedRoles) {
+        int slotsToFree = Math.max(1, companion.getOccupiedRoleCount());
+        int freed = 0;
+        while (freed < slotsToFree) {
+            boolean removed = false;
+            for (int tryLevel = 0; tryLevel <= 3 && !removed; tryLevel++) {
+                SRERole removedRole = tryRemoveRoleAndGet(companion, expandedRoles, companionRoles, companedRoles,
+                        tryLevel);
+                if (removedRole != null) {
+                    freed += Math.max(0, removedRole.getOccupiedRoleCount());
+                    removed = true;
+                }
+            }
+            if (!removed) {
+                break;
+            }
+        }
+        return freed;
     }
 
     /**
@@ -144,25 +180,19 @@ public class RoleAssignmentManager {
                 companedRoles.add(role.role());
             }
             for (var companion : companions) {
-                if (companion != null) {
-                    {
-                        if (!tryRemoveARole(companion, expandedRoles, companionRoles, companedRoles, 0)) {
-                            if (!tryRemoveARole(companion, expandedRoles, companionRoles, companedRoles, 1)) {
-                                if (!tryRemoveARole(companion, expandedRoles, companionRoles, companedRoles, 2)) {
-                                    if (!tryRemoveARole(companion, expandedRoles, companionRoles, companedRoles, 3)) {
-                                        Harpymodloader.LOGGER
-                                                .error("Unable to remove a role to make room for linked role {}!",
-                                                        role.role().identifier().toString());
-                                        Harpymodloader.LOGGER.info("{} {} {} {}", companion.toString(),
-                                                logArray(expandedRoles),
-                                                logArray(companionRoles), logArray(companedRoles));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    companionRoles.add(companion);
+                if (companion == null) {
+                    continue;
                 }
+                int slotsToFree = Math.max(1, companion.getOccupiedRoleCount());
+                int freed = removeRolesForCompanion(companion, expandedRoles, companionRoles, companedRoles);
+                if (freed < slotsToFree) {
+                    Harpymodloader.LOGGER.error(
+                            "Unable to remove enough roles for linked role {} (freed {} / need {})!",
+                            role.role().identifier().toString(), freed, slotsToFree);
+                    Harpymodloader.LOGGER.info("{} {} {} {}", companion.toString(),
+                            logArray(expandedRoles), logArray(companionRoles), logArray(companedRoles));
+                }
+                companionRoles.add(companion);
             }
         }
 
