@@ -1828,6 +1828,25 @@ public class ModRolesInitialEventRegister {
         StarGathererRoleData.registerEvents();
         // 星之权杖不绑定职业：待降落的星星由全局 tick 推进，任何持有者释放都能正常落下
         org.agmas.noellesroles.content.item.StarScepterItem.registerTick();
+
+        // 黑白熊技能：吃竹子（仅真黑白熊可用，小黑白熊不能触发）。
+        // 5 秒内体型×2、周围 6 格存活玩家缓慢 I、黑白熊无法移动；冷却 60 秒。
+        RoleSkill.register(ModRoles.MONOKUMA,
+                RoleSkill.skill(SRE.id("monokuma_eat_bamboo"),
+                        "skill.noellesroles.monokuma.eat_bamboo",
+                        context -> {
+                            ServerPlayer player = context.player();
+                            if (player.isSpectator())
+                                return false;
+                            var data = RoleData.getNullable(
+                                    org.agmas.noellesroles.role_data.neutral.MonokumaRoleData.class,
+                                    player);
+                            return data != null && data.startEatBamboo(player);
+                        })
+                        .cooldownSeconds(org.agmas.noellesroles.role_data.neutral.MonokumaRoleData.EAT_BAMBOO_COOLDOWN_SECONDS)
+                        .showOnHud(true)
+                        .announceToSelf(true)
+                        .build());
     }
 
 }
