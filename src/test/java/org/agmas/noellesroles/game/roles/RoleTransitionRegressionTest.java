@@ -28,6 +28,17 @@ class RoleTransitionRegressionTest {
     }
 
     @Test
+    void evilWarRevivalBypassesOrdinaryKillerLimitBeforeCountingSlots() throws Exception {
+        String source = read("pro/fazeclan/river/stupid_express/role/necromancer/RevivalSelectionHandler.java");
+        int start = source.indexOf("private static boolean hasKillerSlot");
+        String check = source.substring(start, source.indexOf("\n    }", start));
+        String bypass = "if (game.gameMode instanceof SREEvilWarGameMode) {\n            return true;\n        }";
+        assertTrue(check.contains(bypass));
+        assertTrue(check.indexOf(bypass) < check.indexOf("RoleCountManager.getKillerCount("));
+        assertTrue(check.indexOf(bypass) < check.indexOf("level.players().stream()"));
+    }
+
+    @Test
     void bothNecromancersCheckActualKillerSlotsBeforeSpendingResources() throws Exception {
         String source = read("pro/fazeclan/river/stupid_express/role/necromancer/RevivalSelectionHandler.java");
         int start = source.indexOf("private static boolean hasKillerSlot");

@@ -50,6 +50,10 @@ import static io.wifi.starrailexpress.compat.TrainVoicePlugin.SERVER_API;
 public class RevivalSelectionHandler {
     /** 按实际阵营限制存活杀手数，复制平民的克隆博士仍占用杀手名额。 */
     private static boolean hasKillerSlot(ServerLevel level, SREGameWorldComponent game) {
+        // 邪恶战争按独立规则分配大量杀手，不适用普通模式的杀手人数上限
+        if (game.gameMode instanceof SREEvilWarGameMode) {
+            return true;
+        }
         int limit = RoleCountManager.getKillerCount(game.getStartingPlayerCount());
         long aliveKillers = level.players().stream()
                 .filter(GameUtils::isPlayerAliveAndSurvival)
