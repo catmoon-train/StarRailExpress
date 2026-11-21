@@ -246,7 +246,7 @@
             ],
             "yaw": 180.0,
             "linkId": "pelican_skill_target_0",
-            "outline": -9467356
+            "outline": 4294944000
           }
         },
         {
@@ -334,7 +334,7 @@
             ],
             "yaw": 180.0,
             "linkId": "pelican_skill_target_1",
-            "outline": -9467356
+            "outline": 4294944000
           }
         },
         {
@@ -534,7 +534,7 @@
             ],
             "yaw": 180.0,
             "linkId": "pelican_target",
-            "outline": -9467356
+            "outline": 4294944000
           }
         },
         {
@@ -617,7 +617,7 @@
             ],
             "yaw": 180.0,
             "linkId": "pelican_psycho",
-            "outline": -9467356
+            "outline": 4294944000
           }
         },
         {

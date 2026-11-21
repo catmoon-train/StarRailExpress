@@ -485,7 +485,7 @@
             ],
             "yaw": 180.0,
             "linkId": "anatman_target",
-            "outline": -2565928
+            "outline": 4294967040
           }
         },
         {
@@ -568,7 +568,7 @@
             ],
             "yaw": 180.0,
             "linkId": "anatman_ally",
-            "outline": -2565928
+            "outline": 4294967040
           }
         },
         {
@@ -582,7 +582,7 @@
                 "zh_tw": "與無妄綁定生成，與年獸互斥生成。"
               }
             ],
-            "color": -2565928
+            "color": 4294967040
           }
         },
         {
@@ -651,7 +651,7 @@
             ],
             "yaw": 180.0,
             "linkId": "anatman_psycho",
-            "outline": -2565928
+            "outline": 4294967040
           }
         },
         {

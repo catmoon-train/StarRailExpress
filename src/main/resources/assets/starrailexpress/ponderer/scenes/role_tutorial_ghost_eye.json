@@ -256,7 +256,7 @@
             ],
             "yaw": 180.0,
             "linkId": "ghost_eye_target",
-            "outline": -8076088
+            "outline": 4294967295
           }
         },
         {

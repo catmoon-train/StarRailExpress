@@ -132,6 +132,47 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.0,
+            1.55,
+            2.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "ibaraki_kasen_wolf_shop",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_entity",
+          "entity": "minecraft:wolf",
+          "pos": [
+            5.0,
+            1.0,
+            2.0
+          ],
+          "yaw": 180.0,
+          "linkId": "ibaraki_kasen_wolf",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {

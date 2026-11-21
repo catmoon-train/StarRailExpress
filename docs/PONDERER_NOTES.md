@@ -854,3 +854,25 @@ indicate_success [2,0,4] + idle 80 + rotate_camera_y
 
 结果：269 个场景粒子审计 0 violation；`verify_ponder_scenes.py` 272 个场景 0 error。
 
+## 23. 商店页、走动重置、本能颜色与踢门（2026-11-21）
+
+- **商店页**：生成器现在对介绍里出现「商店 / 可购买 / 购买 / 兑换」的所有职业强制
+  建立 `shop` 段落，并在对应介绍处摆出真实商品。复查 269 个职业，0 个漏页。
+  仙人（`ibaraki_kasen`）的商店段在「狼狗」那一句生成原版 `minecraft:wolf`，
+  表现“购买后自动召唤”。
+- **走动终点重置**：`javap` 确认 1.21.1 的 `net.minecraft.world.entity.WalkAnimationState`
+  中 `speedOld`、`speed`、`position` 都是 public 字段。之前用
+  `update(-position(), 1)` + `setSpeed(0)` 仍会被插值带回去；现在在起步和终点直接
+  把三个字段清零，所有职业共用。
+- **本能透视颜色**：`INSTINCT_COLOR_BY_ROLE` 按源码返回值覆盖介绍里明确提到的颜色。
+  初学者看另一位初学者是 `0xFFFFD154`（`SERoles.INITIATE.color()`，条件是自己拿刀且
+  目标也是初学者），不再沿用默认红色；家族透视棕色 `0xFF8B4513` / 教父蓝
+  `0xFF87CEEB`，肉汁深蓝 `0xFF0000B4`，指挥官警长蓝 `0xFF3F48CC`，
+  轮盘恶魔蓝 `0xFF3388FF`，黑警浅黑 / 红，等等。需要多种颜色的段落会摆多个
+  目标玩家，各自用源码颜色。
+- **玉将军飞踢**：`skill` 段现在先放一扇 `trainmurdermystery:metal_sheet_door`，
+  按键后玩家走向门、门被置空、目标玩家被击退；不再只有文字描述。
+
+最终：`verify_ponder_scenes.py` 272 个场景 0 error，`audit_ponder_authoring.py`
+269 个场景 0 violation，`compileJava --offline` 编译成功。
+

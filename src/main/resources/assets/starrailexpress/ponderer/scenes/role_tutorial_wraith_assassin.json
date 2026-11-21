@@ -208,7 +208,7 @@
             ],
             "yaw": 180.0,
             "linkId": "wraith_assassin_skill_target_0",
-            "outline": -13542532
+            "outline": 4281110015
           }
         },
         {
@@ -309,7 +309,7 @@
             ],
             "yaw": 180.0,
             "linkId": "wraith_assassin_skill_target_1",
-            "outline": -13542532
+            "outline": 4281110015
           }
         },
         {
@@ -512,8 +512,22 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "wraith_assassin_target",
-            "outline": -13542532
+            "linkId": "wraith_assassin_target_0",
+            "outline": 4281110015
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              3.2
+            ],
+            "yaw": 180.0,
+            "linkId": "wraith_assassin_target_1",
+            "outline": 4294957130
           }
         },
         {
@@ -642,7 +656,7 @@
             ],
             "yaw": 180.0,
             "linkId": "wraith_assassin_skill_target_1",
-            "outline": -13542532
+            "outline": 4281110015
           }
         },
         {

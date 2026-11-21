@@ -350,8 +350,22 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "parasol_target",
-            "outline": -16741493
+            "linkId": "parasol_target_0",
+            "outline": 4287317267
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              3.2
+            ],
+            "yaw": 180.0,
+            "linkId": "parasol_target_1",
+            "outline": 4287090411
           }
         },
         {

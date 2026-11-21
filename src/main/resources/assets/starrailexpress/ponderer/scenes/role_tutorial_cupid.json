@@ -279,8 +279,22 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "cupid_target",
-            "outline": -38476
+            "linkId": "cupid_target_0",
+            "outline": 4294944000
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              3.2
+            ],
+            "yaw": 180.0,
+            "linkId": "cupid_target_1",
+            "outline": 4294928820
           }
         },
         {

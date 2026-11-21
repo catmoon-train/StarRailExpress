@@ -176,7 +176,7 @@
             ],
             "yaw": 180.0,
             "linkId": "infected_skill_target_0",
-            "outline": -12405504
+            "outline": 4294944000
           }
         },
         {
@@ -264,7 +264,7 @@
             ],
             "yaw": 180.0,
             "linkId": "infected_skill_target_1",
-            "outline": -12405504
+            "outline": 4294944000
           }
         },
         {
@@ -343,7 +343,7 @@
             ],
             "yaw": 180.0,
             "linkId": "infected_skill_target_2",
-            "outline": -12405504
+            "outline": 4294944000
           }
         },
         {
@@ -529,7 +529,7 @@
             ],
             "yaw": 180.0,
             "linkId": "infected_target",
-            "outline": -12405504
+            "outline": 4294944000
           }
         },
         {
@@ -612,7 +612,7 @@
             ],
             "yaw": 180.0,
             "linkId": "infected_ally",
-            "outline": -12405504
+            "outline": 4294944000
           }
         },
         {
@@ -626,7 +626,7 @@
                 "zh_tw": "與毒師互斥生成，與醫生綁定生成。"
               }
             ],
-            "color": -12405504
+            "color": 4294944000
           }
         },
         {
@@ -695,7 +695,7 @@
             ],
             "yaw": 180.0,
             "linkId": "infected_psycho",
-            "outline": -12405504
+            "outline": 4294944000
           }
         },
         {
@@ -866,7 +866,7 @@
             ],
             "yaw": 180.0,
             "linkId": "infected_skill_target_4",
-            "outline": -12405504
+            "outline": 4294944000
           }
         },
         {

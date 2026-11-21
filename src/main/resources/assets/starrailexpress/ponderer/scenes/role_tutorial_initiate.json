@@ -196,8 +196,22 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "initiate_target",
-            "outline": -65536
+            "linkId": "initiate_target_0",
+            "outline": 4294955348
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              3.2
+            ],
+            "yaw": 180.0,
+            "linkId": "initiate_target_1",
+            "outline": 4294955348
           }
         },
         {
@@ -280,7 +294,7 @@
             ],
             "yaw": 180.0,
             "linkId": "initiate_psycho",
-            "outline": -65536
+            "outline": 4294955348
           }
         },
         {

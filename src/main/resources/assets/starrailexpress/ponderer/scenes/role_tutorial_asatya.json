@@ -485,7 +485,7 @@
             ],
             "yaw": 180.0,
             "linkId": "asatya_target",
-            "outline": -5005861
+            "outline": 4294967040
           }
         },
         {
@@ -595,7 +595,7 @@
             ],
             "yaw": 180.0,
             "linkId": "asatya_skill_target_0",
-            "outline": -5005861
+            "outline": 4294967040
           }
         },
         {

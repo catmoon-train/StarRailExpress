@@ -247,7 +247,7 @@
             ],
             "yaw": 180.0,
             "linkId": "godfather_skill_target_0",
-            "outline": -3730043
+            "outline": 4287317267
           }
         },
         {
@@ -616,8 +616,22 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "godfather_target",
-            "outline": -3730043
+            "linkId": "godfather_target_0",
+            "outline": 4287317267
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              3.2
+            ],
+            "yaw": 180.0,
+            "linkId": "godfather_target_1",
+            "outline": 4287090411
           }
         },
         {

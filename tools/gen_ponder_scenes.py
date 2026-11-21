@@ -722,6 +722,51 @@ ROLE_ITEMS = {
 # 这些职业没有主动技能键，不能因为介绍里写了「右键道具」就塞技能键帽和走动。
 NO_SKILL_KEY_ROLES = {"baka"}
 
+# 本能透视颜色必须以 RoleInstinctRegister / InstinctManager / 角色常量为准。
+# 这里只覆盖介绍里明确提到具体颜色、且源码有对应分支的职业；其余沿用职业基础色。
+INSTINCT_COLOR_BY_ROLE = {
+    "amon": 0xFF786E8C,
+    "anatman": 0xFFFFFF00,
+    "asatya": 0xFFFFFF00,
+    "candlebearer": 0xFFFFD278,
+    "commander": 0xFF3F48CC,
+    "cupid": 0xFFFFA500,
+    "dictator": 0xFF3C60B0,
+    "executioner": 0xFF00FEFE,
+    "ghost_eye": 0xFFFFFFFF,
+    "godfather": 0xFF8B4513,
+    "infected": 0xFFFFA500,
+    "initiate": 0xFFFFD154,
+    "janitor": 0xFF8B4513,
+    "jester": 0xFFFFC0CB,
+    "leader": 0xFFFF00FF,
+    "licensed_villain": 0xFF2B2B2B,
+    "mafioso": 0xFF8B4513,
+    "meatball": 0xFF0000B4,
+    "nutritionist": 0xFF8B4513,
+    "parasol": 0xFF8B4513,
+    "pelican": 0xFFFFA500,
+    "rabbit_wansui": 0xFFFFFDFD,
+    "roulette_devil": 0xFF3388FF,
+    "voice_changer": 0xFF9400D3,
+    "wraith_assassin": 0xFF2C8DFF,
+}
+
+# 同一段里需要多个目标、各自不同颜色时，按这个顺序摆模型。
+VISION_COLORS_BY_ROLE = {
+    "initiate": [0xFFFFD154, 0xFFFFD154],
+    "godfather": [0xFF8B4513, 0xFF87CEEB],
+    "janitor": [0xFF8B4513, 0xFF87CEEB],
+    "mafioso": [0xFF8B4513, 0xFF87CEEB],
+    "nutritionist": [0xFF8B4513, 0xFF87CEEB],
+    "parasol": [0xFF8B4513, 0xFF87CEEB],
+    "leader": [0xFFFF00FF, 0xFFFFFF00, 0xFF0000FF],
+    "candlebearer": [0xFFFFD278, 0xFF0000FF, 0xFF808080],
+    "cupid": [0xFFFFA500, 0xFFFF69B4],
+    "wraith_assassin": [0xFF2C8DFF, 0xFFFFD84A],
+    "licensed_villain": [0xFF2B2B2B, 0xFFC13838],
+}
+
 ORANGE = 0xFFA500
 GRAY = 0x808080
 
@@ -1192,6 +1237,46 @@ def override_raven_form(builder, ctx):
     disguise_perform(builder, ctx, lines or ctx["all_lines"][:1], skin=SKIN_BLACK)
 
 
+def override_kasen_shop(builder, ctx):
+    """仙人：商店买狼狗后，原版狼真的出现在场景里。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    rid = ctx["rid"]
+    builder.add({"type": "starrailexpress:role_shop", "attachKeyFrame": True,
+                 "parameters": {"role": rid, "columns": 4}})
+    builder.add(item_entity([p[0] - 1.0, p[1] + 0.55, p[2] - 1.0],
+                            "trainmurdermystery:note", rid + "_wolf_shop"))
+    for line in ctx["lines"]:
+        if "狼狗" in line.get("zh_cn", ""):
+            builder.add(mob_entity("minecraft:wolf", t, rid + "_wolf"))
+            builder.add({"type": "indicate_success", "blockPos": [int(t[0]), 0, int(t[2])]})
+            builder.add({"type": "idle", "duration": 25})
+        builder.say(line)
+
+
+def override_jade_general_skill(builder, ctx):
+    """玉将军：面前摆一扇列车门，飞踢撞门、门打开、目标被击退。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    rid, main = ctx["rid"], ctx["rid"] + "_main"
+    door = [int(p[0]), 1, 6]
+    builder.add({"type": "set_block", "block": "trainmurdermystery:metal_sheet_door",
+                 "blockProperties": {"half": "lower", "facing": "north"},
+                 "blockPos": door, "blockPos2": [door[0], door[1] + 1, door[2]],
+                 "attachKeyFrame": True})
+    builder.add(player_step([p[0], p[1], p[2] + 1.5], rid + "_kick_target",
+                            outline=ctx["outline_color"]))
+    for line in ctx["lines"]:
+        if "飞踢" in line.get("zh_cn", "") or "踹开" in line.get("zh_cn", ""):
+            builder.add(key_cap([p[0], p[1] + 2.0, p[2]]))
+            builder.add(custom("role_walk", {"linkId": main,
+                                             "to": [p[0], p[1], p[2] + 2.0], "duration": 30}))
+            builder.add({"type": "set_block", "block": "minecraft:air",
+                         "blockPos": door, "blockPos2": [door[0], door[1] + 1, door[2]]})
+            builder.add({"type": "indicate_success", "blockPos": door})
+            builder.add(custom("role_teleport", {"linkId": rid + "_kick_target",
+                                                 "pos": [t[0], t[1], t[2] - 1.2]}))
+        builder.say(line)
+
+
 ROLE_SEGMENT_OVERRIDES = {
     ("kafu_chino", "skill"): override_kafu_skill,
     ("houjuu_nue", "skill"): override_nue_skill,
@@ -1207,6 +1292,8 @@ ROLE_SEGMENT_OVERRIDES = {
     ("baka", "mood"): override_baka_mood,
     ("baka", "details"): override_baka_details,
     ("disc_master", "shop"): override_disc_master_shop,
+    ("ibaraki_kasen", "shop"): override_kasen_shop,
+    ("jade_general", "skill"): override_jade_general_skill,
     ("rabbit_wansui", "form"): override_rabbit_form,
     ("snow_golem", "form"): override_snow_golem_form,
     ("metal_monster", "form"): override_metal_monster_form,
@@ -1272,7 +1359,9 @@ def build_role_scene(rid, facts, intros, names, goals):
     nbt, player_pos, second_pos = STRUCTURES[structure_key]
 
     role_color = facts.get("color")
-    outline_color = argb(role_color) if role_color is not None else -65536
+    outline_color = INSTINCT_COLOR_BY_ROLE.get(rid)
+    if outline_color is None:
+        outline_color = argb(role_color) if role_color is not None else -65536
 
     buckets = classify([zh_lines[i] for i in content_indices])
     # 领域技的解说句挪到领域段落
@@ -1364,6 +1453,10 @@ def build_role_scene(rid, facts, intros, names, goals):
         # 技能界面：职业在背包里有「选人列表」时一定要演示这个界面，
         # 即使介绍里没有单独一句描述它（神权冷笑 / 巫毒师 / 变形者等）。
         forced = key == "screen" and bool(facts.get("inventoryScreen"))
+        if key == "shop" and any(word in "".join(zh_lines)
+                                 for word in ("商店", "可购买", "购买")):
+            # 介绍提到商店就要有商店页面，即使分类器没把这句分到 shop。
+            forced = True
         if key == "domain" and rid in DOMAIN_BY_ROLE:
             forced = True
         if key == "form" and (rid, "form") in ROLE_SEGMENT_OVERRIDES:
@@ -1432,7 +1525,14 @@ def build_role_scene(rid, facts, intros, names, goals):
                          "parameters": {"title": SEGMENT_TITLE_KEY["panel"],
                                         "lines": [dict(line) for line in lines]}})
         elif key == "vision":
-            builder.add(player_step(second_pos, rid + "_target", outline=outline_color))
+            vision_colors = VISION_COLORS_BY_ROLE.get(rid)
+            if vision_colors:
+                for index, color in enumerate(vision_colors[:3]):
+                    pos = (second_pos if index == 0 else
+                           [second_pos[0], second_pos[1], round(second_pos[2] + 1.2 * index, 2)])
+                    builder.add(player_step(pos, rid + "_target_" + str(index), outline=color))
+            else:
+                builder.add(player_step(second_pos, rid + "_target", outline=outline_color))
             builder.add({"type": "starrailexpress:role_render", "attachKeyFrame": True,
                          "parameters": {"label": SEGMENT_TITLE_KEY["vision"],
                                         "lines": [dict(line) for line in lines]}})
@@ -1607,6 +1707,7 @@ def event_scene(rid, facts, intros, names, goals):
                                             "delay": 12}})
         else:
             if segment_id == "village":
+                # 万圣节介绍明确提到「右键打开商店」，对应这一幕就要有商店页面。
                 builder.add({"type": "starrailexpress:role_shop", "attachKeyFrame": True,
                              "parameters": {"role": rid, "columns": 4,
                                             "items": [{"item": "minecraft:pumpkin", "price": 0,

@@ -348,8 +348,22 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "mafioso_target",
-            "outline": -2461482
+            "linkId": "mafioso_target_0",
+            "outline": 4287317267
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              3.2
+            ],
+            "yaw": 180.0,
+            "linkId": "mafioso_target_1",
+            "outline": 4287090411
           }
         },
         {

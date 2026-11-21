@@ -566,8 +566,36 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "candlebearer_target",
-            "outline": -11656
+            "linkId": "candlebearer_target_0",
+            "outline": 4294955640
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              3.2
+            ],
+            "yaw": 180.0,
+            "linkId": "candlebearer_target_1",
+            "outline": 4278190335
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              4.4
+            ],
+            "yaw": 180.0,
+            "linkId": "candlebearer_target_2",
+            "outline": 4286611584
           }
         },
         {
