@@ -81,11 +81,6 @@ public final class RouletteDevilRoleScreenExtension extends PlayerListRoleScreen
                 state.mature().size()), center.x, goalY + line, 0xFFB2A5BD);
         Component selection = Component.translatable(KEY + (state.duelOpponent() != null ? "dueling" : "select"));
         graphics.drawCenteredString(font, selection, center.x, goalY + line * 2, 0xFFDDCCEE);
-        int y = 8;
-        for (var text : font.split(Component.translatable(KEY + "skill"), Math.max(40, graphics.guiWidth() - 16))) {
-            graphics.drawString(font, text, (graphics.guiWidth() - font.width(text)) / 2, y, 0xFFCCBBDD);
-            y += font.lineHeight + 1;
-        }
     }
 
     private static Component seedStatus(UUID target) {
