@@ -3324,6 +3324,7 @@
   "message.noellesroles.great_detective.no_killer": "这具尸体并非他杀，无从推敲",
   "message.noellesroles.great_detective.no_new_clue": "你已掌握这具尸体能提供的全部线索",
   "message.noellesroles.great_detective.clue_found": "一条新的碎片写进了推理之书",
+  "message.noellesroles.great_detective.already_owned": "你已拥有推理之书",
   "message.noellesroles.great_detective.target_locked": "你锁定了目标的方位",
   "message.noellesroles.great_detective.channel_start": "勘察中……请保持静止",
   "message.noellesroles.great_detective.channel_moved": "勘察中断——移动会打断观察",

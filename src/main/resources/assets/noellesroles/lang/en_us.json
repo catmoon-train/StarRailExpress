@@ -3268,6 +3268,7 @@
   "message.noellesroles.great_detective.no_killer": "This corpse was not a homicide; there is nothing to deduce",
   "message.noellesroles.great_detective.no_new_clue": "You have all the clues this corpse can offer",
   "message.noellesroles.great_detective.clue_found": "A new fragment is written into the Deduction Book",
+  "message.noellesroles.great_detective.already_owned": "The Deduction Book is already in your hotbar",
   "message.noellesroles.great_detective.target_locked": "You have locked onto the target's position",
   "message.noellesroles.great_detective.channel_start": "Inspecting... stay still",
   "message.noellesroles.great_detective.channel_moved": "Inspection interrupted — moving breaks the observation",
