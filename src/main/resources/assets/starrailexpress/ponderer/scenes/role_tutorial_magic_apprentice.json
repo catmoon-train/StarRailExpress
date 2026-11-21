@@ -1,0 +1,600 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.magic_apprentice",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Magic Apprentice",
+    "zh_cn": "魔法学徒",
+    "zh_tw": "魔法學徒"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Magic Apprentice",
+        "zh_cn": "魔法学徒",
+        "zh_tw": "魔法學徒"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "magic_apprentice_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Sheriff team",
+            "zh_cn": "警长阵营",
+            "zh_tw": "警長陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Use your apprentice staff to cast unlocked spells and protect the passengers on the train.",
+            "zh_cn": "该将法术运用于实战了。",
+            "zh_tw": "該將法術運用於實戰了。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Magic Apprentice",
+        "zh_cn": "魔法学徒",
+        "zh_tw": "魔法學徒"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "magic_apprentice_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 97,
+          "text": {
+            "en_us": "Starts with an Apprentice Staff.",
+            "zh_cn": "开局自带获得见习法杖。",
+            "zh_tw": "開局自帶獲得見習法杖。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 107
+        },
+        {
+          "type": "text",
+          "duration": 140,
+          "text": {
+            "en_us": "Has a mana bar that restores 15 mana every 30s; cap 100.",
+            "zh_cn": "拥有魔力条，每 30 秒恢复 15 点魔力，魔力上限 100。",
+            "zh_tw": "擁有魔力條，每 30 秒恢復 15 點魔力，魔力上限 100。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 150
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 151,
+          "text": {
+            "en_us": "Fireball: starting spell, range 20, costs 5 mana, kills on hit",
+            "zh_cn": "火球术：开局自带法术，射程 20 格，消耗 5 魔力，命中玩家会使玩家死亡",
+            "zh_tw": "火球術：開局自帶法術，射程 20 格，消耗 5 魔力，命中玩家會使玩家死亡"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 161
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Magic Apprentice",
+        "zh_cn": "魔法学徒",
+        "zh_tw": "魔法學徒"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "magic_apprentice_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Charge 0.3s to cast a spell; on success, 12s cooldown",
+                "zh_cn": "法杖需要蓄力 0.3 秒释放法术，成功释放后进入 12 秒冷却",
+                "zh_tw": "法杖需要蓄力 0.3 秒釋放法術，成功釋放後進入 12 秒冷卻"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Charge 0.3s to cast a spell; on success, 12s cooldown",
+                "zh_cn": "法杖需要蓄力 0.3 秒释放法术，成功释放后进入 12 秒冷却",
+                "zh_tw": "法杖需要蓄力 0.3 秒釋放法術，成功釋放後進入 12 秒冷卻"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:snowflake",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 135,
+          "text": {
+            "en_us": "Charge 0.3s to cast a spell; on success, 12s cooldown",
+            "zh_cn": "法杖需要蓄力 0.3 秒释放法术，成功释放后进入 12 秒冷却",
+            "zh_tw": "法杖需要蓄力 0.3 秒釋放法術，成功釋放後進入 12 秒冷卻"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 145
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Magic Apprentice",
+        "zh_cn": "魔法学徒",
+        "zh_tw": "魔法學徒"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "magic_apprentice_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "magic_apprentice",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Ice Ball: shop, range 40, costs 5 mana, applies 5s Slowness II and Mining Fatigue V on hit (no damage)",
+            "zh_cn": "冰球术：商店购买，射程40 格，消耗 5 魔力，对命中目标施加 5 秒缓慢 II 与挖掘疲劳 V，不会使玩家受到伤害",
+            "zh_tw": "冰球術：商店購買，射程40 格，消耗 5 魔力，對命中目標施加 5 秒緩慢 II 與挖掘疲勞 V，不會使玩家受到傷害"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Poison: shop, range 20, costs 50 mana, pierces walls, applies 12s poison to the hit player",
+            "zh_cn": "毒术：商店购买，射程20 格，消耗 50 魔力，此法术无视墙体，对被命中玩家施加 12 秒中毒",
+            "zh_tw": "毒術：商店購買，射程20 格，消耗 50 魔力，此法術無視牆體，對被命中玩家施加 12 秒中毒"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 185,
+          "text": {
+            "en_us": "Repulsion Gust: shop, range 15, costs 50 mana, knocks back players in a cone by 4",
+            "zh_cn": "击退气流：商店购买，射程 15 格，消耗 50 魔力，使扇形范围内的玩家击退4格",
+            "zh_tw": "擊退氣流：商店購買，射程 15 格，消耗 50 魔力，使扇形範圍內的玩家擊退4格"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 195
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Flame Zone: shop, range 12, costs 75 mana, creates a 5s burning field; players inside are set on fire and die after 5s of burning",
+            "zh_cn": "火焰域：商店购买，射程 12 格，消耗 75 魔力，生成持续 5 秒的燃烧区域，玩家处于燃烧区域内会被点燃，若燃烧时间达5秒，则玩家死亡",
+            "zh_tw": "火焰域：商店購買，射程 12 格，消耗 75 魔力，生成持續 5 秒的燃燒區域，玩家處於燃燒區域內會被點燃，若燃燒時間達5秒，則玩家死亡"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Ice Zone: shop, range 12, costs 65 mana, creates an icy field that gives 5s Slowness III to those entering",
+            "zh_cn": "冰雪域：商店购买，射程 12 格，消耗 65 魔力，生成一片冰雪区域，使踏入的玩家获得 5 秒缓慢III效果。",
+            "zh_tw": "冰雪域：商店購買，射程 12 格，消耗 65 魔力，生成一片冰雪區域，使踏入的玩家獲得 5 秒緩慢III效果。"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 175,
+          "text": {
+            "en_us": "The skill-switch key cycles unlocked spells; spells are bought in the shop.",
+            "zh_cn": "技能切换键可以切换已解锁法术，法术可在商店中购买解锁。",
+            "zh_tw": "技能切換鍵可以切換已解鎖法術，法術可在商店中購買解鎖。"
+          },
+          "point": [
+            3.0,
+            3.2,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 185
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "title": {
+        "en_us": "Magic Apprentice",
+        "zh_cn": "魔法学徒",
+        "zh_tw": "魔法學徒"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "magic_apprentice_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "magic_apprentice_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "magic_apprentice_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "delay": 14
+          }
+        },
+        {
+          "type": "text",
+          "duration": 131,
+          "text": {
+            "en_us": "On death, the Apprentice Staff drops as a revolver.",
+            "zh_cn": "魔法学徒死后，见习法杖会掉落为左轮手枪",
+            "zh_tw": "魔法學徒死後，見習法杖會掉落為左輪手槍"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 141
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

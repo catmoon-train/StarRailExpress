@@ -1,0 +1,625 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.watcher",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Watcher",
+    "zh_cn": "观者",
+    "zh_tw": "觀者"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Watcher",
+        "zh_cn": "观者",
+        "zh_tw": "觀者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "watcher_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 108,
+          "text": {
+            "en_us": "The hunt is but a single thought away.",
+            "zh_cn": "猎杀仅在一念之间。",
+            "zh_tw": "獵殺僅在一念之間。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 118
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Watcher",
+        "zh_cn": "观者",
+        "zh_tw": "觀者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "watcher_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Press the skill key to toggle between Serene and Wrath; 30-second cooldown.",
+                "zh_cn": "按下技能键可在宁静与愤怒间切换，冷却30秒。",
+                "zh_tw": "按下技能鍵可在寧靜與憤怒間切換，冷卻30秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Press the skill key to toggle between Serene and Wrath; 30-second cooldown.",
+                "zh_cn": "按下技能键可在宁静与愤怒间切换，冷却30秒。",
+                "zh_tw": "按下技能鍵可在寧靜與憤怒間切換，冷卻30秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 175,
+          "text": {
+            "en_us": "Press the skill key to toggle between Serene and Wrath; 30-second cooldown.",
+            "zh_cn": "按下技能键可在宁静与愤怒间切换，冷却30秒。",
+            "zh_tw": "按下技能鍵可在寧靜與憤怒間切換，冷卻30秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 185
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Watcher",
+        "zh_cn": "观者",
+        "zh_tw": "觀者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "watcher_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "watcher",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 131,
+          "text": {
+            "en_us": "The Watcher earns an extra 25 coin for doing tasks.",
+            "zh_cn": "观者做任务会额外给予你25金币。",
+            "zh_tw": "觀者做任務會額外給予你25金幣。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 141
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Watcher",
+        "zh_cn": "观者",
+        "zh_tw": "觀者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "watcher_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "watcher_target",
+            "outline": -13350562
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "The Serene-Pose shield itself is not visible to the Bartender; only shields granted by Shield Potions are.",
+                "zh_cn": "宁静姿态自带的那层护盾不会被酒保看见；只有护盾试剂给予的护盾会被酒保看见。",
+                "zh_tw": "寧靜姿態自帶的那層護盾不會被酒保看見；只有護盾試劑給予的護盾會被酒保看見。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The Serene-Pose shield itself is not visible to the Bartender; only shields granted by Shield Potions are.",
+            "zh_cn": "宁静姿态自带的那层护盾不会被酒保看见；只有护盾试剂给予的护盾会被酒保看见。",
+            "zh_tw": "寧靜姿態自帶的那層護盾不會被酒保看見；只有護盾試劑給予的護盾會被酒保看見。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vitals",
+      "title": {
+        "en_us": "Watcher",
+        "zh_cn": "观者",
+        "zh_tw": "觀者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "watcher_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "attachKeyFrame": true,
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.4,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
+              }
+            ],
+            "lines": [
+              {
+                "en_us": "Starts in a Serene Pose, in which you are treated as a good player but cannot pick up guns (would trigger / cause death from wrongful Civilian kill), and have one layer of one-use shield; can buy Lockpicks and Notes.",
+                "zh_cn": "默认处于宁静姿态，在此姿态下会被视为好人但是不能捡枪(会无条件触发/被触发误杀平民而亡)，并拥有一层一次性护盾，可以购买开锁器和便签。",
+                "zh_tw": "默認處於寧靜姿態，在此姿態下會被視為好人但是不能撿槍(會無條件觸發/被觸發誤殺平民而亡)，並擁有一層一次性護盾，可以購買開鎖器和便簽。"
+              },
+              {
+                "en_us": "If a good player with a gun breaks the Watcher's Serene-Pose shield, the attacker's Revolver drops.",
+                "zh_cn": "如果有持枪好人打破了观者宁静姿态下的护盾则会掉落攻击者身上的左轮手枪。",
+                "zh_tw": "如果有持槍好人打破了觀者寧靜姿態下的護盾則會掉落攻擊者身上的左輪手槍。"
+              },
+              {
+                "en_us": "In Wrath Pose you lose the shield, continuously gain Speed I, and unlock Killer abilities.",
+                "zh_cn": "愤怒姿态下会失去护盾并持续获得速度 I，同时解锁杀手能力。",
+                "zh_tw": "憤怒姿態下會失去護盾並持續獲得速度 I，同時解鎖殺手能力。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "watcher_skill_target_0",
+            "outline": -13350562
+          }
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 35
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Starts in a Serene Pose, in which you are treated as a good player but cannot pick up guns (would trigger / cause death from wrongful Civilian kill), and have one layer of one-use shield; can buy Lockpicks and Notes.",
+            "zh_cn": "默认处于宁静姿态，在此姿态下会被视为好人但是不能捡枪(会无条件触发/被触发误杀平民而亡)，并拥有一层一次性护盾，可以购买开锁器和便签。",
+            "zh_tw": "默認處於寧靜姿態，在此姿態下會被視為好人但是不能撿槍(會無條件觸發/被觸發誤殺平民而亡)，並擁有一層一次性護盾，可以購買開鎖器和便簽。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "watcher_skill_target_1",
+            "outline": -13350562
+          }
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 35
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "If a good player with a gun breaks the Watcher's Serene-Pose shield, the attacker's Revolver drops.",
+            "zh_cn": "如果有持枪好人打破了观者宁静姿态下的护盾则会掉落攻击者身上的左轮手枪。",
+            "zh_tw": "如果有持槍好人打破了觀者寧靜姿態下的護盾則會掉落攻擊者身上的左輪手槍。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "watcher_skill_target_2",
+            "outline": -13350562
+          }
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 35
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "In Wrath Pose you lose the shield, continuously gain Speed I, and unlock Killer abilities.",
+            "zh_cn": "愤怒姿态下会失去护盾并持续获得速度 I，同时解锁杀手能力。",
+            "zh_tw": "憤怒姿態下會失去護盾並持續獲得速度 I，同時解鎖殺手能力。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Watcher",
+        "zh_cn": "观者",
+        "zh_tw": "觀者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "watcher_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 162,
+          "text": {
+            "en_us": "If you personally kill a player in Serene Pose, you die immediately.",
+            "zh_cn": "若你在宁静姿态下亲手杀死玩家，你会立刻死亡。",
+            "zh_tw": "若你在寧靜姿態下親手殺死玩家，你會立刻死亡。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 172
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

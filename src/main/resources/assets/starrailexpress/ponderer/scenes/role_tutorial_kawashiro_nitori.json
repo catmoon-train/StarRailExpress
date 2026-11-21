@@ -1,0 +1,465 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.kawashiro_nitori",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Kawashiro nitori",
+    "zh_cn": "荷官商人",
+    "zh_tw": "荷官商人"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Kawashiro nitori",
+        "zh_cn": "荷官商人",
+        "zh_tw": "荷官商人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kawashiro_nitori_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 178,
+          "text": {
+            "en_us": "The versatile kappa engineer of the Youkai Mountain, and leader of the kappa.",
+            "zh_cn": "妖怪之山的全能水利工程师，河童的首领。",
+            "zh_tw": "妖怪之山的全能水利工程師，河童的首領。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 188
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Kawashiro nitori",
+        "zh_cn": "荷官商人",
+        "zh_tw": "荷官商人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kawashiro_nitori_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "kawashiro_nitori_skill_item_0"
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:note",
+          "duration": 70,
+          "point": [
+            3.0,
+            2.9,
+            3.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "kawashiro_nitori_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 35
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 157,
+          "text": {
+            "en_us": "Right-click a Dealer Parcel to open it and receive a random item.",
+            "zh_cn": "荷官包裹右键打开，获得一个随机道具。",
+            "zh_tw": "荷官包裹右鍵打開，獲得一個隨機道具。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 167
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kawashiro_nitori_skill_target_1",
+            "outline": -6103575
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            3.9,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "kawashiro_nitori_skill_item_1"
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.5
+            ],
+            "lines": [
+              {
+                "en_us": "While holding an item, press the skill key and aim at a player to force a trade; that player must pay you 200 coins.",
+                "zh_cn": "手持物品按技能键对准一名玩家进行强制交易，玩家需要付给你200金币。",
+                "zh_tw": "手持物品按技能鍵對準一名玩家進行強制交易，玩家需要付給你200金幣。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 35
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "While holding an item, press the skill key and aim at a player to force a trade; that player must pay you 200 coins.",
+            "zh_cn": "手持物品按技能键对准一名玩家进行强制交易，玩家需要付给你200金币。",
+            "zh_tw": "手持物品按技能鍵對準一名玩家進行強制交易，玩家需要付給你200金幣。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Kawashiro nitori",
+        "zh_cn": "荷官商人",
+        "zh_tw": "荷官商人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kawashiro_nitori_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "kawashiro_nitori",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 88,
+          "text": {
+            "en_us": "You can buy Dealer Parcels.",
+            "zh_cn": "你可以购买荷官包裹。",
+            "zh_tw": "你可以購買荷官包裹。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 98
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Kawashiro nitori",
+        "zh_cn": "荷官商人",
+        "zh_tw": "荷官商人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kawashiro_nitori_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 131,
+          "text": {
+            "en_us": "Win condition: survive to the end (shared victory).",
+            "zh_cn": "获胜条件：活到最后（一同获胜）。",
+            "zh_tw": "獲勝條件：活到最後（一同獲勝）。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 141
+        },
+        {
+          "type": "text",
+          "duration": 122,
+          "text": {
+            "en_us": "You may help anyone, including other Neutrals.",
+            "zh_cn": "你可以选择帮助任何人，包括中立。",
+            "zh_tw": "你可以選擇幫助任何人，包括中立。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 132
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 108,
+          "text": {
+            "en_us": "Items you buy can be dropped directly.",
+            "zh_cn": "你买的东西可以直接丢弃。",
+            "zh_tw": "你買的東西可以直接丟棄。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 118
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

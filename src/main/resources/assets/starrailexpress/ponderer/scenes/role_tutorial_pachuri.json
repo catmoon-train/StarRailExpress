@@ -1,0 +1,232 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.pachuri",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Pachuri",
+    "zh_cn": "帕秋莉",
+    "zh_tw": "帕秋莉"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Pachuri",
+        "zh_cn": "帕秋莉",
+        "zh_tw": "帕秋莉"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pachuri_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 88,
+          "text": {
+            "en_us": "The immovable grand library",
+            "zh_cn": "不动的大图书馆",
+            "zh_tw": "不動的大圖書館"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 98
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Pachuri",
+        "zh_cn": "帕秋莉",
+        "zh_tw": "帕秋莉"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pachuri_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "pachuri",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 124,
+          "text": {
+            "en_us": "You can buy a newspaper Pachuri Knowledge Book.",
+            "zh_cn": "你可以购买报纸Pachuri Knowledge Book。",
+            "zh_tw": "你可以購買報紙Pachuri Knowledge Book。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 134
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "panel",
+      "title": {
+        "en_us": "Pachuri",
+        "zh_cn": "帕秋莉",
+        "zh_tw": "帕秋莉"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pachuri_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.label.notes",
+            "lines": [
+              {
+                "en_us": "Obtains the role of a random living player (excluding the dead) and records it in the role book. The player whose role is learned receives a notice.",
+                "zh_cn": "获取场上随机一名玩家(不包括已经阵亡的玩家)的职业并记录在职业书中。被得知职业的玩家将收到通知。",
+                "zh_tw": "獲取場上隨機一名玩家(不包括已經陣亡的玩家)的職業並記錄在職業書中。被得知職業的玩家將收到通知。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Obtains the role of a random living player (excluding the dead) and records it in the role book. The player whose role is learned receives a notice.",
+            "zh_cn": "获取场上随机一名玩家(不包括已经阵亡的玩家)的职业并记录在职业书中。被得知职业的玩家将收到通知。",
+            "zh_tw": "獲取場上隨機一名玩家(不包括已經陣亡的玩家)的職業並記錄在職業書中。被得知職業的玩家將收到通知。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

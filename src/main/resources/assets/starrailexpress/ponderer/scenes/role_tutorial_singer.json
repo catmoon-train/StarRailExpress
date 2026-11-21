@@ -1,0 +1,460 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.singer",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Singer",
+    "zh_cn": "歌手",
+    "zh_tw": "歌手"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Singer",
+        "zh_cn": "歌手",
+        "zh_tw": "歌手"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "singer_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You're a singer! Buy records to buff/debuff nearby players; let everyone hear your song!",
+            "zh_cn": "让周围的人都能听到你的歌声！",
+            "zh_tw": "讓周圍的人都能聽到你的歌聲！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Singer",
+        "zh_cn": "歌手",
+        "zh_tw": "歌手"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "singer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "singer",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 99,
+          "text": {
+            "en_us": "The shop sells 5 kinds of records",
+            "zh_cn": "商店内可购买5种唱片",
+            "zh_tw": "商店內可購買5種唱片"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 109
+        },
+        {
+          "type": "text",
+          "duration": 153,
+          "text": {
+            "en_us": "Buying a record grants different buffs/debuffs to those nearby:",
+            "zh_cn": "购买对应唱片会为周围人提供不同的buff/debuff。",
+            "zh_tw": "購買對應唱片會為周圍人提供不同的buff/debuff。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 163
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "mood",
+      "title": {
+        "en_us": "Singer",
+        "zh_cn": "歌手",
+        "zh_tw": "歌手"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "singer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_mood",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.sanity",
+            "before": 0.35,
+            "after": 0.85,
+            "lines": [
+              {
+                "en_us": "- Slowness I",
+                "zh_cn": "- 每秒恢复 1% san值",
+                "zh_tw": "- 每秒恢復 1% san值"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "- Slowness I",
+            "zh_cn": "- 每秒恢复 1% san值",
+            "zh_tw": "- 每秒恢復 1% san值"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Singer",
+        "zh_cn": "歌手",
+        "zh_tw": "歌手"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "singer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "singer_psycho",
+            "outline": -38476
+          }
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "- No movement (4-block range, does not affect yourself)",
+                "zh_cn": "- 挖掘疲劳 V (在杀手进入狂暴模式时释放有奇效)",
+                "zh_tw": "- 挖掘疲勞 V (在殺手進入狂暴模式時釋放有奇效)"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 139,
+          "text": {
+            "en_us": "- No movement (4-block range, does not affect yourself)",
+            "zh_cn": "- 挖掘疲劳 V (在杀手进入狂暴模式时释放有奇效)",
+            "zh_tw": "- 挖掘疲勞 V (在殺手進入狂暴模式時釋放有奇效)"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 149
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Singer",
+        "zh_cn": "歌手",
+        "zh_tw": "歌手"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "singer_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 63,
+          "text": {
+            "en_us": "- Swiftness I",
+            "zh_cn": "分别为：",
+            "zh_tw": "分別為："
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 73
+        },
+        {
+          "type": "text",
+          "duration": 94,
+          "text": {
+            "en_us": "- Restore 1% Sanity per second",
+            "zh_cn": "- 加速 I",
+            "zh_tw": "- 加速 I"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 104
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 178,
+          "text": {
+            "en_us": "- Mining Fatigue V (works wonders when released as the Killer enters Rampage)",
+            "zh_cn": "- 缓慢 I",
+            "zh_tw": "- 緩慢 I"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 188
+        },
+        {
+          "type": "text",
+          "duration": 74,
+          "text": {
+            "en_us": "- 禁止移动(范围4格，不对自己生效)",
+            "zh_cn": "- 禁止移动(范围4格，不对自己生效)",
+            "zh_tw": "- 禁止移動(範圍4格，不對自己生效)"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 84
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

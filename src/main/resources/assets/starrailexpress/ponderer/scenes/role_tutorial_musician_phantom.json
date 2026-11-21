@@ -1,0 +1,812 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.musician_phantom",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Phantom Musician",
+    "zh_cn": "幻音师",
+    "zh_tw": "幻音師"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Phantom Musician",
+        "zh_cn": "幻音师",
+        "zh_tw": "幻音師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "musician_phantom_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 99,
+          "text": {
+            "en_us": "Victory alongside the Killer team",
+            "zh_cn": "与杀手一同获胜",
+            "zh_tw": "與殺手一同獲勝"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 109
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 169,
+          "text": {
+            "en_us": "Confuse enemies with sound effects and create chaos for the Killer team.",
+            "zh_cn": "用音效迷惑敌人，为杀手方创造混乱。",
+            "zh_tw": "用音效迷惑敵人，為殺手方創造混亂。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 179
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Phantom Musician",
+        "zh_cn": "幻音师",
+        "zh_tw": "幻音師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "musician_phantom_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Skill - Phantom Teleport: spend 100 coins to teleport to a random player beyond 30 blocks, 120s cd",
+                "zh_cn": "技能-幻音传送：花费100金币传送到30格外随机一人的身边，冷却120秒",
+                "zh_tw": "技能-幻音傳送：花費100金幣傳送到30格外隨機一人的身邊，冷卻120秒"
+              },
+              {
+                "en_us": "Knife-draw sound (30s cd)",
+                "zh_cn": "出刀的声音（冷却30秒）",
+                "zh_tw": "出刀的聲音（冷卻30秒）"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Skill - Phantom Teleport: spend 100 coins to teleport to a random player beyond 30 blocks, 120s cd",
+                "zh_cn": "技能-幻音传送：花费100金币传送到30格外随机一人的身边，冷却120秒",
+                "zh_tw": "技能-幻音傳送：花費100金幣傳送到30格外隨機一人的身邊，冷卻120秒"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:portal",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skill - Phantom Teleport: spend 100 coins to teleport to a random player beyond 30 blocks, 120s cd",
+            "zh_cn": "技能-幻音传送：花费100金币传送到30格外随机一人的身边，冷却120秒",
+            "zh_tw": "技能-幻音傳送：花費100金幣傳送到30格外隨機一人的身邊，冷卻120秒"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:portal",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 85,
+          "text": {
+            "en_us": "Knife-draw sound (30s cd)",
+            "zh_cn": "出刀的声音（冷却30秒）",
+            "zh_tw": "出刀的聲音（冷卻30秒）"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 95
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:portal",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 90,
+          "text": {
+            "en_us": "Revolver fire sound (30s cd)",
+            "zh_cn": "左轮手枪开火的声音（冷却30秒）",
+            "zh_tw": "左輪手槍開火的聲音（冷卻30秒）"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 100
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "musician_phantom_main",
+            "pose": "crouching"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            2,
+            0,
+            2
+          ],
+          "blockPos2": [
+            4,
+            0,
+            4
+          ],
+          "duration": 240,
+          "color": "green"
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:portal",
+          "pos": [
+            3.0,
+            1.4,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 10,
+          "duration": 70,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "musician_phantom_main",
+            "pose": "standing"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "Stalker awakening sound (120s cd, global)",
+            "zh_cn": "潜行者觉醒的声音（冷却120秒，全场播放）",
+            "zh_tw": "潛行者覺醒的聲音（冷卻120秒，全場播放）"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 123
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:portal",
+          "pos": [
+            5.0,
+            1.9,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 6,
+          "duration": 50,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 95,
+          "text": {
+            "en_us": "Crowbar prying sound (1 min cd)",
+            "zh_cn": "撬棍撬门的声音（冷却1分钟）",
+            "zh_tw": "撬棍撬門的聲音（冷卻1分鐘）"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 105
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:portal",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 77,
+          "text": {
+            "en_us": "Random sound (40s cd)",
+            "zh_cn": "随机播放音效（冷却40秒）",
+            "zh_tw": "隨機播放音效（冷卻40秒）"
+          },
+          "point": [
+            3.0,
+            3.2,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 87
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Phantom Musician",
+        "zh_cn": "幻音师",
+        "zh_tw": "幻音師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "musician_phantom_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "musician_phantom",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 86,
+          "text": {
+            "en_us": "Shop sounds (play on buy):",
+            "zh_cn": "商店音效（购买时自动播放）：",
+            "zh_tw": "商店音效（購買時自動播放）："
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 96
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Phantom Musician",
+        "zh_cn": "幻音师",
+        "zh_tw": "幻音師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "musician_phantom_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "musician_phantom_target",
+            "outline": -65536
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Has Phantom Musician see-through",
+                "zh_cn": "拥有幻音师透视",
+                "zh_tw": "擁有幻音師透視"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 97,
+          "text": {
+            "en_us": "Has Phantom Musician see-through",
+            "zh_cn": "拥有幻音师透视",
+            "zh_tw": "擁有幻音師透視"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 107
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Phantom Musician",
+        "zh_cn": "幻音师",
+        "zh_tw": "幻音師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "musician_phantom_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "musician_phantom_psycho",
+            "outline": -65536
+          }
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "Rampage sound (5 min cd)",
+                "zh_cn": "疯狂模式的声音（冷却5分钟）",
+                "zh_tw": "瘋狂模式的聲音（冷卻5分鐘）"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 83,
+          "text": {
+            "en_us": "Rampage sound (5 min cd)",
+            "zh_cn": "疯狂模式的声音（冷却5分钟）",
+            "zh_tw": "瘋狂模式的聲音（冷卻5分鐘）"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 93
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

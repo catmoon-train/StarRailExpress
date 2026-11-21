@@ -1,0 +1,223 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.politician",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Politician",
+    "zh_cn": "政客",
+    "zh_tw": "政客"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_room"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Politician",
+        "zh_cn": "政客",
+        "zh_tw": "政客"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "politician_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "Use your influence to sway the situation.",
+            "zh_cn": "利用你的影响力左右局势。",
+            "zh_tw": "利用你的影響力左右局勢。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 123
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Politician",
+        "zh_cn": "政客",
+        "zh_tw": "政客"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "politician_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 97,
+          "text": {
+            "en_us": "Only on maps with meeting votes.",
+            "zh_cn": "仅刷新在启用会议投票的地图中。",
+            "zh_tw": "僅刷新在啟用會議投票的地圖中。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 107
+        },
+        {
+          "type": "text",
+          "duration": 81,
+          "text": {
+            "en_us": "You can't be voted out.",
+            "zh_cn": "你不会因投票出局。",
+            "zh_tw": "你不會因投票出局。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 91
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 128,
+          "text": {
+            "en_us": "Your vote counts as 2 (3 when >24 players alive).",
+            "zh_cn": "你的投票权重视为2票（存活玩家>24人时视为3票）。",
+            "zh_tw": "你的投票權重視為2票（存活玩家>24人時視為3票）。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 138
+        },
+        {
+          "type": "text",
+          "duration": 180,
+          "text": {
+            "en_us": "When votes against you reach a quarter of living players, you gain a revolver.",
+            "zh_cn": "当你获得的投票数达到当前存活玩家数的四分之一时，获得一把左轮手枪。",
+            "zh_tw": "當你獲得的投票數達到當前存活玩家數的四分之一時，獲得一把左輪手槍。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 190
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,659 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.alchemist",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Alchemist",
+    "zh_cn": "药剂师",
+    "zh_tw": "藥劑師"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Alchemist",
+        "zh_cn": "药剂师",
+        "zh_tw": "藥劑師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "alchemist_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 171,
+          "text": {
+            "en_us": "A mysterious apothecary from afar brings wondrous help to the passengers!",
+            "zh_cn": "来自偏远地区的神秘药剂师会为乘客们提供奇妙的帮助！",
+            "zh_tw": "來自偏遠地區的神秘藥劑師會為乘客們提供奇妙的幫助！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 181
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Alchemist",
+        "zh_cn": "药剂师",
+        "zh_tw": "藥劑師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "alchemist_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Press the skill key to spend 1 ingredient + the corresponding coin to brew a potion.",
+                "zh_cn": "按下技能键消耗1个素材+相应的金币可调取一份对应的药剂。",
+                "zh_tw": "按下技能鍵消耗1個素材+相應的金幣可調取一份對應的藥劑。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "alchemist_main",
+            "item": "trainmurdermystery:note"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:note",
+          "duration": 65,
+          "point": [
+            3.0,
+            2.9,
+            3.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "text",
+          "duration": 171,
+          "text": {
+            "en_us": "Press the skill-switch key (default Y) to switch the potion being brewed.",
+            "zh_cn": "按下技能切换键（默认Y键）切换调制的药剂。",
+            "zh_tw": "按下技能切換鍵（默認Y鍵）切換調製的藥劑。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 181
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "alchemist_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "wathe:poison",
+          "pos": [
+            5.0,
+            1.9,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 6,
+          "duration": 50,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Press the skill key to spend 1 ingredient + the corresponding coin to brew a potion.",
+            "zh_cn": "按下技能键消耗1个素材+相应的金币可调取一份对应的药剂。",
+            "zh_tw": "按下技能鍵消耗1個素材+相應的金幣可調取一份對應的藥劑。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Alchemist",
+        "zh_cn": "药剂师",
+        "zh_tw": "藥劑師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "alchemist_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "alchemist",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 158,
+          "text": {
+            "en_us": "1. Adrenaline (100 coin): on a target, increases their max stamina",
+            "zh_cn": "1、肾上腺素（100金币）：对目标使用后增加体力上限",
+            "zh_tw": "1、腎上腺素（100金幣）：對目標使用後增加體力上限"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 168
+        },
+        {
+          "type": "text",
+          "duration": 153,
+          "text": {
+            "en_us": "2. Antibiotic (100 coin): on a target, cures poison / infection",
+            "zh_cn": "2、抗生素（100金币）：对目标使用后解除中毒/治愈感染",
+            "zh_tw": "2、抗生素（100金幣）：對目標使用後解除中毒/治癒感染"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 163
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 144,
+          "text": {
+            "en_us": "3. Deadly Nightshade (200 coin): on a target, poisons them",
+            "zh_cn": "3、鹤顶红（200金币）：对目标使用后使目标中毒",
+            "zh_tw": "3、鶴頂紅（200金幣）：對目標使用後使目標中毒"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 154
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "mood",
+      "title": {
+        "en_us": "Alchemist",
+        "zh_cn": "药剂师",
+        "zh_tw": "藥劑師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "alchemist_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_mood",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.sanity",
+            "before": 0.35,
+            "after": 0.85,
+            "lines": [
+              {
+                "en_us": "4. Healing Plaster (150 coin): on a target, their Sanity does not drop for 30 seconds",
+                "zh_cn": "4、狗皮膏药（150金币）：对目标使用后使目标30秒内san值不会下降",
+                "zh_tw": "4、狗皮膏藥（150金幣）：對目標使用後使目標30秒內san值不會下降"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "4. Healing Plaster (150 coin): on a target, their Sanity does not drop for 30 seconds",
+            "zh_cn": "4、狗皮膏药（150金币）：对目标使用后使目标30秒内san值不会下降",
+            "zh_tw": "4、狗皮膏藥（150金幣）：對目標使用後使目標30秒內san值不會下降"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Alchemist",
+        "zh_cn": "药剂师",
+        "zh_tw": "藥劑師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "alchemist_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "alchemist_main",
+            "pose": "crouching"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            2,
+            0,
+            2
+          ],
+          "blockPos2": [
+            4,
+            0,
+            4
+          ],
+          "duration": 240,
+          "color": "green"
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "wathe:poison",
+          "pos": [
+            3.0,
+            1.4,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 10,
+          "duration": 70,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "alchemist_main",
+            "pose": "standing"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 151,
+          "text": {
+            "en_us": "Crouch for 20 seconds straight to gain one reagent ingredient.",
+            "zh_cn": "蹲下持续20秒可获取一个药剂素材。",
+            "zh_tw": "蹲下持續20秒可獲取一個藥劑素材。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 161
+        },
+        {
+          "type": "text",
+          "duration": 133,
+          "text": {
+            "en_us": "Each potion can be brewed twice; resets at game end.",
+            "zh_cn": "每种药剂只能调两次，游戏结束时重置次数。",
+            "zh_tw": "每種藥劑只能調兩次，遊戲結束時重置次數。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 143
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Potions:",
+            "zh_cn": "药剂：",
+            "zh_tw": "藥劑："
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 65
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

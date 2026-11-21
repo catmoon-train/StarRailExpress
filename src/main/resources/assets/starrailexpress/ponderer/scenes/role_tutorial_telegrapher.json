@@ -1,0 +1,340 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.telegrapher",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Telegrapher",
+    "zh_cn": "电报员",
+    "zh_tw": "電報員"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Telegrapher",
+        "zh_cn": "电报员",
+        "zh_tw": "電報員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "telegrapher_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 173,
+          "text": {
+            "en_us": "Use your ability to send anonymous messages to all players, up to 6 times!",
+            "zh_cn": "使用你的能力向所有玩家发送匿名消息！",
+            "zh_tw": "使用你的能力向所有玩家發送匿名消息！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 183
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Telegrapher",
+        "zh_cn": "电报员",
+        "zh_tw": "電報員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "telegrapher_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "You can press the skill key to open the telegraph interface and send an anonymous message to all players.",
+                "zh_cn": "你可以按下技能键打开电报界面，向所有玩家发送匿名消息。",
+                "zh_tw": "你可以按下技能鍵打開電報介面，向所有玩家發送匿名消息。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "telegrapher_skill_target_0",
+            "outline": -3695639
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "telegrapher_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You can press the skill key to open the telegraph interface and send an anonymous message to all players.",
+            "zh_cn": "你可以按下技能键打开电报界面，向所有玩家发送匿名消息。",
+            "zh_tw": "你可以按下技能鍵打開電報介面，向所有玩家發送匿名消息。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Telegrapher",
+        "zh_cn": "电报员",
+        "zh_tw": "電報員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "telegrapher_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 133,
+          "text": {
+            "en_us": "An easter-egg role that only spawns with a 2% chance",
+            "zh_cn": "彩蛋职业，只有2%的概率刷新",
+            "zh_tw": "彩蛋職業，只有2%的概率刷新"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 143
+        },
+        {
+          "type": "text",
+          "duration": 115,
+          "text": {
+            "en_us": "At most 6 telegrams can be sent per match.",
+            "zh_cn": "每局游戏最多可以发送6次电报。",
+            "zh_tw": "每局遊戲最多可以發送6次電報。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 125
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 180,
+          "text": {
+            "en_us": "The telegram is voice-broadcast and shown as a title on every player's screen.",
+            "zh_cn": "电报消息会语音播报并以标题的形式显示在所有玩家的屏幕上。",
+            "zh_tw": "電報消息會語音播報並以標題的形式顯示在所有玩家的螢幕上。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 190
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

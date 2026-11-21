@@ -1,0 +1,557 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.pilot",
+  "items": [
+    "noellesroles:jetpack"
+  ],
+  "title": {
+    "en_us": "Pilot",
+    "zh_cn": "飞行员",
+    "zh_tw": "飛行員"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_room"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Pilot",
+        "zh_cn": "飞行员",
+        "zh_tw": "飛行員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pilot_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 101,
+          "text": {
+            "en_us": "Grant everyone the wish of flight!",
+            "zh_cn": "为所有人实现飞行的愿望！",
+            "zh_tw": "為所有人實現飛行的願望！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 111
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Pilot",
+        "zh_cn": "飞行员",
+        "zh_tw": "飛行員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pilot_main"
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "attachKeyFrame": true,
+          "pos": [
+            1.6,
+            1.55,
+            1.6
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:jetpack",
+          "linkId": "pilot_item"
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pilot_skill_target_0",
+            "outline": -7876870
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "pilot_main",
+            "pose": "crouching"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            2,
+            0,
+            2
+          ],
+          "blockPos2": [
+            4,
+            0,
+            4
+          ],
+          "duration": 240,
+          "color": "green"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "pilot_main",
+            "pose": "standing"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Sneak to activate the jetpack for gliding; once durability runs out it disappears. The jetpack can be dropped with Q to others and has 60 durability.",
+            "zh_cn": "蹲下激活喷气背包获得漂浮效果，耐久耗尽后喷气背包消失，喷气背包可以按Q键丢出给其它玩家，拥有60点耐久。",
+            "zh_tw": "蹲下啟動噴氣背包獲得漂浮效果，耐久耗盡後噴氣背包消失，噴氣背包可以按Q鍵丟出給其他玩家，擁有60點耐久。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Pilot",
+        "zh_cn": "飞行员",
+        "zh_tw": "飛行員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pilot_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "The Pilot can buy a jetpack, elytra and firework rockets; press the skill key to remove the jetpack and elytra.",
+                "zh_cn": "飞行员可购买喷气背包、鞘翅和烟花火箭，按下技能键可脱下喷气背包和鞘翅。",
+                "zh_tw": "飛行員可購買噴氣背包、鞘翅和煙花火箭，按下技能鍵可脫下噴氣背包和鞘翅。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "pilot_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The Pilot can buy a jetpack, elytra and firework rockets; press the skill key to remove the jetpack and elytra.",
+            "zh_cn": "飞行员可购买喷气背包、鞘翅和烟花火箭，按下技能键可脱下喷气背包和鞘翅。",
+            "zh_tw": "飛行員可購買噴氣背包、鞘翅和煙花火箭，按下技能鍵可脫下噴氣背包和鞘翅。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Pilot",
+        "zh_cn": "飞行员",
+        "zh_tw": "飛行員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pilot_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "pilot",
+            "columns": 4
+          }
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "bond",
+      "title": {
+        "en_us": "Pilot",
+        "zh_cn": "飞行员",
+        "zh_tw": "飛行員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pilot_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pilot_ally",
+            "outline": -7876870
+          }
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "attachKeyFrame": true,
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Spawns bound to Shadow Falcon (Killer team).",
+                "zh_cn": "与影隼(杀手阵营)绑定生成。",
+                "zh_tw": "與影隼(殺手陣營)綁定生成。"
+              }
+            ],
+            "color": -7876870
+          }
+        },
+        {
+          "type": "text",
+          "duration": 119,
+          "text": {
+            "en_us": "Spawns bound to Shadow Falcon (Killer team).",
+            "zh_cn": "与影隼(杀手阵营)绑定生成。",
+            "zh_tw": "與影隼(殺手陣營)綁定生成。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 129
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Pilot",
+        "zh_cn": "飞行员",
+        "zh_tw": "飛行員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pilot_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 70,
+          "text": {
+            "en_us": "Only on air maps.",
+            "zh_cn": "仅在空中地图刷新。",
+            "zh_tw": "僅在空中地圖刷新。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "text",
+          "duration": 171,
+          "text": {
+            "en_us": "Pilots glide with Gliding 5; others get Gliding 1 (except Shadow Falcon).",
+            "zh_cn": "飞行员使用喷气背包会获得漂浮5效果，其他人为漂浮1(除了影隼)。",
+            "zh_tw": "飛行員使用噴氣背包會獲得漂浮5效果，其他人為漂浮1(除了影隼)。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 181
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

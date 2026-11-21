@@ -1,0 +1,642 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.asatya",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Asatya",
+    "zh_cn": "无妄",
+    "zh_tw": "無妄"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_carriage"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Asatya",
+        "zh_cn": "无妄",
+        "zh_tw": "無妄"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "asatya_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 139,
+          "text": {
+            "en_us": "Has an independent win condition (shared with Anatman).",
+            "zh_cn": "拥有独立胜利条件（与无我共享）。",
+            "zh_tw": "擁有獨立勝利條件（與無我共用）。"
+          },
+          "point": [
+            4.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 149
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            4,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 92,
+          "text": {
+            "en_us": "One who sees through illusion",
+            "zh_cn": "勘破虚妄者",
+            "zh_tw": "勘破虛妄者"
+          },
+          "point": [
+            4.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 102
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Asatya",
+        "zh_cn": "无妄",
+        "zh_tw": "無妄"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "asatya_main"
+          }
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            4,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "2. Sacrifice: kill yourself (cause: run over by the train) and enter death penalty. 150s cooldown, starts at 180s.",
+                "zh_cn": "2. 舍己：使自己死亡（死因：被列车碾压）并进入死亡惩罚。冷却150秒，开局自带180秒冷却。",
+                "zh_tw": "2. 舍己：使自己死亡（死因：被列車碾壓）並進入死亡懲罰。冷卻150秒，開局自帶180秒冷卻。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "2. Sacrifice: kill yourself (cause: run over by the train) and enter death penalty. 150s cooldown, starts at 180s.",
+            "zh_cn": "2. 舍己：使自己死亡（死因：被列车碾压）并进入死亡惩罚。冷却150秒，开局自带180秒冷却。",
+            "zh_tw": "2. 舍己：使自己死亡（死因：被列車碾壓）並進入死亡懲罰。冷卻150秒，開局自帶180秒冷卻。"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Anatman and Asatya win together if both survive to the end and the number of alive players is no more than one third of the starting player count (including themselves).",
+            "zh_cn": "存活到最后，且场上存活人数不超过开局玩家数的三分之一（含无我与无妄自己）时，无我和无妄共同获胜",
+            "zh_tw": "存活到最後，且場上存活人數不超過開局玩家數的三分之一（含無我與無妄自己）時，無我和無妄共同獲勝"
+          },
+          "point": [
+            4.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Asatya",
+        "zh_cn": "无妄",
+        "zh_tw": "無妄"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "asatya_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "1. For Him: teleport Anatman to your side. 80s cooldown.",
+                "zh_cn": "1. 为他：将无我传送至自己身边。冷却80秒。",
+                "zh_tw": "1. 為他：將無我傳送至自己身邊。冷卻80秒。"
+              },
+              {
+                "en_us": "3. Revive: spend 100 coins to revive Anatman. 120s cooldown.",
+                "zh_cn": "3. 还魂：消耗100金币使无我复活。冷却120秒。",
+                "zh_tw": "3. 還魂：消耗100金幣使無我復活。冷卻120秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              4.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "asatya_main",
+            "item": "trainmurdermystery:note"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:note",
+          "duration": 65,
+          "point": [
+            4.0,
+            2.9,
+            3.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "text",
+          "duration": 160,
+          "text": {
+            "en_us": "Skills (switch with the skill-switch key, cast with the skill key):",
+            "zh_cn": "技能（按技能切换键切换，技能键释放）：",
+            "zh_tw": "技能（按技能切換鍵切換，技能鍵釋放）："
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 170
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            4,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "1. For Him: teleport Anatman to your side. 80s cooldown.",
+                "zh_cn": "1. 为他：将无我传送至自己身边。冷却80秒。",
+                "zh_tw": "1. 為他：將無我傳送至自己身邊。冷卻80秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 140,
+          "text": {
+            "en_us": "1. For Him: teleport Anatman to your side. 80s cooldown.",
+            "zh_cn": "1. 为他：将无我传送至自己身边。冷却80秒。",
+            "zh_tw": "1. 為他：將無我傳送至自己身邊。冷卻80秒。"
+          },
+          "point": [
+            4.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 150
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            4,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 148,
+          "text": {
+            "en_us": "3. Revive: spend 100 coins to revive Anatman. 120s cooldown.",
+            "zh_cn": "3. 还魂：消耗100金币使无我复活。冷却120秒。",
+            "zh_tw": "3. 還魂：消耗100金幣使無我復活。冷卻120秒。"
+          },
+          "point": [
+            4.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 158
+        },
+        {
+          "type": "text",
+          "duration": 56,
+          "text": {
+            "en_us": "Passives:",
+            "zh_cn": "被动：",
+            "zh_tw": "被動："
+          },
+          "point": [
+            4.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 66
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Asatya",
+        "zh_cn": "无妄",
+        "zh_tw": "無妄"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "asatya_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "asatya_target",
+            "outline": 4294967040
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "1. Instinct see-through cannot see other players, only Anatman (yellow outline).",
+                "zh_cn": "1. 本能透视无法看到其他玩家，仅能透视无我（黄框）。",
+                "zh_tw": "1. 本能透視無法看到其他玩家，僅能透視無我（黃框）。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 184,
+          "text": {
+            "en_us": "1. Instinct see-through cannot see other players, only Anatman (yellow outline).",
+            "zh_cn": "1. 本能透视无法看到其他玩家，仅能透视无我（黄框）。",
+            "zh_tw": "1. 本能透視無法看到其他玩家，僅能透視無我（黃框）。"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 194
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vitals",
+      "title": {
+        "en_us": "Asatya",
+        "zh_cn": "无妄",
+        "zh_tw": "無妄"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "asatya_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "attachKeyFrame": true,
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.4,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
+              }
+            ],
+            "lines": [
+              {
+                "en_us": "2. When Anatman dies, you gain one shield stack (max 5).",
+                "zh_cn": "2. 当无我死亡时，你获得一层护盾（最多5层）。",
+                "zh_tw": "2. 當無我死亡時，你獲得一層護盾（最多5層）。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "asatya_skill_target_0",
+            "outline": 4294967040
+          }
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            6,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 35
+        },
+        {
+          "type": "text",
+          "duration": 140,
+          "text": {
+            "en_us": "2. When Anatman dies, you gain one shield stack (max 5).",
+            "zh_cn": "2. 当无我死亡时，你获得一层护盾（最多5层）。",
+            "zh_tw": "2. 當無我死亡時，你獲得一層護盾（最多5層）。"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 150
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

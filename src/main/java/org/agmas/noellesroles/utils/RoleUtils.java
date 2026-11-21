@@ -368,11 +368,12 @@ public class RoleUtils extends MCItemsUtils {
         if (modifier == null || role == null) {
             return false;
         }
-        // 修饰符的阵营生成判断统一走最真实的阵营（RoleTeam，不看隐藏身份）
+        // 修饰符的阵营判断统一走真实阵营（RoleTeam，不看隐藏身份）；
+        // killerOnly 只给真实杀手阵营，不含杀手方中立。
         if (modifier.civilianOnly && !RoleTeam.isInnocentCamp(role)) {
             return false;
         }
-        if (modifier.killerOnly && !RoleTeam.isKillerTeamReal(role)) {
+        if (modifier.killerOnly && !RoleTeam.isKiller(role)) {
             return false;
         }
         if (modifier.cannotBeAppliedTo != null && modifier.cannotBeAppliedTo.contains(role)) {

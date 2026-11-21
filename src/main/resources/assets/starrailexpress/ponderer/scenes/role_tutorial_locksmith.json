@@ -1,0 +1,723 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.locksmith",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Locksmith",
+    "zh_cn": "锁匠",
+    "zh_tw": "鎖匠"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_corridor"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Locksmith",
+        "zh_cn": "锁匠",
+        "zh_tw": "鎖匠"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_corridor",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              6.0
+            ],
+            "yaw": 180.0,
+            "linkId": "locksmith_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 112,
+          "text": {
+            "en_us": "Learn a solid trade to feed your family!",
+            "zh_cn": "学一门过硬的技术，养家糊口！",
+            "zh_tw": "學一門過硬的技術，養家糊口！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 122
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Locksmith",
+        "zh_cn": "锁匠",
+        "zh_tw": "鎖匠"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_corridor",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              6.0
+            ],
+            "yaw": 180.0,
+            "linkId": "locksmith_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 164,
+          "text": {
+            "en_us": "Screwdriver: repairs doors damaged by crowbars; invisible while held.",
+            "zh_cn": "螺丝刀：可以修复被撬棍破坏的门。手持时不可见。",
+            "zh_tw": "螺絲刀：可以修復被撬棍破壞的門。手持時不可見。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 174
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              6.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "locksmith_main",
+            "pose": "crouching"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            2,
+            0,
+            5
+          ],
+          "blockPos2": [
+            4,
+            0,
+            7
+          ],
+          "duration": 240,
+          "color": "green"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "locksmith_main",
+            "pose": "standing"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Crouch + right-click a door with the screwdriver to reset it and drop items reinforced onto it (works even when the door is locked by a lockpick).",
+            "zh_cn": "使用螺丝刀蹲下右键门可以将门重置并掉落加固在门上的道具（可以在门被撬锁器锁上的时候使用）。",
+            "zh_tw": "使用螺絲刀蹲下右鍵門可以將門重置並掉落加固在門上的道具（可以在門被撬鎖器鎖上的時候使用）。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              6.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            6.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "locksmith_skill_item_2"
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:note",
+          "duration": 70,
+          "point": [
+            3.0,
+            2.9,
+            6.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "locksmith_main",
+            "to": [
+              4.1,
+              1.0,
+              7.0
+            ],
+            "duration": 35
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Key Blank: right-click to enter the key-matching minigame. Fault tolerance fixed at 5; matching costs Inspiration, with the progress cost matching the chosen difficulty (2/3/4/7/8/9).",
+            "zh_cn": "钥胚：右键进入配钥小游戏。容错次数固定为5次；配钥匙需要消耗灵感，进度需求与所选难度灵感消耗一致（2/3/4/7/8/9）。",
+            "zh_tw": "鑰胚：右鍵進入配鑰小遊戲。容錯次數固定為5次；配鑰匙需要消耗靈感，進度需求與所選難度靈感消耗一致（2/3/4/7/8/9）。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "A key blank can make the following items (easiest to hardest): Attendant Key, Iron Door Key, Crowbar, Skeleton Key, Lockpick, Artisan Key",
+            "zh_cn": "钥胚可以配出以下道具(难度由易到难)：乘务员钥匙、铁门钥匙、撬棍、万能钥匙、开锁器、巧匠钥匙",
+            "zh_tw": "鑰胚可以配出以下道具(難度由易到難)：乘務員鑰匙、鐵門鑰匙、撬棍、萬能鑰匙、開鎖器、巧匠鑰匙"
+          },
+          "point": [
+            3.0,
+            2.64,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            6
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Paperclip: one-use door opener; directly opens doors not counter-locked by a lockpick; can be thrown.",
+            "zh_cn": "回形针：一次性开门道具，可直接打开未被撬锁器反锁的门，可以丢出。",
+            "zh_tw": "迴紋針：一次性開門道具，可直接打開未被撬鎖器反鎖的門，可以丟出。"
+          },
+          "point": [
+            3.0,
+            2.92,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Artisan Key: opens doors ignoring items on them and lockpick counter-locks, without breaking the Engineer's reinforced items; does not drop on death.",
+            "zh_cn": "巧匠钥匙：可无视门上的道具与撬锁器反锁直接开门，不会破坏门上工程师的加固道具，死亡时不会掉落。",
+            "zh_tw": "巧匠鑰匙：可無視門上的道具與撬鎖器反鎖直接開門，不會破壞門上工程師的加固道具，死亡時不會掉落。"
+          },
+          "point": [
+            3.0,
+            3.2,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Locksmith",
+        "zh_cn": "锁匠",
+        "zh_tw": "鎖匠"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_corridor",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              6.0
+            ],
+            "yaw": 180.0,
+            "linkId": "locksmith_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Passive - Inspiration: observing any door within 4 blocks for 10 seconds straight grants 1 Inspiration point; store up to 18.",
+                "zh_cn": "被动-灵感：持续在4格内观察任意一扇门10秒可获得1点灵感，最多储存18点。",
+                "zh_tw": "被動-靈感：持續在4格內觀察任意一扇門10秒可獲得1點靈感，最多儲存18點。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Passive - Inspiration: observing any door within 4 blocks for 10 seconds straight grants 1 Inspiration point; store up to 18.",
+            "zh_cn": "被动-灵感：持续在4格内观察任意一扇门10秒可获得1点灵感，最多储存18点。",
+            "zh_tw": "被動-靈感：持續在4格內觀察任意一扇門10秒可獲得1點靈感，最多儲存18點。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Locksmith",
+        "zh_cn": "锁匠",
+        "zh_tw": "鎖匠"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_corridor",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              6.0
+            ],
+            "yaw": 180.0,
+            "linkId": "locksmith_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "locksmith",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 128,
+          "text": {
+            "en_us": "Can buy Screwdrivers, Key Blanks, and Paperclips.",
+            "zh_cn": "可购买螺丝刀、钥胚、回形针。",
+            "zh_tw": "可購買螺絲刀、鑰胚、迴紋針。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 138
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "title": {
+        "en_us": "Locksmith",
+        "zh_cn": "锁匠",
+        "zh_tw": "鎖匠"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_corridor",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              6.0
+            ],
+            "yaw": 180.0,
+            "linkId": "locksmith_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              7.0
+            ],
+            "yaw": 180.0,
+            "linkId": "locksmith_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "locksmith_victim",
+            "pos": [
+              5.0,
+              1.0,
+              7.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "delay": 14
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When the Locksmith dies, their Lockpick and Artisan Key pass to a nearby good player.",
+            "zh_cn": "锁匠死后，身上的开锁器和巧匠钥匙会传递给附近的好人。",
+            "zh_tw": "鎖匠死後，身上的開鎖器和巧匠鑰匙會傳遞給附近的好人。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "bond",
+      "title": {
+        "en_us": "Locksmith",
+        "zh_cn": "锁匠",
+        "zh_tw": "鎖匠"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_corridor",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              6.0
+            ],
+            "yaw": 180.0,
+            "linkId": "locksmith_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              7.0
+            ],
+            "yaw": 180.0,
+            "linkId": "locksmith_ally",
+            "outline": -10172216
+          }
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "attachKeyFrame": true,
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Spawns bound with the Engineer (Civilian).",
+                "zh_cn": "与工程师(平民)绑定生成。",
+                "zh_tw": "與工程師(平民)綁定生成。"
+              }
+            ],
+            "color": -10172216
+          }
+        },
+        {
+          "type": "text",
+          "duration": 115,
+          "text": {
+            "en_us": "Spawns bound with the Engineer (Civilian).",
+            "zh_cn": "与工程师(平民)绑定生成。",
+            "zh_tw": "與工程師(平民)綁定生成。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 125
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Locksmith",
+        "zh_cn": "锁匠",
+        "zh_tw": "鎖匠"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_corridor",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              6.0
+            ],
+            "yaw": 180.0,
+            "linkId": "locksmith_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 146,
+          "text": {
+            "en_us": "Matching consumes 1 key blank whether it succeeds or fails.",
+            "zh_cn": "配钥无论成功或失败都会消耗1个钥胚。",
+            "zh_tw": "配鑰無論成功或失敗都會消耗1個鑰胚。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 156
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

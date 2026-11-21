@@ -1,0 +1,334 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.admirer",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Admirer",
+    "zh_cn": "爱慕者",
+    "zh_tw": "愛慕者"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Admirer",
+        "zh_cn": "爱慕者",
+        "zh_tw": "愛慕者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "admirer_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 94,
+          "text": {
+            "en_us": "Wins together with the Killers",
+            "zh_cn": "与杀手一同获胜",
+            "zh_tw": "與殺手一同獲勝"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 104
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Gaze at your bound target to build energy; at full energy you become the Manipulator!",
+            "zh_cn": "你的爱意逐渐扭曲！",
+            "zh_tw": "你的愛意逐漸扭曲！"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Admirer",
+        "zh_cn": "爱慕者",
+        "zh_tw": "愛慕者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "admirer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "admirer",
+            "columns": 4
+          }
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Admirer",
+        "zh_cn": "爱慕者",
+        "zh_tw": "愛慕者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "admirer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "admirer_target",
+            "outline": -16181
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "You have Jester see-through and can buy Attendant Keys",
+                "zh_cn": "你拥有小丑透视，能购买乘务员钥匙",
+                "zh_tw": "你擁有小丑透視，能購買乘務員鑰匙"
+              },
+              {
+                "en_us": "Use the skill to peek at the highlighted target and gain energy",
+                "zh_cn": "使用技能偷窥高亮目标获得能量",
+                "zh_tw": "使用技能偷窺高亮目標獲得能量"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 137,
+          "text": {
+            "en_us": "You have Jester see-through and can buy Attendant Keys",
+            "zh_cn": "你拥有小丑透视，能购买乘务员钥匙",
+            "zh_tw": "你擁有小丑透視，能購買乘務員鑰匙"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 147
+        },
+        {
+          "type": "text",
+          "duration": 153,
+          "text": {
+            "en_us": "Use the skill to peek at the highlighted target and gain energy",
+            "zh_cn": "使用技能偷窥高亮目标获得能量",
+            "zh_tw": "使用技能偷窺高亮目標獲得能量"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 163
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Admirer",
+        "zh_cn": "爱慕者",
+        "zh_tw": "愛慕者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "admirer_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 99,
+          "text": {
+            "en_us": "At 90 you become the Manipulator.",
+            "zh_cn": "到达90之后变为操纵师。",
+            "zh_tw": "到達90之後變為操縱師。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 109
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

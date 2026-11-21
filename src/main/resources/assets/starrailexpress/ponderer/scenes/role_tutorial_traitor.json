@@ -1,0 +1,286 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.traitor",
+  "items": [
+    "noellesroles:short_shotgun",
+    "trainmurdermystery:grenade"
+  ],
+  "title": {
+    "en_us": "Traitor",
+    "zh_cn": "叛徒",
+    "zh_tw": "叛徒"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Traitor",
+        "zh_cn": "叛徒",
+        "zh_tw": "叛徒"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "traitor_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 97,
+          "text": {
+            "en_us": "Rise up against every injustice!",
+            "zh_cn": "去反抗所有不公！",
+            "zh_tw": "去反抗所有不公！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 107
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Traitor",
+        "zh_cn": "叛徒",
+        "zh_tw": "叛徒"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "traitor_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "traitor",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 122,
+          "text": {
+            "en_us": "Starts with a sawed-off shotgun and a grenade.",
+            "zh_cn": "初始获得短管霰弹枪和手雷。",
+            "zh_tw": "初始獲得短管霰彈槍和手雷。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 132
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Traitor",
+        "zh_cn": "叛徒",
+        "zh_tw": "叛徒"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "traitor_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "traitor",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 67,
+          "text": {
+            "en_us": "No Killer shop.",
+            "zh_cn": "没有杀手商店。",
+            "zh_tw": "沒有殺手商店。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 77
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Traitor",
+        "zh_cn": "叛徒",
+        "zh_tw": "叛徒"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "traitor_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 119,
+          "text": {
+            "en_us": "Can only result from the Rebellion modifier.",
+            "zh_cn": "只能由起义军修饰符转变而成。",
+            "zh_tw": "只能由起義軍修飾符轉變而成。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 129
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

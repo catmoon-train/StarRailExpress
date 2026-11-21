@@ -1,0 +1,348 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.saigyouji_yuyuko",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Saigyouji yuyuko",
+    "zh_cn": "幽幽子",
+    "zh_tw": "幽幽子"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_graveyard"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Saigyouji yuyuko",
+        "zh_cn": "幽幽子",
+        "zh_tw": "幽幽子"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "saigyouji_yuyuko_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 108,
+          "text": {
+            "en_us": "Has its own independent win condition.",
+            "zh_cn": "拥有独立胜利条件。",
+            "zh_tw": "擁有獨立勝利條件。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 118
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 74,
+          "text": {
+            "en_us": "The ghost of Hyakki",
+            "zh_cn": "华胥的亡灵",
+            "zh_tw": "華胥的亡靈"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 84
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "title": {
+        "en_us": "Saigyouji yuyuko",
+        "zh_cn": "幽幽子",
+        "zh_tw": "幽幽子"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "saigyouji_yuyuko_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "saigyouji_yuyuko_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "saigyouji_yuyuko_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "delay": 14
+          }
+        },
+        {
+          "type": "text",
+          "duration": 189,
+          "text": {
+            "en_us": "Use the skill key to devour corpses and players who stand idle for over 10 seconds.",
+            "zh_cn": "使用技能键可吞噬尸体、站立挂机超过10秒的玩家。",
+            "zh_tw": "使用技能鍵可吞噬屍體、站立掛機超過10秒的玩家。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 199
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Saigyouji yuyuko",
+        "zh_cn": "幽幽子",
+        "zh_tw": "幽幽子"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "saigyouji_yuyuko_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "saigyouji_yuyuko_target",
+            "outline": -3500901
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "No see-through in normal state; after eating food or a drink, gain 5 seconds of see-through; after devouring, gain 15 seconds.",
+                "zh_cn": "普通状态无透视；食用食物或饮料后获得5秒透视，吞噬后获得15秒透视。",
+                "zh_tw": "普通狀態無透視；食用食物或飲料後獲得5秒透視，吞噬後獲得15秒透視。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "No see-through in normal state; after eating food or a drink, gain 5 seconds of see-through; after devouring, gain 15 seconds.",
+            "zh_cn": "普通状态无透视；食用食物或饮料后获得5秒透视，吞噬后获得15秒透视。",
+            "zh_tw": "普通狀態無透視；食用食物或飲料後獲得5秒透視，吞噬後獲得15秒透視。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Saigyouji yuyuko",
+        "zh_cn": "幽幽子",
+        "zh_tw": "幽幽子"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "saigyouji_yuyuko_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Win after devouring a certain number of players and corpses (count: if survivors < 24, floor(survivors/1.5)+2; if ≥24, floor(survivors/3)+2).",
+            "zh_cn": "吞噬大于一定数量的玩家和躯体后即获胜（数量计算：若存活人数<24，则为 floor(存活人数/1.5)+2；若≥24，则为 floor(存活人数/3)+2）。",
+            "zh_tw": "吞噬大於一定數量的玩家和軀體後即獲勝（數量計算：若存活人數<24，則為 floor(存活人數/1.5)+2；若≥24，則為 floor(存活人數/3)+2）。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

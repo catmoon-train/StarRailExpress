@@ -1,0 +1,394 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.youlu",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Youlu",
+    "zh_cn": "幽露",
+    "zh_tw": "幽露"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Youlu",
+        "zh_cn": "幽露",
+        "zh_tw": "幽露"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "youlu_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 115,
+          "text": {
+            "en_us": "Hidden in the mist, uninvited but welcome.",
+            "zh_cn": "隐于薄雾，不请自来。",
+            "zh_tw": "隱於薄霧，不請自來。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 125
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Youlu",
+        "zh_cn": "幽露",
+        "zh_tw": "幽露"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "youlu_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "【Soul Wander】(skill key): the camera enters free mode (your body stays put, movement keys control the camera, ESC cancels); press the skill key again to condense a 12-second ball of smoke at the camera position — players inside have black fog vision; 45-second cooldown.",
+                "zh_cn": "【魂游】（技能键）：摄像机进入自由模式（本体原地不动，移动键控制镜头，ESC取消），再按技能键在镜头位置凝聚一颗持续12秒的球烟——球内玩家视野迷雾且雾为黑色，冷却45秒。",
+                "zh_tw": "【魂遊】（技能鍵）：攝像機進入自由模式（本體原地不動，移動鍵控制鏡頭，ESC取消），再按技能鍵在鏡頭位置凝聚一顆持續12秒的球煙——球內玩家視野迷霧且霧為黑色，冷卻45秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "youlu_skill_target_0",
+            "outline": -8481624
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "【Soul Wander】(skill key): the camera enters free mode (your body stays put, movement keys control the camera, ESC cancels); press the skill key again to condense a 12-second ball of smoke at the camera position — players inside have black fog vision; 45-second cooldown.",
+                "zh_cn": "【魂游】（技能键）：摄像机进入自由模式（本体原地不动，移动键控制镜头，ESC取消），再按技能键在镜头位置凝聚一颗持续12秒的球烟——球内玩家视野迷雾且雾为黑色，冷却45秒。",
+                "zh_tw": "【魂遊】（技能鍵）：攝像機進入自由模式（本體原地不動，移動鍵控制鏡頭，ESC取消），再按技能鍵在鏡頭位置凝聚一顆持續12秒的球煙——球內玩家視野迷霧且霧為黑色，冷卻45秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "【Soul Wander】(skill key): the camera enters free mode (your body stays put, movement keys control the camera, ESC cancels); press the skill key again to condense a 12-second ball of smoke at the camera position — players inside have black fog vision; 45-second cooldown.",
+            "zh_cn": "【魂游】（技能键）：摄像机进入自由模式（本体原地不动，移动键控制镜头，ESC取消），再按技能键在镜头位置凝聚一颗持续12秒的球烟——球内玩家视野迷雾且雾为黑色，冷却45秒。",
+            "zh_tw": "【魂遊】（技能鍵）：攝像機進入自由模式（本體原地不動，移動鍵控制鏡頭，ESC取消），再按技能鍵在鏡頭位置凝聚一顆持續12秒的球煙——球內玩家視野迷霧且霧為黑色，冷卻45秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Youlu",
+        "zh_cn": "幽露",
+        "zh_tw": "幽露"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "youlu_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "youlu",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "【Uninvited Guest】(bought in the shop for 80 coin): on use, releases a spherical anchor that slides forward along the ground (visible only to you); use again to teleport to the anchor, then a 30-second cooldown.",
+            "zh_cn": "【不请自来】（商店80金币购买一次）：使用后放出一颗沿地面向前滑行的球形锚点（仅自己可见），再次使用传送到锚点位置，随后进入30秒冷却。",
+            "zh_tw": "【不請自來】（商店80金幣購買一次）：使用後放出一顆沿地面向前滑行的球形錨點（僅自己可見），再次使用傳送到錨點位置，隨後進入30秒冷卻。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "【Blot Out the Sky】(bought for 100 coin): releases a forward-moving smoke wave (can pass through walls); players within a 4-block radius along its path get Blindness and Darkness for 8 seconds; after hitting, the smoke keeps moving (total distance 12 blocks); 60-second cooldown.",
+            "zh_cn": "【遮天闭目】（商店100金币购买一次）：放出一团向前推进的烟雾波（可穿墙），推进途中半径4格内的玩家陷入8秒失明与黑暗，命中后烟雾不会消失、继续前进（总距离12格），冷却60秒。",
+            "zh_tw": "【遮天閉目】（商店100金幣購買一次）：放出一團向前推進的煙霧波（可穿牆），推進途中半徑4格內的玩家陷入8秒失明與黑暗，命中後煙霧不會消失、繼續前進（總距離12格），冷卻60秒。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Youlu",
+        "zh_cn": "幽露",
+        "zh_tw": "幽露"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "youlu_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "youlu_psycho",
+            "outline": -8481624
+          }
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "Shop: Zero-One-Five / Knife / AoE Lights Out / Time-Delay Grenade / Rampage Mode / Lockpick",
+                "zh_cn": "商店：零一五/刀/范围关灯/滞时雷/狂暴模式/撬锁器",
+                "zh_tw": "商店：零一五/刀/範圍關燈/滯時雷/狂暴模式/撬鎖器"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Shop: Zero-One-Five / Knife / AoE Lights Out / Time-Delay Grenade / Rampage Mode / Lockpick",
+            "zh_cn": "商店：零一五/刀/范围关灯/滞时雷/狂暴模式/撬锁器",
+            "zh_tw": "商店：零一五/刀/範圍關燈/滯時雷/狂暴模式/撬鎖器"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

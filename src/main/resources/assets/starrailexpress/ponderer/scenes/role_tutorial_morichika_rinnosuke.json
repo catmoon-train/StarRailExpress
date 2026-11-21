@@ -1,0 +1,286 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.morichika_rinnosuke",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Morichika rinnosuke",
+    "zh_cn": "香霖堂主",
+    "zh_tw": "香霖堂主"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Morichika rinnosuke",
+        "zh_cn": "香霖堂主",
+        "zh_tw": "香霖堂主"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "morichika_rinnosuke_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 110,
+          "text": {
+            "en_us": "Owner of the secondhand shop Kourindou.",
+            "zh_cn": "旧货店香霖堂的店主。",
+            "zh_tw": "舊貨店香霖堂的店主。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 120
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Morichika rinnosuke",
+        "zh_cn": "香霖堂主",
+        "zh_tw": "香霖堂主"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "morichika_rinnosuke_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "morichika_rinnosuke",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 130,
+          "text": {
+            "en_us": "You have a luxury shop where you can buy anything.",
+            "zh_cn": "你拥有豪华的商店，可以购买任何东西。",
+            "zh_tw": "你擁有豪華的商店，可以購買任何東西。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 140
+        },
+        {
+          "type": "text",
+          "duration": 90,
+          "text": {
+            "en_us": "You gain 50 coins every 60s.",
+            "zh_cn": "你每过60s会获得50金币。",
+            "zh_tw": "你每過60s會獲得50金幣。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 100
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Morichika rinnosuke",
+        "zh_cn": "香霖堂主",
+        "zh_tw": "香霖堂主"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "morichika_rinnosuke_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 130,
+          "text": {
+            "en_us": "Win condition: survive to the end (shared victory)",
+            "zh_cn": "获胜条件：活到最后（一同获胜）",
+            "zh_tw": "獲勝條件：活到最後（一同獲勝）"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 140
+        },
+        {
+          "type": "text",
+          "duration": 122,
+          "text": {
+            "en_us": "You may help anyone, including other Neutrals.",
+            "zh_cn": "你可以选择帮助任何人，包括中立。",
+            "zh_tw": "你可以選擇幫助任何人，包括中立。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 132
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 108,
+          "text": {
+            "en_us": "Items you buy can be dropped directly.",
+            "zh_cn": "你买的东西可以直接丢弃。",
+            "zh_tw": "你買的東西可以直接丟棄。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 118
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

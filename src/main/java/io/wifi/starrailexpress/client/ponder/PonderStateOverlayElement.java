@@ -8,7 +8,6 @@ import net.createmod.ponder.foundation.ui.PonderUI;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import java.util.List;
 
@@ -22,20 +21,19 @@ public class PonderStateOverlayElement implements PonderOverlayElement {
     public record Bar(String label, float before, float after, int color) {
     }
 
-    private static final int BAR_WIDTH = 110;
-    private static final String KEY_PREFIX = "ponder.starrailexpress.";
+    private static final int BAR_WIDTH = 72;
 
-    private final String title;
+    private final PonderLocalizedText title;
     private final List<Bar> bars;
     private final Float progressBefore;
     private final Float progressAfter;
-    private final List<String> lines;
+    private final List<PonderLocalizedText> lines;
     private final int accent;
     private boolean visible = true;
 
-    public PonderStateOverlayElement(String title, List<Bar> bars, Float progressBefore,
-                                     Float progressAfter, List<String> lines, int accent) {
-        this.title = title == null ? "" : title;
+    public PonderStateOverlayElement(PonderLocalizedText title, List<Bar> bars, Float progressBefore,
+                                     Float progressAfter, List<PonderLocalizedText> lines, int accent) {
+        this.title = title == null ? PonderLocalizedText.of("") : title;
         this.bars = List.copyOf(bars == null ? List.of() : bars);
         this.progressBefore = progressBefore;
         this.progressAfter = progressAfter;
@@ -48,12 +46,6 @@ public class PonderStateOverlayElement implements PonderOverlayElement {
         return this;
     }
 
-    /** 以 {@code ponder.starrailexpress.} 开头的文本按翻译键解析，其余按原文显示。 */
-    private static Component display(String value) {
-        String text = value == null ? "" : value;
-        return text.startsWith(KEY_PREFIX) ? Component.translatable(text) : Component.literal(text);
-    }
-
     @Override public boolean isVisible() { return visible; }
     @Override public void setVisible(boolean visible) { this.visible = visible; }
 
@@ -61,28 +53,22 @@ public class PonderStateOverlayElement implements PonderOverlayElement {
     public void render(PonderScene scene, PonderUI screen, GuiGraphics graphics, float partialTicks) {
         if (!visible) return;
         Font font = Minecraft.getInstance().font;
-        int width = Math.max(150, font.width(title) + 24);
-        for (Bar bar : bars) width = Math.max(width, font.width(bar.label()) + BAR_WIDTH + 34);
-        for (String line : lines) width = Math.max(width, font.width(line) + 24);
-        width = Math.min(width, Math.max(150, screen.width / 2 - 24));
-
+        // 不画整块半透明面板和外框：原来那块会横跨大半个屏幕，压住场景本身。
+        // 状态条本身保留窄轨道，文字加投影保证在任意背景上都读得清。
         int x = 16;
-        int y = 24;
-        int rows = 1 + bars.size() * 2 + lines.size();
-        if (progressBefore != null || progressAfter != null) rows += 2;
-        int height = 14 + rows * (font.lineHeight + 2);
-        graphics.fill(x, y, x + width, y + height, 0xC0101018);
-        graphics.renderOutline(x, y, width, height, 0xFF3A3A4A);
+        // Ponder 自己的标题栏 / 段落标签占据顶部 24~80 像素；再往下放，
+        // 免得左上角的状态面板把原生 UI 盖住。
+        int y = 112;
 
-        int textX = x + 10;
-        int textY = y + 7;
+        int textX = x + 2;
+        int textY = y + 2;
         if (!title.isEmpty()) {
-            graphics.drawString(font, display(title), textX, textY, accent);
+            graphics.drawString(font, title.resolve(), textX, textY, accent, true);
             textY += font.lineHeight + 5;
         }
 
         for (Bar bar : bars) {
-            graphics.drawString(font, display(bar.label()), textX, textY, 0xFFDDDDDD);
+            graphics.drawString(font, PonderLocalizedText.of(bar.label()).resolve(), textX, textY, 0xFFDDDDDD, true);
             textY += font.lineHeight;
             int barX = textX + 2;
             graphics.fill(barX, textY, barX + BAR_WIDTH, textY + 8, 0xFF202028);
@@ -111,8 +97,8 @@ public class PonderStateOverlayElement implements PonderOverlayElement {
             textY += 13;
         }
 
-        for (String line : lines) {
-            graphics.drawString(font, display(line), textX, textY, 0xFFEEEEEE);
+        for (PonderLocalizedText line : lines) {
+            graphics.drawString(font, line.resolve(), textX, textY, 0xFFEEEEEE, true);
             textY += font.lineHeight + 3;
         }
     }

@@ -1,0 +1,332 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.farlands",
+  "items": [
+    "noellesroles:farlands_rift",
+    "trainmurdermystery:lockpick"
+  ],
+  "title": {
+    "en_us": "远境",
+    "zh_cn": "远境",
+    "zh_tw": "遠境"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "远境",
+        "zh_cn": "远境",
+        "zh_tw": "遠境"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "farlands_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Killer faction",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "Only produced by the command block event.",
+            "zh_cn": "仅由命令方块事件产生。",
+            "zh_tw": "僅由命令方塊事件產生。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 123
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 58,
+          "text": {
+            "en_us": "吞噬万物的极远之地。",
+            "zh_cn": "吞噬万物的极远之地。",
+            "zh_tw": "吞噬萬物的極遠之地。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 68
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "远境",
+        "zh_cn": "远境",
+        "zh_tw": "遠境"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "farlands_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Skill \"displace\": swaps positions with the player in your line of sight, cooldown 28 seconds. After the swap you get 4 seconds of dizziness, cannot use items for 2 seconds and cannot use melee attacks for 5 seconds; the other player gains 2 seconds of speed.",
+                "zh_cn": "技能错位：和视线中的玩家互换位置，冷却 28 秒。交换后获得 4 秒眩晕，且 2 秒内无法使用物品，5 秒内无法使用近战攻击。对方会获得 2 秒速度。",
+                "zh_tw": "技能錯位：和視線中的玩家互換位置，冷卻 28 秒。交換後獲得 4 秒眩暈，且 2 秒內無法使用物品，5 秒內無法使用近戰攻擊。對方會獲得 2 秒速度。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "farlands_skill_target_0",
+            "outline": -8894776
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "farlands_main",
+            "to": [
+              5.0,
+              1.0,
+              1.2
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "starrailexpress:role_teleport",
+          "parameters": {
+            "linkId": "farlands_main",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_teleport",
+          "parameters": {
+            "linkId": "farlands_skill_target_0",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            1,
+            3
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skill \"displace\": swaps positions with the player in your line of sight, cooldown 28 seconds. After the swap you get 4 seconds of dizziness, cannot use items for 2 seconds and cannot use melee attacks for 5 seconds; the other player gains 2 seconds of speed.",
+            "zh_cn": "技能错位：和视线中的玩家互换位置，冷却 28 秒。交换后获得 4 秒眩晕，且 2 秒内无法使用物品，5 秒内无法使用近战攻击。对方会获得 2 秒速度。",
+            "zh_tw": "技能錯位：和視線中的玩家互換位置，冷卻 28 秒。交換後獲得 4 秒眩暈，且 2 秒內無法使用物品，5 秒內無法使用近戰攻擊。對方會獲得 2 秒速度。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "远境",
+        "zh_cn": "远境",
+        "zh_tw": "遠境"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "farlands_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Rift: can be opened 3 blocks in front of you and swallows anyone still standing inside after 1.5 seconds, including yourself.",
+            "zh_cn": "裂隙：可开在身前 3 格，1.5 秒后吞掉还站在里面的人，包括自己。",
+            "zh_tw": "裂隙：可開在身前 3 格，1.5 秒後吞掉還站在裏面的人，包括自己。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

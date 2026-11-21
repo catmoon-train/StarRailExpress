@@ -1,0 +1,467 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.dictator",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Dictator",
+    "zh_cn": "独裁者",
+    "zh_tw": "獨裁者"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_graveyard"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Dictator",
+        "zh_cn": "独裁者",
+        "zh_tw": "獨裁者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dictator_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Sheriff team",
+            "zh_cn": "警长阵营",
+            "zh_tw": "警長陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Order is mine to decree: use the revolver and the Sword of Judgment to bring every sinner to their end.",
+            "zh_cn": "秩序由我裁定，让罪人接受终局。",
+            "zh_tw": "秩序由我裁定，讓罪人接受終局。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Dictator",
+        "zh_cn": "独裁者",
+        "zh_tw": "獨裁者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dictator_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 81,
+          "text": {
+            "en_us": "Starts with a revolver.",
+            "zh_cn": "开局自带一把左轮手枪。",
+            "zh_tw": "開局自帶一把左輪手槍。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 91
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Dictator",
+        "zh_cn": "独裁者",
+        "zh_tw": "獨裁者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dictator_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "dictator",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Judgment Sword (150 coins, +25 each repurchase): right-click a player's corpse, pick cause then killer; if both are correct, the killer is executed (cause: Judgment, no cerebellum penalty); vanishes after use either way.",
+            "zh_cn": "裁决之剑（150 金币，每次购买涨价 25）：对准玩家尸体右键，先选死因再选凶手，死因和凶手全部正确时凶手将被处决（死因：裁断，无小脑惩罚），无论对错使用后均消失。",
+            "zh_tw": "裁決之劍（150 金幣，每次購買漲價 25）：對準玩家屍體右鍵，先選死因再選兇手，死因和兇手全部正確時兇手將被處決（死因：裁斷，無小腦懲罰），無論對錯使用後均消失。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Dictator's Book (150 coins, buy once): guess a player's role (only non-good-Neutral and Killer roles); if correct, the target is executed; vanishes after use either way.",
+            "zh_cn": "独裁之书（150 金币，仅能购买一次）：猜测一名玩家的职业（仅非好人方中立与杀手职业），猜中则目标被处决，无论对错使用后均消失。",
+            "zh_tw": "獨裁之書（150 金幣，僅能購買一次）：猜測一名玩家的職業（僅非好人方中立與殺手職業），猜中則目標被處決，無論對錯使用後均消失。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Dictator",
+        "zh_cn": "独裁者",
+        "zh_tw": "獨裁者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dictator_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dictator_target",
+            "outline": 4282146992
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Can use instinct see-through, but only within 8 blocks, and everyone shows as your own color.",
+                "zh_cn": "能使用本能透视，但本能透视只能看到 8 格内的玩家，且所有玩家都显示为你自己的颜色。",
+                "zh_tw": "能使用本能透視，但本能透視只能看到 8 格內的玩家，且所有玩家都顯示為你自己的顏色。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Can use instinct see-through, but only within 8 blocks, and everyone shows as your own color.",
+            "zh_cn": "能使用本能透视，但本能透视只能看到 8 格内的玩家，且所有玩家都显示为你自己的颜色。",
+            "zh_tw": "能使用本能透視，但本能透視只能看到 8 格內的玩家，且所有玩家都顯示為你自己的顏色。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "mood",
+      "title": {
+        "en_us": "Dictator",
+        "zh_cn": "独裁者",
+        "zh_tw": "獨裁者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dictator_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_mood",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.sanity",
+            "before": 0.35,
+            "after": 0.85,
+            "lines": [
+              {
+                "en_us": "The Dictator needs no Sanity restore, sees match time, and has 2.5x Civilian stamina.",
+                "zh_cn": "独裁者无需回复san值，能看到对局剩余时间，且体力为平民的2.5倍。",
+                "zh_tw": "獨裁者無需回復san值，能看到對局剩餘時間，且體力為平民的2.5倍。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The Dictator needs no Sanity restore, sees match time, and has 2.5x Civilian stamina.",
+            "zh_cn": "独裁者无需回复san值，能看到对局剩余时间，且体力为平民的2.5倍。",
+            "zh_tw": "獨裁者無需回復san值，能看到對局剩餘時間，且體力為平民的2.5倍。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Dictator",
+        "zh_cn": "独裁者",
+        "zh_tw": "獨裁者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dictator_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 128,
+          "text": {
+            "en_us": "Occupies 2 Sheriff slots, only in matches of 18+.",
+            "zh_cn": "占用 2 个警长位，仅在 18 人及以上对局中出现。",
+            "zh_tw": "佔用 2 個警長位，僅在 18 人及以上對局中出現。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 138
+        },
+        {
+          "type": "text",
+          "duration": 92,
+          "text": {
+            "en_us": "Drops two revolvers on death.",
+            "zh_cn": "死亡时掉落两把左轮手枪。",
+            "zh_tw": "死亡時掉落兩把左輪手槍。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 102
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,223 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.silent_killer",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Silent Killer",
+    "zh_cn": "静默猎手",
+    "zh_tw": "靜默獵手"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Silent Killer",
+        "zh_cn": "静默猎手",
+        "zh_tw": "靜默獵手"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "silent_killer_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 110,
+          "text": {
+            "en_us": "A deadly huntress from the land of smog",
+            "zh_cn": "来自雾霾之地的致命女猎手",
+            "zh_tw": "來自霧霾之地的致命女獵手"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 120
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Silent Killer",
+        "zh_cn": "静默猎手",
+        "zh_tw": "靜默獵手"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "silent_killer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Skill: Grand Entrance. Effect: when your balance is below 5, you can trigger this skill to kill everyone within 2.5 blocks (including the Killer team, up to 5 people).",
+                "zh_cn": "技能：华丽登场。效果：当你余额小于5的时候，可以发动此技能，使周围2格半的人死亡（包括杀手阵营，最多5人）。",
+                "zh_tw": "技能：華麗登場。效果：當你餘額小於5的時候，可以發動此技能，使周圍2格半的人死亡（包括殺手陣營，最多5人）。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "silent_killer_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skill: Grand Entrance. Effect: when your balance is below 5, you can trigger this skill to kill everyone within 2.5 blocks (including the Killer team, up to 5 people).",
+            "zh_cn": "技能：华丽登场。效果：当你余额小于5的时候，可以发动此技能，使周围2格半的人死亡（包括杀手阵营，最多5人）。",
+            "zh_tw": "技能：華麗登場。效果：當你餘額小於5的時候，可以發動此技能，使周圍2格半的人死亡（包括殺手陣營，最多5人）。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

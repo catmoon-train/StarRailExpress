@@ -1,0 +1,654 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.clockmaker",
+  "items": [
+    "noellesroles:pocket_watch"
+  ],
+  "title": {
+    "en_us": "Clockmaker",
+    "zh_cn": "钟表匠",
+    "zh_tw": "鐘錶匠"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Clockmaker",
+        "zh_cn": "钟表匠",
+        "zh_tw": "鐘錶匠"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "clockmaker_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 131,
+          "text": {
+            "en_us": "A seasoned clocksmith knows how to manipulate time!",
+            "zh_cn": "一位老道的钟表师傅会懂得如何调控时间！",
+            "zh_tw": "一位老道的鐘錶師傅會懂得如何調控時間！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 141
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Clockmaker",
+        "zh_cn": "钟表匠",
+        "zh_tw": "鐘錶匠"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "clockmaker_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Press the skill key to spend 125 coin and reduce game time by 45 seconds while speeding up world time by 2000 ticks.",
+                "zh_cn": "按下技能键可花费125金币，减少游戏时间45秒并使世界时间加快2000tick。",
+                "zh_tw": "按下技能鍵可花費125金幣，減少遊戲時間45秒並使世界時間加快2000tick。"
+              },
+              {
+                "en_us": "Speeding up game time speeds up everyone's skill cooldowns.",
+                "zh_cn": "加快游戏时间会使所有人的技能冷却加快。",
+                "zh_tw": "加快遊戲時間會使所有人的技能冷卻加快。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Press the skill key to spend 125 coin and reduce game time by 45 seconds while speeding up world time by 2000 ticks.",
+                "zh_cn": "按下技能键可花费125金币，减少游戏时间45秒并使世界时间加快2000tick。",
+                "zh_tw": "按下技能鍵可花費125金幣，減少遊戲時間45秒並使世界時間加快2000tick。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Press the skill key to spend 125 coin and reduce game time by 45 seconds while speeding up world time by 2000 ticks.",
+            "zh_cn": "按下技能键可花费125金币，减少游戏时间45秒并使世界时间加快2000tick。",
+            "zh_tw": "按下技能鍵可花費125金幣，減少遊戲時間45秒並使世界時間加快2000tick。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "clockmaker_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 146,
+          "text": {
+            "en_us": "Speeding up game time speeds up everyone's skill cooldowns.",
+            "zh_cn": "加快游戏时间会使所有人的技能冷却加快。",
+            "zh_tw": "加快遊戲時間會使所有人的技能冷卻加快。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 156
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Clockmaker",
+        "zh_cn": "钟表匠",
+        "zh_tw": "鐘錶匠"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "clockmaker_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "clockmaker",
+            "columns": 4
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:pocket_watch",
+          "linkId": "clockmaker_shop_line_0",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 180,
+          "text": {
+            "en_us": "The shop sells Clocks and Pocket Watches. Both can be thrown (to show others).",
+            "zh_cn": "商店可购买时钟和怀表。时钟和怀表均可丢弃(可以丢给别人看)。",
+            "zh_tw": "商店可購買時鐘和懷錶。時鐘和懷錶均可丟棄(可以丟給別人看)。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 190
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "panel",
+      "title": {
+        "en_us": "Clockmaker",
+        "zh_cn": "钟表匠",
+        "zh_tw": "鐘錶匠"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "clockmaker_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.label.notes",
+            "lines": [
+              {
+                "en_us": "You can see the game time.",
+                "zh_cn": "你可以查看游戏时间。",
+                "zh_tw": "你可以查看遊戲時間。"
+              },
+              {
+                "en_us": "Clock: view world time. Pocket Watch: right-click to view the match's game time (60s cooldown).",
+                "zh_cn": "时钟：查看世界时间。怀表：右键查看当局游戏时间(60s冷却)。",
+                "zh_tw": "時鐘：查看世界時間。懷錶：右鍵查看當局遊戲時間(60s冷卻)。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 86,
+          "text": {
+            "en_us": "You can see the game time.",
+            "zh_cn": "你可以查看游戏时间。",
+            "zh_tw": "你可以查看遊戲時間。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 96
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:pocket_watch",
+          "linkId": "clockmaker_skill_item_1"
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:pocket_watch",
+          "duration": 70,
+          "point": [
+            3.0,
+            2.9,
+            3.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "clockmaker_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 35
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Clock: view world time. Pocket Watch: right-click to view the match's game time (60s cooldown).",
+            "zh_cn": "时钟：查看世界时间。怀表：右键查看当局游戏时间(60s冷却)。",
+            "zh_tw": "時鐘：查看世界時間。懷錶：右鍵查看當局遊戲時間(60s冷卻)。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Clockmaker",
+        "zh_cn": "钟表匠",
+        "zh_tw": "鐘錶匠"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "clockmaker_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 110,
+          "text": {
+            "en_us": "Only appears in lobbies of 12+ players.",
+            "zh_cn": "仅能在12人及以上的对局中出现。",
+            "zh_tw": "僅能在12人及以上的對局中出現。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 120
+        },
+        {
+          "type": "text",
+          "duration": 133,
+          "text": {
+            "en_us": "Dealing with time, you ignore any time stop effects.",
+            "zh_cn": "善于同时间打交道的你无视任何时停效果。",
+            "zh_tw": "善於同時間打交道的你無視任何時停效果。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 143
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 149,
+          "text": {
+            "en_us": "Game time can be reduced to a minimum of 1 minute 30 seconds.",
+            "zh_cn": "游戏时间最多减少至1分30秒。",
+            "zh_tw": "遊戲時間最多減少至1分30秒。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 159
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

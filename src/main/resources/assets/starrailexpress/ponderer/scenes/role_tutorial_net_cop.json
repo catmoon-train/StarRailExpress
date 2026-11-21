@@ -1,0 +1,805 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.net_cop",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Net Cop",
+    "zh_cn": "网警",
+    "zh_tw": "網警"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_room"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Net Cop",
+        "zh_cn": "网警",
+        "zh_tw": "網警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "net_cop_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Sheriff team",
+            "zh_cn": "警长阵营",
+            "zh_tw": "警長陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 149,
+          "text": {
+            "en_us": "Maintain order on the train and bring the killers to justice!",
+            "zh_cn": "维护列车的秩序，让杀手得到应有的制裁！",
+            "zh_tw": "維護列車的秩序，讓殺手得到應有的制裁！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 159
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Net Cop",
+        "zh_cn": "网警",
+        "zh_tw": "網警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "net_cop_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 160,
+          "text": {
+            "en_us": "Only spawns on maps where you can jump and that have minigame tasks",
+            "zh_cn": "仅在可跳跃且拥有小游戏任务的地图中刷新",
+            "zh_tw": "僅在可跳躍且擁有小遊戲任務的地圖中刷新"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 170
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Net Cop",
+        "zh_cn": "网警",
+        "zh_tw": "網警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "net_cop_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "After the Net Cop kills a player with a melee weapon, the weapon enters a 20-second cooldown; killing with an Explosive Crossbow puts the crossbow on a 12-second cooldown.",
+                "zh_cn": "网警使用近战武器击杀玩家后会使武器进入20秒冷却，使用爆炸弩击杀玩家时会使弩进入12秒冷却。",
+                "zh_tw": "網警使用近戰武器擊殺玩家後會使武器進入20秒冷卻，使用爆炸弩擊殺玩家時會使弩進入12秒冷卻。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 85,
+          "text": {
+            "en_us": "Has a passive coin income",
+            "zh_cn": "拥有被动游戏币收入",
+            "zh_tw": "擁有被動遊戲幣收入"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 95
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "net_cop_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Using the skill swaps your main-hand item to the off-hand; using it again swaps back.",
+            "zh_cn": "释放技能可以将主手物品放到副手，再次释放技能取回副手上的物品。",
+            "zh_tw": "釋放技能可以將主手物品放到副手，再次釋放技能取回副手上的物品。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "net_cop_skill_target_2",
+            "outline": -16728104
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 15
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "net_cop_skill_target_2",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "After the Net Cop kills a player with a melee weapon, the weapon enters a 20-second cooldown; killing with an Explosive Crossbow puts the crossbow on a 12-second cooldown.",
+            "zh_cn": "网警使用近战武器击杀玩家后会使武器进入20秒冷却，使用爆炸弩击杀玩家时会使弩进入12秒冷却。",
+            "zh_tw": "網警使用近戰武器擊殺玩家後會使武器進入20秒冷卻，使用爆炸弩擊殺玩家時會使弩進入12秒冷卻。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Net Cop",
+        "zh_cn": "网警",
+        "zh_tw": "網警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "net_cop_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "net_cop",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 124,
+          "text": {
+            "en_us": "You have no coin system and never earn any coin",
+            "zh_cn": "你没有金币系统且不会获得任何金币",
+            "zh_tw": "你沒有金幣系統且不會獲得任何金幣"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 134
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The shop trades in minigame tokens: you may buy one of an Iron Axe / Diamond Sword / Heavy Hammer (buying grants 8 Wind Charges), and can buy an Explosive Crossbow and Firework Rocket",
+            "zh_cn": "商店中使用小游戏代币交易，可选择购买铁斧/钻石剑/重锤(购买后会获得8个风弹)的其中一个，可购买爆炸弩和烟花火箭",
+            "zh_tw": "商店中使用小遊戲代幣交易，可選擇購買鐵斧/鑽石劍/重錘(購買後會獲得8個風彈)的其中一個，可購買爆炸弩和煙花火箭"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "title": {
+        "en_us": "Net Cop",
+        "zh_cn": "网警",
+        "zh_tw": "網警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "net_cop_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "net_cop_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "net_cop_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "delay": 14
+          }
+        },
+        {
+          "type": "text",
+          "duration": 167,
+          "text": {
+            "en_us": "When the Net Cop dies, the melee weapon they carry drops as a Revolver.",
+            "zh_cn": "网警死后，身上的近战武器会掉落为左轮手枪",
+            "zh_tw": "網警死後，身上的近戰武器會掉落為左輪手槍"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 177
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "mood",
+      "title": {
+        "en_us": "Net Cop",
+        "zh_cn": "网警",
+        "zh_tw": "網警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "net_cop_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_mood",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.sanity",
+            "before": 0.35,
+            "after": 0.85,
+            "lines": [
+              {
+                "en_us": "Completing a minigame task restores an extra 30% Sanity; the Net Cop's minigame task refresh is not limited by normal tasks",
+                "zh_cn": "完成小游戏任务会额外恢复30%理智，网警的小游戏任务刷新不受普通任务限制",
+                "zh_tw": "完成小遊戲任務會額外恢復30%理智，網警的小遊戲任務刷新不受普通任務限制"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Completing a minigame task restores an extra 30% Sanity; the Net Cop's minigame task refresh is not limited by normal tasks",
+            "zh_cn": "完成小游戏任务会额外恢复30%理智，网警的小游戏任务刷新不受普通任务限制",
+            "zh_tw": "完成小遊戲任務會額外恢復30%理智，網警的小遊戲任務刷新不受普通任務限制"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vitals",
+      "title": {
+        "en_us": "Net Cop",
+        "zh_cn": "网警",
+        "zh_tw": "網警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "net_cop_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "attachKeyFrame": true,
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.4,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
+              }
+            ],
+            "lines": [
+              {
+                "en_us": "The Explosive Crossbow kills the player hit by the firework and deals splash damage to nearby players (this damage drains virtual health but cannot be lethal).",
+                "zh_cn": "爆炸弩会击杀烟花火箭命中的那个玩家，并对周围玩家造成溅射伤害(此伤害会扣除虚拟血量，但不会致死)",
+                "zh_tw": "爆炸弩會擊殺煙花火箭命中的那個玩家，並對周圍玩家造成濺射傷害(此傷害會扣除虛擬血量，但不會致死)"
+              },
+              {
+                "en_us": "The Dream Heavy Hammer's virtual-health damage ignores virtual shields and normal shields (including weak and timed shields)",
+                "zh_cn": "注：重锤造成的虚拟血量伤害无视一切护盾",
+                "zh_tw": "注：重錘造成的虛擬血量傷害無視一切護盾"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The Explosive Crossbow kills the player hit by the firework and deals splash damage to nearby players (this damage drains virtual health but cannot be lethal).",
+            "zh_cn": "爆炸弩会击杀烟花火箭命中的那个玩家，并对周围玩家造成溅射伤害(此伤害会扣除虚拟血量，但不会致死)",
+            "zh_tw": "爆炸弩會擊殺煙花火箭命中的那個玩家，並對周圍玩家造成濺射傷害(此傷害會扣除虛擬血量，但不會致死)"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "net_cop_skill_target_1",
+            "outline": -16728104
+          }
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 35
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The Dream Heavy Hammer's virtual-health damage ignores virtual shields and normal shields (including weak and timed shields)",
+            "zh_cn": "注：重锤造成的虚拟血量伤害无视一切护盾",
+            "zh_tw": "注：重錘造成的虛擬血量傷害無視一切護盾"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Net Cop",
+        "zh_cn": "网警",
+        "zh_tw": "網警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "net_cop_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Completing a normal task grants 1 game token; completing a minigame task grants 1 extra game token",
+            "zh_cn": "完成普通任务会获得1个游戏代币，完成小游戏任务会额外获得1个游戏代币",
+            "zh_tw": "完成普通任務會獲得1個遊戲代幣，完成小遊戲任務會額外獲得1個遊戲代幣"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "Cannot pick up Revolvers / Patrol Pistols",
+            "zh_cn": "无法捡起左轮手枪/巡警手枪",
+            "zh_tw": "無法撿起左輪手槍/巡警手槍"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 123
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

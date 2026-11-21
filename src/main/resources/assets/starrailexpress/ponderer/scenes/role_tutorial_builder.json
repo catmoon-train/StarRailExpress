@@ -1,0 +1,468 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.builder",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Builder",
+    "zh_cn": "建筑师",
+    "zh_tw": "建築師"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Builder",
+        "zh_cn": "建筑师",
+        "zh_tw": "建築師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "builder_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 83,
+          "text": {
+            "en_us": "Wall off all the danger!",
+            "zh_cn": "将所有风险隔绝到墙外！",
+            "zh_tw": "將所有風險隔絕到牆外！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 93
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Builder",
+        "zh_cn": "建筑师",
+        "zh_tw": "建築師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "builder_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Press the skill key to build a wall on the line perpendicular to your facing (4 long, 3 high, 1 thick); the wall vanishes after 25 seconds",
+                "zh_cn": "按技能键会在垂直于玩家朝向的水平线上建造一堵墙（长4格高3格宽1格），墙会在25秒后自动消失",
+                "zh_tw": "按技能鍵會在垂直於玩家朝向的水平線上建造一堵牆（長4格高3格寬1格），牆會在25秒後自動消失"
+              },
+              {
+                "en_us": "Build mode: press the skill key to build a wall, 45s cooldown, starts at 120s",
+                "zh_cn": "建造模式：按技能键建造墙体，冷却45秒，开局拥有120秒冷却",
+                "zh_tw": "建造模式：按技能鍵建造牆體，冷卻45秒，開局擁有120秒冷卻"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "builder_skill_target_0",
+            "outline": -3308225
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Press the skill key to build a wall on the line perpendicular to your facing (4 long, 3 high, 1 thick); the wall vanishes after 25 seconds",
+                "zh_cn": "按技能键会在垂直于玩家朝向的水平线上建造一堵墙（长4格高3格宽1格），墙会在25秒后自动消失",
+                "zh_tw": "按技能鍵會在垂直於玩家朝向的水平線上建造一堵牆（長4格高3格寬1格），牆會在25秒後自動消失"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Press the skill key to build a wall on the line perpendicular to your facing (4 long, 3 high, 1 thick); the wall vanishes after 25 seconds",
+            "zh_cn": "按技能键会在垂直于玩家朝向的水平线上建造一堵墙（长4格高3格宽1格），墙会在25秒后自动消失",
+            "zh_tw": "按技能鍵會在垂直於玩家朝向的水平線上建造一堵牆（長4格高3格寬1格），牆會在25秒後自動消失"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "builder_main",
+            "item": "trainmurdermystery:note"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:note",
+          "duration": 65,
+          "point": [
+            3.0,
+            2.9,
+            3.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "text",
+          "duration": 158,
+          "text": {
+            "en_us": "Press the skill-switch key (default Y) to toggle build/remove mode",
+            "zh_cn": "按下技能切换键（默认Y键）切换建造/拆除模式",
+            "zh_tw": "按下技能切換鍵（默認Y鍵）切換建造/拆除模式"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 168
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 178,
+          "text": {
+            "en_us": "Build mode: press the skill key to build a wall, 45s cooldown, starts at 120s",
+            "zh_cn": "建造模式：按技能键建造墙体，冷却45秒，开局拥有120秒冷却",
+            "zh_tw": "建造模式：按技能鍵建造牆體，冷卻45秒，開局擁有120秒冷卻"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 188
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "builder_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Remove mode: press the skill key to remove the most recently built wall, no cooldown",
+            "zh_cn": "拆除模式：按技能键拆除最近建造的墙体，无冷却",
+            "zh_tw": "拆除模式：按技能鍵拆除最近建造的牆體，無冷卻"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Builder",
+        "zh_cn": "建筑师",
+        "zh_tw": "建築師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "builder_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Walls block all projectile entities (e.g. grenades, arrows, tridents; grenade-type throwables won't explode on hitting a Builder wall)",
+            "zh_cn": "墙体会阻挡一切弹射物实体(比如手榴弹，箭，三叉戟等，手榴弹类的投掷物碰到建筑师的墙体不会爆炸)",
+            "zh_tw": "牆體會阻擋一切彈射物實體(比如手榴彈，箭，三叉戟等，手榴彈類的投擲物碰到建築師的牆體不會爆炸)"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,639 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.silencer",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Silencer",
+    "zh_cn": "静语者",
+    "zh_tw": "靜語者"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Silencer",
+        "zh_cn": "静语者",
+        "zh_tw": "靜語者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "silencer_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 76,
+          "text": {
+            "en_us": "Clamp their throats!",
+            "zh_cn": "扼住他们的喉咙！",
+            "zh_tw": "扼住他們的喉嚨！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 86
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Silencer",
+        "zh_cn": "静语者",
+        "zh_tw": "靜語者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "silencer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "silencer_skill_target_0",
+            "outline": -6281116
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Stage 2 - Plea: lasts 30s; the voice mute ends but they still can't use chat. They must find another player to right-click you to lift the curse. If no plea succeeds within 30s, enter Stage 3.",
+                "zh_cn": "第二阶段——求助阶段：持续30秒，此时目标不再拥有语音禁言效果，但是无法使用聊天栏传递信息，此时你需要找到其它玩家右键你来帮你解开诅咒。若30秒内没有成功求助，则进入惩罚阶段。",
+                "zh_tw": "第二階段——求助階段：持續30秒，此時目標不再擁有語音禁言效果，但是無法使用聊天欄傳遞資訊，此時你需要找到其他玩家右鍵你來幫你解開詛咒。若30秒內沒有成功求助，則進入懲罰階段。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Stage 2 - Plea: lasts 30s; the voice mute ends but they still can't use chat. They must find another player to right-click you to lift the curse. If no plea succeeds within 30s, enter Stage 3.",
+            "zh_cn": "第二阶段——求助阶段：持续30秒，此时目标不再拥有语音禁言效果，但是无法使用聊天栏传递信息，此时你需要找到其它玩家右键你来帮你解开诅咒。若30秒内没有成功求助，则进入惩罚阶段。",
+            "zh_tw": "第二階段——求助階段：持續30秒，此時目標不再擁有語音禁言效果，但是無法使用聊天欄傳遞資訊，此時你需要找到其他玩家右鍵你來幫你解開詛咒。若30秒內沒有成功求助，則進入懲罰階段。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Silencer",
+        "zh_cn": "静语者",
+        "zh_tw": "靜語者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "silencer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Skill cooldown 130s; starts at 155s at match start",
+                "zh_cn": "技能冷却130秒，技能会在开局会进入155秒冷却",
+                "zh_tw": "技能冷卻130秒，技能會在開局會進入155秒冷卻"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "silencer_skill_target_0",
+            "outline": -6281116
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "silencer_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Open the skill page and click a player's avatar to cast; the target enters these stages in order",
+            "zh_cn": "打开技能页面点击玩家头像释放技能,使目标按次序进入以下阶段",
+            "zh_tw": "打開技能頁面點擊玩家頭像釋放技能,使目標按次序進入以下階段"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Skill cooldown 130s; starts at 155s at match start",
+                "zh_cn": "技能冷却130秒，技能会在开局会进入155秒冷却",
+                "zh_tw": "技能冷卻130秒，技能會在開局會進入155秒冷卻"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 130,
+          "text": {
+            "en_us": "Skill cooldown 130s; starts at 155s at match start",
+            "zh_cn": "技能冷却130秒，技能会在开局会进入155秒冷却",
+            "zh_tw": "技能冷卻130秒，技能會在開局會進入155秒冷卻"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 140
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "screen",
+      "title": {
+        "en_us": "Silencer",
+        "zh_cn": "静语者",
+        "zh_tw": "靜語者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "silencer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_screen",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.screen.select_player",
+            "hint": "ponder.starrailexpress.screen.pick_hint",
+            "columns": 6
+          }
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "mood",
+      "title": {
+        "en_us": "Silencer",
+        "zh_cn": "静语者",
+        "zh_tw": "靜語者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "silencer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_mood",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.sanity",
+            "before": 0.35,
+            "after": 0.85,
+            "lines": [
+              {
+                "en_us": "Stage 3 - Punishment: players who fail to plea trigger a global sound, have all Sanity and stamina drained, and all Silencers gain 120 coins",
+                "zh_cn": "第三阶段——惩罚阶段：未能成功求助的玩家会全场播放音效，清空所有san值和体力值，并为所有静语者增加120金币",
+                "zh_tw": "第三階段——懲罰階段：未能成功求助的玩家會全場播放音效，清空所有san值和體力值，並為所有靜語者增加120金幣"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Stage 3 - Punishment: players who fail to plea trigger a global sound, have all Sanity and stamina drained, and all Silencers gain 120 coins",
+            "zh_cn": "第三阶段——惩罚阶段：未能成功求助的玩家会全场播放音效，清空所有san值和体力值，并为所有静语者增加120金币",
+            "zh_tw": "第三階段——懲罰階段：未能成功求助的玩家會全場播放音效，清空所有san值和體力值，並為所有靜語者增加120金幣"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Silencer",
+        "zh_cn": "静语者",
+        "zh_tw": "靜語者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "silencer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "silencer_psycho",
+            "outline": -6281116
+          }
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "Stage 1 - Mute: the muted player cannot speak and their chat messages aren't received by others, lasting 45s; the muted player is notified",
+                "zh_cn": "第一阶段——禁言阶段:被禁言的玩家无法说话且使用聊天栏发送的消息无法被其他人接收，持续45秒，被禁言的玩家会收到提示",
+                "zh_tw": "第一階段——禁言階段:被禁言的玩家無法說話且使用聊天欄發送的消息無法被其他人接收，持續45秒，被禁言的玩家會收到提示"
+              },
+              {
+                "en_us": "When 2 or fewer Civilians remain, your skill skips the plea and punishment stages",
+                "zh_cn": "当场上只剩下小于等于2名平民玩家时，你的技能不会进入求助阶段和惩罚阶段",
+                "zh_tw": "當場上只剩下小於等於2名平民玩家時，你的技能不會進入求助階段和懲罰階段"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Stage 1 - Mute: the muted player cannot speak and their chat messages aren't received by others, lasting 45s; the muted player is notified",
+            "zh_cn": "第一阶段——禁言阶段:被禁言的玩家无法说话且使用聊天栏发送的消息无法被其他人接收，持续45秒，被禁言的玩家会收到提示",
+            "zh_tw": "第一階段——禁言階段:被禁言的玩家無法說話且使用聊天欄發送的消息無法被其他人接收，持續45秒，被禁言的玩家會收到提示"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 185,
+          "text": {
+            "en_us": "When 2 or fewer Civilians remain, your skill skips the plea and punishment stages",
+            "zh_cn": "当场上只剩下小于等于2名平民玩家时，你的技能不会进入求助阶段和惩罚阶段",
+            "zh_tw": "當場上只剩下小於等於2名平民玩家時，你的技能不會進入求助階段和懲罰階段"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 195
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

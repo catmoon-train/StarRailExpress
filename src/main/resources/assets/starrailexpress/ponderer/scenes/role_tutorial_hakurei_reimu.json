@@ -1,0 +1,414 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.hakurei_reimu",
+  "items": [
+    "noellesroles:fake_revolver",
+    "trainmurdermystery:revolver",
+    "trainmurdermystery:grenade",
+    "noellesroles:short_shotgun"
+  ],
+  "title": {
+    "en_us": "Hakurei reimu",
+    "zh_cn": "乐园巫女",
+    "zh_tw": "樂園巫女"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_room"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Hakurei reimu",
+        "zh_cn": "乐园巫女",
+        "zh_tw": "樂園巫女"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "hakurei_reimu_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 121,
+          "text": {
+            "en_us": "Mostly has the ability to fly through the air",
+            "zh_cn": "飞翔于空中！",
+            "zh_tw": "飛翔於空中！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 131
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Hakurei reimu",
+        "zh_cn": "乐园巫女",
+        "zh_tw": "樂園巫女"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "hakurei_reimu_main"
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "attachKeyFrame": true,
+          "pos": [
+            1.6,
+            1.55,
+            1.6
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:fake_revolver",
+          "linkId": "hakurei_reimu_item"
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You start with an ofuda and can buy bullets; firing bullets through the ofuda is faster than firing them directly!",
+            "zh_cn": "初始自带一个御币，可购买弹幕，使用御币发射弹幕比直接使用弹幕发射速度更快！",
+            "zh_tw": "初始自帶一個禦幣，可購買彈幕，使用禦幣發射彈幕比直接使用彈幕發射速度更快！"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Hakurei reimu",
+        "zh_cn": "乐园巫女",
+        "zh_tw": "樂園巫女"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "hakurei_reimu_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "On flyable maps, press the skill key to fly briefly; on non-flyable maps you dash forward instead.",
+                "zh_cn": "在可飞行地图中按下技能键可进行短暂飞行，在不可飞行地图中将会向前进行冲刺。",
+                "zh_tw": "在可飛行地圖中按下技能鍵可進行短暫飛行，在不可飛行地圖中將會向前進行衝刺。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "hakurei_reimu_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "On flyable maps, press the skill key to fly briefly; on non-flyable maps you dash forward instead.",
+            "zh_cn": "在可飞行地图中按下技能键可进行短暂飞行，在不可飞行地图中将会向前进行冲刺。",
+            "zh_tw": "在可飛行地圖中按下技能鍵可進行短暫飛行，在不可飛行地圖中將會向前進行衝刺。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Hakurei reimu",
+        "zh_cn": "乐园巫女",
+        "zh_tw": "樂園巫女"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "hakurei_reimu_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "hakurei_reimu",
+            "columns": 4
+          }
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Hakurei reimu",
+        "zh_cn": "乐园巫女",
+        "zh_tw": "樂園巫女"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "hakurei_reimu_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 95,
+          "text": {
+            "en_us": "You won't die from fall damage.",
+            "zh_cn": "你不会因为高度限制摔死。",
+            "zh_tw": "你不會因為高度限制摔死。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 105
+        },
+        {
+          "type": "text",
+          "duration": 90,
+          "text": {
+            "en_us": "Shooting range is 24 blocks.",
+            "zh_cn": "射击距离为24格。",
+            "zh_tw": "射擊距離為24格。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 100
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

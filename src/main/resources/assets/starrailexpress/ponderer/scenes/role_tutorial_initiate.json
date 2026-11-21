@@ -1,0 +1,590 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.initiate",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Initiate",
+    "zh_cn": "初学者",
+    "zh_tw": "初學者"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Initiate",
+        "zh_cn": "初学者",
+        "zh_tw": "初學者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "initiate_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 139,
+          "text": {
+            "en_us": "Eliminate your fellow disciple to be promoted to Killer",
+            "zh_cn": "除掉同门即可晋升为杀手",
+            "zh_tw": "除掉同門即可晉升為殺手"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 149
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Initiate",
+        "zh_cn": "初学者",
+        "zh_tw": "初學者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "initiate_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "initiate",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You can buy a knife for 200 coin; this knife can only be used to knife the other Initiate.",
+            "zh_cn": "你可以用200金币购买一把刀，这把刀只能用来刀另外一名初学者。",
+            "zh_tw": "你可以用200金幣購買一把刀，這把刀只能用來刀另外一名初學者。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Initiate",
+        "zh_cn": "初学者",
+        "zh_tw": "初學者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "initiate_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "initiate_target_0",
+            "outline": 4294955348
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              3.2
+            ],
+            "yaw": 180.0,
+            "linkId": "initiate_target_1",
+            "outline": 4294955348
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "You can see-through the other Initiate's position only after buying a knife.",
+                "zh_cn": "当你购买了刀之后才可以透视另一位初学者的位置。",
+                "zh_tw": "當你購買了刀之後才可以透視另一位初學者的位置。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 176,
+          "text": {
+            "en_us": "You can see-through the other Initiate's position only after buying a knife.",
+            "zh_cn": "当你购买了刀之后才可以透视另一位初学者的位置。",
+            "zh_tw": "當你購買了刀之後才可以透視另一位初學者的位置。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 186
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Initiate",
+        "zh_cn": "初学者",
+        "zh_tw": "初學者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "initiate_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "initiate_psycho",
+            "outline": 4294955348
+          }
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "Before transforming, wins together with the good players, but your goal is to become a Killer.",
+                "zh_cn": "未转变身份前与好人一同胜利，但你的目标是成为杀手。",
+                "zh_tw": "未轉變身份前與好人一同勝利，但你的目標是成為殺手。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Before transforming, wins together with the good players, but your goal is to become a Killer.",
+            "zh_cn": "未转变身份前与好人一同胜利，但你的目标是成为杀手。",
+            "zh_tw": "未轉變身份前與好人一同勝利，但你的目標是成為殺手。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Initiate",
+        "zh_cn": "初学者",
+        "zh_tw": "初學者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "initiate_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Two Initiates appear per match, only in lobbies of 12+ players. If only one Initiate is on the map, you become an Amnesiac after 5s.",
+            "zh_cn": "一局游戏中会出现两位初学者，仅在12人及以上的对局中刷新。若场上只有一位初学者，则5s后你会变成失忆患者。",
+            "zh_tw": "一局遊戲中會出現兩位初學者，僅在12人及以上的對局中刷新。若場上只有一位初學者，則5s後你會變成失憶患者。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 142,
+          "text": {
+            "en_us": "If you knife someone else, you die from failing the test.",
+            "zh_cn": "如果你刀到了其他人，你会因考核失败而死。",
+            "zh_tw": "如果你刀到了其他人，你會因考核失敗而死。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 152
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 167,
+          "text": {
+            "en_us": "You belong to Neutral team, but you win together with the good players.",
+            "zh_cn": "你属于中立阵营，但你和好人一同胜利。",
+            "zh_tw": "你屬於中立陣營，但你和好人一同勝利。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 177
+        },
+        {
+          "type": "text",
+          "duration": 187,
+          "text": {
+            "en_us": "You cannot pick up guns; being shot by a good player incurs no cerebellum penalty.",
+            "zh_cn": "你无法捡起枪，你被好人击毙无小脑惩罚。",
+            "zh_tw": "你無法撿起槍，你被好人擊斃無小腦懲罰。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 197
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 176,
+          "text": {
+            "en_us": "After you successfully knife the other Initiate, you become a random Killer.",
+            "zh_cn": "当你成功用刀刺杀了另一位初学者，你会变成随机杀手身份。",
+            "zh_tw": "當你成功用刀刺殺了另一位初學者，你會變成隨機殺手身份。"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 186
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "If the other Initiate dies from a non-human cause (no killer), you become an Amnesiac.",
+            "zh_cn": "如果另一名初学者因非人为因素而死（无凶手），你会变成失忆患者。",
+            "zh_tw": "如果另一名初學者因非人為因素而死（無兇手），你會變成失憶患者。"
+          },
+          "point": [
+            3.0,
+            3.2,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 175,
+          "text": {
+            "en_us": "If the other Initiate is killed by a Killer, you become a random good team.",
+            "zh_cn": "若另一位初学者被杀手杀死，你将变成随机好人阵营。",
+            "zh_tw": "若另一位初學者被殺手殺死，你將變成隨機好人陣營。"
+          },
+          "point": [
+            3.0,
+            3.48,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 185
+        },
+        {
+          "type": "text",
+          "duration": 187,
+          "text": {
+            "en_us": "If the other Initiate is killed by a good player, you become a random Killer team.",
+            "zh_cn": "若另一位初学者被好人杀死，你将变成随机杀手阵营。",
+            "zh_tw": "若另一位初學者被好人殺死，你將變成隨機殺手陣營。"
+          },
+          "point": [
+            3.15,
+            1.8,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 197
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 182,
+          "text": {
+            "en_us": "If the other Initiate is killed by a neutral, you become a random Neutral team.",
+            "zh_cn": "若另一位初学者被中立杀死，你将变成随机中立阵营。",
+            "zh_tw": "若另一位初學者被中立殺死，你將變成隨機中立陣營。"
+          },
+          "point": [
+            3.15,
+            2.08,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 192
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,405 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.jade_general",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Jade General",
+    "zh_cn": "玉将军",
+    "zh_tw": "玉將軍"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Jade General",
+        "zh_cn": "玉将军",
+        "zh_tw": "玉將軍"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "jade_general_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 139,
+          "text": {
+            "en_us": "Kick threats away and protect every Passenger on board!",
+            "zh_cn": "一脚踹飞威胁，护佑全车乘客！",
+            "zh_tw": "一腳踹飛威脅，護佑全車乘客！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 149
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Jade General",
+        "zh_cn": "玉将军",
+        "zh_tw": "玉將軍"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "jade_general_main"
+          }
+        },
+        {
+          "type": "set_block",
+          "block": "trainmurdermystery:metal_sheet_door",
+          "blockProperties": {
+            "half": "lower",
+            "facing": "north"
+          },
+          "blockPos": [
+            3,
+            1,
+            6
+          ],
+          "blockPos2": [
+            3,
+            2,
+            6
+          ],
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              4.5
+            ],
+            "yaw": 180.0,
+            "linkId": "jade_general_kick_target",
+            "outline": -16734101
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "jade_general_main",
+            "to": [
+              3.0,
+              1.0,
+              5.0
+            ],
+            "duration": 30
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "set_block",
+          "block": "minecraft:air",
+          "blockPos": [
+            3,
+            1,
+            6
+          ],
+          "blockPos2": [
+            3,
+            2,
+            6
+          ]
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            1,
+            6
+          ]
+        },
+        {
+          "type": "starrailexpress:role_teleport",
+          "parameters": {
+            "linkId": "jade_general_kick_target",
+            "pos": [
+              5.0,
+              1.0,
+              0.8
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Press the skill key to [Flying Kick]: dash about 5 blocks along your aim, kicking open any doors along the way.",
+            "zh_cn": "按技能键发动【飞踢】：向视线方向位移约五格，途中可踹开沿途任意房门。",
+            "zh_tw": "按技能鍵發動【飛踢】：向視線方向位移約五格，途中可踹開沿途任意房門。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "jade_general_main",
+            "to": [
+              3.0,
+              1.0,
+              5.0
+            ],
+            "duration": 30
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "set_block",
+          "block": "minecraft:air",
+          "blockPos": [
+            3,
+            1,
+            6
+          ],
+          "blockPos2": [
+            3,
+            2,
+            6
+          ]
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            1,
+            6
+          ]
+        },
+        {
+          "type": "starrailexpress:role_teleport",
+          "parameters": {
+            "linkId": "jade_general_kick_target",
+            "pos": [
+              5.0,
+              1.0,
+              0.8
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 140,
+          "text": {
+            "en_us": "Each Flying Kick empties your stamina bar; 35s cooldown.",
+            "zh_cn": "每次释放飞踢后会清空自身体力条，技能冷却 35 秒。",
+            "zh_tw": "每次釋放飛踢後會清空自身體力條，技能冷卻 35 秒。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 150
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Jade General",
+        "zh_cn": "玉将军",
+        "zh_tw": "玉將軍"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "jade_general_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "If you hit a target, knock them back 2 blocks — if they hit a block mid-knock, they're stunned 4s, else 2s.",
+            "zh_cn": "若踢中目标，将其击退两格——击退过程中撞到方块则眩晕 4 秒，否则眩晕 2 秒。",
+            "zh_tw": "若踢中目標，將其擊退兩格——擊退過程中撞到方塊則眩暈 4 秒，否則眩暈 2 秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Hits have a chance to give the target a permanent Slowness stack, stacking to Slowness III on repeat hits on the same target; more hits raise the chance (1%->2%->4%->8% cap).",
+            "zh_cn": "命中有概率为目标施加一层永久缓慢效果，重复命中同一目标可叠加至缓慢 III。踢中得越多，概率越高（1%→2%→4%→8% 封顶）",
+            "zh_tw": "命中有概率為目標施加一層永久緩慢效果，重複命中同一目標可疊加至緩慢 III。踢中得越多，概率越高（1%→2%→4%→8% 封頂）"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

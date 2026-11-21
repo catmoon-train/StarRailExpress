@@ -1,0 +1,350 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.conspirator",
+  "items": [
+    "noellesroles:conspiracy_page"
+  ],
+  "title": {
+    "en_us": "Conspirator",
+    "zh_cn": "阴谋家",
+    "zh_tw": "陰謀家"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Conspirator",
+        "zh_cn": "阴谋家",
+        "zh_tw": "陰謀家"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "conspirator_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 175,
+          "text": {
+            "en_us": "Guess other players' identities. If you guess right, they die in 5 seconds!",
+            "zh_cn": "没有人能活着从你的笔下经过！",
+            "zh_tw": "沒有人能活著從你的筆下經過！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 185
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Conspirator",
+        "zh_cn": "阴谋家",
+        "zh_tw": "陰謀家"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "conspirator_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "conspirator",
+            "columns": 4
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:conspiracy_page",
+          "linkId": "conspirator_shop_line_0",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 185,
+          "text": {
+            "en_us": "Some shop prices change, and you can only buy the Note, Knife, Gun, and Lockpick.",
+            "zh_cn": "商店部分物品价格改变，并且仅能购买笔记、刀、枪、开锁器。",
+            "zh_tw": "商店部分物品價格改變，並且僅能購買筆記、刀、槍、開鎖器。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 195
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "panel",
+      "title": {
+        "en_us": "Conspirator",
+        "zh_cn": "阴谋家",
+        "zh_tw": "陰謀家"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "conspirator_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.label.notes",
+            "lines": [
+              {
+                "en_us": "The shop has a Death Note you can use to guess other players' roles. If you guess correctly, the target dies of heart failure, and physical evidence pointing to you is left at the scene.",
+                "zh_cn": "商店拥有一个死亡笔记，可以猜测他人的职业，猜中后目标玩家会因为心脏衰竭而死，死亡现场会留下指向你的物证。",
+                "zh_tw": "商店擁有一個死亡筆記，可以猜測他人的職業，猜中後目標玩家會因為心臟衰竭而死，死亡現場會留下指向你的物證。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The shop has a Death Note you can use to guess other players' roles. If you guess correctly, the target dies of heart failure, and physical evidence pointing to you is left at the scene.",
+            "zh_cn": "商店拥有一个死亡笔记，可以猜测他人的职业，猜中后目标玩家会因为心脏衰竭而死，死亡现场会留下指向你的物证。",
+            "zh_tw": "商店擁有一個死亡筆記，可以猜測他人的職業，猜中後目標玩家會因為心臟衰竭而死，死亡現場會留下指向你的物證。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Conspirator",
+        "zh_cn": "阴谋家",
+        "zh_tw": "陰謀家"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "conspirator_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 142,
+          "text": {
+            "en_us": "Every guess makes a brief sound audible to the whole map.",
+            "zh_cn": "每次进行猜测都会产生全场可察觉的短暂音效。",
+            "zh_tw": "每次進行猜測都會產生全場可察覺的短暫音效。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 152
+        },
+        {
+          "type": "text",
+          "duration": 173,
+          "text": {
+            "en_us": "If you guess the Agent's identity, your own position and info are exposed.",
+            "zh_cn": "如果你猜中了探员的身份，则会暴露自己的位置与信息。",
+            "zh_tw": "如果你猜中了探員的身份，則會暴露自己的位置與資訊。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 183
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "Three wrong guesses cause your own death.",
+            "zh_cn": "猜错三次会导致自己死亡。",
+            "zh_tw": "猜錯三次會導致自己死亡。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 123
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

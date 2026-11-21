@@ -1,0 +1,417 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.ghost",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Ghost",
+    "zh_cn": "小透明",
+    "zh_tw": "小透明"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Ghost",
+        "zh_cn": "小透明",
+        "zh_tw": "小透明"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ghost_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 164,
+          "text": {
+            "en_us": "Killers can't see-through you; you can use your invisibility ability.",
+            "zh_cn": "杀手无法透视到你，你可以使用技能隐身。",
+            "zh_tw": "殺手無法透視到你，你可以使用技能隱身。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 174
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Ghost",
+        "zh_cn": "小透明",
+        "zh_tw": "小透明"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ghost_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "ghost",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "At 3 minutes remaining, the skill unlocks: spend 150 coin to go invisible; you keep your collision box while invisible.",
+            "zh_cn": "在游戏剩余3分钟时解锁技能，可花费150金币发动技能隐身，隐身时你仍然拥有碰撞体积。",
+            "zh_tw": "在遊戲剩餘3分鐘時解鎖技能，可花費150金幣發動技能隱身，隱身時你仍然擁有碰撞體積。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "panel",
+      "title": {
+        "en_us": "Ghost",
+        "zh_cn": "小透明",
+        "zh_tw": "小透明"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ghost_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.label.notes",
+            "lines": [
+              {
+                "en_us": "You can see the remaining game time.",
+                "zh_cn": "你可以查看剩余游戏时间。",
+                "zh_tw": "你可以查看剩餘遊戲時間。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 104,
+          "text": {
+            "en_us": "You can see the remaining game time.",
+            "zh_cn": "你可以查看剩余游戏时间。",
+            "zh_tw": "你可以查看剩餘遊戲時間。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 114
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Ghost",
+        "zh_cn": "小透明",
+        "zh_tw": "小透明"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ghost_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ghost_target",
+            "outline": -3618616
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Cannot be detected by Killer instinct (but can be see-through by some neutral roles)",
+                "zh_cn": "无法被杀手直觉查看到（但能被部分中立角色透视）",
+                "zh_tw": "無法被殺手直覺查看到（但能被部分中立角色透視）"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Cannot be detected by Killer instinct (but can be see-through by some neutral roles)",
+            "zh_cn": "无法被杀手直觉查看到（但能被部分中立角色透视）",
+            "zh_tw": "無法被殺手直覺查看到（但能被部分中立角色透視）"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Ghost",
+        "zh_cn": "小透明",
+        "zh_tw": "小透明"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ghost_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When only the Ghost remains among the good players, the game time fast-forwards to 2 minutes.",
+            "zh_cn": "当场上好人只剩下小透明一人时，游戏时间会快进至2分钟。",
+            "zh_tw": "當場上好人只剩下小透明一人時，遊戲時間會快進至2分鐘。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "After the fast-forward, werewolf kills no longer add time until Flandre and the Ghost are dead.",
+            "zh_cn": "时间快进后，狼人杀人将不再增长时间，直到芙兰和小透明死去。",
+            "zh_tw": "時間快進後，狼人殺人將不再增長時間，直到芙蘭和小透明死去。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

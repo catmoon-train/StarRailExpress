@@ -1,0 +1,497 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.vulture",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Vulture",
+    "zh_cn": "秃鹫",
+    "zh_tw": "禿鷲"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_graveyard"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Vulture",
+        "zh_cn": "秃鹫",
+        "zh_tw": "禿鷲"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "vulture_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 94,
+          "text": {
+            "en_us": "Wins together with the Killers",
+            "zh_cn": "与杀手一同获胜",
+            "zh_tw": "與殺手一同獲勝"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 104
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 101,
+          "text": {
+            "en_us": "Eat corpses to turn into a killer.",
+            "zh_cn": "吃掉尸体以转变为杀手。",
+            "zh_tw": "吃掉屍體以轉變為殺手。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 111
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Vulture",
+        "zh_cn": "秃鹫",
+        "zh_tw": "禿鷲"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "vulture_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "vulture",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 158,
+          "text": {
+            "en_us": "After becoming a Killer you inherit the Vulture's coin: 40% + 100.",
+            "zh_cn": "变成杀手之后会继承秃鹫的40%+100的金币数。",
+            "zh_tw": "變成殺手之後會繼承禿鷲的40%+100的金幣數。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 168
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "title": {
+        "en_us": "Vulture",
+        "zh_cn": "秃鹫",
+        "zh_tw": "禿鷲"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "vulture_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "vulture_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "vulture_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "delay": 14
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Use the skill to eat corpses; eaten corpses' info is erased (the Coroner sees garbled text)",
+            "zh_cn": "使用技能吃尸体，吃过的尸体信息会被抹除(验尸官看是乱码)",
+            "zh_tw": "使用技能吃屍體，吃過的屍體資訊會被抹除(驗屍官看是亂碼)"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 108,
+          "text": {
+            "en_us": "You must eat one corpse per six people",
+            "zh_cn": "每六个人需要吃一具尸体",
+            "zh_tw": "每六個人需要吃一具屍體"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 118
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "After eating a corpse you get gray particle effects, so please don't eat corpses in public",
+            "zh_cn": "吃尸体后身上会有灰色粒子效果，所以请不要在大庭广众之下吃尸体",
+            "zh_tw": "吃屍體後身上會有灰色粒子效果，所以請不要在大庭廣眾之下吃屍體"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Vulture",
+        "zh_cn": "秃鹫",
+        "zh_tw": "禿鷲"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "vulture_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "vulture_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "vulture_disguised",
+            "skin": "noellesroles:textures/entity/custom_psycho/black_psycho.png"
+          }
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "After reaching the required count you become a random Killer",
+                "zh_cn": "达成数量后会变为随机杀手",
+                "zh_tw": "達成數量後會變為隨機殺手"
+              },
+              {
+                "en_us": "After becoming a Killer you inherit the Vulture's coin: 40% + 100.",
+                "zh_cn": "变成杀手之后会继承秃鹫的40%+100的金币数。",
+                "zh_tw": "變成殺手之後會繼承禿鷲的40%+100的金幣數。"
+              }
+            ],
+            "color": 16753920
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 148,
+          "text": {
+            "en_us": "After reaching the required count you become a random Killer",
+            "zh_cn": "达成数量后会变为随机杀手",
+            "zh_tw": "達成數量後會變為隨機殺手"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 158
+        },
+        {
+          "type": "text",
+          "duration": 158,
+          "text": {
+            "en_us": "After becoming a Killer you inherit the Vulture's coin: 40% + 100.",
+            "zh_cn": "变成杀手之后会继承秃鹫的40%+100的金币数。",
+            "zh_tw": "變成殺手之後會繼承禿鷲的40%+100的金幣數。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 168
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Vulture",
+        "zh_cn": "秃鹫",
+        "zh_tw": "禿鷲"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "vulture_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 148,
+          "text": {
+            "en_us": "After reaching the required count you become a random Killer",
+            "zh_cn": "达成数量后会变为随机杀手",
+            "zh_tw": "達成數量後會變為隨機殺手"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 158
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,681 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.attendant",
+  "items": [
+    "noellesroles:master_key_p"
+  ],
+  "title": {
+    "en_us": "Attendant",
+    "zh_cn": "乘务员",
+    "zh_tw": "乘務員"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_corridor"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Attendant",
+        "zh_cn": "乘务员",
+        "zh_tw": "乘務員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_corridor",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              6.0
+            ],
+            "yaw": 180.0,
+            "linkId": "attendant_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 160,
+          "text": {
+            "en_us": "Use your Attendant key and flashlight to help civilians in the dark",
+            "zh_cn": "利用自己的照明，为身处黑暗中的平民提供帮助",
+            "zh_tw": "利用自己的照明，為身處黑暗中的平民提供幫助"
+          },
+          "point": [
+            3.0,
+            2.08,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 170
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Attendant",
+        "zh_cn": "乘务员",
+        "zh_tw": "乘務員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_corridor",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              6.0
+            ],
+            "yaw": 180.0,
+            "linkId": "attendant_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "attendant",
+            "origin": [
+              1.6,
+              1.55,
+              4.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              6.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            6.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:master_key_p",
+          "linkId": "attendant_skill_item_0"
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:master_key_p",
+          "duration": 70,
+          "point": [
+            3.0,
+            2.9,
+            6.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "attendant_main",
+            "to": [
+              4.1,
+              1.0,
+              7.0
+            ],
+            "duration": 35
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 126,
+          "text": {
+            "en_us": "Flashlight: right-click to light the area ahead.",
+            "zh_cn": "手电筒:右键照亮前方的区域。",
+            "zh_tw": "手電筒:右鍵照亮前方的區域。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 136
+        },
+        {
+          "type": "text",
+          "duration": 148,
+          "text": {
+            "en_us": "Lantern: lights an area while held; can be thrown to others.",
+            "zh_cn": "灯笼：手持时可以照亮一定范围内的区域，可以丢给其他人。",
+            "zh_tw": "燈籠：手持時可以照亮一定範圍內的區域，可以丟給其他人。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 158
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Attendant",
+        "zh_cn": "乘务员",
+        "zh_tw": "乘務員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_corridor",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              6.0
+            ],
+            "yaw": 180.0,
+            "linkId": "attendant_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Press the skill key to turn on lights within a 5-block radius (works even when lights are out)",
+                "zh_cn": "按下技能键打开5格半径范围内的灯(可以在关灯的时候开灯)",
+                "zh_tw": "按下技能鍵打開5格半徑範圍內的燈(可以在關燈的時候開燈)"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              6.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "attendant_main",
+            "to": [
+              4.1,
+              1.0,
+              7.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            7
+          ],
+          "blockPos2": [
+            5,
+            0,
+            7
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            7
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Press the skill key to turn on lights within a 5-block radius (works even when lights are out)",
+            "zh_cn": "按下技能键打开5格半径范围内的灯(可以在关灯的时候开灯)",
+            "zh_tw": "按下技能鍵打開5格半徑範圍內的燈(可以在關燈的時候開燈)"
+          },
+          "point": [
+            3.0,
+            1.8,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              6.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "attendant_main",
+            "to": [
+              4.1,
+              1.0,
+              7.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            7
+          ],
+          "blockPos2": [
+            5,
+            0,
+            7
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            7
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Active skill — Light On: press the skill key to ignore conditions and turn on lights within 5 blocks",
+            "zh_cn": "主动技能-开灯：按下技能键时可以无视条件打开5格范围内的灯",
+            "zh_tw": "主動技能-開燈：按下技能鍵時可以無視條件打開5格範圍內的燈"
+          },
+          "point": [
+            3.0,
+            2.08,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Attendant",
+        "zh_cn": "乘务员",
+        "zh_tw": "乘務員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_corridor",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              6.0
+            ],
+            "yaw": 180.0,
+            "linkId": "attendant_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "attendant",
+            "columns": 4
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            4.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:master_key_p",
+          "linkId": "attendant_shop_line_0",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 169,
+          "text": {
+            "en_us": "The shop sells Attendant Keys, Iron Door Keys, Flashlights, and Lanterns",
+            "zh_cn": "商店可购买乘务员钥匙、铁门钥匙、手电筒、灯笼",
+            "zh_tw": "商店可購買乘務員鑰匙、鐵門鑰匙、手電筒、燈籠"
+          },
+          "point": [
+            3.0,
+            1.8,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 179
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Attendant",
+        "zh_cn": "乘务员",
+        "zh_tw": "乘務員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_corridor",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              6.0
+            ],
+            "yaw": 180.0,
+            "linkId": "attendant_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              7.0
+            ],
+            "yaw": 180.0,
+            "linkId": "attendant_target",
+            "outline": -65536
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "When aiming at a player, you can see their room number.",
+                "zh_cn": "在瞄准玩家时可以看见玩家的房间号。",
+                "zh_tw": "在瞄準玩家時可以看見玩家的房間號。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 139,
+          "text": {
+            "en_us": "When aiming at a player, you can see their room number.",
+            "zh_cn": "在瞄准玩家时可以看见玩家的房间号。",
+            "zh_tw": "在瞄準玩家時可以看見玩家的房間號。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 149
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Attendant",
+        "zh_cn": "乘务员",
+        "zh_tw": "乘務員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_corridor",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              6.0
+            ],
+            "yaw": 180.0,
+            "linkId": "attendant_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 112,
+          "text": {
+            "en_us": "Attendant Key: opens dorm doors; 5 uses.",
+            "zh_cn": "乘务员钥匙:可打开宿舍门，只能使用5次。",
+            "zh_tw": "乘務員鑰匙:可打開宿舍門，只能使用5次。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 122
+        },
+        {
+          "type": "text",
+          "duration": 112,
+          "text": {
+            "en_us": "Iron Door Key: opens iron doors; 3 uses.",
+            "zh_cn": "铁门钥匙：可打开铁门，只能使用3次。",
+            "zh_tw": "鐵門鑰匙：可打開鐵門，只能使用3次。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 122
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

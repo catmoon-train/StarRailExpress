@@ -1,0 +1,305 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.ibuki_suika",
+  "items": [
+    "noellesroles:suika_gourd",
+    "noellesroles:suika_pill"
+  ],
+  "title": {
+    "en_us": "Ibuki suika",
+    "zh_cn": "酒吞童子",
+    "zh_tw": "酒吞童子"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Ibuki suika",
+        "zh_cn": "酒吞童子",
+        "zh_tw": "酒吞童子"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ibuki_suika_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Watermelon!",
+            "zh_cn": "西瓜！",
+            "zh_tw": "西瓜！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Ibuki suika",
+        "zh_cn": "酒吞童子",
+        "zh_tw": "酒吞童子"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ibuki_suika_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ibuki_suika_psycho",
+            "outline": -6992872
+          }
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "- Oni Sign \"Missing Power\": grow. In large form your speed drops; sprinting into players knocks them back; dash cooldown is 10s. This form is immune to Handcuffs. Players rammed outside kill cooldown die outright (including Killers). Kill cooldown 30s.",
+                "zh_cn": "- 鬼符「Missing Power」：变大。大体型时你的速度变慢，疾跑冲撞人会击退玩家，冲撞冷却为10s。此形态免疫手铐。玩家若在非击杀冷却时间被撞到会直接死亡（包括杀手）。击杀冷却30s。",
+                "zh_tw": "- 鬼符「Missing Power」：變大。大體型時你的速度變慢，疾跑衝撞人會擊退玩家，衝撞冷卻為10s。此形態免疫手銬。玩家若在非擊殺冷卻時間被撞到會直接死亡（包括殺手）。擊殺冷卻30s。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "- Oni Sign \"Missing Power\": grow. In large form your speed drops; sprinting into players knocks them back; dash cooldown is 10s. This form is immune to Handcuffs. Players rammed outside kill cooldown die outright (including Killers). Kill cooldown 30s.",
+            "zh_cn": "- 鬼符「Missing Power」：变大。大体型时你的速度变慢，疾跑冲撞人会击退玩家，冲撞冷却为10s。此形态免疫手铐。玩家若在非击杀冷却时间被撞到会直接死亡（包括杀手）。击杀冷却30s。",
+            "zh_tw": "- 鬼符「Missing Power」：變大。大體型時你的速度變慢，疾跑衝撞人會擊退玩家，衝撞冷卻為10s。此形態免疫手銬。玩家若在非擊殺冷卻時間被撞到會直接死亡（包括殺手）。擊殺冷卻30s。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Ibuki suika",
+        "zh_cn": "酒吞童子",
+        "zh_tw": "酒吞童子"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ibuki_suika_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 130,
+          "text": {
+            "en_us": "You never get the Short, Tall, or Dwarf modifiers.",
+            "zh_cn": "你不会获得矮小、高大、侏儒修饰符。",
+            "zh_tw": "你不會獲得矮小、高大、侏儒修飾符。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 140
+        },
+        {
+          "type": "text",
+          "duration": 115,
+          "text": {
+            "en_us": "Drinking beverages gives you 5s of Nausea.",
+            "zh_cn": "喝饮料会获得5s反胃效果。",
+            "zh_tw": "喝飲料會獲得5s反胃效果。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 125
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Friendly reminder:Growing may make you clip into blocks. After growing, your size becomes 2x normal.",
+            "zh_cn": "温馨提醒：你的体型变大可能导致你卡在方块里。变大后体型将变为原来的2倍。",
+            "zh_tw": "溫馨提醒：你的體型變大可能導致你卡在方塊裏。變大後體型將變為原來的2倍。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "- Shrink: for 10s you shrink and gain Speed I. While small, drinking grants 10 seconds of Speed II and extends the shrink.",
+            "zh_cn": "- 变小：可以在10s内变小且获得速度I效果。小体型时喝酒可获得10秒速度II效果延长变小时间。",
+            "zh_tw": "- 變小：可以在10s內變小且獲得速度I效果。小體型時喝酒可獲得10秒速度II效果延長變小時間。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

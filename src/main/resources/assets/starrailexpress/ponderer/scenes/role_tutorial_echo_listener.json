@@ -1,0 +1,548 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.echo_listener",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Echo Listener",
+    "zh_cn": "循声者",
+    "zh_tw": "循聲者"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_room"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Echo Listener",
+        "zh_cn": "循声者",
+        "zh_tw": "循聲者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "echo_listener_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 104,
+          "text": {
+            "en_us": "Victory alongside the Passenger team",
+            "zh_cn": "与平民一同获胜",
+            "zh_tw": "與平民一同獲勝"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 114
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 178,
+          "text": {
+            "en_us": "Help the good team survive; locate by sound in the dark and suppress threats!",
+            "zh_cn": "在黑暗中寻求希望！",
+            "zh_tw": "在黑暗中尋求希望！"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 188
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Echo Listener",
+        "zh_cn": "循声者",
+        "zh_tw": "循聲者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "echo_listener_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Use a sound wave at a player, costing 50 coins, 30s cd; the hit glows 12s, can't use skills and gets Slowness II.",
+                "zh_cn": "对准玩家使用声波，消耗50金币，冷却30秒；被命中者发光12秒，期间无法使用技能并获得缓慢II。",
+                "zh_tw": "對準玩家使用聲波，消耗50金幣，冷卻30秒；被命中者發光12秒，期間無法使用技能並獲得緩慢II。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "echo_listener_skill_target_0",
+            "outline": -11637126
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Use a sound wave at a player, costing 50 coins, 30s cd; the hit glows 12s, can't use skills and gets Slowness II.",
+                "zh_cn": "对准玩家使用声波，消耗50金币，冷却30秒；被命中者发光12秒，期间无法使用技能并获得缓慢II。",
+                "zh_tw": "對準玩家使用聲波，消耗50金幣，冷卻30秒；被命中者發光12秒，期間無法使用技能並獲得緩慢II。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Use a sound wave at a player, costing 50 coins, 30s cd; the hit glows 12s, can't use skills and gets Slowness II.",
+            "zh_cn": "对准玩家使用声波，消耗50金币，冷却30秒；被命中者发光12秒，期间无法使用技能并获得缓慢II。",
+            "zh_tw": "對準玩家使用聲波，消耗50金幣，冷卻30秒；被命中者發光12秒，期間無法使用技能並獲得緩慢II。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Echo Listener",
+        "zh_cn": "循声者",
+        "zh_tw": "循聲者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "echo_listener_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "echo_listener",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 112,
+          "text": {
+            "en_us": "Gain 5 coins every 5s, plus 50 per task.",
+            "zh_cn": "每5秒获得5金币，每完成一个任务额外获得50金币。",
+            "zh_tw": "每5秒獲得5金幣，每完成一個任務額外獲得50金幣。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 122
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "On death, respawn in your room after 60s; Killers earn only half base coins for killing you.",
+            "zh_cn": "死亡后会于60秒后在在房间重生；杀手击杀你时只获得一半基础金币。",
+            "zh_tw": "死亡後會於60秒後在在房間重生；殺手擊殺你時只獲得一半基礎金幣。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Echo Listener",
+        "zh_cn": "循声者",
+        "zh_tw": "循聲者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "echo_listener_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "echo_listener_target",
+            "outline": -11637126
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "You're permanently blind-seeing; you only become visible when sound reaches nearby areas, and players making sound glow to you.",
+                "zh_cn": "你全程处于盲视，只有声音传播到附近区域时才可见；发出声音的玩家会对你发光。",
+                "zh_tw": "你全程處於盲視，只有聲音傳播到附近區域時才可見；發出聲音的玩家會對你發光。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You're permanently blind-seeing; you only become visible when sound reaches nearby areas, and players making sound glow to you.",
+            "zh_cn": "你全程处于盲视，只有声音传播到附近区域时才可见；发出声音的玩家会对你发光。",
+            "zh_tw": "你全程處於盲視，只有聲音傳播到附近區域時才可見；發出聲音的玩家會對你發光。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "mood",
+      "title": {
+        "en_us": "Echo Listener",
+        "zh_cn": "循声者",
+        "zh_tw": "循聲者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "echo_listener_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_mood",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.sanity",
+            "before": 0.35,
+            "after": 0.85,
+            "lines": [
+              {
+                "en_us": "The closer a player is, the more they fear you: slight camera shake, Slowness, and accelerated Sanity drain.",
+                "zh_cn": "玩家离你越近越恐惧：视角轻微晃动、获得缓慢，且理智加速减少。",
+                "zh_tw": "玩家離你越近越恐懼：視角輕微晃動、獲得緩慢，且理智加速減少。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The closer a player is, the more they fear you: slight camera shake, Slowness, and accelerated Sanity drain.",
+            "zh_cn": "玩家离你越近越恐惧：视角轻微晃动、获得缓慢，且理智加速减少。",
+            "zh_tw": "玩家離你越近越恐懼：視角輕微晃動、獲得緩慢，且理智加速減少。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Echo Listener",
+        "zh_cn": "循声者",
+        "zh_tw": "循聲者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "echo_listener_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 103,
+          "text": {
+            "en_us": "You can't revive from forced death.",
+            "zh_cn": "你会因为强制死亡而无法复活。",
+            "zh_tw": "你會因為強制死亡而無法復活。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 113
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,457 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.trapper",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Trapper",
+    "zh_cn": "设陷者",
+    "zh_tw": "設陷者"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Trapper",
+        "zh_cn": "设陷者",
+        "zh_tw": "設陷者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "trapper_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 122,
+          "text": {
+            "en_us": "Use traps to restrict other players' movement.",
+            "zh_cn": "用陷阱限制其它玩家的行动。",
+            "zh_tw": "用陷阱限制其他玩家的行動。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 132
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Trapper",
+        "zh_cn": "设陷者",
+        "zh_tw": "設陷者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "trapper_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "The skill key deploys the current trap (press the skill-switch key, default Y, to switch type); placement has a 1-second wind-up (you cannot move during it); Tripwire and Quagmire have independent cooldowns (35s each); at most 5 of both traps can exist at once.",
+                "zh_cn": "技能键释放当前陷阱（按技能切换键（默认Y键）切换类型），放置有1秒前摇（期间无法移动）；绊线与泥沼冷却各自独立（35秒），两种陷阱合计最多同时存在5个。",
+                "zh_tw": "技能鍵釋放當前陷阱（按技能切換鍵（默認Y鍵）切換類型），放置有1秒前搖（期間無法移動）；絆線與泥沼冷卻各自獨立（35秒），兩種陷阱合計最多同時存在5個。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "The skill key deploys the current trap (press the skill-switch key, default Y, to switch type); placement has a 1-second wind-up (you cannot move during it); Tripwire and Quagmire have independent cooldowns (35s each); at most 5 of both traps can exist at once.",
+                "zh_cn": "技能键释放当前陷阱（按技能切换键（默认Y键）切换类型），放置有1秒前摇（期间无法移动）；绊线与泥沼冷却各自独立（35秒），两种陷阱合计最多同时存在5个。",
+                "zh_tw": "技能鍵釋放當前陷阱（按技能切換鍵（默認Y鍵）切換類型），放置有1秒前搖（期間無法移動）；絆線與泥沼冷卻各自獨立（35秒），兩種陷阱合計最多同時存在5個。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:electric_spark",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The skill key deploys the current trap (press the skill-switch key, default Y, to switch type); placement has a 1-second wind-up (you cannot move during it); Tripwire and Quagmire have independent cooldowns (35s each); at most 5 of both traps can exist at once.",
+            "zh_cn": "技能键释放当前陷阱（按技能切换键（默认Y键）切换类型），放置有1秒前摇（期间无法移动）；绊线与泥沼冷却各自独立（35秒），两种陷阱合计最多同时存在5个。",
+            "zh_tw": "技能鍵釋放當前陷阱（按技能切換鍵（默認Y鍵）切換類型），放置有1秒前搖（期間無法移動）；絆線與泥沼冷卻各自獨立（35秒），兩種陷阱合計最多同時存在5個。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Trapper",
+        "zh_cn": "设陷者",
+        "zh_tw": "設陷者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "trapper_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "trapper",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "【Quagmire】Placed on the ground (visible only to you); costs 25 coin per placement. After a trap is triggered, all players within a 3-block radius cannot move or use items for 6 seconds.",
+            "zh_cn": "【泥沼】放在地面（仅自己可见），每次放置花费25金币。陷阱被踩中后，会使半径3格内的所有玩家6秒内无法移动和使用物品。",
+            "zh_tw": "【泥沼】放在地面（僅自己可見），每次放置花費25金幣。陷阱被踩中後，會使半徑3格內的所有玩家6秒內無法移動和使用物品。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "【Ultimate · Net】Costs 130 coin to buy the Net Gun; it can be fired immediately (no initial cooldown), and enters a 150-second cooldown after each shot. Right-click to fire a net; on hitting a player or landing, it entangles players within a 5-block radius for 8 seconds.",
+            "zh_cn": "【大招·捕网】可花费130金币购买捕网枪，每次发射后进入150秒冷却。右键发射捕网，命中玩家或落地后禁锢半径5格内玩家8秒。",
+            "zh_tw": "【大招·捕網】可花費130金幣購買捕網槍，每次發射後進入150秒冷卻。右鍵發射捕網，命中玩家或落地後禁錮半徑5格內玩家8秒。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Trapper",
+        "zh_cn": "设陷者",
+        "zh_tw": "設陷者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "trapper_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "trapper_target",
+            "outline": -4973036
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Tripwires only disappear when shot. The tripwire laser is visible only to the Killer team and Killer-side neutrals; other players see only the wall anchor marker.",
+                "zh_cn": "拌线只有被枪打掉才会消失。绊线激光仅杀手阵营与杀手方中立可见，其他玩家只能看到墙上的出发点标记。",
+                "zh_tw": "拌線只有被槍打掉才會消失。絆線鐳射僅殺手陣營與殺手方中立可見，其他玩家只能看到牆上的出發點標記。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Tripwires only disappear when shot. The tripwire laser is visible only to the Killer team and Killer-side neutrals; other players see only the wall anchor marker.",
+            "zh_cn": "拌线只有被枪打掉才会消失。绊线激光仅杀手阵营与杀手方中立可见，其他玩家只能看到墙上的出发点标记。",
+            "zh_tw": "拌線只有被槍打掉才會消失。絆線鐳射僅殺手陣營與殺手方中立可見，其他玩家只能看到牆上的出發點標記。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Trapper",
+        "zh_cn": "设陷者",
+        "zh_tw": "設陷者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "trapper_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "【Tripwire】Place against a wall; the wire extends out along the wall; up to 4 wires; only one within a 2-block radius of a given spot. Players who step on it get Speed -90% for 4 seconds.",
+            "zh_cn": "【绊线】对准墙面放置，绊线沿墙面向外延伸；最多4根，同一位置2格内只能放一根。踩中的玩家速度-90%，持续4秒。",
+            "zh_tw": "【絆線】對準牆面放置，絆線沿牆面向外延伸；最多4根，同一位置2格內只能放一根。踩中的玩家速度-90%，持續4秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

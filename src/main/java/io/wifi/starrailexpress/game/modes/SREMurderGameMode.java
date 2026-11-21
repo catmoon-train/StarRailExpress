@@ -397,8 +397,9 @@ public class SREMurderGameMode extends GameMode {
         if (!modifier.isTeamApplicable(role)) {
             return false;
         }
-        // 修饰符的阵营生成判断统一走最真实的阵营（RoleTeam，不看隐藏身份）
-        if (modifier.killerOnly && !RoleTeam.isKillerTeamReal(role)) {
+        // killerOnly 只给真实杀手阵营（RoleTeam.KILLER），不含杀手方中立；
+        // 其余阵营判断也走真实阵营（RoleTeam），隐藏身份不参与修饰符适用性判定。
+        if (modifier.killerOnly && !RoleTeam.isKiller(role)) {
             return false;
         }
         if (modifier.civilianOnly && !RoleTeam.isInnocentCamp(role)) {
@@ -424,6 +425,20 @@ public class SREMurderGameMode extends GameMode {
             return ModRoles.SHERIFF;
         }
         return SREDisableManager.isRoleDisabled(TMMRoles.VIGILANTE) ? null : TMMRoles.VIGILANTE;
+    }
+
+    /**
+     * 统计一组职业实际占用的阵营槽位数。
+     * occupiedRoleCount 小于等于 0 的职业不占槽位；大于 1 的职业按实际占位数计。
+     */
+    private static int getOccupiedSlotCount(Collection<SRERole> roles) {
+        int slots = 0;
+        for (SRERole role : roles) {
+            if (role != null) {
+                slots += Math.max(0, role.getOccupiedRoleCount());
+            }
+        }
+        return slots;
     }
 
     public static List<RoleInstance> getAllRoles(int killerCount, int vigilanteCount, int neutralsCount, int playerSize,
@@ -549,11 +564,15 @@ public class SREMurderGameMode extends GameMode {
         }
 
         // 保底：警长职业被禁用 / 数量上限耗尽时 selectRoles 会静默少抽，
-        // 缺额随后会被算进 civilianCount 变成平民，使警长阵营人数少于杀手。
-        // 用可重复的保底警长补满，确保名额不被平民吞掉。
+        // 缺额随后会被算进 civilianCount 变成平民，使警长阵营少于目标。
+        // 按“占用槽位数”而不是“角色实例数”补满：独裁者等职业一人占 2 位，
+        // 若按实例数补会把本来已经占满的 2 位误判为缺 1 位，多补一个警卫。
         SRERole fallbackVigilante = vigilanteFallback();
-        while (fallbackVigilante != null && assignedVigilantes.size() < vigilanteCount) {
+        int fallbackSlots = fallbackVigilante == null ? 0 : Math.max(1, fallbackVigilante.getOccupiedRoleCount());
+        int assignedVigilanteSlots = getOccupiedSlotCount(assignedVigilantes);
+        while (fallbackVigilante != null && fallbackSlots > 0 && assignedVigilanteSlots < vigilanteCount) {
             assignedVigilantes.add(fallbackVigilante);
+            assignedVigilanteSlots += fallbackSlots;
         }
 
         // ===== 领袖特判 =====
@@ -643,13 +662,15 @@ public class SREMurderGameMode extends GameMode {
                     forcedRoles.add(role);
                     roleAssignments.put(player, role);
 
-                    // 根据角色类型减少对应的数量需求
+                    // 根据角色类型减少对应的数量需求。强制职业本身也可能占用多个名额，
+                    // 必须按 occupiedRoleCount 扣减，否则会再抽一个同阵营职业把多占的位补回来。
+                    int forcedSlots = Math.max(1, role.getOccupiedRoleCount());
                     if (role.canUseKiller()) {
-                        killerCount--;
+                        killerCount -= forcedSlots;
                     } else if (role.isVigilanteTeam()) {
-                        vigilanteCount--;
+                        vigilanteCount -= forcedSlots;
                     } else if (!role.isInnocent()) {
-                        neutralsCount--;
+                        neutralsCount -= forcedSlots;
                     }
                 }
             }
@@ -793,12 +814,15 @@ public class SREMurderGameMode extends GameMode {
         }
 
         // 最终兜底：对立职业移除、关联角色替换、池耗尽等都可能把已抽到的警长换回平民。
-        // 按本局目标把多余的平民位补成保底警长，保证警长阵营人数与杀手一致，并留下告警。
-        long vigilanteAssigned = roleAssignments.values().stream()
+        // 按本局目标的“占用槽位数”校验：独裁者/摘星者一人占 2 位，6 位目标配上两个这类职业
+        // 只需要 4 名警长玩家，不能按玩家数再补到 6 人。
+        List<SRERole> assignedVigilanteRoles = roleAssignments.values().stream()
                 .filter(role -> role != null && role.isVigilanteTeam())
-                .count();
+                .toList();
+        int vigilanteSlots = getOccupiedSlotCount(assignedVigilanteRoles);
         SRERole fallbackVigilante = vigilanteFallback();
-        if (vigilanteAssigned < targetVigilantes && fallbackVigilante != null) {
+        int fallbackSlots = fallbackVigilante == null ? 0 : Math.max(1, fallbackVigilante.getOccupiedRoleCount());
+        if (vigilanteSlots < targetVigilantes && fallbackVigilante != null && fallbackSlots > 0) {
             List<Player> candidates = new ArrayList<>();
             for (Map.Entry<Player, SRERole> entry : roleAssignments.entrySet()) {
                 SRERole role = entry.getValue();
@@ -814,17 +838,21 @@ public class SREMurderGameMode extends GameMode {
                     candidates.add(entry.getKey());
                 }
             }
-            int filled = 0;
+            int filledPlayers = 0;
+            int filledSlots = 0;
             for (Player player : candidates) {
-                if (vigilanteAssigned + filled >= targetVigilantes) {
+                if (vigilanteSlots >= targetVigilantes) {
                     break;
                 }
                 roleAssignments.put(player, fallbackVigilante);
-                filled++;
+                vigilanteSlots += fallbackSlots;
+                filledSlots += fallbackSlots;
+                filledPlayers++;
             }
             Harpymodloader.LOGGER.warn(
-                    "[RoleAssignment] Vigilante count below target: expected {}, got {}, filled {} civilian slot(s) with {}",
-                    targetVigilantes, vigilanteAssigned, filled, fallbackVigilante.identifier());
+                    "[RoleAssignment] Vigilante slots below target: expected {}, got {}, filled {} player(s) / {} slot(s) with {}",
+                    targetVigilantes, getOccupiedSlotCount(assignedVigilanteRoles), filledPlayers, filledSlots,
+                    fallbackVigilante.identifier());
         }
         return roleAssignments;
     }

@@ -1,0 +1,615 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.wayfarer",
+  "items": [
+    "noellesroles:fake_knife",
+    "noellesroles:fake_revolver"
+  ],
+  "title": {
+    "en_us": "Wayfarer",
+    "zh_cn": "红尘客",
+    "zh_tw": "紅塵客"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_graveyard"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Wayfarer",
+        "zh_cn": "红尘客",
+        "zh_tw": "紅塵客"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "wayfarer_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 106,
+          "text": {
+            "en_us": "Has its own independent win condition",
+            "zh_cn": "拥有独立胜利条件",
+            "zh_tw": "擁有獨立勝利條件"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 116
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 144,
+          "text": {
+            "en_us": "Flowers fall helplessly, swallows return like old friends.",
+            "zh_cn": "无可奈何花落去，似曾相识燕归来。",
+            "zh_tw": "無可奈何花落去，似曾相識燕歸來。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 154
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Wayfarer",
+        "zh_cn": "红尘客",
+        "zh_tw": "紅塵客"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "wayfarer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "wayfarer",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The Wayfarer is not a normally logged-in traveler: starts with no keys and no letters, and owns a fake knife and a fake gun.",
+            "zh_cn": "红尘客不是正常登录的旅客，开局没有钥匙与信件，拥有一把假刀和一把假枪。",
+            "zh_tw": "紅塵客不是正常登錄的旅客，開局沒有鑰匙與信件，擁有一把假刀和一把假槍。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Wayfarer",
+        "zh_cn": "红尘客",
+        "zh_tw": "紅塵客"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "wayfarer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Tip: after re-enacting, the Wayfarer does not die outright but is teleported to the corpse where you triggered the skill; the Wayfarer must kill the corpse's original murderer.",
+                "zh_cn": "贴士：红尘客退戏后不会直接死亡，而是会传送到释放技能时的尸体上，红尘客需要击杀尸体的原凶手。",
+                "zh_tw": "貼士：紅塵客退戲後不會直接死亡，而是會傳送到釋放技能時的屍體上，紅塵客需要擊殺屍體的原兇手。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "wayfarer_skill_target_0",
+            "outline": -51607
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "wayfarer_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 45
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 15
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "wayfarer_skill_target_0",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Tip: after re-enacting, the Wayfarer does not die outright but is teleported to the corpse where you triggered the skill; the Wayfarer must kill the corpse's original murderer.",
+            "zh_cn": "贴士：红尘客退戏后不会直接死亡，而是会传送到释放技能时的尸体上，红尘客需要击杀尸体的原凶手。",
+            "zh_tw": "貼士：紅塵客退戲後不會直接死亡，而是會傳送到釋放技能時的屍體上，紅塵客需要擊殺屍體的原兇手。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "panel",
+      "title": {
+        "en_us": "Wayfarer",
+        "zh_cn": "红尘客",
+        "zh_tw": "紅塵客"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "wayfarer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.label.notes",
+            "lines": [
+              {
+                "en_us": "The Wayfarer can approach a corpse to read extra killer info (affected by the Vulture and Arsonist); here you may trigger the skill (right-click the corpse) to turn the fake knife into a one-use knife and gain that corpse's key and letter (once only)",
+                "zh_cn": "红尘客可靠近尸体读取额外的凶手信息（会受到秃鹫与纵火犯的影响），此时可选择发动技能（右键尸体），激活假刀变为一次性刀，获得该尸体的钥匙与信件（仅触发一次）",
+                "zh_tw": "紅塵客可靠近屍體讀取額外的兇手資訊（會受到禿鷲與縱火犯的影響），此時可選擇發動技能（右鍵屍體），啟動假刀變為一次性刀，獲得該屍體的鑰匙與信件（僅觸發一次）"
+              }
+            ]
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "wayfarer_skill_target_0",
+            "outline": -51607
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "wayfarer_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 45
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 15
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "wayfarer_skill_target_0",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The Wayfarer can approach a corpse to read extra killer info (affected by the Vulture and Arsonist); here you may trigger the skill (right-click the corpse) to turn the fake knife into a one-use knife and gain that corpse's key and letter (once only)",
+            "zh_cn": "红尘客可靠近尸体读取额外的凶手信息（会受到秃鹫与纵火犯的影响），此时可选择发动技能（右键尸体），激活假刀变为一次性刀，获得该尸体的钥匙与信件（仅触发一次）",
+            "zh_tw": "紅塵客可靠近屍體讀取額外的兇手資訊（會受到禿鷲與縱火犯的影響），此時可選擇發動技能（右鍵屍體），啟動假刀變為一次性刀，獲得該屍體的鑰匙與信件（僅觸發一次）"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Wayfarer",
+        "zh_cn": "红尘客",
+        "zh_tw": "紅塵客"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "wayfarer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "wayfarer_psycho",
+            "outline": -51607
+          }
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "Phase 1 — Chase the Killer: find the corpse's murderer and kill them with the one-use knife (a shield-blocked hit still counts as a kill) (killing the wrong person kills you; if you have a shield, you return to the initial phase)",
+                "zh_cn": "阶段一——追凶：找到尸体的凶手，使用一次性刀完成击杀(被护盾挡掉伤害也算击杀)(误杀他人则自己死亡，如果自身有护盾则回到初始阶段)",
+                "zh_tw": "階段一——追凶：找到屍體的兇手，使用一次性刀完成擊殺(被護盾擋掉傷害也算擊殺)(誤殺他人則自己死亡，如果自身有護盾則回到初始階段)"
+              },
+              {
+                "en_us": "Phase 2 — Re-enact: after the kill, re-enact the same death as the corpse",
+                "zh_cn": "阶段二——退戏：完成击杀后演绎与尸体一样的死法",
+                "zh_tw": "階段二——退戲：完成擊殺後演繹與屍體一樣的死法"
+              },
+              {
+                "en_us": "Phase 3 — Mortal Dream: fall asleep in a bed to win independently",
+                "zh_cn": "阶段三——红尘梦：在床上入睡，获得独立胜利",
+                "zh_tw": "階段三——紅塵夢：在床上入睡，獲得獨立勝利"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Phase 1 — Chase the Killer: find the corpse's murderer and kill them with the one-use knife (a shield-blocked hit still counts as a kill) (killing the wrong person kills you; if you have a shield, you return to the initial phase)",
+            "zh_cn": "阶段一——追凶：找到尸体的凶手，使用一次性刀完成击杀(被护盾挡掉伤害也算击杀)(误杀他人则自己死亡，如果自身有护盾则回到初始阶段)",
+            "zh_tw": "階段一——追凶：找到屍體的兇手，使用一次性刀完成擊殺(被護盾擋掉傷害也算擊殺)(誤殺他人則自己死亡，如果自身有護盾則回到初始階段)"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 171,
+          "text": {
+            "en_us": "Phase 2 — Re-enact: after the kill, re-enact the same death as the corpse",
+            "zh_cn": "阶段二——退戏：完成击杀后演绎与尸体一样的死法",
+            "zh_tw": "階段二——退戲：完成擊殺後演繹與屍體一樣的死法"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 181
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 157,
+          "text": {
+            "en_us": "Phase 3 — Mortal Dream: fall asleep in a bed to win independently",
+            "zh_cn": "阶段三——红尘梦：在床上入睡，获得独立胜利",
+            "zh_tw": "階段三——紅塵夢：在床上入睡，獲得獨立勝利"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 167
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,455 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.koakuma",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Koakuma",
+    "zh_cn": "小恶魔",
+    "zh_tw": "小惡魔"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Koakuma",
+        "zh_cn": "小恶魔",
+        "zh_tw": "小惡魔"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "koakuma_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 99,
+          "text": {
+            "en_us": "Victory alongside the Killer team",
+            "zh_cn": "与杀手一同获胜",
+            "zh_tw": "與殺手一同獲勝"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 109
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 166,
+          "text": {
+            "en_us": "Self-willed and fond of pranks, acting without thinking things through",
+            "zh_cn": "任性且喜欢恶作剧，不经过深思熟虑就展开行动",
+            "zh_tw": "任性且喜歡惡作劇，不經過深思熟慮就展開行動"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 176
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Koakuma",
+        "zh_cn": "小恶魔",
+        "zh_tw": "小惡魔"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "koakuma_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "The skill only works while you are alive.",
+                "zh_cn": "技能仅在你存活期间有效。",
+                "zh_tw": "技能僅在你存活期間有效。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "koakuma_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "The skill only works while you are alive.",
+            "zh_cn": "技能仅在你存活期间有效。",
+            "zh_tw": "技能僅在你存活期間有效。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 123
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Koakuma",
+        "zh_cn": "小恶魔",
+        "zh_tw": "小惡魔"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "koakuma_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "koakuma",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "You share the same shop as the Prankster.",
+            "zh_cn": "你拥有与捣蛋鬼相同的商店。",
+            "zh_tw": "你擁有與搗蛋鬼相同的商店。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 123
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Koakuma",
+        "zh_cn": "小恶魔",
+        "zh_tw": "小惡魔"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "koakuma_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "koakuma_target",
+            "outline": -5284269
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Skill · Prank: you can mark one player. The next time Pachuri divines, the result will be fixed to that player.",
+                "zh_cn": "技能 · 恶作剧：你可以标记一个玩家。该玩家被你标记后下一次帕秋莉预言时将固定为该玩家。",
+                "zh_tw": "技能 · 惡作劇：你可以標記一個玩家。該玩家被你標記後下一次帕秋莉預言時將固定為該玩家。"
+              },
+              {
+                "en_us": "You may mark exactly one player; marking another replaces the target.",
+                "zh_cn": "你可以且仅可以标记一个玩家。标记一个玩家后再次标记另一个玩家将更换标记目标。",
+                "zh_tw": "你可以且僅可以標記一個玩家。標記一個玩家後再次標記另一個玩家將更換標記目標。"
+              },
+              {
+                "en_us": "If your marked player dies, Pachuri will divine you instead.",
+                "zh_cn": "若你标记的玩家死亡，帕秋莉将会预言到你。",
+                "zh_tw": "若你標記的玩家死亡，帕秋莉將會預言到你。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skill · Prank: you can mark one player. The next time Pachuri divines, the result will be fixed to that player.",
+            "zh_cn": "技能 · 恶作剧：你可以标记一个玩家。该玩家被你标记后下一次帕秋莉预言时将固定为该玩家。",
+            "zh_tw": "技能 · 惡作劇：你可以標記一個玩家。該玩家被你標記後下一次帕秋莉預言時將固定為該玩家。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 164,
+          "text": {
+            "en_us": "You may mark exactly one player; marking another replaces the target.",
+            "zh_cn": "你可以且仅可以标记一个玩家。标记一个玩家后再次标记另一个玩家将更换标记目标。",
+            "zh_tw": "你可以且僅可以標記一個玩家。標記一個玩家後再次標記另一個玩家將更換標記目標。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 174
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 148,
+          "text": {
+            "en_us": "If your marked player dies, Pachuri will divine you instead.",
+            "zh_cn": "若你标记的玩家死亡，帕秋莉将会预言到你。",
+            "zh_tw": "若你標記的玩家死亡，帕秋莉將會預言到你。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 158
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

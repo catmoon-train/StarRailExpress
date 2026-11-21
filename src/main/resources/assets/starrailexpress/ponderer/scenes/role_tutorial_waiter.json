@@ -1,0 +1,656 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.waiter",
+  "items": [
+    "noellesroles:tray_purifying_reagent",
+    "trainmurdermystery:weak_defense_vial",
+    "trainmurdermystery:poison_vial"
+  ],
+  "title": {
+    "en_us": "Waiter",
+    "zh_cn": "传菜员",
+    "zh_tw": "傳菜員"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Waiter",
+        "zh_cn": "传菜员",
+        "zh_tw": "傳菜員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "waiter_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 176,
+          "text": {
+            "en_us": "Safely deliver food and drinks, and identify and purify poisons on the tray.",
+            "zh_cn": "安全地传递食物与饮料，识别并净化托盘中的毒药。",
+            "zh_tw": "安全地傳遞食物與飲料，識別並淨化託盤中的毒藥。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 186
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Waiter",
+        "zh_cn": "传菜员",
+        "zh_tw": "傳菜員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "waiter_main"
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "attachKeyFrame": true,
+          "pos": [
+            1.6,
+            1.55,
+            1.6
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:tray_purifying_reagent",
+          "linkId": "waiter_item"
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "waiter_skill_target_0",
+            "outline": -1524082
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:tray_purifying_reagent",
+          "linkId": "waiter_skill_item_0"
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:tray_purifying_reagent",
+          "duration": 70,
+          "point": [
+            3.0,
+            2.9,
+            3.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "waiter_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 35
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 176,
+          "text": {
+            "en_us": "Hold food/drink/drinkable potion and right-click a player to force-feed them",
+            "zh_cn": "手持食物/饮料/饮用类药水右键玩家，会强制让目标玩家进食手中的物品",
+            "zh_tw": "手持食物/飲料/飲用類藥水右鍵玩家，會強制讓目標玩家進食手中的物品"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 186
+        },
+        {
+          "type": "text",
+          "duration": 133,
+          "text": {
+            "en_us": "If the target has an eat/drink task, it's completed.",
+            "zh_cn": "若目标拥有吃食物或喝饮料任务时也会完成对应任务。",
+            "zh_tw": "若目標擁有吃食物或喝飲料任務時也會完成對應任務。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 143
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Waiter",
+        "zh_cn": "传菜员",
+        "zh_tw": "傳菜員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "waiter_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "waiter",
+            "columns": 4
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:tray_purifying_reagent",
+          "linkId": "waiter_shop_line_0",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 148,
+          "text": {
+            "en_us": "Shop: antidote reagent, weak shield reagent, poison reagent.",
+            "zh_cn": "商店可购买祛毒试剂、弱效护盾试剂、毒药试剂。",
+            "zh_tw": "商店可購買祛毒試劑、弱效護盾試劑、毒藥試劑。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 158
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Waiter",
+        "zh_cn": "传菜员",
+        "zh_tw": "傳菜員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "waiter_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "waiter_target",
+            "outline": -1524082
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Can see whether food/drink trays contain poison.",
+                "zh_cn": "可以看到食物盘和饮料盘中是否含毒。",
+                "zh_tw": "可以看到食物盤和飲料盤中是否含毒。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 126,
+          "text": {
+            "en_us": "Can see whether food/drink trays contain poison.",
+            "zh_cn": "可以看到食物盘和饮料盘中是否含毒。",
+            "zh_tw": "可以看到食物盤和飲料盤中是否含毒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 136
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vitals",
+      "title": {
+        "en_us": "Waiter",
+        "zh_cn": "传菜员",
+        "zh_tw": "傳菜員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "waiter_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "attachKeyFrame": true,
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.4,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
+              }
+            ],
+            "lines": [
+              {
+                "en_us": "Antidote reagent: right-click a poisoned tray to clear real and fake poison, without affecting shields.",
+                "zh_cn": "祛毒试剂右键放入有毒托盘后会清除托盘中的真毒与假毒，不会影响护盾或弱效护盾。",
+                "zh_tw": "祛毒試劑右鍵放入有毒託盤後會清除託盤中的真毒與假毒，不會影響護盾或弱效護盾。"
+              },
+              {
+                "en_us": "Weak shield reagent: put on a tray to give the eater a 20s weak shield that only blocks a \"knock\".",
+                "zh_cn": "弱效护盾试剂：可放入托盘，给予食用玩家一层持续20秒且仅能抵挡“刀”的弱效护盾",
+                "zh_tw": "弱效護盾試劑：可放入託盤，給予食用玩家一層持續20秒且僅能抵擋“刀”的弱效護盾"
+              }
+            ]
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "waiter_skill_target_0",
+            "outline": -1524082
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 35
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Antidote reagent: right-click a poisoned tray to clear real and fake poison, without affecting shields.",
+            "zh_cn": "祛毒试剂右键放入有毒托盘后会清除托盘中的真毒与假毒，不会影响护盾或弱效护盾。",
+            "zh_tw": "祛毒試劑右鍵放入有毒託盤後會清除託盤中的真毒與假毒，不會影響護盾或弱效護盾。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "waiter_skill_target_1",
+            "outline": -1524082
+          }
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 35
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Weak shield reagent: put on a tray to give the eater a 20s weak shield that only blocks a \"knock\".",
+            "zh_cn": "弱效护盾试剂：可放入托盘，给予食用玩家一层持续20秒且仅能抵挡“刀”的弱效护盾",
+            "zh_tw": "弱效護盾試劑：可放入託盤，給予食用玩家一層持續20秒且僅能抵擋“刀”的弱效護盾"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Waiter",
+        "zh_cn": "传菜员",
+        "zh_tw": "傳菜員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "waiter_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 115,
+          "text": {
+            "en_us": "Can hold up to 3 food or 3 drinks at once.",
+            "zh_cn": "可同时至多拿取 3 份食物或 3 份饮料。",
+            "zh_tw": "可同時至多拿取 3 份食物或 3 份飲料。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 125
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

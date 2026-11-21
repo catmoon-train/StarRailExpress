@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.client.ponder;
 
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
@@ -51,5 +52,40 @@ public final class PonderRoles {
             return null;
         }
         return byId(ResourceLocation.tryParse(raw.trim()));
+    }
+
+    /**
+     * 按职业路径（{@code identifier} 的 path 部分）查询职业。
+     *
+     * <p>场景 JSON 里通常只写路径（例如 {@code jester}），因为不同来源注册的
+     * 职业命名空间并不统一（{@code noellesroles} / {@code starrailexpress} / {@code wifi}），
+     * 写完整 id 容易写错。
+     */
+    @Nullable
+    public static SRERole byPath(@Nullable String path) {
+        if (path == null || path.isBlank()) {
+            return null;
+        }
+        try {
+            return TMMRoles.getRoleByPath(path.trim());
+        } catch (Throwable error) {
+            return null;
+        }
+    }
+
+    /** 先按完整 id 查，查不到再按路径查。 */
+    @Nullable
+    public static SRERole byIdOrPath(@Nullable String raw) {
+        if (raw == null || raw.isBlank()) {
+            return null;
+        }
+        String value = raw.trim();
+        if (value.indexOf(':') >= 0) {
+            SRERole role = byId(value);
+            if (role != null) {
+                return role;
+            }
+        }
+        return byPath(value);
     }
 }

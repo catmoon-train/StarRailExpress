@@ -1,0 +1,606 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.nutritionist",
+  "items": [
+    "trainmurdermystery:poison_vial"
+  ],
+  "title": {
+    "en_us": "Family Nanny",
+    "zh_cn": "家族保姆",
+    "zh_tw": "家族保姆"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Family Nanny",
+        "zh_cn": "家族保姆",
+        "zh_tw": "家族保姆"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "nutritionist_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 97,
+          "text": {
+            "en_us": "Has an independent win condition",
+            "zh_cn": "拥有独立胜利条件",
+            "zh_tw": "擁有獨立勝利條件"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 107
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 97,
+          "text": {
+            "en_us": "Help the Godfather take control!",
+            "zh_cn": "协助教父掌控全局！",
+            "zh_tw": "協助教父掌控全局！"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 107
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Family Nanny",
+        "zh_cn": "家族保姆",
+        "zh_tw": "家族保姆"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "nutritionist_main"
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "attachKeyFrame": true,
+          "pos": [
+            1.6,
+            1.55,
+            1.6
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:poison_vial",
+          "linkId": "nutritionist_item"
+        },
+        {
+          "type": "text",
+          "duration": 74,
+          "text": {
+            "en_us": "Has double stamina.",
+            "zh_cn": "拥有双倍体力。",
+            "zh_tw": "擁有雙倍體力。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 84
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Family Nanny",
+        "zh_cn": "家族保姆",
+        "zh_tw": "家族保姆"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "nutritionist_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "nutritionist",
+            "columns": 4
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:poison_vial",
+          "linkId": "nutritionist_shop_line_0",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 83,
+          "text": {
+            "en_us": "Killing grants 75 coins.",
+            "zh_cn": "你击杀玩家会获得75金币。",
+            "zh_tw": "你擊殺玩家會獲得75金幣。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 93
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Family Nanny",
+        "zh_cn": "家族保姆",
+        "zh_tw": "家族保姆"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "nutritionist_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "nutritionist_target_0",
+            "outline": 4287317267
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              3.2
+            ],
+            "yaw": 180.0,
+            "linkId": "nutritionist_target_1",
+            "outline": 4287090411
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Has Family see-through: family brown, Godfather blue.",
+                "zh_cn": "拥有家族透视，透视家族成员为棕色，透视教父为蓝色。",
+                "zh_tw": "擁有家族透視，透視家族成員為棕色，透視教父為藍色。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 135,
+          "text": {
+            "en_us": "Has Family see-through: family brown, Godfather blue.",
+            "zh_cn": "拥有家族透视，透视家族成员为棕色，透视教父为蓝色。",
+            "zh_tw": "擁有家族透視，透視家族成員為棕色，透視教父為藍色。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 145
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vitals",
+      "title": {
+        "en_us": "Family Nanny",
+        "zh_cn": "家族保姆",
+        "zh_tw": "家族保姆"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "nutritionist_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "attachKeyFrame": true,
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.4,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
+              }
+            ],
+            "lines": [
+              {
+                "en_us": "Shop: shield potion, poison potion, Splash Speed 3, Splash Immobile, Splash No-Collision, Splash Infinite Stamina.",
+                "zh_cn": "商店：护盾试剂、毒药试剂、喷溅型速度3、喷溅型禁止移动药水、喷溅型无碰撞药水、喷溅型无限体力药水。",
+                "zh_tw": "商店：護盾試劑、毒藥試劑、噴濺型速度3、噴濺型禁止移動藥水、噴濺型無碰撞藥水、噴濺型無限體力藥水。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "nutritionist_skill_target_0",
+            "outline": 4287317267
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:poison_vial",
+          "linkId": "nutritionist_skill_item_0"
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:poison_vial",
+          "duration": 70,
+          "point": [
+            3.0,
+            3.0,
+            3.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "idle",
+          "duration": 35
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Shop: shield potion, poison potion, Splash Speed 3, Splash Immobile, Splash No-Collision, Splash Infinite Stamina.",
+            "zh_cn": "商店：护盾试剂、毒药试剂、喷溅型速度3、喷溅型禁止移动药水、喷溅型无碰撞药水、喷溅型无限体力药水。",
+            "zh_tw": "商店：護盾試劑、毒藥試劑、噴濺型速度3、噴濺型禁止移動藥水、噴濺型無碰撞藥水、噴濺型無限體力藥水。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Family Nanny",
+        "zh_cn": "家族保姆",
+        "zh_tw": "家族保姆"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "nutritionist_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 124,
+          "text": {
+            "en_us": "Recruited by the Godfather, part of the family.",
+            "zh_cn": "由教父招募而来，属于家族阵营。",
+            "zh_tw": "由教父招募而來，屬於家族陣營。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 134
+        },
+        {
+          "type": "text",
+          "duration": 99,
+          "text": {
+            "en_us": "Cannot harm other family members.",
+            "zh_cn": "你无法伤害其它家族成员。",
+            "zh_tw": "你無法傷害其他家族成員。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 109
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 148,
+          "text": {
+            "en_us": "Protect the Godfather and help the family win independently.",
+            "zh_cn": "保护教父并帮助家族取得独立胜利。",
+            "zh_tw": "保護教父並幫助家族取得獨立勝利。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 158
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

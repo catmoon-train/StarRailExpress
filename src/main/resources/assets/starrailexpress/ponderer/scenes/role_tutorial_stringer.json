@@ -1,0 +1,516 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.stringer",
+  "items": [
+    "trainmurdermystery:lockpick",
+    "noellesroles:thread_ball"
+  ],
+  "title": {
+    "en_us": "丝线人",
+    "zh_cn": "丝线人",
+    "zh_tw": "絲線人"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "丝线人",
+        "zh_cn": "丝线人",
+        "zh_tw": "絲線人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "stringer_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 68,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營，僅由命令方塊事件產生。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 78
+        },
+        {
+          "type": "text",
+          "duration": 112,
+          "text": {
+            "en_us": "Only created by the Command Block event.",
+            "zh_cn": "仅由命令方块事件产生。",
+            "zh_tw": "纏絲：使視線內15格內的玩家發光並緩慢II，持續10秒，冷卻35秒。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 122
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "割开他们的喉咙。",
+            "zh_cn": "割开他们的喉咙。",
+            "zh_tw": "割開他們的喉嚨。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 65
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "丝线人",
+        "zh_cn": "丝线人",
+        "zh_tw": "絲線人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "stringer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Tether: Select two players in your inventory. They cannot be more than 10 blocks apart for 60 seconds. 90-second cooldown.",
+                "zh_cn": "牵线：打开背包选择两名玩家，使他们在60秒内不能相距超过10格，冷却90秒。",
+                "zh_tw": "初始攜帶線軸和絲刃。線軸將最近被纏絲的玩家拽到身前，自身禁錮0.3秒，冷卻5秒。絲刃只能擊殺3.5格內視線中的被纏絲或被牽線玩家，冷卻10秒。"
+              },
+              {
+                "en_us": "Starts with a Thread Spool and Thread Blade. The spool pulls the nearest entangled player in front of you and roots you for 0.3 seconds; 5-second cooldown. The blade only kills a visible entangled or tethered player within 3.5 blocks; 10-second cooldown.",
+                "zh_cn": "初始携带线轴和丝刃。线轴将最近被缠丝的玩家拽到身前，自身禁锢0.3秒，冷却5秒。丝刃只能击杀3.5格内视线中的被缠丝或被牵线玩家，冷却10秒。",
+                "zh_tw": "商店：開鎖器80金幣；絲線團250金幣，像手榴彈一樣投擲，禁錮範圍內玩家2秒並纏絲15秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "stringer_skill_target_0",
+            "outline": -2707392
+          }
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Tether: Select two players in your inventory. They cannot be more than 10 blocks apart for 60 seconds. 90-second cooldown.",
+                "zh_cn": "牵线：打开背包选择两名玩家，使他们在60秒内不能相距超过10格，冷却90秒。",
+                "zh_tw": "初始攜帶線軸和絲刃。線軸將最近被纏絲的玩家拽到身前，自身禁錮0.3秒，冷卻5秒。絲刃只能擊殺3.5格內視線中的被纏絲或被牽線玩家，冷卻10秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Tether: Select two players in your inventory. They cannot be more than 10 blocks apart for 60 seconds. 90-second cooldown.",
+            "zh_cn": "牵线：打开背包选择两名玩家，使他们在60秒内不能相距超过10格，冷却90秒。",
+            "zh_tw": "初始攜帶線軸和絲刃。線軸將最近被纏絲的玩家拽到身前，自身禁錮0.3秒，冷卻5秒。絲刃只能擊殺3.5格內視線中的被纏絲或被牽線玩家，冷卻10秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "stringer_skill_target_1",
+            "outline": -2707392
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 15
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "stringer_skill_target_1",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Starts with a Thread Spool and Thread Blade. The spool pulls the nearest entangled player in front of you and roots you for 0.3 seconds; 5-second cooldown. The blade only kills a visible entangled or tethered player within 3.5 blocks; 10-second cooldown.",
+            "zh_cn": "初始携带线轴和丝刃。线轴将最近被缠丝的玩家拽到身前，自身禁锢0.3秒，冷却5秒。丝刃只能击杀3.5格内视线中的被缠丝或被牵线玩家，冷却10秒。",
+            "zh_tw": "商店：開鎖器80金幣；絲線團250金幣，像手榴彈一樣投擲，禁錮範圍內玩家2秒並纏絲15秒。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "screen",
+      "title": {
+        "en_us": "丝线人",
+        "zh_cn": "丝线人",
+        "zh_tw": "絲線人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "stringer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_screen",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.screen.select_player",
+            "hint": "ponder.starrailexpress.screen.pick_hint",
+            "columns": 6
+          }
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "丝线人",
+        "zh_cn": "丝线人",
+        "zh_tw": "絲線人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "stringer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "stringer",
+            "columns": 4
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:lockpick",
+          "linkId": "stringer_shop_line_0",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Shop: Lockpick 80 coins; Thread Ball 250 coins. Throw it like a grenade to root nearby players for 2 seconds and entangle them for 15 seconds.",
+            "zh_cn": "商店：开锁器80金币；丝线团250金币，像手榴弹一样投掷，禁锢范围内玩家2秒并缠丝15秒。",
+            "zh_tw": "商店：开锁器80金币；丝线团250金币，像手榴弹一样投掷，禁锢范围内玩家2秒并缠丝15秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "丝线人",
+        "zh_cn": "丝线人",
+        "zh_tw": "絲線人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "stringer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "stringer_target",
+            "outline": -2707392
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Entangle: A visible player within 15 blocks receives Glowing and Slowness II for 10 seconds. 35-second cooldown.",
+                "zh_cn": "缠丝：使视线内15格内的玩家发光并缓慢II，持续10秒，冷却35秒。",
+                "zh_tw": "牽線：打開背包選擇兩名玩家，使他們在60秒內不能相距超過10格，冷卻90秒。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Entangle: A visible player within 15 blocks receives Glowing and Slowness II for 10 seconds. 35-second cooldown.",
+            "zh_cn": "缠丝：使视线内15格内的玩家发光并缓慢II，持续10秒，冷却35秒。",
+            "zh_tw": "牽線：打開背包選擇兩名玩家，使他們在60秒內不能相距超過10格，冷卻90秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

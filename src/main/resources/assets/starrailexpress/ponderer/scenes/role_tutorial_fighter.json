@@ -1,0 +1,307 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.fighter",
+  "items": [
+    "noellesroles:boxing_glove"
+  ],
+  "title": {
+    "en_us": "Fighter",
+    "zh_cn": "斗士",
+    "zh_tw": "鬥士"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Fighter",
+        "zh_cn": "斗士",
+        "zh_tw": "鬥士"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "fighter_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Use your iron body and boxing gloves to counter attackers and protect yourself and the passengers!",
+            "zh_cn": "一套防身术或许能救你的命！",
+            "zh_tw": "一套防身術或許能救你的命！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Fighter",
+        "zh_cn": "斗士",
+        "zh_tw": "鬥士"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "fighter_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Skill: Iron Body — press it to gain 2.5 seconds of invincibility. 2-minute cooldown.",
+                "zh_cn": "技能:钢筋铁骨，按下后获得2.5秒无敌时间。CD为2分钟。",
+                "zh_tw": "技能:鋼筋鐵骨，按下後獲得2.5秒無敵時間。CD為2分鐘。"
+              },
+              {
+                "en_us": "Can buy Knuckles: enemies hit by knuckles are knocked back and stunned, and the items on them enter cooldown.",
+                "zh_cn": "可购买拳套，被拳套命中的敌人会被击退并眩晕，并使身上的物品陷入冷却。",
+                "zh_tw": "可購買拳套，被拳套命中的敵人會被擊退並眩暈，並使身上的物品陷入冷卻。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Skill: Iron Body — press it to gain 2.5 seconds of invincibility. 2-minute cooldown.",
+                "zh_cn": "技能:钢筋铁骨，按下后获得2.5秒无敌时间。CD为2分钟。",
+                "zh_tw": "技能:鋼筋鐵骨，按下後獲得2.5秒無敵時間。CD為2分鐘。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skill: Iron Body — press it to gain 2.5 seconds of invincibility. 2-minute cooldown.",
+            "zh_cn": "技能:钢筋铁骨，按下后获得2.5秒无敌时间。CD为2分钟。",
+            "zh_tw": "技能:鋼筋鐵骨，按下後獲得2.5秒無敵時間。CD為2分鐘。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Can buy Knuckles: enemies hit by knuckles are knocked back and stunned, and the items on them enter cooldown.",
+            "zh_cn": "可购买拳套，被拳套命中的敌人会被击退并眩晕，并使身上的物品陷入冷却。",
+            "zh_tw": "可購買拳套，被拳套命中的敵人會被擊退並眩暈，並使身上的物品陷入冷卻。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Fighter",
+        "zh_cn": "斗士",
+        "zh_tw": "鬥士"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "fighter_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "fighter",
+            "columns": 4
+          }
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

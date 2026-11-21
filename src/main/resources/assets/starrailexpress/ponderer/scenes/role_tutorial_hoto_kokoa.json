@@ -1,0 +1,251 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.hoto_kokoa",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Hot Cocoa Baker",
+    "zh_cn": "热可可面包师",
+    "zh_tw": "熱可哥麵包師"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Hot Cocoa Baker",
+        "zh_cn": "热可可面包师",
+        "zh_tw": "熱可哥麵包師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "hoto_kokoa_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Fluffy~",
+            "zh_cn": "毛茸茸~",
+            "zh_tw": "毛茸茸~"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 65
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "mood",
+      "title": {
+        "en_us": "Hot Cocoa Baker",
+        "zh_cn": "热可可面包师",
+        "zh_tw": "熱可哥麵包師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "hoto_kokoa_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_mood",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.sanity",
+            "before": 0.35,
+            "after": 0.85,
+            "lines": [
+              {
+                "en_us": "Possible buffs: 10s Slowness II, 10s Player Isolation, 10s Expanded Voice, 10s Night Vision, 10s Sanity regen, 10s Speed I, 10s Speed II, 3s invincibility, 10s infinite stamina, 10s stamina-regen-efficiency-up II. Bread can be thrown.",
+                "zh_cn": "buff可能为：10s 缓慢II、10s 玩家隔离、10s 扩大语音、10s 夜视、10s san值恢复、10s速度I、10s速度II、3s无敌、10s无限体力、10s体力回复效率提升II。面包可丢出。",
+                "zh_tw": "buff可能為：10s 緩慢II、10s 玩家隔離、10s 擴大語音、10s 夜視、10s san值恢復、10s速度I、10s速度II、3s無敵、10s無限體力、10s體力回復效率提升II。麵包可丟出。"
+              },
+              {
+                "en_us": "Within 3 blocks of the Cappuccino Barista, gain a speed buff and slower Sanity drain.",
+                "zh_cn": "在卡布奇诺咖啡师身边3格时获得速度增益，san值降低速度变慢。",
+                "zh_tw": "在卡布奇諾咖啡師身邊3格時獲得速度增益，san值降低速度變慢。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Possible buffs: 10s Slowness II, 10s Player Isolation, 10s Expanded Voice, 10s Night Vision, 10s Sanity regen, 10s Speed I, 10s Speed II, 3s invincibility, 10s infinite stamina, 10s stamina-regen-efficiency-up II. Bread can be thrown.",
+            "zh_cn": "buff可能为：10s 缓慢II、10s 玩家隔离、10s 扩大语音、10s 夜视、10s san值恢复、10s速度I、10s速度II、3s无敌、10s无限体力、10s体力回复效率提升II。面包可丢出。",
+            "zh_tw": "buff可能為：10s 緩慢II、10s 玩家隔離、10s 擴大語音、10s 夜視、10s san值恢復、10s速度I、10s速度II、3s無敵、10s無限體力、10s體力回復效率提升II。麵包可丟出。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Within 3 blocks of the Cappuccino Barista, gain a speed buff and slower Sanity drain.",
+            "zh_cn": "在卡布奇诺咖啡师身边3格时获得速度增益，san值降低速度变慢。",
+            "zh_tw": "在卡布奇諾咖啡師身邊3格時獲得速度增益，san值降低速度變慢。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Hot Cocoa Baker",
+        "zh_cn": "热可可面包师",
+        "zh_tw": "熱可哥麵包師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "hoto_kokoa_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 130,
+          "text": {
+            "en_us": "Can make bread. Eating bread grants a random buff.",
+            "zh_cn": "可以制作面包。面包吃下后获得随机buff。",
+            "zh_tw": "可以製作麵包。麵包吃下後獲得隨機buff。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 140
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

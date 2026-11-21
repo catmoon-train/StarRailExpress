@@ -1,0 +1,183 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.reiuji_utsuho",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Reiuji utsuho",
+    "zh_cn": "核能地狱鸦",
+    "zh_tw": "核能地獄鴉"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Reiuji utsuho",
+        "zh_cn": "核能地狱鸦",
+        "zh_tw": "核能地獄鴉"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "reiuji_utsuho_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 119,
+          "text": {
+            "en_us": "Has the ability to manipulate nuclear fusion",
+            "zh_cn": "核能告警！",
+            "zh_tw": "核能告警！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 129
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Reiuji utsuho",
+        "zh_cn": "核能地狱鸦",
+        "zh_tw": "核能地獄鴉"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "reiuji_utsuho_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "reiuji_utsuho_target",
+            "outline": -11053497
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "- Nuclear Heat \"Nuclear Fusion\": release a 4-block-radius radiation attack (up to 6 people, including Killers); you also glow; players hit by radiation are highlighted for 15s and die if they don't drink water or stand under a shower head within 15s. 120s cooldown.",
+                "zh_cn": "- 核热「Nuclear Fusion」: 释放半径4格的辐射攻击（最多6人，包括杀手），自己也会发光，被辐射攻击到的玩家会被高亮15s，若15s内未能喝水或在淋浴头下方则死亡。冷却120s。",
+                "zh_tw": "- 核熱「Nuclear Fusion」: 釋放半徑4格的輻射攻擊（最多6人，包括殺手），自己也會發光，被輻射攻擊到的玩家會被高亮15s，若15s內未能喝水或在淋浴頭下方則死亡。冷卻120s。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "- Nuclear Heat \"Nuclear Fusion\": release a 4-block-radius radiation attack (up to 6 people, including Killers); you also glow; players hit by radiation are highlighted for 15s and die if they don't drink water or stand under a shower head within 15s. 120s cooldown.",
+            "zh_cn": "- 核热「Nuclear Fusion」: 释放半径4格的辐射攻击（最多6人，包括杀手），自己也会发光，被辐射攻击到的玩家会被高亮15s，若15s内未能喝水或在淋浴头下方则死亡。冷却120s。",
+            "zh_tw": "- 核熱「Nuclear Fusion」: 釋放半徑4格的輻射攻擊（最多6人，包括殺手），自己也會發光，被輻射攻擊到的玩家會被高亮15s，若15s內未能喝水或在淋浴頭下方則死亡。冷卻120s。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,997 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.roulette_devil",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Roulette Devil",
+    "zh_cn": "轮盘恶魔",
+    "zh_tw": "輪盤惡魔"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_carriage"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Roulette Devil",
+        "zh_cn": "轮盘恶魔",
+        "zh_tw": "輪盤惡魔"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "roulette_devil_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "獨立勝利中立。無論在列車還是賭局中，只有輪盤最終敗局結算能令你死亡，外界即使強制致死也無效。你擁有殺手直覺，所有玩家在你眼中都是同一種藍色輪廓，被你的成熟種子標記、或理智低於30%的玩家才可挑戰。你是一團黑色煙霧，平時只有低理智玩家能看見你；賭局中的對手始終能看見你。你無法拾取地上的物品，不會與其他玩家相互擠撞。子彈會穿過你，技能無法選你為目標。"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 131,
+          "text": {
+            "en_us": "Has an independent victory condition",
+            "zh_cn": "拥有独立胜利条件",
+            "zh_tw": "除輪盤賭局期間外，你持續帶有水下、重金屬、頭盔和機器人變聲效果，傳送的聊天會變成亂碼，賭局內恢復正常。"
+          },
+          "point": [
+            4.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 141
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            4,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Challenge low-sanity or mature-seed players and win enough roulette duels to claim an independent victory.",
+            "zh_cn": "一个疯的彻头彻尾的赌怪。",
+            "zh_tw": "一個瘋的徹頭徹尾的賭怪。"
+          },
+          "point": [
+            4.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Roulette Devil",
+        "zh_cn": "轮盘恶魔",
+        "zh_tw": "輪盤惡魔"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "roulette_devil_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When a Refugee Desperado appears, any ongoing duel ends immediately. Both participants return to the train with their original inventories; no win, loss, or defeat allowance is counted. Living Roulette Devils must spectate until the Desperado dies and the phase ends, then revive; no new duels can start during this phase. Devils already dead before the phase do not revive because of it.",
+            "zh_cn": "对手初始生命为3，你为4；每次操作限时固定17秒，超时将自动向自己开枪。每次补给先从2–5件中抽取，再乘70%得到1–4件；仅初始补给在缩减后每人再减1件（最低为0），因此对手初始0–3件，你保留额外1件的初始奖励、初始为1–4件。",
+            "zh_tw": "对手初始生命为3，你为4；每次操作限时固定17秒，超时将自动向自己开枪。每次补给先从2–5件中抽取，再乘70%得到1–4件；仅初始补给在缩减后每人再减1件（最低为0），因此对手初始0–3件，你保留额外1件的初始奖励、初始为1–4件。"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 151,
+          "text": {
+            "en_us": "你拥有“开局实际参赛人数/8”（向下取整，至少1次）的免死机会；每次败局消耗1次免死机会并返回列车，耗尽后再输才会真正死亡。",
+            "zh_cn": "你拥有“开局实际参赛人数/8”（向下取整，至少1次）的免死机会；每次败局消耗1次免死机会并返回列车，耗尽后再输才会真正死亡。",
+            "zh_tw": "你拥有“开局实际参赛人数/8”（向下取整，至少1次）的免死机会；每次败局消耗1次免死机会并返回列车，耗尽后再输才会真正死亡。"
+          },
+          "point": [
+            4.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 161
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Roulette Devil",
+        "zh_cn": "轮盘恶魔",
+        "zh_tw": "輪盤惡魔"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "roulette_devil_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Roulette Duel (skill 3)",
+                "zh_cn": "对准8格内可见的玩家种下种子，不限阵营，30秒后成熟。成熟时你会收到提示，目标也会收到醒目的提醒。冷却90秒。",
+                "zh_tw": "对准8格内可见的玩家种下种子，不限阵营，30秒后成熟。成熟时你会收到提示，目标也会收到醒目的提醒。冷却90秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "roulette_devil_skill_target_0",
+            "outline": 4281567487
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              4.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "roulette_devil_main",
+            "to": [
+              5.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            6,
+            0,
+            2
+          ],
+          "blockPos2": [
+            6,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "wathe:black_smoke",
+          "pos": [
+            6.0,
+            1.9,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 6,
+          "duration": 50,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            6,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Devil Seed (skill 1)",
+            "zh_cn": "你无法拾取地上的物品，也不会与其他玩家相互挤撞；子弹会穿过你的身体，技能也无法将你选为目标。",
+            "zh_tw": "對手初始生命為3，你為4；每次操作限時固定17秒，逾時自動向自己開槍。每次補給先從2–5件中抽取，再乘70%四捨五入，得到1–4件；僅初始補給在縮減後每人再減1件，最低為0，因此對手初始0–3件，你保留額外1件的初始獎勵，初始為1–4件。後續補給仍為1–4件，不再減1，也不再給予額外獎勵；各自持有與待領合計最多8件，滿包補給暫存，已有道具保留。賭局使用獨立背包，結束後恢復原背包。對手輸掉賭局不會被處死；你自己輸掉賭局會消耗1次免死機會並返回列車。你擁有「開局實際參賽人數/8」次免死機會，向下取整且至少1次，耗盡後再輸才會死亡。賭局敗者會隨機獲得一種殘疾患者症狀，持續3分鐘。"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              4.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "roulette_devil_main",
+            "to": [
+              5.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            6,
+            0,
+            2
+          ],
+          "blockPos2": [
+            6,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "wathe:black_smoke",
+          "pos": [
+            6.0,
+            1.9,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 6,
+          "duration": 50,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            6,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Everyone can see you for 20 seconds. During this time, players within 64 blocks who face you with an unobstructed view lose 2.5% of their maximum sanity every second. Cooldown: 90 seconds.",
+            "zh_cn": "恶魔种子（技能一）",
+            "zh_tw": "難民亡命徒登場時，正在進行的輪盤賭局立即中止，雙方恢復原背包並返回列車，本局不計勝負，也不消耗免死次數。存活的輪盤惡魔暫時進入旁觀，直到亡命徒死亡、階段結束後復活；在此之前不能重新發起賭局。階段開始前已死亡的惡魔不會因此復活。"
+          },
+          "point": [
+            4.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "roulette_devil_skill_target_2",
+            "outline": 4281567487
+          }
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            4,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Roulette Duel (skill 3)",
+                "zh_cn": "对准8格内可见的玩家种下种子，不限阵营，30秒后成熟。成熟时你会收到提示，目标也会收到醒目的提醒。冷却90秒。",
+                "zh_tw": "对准8格内可见的玩家种下种子，不限阵营，30秒后成熟。成熟时你会收到提示，目标也会收到醒目的提醒。冷却90秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "wathe:black_smoke",
+          "pos": [
+            4.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 139,
+          "text": {
+            "en_us": "Roulette Duel (skill 3)",
+            "zh_cn": "对准8格内可见的玩家种下种子，不限阵营，30秒后成熟。成熟时你会收到提示，目标也会收到醒目的提醒。冷却90秒。",
+            "zh_tw": "对准8格内可见的玩家种下种子，不限阵营，30秒后成熟。成熟时你会收到提示，目标也会收到醒目的提醒。冷却90秒。"
+          },
+          "point": [
+            4.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 149
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              4.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "roulette_devil_main",
+            "to": [
+              5.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            6,
+            0,
+            2
+          ],
+          "blockPos2": [
+            6,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "wathe:black_smoke",
+          "pos": [
+            6.0,
+            1.9,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 6,
+          "duration": 50,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            6,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "In your inventory, click the portrait of a low-sanity player or a player marked by your mature seed to bring both of you to a secret dark room and sit for a duel. The same target cannot be challenged again until 60 seconds after your previous duel with them ends. Neither participant can leave the seat or be teleported away before it ends; the duel also ends if the game ends or either participant dies from another cause. Targets inside another domain or shielded by domain sanctuary cannot be challenged. If your opponent has a sanity meter, it is temporarily filled to their current mood's maximum and immune to natural sanity drain during the duel; leaving or cancelling restores their original sanity and natural-drain immunity.",
+            "zh_cn": "欲望显现（技能二）",
+            "zh_tw": "欲望显现（技能二）"
+          },
+          "point": [
+            4.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "domain",
+      "title": {
+        "en_us": "Roulette Devil",
+        "zh_cn": "轮盘恶魔",
+        "zh_tw": "輪盤惡魔"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "roulette_devil_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_domain",
+          "attachKeyFrame": true,
+          "parameters": {
+            "domain": "devil_black_room",
+            "pos": [
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "亡命徒时刻开启时，正在进行的轮盘赌局立即中止，双方恢复原背包并返回列车，本局不计胜负，也不消耗免死次数。存活的轮盘恶魔暂时进入旁观，直到亡命徒死亡、阶段结束后才复活；在此之前不能重新发起赌局。",
+            "zh_cn": "亡命徒时刻开启时，正在进行的轮盘赌局立即中止，双方恢复原背包并返回列车，本局不计胜负，也不消耗免死次数。存活的轮盘恶魔暂时进入旁观，直到亡命徒死亡、阶段结束后才复活；在此之前不能重新发起赌局。",
+            "zh_tw": "亡命徒时刻开启时，正在进行的轮盘赌局立即中止，双方恢复原背包并返回列车，本局不计胜负，也不消耗免死次数。存活的轮盘恶魔暂时进入旁观，直到亡命徒死亡、阶段结束后才复活；在此之前不能重新发起赌局。"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Outside roulette duels, your voice is unintelligible to others and your chat becomes gibberish; it returns to normal once you enter a duel.",
+            "zh_cn": "你是一团黑色烟雾，平时只有低理智的玩家能看见你，但赌局中的对手始终看得见你。",
+            "zh_tw": "技能3·輪盤賭局：在背包中點擊低理智或被你的成熟種子標記的玩家頭像，即可將雙方帶入秘密賭室坐下對決，同一目標在你上一場賭局結束後60秒內無法再次挑戰，賭桌旁的兩座台座各有1盞普通燈籠照明。賭局結束前不能離座或被傳送離開；遊戲結束或一方因其他原因死亡也會結束賭局。正在其他領域內或受到領域庇護的目標暫時無法挑戰。對手若有理智值，賭局期間會臨時補滿至其目前心情的上限，並免疫理智自然消耗；退出或中止時恢復原理智及原有的自然消耗免疫狀態，不會永久補充理智。"
+          },
+          "point": [
+            4.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            4,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 124,
+          "text": {
+            "en_us": "Victory",
+            "zh_cn": "在背包中点击低理智或被你的成熟种子标记的玩家头像，即可将双方带入秘密黑室坐下并进行轮盘赌对决。",
+            "zh_tw": "在背包中点击低理智或被你的成熟种子标记的玩家头像，即可将双方带入秘密黑室坐下并进行轮盘赌对决。"
+          },
+          "point": [
+            4.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 134
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Your opponent starts with 3 health and you start with 4. Each action has a fixed 17-second limit; timing out automatically shoots yourself. Each supply rolls 2–5 items, multiplies by 70% and rounds to 1–4. Only the initial supply then subtracts 1 per player, never below 0: your opponent starts with 0–3 items, while your preserved extra initial item gives you 1–4. Later supplies remain 1–4 each, with no further subtraction or Devil bonus. Carried plus pending items are capped at 8 per player; full backpacks queue supplies and existing items stay. Duels use a separate inventory, restored afterward. Your opponent is never executed for losing a duel. When you lose, you consume one defeat allowance and return to the train; you have max(1, floor(actual starting participants / 8)) allowances, and only after they are exhausted does your loss truly kill you. Every duel loser gains a random Disabled Patient symptom for 3 minutes.",
+            "zh_cn": "轮盘赌局（技能三）",
+            "zh_tw": "轮盘赌局（技能三）"
+          },
+          "point": [
+            4.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            4,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 94,
+          "text": {
+            "en_us": "赢得“(开局实际参赛人数/7)+1”场轮盘赌局即可独立获胜。",
+            "zh_cn": "赢得“(开局实际参赛人数/7)+1”场轮盘赌局即可独立获胜。",
+            "zh_tw": "赢得“(开局实际参赛人数/7)+1”场轮盘赌局即可独立获胜。"
+          },
+          "point": [
+            4.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 104
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You are invulnerable at all times; only the final defeat settlement of a roulette duel can truly kill you, and forced deaths from the train or other external causes have no effect. You possess killer instinct: every player appears to you as the same blue outline, and only those whose sanity is strictly below 30%, or who carry your mature seed, can be challenged. You are a cloud of black smoke, normally visible only to low-sanity players, but your duel opponent can always see you. You cannot pick up dropped items or collide with other players; gun rays pass through you, and skills cannot target you.",
+            "zh_cn": "你常态处于无敌状态，只有轮盘赌局最终的败局结算能真正令你死亡。",
+            "zh_tw": "技能1·惡魔種子：瞄準8格內可見的玩家種下種子，不限陣營，30秒後成熟。成熟時你會收到提示，目標也會收到醒目提醒和聲音。冷卻90秒。"
+          },
+          "point": [
+            4.0,
+            3.2,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "screen",
+      "title": {
+        "en_us": "Roulette Devil",
+        "zh_cn": "轮盘恶魔",
+        "zh_tw": "輪盤惡魔"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "roulette_devil_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_screen",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.screen.select_player",
+            "hint": "ponder.starrailexpress.screen.pick_hint",
+            "columns": 6
+          }
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Roulette Devil",
+        "zh_cn": "轮盘恶魔",
+        "zh_tw": "輪盤惡魔"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "roulette_devil_main"
+          }
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "wathe:black_smoke",
+          "pos": [
+            4.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 12,
+          "duration": 80,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "roulette_devil_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "Outside roulette duels, your voice is unintelligible to others and your chat becomes gibberish; it returns to normal once you enter a duel.",
+                "zh_cn": "你是一团黑色烟雾，平时只有低理智的玩家能看见你，但赌局中的对手始终看得见你。",
+                "zh_tw": "技能3·輪盤賭局：在背包中點擊低理智或被你的成熟種子標記的玩家頭像，即可將雙方帶入秘密賭室坐下對決，同一目標在你上一場賭局結束後60秒內無法再次挑戰，賭桌旁的兩座台座各有1盞普通燈籠照明。賭局結束前不能離座或被傳送離開；遊戲結束或一方因其他原因死亡也會結束賭局。正在其他領域內或受到領域庇護的目標暫時無法挑戰。對手若有理智值，賭局期間會臨時補滿至其目前心情的上限，並免疫理智自然消耗；退出或中止時恢復原理智及原有的自然消耗免疫狀態，不會永久補充理智。"
+              },
+              {
+                "en_us": "Aim at a visible player within 8 blocks, regardless of faction. The seed matures after 30 seconds. You receive a notice, and the target receives a prominent alert and sound. Cooldown: 90 seconds.",
+                "zh_cn": "常态伪装",
+                "zh_tw": "贏得「開局實際參賽人數/7，向下取整後加1」場輪盤賭局即可獨立獲勝。所需勝場與免死次數在開局固定，不隨存活人數變化，最終勝利會向全場通報並播放聲音。"
+              }
+            ],
+            "color": 16753920
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Outside roulette duels, your voice is unintelligible to others and your chat becomes gibberish; it returns to normal once you enter a duel.",
+            "zh_cn": "你是一团黑色烟雾，平时只有低理智的玩家能看见你，但赌局中的对手始终看得见你。",
+            "zh_tw": "技能3·輪盤賭局：在背包中點擊低理智或被你的成熟種子標記的玩家頭像，即可將雙方帶入秘密賭室坐下對決，同一目標在你上一場賭局結束後60秒內無法再次挑戰，賭桌旁的兩座台座各有1盞普通燈籠照明。賭局結束前不能離座或被傳送離開；遊戲結束或一方因其他原因死亡也會結束賭局。正在其他領域內或受到領域庇護的目標暫時無法挑戰。對手若有理智值，賭局期間會臨時補滿至其目前心情的上限，並免疫理智自然消耗；退出或中止時恢復原理智及原有的自然消耗免疫狀態，不會永久補充理智。"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Aim at a visible player within 8 blocks, regardless of faction. The seed matures after 30 seconds. You receive a notice, and the target receives a prominent alert and sound. Cooldown: 90 seconds.",
+            "zh_cn": "常态伪装",
+            "zh_tw": "贏得「開局實際參賽人數/7，向下取整後加1」場輪盤賭局即可獨立獲勝。所需勝場與免死次數在開局固定，不隨存活人數變化，最終勝利會向全場通報並播放聲音。"
+          },
+          "point": [
+            4.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

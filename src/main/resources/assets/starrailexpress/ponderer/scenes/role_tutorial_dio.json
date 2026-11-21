@@ -1,0 +1,827 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.dio",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Dio",
+    "zh_cn": "迪奥",
+    "zh_tw": "迪奧"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_graveyard"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Dio",
+        "zh_cn": "迪奥",
+        "zh_tw": "迪奧"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dio_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 178,
+          "text": {
+            "en_us": "The limits of human power are absolute — which is why, I'll stop being human!",
+            "zh_cn": "人类的能力是有极限的，所以，我不做人啦！",
+            "zh_tw": "人類的能力是有極限的，所以，我不做人啦！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 188
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Dio",
+        "zh_cn": "迪奥",
+        "zh_tw": "迪奧"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dio_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "dio_skill_item_0"
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:note",
+          "duration": 70,
+          "point": [
+            3.0,
+            2.9,
+            3.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "dio_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 35
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Active skill - Time Stop: base duration 10 seconds; each successful use adds +0.5 seconds to the next; 15-second cooldown; unlocked by devouring corpses.",
+            "zh_cn": "飞刀：Q键或右键蓄力投掷飞刀，远程武器。",
+            "zh_tw": "飛刀：Q鍵或右鍵蓄力投擲飛刀，遠程武器。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 149,
+          "text": {
+            "en_us": "The Clockmaker, Jotaro, and Sakuya can move during time stop.",
+            "zh_cn": "在时间停止期间，除了你以外的大部分玩家将无法移动、无法使用物品。",
+            "zh_tw": "在時間停止期間，除了你以外的大部分玩家將無法移動、無法使用物品。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 159
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Dio",
+        "zh_cn": "迪奥",
+        "zh_tw": "迪奧"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dio_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "During time stop, most players but you cannot move or use items.",
+                "zh_cn": "主动技能-时间停止：基础持续时间10秒，每成功释放一次下次时长+0.5秒，冷却15秒,吸食尸体解锁。",
+                "zh_tw": "主動技能-時間停止：基礎持續時間10秒，每成功釋放一次下次時長+0.5秒，冷卻15秒,吸食屍體解鎖。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dio_skill_target_0",
+            "outline": -10496
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "dio_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 45
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 15
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "dio_skill_target_0",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "text",
+          "duration": 155,
+          "text": {
+            "en_us": "During time stop, most players but you cannot move or use items.",
+            "zh_cn": "主动技能-时间停止：基础持续时间10秒，每成功释放一次下次时长+0.5秒，冷却15秒,吸食尸体解锁。",
+            "zh_tw": "主動技能-時間停止：基礎持續時間10秒，每成功釋放一次下次時長+0.5秒，冷卻15秒,吸食屍體解鎖。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 165
+        },
+        {
+          "type": "text",
+          "duration": 67,
+          "text": {
+            "en_us": "Special Passive",
+            "zh_cn": "特殊被动",
+            "zh_tw": "特殊被動"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 77
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Dio",
+        "zh_cn": "迪奥",
+        "zh_tw": "迪奧"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dio_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "dio",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 166,
+          "text": {
+            "en_us": "Throwing Knife: Q or right-click to charge and throw; a ranged weapon.",
+            "zh_cn": "商店可购买飞刀、停电、撬锁器。",
+            "zh_tw": "商店可購買飛刀、停電、撬鎖器。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 176
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "title": {
+        "en_us": "Dio",
+        "zh_cn": "迪奥",
+        "zh_tw": "迪奧"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dio_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dio_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "dio_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "delay": 14
+          }
+        },
+        {
+          "type": "text",
+          "duration": 112,
+          "text": {
+            "en_us": "Unlocked after devouring several corpses",
+            "zh_cn": "需要吸食数个尸体后解锁",
+            "zh_tw": "需要吸食數個屍體後解鎖"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 122
+        },
+        {
+          "type": "text",
+          "duration": 135,
+          "text": {
+            "en_us": "Devouring another corpse adds 30s of temporary health",
+            "zh_cn": "下一次吸食尸体增加30s临时生命",
+            "zh_tw": "下一次吸食屍體增加30s臨時生命"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 145
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Dio",
+        "zh_cn": "迪奥",
+        "zh_tw": "迪奧"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dio_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dio_target",
+            "outline": -10496
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "The shop sells Throwing Knives, Power Outage, and Lockpicks.",
+                "zh_cn": "你无法透视承太郎，承太郎也无法透视到你。",
+                "zh_tw": "你無法透視承太郎，承太郎也無法透視到你。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 148,
+          "text": {
+            "en_us": "The shop sells Throwing Knives, Power Outage, and Lockpicks.",
+            "zh_cn": "你无法透视承太郎，承太郎也无法透视到你。",
+            "zh_tw": "你無法透視承太郎，承太郎也無法透視到你。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 158
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "bond",
+      "title": {
+        "en_us": "Dio",
+        "zh_cn": "迪奥",
+        "zh_tw": "迪奧"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dio_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dio_ally",
+            "outline": -10496
+          }
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "attachKeyFrame": true,
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Takes up 2 Killer slots, spawns bound with Jotaro (Sheriff team), and spontaneously ignites in daytime.",
+                "zh_cn": "占用2个杀手位，与承太郎(警长阵营)绑定生成，会在白天自燃。",
+                "zh_tw": "佔用2個殺手位，與承太郎(警長陣營)綁定生成，會在白天自燃。"
+              }
+            ],
+            "color": -10496
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Takes up 2 Killer slots, spawns bound with Jotaro (Sheriff team), and spontaneously ignites in daytime.",
+            "zh_cn": "占用2个杀手位，与承太郎(警长阵营)绑定生成，会在白天自燃。",
+            "zh_tw": "佔用2個殺手位，與承太郎(警長陣營)綁定生成，會在白天自燃。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Dio",
+        "zh_cn": "迪奥",
+        "zh_tw": "迪奧"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dio_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You can see through Jotaro within 7 blocks (highlighted in gold, no need to enable instinct).",
+            "zh_cn": "钟表匠、承太郎、女仆长咲夜在时间停止期间可以移动。",
+            "zh_tw": "鐘錶匠、承太郎、女僕長咲夜在時間停止期間可以移動。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 72,
+          "text": {
+            "en_us": "The Final Carnival",
+            "zh_cn": "最后的狂欢",
+            "zh_tw": "最後的狂歡"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 82
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 151,
+          "text": {
+            "en_us": "On being hit, immune to death and gain 30s of temporary health",
+            "zh_cn": "被击中后，免疫死亡，获得30s的临时生命",
+            "zh_tw": "被擊中後，免疫死亡，獲得30s的臨時生命"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 161
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

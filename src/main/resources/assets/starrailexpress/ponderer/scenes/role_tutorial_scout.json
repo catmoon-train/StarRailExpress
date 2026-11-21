@@ -1,0 +1,547 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.scout",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Scout",
+    "zh_cn": "童子军",
+    "zh_tw": "童子軍"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_room"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Scout",
+        "zh_cn": "童子军",
+        "zh_tw": "童子軍"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "scout_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 166,
+          "text": {
+            "en_us": "Climb where others cannot and survive to the end with your companions.",
+            "zh_cn": "爬上别人爬不上去的地方，和同伴一起活到最后。",
+            "zh_tw": "爬上別人爬不上去的地方，和同伴一起活到最後。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 176
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Scout",
+        "zh_cn": "童子军",
+        "zh_tw": "童子軍"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "scout_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "scout_skill_item_0"
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:note",
+          "duration": 70,
+          "point": [
+            3.0,
+            2.9,
+            3.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "scout_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 35
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 155,
+          "text": {
+            "en_us": "Bare-hand right-click a close, collidable wall to start climbing",
+            "zh_cn": "空手右键一面紧贴的、有碰撞箱的墙即可开始攀爬",
+            "zh_tw": "空手右鍵一面緊貼的、有碰撞箱的牆即可開始攀爬"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 165
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Stamina out, sneak, jump, or leaving the wall ends the climb; holding an item also lets go",
+            "zh_cn": "体力耗尽、按潜行键松手、按跳跃键松手、或不再紧贴墙面都会结束攀爬；手上拿着物品时也会自动松手",
+            "zh_tw": "體力耗盡、按潛行鍵鬆手、按跳躍鍵鬆手、或不再緊貼牆面都會結束攀爬；手上拿著物品時也會自動鬆手"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Scout",
+        "zh_cn": "童子军",
+        "zh_tw": "童子軍"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "scout_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Skill: switch between standing/crawling poses",
+                "zh_cn": "技能：可切换成多种站立 / 匍匐姿态",
+                "zh_tw": "技能：可切換成多種站立 / 匍匐姿態"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "scout_main",
+            "item": "trainmurdermystery:note"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:note",
+          "duration": 65,
+          "point": [
+            3.0,
+            2.9,
+            3.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "text",
+          "duration": 121,
+          "text": {
+            "en_us": "Skill: switch between standing/crawling poses",
+            "zh_cn": "技能：可切换成多种站立 / 匍匐姿态",
+            "zh_tw": "技能：可切換成多種站立 / 匍匐姿態"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 131
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "bond",
+      "title": {
+        "en_us": "Scout",
+        "zh_cn": "童子军",
+        "zh_tw": "童子軍"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "scout_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "scout_ally",
+            "outline": -8869296
+          }
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "attachKeyFrame": true,
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Spawns bound to Forest Mushroom Zombie",
+                "zh_cn": "和森蕈僵尸绑定刷新",
+                "zh_tw": "和森蕈僵屍綁定刷新"
+              }
+            ],
+            "color": -8869296
+          }
+        },
+        {
+          "type": "text",
+          "duration": 108,
+          "text": {
+            "en_us": "Spawns bound to Forest Mushroom Zombie",
+            "zh_cn": "和森蕈僵尸绑定刷新",
+            "zh_tw": "和森蕈僵屍綁定刷新"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 118
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Scout",
+        "zh_cn": "童子军",
+        "zh_tw": "童子軍"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "scout_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 67,
+          "text": {
+            "en_us": "Easter egg role",
+            "zh_cn": "彩蛋职业",
+            "zh_tw": "彩蛋職業"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 77
+        },
+        {
+          "type": "text",
+          "duration": 90,
+          "text": {
+            "en_us": "Only on climbing (PEAK) maps",
+            "zh_cn": "仅在爬山（PEAK）地图刷新",
+            "zh_tw": "僅在爬山（PEAK）地圖刷新"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 100
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 81,
+          "text": {
+            "en_us": "Stamina 2x a Civilian's",
+            "zh_cn": "体力为平民的 2 倍",
+            "zh_tw": "體力為平民的 2 倍"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 91
+        },
+        {
+          "type": "text",
+          "duration": 175,
+          "text": {
+            "en_us": "Climbing drains stamina: up costs most, sideways middle, hanging/down least",
+            "zh_cn": "攀爬时持续消耗体力：向上最费、左右居中、悬挂与下降最省",
+            "zh_tw": "攀爬時持續消耗體力：向上最費、左右居中、懸掛與下降最省"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 185
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

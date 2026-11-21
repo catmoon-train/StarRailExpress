@@ -1,0 +1,718 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.kafu_chino",
+  "items": [
+    "noellesroles:chino_coffee"
+  ],
+  "title": {
+    "en_us": "Cappuccino Barista",
+    "zh_cn": "卡布奇诺咖啡师",
+    "zh_tw": "卡布奇諾咖啡師"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Cappuccino Barista",
+        "zh_cn": "卡布奇诺咖啡师",
+        "zh_tw": "卡布奇諾咖啡師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kafu_chino_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 106,
+          "text": {
+            "en_us": "Caffè latte, caffè mocha, cappuccino!",
+            "zh_cn": "咖啡拿铁，咖啡摩卡，卡布奇诺！",
+            "zh_tw": "咖啡拿鐵，咖啡摩卡，卡布奇諾！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 116
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Cappuccino Barista",
+        "zh_cn": "卡布奇诺咖啡师",
+        "zh_tw": "卡布奇諾咖啡師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kafu_chino_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "kafu_chino",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 144,
+          "text": {
+            "en_us": "This role comes with the Dwarf and Featherweight modifiers",
+            "zh_cn": "该职业自带侏儒和轻灵修饰符",
+            "zh_tw": "該職業自帶侏儒和輕靈修飾符"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 154
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Cappuccino Barista",
+        "zh_cn": "卡布奇诺咖啡师",
+        "zh_tw": "卡布奇諾咖啡師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kafu_chino_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kafu_chino_rider",
+            "outline": -1315073
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 18
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_teleport",
+          "parameters": {
+            "linkId": "kafu_chino_rider",
+            "pos": [
+              3.6,
+              1.0,
+              3.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 12
+        },
+        {
+          "type": "starrailexpress:role_teleport",
+          "parameters": {
+            "linkId": "kafu_chino_rider",
+            "pos": [
+              3.0,
+              2.8,
+              3.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "kafu_chino_rider",
+            "pose": "crouching"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_scale",
+          "parameters": {
+            "linkId": "kafu_chino_rider",
+            "scale": 0.62
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
+            "lines": [
+              {
+                "en_us": "Right-click players who have turned into a Rabbit or have the Short / Dwarf modifier to carry them on your head (up to 60 seconds, one at a time, 75-second cooldown after each carry): during this, the carrier takes no suffocation damage and the view is forced into third person; the carried player can sneak to get off early (cooldown shrinks to 10 seconds), and you can press the skill key to put the rabbit down. Either way, the rabbit is placed in a free spot in front of you (if none, they overlap with you).",
+                "zh_cn": "右键变成兔兔、或带矮小/侏儒修饰符的玩家可以将其抱到头顶（最多60秒，同时只能抱1只，每次抱人后冷却75秒）：期间对方不会受到窒息伤害，视角强制第三人称；对方按潜行可提前下来（此时冷却缩短为10秒），你按技能键也能把头顶的兔兔放下。无论以哪种方式结束，兔兔都会被放到你身前的空位（没有空位就与你重合）。",
+                "zh_tw": "右鍵變成兔兔、或帶矮小/侏儒修飾符的玩家可以將其抱到頭頂（最多60秒，同時只能抱1只，每次抱人後冷卻75秒）：期間對方不會受到窒息傷害，視角強制第三人稱；對方按潛行可提前下來（此時冷卻縮短為10秒），你按技能鍵也能把頭頂的兔兔放下。無論以哪種方式結束，兔兔都會被放到你身前的空位（沒有空位就與你重合）。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Right-click players who have turned into a Rabbit or have the Short / Dwarf modifier to carry them on your head (up to 60 seconds, one at a time, 75-second cooldown after each carry): during this, the carrier takes no suffocation damage and the view is forced into third person; the carried player can sneak to get off early (cooldown shrinks to 10 seconds), and you can press the skill key to put the rabbit down. Either way, the rabbit is placed in a free spot in front of you (if none, they overlap with you).",
+            "zh_cn": "右键变成兔兔、或带矮小/侏儒修饰符的玩家可以将其抱到头顶（最多60秒，同时只能抱1只，每次抱人后冷却75秒）：期间对方不会受到窒息伤害，视角强制第三人称；对方按潜行可提前下来（此时冷却缩短为10秒），你按技能键也能把头顶的兔兔放下。无论以哪种方式结束，兔兔都会被放到你身前的空位（没有空位就与你重合）。",
+            "zh_tw": "右鍵變成兔兔、或帶矮小/侏儒修飾符的玩家可以將其抱到頭頂（最多60秒，同時只能抱1只，每次抱人後冷卻75秒）：期間對方不會受到窒息傷害，視角強制第三人稱；對方按潛行可提前下來（此時冷卻縮短為10秒），你按技能鍵也能把頭頂的兔兔放下。無論以哪種方式結束，兔兔都會被放到你身前的空位（沒有空位就與你重合）。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Cappuccino Barista",
+        "zh_cn": "卡布奇诺咖啡师",
+        "zh_tw": "卡布奇諾咖啡師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kafu_chino_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "kafu_chino",
+            "columns": 4
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:chino_coffee",
+          "linkId": "kafu_chino_shop_line_0",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 121,
+          "text": {
+            "en_us": "Can buy a random drink. Drinks can be thrown.",
+            "zh_cn": "可购买随机饮品。饮品可以丢弃。",
+            "zh_tw": "可購買隨機飲品。飲品可以丟棄。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 131
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "mood",
+      "title": {
+        "en_us": "Cappuccino Barista",
+        "zh_cn": "卡布奇诺咖啡师",
+        "zh_tw": "卡布奇諾咖啡師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kafu_chino_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_mood",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.sanity",
+            "before": 0.35,
+            "after": 0.85,
+            "lines": [
+              {
+                "en_us": "- Blue Mountain Coffee: drinking grants 15 seconds of Sanity regen.",
+                "zh_cn": "- 蓝山咖啡：喝下后获得15秒san值恢复。",
+                "zh_tw": "- 藍山咖啡：喝下後獲得15秒san值恢復。"
+              },
+              {
+                "en_us": "- Hot Cocoa: drinking slows Sanity drain for 30s.",
+                "zh_cn": "- 热可可：喝下后san值降低减缓30s。",
+                "zh_tw": "- 熱可哥：喝下後san值降低減緩30s。"
+              },
+              {
+                "en_us": "Within 3 blocks of the Hot Cocoa Baker, gain a speed buff and slower Sanity drain.",
+                "zh_cn": "在热可可面包师身边3格时时获得速度增益，san值降低速度变慢。",
+                "zh_tw": "在熱可哥麵包師身邊3格時時獲得速度增益，san值降低速度變慢。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 160,
+          "text": {
+            "en_us": "- Blue Mountain Coffee: drinking grants 15 seconds of Sanity regen.",
+            "zh_cn": "- 蓝山咖啡：喝下后获得15秒san值恢复。",
+            "zh_tw": "- 藍山咖啡：喝下後獲得15秒san值恢復。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 170
+        },
+        {
+          "type": "text",
+          "duration": 128,
+          "text": {
+            "en_us": "- Hot Cocoa: drinking slows Sanity drain for 30s.",
+            "zh_cn": "- 热可可：喝下后san值降低减缓30s。",
+            "zh_tw": "- 熱可哥：喝下後san值降低減緩30s。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 138
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 187,
+          "text": {
+            "en_us": "Within 3 blocks of the Hot Cocoa Baker, gain a speed buff and slower Sanity drain.",
+            "zh_cn": "在热可可面包师身边3格时时获得速度增益，san值降低速度变慢。",
+            "zh_tw": "在熱可哥麵包師身邊3格時時獲得速度增益，san值降低速度變慢。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 197
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Cappuccino Barista",
+        "zh_cn": "卡布奇诺咖啡师",
+        "zh_tw": "卡布奇諾咖啡師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kafu_chino_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kafu_chino_psycho",
+            "outline": -1315073
+          }
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "- Cappuccino: drinking grants 10s of \"Eagle Eye\" potion effect, during which all players' disguises fail on you.",
+                "zh_cn": "- 卡布奇诺：喝下后获得10s “火眼金睛”药水效果，此时所有玩家伪装对你无效。",
+                "zh_tw": "- 卡布奇諾：喝下後獲得10s “火眼金睛”藥水效果，此時所有玩家偽裝對你無效。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "- Cappuccino: drinking grants 10s of \"Eagle Eye\" potion effect, during which all players' disguises fail on you.",
+            "zh_cn": "- 卡布奇诺：喝下后获得10s “火眼金睛”药水效果，此时所有玩家伪装对你无效。",
+            "zh_tw": "- 卡布奇諾：喝下後獲得10s “火眼金睛”藥水效果，此時所有玩家偽裝對你無效。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Cappuccino Barista",
+        "zh_cn": "卡布奇诺咖啡师",
+        "zh_tw": "卡布奇諾咖啡師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kafu_chino_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 112,
+          "text": {
+            "en_us": "Different drinks have different effects:",
+            "zh_cn": "根据饮品种类有不同的效果：",
+            "zh_tw": "根據飲品種類有不同的效果："
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 122
+        },
+        {
+          "type": "text",
+          "duration": 77,
+          "text": {
+            "en_us": "Coffee can be thrown.",
+            "zh_cn": "咖啡可丢出。",
+            "zh_tw": "咖啡可丟出。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 87
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 142,
+          "text": {
+            "en_us": "Players assimilated into Rabbit Wansui cannot attack you.",
+            "zh_cn": "被同化为兔兔万岁的玩家无法攻击你。",
+            "zh_tw": "被同化為兔兔萬歲的玩家無法攻擊你。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 152
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

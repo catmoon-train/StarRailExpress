@@ -1,0 +1,723 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.bandit",
+  "items": [
+    "noellesroles:throwing_axe",
+    "trainmurdermystery:crowbar",
+    "noellesroles:short_shotgun",
+    "trainmurdermystery:timed_grenade"
+  ],
+  "title": {
+    "en_us": "Bandit",
+    "zh_cn": "强盗",
+    "zh_tw": "強盜"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Bandit",
+        "zh_cn": "强盗",
+        "zh_tw": "強盜"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "bandit_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 106,
+          "text": {
+            "en_us": "Kill and rob, then swipe their coins!",
+            "zh_cn": "杀人越货，并摸走他们的钱！",
+            "zh_tw": "殺人越貨，並摸走他們的錢！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 116
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Bandit",
+        "zh_cn": "强盗",
+        "zh_tw": "強盜"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "bandit_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "bandit",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "Starts with a Throwing Axe and a Crowbar.",
+            "zh_cn": "开局自带一把飞斧和一把撬棍。",
+            "zh_tw": "開局自帶一把飛斧和一把撬棍。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 123
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Bandit",
+        "zh_cn": "强盗",
+        "zh_tw": "強盜"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "bandit_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Passive: after killing, the Bandit steals half the victim's coin; the murdered player loses half their coin.",
+                "zh_cn": "被动技能：强盗杀人之后可以盗取被杀者一半的金币，被杀害的玩家会减少一半的金币。",
+                "zh_tw": "被動技能：強盜殺人之後可以盜取被殺者一半的金幣，被殺害的玩家會減少一半的金幣。"
+              },
+              {
+                "en_us": "Throwing Axe: hold right-click to charge 0.8 seconds then throw; flies straight, can pierce and kill up to 2 players, and sticks into a wall for 5 seconds before disappearing; 3-second cooldown after throw; the weapon stays in hand for repeated use.",
+                "zh_cn": "飞斧：按住右键蓄力0.8秒后投掷的武器，直线飞行、最多穿透击杀2名玩家，撞墙后钉住5秒消失；投掷后3秒冷却，武器留在手中可反复使用。",
+                "zh_tw": "飛斧：按住右鍵蓄力0.8秒後投擲的武器，直線飛行、最多穿透擊殺2名玩家，撞牆後釘住5秒消失；投擲後3秒冷卻，武器留在手中可反復使用。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "bandit_skill_target_0",
+            "outline": -7650029
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "bandit_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Passive: after killing, the Bandit steals half the victim's coin; the murdered player loses half their coin.",
+            "zh_cn": "被动技能：强盗杀人之后可以盗取被杀者一半的金币，被杀害的玩家会减少一半的金币。",
+            "zh_tw": "被動技能：強盜殺人之後可以盜取被殺者一半的金幣，被殺害的玩家會減少一半的金幣。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "bandit_skill_target_1",
+            "outline": -7650029
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "bandit_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 45
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 15
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "bandit_skill_target_1",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Throwing Axe: hold right-click to charge 0.8 seconds then throw; flies straight, can pierce and kill up to 2 players, and sticks into a wall for 5 seconds before disappearing; 3-second cooldown after throw; the weapon stays in hand for repeated use.",
+            "zh_cn": "飞斧：按住右键蓄力0.8秒后投掷的武器，直线飞行、最多穿透击杀2名玩家，撞墙后钉住5秒消失；投掷后3秒冷却，武器留在手中可反复使用。",
+            "zh_tw": "飛斧：按住右鍵蓄力0.8秒後投擲的武器，直線飛行、最多穿透擊殺2名玩家，撞牆後釘住5秒消失；投擲後3秒冷卻，武器留在手中可反復使用。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Bandit",
+        "zh_cn": "强盗",
+        "zh_tw": "強盜"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "bandit_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "bandit",
+            "columns": 4
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:short_shotgun",
+          "linkId": "bandit_shop_line_0",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The Bandit shop sells: Knife, Throwing Axe (first buy 115 coin, 70% off after), Grenade, Lights Out, Flashbang, Decoy.",
+            "zh_cn": "强盗商店可购买：刀、飞斧（首购115金币，二次起70%折扣）、手榴弹、关灯、闪光弹、诱饵弹。",
+            "zh_tw": "強盜商店可購買：刀、飛斧（首購115金幣，二次起70%折扣）、手榴彈、關燈、閃光彈、誘餌彈。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Bandit",
+        "zh_cn": "强盗",
+        "zh_tw": "強盜"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "bandit_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "bandit_target",
+            "outline": -7650029
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "The Bandit's Killer instinct can only see-through players within a 10-block radius, but has no range limit on seeing-through Killer teammates.",
+                "zh_cn": "强盗的杀手直觉只能透视半径10格内的玩家，但是透视杀手队友无距离限制。",
+                "zh_tw": "強盜的殺手直覺只能透視半徑10格內的玩家，但是透視殺手隊友無距離限制。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The Bandit's Killer instinct can only see-through players within a 10-block radius, but has no range limit on seeing-through Killer teammates.",
+            "zh_cn": "强盗的杀手直觉只能透视半径10格内的玩家，但是透视杀手队友无距离限制。",
+            "zh_tw": "強盜的殺手直覺只能透視半徑10格內的玩家，但是透視殺手隊友無距離限制。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Bandit",
+        "zh_cn": "强盗",
+        "zh_tw": "強盜"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "bandit_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "bandit_psycho",
+            "outline": -7650029
+          }
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "Cannot buy Rampage mode, Lockpicks, or Crowbars.",
+                "zh_cn": "无法购买疯狂模式、开锁器和撬棍。",
+                "zh_tw": "無法購買瘋狂模式、開鎖器和撬棍。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 126,
+          "text": {
+            "en_us": "Cannot buy Rampage mode, Lockpicks, or Crowbars.",
+            "zh_cn": "无法购买疯狂模式、开锁器和撬棍。",
+            "zh_tw": "無法購買瘋狂模式、開鎖器和撬棍。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 136
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Bandit",
+        "zh_cn": "强盗",
+        "zh_tw": "強盜"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "bandit_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 178,
+          "text": {
+            "en_us": "Flashbang: thrown; on landing, blinds players within 6 blocks who look at it.",
+            "zh_cn": "闪光弹：投掷物，落地后会使6格内看向闪光弹的玩家受到闪光效果。",
+            "zh_tw": "閃光彈：投擲物，落地後會使6格內看向閃光彈的玩家受到閃光效果。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 188
+        },
+        {
+          "type": "text",
+          "duration": 166,
+          "text": {
+            "en_us": "Decoy: thrown; continuously makes gunshot sounds along its flight path",
+            "zh_cn": "诱饵弹:投掷物，投掷后会沿投掷路径持续发出枪响",
+            "zh_tw": "誘餌彈:投擲物，投擲後會沿投擲路徑持續發出槍響"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 176
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

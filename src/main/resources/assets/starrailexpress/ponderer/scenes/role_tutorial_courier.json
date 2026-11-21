@@ -1,0 +1,480 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.courier",
+  "items": [
+    "noellesroles:courier_mail"
+  ],
+  "title": {
+    "en_us": "Courier",
+    "zh_cn": "信使",
+    "zh_tw": "信使"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Courier",
+        "zh_cn": "信使",
+        "zh_tw": "信使"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "courier_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 148,
+          "text": {
+            "en_us": "Deliver hope and supplies to the passengers through letters!",
+            "zh_cn": "用信件为乘客们传递希望与物资！",
+            "zh_tw": "用信件為乘客們傳遞希望與物資！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 158
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Courier",
+        "zh_cn": "信使",
+        "zh_tw": "信使"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "courier_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "courier",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "courier_skill_target_0",
+            "outline": -2968436
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:courier_mail",
+          "linkId": "courier_skill_item_0"
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:courier_mail",
+          "duration": 70,
+          "point": [
+            3.0,
+            2.9,
+            3.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "courier_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 35
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Starts with an Envelope; right-click to open the mail page. The envelope item is invisible to others.",
+            "zh_cn": "开局自带一个信封，右键打开送信页面，信封物品他人不可见。",
+            "zh_tw": "開局自帶一個信封，右鍵打開送信頁面，信封物品他人不可見。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The recipient can read it, claim the items and effects, and reply to the Courier for free (replies contain only text and attached items).",
+            "zh_cn": "收信人可阅读、领取物品和效果并免费向信使回信(回信仅包含文字与附带物品)。",
+            "zh_tw": "收信人可閱讀、領取物品和效果並免費向信使回信(回信僅包含文字與附帶物品)。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "panel",
+      "title": {
+        "en_us": "Courier",
+        "zh_cn": "信使",
+        "zh_tw": "信使"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "courier_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.label.notes",
+            "lines": [
+              {
+                "en_us": "Sending costs the Courier's coin (50 coin for text / 50 coin for an effect / 75 coin for an item); after choosing a recipient, a carrier pigeon flies to the target to deliver the letter.",
+                "zh_cn": "发送需消耗信使的金币(文字50金币/效果50金币/物品75金币)，选择收信人后，信鸽将飞向目标玩家递送信件。",
+                "zh_tw": "發送需消耗信使的金幣(文字50金幣/效果50金幣/物品75金幣)，選擇收信人後，信鴿將飛向目標玩家遞送信件。"
+              },
+              {
+                "en_us": "The carrier pigeon can be shot down; letter cooldown is 120 seconds.",
+                "zh_cn": "信鸽可被枪击杀，信件冷却为120秒。",
+                "zh_tw": "信鴿可被槍擊殺，信件冷卻為120秒。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Sending costs the Courier's coin (50 coin for text / 50 coin for an effect / 75 coin for an item); after choosing a recipient, a carrier pigeon flies to the target to deliver the letter.",
+            "zh_cn": "发送需消耗信使的金币(文字50金币/效果50金币/物品75金币)，选择收信人后，信鸽将飞向目标玩家递送信件。",
+            "zh_tw": "發送需消耗信使的金幣(文字50金幣/效果50金幣/物品75金幣)，選擇收信人後，信鴿將飛向目標玩家遞送信件。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "courier_skill_target_1",
+            "outline": -2968436
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 15
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "courier_skill_target_1",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "text",
+          "duration": 162,
+          "text": {
+            "en_us": "The carrier pigeon can be shot down; letter cooldown is 120 seconds.",
+            "zh_cn": "信鸽可被枪击杀，信件冷却为120秒。",
+            "zh_tw": "信鴿可被槍擊殺，信件冷卻為120秒。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 172
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Courier",
+        "zh_cn": "信使",
+        "zh_tw": "信使"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "courier_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "courier_psycho",
+            "outline": -2968436
+          }
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "You can write text, attach effects (Sanity regen / Speed / Disguise), and include hotbar items in a letter.",
+                "zh_cn": "可在信件中书写文字、附加效果(San恢复/速度/伪装)、附带快捷栏物品。",
+                "zh_tw": "可在信件中書寫文字、附加效果(San恢復/速度/偽裝)、附帶快捷欄物品。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You can write text, attach effects (Sanity regen / Speed / Disguise), and include hotbar items in a letter.",
+            "zh_cn": "可在信件中书写文字、附加效果(San恢复/速度/伪装)、附带快捷栏物品。",
+            "zh_tw": "可在信件中書寫文字、附加效果(San恢復/速度/偽裝)、附帶快捷欄物品。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

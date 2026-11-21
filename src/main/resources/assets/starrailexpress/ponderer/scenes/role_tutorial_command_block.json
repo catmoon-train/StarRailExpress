@@ -1,0 +1,525 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.command_block",
+  "items": [
+    "trainmurdermystery:note"
+  ],
+  "title": {
+    "en_us": "命令方块",
+    "zh_cn": "命令方块",
+    "zh_tw": "命令方塊"
+  },
+  "structures": [
+    "starrailexpress:event_command_room"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "event_start",
+      "title": {
+        "en_us": "命令方块",
+        "zh_cn": "命令方块",
+        "zh_tw": "命令方塊"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:event_command_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_ambience",
+          "attachKeyFrame": true,
+          "parameters": {
+            "color": 6958248,
+            "alpha": 0.42,
+            "mode": "sky"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "command_block_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "attachKeyFrame": true,
+          "parameters": {
+            "bars": [
+              {
+                "label": "破坏进度",
+                "before": 0.0,
+                "after": 0.35,
+                "color": -65536
+              },
+              {
+                "label": "事件倒计时",
+                "before": 1.0,
+                "after": 0.6,
+                "color": 16755268
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Killer event",
+            "zh_cn": "杀手事件",
+            "zh_tw": "殺手事件"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 83,
+          "text": {
+            "en_us": "Not assigned to players.",
+            "zh_cn": "该职业不会分配给玩家。",
+            "zh_tw": "該職業不會分配給玩家。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 93
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Takes every killer slot when it spawns, and is mutually exclusive with roles such as Jotaro.",
+            "zh_cn": "刷新时占满全部杀手名额，并与承太郎等职业互斥。",
+            "zh_tw": "刷新時占滿全部殺手名額，並與承太郎等職業互斥。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "After the match starts, a crack appears at a random suitable empty spot beside a task point every 75 to 112.5 seconds; only the killers can see the crack glowing.",
+            "zh_cn": "游戏开局后每过 75 到 112.5 秒，会在任务点旁合适的空位处随机出现一道裂缝，只有杀手能看到裂缝发光。",
+            "zh_tw": "遊戲開局後每過 75 到 112.5 秒，會在任務點旁合適的空位處隨機出現一道裂縫，只有殺手能看到裂縫發光。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "abnormal",
+      "title": {
+        "en_us": "命令方块",
+        "zh_cn": "命令方块",
+        "zh_tw": "命令方塊"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:event_command_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_ambience",
+          "attachKeyFrame": true,
+          "parameters": {
+            "color": 6958248,
+            "alpha": 0.42,
+            "mode": "sky"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "command_block_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "command_block_other",
+            "outline": -65536
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "职业改写",
+            "lines": [
+              {
+                "en_us": "When the command block event starts, it randomly marks 1.5 times the original number of killers among the passengers as abnormal and attaches a hidden abnormal modifier.",
+                "zh_cn": "命令方块事件开局会随机标记原杀手数量 1.5 倍的平民为异常，并挂上隐藏的异常修饰符。",
+                "zh_tw": "命令方塊事件開局會隨機標記原殺手數量 1.5 倍的平民為異常，並掛上隱藏的異常修飾符。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The passenger team can break the crack with weapons such as a pistol, a baton or nunchucks to add 1 to the destruction progress.",
+            "zh_cn": "好人阵营可以用各类武器（如手枪、警棍、双截棍）击碎裂缝并使破坏进度+1。",
+            "zh_tw": "好人陣營可以用各類武器（如手槍、警棍、雙截棍）擊碎裂縫並使破壞進度+1。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When the command block event starts, it randomly marks 1.5 times the original number of killers among the passengers as abnormal and attaches a hidden abnormal modifier.",
+            "zh_cn": "命令方块事件开局会随机标记原杀手数量 1.5 倍的平民为异常，并挂上隐藏的异常修饰符。",
+            "zh_tw": "命令方塊事件開局會隨機標記原殺手數量 1.5 倍的平民為異常，並掛上隱藏的異常修飾符。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "One minute before becoming a killer, you turn into the neutral role \"Abnormal\" with no abilities and see the role you are about to become.",
+            "zh_cn": "成为杀手前的一分钟，本人会变成没有任何能力的中立职业「异常」，并看到即将变成的职业。",
+            "zh_tw": "成為殺手前的一分鐘，本人會變成沒有任何能力的中立職業「異常」，並看到即將變成的職業。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Rewrites prefer enabled roles that have not appeared this round; once all of them have appeared they prefer roles with fewer accumulated uses and fewer living players, random among equals.",
+            "zh_cn": "改写优先抽取本局未出现的启用职业；全部出现过后优先累计次数较少、当前存活人数较少的职业，同等条件下随机。",
+            "zh_tw": "改寫優先抽取本局未出現的啟用職業；全部出現過後優先累計次數較少、當前存活人數較少的職業，同等條件下隨機。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "field_event",
+      "title": {
+        "en_us": "命令方块",
+        "zh_cn": "命令方块",
+        "zh_tw": "命令方塊"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:event_command_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_ambience",
+          "attachKeyFrame": true,
+          "parameters": {
+            "color": 6958248,
+            "alpha": 0.42,
+            "mode": "sky"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "command_block_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "attachKeyFrame": true,
+          "parameters": {
+            "progress": [
+              0.0,
+              0.5
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When a killer is born, everyone sees a subtitle and hears a sound. A destruction progress bar sits at the top left of the screen.",
+            "zh_cn": "杀手诞生时，所有人都会看到字幕并听到声音。屏幕左上方有破坏进度条。",
+            "zh_tw": "殺手誕生時，所有人都會看到字幕並聽到聲音。螢幕左上方有破壞進度條。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Every two minutes one of the following events is drawn at random from the event pool: blackout, position swap, signal interference, time rewind, silence, coin supply, exposure, lockdown or command injection.",
+            "zh_cn": "每过两分钟会从事件池内随机抽取以下事件：关灯、换位、信号干扰、时间回溯、缄默、金币补给、曝光、封锁或命令注入。",
+            "zh_tw": "每過兩分鐘會從事件池內隨機抽取以下事件：關燈、換位、信號干擾、時間回溯、緘默、金幣補給、曝光、封鎖或命令注入。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "settle",
+      "title": {
+        "en_us": "命令方块",
+        "zh_cn": "命令方块",
+        "zh_tw": "命令方塊"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:event_command_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_ambience",
+          "attachKeyFrame": true,
+          "parameters": {
+            "color": 6958248,
+            "alpha": 0.42,
+            "mode": "sky"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "command_block_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Rewinds save a node one minute before triggering and do not roll back the destruction progress or the role rewrites. The coin supply gives every online player in the event world 25 extra coins, including spectators, and no longer records positions or pulls players back.",
+            "zh_cn": "回溯会在触发前一分钟保存节点，不回滚破坏进度和职业改写。金币补给给事件世界内所有在线玩家各增加 25 金币，包括观战玩家，不再记录位置或回拉。",
+            "zh_tw": "回溯會在觸發前一分鐘保存節點，不回滾破壞進度和職業改寫。金幣補給給事件世界內所有線上玩家各增加 25 金幣，包括觀戰玩家，不再記錄位置或回拉。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The game only ends when the time runs out, the neutral side wins independently, or the destruction progress reaches its quota.",
+            "zh_cn": "游戏只在时间耗尽、中立独立胜利，或破坏进度达标时结束。",
+            "zh_tw": "遊戲只在時間耗盡、中立獨立勝利，或破壞進度達標時結束。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

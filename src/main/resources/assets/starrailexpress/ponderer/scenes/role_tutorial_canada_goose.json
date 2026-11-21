@@ -1,0 +1,203 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.canada_goose",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Canadian Goose",
+    "zh_cn": "加拿大鹅",
+    "zh_tw": "加拿大鵝"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_room"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Canadian Goose",
+        "zh_cn": "加拿大鹅",
+        "zh_tw": "加拿大鵝"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "canada_goose_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 94,
+          "text": {
+            "en_us": "I'm a good guy, don't kill me!",
+            "zh_cn": "你真的要杀我吗？",
+            "zh_tw": "你真的要殺我嗎？"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 104
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Canadian Goose",
+        "zh_cn": "加拿大鹅",
+        "zh_tw": "加拿大鵝"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "canada_goose_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 103,
+          "text": {
+            "en_us": "Only on maps with meetings enabled.",
+            "zh_cn": "仅刷新在启用会议的地图中。",
+            "zh_tw": "僅刷新在啟用會議的地圖中。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 113
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When killed by another or swallowed by the Pelican, an emergency meeting auto-starts after 2s (time stop / pending meetings pause it), with the killer as the caller.",
+            "zh_cn": "当你被他人击杀或被鹈鹕吞掉时，会在2s后（时停、前置会议会暂停）自动发起紧急会议，发起人为击杀你的人。",
+            "zh_tw": "當你被他人擊殺或被鵜鶘吞掉時，會在2s後（時停、前置會議會暫停）自動發起緊急會議，發起人為擊殺你的人。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 106,
+          "text": {
+            "en_us": "Doesn't trigger on untraceable death.",
+            "zh_cn": "因无来源伤害而死时不会触发会议",
+            "zh_tw": "因無來源傷害而死時不會觸發會議"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 116
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

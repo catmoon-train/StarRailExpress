@@ -1,0 +1,1001 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.delayer",
+  "items": [
+    "noellesroles:camera_shears"
+  ],
+  "title": {
+    "en_us": "Time Delayer",
+    "zh_cn": "滞时鬼",
+    "zh_tw": "滯時鬼"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Time Delayer",
+        "zh_cn": "滞时鬼",
+        "zh_tw": "滯時鬼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "delayer_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 128,
+          "text": {
+            "en_us": "Buy more chances for your fellow killer partners!",
+            "zh_cn": "为其它杀手同伙赢得更多的机会!",
+            "zh_tw": "為其他殺手同夥贏得更多的機會!"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 138
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Time Delayer",
+        "zh_cn": "滞时鬼",
+        "zh_tw": "滯時鬼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "delayer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "delayer",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "You start with Pliers (no durability, unlimited uses): right-clicking a camera disables it for 90 seconds, and each successful use puts the Pliers on a 30-second cooldown.",
+                "zh_cn": "初始自带钳子，可无限次使用，右键摄像头可以使摄像头失灵90秒，每拆一个摄像头会使钳子进入30秒冷却。",
+                "zh_tw": "初始自帶鉗子，可無限次使用，右鍵攝像頭可以使攝像頭失靈90秒，每拆一個攝像頭會使鉗子進入30秒冷卻。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:enchant",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You start with Pliers (no durability, unlimited uses): right-clicking a camera disables it for 90 seconds, and each successful use puts the Pliers on a 30-second cooldown.",
+            "zh_cn": "初始自带钳子，可无限次使用，右键摄像头可以使摄像头失灵90秒，每拆一个摄像头会使钳子进入30秒冷却。",
+            "zh_tw": "初始自帶鉗子，可無限次使用，右鍵攝像頭可以使攝像頭失靈90秒，每拆一個攝像頭會使鉗子進入30秒冷卻。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Time Delayer",
+        "zh_cn": "滞时鬼",
+        "zh_tw": "滯時鬼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "delayer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Passive: when you kill a player, the game time is extended by 20 seconds.",
+                "zh_cn": "被动技能：你击杀玩家时时间会额外增加20秒。",
+                "zh_tw": "被動技能：你擊殺玩家時時間會額外增加20秒。"
+              },
+              {
+                "en_us": "Active: press the skill key to spend 75 coin and anchor your current state; the anchor lasts 20 seconds and then automatically rewinds. Taking non-forced damage forces an immediate rewind.",
+                "zh_cn": "主动技能：按技能键消耗 75 金币锚定当前状态，锚点持续 20 秒后自动回溯，受到非强制伤害时会强制回溯。",
+                "zh_tw": "主動技能：按技能鍵消耗 75 金幣錨定當前狀態，錨點持續 20 秒後自動回溯，受到非強制傷害時會強制回溯。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "delayer_skill_target_0",
+            "outline": -10197816
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "delayer_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 45
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 15
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:enchant",
+          "pos": [
+            5.0,
+            2.1,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 10,
+          "duration": 30,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "delayer_skill_target_0",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:enchant",
+          "pos": [
+            5.0,
+            1.6,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 45,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "text",
+          "duration": 171,
+          "text": {
+            "en_us": "Passive: when you kill a player, the game time is extended by 20 seconds.",
+            "zh_cn": "被动技能：你击杀玩家时时间会额外增加20秒。",
+            "zh_tw": "被動技能：你擊殺玩家時時間會額外增加20秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 181
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Active: press the skill key to spend 75 coin and anchor your current state; the anchor lasts 20 seconds and then automatically rewinds. Taking non-forced damage forces an immediate rewind.",
+                "zh_cn": "主动技能：按技能键消耗 75 金币锚定当前状态，锚点持续 20 秒后自动回溯，受到非强制伤害时会强制回溯。",
+                "zh_tw": "主動技能：按技能鍵消耗 75 金幣錨定當前狀態，錨點持續 20 秒後自動回溯，受到非強制傷害時會強制回溯。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:enchant",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Active: press the skill key to spend 75 coin and anchor your current state; the anchor lasts 20 seconds and then automatically rewinds. Taking non-forced damage forces an immediate rewind.",
+            "zh_cn": "主动技能：按技能键消耗 75 金币锚定当前状态，锚点持续 20 秒后自动回溯，受到非强制伤害时会强制回溯。",
+            "zh_tw": "主動技能：按技能鍵消耗 75 金幣錨定當前狀態，錨點持續 20 秒後自動回溯，受到非強制傷害時會強制回溯。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "delayer_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:enchant",
+          "pos": [
+            5.0,
+            1.9,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 6,
+          "duration": 50,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The rewind restores position, coin, and potion effects, but not inventory or item cooldowns.",
+            "zh_cn": "回溯技能可回溯位置、金钱、药水效果，无法回溯物品栏与物品冷却。",
+            "zh_tw": "回溯技能可回溯位置、金錢、藥水效果，無法回溯物品欄與物品冷卻。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "delayer_skill_target_3",
+            "outline": -10197816
+          }
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:enchant",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "During the rewind your screen gets the same gray-white filter as time stop, while other players briefly zone out with a glass-shatter sound. 120-second cooldown.",
+            "zh_cn": "回溯期间你的屏幕会呈现时停同款灰白滤镜，其它玩家则短暂恍惚并响起玻璃破碎声。冷却 120 秒。",
+            "zh_tw": "回溯期間你的螢幕會呈現時停同款灰白濾鏡，其他玩家則短暫恍惚並響起玻璃破碎聲。冷卻 120 秒。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Time Delayer",
+        "zh_cn": "滞时鬼",
+        "zh_tw": "滯時鬼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "delayer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "delayer",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 158,
+          "text": {
+            "en_us": "Cannot buy grenades in the shop, but camera disruption is cheaper.",
+            "zh_cn": "商店无法购买手榴弹，但监控失灵更便宜。",
+            "zh_tw": "商店無法購買手榴彈，但監控失靈更便宜。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 168
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "panel",
+      "title": {
+        "en_us": "Time Delayer",
+        "zh_cn": "滞时鬼",
+        "zh_tw": "滯時鬼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "delayer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.label.notes",
+            "lines": [
+              {
+                "en_us": "The rewind is not a teleport — you smoothly travel back along the original path: your position is recorded every 2 seconds while anchored, and you are teleported back in reverse.",
+                "zh_cn": "回溯不是瞬移，而是沿原路平滑返回锚点：锚定期间每 2 秒记录一次位置，回溯时倒序传送回去。",
+                "zh_tw": "回溯不是瞬移，而是沿原路平滑返回錨點：錨定期間每 2 秒記錄一次位置，回溯時倒序傳送回去。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:enchant",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The rewind is not a teleport — you smoothly travel back along the original path: your position is recorded every 2 seconds while anchored, and you are teleported back in reverse.",
+            "zh_cn": "回溯不是瞬移，而是沿原路平滑返回锚点：锚定期间每 2 秒记录一次位置，回溯时倒序传送回去。",
+            "zh_tw": "回溯不是瞬移，而是沿原路平滑返回錨點：錨定期間每 2 秒記錄一次位置，回溯時倒序傳送回去。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Time Delayer",
+        "zh_cn": "滞时鬼",
+        "zh_tw": "滯時鬼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "delayer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "delayer_target",
+            "outline": -10197816
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "You can enable task see-through to see the locations of cameras.",
+                "zh_cn": "你可以通过开启任务透视来透视摄像头的位置。",
+                "zh_tw": "你可以通過開啟任務透視來透視攝像頭的位置。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 155,
+          "text": {
+            "en_us": "You can enable task see-through to see the locations of cameras.",
+            "zh_cn": "你可以通过开启任务透视来透视摄像头的位置。",
+            "zh_tw": "你可以通過開啟任務透視來透視攝像頭的位置。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 165
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Time Delayer",
+        "zh_cn": "滞时鬼",
+        "zh_tw": "滯時鬼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "delayer_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Note: if you are hit while the anchor is still active (within 15 seconds), you are forced to rewind immediately and collapse to the ground, unable to move for 30 seconds.",
+            "zh_cn": "注意：锚点还在（15 秒内）时若被击中，会被强制立即回溯，且回溯后你会趴倒在地、无法移动 30 秒。",
+            "zh_tw": "注意：錨點還在（15 秒內）時若被擊中，會被強制立即回溯，且回溯後你會趴倒在地、無法移動 30 秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When you are alive and 1 minute 25 seconds of game time remains, 30 seconds of game time are added (once only).",
+            "zh_cn": "当你存在于场上且游戏时间只剩下1分25秒时，会增加30秒游戏时间（仅触发一次）。",
+            "zh_tw": "當你存在於場上且遊戲時間只剩下1分25秒時，會增加30秒遊戲時間（僅觸發一次）。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,803 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.godfather",
+  "items": [
+    "trainmurdermystery:lockpick",
+    "noellesroles:bullet"
+  ],
+  "title": {
+    "en_us": "Godfather",
+    "zh_cn": "教父",
+    "zh_tw": "教父"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Godfather",
+        "zh_cn": "教父",
+        "zh_tw": "教父"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "godfather_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 97,
+          "text": {
+            "en_us": "Has an independent win condition",
+            "zh_cn": "拥有独立胜利条件",
+            "zh_tw": "擁有獨立勝利條件"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 107
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 112,
+          "text": {
+            "en_us": "Recruit family members and take control!",
+            "zh_cn": "招募家族成员，掌控全局！",
+            "zh_tw": "招募家族成員，掌控全局！"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 122
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Godfather",
+        "zh_cn": "教父",
+        "zh_tw": "教父"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "godfather_main"
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "attachKeyFrame": true,
+          "pos": [
+            1.6,
+            1.55,
+            1.6
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:lockpick",
+          "linkId": "godfather_item"
+        },
+        {
+          "type": "text",
+          "duration": 74,
+          "text": {
+            "en_us": "Has double stamina.",
+            "zh_cn": "拥有双倍体力。",
+            "zh_tw": "擁有雙倍體力。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 84
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Godfather",
+        "zh_cn": "教父",
+        "zh_tw": "教父"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "godfather_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Skill: press the skill key at another player to recruit them into the family (as Mafioso, Family Soldier, Family Nanny, or Family Shield) (110s cooldown).",
+                "zh_cn": "技能：对其它玩家按技能键招募玩家成为家族成员(可招募为家族教徒、家族侍卫、家族保姆或家族保护伞)（110秒冷却）。",
+                "zh_tw": "技能：對其他玩家按技能鍵招募玩家成為家族成員(可招募為家族教徒、家族侍衛、家族保姆或家族保護傘)（110秒冷卻）。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "godfather_skill_target_0",
+            "outline": 4287317267
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Skill: press the skill key at another player to recruit them into the family (as Mafioso, Family Soldier, Family Nanny, or Family Shield) (110s cooldown).",
+                "zh_cn": "技能：对其它玩家按技能键招募玩家成为家族成员(可招募为家族教徒、家族侍卫、家族保姆或家族保护伞)（110秒冷却）。",
+                "zh_tw": "技能：對其他玩家按技能鍵招募玩家成為家族成員(可招募為家族教徒、家族侍衛、家族保姆或家族保護傘)（110秒冷卻）。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skill: press the skill key at another player to recruit them into the family (as Mafioso, Family Soldier, Family Nanny, or Family Shield) (110s cooldown).",
+            "zh_cn": "技能：对其它玩家按技能键招募玩家成为家族成员(可招募为家族教徒、家族侍卫、家族保姆或家族保护伞)（110秒冷却）。",
+            "zh_tw": "技能：對其他玩家按技能鍵招募玩家成為家族成員(可招募為家族教徒、家族侍衛、家族保姆或家族保護傘)（110秒冷卻）。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Godfather",
+        "zh_cn": "教父",
+        "zh_tw": "教父"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "godfather_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "godfather",
+            "columns": 4
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:lockpick",
+          "linkId": "godfather_shop_line_0",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 166,
+          "text": {
+            "en_us": "Starts with an unloaded derringer; bullets must be bought in the shop.",
+            "zh_cn": "开局自带一个没有子弹的德林加手枪，德林加手枪的子弹需要在商店中购买。",
+            "zh_tw": "開局自帶一個沒有子彈的德林加手槍，德林加手槍的子彈需要在商店中購買。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 176
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.35,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:bullet",
+          "linkId": "godfather_shop_line_1",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 99,
+          "text": {
+            "en_us": "Killing a player grants 50 coins.",
+            "zh_cn": "你击杀玩家会获得50金币。",
+            "zh_tw": "你擊殺玩家會獲得50金幣。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 109
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            3.1,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:lockpick",
+          "linkId": "godfather_shop_line_2",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 83,
+          "text": {
+            "en_us": "Shop: lockpick, bullets.",
+            "zh_cn": "商店：开锁器、子弹。",
+            "zh_tw": "商店：開鎖器、子彈。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 93
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "title": {
+        "en_us": "Godfather",
+        "zh_cn": "教父",
+        "zh_tw": "教父"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "godfather_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "godfather_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "godfather_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "delay": 14
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Recruitment cap is 4; dead family members don't refund recruitment (max 4 per match); special roles cannot be recruited.",
+            "zh_cn": "招募上限为4人，家族成员死后不会归还招募次数(即一局最多只能招募4次)，无法招募特殊职业的玩家作为家族成员。",
+            "zh_tw": "招募上限為4人，家族成員死後不會歸還招募次數(即一局最多只能招募4次)，無法招募特殊職業的玩家作為家族成員。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When the Godfather dies, all family members revert to their original roles and lose items bought while family.",
+            "zh_cn": "教父死后，所有家族成员变回原来的职业，且失去家族成员期间购买的道具",
+            "zh_tw": "教父死後，所有家族成員變回原來的職業，且失去家族成員期間購買的道具"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Godfather",
+        "zh_cn": "教父",
+        "zh_tw": "教父"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "godfather_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "godfather_target_0",
+            "outline": 4287317267
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              3.2
+            ],
+            "yaw": 180.0,
+            "linkId": "godfather_target_1",
+            "outline": 4287090411
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Has Family see-through: family members show brown, the Godfather shows blue.",
+                "zh_cn": "拥有家族透视，透视家族成员为棕色，透视教父为蓝色。",
+                "zh_tw": "擁有家族透視，透視家族成員為棕色，透視教父為藍色。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 176,
+          "text": {
+            "en_us": "Has Family see-through: family members show brown, the Godfather shows blue.",
+            "zh_cn": "拥有家族透视，透视家族成员为棕色，透视教父为蓝色。",
+            "zh_tw": "擁有家族透視，透視家族成員為棕色，透視教父為藍色。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 186
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Godfather",
+        "zh_cn": "教父",
+        "zh_tw": "教父"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "godfather_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 128,
+          "text": {
+            "en_us": "Only in matches of 18+, occupies 3 Neutral slots.",
+            "zh_cn": "仅在18人及以上的对局中生成，占据3个中立槽位。",
+            "zh_tw": "僅在18人及以上的對局中生成，佔據3個中立槽位。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 138
+        },
+        {
+          "type": "text",
+          "duration": 121,
+          "text": {
+            "en_us": "Mutually exclusive with Initiate and Pelican.",
+            "zh_cn": "与初学者、鹈鹕互斥生成。",
+            "zh_tw": "與初學者、鵜鶘互斥生成。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 131
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 126,
+          "text": {
+            "en_us": "While the Godfather lives, the game doesn't end.",
+            "zh_cn": "教父存活时游戏不会结束。",
+            "zh_tw": "教父存活時遊戲不會結束。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 136
+        },
+        {
+          "type": "text",
+          "duration": 106,
+          "text": {
+            "en_us": "Family members can't harm each other.",
+            "zh_cn": "家族成员间无法互相伤害。",
+            "zh_tw": "家族成員間無法互相傷害。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 116
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

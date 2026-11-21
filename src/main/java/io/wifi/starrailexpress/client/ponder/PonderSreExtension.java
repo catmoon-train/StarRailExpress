@@ -18,14 +18,18 @@ package io.wifi.starrailexpress.client.ponder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.nododiiiii.ponderer.runtime.api.RuntimeEngine;
+import com.nododiiiii.ponderer.runtime.api.PonderActions;
 import com.nododiiiii.ponderer.runtime.api.StepBuildContext;
 import com.nododiiiii.ponderer.runtime.api.StepCodec;
 import com.nododiiiii.ponderer.runtime.api.StepType;
 import net.createmod.catnip.math.Pointing;
 import net.createmod.ponder.api.scene.SceneBuilder;
 import net.createmod.ponder.foundation.PonderScene;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.util.ShopEntry;
+import org.agmas.noellesroles.init.RoleInitialItems;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -112,6 +116,33 @@ public final class PonderSreExtension {
     /** 屏幕下方显示按键提示（键帽 + 说明），用于技能触发。 */
     public static final String STEP_ROLE_KEY = "starrailexpress:role_key";
 
+    /** 摆出该职业的真实初始物品。 */
+    public static final String STEP_ROLE_ITEMS = "starrailexpress:role_items";
+
+    /** 死亡动画：玩家模型直接消失，同位置生成尸体。 */
+    public static final String STEP_ROLE_DEATH = "starrailexpress:role_death";
+
+    /** 改变已存在玩家模型的姿态（蹲下 / 趴下 / 站立等）。 */
+    public static final String STEP_ROLE_POSE = "starrailexpress:role_pose";
+
+    /** 给已存在的玩家模型换手持物，用于演示切药剂 / 换武器。 */
+    public static final String STEP_ROLE_HOLD = "starrailexpress:role_hold";
+
+    /** 给已存在的玩家模型加 / 改本能透视边框。 */
+    public static final String STEP_ROLE_OUTLINE = "starrailexpress:role_outline";
+
+    /** 隐藏 / 恢复已存在的玩家模型，用于「玩家变成实体 / 换形态」的交界处。 */
+    public static final String STEP_ROLE_HIDE = "starrailexpress:role_hide";
+
+    /** 缩放已存在的玩家模型（兔兔 / 侏儒被抱到头顶时用）。 */
+    public static final String STEP_ROLE_SCALE = "starrailexpress:role_scale";
+
+    /** 技能界面：模拟背包里的「选人列表」面板。 */
+    public static final String STEP_ROLE_SCREEN = "starrailexpress:role_screen";
+
+    /** 环境染色：近似表现紫天 / 橙天 / 夜雾。 */
+    public static final String STEP_ROLE_AMBIENCE = "starrailexpress:role_ambience";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PonderSreExtension.class);
 
     /** 扩展步骤在编辑器与覆盖层里显示的文本全部走语言文件。 */
@@ -143,6 +174,15 @@ public final class PonderSreExtension {
         engine.steps().register(STEP_ROLE_WALK, new RoleWalkStep());
         engine.steps().register(STEP_ROLE_TELEPORT, new RoleTeleportStep());
         engine.steps().register(STEP_ROLE_KEY, new RoleKeyStep());
+        engine.steps().register(STEP_ROLE_ITEMS, new RoleItemsStep());
+        engine.steps().register(STEP_ROLE_DEATH, new RoleDeathStep());
+        engine.steps().register(STEP_ROLE_POSE, new RolePoseStep());
+        engine.steps().register(STEP_ROLE_HOLD, new RoleHoldStep());
+        engine.steps().register(STEP_ROLE_OUTLINE, new RoleOutlineStep());
+        engine.steps().register(STEP_ROLE_HIDE, new RoleHideStep());
+        engine.steps().register(STEP_ROLE_SCALE, new RoleScaleStep());
+        engine.steps().register(STEP_ROLE_SCREEN, new RoleScreenStep());
+        engine.steps().register(STEP_ROLE_AMBIENCE, new RoleAmbienceStep());
         LOGGER.info("StarRailExpress Ponderer extension installed: {}", EXTENSION_ID);
     }
 
@@ -493,9 +533,591 @@ public final class PonderSreExtension {
         }
     }
 
+    /** {@code role_items} 的参数。 */
+    record RoleItemsParams(String role, Vec3 origin, Float spacing, Integer max, String linkId) {
+    }
+
+    /**
+     * 初始物品步骤：把该职业的真实初始物品摆出来。
+     *
+     * <p>物品直接读 {@code RoleInitialItems}，与游戏内开局发放的一致，
+     * 因此不必在场景 JSON 里逐条手写物品 id，也不会因为职业改动而写错。
+     */
+    static final class RoleItemsStep implements StepType<RoleItemsParams> {
+        @Override
+        public StepCodec<RoleItemsParams> codec() {
+            return new StepCodec<>() {
+                @Override
+                public RoleItemsParams decode(JsonObject data) {
+                    return new RoleItemsParams(readString(data, "role"),
+                            readVec(data, "origin", new Vec3(2.0, 1.4, 3.0)),
+                            readFloat(data, "spacing"),
+                            readInt(data, "max"),
+                            readString(data, "linkId"));
+                }
+
+                @Override
+                public JsonObject encode(RoleItemsParams value) {
+                    JsonObject data = new JsonObject();
+                    if (value.role() != null) {
+                        data.addProperty("role", value.role());
+                    }
+                    if (value.origin() != null) {
+                        data.addProperty("origin",
+                                value.origin().x + "," + value.origin().y + "," + value.origin().z);
+                    }
+                    if (value.spacing() != null) {
+                        data.addProperty("spacing", value.spacing());
+                    }
+                    if (value.max() != null) {
+                        data.addProperty("max", value.max());
+                    }
+                    if (value.linkId() != null) {
+                        data.addProperty("linkId", value.linkId());
+                    }
+                    return data;
+                }
+            };
+        }
+
+        @Override
+        public String editorLabel() {
+            return text(KEY_PREFIX + "role_items");
+        }
+
+        @Override
+        public void build(RoleItemsParams params, StepBuildContext context) {
+            SRERole role = PonderRoles.byIdOrPath(params.role());
+            if (role == null) {
+                LOGGER.warn("role_items: 找不到职业 {}", params.role());
+                return;
+            }
+            List<ItemStack> stacks;
+            try {
+                stacks = RoleInitialItems.getInitialItemsForRole(role);
+            } catch (Throwable error) {
+                LOGGER.warn("role_items: 读取职业 {} 的初始物品失败", params.role(), error);
+                return;
+            }
+            if (stacks == null || stacks.isEmpty()) {
+                return;
+            }
+            int max = params.max() == null ? 4 : Math.max(1, params.max());
+            float spacing = params.spacing() == null ? 0.8F : params.spacing();
+            Vec3 origin = params.origin() == null ? new Vec3(2.0, 1.4, 3.0) : params.origin();
+            String linkPrefix = params.linkId() == null || params.linkId().isBlank()
+                    ? "role_item" : params.linkId();
+            int index = 0;
+            for (ItemStack stack : stacks) {
+                if (index >= max) {
+                    break;
+                }
+                if (stack == null || stack.isEmpty()) {
+                    continue;
+                }
+                ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
+                if (itemId == null) {
+                    continue;
+                }
+                Vec3 pos = origin.add(index * spacing, 0.0D, 0.0D);
+                PonderActions.createItemEntity(context.builder(), context.actions(), itemId.toString(),
+                        Math.max(1, stack.getCount()), pos, Vec3.ZERO, null, linkPrefix + "_" + index);
+                index++;
+            }
+        }
+    }
+
+    /** {@code role_death} 的参数；{@code delay} 仅为兼容旧场景保留，不再生效。 */
+    record RoleDeathParams(String linkId, Vec3 pos, String name, String entity, Integer delay, Integer yaw,
+                           Boolean corpse) {
+    }
+
+    /**
+     * 死亡动画步骤：玩家模型立即消失，并在**同一位置**生成尸体。
+     *
+     * <p>游戏里被击杀的玩家会直接从世界中移除并在原地留下
+     * {@code trainmurdermystery:player_body}；这里照这个表现演出，不再让模型先趴下。
+     */
+    static final class RoleDeathStep implements StepType<RoleDeathParams> {
+        /** 默认的 corpse 实体 id。 */
+        private static final String DEFAULT_BODY = "trainmurdermystery:player_body";
+
+        @Override
+        public StepCodec<RoleDeathParams> codec() {
+            return new StepCodec<>() {
+                @Override
+                public RoleDeathParams decode(JsonObject data) {
+                    return new RoleDeathParams(readString(data, "linkId"),
+                            readVec(data, "pos", null),
+                            readString(data, "name"),
+                            readString(data, "entity"),
+                            readInt(data, "delay"),
+                            readInt(data, "yaw"),
+                            data.has("corpse") ? data.get("corpse").getAsBoolean() : null);
+                }
+
+                @Override
+                public JsonObject encode(RoleDeathParams value) {
+                    JsonObject data = new JsonObject();
+                    if (value.linkId() != null) {
+                        data.addProperty("linkId", value.linkId());
+                    }
+                    if (value.pos() != null) {
+                        data.addProperty("pos", value.pos().x + "," + value.pos().y + "," + value.pos().z);
+                    }
+                    if (value.name() != null) {
+                        data.addProperty("name", value.name());
+                    }
+                    if (value.entity() != null) {
+                        data.addProperty("entity", value.entity());
+                    }
+                    if (value.delay() != null) {
+                        data.addProperty("delay", value.delay());
+                    }
+                    if (value.yaw() != null) {
+                        data.addProperty("yaw", value.yaw());
+                    }
+                    if (value.corpse() != null) {
+                        data.addProperty("corpse", value.corpse());
+                    }
+                    return data;
+                }
+            };
+        }
+
+        @Override
+        public String editorLabel() {
+            return text(KEY_PREFIX + "role_death");
+        }
+
+        @Override
+        public void build(RoleDeathParams params, StepBuildContext context) {
+            SceneBuilder scene = context.builder();
+            PonderPlayerElement element = playerElement(context, params.linkId());
+            float yaw = params.yaw() == null ? 0.0F : params.yaw().floatValue();
+
+            // 1) 玩家实体直接消失：不摆死亡姿态，也不等待。
+            scene.addInstruction(ps -> {
+                PonderPlayerElement target = resolvePlayer(ps, element);
+                if (target != null) {
+                    target.setVisible(false);
+                }
+            });
+            // 2) 同一位置生成尸体；纵火犯烧死的人不留尸体，传 corpse=false 跳过。
+            if (params.corpse() != null && !params.corpse()) {
+                return;
+            }
+            Vec3 pos = params.pos();
+            if (pos == null) {
+                if (element != null) {
+                    pos = element.currentLocation();
+                } else {
+                    pos = new Vec3(3.0, 1.0, 3.0);
+                }
+            }
+            String entity = params.entity() == null || params.entity().isBlank()
+                    ? DEFAULT_BODY : params.entity();
+            String nbt = customNameNbt(params.name());
+            PonderActions.createEntity(scene, context.actions(), entity, pos,
+                    pos.add(0.0D, 0.0D, 1.0D), yaw, 0.0F, nbt,
+                    params.linkId() == null ? null : params.linkId() + "_body");
+        }
+
+        /**
+         * 拼出带 CustomName 的 NBT 补丁。
+         *
+         * <p>{@code Entity.load} 用 {@code Component.Serializer.fromJson} 解析 CustomName，
+         * 所以它必须是一个 JSON 文本组件；直接写 {@code '酒保'} 会在加载时抛
+         * JsonSyntaxException，整个场景会被判为 unavailable。
+         *
+         * <p>名字写成翻译键（含 '.' 且不含空格）时按组件解析，随客户端语言显示；
+         * 否则按字面文本处理。
+         */
+        private static String customNameNbt(String name) {
+            if (name == null || name.isBlank()) {
+                return null;
+            }
+            String component;
+            if (name.trim().startsWith("{")) {
+                component = name.trim();
+            } else if (!name.contains(" ") && name.contains(".")) {
+                component = "{\"translate\":\"" + name + "\"}";
+            } else {
+                component = "{\"text\":\"" + name.replace("\\", "\\\\").replace("\"", "\\\"") + "\"}";
+            }
+            return "{CustomName:'" + component + "',CustomNameVisible:1b}";
+        }
+    }
+
+    /** {@code role_pose} 的参数：驱动已经建好的玩家模型换姿态。 */
+    record RolePoseParams(String linkId, Pose pose) {
+    }
+
+    /** 改变已有玩家模型的姿态；蹲下 / 趴下等技能动作用它接续，不必重建模型。 */
+    static final class RolePoseStep implements StepType<RolePoseParams> {
+        @Override
+        public StepCodec<RolePoseParams> codec() {
+            return new StepCodec<>() {
+                @Override
+                public RolePoseParams decode(JsonObject data) {
+                    return new RolePoseParams(readString(data, "linkId"), readPose(data));
+                }
+
+                @Override
+                public JsonObject encode(RolePoseParams value) {
+                    JsonObject data = new JsonObject();
+                    if (value.linkId() != null) {
+                        data.addProperty("linkId", value.linkId());
+                    }
+                    if (value.pose() != null && value.pose() != Pose.STANDING) {
+                        data.addProperty("pose", poseName(value.pose()));
+                    }
+                    return data;
+                }
+            };
+        }
+
+        @Override
+        public String editorLabel() {
+            return text(KEY_PREFIX + "role_pose");
+        }
+
+        @Override
+        public void build(RolePoseParams params, StepBuildContext context) {
+            SceneBuilder scene = context.builder();
+            PonderPlayerElement element = playerElement(context, params.linkId());
+            scene.addInstruction(ps -> {
+                PonderPlayerElement target = resolvePlayer(ps, element);
+                if (target != null) {
+                    target.pose(params.pose());
+                }
+            });
+        }
+    }
+
+    /** {@code role_hold} 的参数。 */
+    record RoleHoldParams(String linkId, ResourceLocation item) {
+    }
+
+    /** 给已有玩家模型换手持物；演示切药剂、换武器、拿起道具时使用。 */
+    static final class RoleHoldStep implements StepType<RoleHoldParams> {
+        @Override
+        public StepCodec<RoleHoldParams> codec() {
+            return new StepCodec<>() {
+                @Override
+                public RoleHoldParams decode(JsonObject data) {
+                    String raw = readString(data, "item");
+                    return new RoleHoldParams(readString(data, "linkId"),
+                            raw == null ? null : ResourceLocation.tryParse(raw));
+                }
+
+                @Override
+                public JsonObject encode(RoleHoldParams value) {
+                    JsonObject data = new JsonObject();
+                    if (value.linkId() != null) {
+                        data.addProperty("linkId", value.linkId());
+                    }
+                    if (value.item() != null) {
+                        data.addProperty("item", value.item().toString());
+                    }
+                    return data;
+                }
+            };
+        }
+
+        @Override
+        public String editorLabel() {
+            return text(KEY_PREFIX + "role_hold");
+        }
+
+        @Override
+        public void build(RoleHoldParams params, StepBuildContext context) {
+            SceneBuilder scene = context.builder();
+            PonderPlayerElement element = playerElement(context, params.linkId());
+            ItemStack stack = params.item() == null ? ItemStack.EMPTY
+                    : new ItemStack(BuiltInRegistries.ITEM.get(params.item()));
+            scene.addInstruction(ps -> {
+                PonderPlayerElement target = resolvePlayer(ps, element);
+                if (target != null) {
+                    target.heldItem(stack);
+                }
+            });
+        }
+    }
+
+    /** {@code role_outline} 的参数。 */
+    record RoleOutlineParams(String linkId, Integer color, Float lineWidth, Float expand) {
+    }
+
+    /** 给已有玩家模型加 / 改本能透视边框，用于「施法后看见目标」一类的变化。 */
+    static final class RoleOutlineStep implements StepType<RoleOutlineParams> {
+        @Override
+        public StepCodec<RoleOutlineParams> codec() {
+            return new StepCodec<>() {
+                @Override
+                public RoleOutlineParams decode(JsonObject data) {
+                    return new RoleOutlineParams(readString(data, "linkId"), readInt(data, "color"),
+                            readFloat(data, "lineWidth"), readFloat(data, "expand"));
+                }
+
+                @Override
+                public JsonObject encode(RoleOutlineParams value) {
+                    JsonObject data = new JsonObject();
+                    if (value.linkId() != null) {
+                        data.addProperty("linkId", value.linkId());
+                    }
+                    if (value.color() != null) {
+                        data.addProperty("color", value.color());
+                    }
+                    if (value.lineWidth() != null) {
+                        data.addProperty("lineWidth", value.lineWidth());
+                    }
+                    if (value.expand() != null) {
+                        data.addProperty("expand", value.expand());
+                    }
+                    return data;
+                }
+            };
+        }
+
+        @Override
+        public String editorLabel() {
+            return text(KEY_PREFIX + "role_outline");
+        }
+
+        @Override
+        public void build(RoleOutlineParams params, StepBuildContext context) {
+            if (params.color() == null) {
+                return;
+            }
+            SceneBuilder scene = context.builder();
+            PonderPlayerElement element = playerElement(context, params.linkId());
+            float width = params.lineWidth() == null ? 1.0F : params.lineWidth();
+            float expand = params.expand() == null ? 0.12F : params.expand();
+            int color = params.color();
+            scene.addInstruction(ps -> {
+                PonderPlayerElement target = resolvePlayer(ps, element);
+                if (target != null) {
+                    target.outline(color, width, expand);
+                }
+            });
+        }
+    }
+
+    /** {@code role_scale} 的参数。 */
+    record RoleScaleParams(String linkId, Float scale) {
+    }
+
+    /** 缩放已有玩家模型；演示兔兔 / 侏儒被抱到头顶时的小人形态。 */
+    static final class RoleScaleStep implements StepType<RoleScaleParams> {
+        @Override
+        public StepCodec<RoleScaleParams> codec() {
+            return new StepCodec<>() {
+                @Override
+                public RoleScaleParams decode(JsonObject data) {
+                    return new RoleScaleParams(readString(data, "linkId"), readFloat(data, "scale"));
+                }
+
+                @Override
+                public JsonObject encode(RoleScaleParams value) {
+                    JsonObject data = new JsonObject();
+                    if (value.linkId() != null) {
+                        data.addProperty("linkId", value.linkId());
+                    }
+                    if (value.scale() != null) {
+                        data.addProperty("scale", value.scale());
+                    }
+                    return data;
+                }
+            };
+        }
+
+        @Override
+        public String editorLabel() {
+            return text(KEY_PREFIX + "role_scale");
+        }
+
+        @Override
+        public void build(RoleScaleParams params, StepBuildContext context) {
+            if (params.scale() == null) {
+                return;
+            }
+            SceneBuilder scene = context.builder();
+            PonderPlayerElement element = playerElement(context, params.linkId());
+            float scale = params.scale();
+            scene.addInstruction(ps -> {
+                PonderPlayerElement target = resolvePlayer(ps, element);
+                if (target != null) {
+                    target.scale(scale);
+                }
+            });
+        }
+    }
+
+    /** {@code role_hide} 的参数。 */
+    record RoleHideParams(String linkId, boolean visible) {
+    }
+
+    /** 隐藏 / 恢复已有玩家模型；与 {@code create_entity} 配合演示「变成某个实体」。 */
+    static final class RoleHideStep implements StepType<RoleHideParams> {
+        @Override
+        public StepCodec<RoleHideParams> codec() {
+            return new StepCodec<>() {
+                @Override
+                public RoleHideParams decode(JsonObject data) {
+                    return new RoleHideParams(readString(data, "linkId"),
+                            !data.has("visible") || data.get("visible").getAsBoolean());
+                }
+
+                @Override
+                public JsonObject encode(RoleHideParams value) {
+                    JsonObject data = new JsonObject();
+                    if (value.linkId() != null) {
+                        data.addProperty("linkId", value.linkId());
+                    }
+                    data.addProperty("visible", value.visible());
+                    return data;
+                }
+            };
+        }
+
+        @Override
+        public String editorLabel() {
+            return text(KEY_PREFIX + "role_hide");
+        }
+
+        @Override
+        public void build(RoleHideParams params, StepBuildContext context) {
+            SceneBuilder scene = context.builder();
+            PonderPlayerElement element = playerElement(context, params.linkId());
+            boolean visible = params.visible();
+            scene.addInstruction(ps -> {
+                PonderPlayerElement target = resolvePlayer(ps, element);
+                if (target != null) {
+                    target.setVisible(visible);
+                }
+            });
+        }
+    }
+
+    /** {@code role_screen} 的参数。 */
+    record RoleScreenParams(PonderLocalizedText title, PonderLocalizedText hint, List<String> players,
+                            Integer columns, Integer color) {
+    }
+
+    /**
+     * 技能界面步骤：模拟背包里的「选人列表」。
+     *
+     * <p>神权冷笑、巫毒师、变形者等职业的技能是在背包界面里挑一个玩家来施放，
+     * 离屏沙盒构造不出真实背包，这里按同一版式自绘一份，头像用默认玩家皮肤填充。
+     */
+    static final class RoleScreenStep implements StepType<RoleScreenParams> {
+        /** 默认填充的玩家（默认皮肤 + 常见用户名，三语通用）。 */
+        private static final List<String> DEFAULT_PLAYERS =
+                List.of("Steve", "Alex", "Notch", "Dinnerbone", "jeb_", "Herobrine");
+
+        @Override
+        public StepCodec<RoleScreenParams> codec() {
+            return new StepCodec<>() {
+                @Override
+                public RoleScreenParams decode(JsonObject data) {
+                    List<String> players = readStrings(data, "players");
+                    return new RoleScreenParams(readLocalized(data, "title"),
+                            readLocalized(data, "hint"),
+                            players.isEmpty() ? DEFAULT_PLAYERS : players,
+                            readInt(data, "columns"),
+                            readInt(data, "color"));
+                }
+
+                @Override
+                public JsonObject encode(RoleScreenParams value) {
+                    JsonObject data = new JsonObject();
+                    data.addProperty("title", value.title().plain());
+                    data.addProperty("hint", value.hint().plain());
+                    JsonArray players = new JsonArray();
+                    value.players().forEach(players::add);
+                    data.add("players", players);
+                    if (value.columns() != null) {
+                        data.addProperty("columns", value.columns());
+                    }
+                    if (value.color() != null) {
+                        data.addProperty("color", value.color());
+                    }
+                    return data;
+                }
+            };
+        }
+
+        @Override
+        public String editorLabel() {
+            return text(KEY_PREFIX + "role_screen");
+        }
+
+        @Override
+        public void build(RoleScreenParams params, StepBuildContext context) {
+            new PonderScreenOverlayElement(params.title(), params.players(), params.hint(),
+                    params.columns() == null ? 6 : params.columns(),
+                    params.color() == null ? 0xFF55DDFF : params.color())
+                    .addTo(context.builder());
+        }
+    }
+
+    /** {@code role_ambience} 的参数。 */
+    record RoleAmbienceParams(Integer color, Float alpha, String mode) {
+    }
+
+    /**
+     * 环境染色步骤：用屏幕染色近似「紫天 / 橙天 / 夜雾」这类整局世界状态。
+     *
+     * <p>离屏沙盒没有服务端的天空、雾与全局光照入口，只能近似；
+     * 颜色优先级按 {@code docs/halloween-ambience.md}：命令方块紫 &gt; 万圣节橙，
+     * 黑暗 / 失明的黑雾再压过橙色。
+     */
+    static final class RoleAmbienceStep implements StepType<RoleAmbienceParams> {
+        @Override
+        public StepCodec<RoleAmbienceParams> codec() {
+            return new StepCodec<>() {
+                @Override
+                public RoleAmbienceParams decode(JsonObject data) {
+                    return new RoleAmbienceParams(readInt(data, "color"),
+                            readFloat(data, "alpha"),
+                            readString(data, "mode"));
+                }
+
+                @Override
+                public JsonObject encode(RoleAmbienceParams value) {
+                    JsonObject data = new JsonObject();
+                    if (value.color() != null) {
+                        data.addProperty("color", value.color());
+                    }
+                    if (value.alpha() != null) {
+                        data.addProperty("alpha", value.alpha());
+                    }
+                    if (value.mode() != null) {
+                        data.addProperty("mode", value.mode());
+                    }
+                    return data;
+                }
+            };
+        }
+
+        @Override
+        public String editorLabel() {
+            return text(KEY_PREFIX + "role_ambience");
+        }
+
+        @Override
+        public void build(RoleAmbienceParams params, StepBuildContext context) {
+            int color = params.color() == null ? 0x000000 : params.color();
+            float alpha = params.alpha() == null ? 0.45F : params.alpha();
+            String mode = params.mode() == null ? PonderAmbienceOverlayElement.MODE_FOG : params.mode();
+            boolean sky = PonderAmbienceOverlayElement.MODE_SKY.equalsIgnoreCase(mode.trim());
+            new PonderAmbienceOverlayElement(color, alpha, sky).addTo(context.builder());
+        }
+    }
+
     /** 控件的指向：默认从上方指下来。 */
-    private static Pointing parseDirection(String raw) {
-        if (raw == null || raw.isBlank()) {
+    private static Pointing parseDirection(String raw) {        if (raw == null || raw.isBlank()) {
             return Pointing.DOWN;
         }
         return switch (raw.trim().toLowerCase(java.util.Locale.ROOT)) {
@@ -735,8 +1357,11 @@ public final class PonderSreExtension {
 
         @Override
         public void build(RoleShopParams params, StepBuildContext context) {
-            var role = PonderRoles.byId(params.role());
+            // 场景里通常只写职业路径（如 jester）：不同来源注册的命名空间并不统一，
+            // 写完整 id 容易写错，所以先按完整 id 查、查不到再按路径查。
+            var role = PonderRoles.byIdOrPath(params.role() == null ? null : params.role().toString());
             if (role == null) {
+                LOGGER.warn("role_shop: 找不到职业 {}", params.role());
                 return;
             }
             int columns = params.columns() == null ? 4 : params.columns();
@@ -798,8 +1423,8 @@ public final class PonderSreExtension {
     }
 
     /** {@code role_mood/role_skill/role_render/role_disguise} 的通用参数。 */
-    record RoleInfoParams(PonderInfoOverlayElement.Kind kind, String label, List<String> lines,
-                          float before, float after, int color) {
+    record RoleInfoParams(PonderInfoOverlayElement.Kind kind, PonderLocalizedText label,
+                          List<PonderLocalizedText> lines, float before, float after, int color) {
     }
 
     /** 把 JSON 数据画成职业状态覆盖层；四种步骤共用同一实现，仅默认标签与类型不同。 */
@@ -823,7 +1448,9 @@ public final class PonderSreExtension {
                     Integer color = readInt(data, "color");
                     float start = before == null ? 0.0F : before;
                     return new RoleInfoParams(kind,
-                            label == null || label.isBlank() ? defaultLabel : label,
+                            label == null || label.isBlank()
+                                    ? PonderLocalizedText.of(defaultLabel)
+                                    : PonderLocalizedText.of(label),
                             readLines(data), start, after == null ? start : after,
                             color == null ? 0xFFD700 : color);
                 }
@@ -831,9 +1458,9 @@ public final class PonderSreExtension {
                 @Override
                 public JsonObject encode(RoleInfoParams value) {
                     JsonObject data = new JsonObject();
-                    data.addProperty("label", value.label());
+                    data.addProperty("label", value.label().plain());
                     JsonArray lines = new JsonArray();
-                    value.lines().forEach(lines::add);
+                    value.lines().forEach(line -> lines.add(new JsonPrimitive(line.plain())));
                     data.add("lines", lines);
                     data.addProperty("before", value.before());
                     data.addProperty("after", value.after());
@@ -854,25 +1481,32 @@ public final class PonderSreExtension {
                     params.before(), params.after(), params.color()).addTo(context.builder());
         }
 
-        private static List<String> readLines(JsonObject data) {
+        private static List<PonderLocalizedText> readLines(JsonObject data) {
             if (data == null || !data.has("lines") || data.get("lines").isJsonNull()) {
                 return List.of();
             }
             JsonElement element = data.get("lines");
             if (element.isJsonArray()) {
-                List<String> result = new ArrayList<>();
+                List<PonderLocalizedText> result = new ArrayList<>();
                 for (JsonElement line : element.getAsJsonArray()) {
-                    result.add(line.getAsString());
+                    result.add(PonderLocalizedText.fromJson(line));
                 }
                 return result;
             }
-            return List.of(element.getAsString().split("\\n", -1));
+            if (element.isJsonObject()) {
+                return List.of(PonderLocalizedText.fromJson(element));
+            }
+            List<PonderLocalizedText> result = new ArrayList<>();
+            for (String part : element.getAsString().split("\\n", -1)) {
+                result.add(PonderLocalizedText.of(part));
+            }
+            return result;
         }
     }
 
     /** 通用状态面板步骤的参数。 */
-    record RoleStateParams(String title, List<PonderStateOverlayElement.Bar> bars,
-                           Float progressBefore, Float progressAfter, List<String> lines, int color) {
+    record RoleStateParams(PonderLocalizedText title, List<PonderStateOverlayElement.Bar> bars,
+                           Float progressBefore, Float progressAfter, List<PonderLocalizedText> lines, int color) {
     }
 
     /** 虚拟血量、金币、冷却、效果、绑定与文书等步骤共用的状态面板。 */
@@ -903,7 +1537,9 @@ public final class PonderSreExtension {
                         }
                     }
                     return new RoleStateParams(
-                            title == null || title.isBlank() ? defaultTitle : title,
+                            title == null || title.isBlank()
+                                    ? PonderLocalizedText.of(defaultTitle)
+                                    : PonderLocalizedText.of(title),
                             readBars(data), before, after, readLines(data),
                             color == null ? 0xFFD700 : color);
                 }
@@ -911,7 +1547,7 @@ public final class PonderSreExtension {
                 @Override
                 public JsonObject encode(RoleStateParams value) {
                     JsonObject data = new JsonObject();
-                    data.addProperty("title", value.title());
+                    data.addProperty("title", value.title().plain());
                     JsonArray bars = new JsonArray();
                     for (PonderStateOverlayElement.Bar bar : value.bars()) {
                         JsonObject item = new JsonObject();
@@ -929,7 +1565,7 @@ public final class PonderSreExtension {
                         data.add("progress", progress);
                     }
                     JsonArray lines = new JsonArray();
-                    value.lines().forEach(lines::add);
+                    value.lines().forEach(line -> lines.add(new JsonPrimitive(line.plain())));
                     data.add("lines", lines);
                     data.addProperty("color", value.color());
                     return data;
@@ -972,19 +1608,26 @@ public final class PonderSreExtension {
             return result;
         }
 
-        private static List<String> readLines(JsonObject data) {
+        private static List<PonderLocalizedText> readLines(JsonObject data) {
             if (data == null || !data.has("lines") || data.get("lines").isJsonNull()) {
                 return List.of();
             }
             JsonElement element = data.get("lines");
             if (element.isJsonArray()) {
-                List<String> result = new ArrayList<>();
+                List<PonderLocalizedText> result = new ArrayList<>();
                 for (JsonElement line : element.getAsJsonArray()) {
-                    result.add(line.getAsString());
+                    result.add(PonderLocalizedText.fromJson(line));
                 }
                 return result;
             }
-            return List.of(element.getAsString().split("\\n", -1));
+            if (element.isJsonObject()) {
+                return List.of(PonderLocalizedText.fromJson(element));
+            }
+            List<PonderLocalizedText> result = new ArrayList<>();
+            for (String part : element.getAsString().split("\\n", -1)) {
+                result.add(PonderLocalizedText.of(part));
+            }
+            return result;
         }
 
         private static Float parseFloat(JsonElement element) {
@@ -1054,6 +1697,31 @@ public final class PonderSreExtension {
             path = path + ".png";
         }
         return ResourceLocation.fromNamespaceAndPath(id.getNamespace(), path);
+    }
+
+    /** 读多语言文本：字符串或 {@code {en_us, zh_cn, zh_tw}} 对象。 */
+    private static PonderLocalizedText readLocalized(JsonObject data, String key) {
+        if (data == null || !data.has(key) || data.get(key).isJsonNull()) {
+            return PonderLocalizedText.of("");
+        }
+        return PonderLocalizedText.fromJson(data.get(key));
+    }
+
+    /** 读字符串数组；也接受单个字符串。 */
+    private static List<String> readStrings(JsonObject data, String key) {
+        if (data == null || !data.has(key) || data.get(key).isJsonNull()) {
+            return List.of();
+        }
+        JsonElement element = data.get(key);
+        List<String> result = new ArrayList<>();
+        if (element.isJsonArray()) {
+            for (JsonElement item : element.getAsJsonArray()) {
+                result.add(item.getAsString());
+            }
+        } else {
+            result.add(element.getAsString());
+        }
+        return List.copyOf(result);
     }
 
     /** 坐标接受 {@code [x,y,z]} 数组或 {@code "x,y,z"} 字符串。 */

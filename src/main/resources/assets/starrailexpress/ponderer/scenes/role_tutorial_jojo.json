@@ -1,0 +1,892 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.jojo",
+  "items": [
+    "noellesroles:bowen_badge"
+  ],
+  "title": {
+    "en_us": "Jotaro",
+    "zh_cn": "承太郎",
+    "zh_tw": "承太郎"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_carriage"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Jotaro",
+        "zh_cn": "承太郎",
+        "zh_tw": "承太郎"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "jojo_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Sheriff team",
+            "zh_cn": "警长阵营",
+            "zh_tw": "警長陣營"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 101,
+          "text": {
+            "en_us": "Then I'll be the one to judge you.",
+            "zh_cn": "因此，就由我来制裁你。",
+            "zh_tw": "因此，就由我來制裁你。"
+          },
+          "point": [
+            4.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 111
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Jotaro",
+        "zh_cn": "承太郎",
+        "zh_tw": "承太郎"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "jojo_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "jojo",
+            "origin": [
+              2.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "jojo_skill_target_0",
+            "outline": -65536
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              4.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "jojo_main",
+            "to": [
+              5.1,
+              1.0,
+              2.0
+            ],
+            "duration": 45
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 15
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "jojo_skill_target_0",
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            6,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Starts with no gun; time stop cannot override other time stops.",
+            "zh_cn": "欧拉一拳：右键列车门可以将其打开(包括铁门)。右键进入攻击期间，对第一个打到的目标与自身绑定；除非自身或目标死亡，否则该状态不会提前结束。目标无法移动、无法使用物品，并始终被固定在你前方。期间需在6秒内右键攻击目标20次即可击杀，每次攻击都会使目标受击并交替挥动双臂。超时则取消攻击，物品进入一半冷却。持有时手臂会被金色渐变包裹。",
+            "zh_tw": "歐拉一拳：右鍵列車門可以將其打開(包括鐵門)。右鍵進入攻擊期間，對第一個打到的目標與自身綁定；除非自身或目標死亡，否則該狀態不會提前結束。目標無法移動、無法使用物品，並始終被固定在你前方。期間需在6秒內右鍵攻擊目標20次即可擊殺，每次攻擊都會使目標受擊並交替揮動雙臂。超時則取消攻擊，物品進入一半冷卻。持有時手臂會被金色漸變包裹。"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 158,
+          "text": {
+            "en_us": "If Dio is within 5 blocks of you, Dio is highlighted in your view.",
+            "zh_cn": "初始不自带枪，时停不可覆盖其他时停。",
+            "zh_tw": "初始不自帶槍，時停不可覆蓋其他時停。"
+          },
+          "point": [
+            4.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 168
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Jotaro",
+        "zh_cn": "承太郎",
+        "zh_tw": "承太郎"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "jojo_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Passive: gun cooldown doubled. Immune to time stop like the Clockmaker.",
+                "zh_cn": "白金之星 世界：时停5s，冷却240s。当你在时停时击杀他人后，你也会进入时停状态。",
+                "zh_tw": "白金之星 世界：時停5s，冷卻240s。當你在時停時擊殺他人後，你也會進入時停狀態。"
+              },
+              {
+                "en_us": "ORA Punch: right-click a train door to open it (including iron doors). Right-click to enter an attack: the first target hit is bound to you; this state doesn't end unless you or the target dies. The target cannot move or use items and is fixed in front of you. During this, right-click the target 20 times within 6 seconds to kill them; each hit makes them flinch and swing both arms alternately. On timeout, the attack cancels and items enter half cooldown. While holding, your arm is wrapped in a golden gradient.",
+                "zh_cn": "被动：枪的冷却增加一倍。像钟表匠一样免疫时停。",
+                "zh_tw": "被動：槍的冷卻增加一倍。像鐘錶匠一樣免疫時停。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              4.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "jojo_main",
+            "to": [
+              5.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            6,
+            0,
+            2
+          ],
+          "blockPos2": [
+            6,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            6,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Star Platinum The World: time stop for 5s, 240s cooldown. If you kill someone during time stop, you also enter time stop.",
+            "zh_cn": "特殊技能",
+            "zh_tw": "特殊技能"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "jojo_skill_target_1",
+            "outline": -65536
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 15
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "jojo_skill_target_1",
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            6,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "text",
+          "duration": 167,
+          "text": {
+            "en_us": "Passive: gun cooldown doubled. Immune to time stop like the Clockmaker.",
+            "zh_cn": "白金之星 世界：时停5s，冷却240s。当你在时停时击杀他人后，你也会进入时停状态。",
+            "zh_tw": "白金之星 世界：時停5s，冷卻240s。當你在時停時擊殺他人後，你也會進入時停狀態。"
+          },
+          "point": [
+            4.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 177
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            6,
+            0,
+            2
+          ],
+          "blockPos2": [
+            6,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            6,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "ORA Punch: right-click a train door to open it (including iron doors). Right-click to enter an attack: the first target hit is bound to you; this state doesn't end unless you or the target dies. The target cannot move or use items and is fixed in front of you. During this, right-click the target 20 times within 6 seconds to kill them; each hit makes them flinch and swing both arms alternately. On timeout, the attack cancels and items enter half cooldown. While holding, your arm is wrapped in a golden gradient.",
+            "zh_cn": "被动：枪的冷却增加一倍。像钟表匠一样免疫时停。",
+            "zh_tw": "被動：槍的冷卻增加一倍。像鐘錶匠一樣免疫時停。"
+          },
+          "point": [
+            4.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Jotaro",
+        "zh_cn": "承太郎",
+        "zh_tw": "承太郎"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "jojo_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "jojo",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 106,
+          "text": {
+            "en_us": "Drops a Revolver on death.",
+            "zh_cn": "商店可花费50金币购买波纹之力。背包里已有时无法购买，购买冷却1分30秒。",
+            "zh_tw": "商店可花費50金幣購買波紋之力。背包裏已有時無法購買，購買冷卻1分30秒。"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 116
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Jotaro",
+        "zh_cn": "承太郎",
+        "zh_tw": "承太郎"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "jojo_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "jojo_target",
+            "outline": -65536
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Special skill",
+                "zh_cn": "你无法被迪奥透视。",
+                "zh_tw": "你無法被迪奧透視。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 63,
+          "text": {
+            "en_us": "Special skill",
+            "zh_cn": "你无法被迪奥透视。",
+            "zh_tw": "你無法被迪奧透視。"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 73
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "mood",
+      "title": {
+        "en_us": "Jotaro",
+        "zh_cn": "承太郎",
+        "zh_tw": "承太郎"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "jojo_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_mood",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.sanity",
+            "before": 0.35,
+            "after": 0.85,
+            "lines": [
+              {
+                "en_us": "波纹之力：右键使用，将半径5格内的玩家拉向自己，并使其缓慢I 5秒、理智提高30%。使用冷却1分钟。",
+                "zh_cn": "波纹之力：右键使用，将半径5格内的玩家拉向自己，并使其缓慢I 5秒、理智提高30%。使用冷却1分钟。",
+                "zh_tw": "波紋之力：右鍵使用，將半徑5格內的玩家拉向自己，並使其緩慢I 5秒、理智提高30%。使用冷卻1分鐘。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "jojo_skill_target_0",
+            "outline": -65536
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              4.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            4,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 130,
+          "text": {
+            "en_us": "波纹之力：右键使用，将半径5格内的玩家拉向自己，并使其缓慢I 5秒、理智提高30%。使用冷却1分钟。",
+            "zh_cn": "波纹之力：右键使用，将半径5格内的玩家拉向自己，并使其缓慢I 5秒、理智提高30%。使用冷却1分钟。",
+            "zh_tw": "波紋之力：右鍵使用，將半徑5格內的玩家拉向自己，並使其緩慢I 5秒、理智提高30%。使用冷卻1分鐘。"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 140
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "bond",
+      "title": {
+        "en_us": "Jotaro",
+        "zh_cn": "承太郎",
+        "zh_tw": "承太郎"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "jojo_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "jojo_ally",
+            "outline": -65536
+          }
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "attachKeyFrame": true,
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Spawns bound with Dio (Killer team).",
+                "zh_cn": "与迪奥(杀手阵营)绑定生成。",
+                "zh_tw": "與迪奧(殺手陣營)綁定生成。"
+              }
+            ],
+            "color": -65536
+          }
+        },
+        {
+          "type": "text",
+          "duration": 104,
+          "text": {
+            "en_us": "Spawns bound with Dio (Killer team).",
+            "zh_cn": "与迪奥(杀手阵营)绑定生成。",
+            "zh_tw": "與迪奧(殺手陣營)綁定生成。"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 114
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Jotaro",
+        "zh_cn": "承太郎",
+        "zh_tw": "承太郎"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "jojo_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 58,
+          "text": {
+            "en_us": "死亡后掉落左轮手枪。",
+            "zh_cn": "死亡后掉落左轮手枪。",
+            "zh_tw": "死亡後掉落左輪手槍。"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 68
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

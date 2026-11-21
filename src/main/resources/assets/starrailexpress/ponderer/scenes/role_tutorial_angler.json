@@ -1,0 +1,368 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.angler",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Angler",
+    "zh_cn": "垂钓者",
+    "zh_tw": "垂釣者"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_water"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Angler",
+        "zh_cn": "垂钓者",
+        "zh_tw": "垂釣者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_water",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "angler_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Survive to the end with the passengers. The abyss lends you this one form; once your rod runs out, you're gone.",
+            "zh_cn": "拿好深渊赠予你的鱼竿。",
+            "zh_tw": "拿好深淵贈予你的魚竿。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Angler",
+        "zh_cn": "垂钓者",
+        "zh_tw": "垂釣者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_water",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "angler_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 153,
+          "text": {
+            "en_us": "Starts with a Fishing Rod whose durability = player count × 1.5",
+            "zh_cn": "开局获得耐久=人数×1.5的钓竿",
+            "zh_tw": "開局獲得耐久=人數×1.5的釣竿"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 163
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Each successful reel-in or rod ride costs 1 durability; an empty cast costs nothing. You reel up all kinds of items.",
+            "zh_cn": "每次成功收竿或乘坐钓竿消耗1点耐久；空竿不耗。会钓上来各式各样的物品。",
+            "zh_tw": "每次成功收竿或乘坐釣竿消耗1點耐久；空竿不耗。會釣上來各式各樣的物品。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Angler",
+        "zh_cn": "垂钓者",
+        "zh_tw": "垂釣者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_water",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "angler_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Sneak + right-click to ride the rod and glide horizontally for up to 6 seconds, then a 30-second cooldown after dismounting. If you clip into a block, the rod disappears and you are teleported to the last safe position on the path.",
+                "zh_cn": "潜行右键可乘坐钓竿水平平移，最多6秒，下来后30秒冷却。卡进方块后钓竿消失，传送到路径上最后的安全位置。",
+                "zh_tw": "潛行右鍵可乘坐釣竿水準平移，最多6秒，下來後30秒冷卻。卡進方塊後釣竿消失，傳送到路徑上最後的安全位置。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "angler_main",
+            "pose": "crouching"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            2,
+            0,
+            2
+          ],
+          "blockPos2": [
+            4,
+            0,
+            4
+          ],
+          "duration": 240,
+          "color": "green"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "angler_main",
+            "pose": "standing"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Sneak + right-click to ride the rod and glide horizontally for up to 6 seconds, then a 30-second cooldown after dismounting. If you clip into a block, the rod disappears and you are teleported to the last safe position on the path.",
+            "zh_cn": "潜行右键可乘坐钓竿水平平移，最多6秒，下来后30秒冷却。卡进方块后钓竿消失，传送到路径上最后的安全位置。",
+            "zh_tw": "潛行右鍵可乘坐釣竿水準平移，最多6秒，下來後30秒冷卻。卡進方塊後釣竿消失，傳送到路徑上最後的安全位置。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Angler",
+        "zh_cn": "垂钓者",
+        "zh_tw": "垂釣者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_water",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "angler_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 95,
+          "text": {
+            "en_us": "Only spawns on underwater maps.",
+            "zh_cn": "仅在水下地图刷新。",
+            "zh_tw": "僅在水下地圖刷新。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 105
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When the rod runs out or the Angler dies, a faceless version of you sits at the old fishing spot. Approach within 5 seconds to pick up a rod that shouldn't exist.",
+            "zh_cn": "钓竿耗尽或垂钓者死亡后，无脸的你会坐在旧钓点。5秒内靠近可捡到不该存在的钓竿。",
+            "zh_tw": "釣竿耗盡或垂釣者死亡後，無臉的你會坐在舊釣點。5秒內靠近可撿到不該存在的釣竿。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

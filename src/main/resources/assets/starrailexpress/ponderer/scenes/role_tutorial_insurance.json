@@ -1,0 +1,458 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.insurance",
+  "items": [
+    "noellesroles:insurance"
+  ],
+  "title": {
+    "en_us": "Insurance Agent",
+    "zh_cn": "保险职员",
+    "zh_tw": "保險職員"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Insurance Agent",
+        "zh_cn": "保险职员",
+        "zh_tw": "保險職員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "insurance_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 144,
+          "text": {
+            "en_us": "Sign final-life insurance with people in desperate straits",
+            "zh_cn": "为绝境中的人们签订生命最后的保险",
+            "zh_tw": "為絕境中的人們簽訂生命最後的保險"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 154
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Insurance Agent",
+        "zh_cn": "保险职员",
+        "zh_tw": "保險職員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "insurance_main"
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "attachKeyFrame": true,
+          "pos": [
+            1.6,
+            1.55,
+            1.6
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:insurance",
+          "linkId": "insurance_item"
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:insurance",
+          "linkId": "insurance_skill_item_0"
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:insurance",
+          "duration": 70,
+          "point": [
+            3.0,
+            2.9,
+            3.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "insurance_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 35
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Right-click the policy to open the page and pick a cause of death to insure: knife, revolver, bat, grenade, sawed-off shotgun, cardiac arrest, throwing knife, other.",
+            "zh_cn": "右键保险打开保险页面，选择一个死亡原因签订保险：刀、左轮手枪、球棒、手榴弹、短管霰弹枪、心脏骤停、飞刀、其它。",
+            "zh_tw": "右鍵保險打開保險頁面，選擇一個死亡原因簽訂保險：刀、左輪手槍、球棒、手榴彈、短管霰彈槍、心臟驟停、飛刀、其他。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Insurance Agent",
+        "zh_cn": "保险职员",
+        "zh_tw": "保險職員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "insurance_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "insurance",
+            "columns": 4
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:insurance",
+          "linkId": "insurance_shop_line_0",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 148,
+          "text": {
+            "en_us": "The Insurance Agent can buy an insurance policy in the shop.",
+            "zh_cn": "保险职员可以在商店中购买一份保险。",
+            "zh_tw": "保險職員可以在商店中購買一份保險。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 158
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.35,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:insurance",
+          "linkId": "insurance_shop_line_1",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Right-click a signed policy and pay 25 coins to activate it; active policies show an enchanted glow.",
+            "zh_cn": "右键已签订的保险并支付25金币使其生效；生效的保险会显示附魔光束。",
+            "zh_tw": "右鍵已簽訂的保險並支付25金幣使其生效；生效的保險會顯示附魔光束。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            3.1,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:insurance",
+          "linkId": "insurance_shop_line_2",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "If a player with an active policy takes damage of the insured cause, they ignore that hit and gain 25 coins.",
+            "zh_cn": "若玩家拥有生效的保险时，受到了保险对应死亡原因的伤害，则会免疫本次伤害，并获得25金币。",
+            "zh_tw": "若玩家擁有生效的保險時，受到了保險對應死亡原因的傷害，則會免疫本次傷害，並獲得25金幣。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Insurance Agent",
+        "zh_cn": "保险职员",
+        "zh_tw": "保險職員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "insurance_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 160,
+          "text": {
+            "en_us": "A signed policy can't be re-signed and can be dropped by the agent.",
+            "zh_cn": "已签订的保险无法再次签订，保险可以被保险职员丢出。",
+            "zh_tw": "已簽訂的保險無法再次簽訂，保險可以被保險職員丟出。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 170
+        },
+        {
+          "type": "text",
+          "duration": 151,
+          "text": {
+            "en_us": "Insurance can't block forced death or good-meaning-kill death.",
+            "zh_cn": "保险无法抵挡强制死亡，也无法抵挡误杀平民而亡。",
+            "zh_tw": "保險無法抵擋強制死亡，也無法抵擋誤殺平民而亡。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 161
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

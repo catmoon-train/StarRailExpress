@@ -1,0 +1,497 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.witch_maiden",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Witch Maiden",
+    "zh_cn": "巫妖侍女",
+    "zh_tw": "巫妖侍女"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Witch Maiden",
+        "zh_cn": "巫妖侍女",
+        "zh_tw": "巫妖侍女"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "witch_maiden_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Witch Maiden",
+            "zh_cn": "一位神秘塔楼中的巫女",
+            "zh_tw": "一位神秘塔樓中的巫女"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Witch Maiden",
+        "zh_cn": "巫妖侍女",
+        "zh_tw": "巫妖侍女"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "witch_maiden_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 88,
+          "text": {
+            "en_us": "You may draw the following:",
+            "zh_cn": "你可能抽取到下面的物品：",
+            "zh_tw": "你可能抽取到下麵的物品："
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 98
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Witch Maiden",
+        "zh_cn": "巫妖侍女",
+        "zh_tw": "巫妖侍女"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "witch_maiden_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "witch_maiden",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 160,
+          "text": {
+            "en_us": "Starts with an Ofuda; the shop sells Shrine Fortunes, 90s cooldown.",
+            "zh_cn": "开局携带一枚御币，可以在商店中购买灵社抽签，冷却90s。",
+            "zh_tw": "開局攜帶一枚禦幣，可以在商店中購買靈社抽籤，冷卻90s。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 170
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vitals",
+      "title": {
+        "en_us": "Witch Maiden",
+        "zh_cn": "巫妖侍女",
+        "zh_tw": "巫妖侍女"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "witch_maiden_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "attachKeyFrame": true,
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.4,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
+              }
+            ],
+            "lines": [
+              {
+                "en_us": "- 【Good Fortune】: gain a Weak Shield Potion (10% chance)",
+                "zh_cn": "- 「上签」：获得一瓶弱效护盾试剂（概率10%）",
+                "zh_tw": "- 「上簽」：獲得一瓶弱效護盾試劑（概率10%）"
+              }
+            ]
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "witch_maiden_skill_target_0",
+            "outline": -9958902
+          }
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 35
+        },
+        {
+          "type": "text",
+          "duration": 140,
+          "text": {
+            "en_us": "- 【Good Fortune】: gain a Weak Shield Potion (10% chance)",
+            "zh_cn": "- 「上签」：获得一瓶弱效护盾试剂（概率10%）",
+            "zh_tw": "- 「上簽」：獲得一瓶弱效護盾試劑（概率10%）"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 150
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Witch Maiden",
+        "zh_cn": "巫妖侍女",
+        "zh_tw": "巫妖侍女"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "witch_maiden_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 72,
+          "text": {
+            "en_us": "An easter-egg role",
+            "zh_cn": "彩蛋职业",
+            "zh_tw": "彩蛋職業"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 82
+        },
+        {
+          "type": "text",
+          "duration": 94,
+          "text": {
+            "en_us": "Wins together with the Killers",
+            "zh_cn": "随杀手一同获胜",
+            "zh_tw": "隨殺手一同獲勝"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 104
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 121,
+          "text": {
+            "en_us": "- 【Great Fortune】: gain a Danmaku (5% chance)",
+            "zh_cn": "- 「上上签」：获得一枚弹幕（概率5%）",
+            "zh_tw": "- 「上上簽」：獲得一枚彈幕（概率5%）"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 131
+        },
+        {
+          "type": "text",
+          "duration": 169,
+          "text": {
+            "en_us": "- 【Middle Fortune】: gain Swiftness III for yourself for 12s (40% chance)",
+            "zh_cn": "- 「中签」：自身获得12s迅捷3（概率40%）",
+            "zh_tw": "- 「中簽」：自身獲得12s迅捷3（概率40%）"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 179
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 162,
+          "text": {
+            "en_us": "- 【Bad Fortune】: gain Slowness III for yourself for 12s (20% chance)",
+            "zh_cn": "- 「下签」：自身获得12s缓慢3（概率20%）",
+            "zh_tw": "- 「下簽」：自身獲得12s緩慢3（概率20%）"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 172
+        },
+        {
+          "type": "text",
+          "duration": 130,
+          "text": {
+            "en_us": "- 【Worst Fortune】: get trapped for 8s (15% chance)",
+            "zh_cn": "- 「下下签」：自身被禁锢8s（概率15%）",
+            "zh_tw": "- 「下下簽」：自身被禁錮8s（概率15%）"
+          },
+          "point": [
+            3.0,
+            3.2,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 140
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

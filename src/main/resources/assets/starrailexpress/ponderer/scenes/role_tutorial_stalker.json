@@ -1,0 +1,797 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.stalker",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Stalker",
+    "zh_cn": "潜行者",
+    "zh_tw": "潛行者"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Stalker",
+        "zh_cn": "潜行者",
+        "zh_tw": "潛行者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "stalker_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 153,
+          "text": {
+            "en_us": "Watch from the shadows, feed on fear. Evolve and hunt everyone.",
+            "zh_cn": "在阴影中观察，汲取恐惧的力量。完成进化，狩猎所有人。",
+            "zh_tw": "在陰影中觀察，汲取恐懼的力量。完成進化，狩獵所有人。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 163
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Stalker",
+        "zh_cn": "潜行者",
+        "zh_tw": "潛行者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "stalker_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Left-click knifing dashes you forward a short distance; right-click to charge, then release to stab. The main-hand and off-hand knives have independent cooldowns.",
+                "zh_cn": "左键刀人并向前冲刺一小段，右键蓄力后松开刺击。主手刀和副手刀冷却相互独立。",
+                "zh_tw": "左鍵刀人並向前衝刺一小段，右鍵蓄力後鬆開刺擊。主手刀和副手刀冷卻相互獨立。"
+              },
+              {
+                "en_us": "Activated in the shop for 400 coin: enter Rampage mode for 30 seconds, 150-second cooldown. It first switches to an existing main- or off-hand Hunting Dagger in your inventory. During this you gain no-clip and can sprint. Right-click the Hunting Dagger, charge, then release to dash; hitting an enemy puts one off-cooldown Hunting Knife on a 5-second cooldown, the skill on a 3.5-second cooldown, and can hit at most 2 people per dash.",
+                "zh_cn": "商店花400金币激活，进入疯狂模式30秒，冷却150秒。此时会优先切换到背包中已有的主手或副手狩猎匕首。期间获得无碰撞，可以奔跑。右键狩猎匕首蓄力后再松开进行冲刺，命中一名敌人会让一把未冷却的猎刀进入5秒冷却，技能进入3.5秒冷却，一次最多命中2人。",
+                "zh_tw": "商店花400金幣啟動，進入瘋狂模式30秒，冷卻150秒。此時會優先切換到背包中已有的主手或副手狩獵匕首。期間獲得無碰撞，可以奔跑。右鍵狩獵匕首蓄力後再鬆開進行衝刺，命中一名敵人會讓一把未冷卻的獵刀進入5秒冷卻，技能進入3.5秒冷卻，一次最多命中2人。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "stalker_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 151,
+          "text": {
+            "en_us": "2. Press the skill key to drain energy until entering phase 2.",
+            "zh_cn": "2.按下技能键吸取能量直到进入二阶段。",
+            "zh_tw": "2.按下技能鍵吸取能量直到進入二階段。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 161
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "stalker_skill_item_1"
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:note",
+          "duration": 70,
+          "point": [
+            3.0,
+            2.9,
+            3.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "stalker_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 35
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Left-click knifing dashes you forward a short distance; right-click to charge, then release to stab. The main-hand and off-hand knives have independent cooldowns.",
+            "zh_cn": "左键刀人并向前冲刺一小段，右键蓄力后松开刺击。主手刀和副手刀冷却相互独立。",
+            "zh_tw": "左鍵刀人並向前衝刺一小段，右鍵蓄力後鬆開刺擊。主手刀和副手刀冷卻相互獨立。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Activated in the shop for 400 coin: enter Rampage mode for 30 seconds, 150-second cooldown. It first switches to an existing main- or off-hand Hunting Dagger in your inventory. During this you gain no-clip and can sprint. Right-click the Hunting Dagger, charge, then release to dash; hitting an enemy puts one off-cooldown Hunting Knife on a 5-second cooldown, the skill on a 3.5-second cooldown, and can hit at most 2 people per dash.",
+                "zh_cn": "商店花400金币激活，进入疯狂模式30秒，冷却150秒。此时会优先切换到背包中已有的主手或副手狩猎匕首。期间获得无碰撞，可以奔跑。右键狩猎匕首蓄力后再松开进行冲刺，命中一名敌人会让一把未冷却的猎刀进入5秒冷却，技能进入3.5秒冷却，一次最多命中2人。",
+                "zh_tw": "商店花400金幣啟動，進入瘋狂模式30秒，冷卻150秒。此時會優先切換到背包中已有的主手或副手狩獵匕首。期間獲得無碰撞，可以奔跑。右鍵狩獵匕首蓄力後再鬆開進行衝刺，命中一名敵人會讓一把未冷卻的獵刀進入5秒冷卻，技能進入3.5秒冷卻，一次最多命中2人。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Activated in the shop for 400 coin: enter Rampage mode for 30 seconds, 150-second cooldown. It first switches to an existing main- or off-hand Hunting Dagger in your inventory. During this you gain no-clip and can sprint. Right-click the Hunting Dagger, charge, then release to dash; hitting an enemy puts one off-cooldown Hunting Knife on a 5-second cooldown, the skill on a 3.5-second cooldown, and can hit at most 2 people per dash.",
+            "zh_cn": "商店花400金币激活，进入疯狂模式30秒，冷却150秒。此时会优先切换到背包中已有的主手或副手狩猎匕首。期间获得无碰撞，可以奔跑。右键狩猎匕首蓄力后再松开进行冲刺，命中一名敌人会让一把未冷却的猎刀进入5秒冷却，技能进入3.5秒冷却，一次最多命中2人。",
+            "zh_tw": "商店花400金幣啟動，進入瘋狂模式30秒，冷卻150秒。此時會優先切換到背包中已有的主手或副手狩獵匕首。期間獲得無碰撞，可以奔跑。右鍵狩獵匕首蓄力後再鬆開進行衝刺，命中一名敵人會讓一把未冷卻的獵刀進入5秒冷卻，技能進入3.5秒冷卻，一次最多命中2人。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Stalker",
+        "zh_cn": "潜行者",
+        "zh_tw": "潛行者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "stalker_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "stalker",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "1. Hunting Dagger: gain a Knife; the shop can sell a second knife (350 coin) for the off-hand. You can knife people with left-click; the off-hand knife is hidden when the main hand holds no knife.",
+            "zh_cn": "1.狩猎匕首：获得一把刀，商店可花350金币购买第二把刀放在副手，可以左键刀人，主手不拿刀时不显示副手上的刀。",
+            "zh_tw": "1.狩獵匕首：獲得一把刀，商店可花350金幣購買第二把刀放在副手，可以左鍵刀人，主手不拿刀時不顯示副手上的刀。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vitals",
+      "title": {
+        "en_us": "Stalker",
+        "zh_cn": "潜行者",
+        "zh_tw": "潛行者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "stalker_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "attachKeyFrame": true,
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.4,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
+              }
+            ],
+            "lines": [
+              {
+                "en_us": "1. Infinite sprint; has one layer of shield.",
+                "zh_cn": "1.无限奔跑，拥有一层护盾。",
+                "zh_tw": "1.無限奔跑，擁有一層護盾。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "stalker_skill_target_0",
+            "outline": -13676721
+          }
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 35
+        },
+        {
+          "type": "text",
+          "duration": 119,
+          "text": {
+            "en_us": "1. Infinite sprint; has one layer of shield.",
+            "zh_cn": "1.无限奔跑，拥有一层护盾。",
+            "zh_tw": "1.無限奔跑，擁有一層護盾。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 129
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Stalker",
+        "zh_cn": "潜行者",
+        "zh_tw": "潛行者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "stalker_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "stalker_psycho",
+            "outline": -13676721
+          }
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "Phase 1 -- [the shop only sells a lockpick]",
+                "zh_cn": "一阶段--[商店仅出售撬锁器]",
+                "zh_tw": "一階段--[商店僅出售撬鎖器]"
+              },
+              {
+                "en_us": "Phase 2",
+                "zh_cn": "二阶段",
+                "zh_tw": "二階段"
+              },
+              {
+                "en_us": "Assassin Form",
+                "zh_cn": "刺客形态",
+                "zh_tw": "刺客形態"
+              },
+              {
+                "en_us": "Knocking down a player with the attack dash in Assassin Form grants 1 normal dash (store up to 1); release it with Q. Crouch near a wall to wall-cling; release to detach.",
+                "zh_cn": "刺客形态中用攻击冲刺击倒玩家可获得1次普通冲刺，最多储存1次，按Q释放。蹲下靠近墙面可挂到墙上，松开脱离。",
+                "zh_tw": "刺客形態中用攻擊衝刺擊倒玩家可獲得1次普通衝刺，最多儲存1次，按Q釋放。蹲下靠近牆面可掛到牆上，鬆開脫離。"
+              },
+              {
+                "en_us": "The attack dash, normal dash, and wall-cling only work in Assassin Form.",
+                "zh_cn": "攻击冲刺、普通冲刺与挂墙均仅在刺客形态中生效。",
+                "zh_tw": "攻擊衝刺、普通衝刺與掛牆均僅在刺客形態中生效。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 117,
+          "text": {
+            "en_us": "Phase 1 -- [the shop only sells a lockpick]",
+            "zh_cn": "一阶段--[商店仅出售撬锁器]",
+            "zh_tw": "一階段--[商店僅出售撬鎖器]"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 127
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Phase 2",
+            "zh_cn": "二阶段",
+            "zh_tw": "二階段"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 65
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 63,
+          "text": {
+            "en_us": "Assassin Form",
+            "zh_cn": "刺客形态",
+            "zh_tw": "刺客形態"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 73
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Knocking down a player with the attack dash in Assassin Form grants 1 normal dash (store up to 1); release it with Q. Crouch near a wall to wall-cling; release to detach.",
+            "zh_cn": "刺客形态中用攻击冲刺击倒玩家可获得1次普通冲刺，最多储存1次，按Q释放。蹲下靠近墙面可挂到墙上，松开脱离。",
+            "zh_tw": "刺客形態中用攻擊衝刺擊倒玩家可獲得1次普通衝刺，最多儲存1次，按Q釋放。蹲下靠近牆面可掛到牆上，鬆開脫離。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 169,
+          "text": {
+            "en_us": "The attack dash, normal dash, and wall-cling only work in Assassin Form.",
+            "zh_cn": "攻击冲刺、普通冲刺与挂墙均仅在刺客形态中生效。",
+            "zh_tw": "攻擊衝刺、普通衝刺與掛牆均僅在刺客形態中生效。"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 179
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Stalker",
+        "zh_cn": "潜行者",
+        "zh_tw": "潛行者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "stalker_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 70,
+          "text": {
+            "en_us": "2. Cannot sprint.",
+            "zh_cn": "2.无法奔跑。",
+            "zh_tw": "2.無法奔跑。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

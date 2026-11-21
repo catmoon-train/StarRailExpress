@@ -1,0 +1,337 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.commander",
+  "items": [
+    "noellesroles:fake_knife",
+    "noellesroles:fake_revolver"
+  ],
+  "title": {
+    "en_us": "Commander",
+    "zh_cn": "指挥官",
+    "zh_tw": "指揮官"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Commander",
+        "zh_cn": "指挥官",
+        "zh_tw": "指揮官"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "commander_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 94,
+          "text": {
+            "en_us": "Wins together with the Killers",
+            "zh_cn": "与杀手一同获胜",
+            "zh_tw": "與殺手一同獲勝"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 104
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 139,
+          "text": {
+            "en_us": "As the Killer team's brain, direct your fellow killers!",
+            "zh_cn": "作为杀手的大脑，指挥杀手们的行动！",
+            "zh_tw": "作為殺手的大腦，指揮殺手們的行動！"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 149
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Commander",
+        "zh_cn": "指挥官",
+        "zh_tw": "指揮官"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "commander_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "commander",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 133,
+          "text": {
+            "en_us": "The Commander starts with a Fake Knife and Fake Gun.",
+            "zh_cn": "指挥官开局自带假刀和假枪。",
+            "zh_tw": "指揮官開局自帶假刀和假槍。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 143
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Commander",
+        "zh_cn": "指挥官",
+        "zh_tw": "指揮官"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "commander_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "commander_target",
+            "outline": 4282337484
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Active — you can toggle the Killer channel; in this channel only the Killer team and the Magician can hear and see your messages.",
+                "zh_cn": "主动-你可以切换杀手频道，在此频道下仅杀手阵营和魔术师可听见、看见你的消息。",
+                "zh_tw": "主動-你可以切換殺手頻道，在此頻道下僅殺手陣營和魔術師可聽見、看見你的消息。"
+              },
+              {
+                "en_us": "In this channel you also receive Killers' messages (but Killers' messages may be heard and seen by nearby people).",
+                "zh_cn": "在此频道下，你也能接收到杀手的消息（但杀手的消息可能会被周围人听见、看到）。",
+                "zh_tw": "在此頻道下，你也能接收到殺手的消息（但殺手的消息可能會被周圍人聽見、看到）。"
+              },
+              {
+                "en_us": "Passive — Alert: when you turn on instinct, you can see Sheriff-team members within 5 blocks; they show as blue.",
+                "zh_cn": "被动-警觉：当你打开直觉的时候，你可以看见附近5格内的警长阵营，它们将显示为蓝色。",
+                "zh_tw": "被動-警覺：當你打開直覺的時候，你可以看見附近5格內的警長陣營，它們將顯示為藍色。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Active — you can toggle the Killer channel; in this channel only the Killer team and the Magician can hear and see your messages.",
+            "zh_cn": "主动-你可以切换杀手频道，在此频道下仅杀手阵营和魔术师可听见、看见你的消息。",
+            "zh_tw": "主動-你可以切換殺手頻道，在此頻道下僅殺手陣營和魔術師可聽見、看見你的消息。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "In this channel you also receive Killers' messages (but Killers' messages may be heard and seen by nearby people).",
+            "zh_cn": "在此频道下，你也能接收到杀手的消息（但杀手的消息可能会被周围人听见、看到）。",
+            "zh_tw": "在此頻道下，你也能接收到殺手的消息（但殺手的消息可能會被周圍人聽見、看到）。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Passive — Alert: when you turn on instinct, you can see Sheriff-team members within 5 blocks; they show as blue.",
+            "zh_cn": "被动-警觉：当你打开直觉的时候，你可以看见附近5格内的警长阵营，它们将显示为蓝色。",
+            "zh_tw": "被動-警覺：當你打開直覺的時候，你可以看見附近5格內的警長陣營，它們將顯示為藍色。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

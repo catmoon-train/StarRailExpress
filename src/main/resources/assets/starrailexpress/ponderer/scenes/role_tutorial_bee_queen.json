@@ -1,0 +1,451 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.bee_queen",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Bee Queen",
+    "zh_cn": "蜂后",
+    "zh_tw": "蜂後"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_graveyard"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Bee Queen",
+        "zh_cn": "蜂后",
+        "zh_tw": "蜂後"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "bee_queen_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "🐝 Revive corpses and build your bee army!",
+            "zh_cn": "🐝 组成你的蜜蜂大军！",
+            "zh_tw": "🐝 組成你的蜜蜂大軍！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 123
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Bee Queen",
+        "zh_cn": "蜂后",
+        "zh_tw": "蜂後"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "bee_queen_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 99,
+          "text": {
+            "en_us": "Owns the Bee Family text channel.",
+            "zh_cn": "拥有蜜蜂家族文字频道。",
+            "zh_tw": "擁有蜜蜂家族文字頻道。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 109
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Bee Queen",
+        "zh_cn": "蜂后",
+        "zh_tw": "蜂後"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "bee_queen_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "bee_queen",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Spend 75 coin and right-click a corpse to revive it as a Worker Bee. A Worker Bee lives at most 120s. After a Worker Bee poisons someone, it dies immediately.",
+            "zh_cn": "花费75金币，右键尸体，将其复活为工蜂。工蜂最多可存活120s。工蜂使人中毒后，会立即死亡。",
+            "zh_tw": "花費75金幣，右鍵屍體，將其復活為工蜂。工蜂最多可存活120s。工蜂使人中毒後，會立即死亡。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Aim at a player's corpse, spend 300 coin on 【Choose Heir】: when you die, they revive as the new Bee Queen. The new Bee Queen inherits your coin. If their coin is below 100, they receive 100 coin.",
+            "zh_cn": "对准一名玩家尸体，花费300金币【选择继承者】，你死亡后，它将复活成为新的蜂后。新的蜂后将会继承你的金币。如果他的金币数量少于100金币，它将会得到100金币。",
+            "zh_tw": "對準一名玩家屍體，花費300金幣【選擇繼承者】，你死亡後，它將復活成為新的蜂後。新的蜂後將會繼承你的金幣。如果他的金幣數量少於100金幣，它將會得到100金幣。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 144,
+          "text": {
+            "en_us": "After a Bee Family member kills a player, you get 50 coin.",
+            "zh_cn": "蜜蜂家族成员杀死一名玩家后，你将得到50金币。",
+            "zh_tw": "蜜蜂家族成員殺死一名玩家後，你將得到50金幣。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 154
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "title": {
+        "en_us": "Bee Queen",
+        "zh_cn": "蜂后",
+        "zh_tw": "蜂後"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "bee_queen_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "bee_queen_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "bee_queen_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "delay": 14
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Spend 150 coin to trigger 【Summon Empowerment】, making the next corpse you revive become a Wasp.",
+            "zh_cn": "可使用150金币触发【召唤强化】，使下次右键尸体复活为马蜂。",
+            "zh_tw": "可使用150金幣觸發【召喚強化】，使下次右鍵屍體復活為馬蜂。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Bee Queen",
+        "zh_cn": "蜂后",
+        "zh_tw": "蜂後"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "bee_queen_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "The Bee Family",
+            "zh_cn": "蜜蜂家族",
+            "zh_tw": "蜜蜂家族"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 140,
+          "text": {
+            "en_us": "Win by surviving to the end together with the Bee Family",
+            "zh_cn": "和蜜蜂家族一同存活到最后胜利",
+            "zh_tw": "和蜜蜂家族一同存活到最後勝利"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 150
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "If the Bee Family dies off, the new Bee Queen and all summoned Worker Bees and Wasps revert to their original roles.",
+            "zh_cn": "若蜜蜂家族死亡，新的蜂后、所有召唤的工蜂和马蜂将会变回原有职业。",
+            "zh_tw": "若蜜蜂家族死亡，新的蜂後、所有召喚的工蜂和馬蜂將會變回原有職業。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

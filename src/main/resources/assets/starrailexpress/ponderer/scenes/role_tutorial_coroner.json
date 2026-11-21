@@ -1,0 +1,582 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.coroner",
+  "items": [
+    "noellesroles:portable_identity_scanner"
+  ],
+  "title": {
+    "en_us": "Coroner",
+    "zh_cn": "验尸官",
+    "zh_tw": "驗屍官"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_graveyard"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Coroner",
+        "zh_cn": "验尸官",
+        "zh_tw": "驗屍官"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "coroner_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 63,
+          "text": {
+            "en_us": "Civilian team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 73
+        },
+        {
+          "type": "text",
+          "duration": 97,
+          "text": {
+            "en_us": "Gather information from corpses.",
+            "zh_cn": "从尸体上获取信息。",
+            "zh_tw": "從屍體上獲取資訊。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 107
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Coroner",
+        "zh_cn": "验尸官",
+        "zh_tw": "驗屍官"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "coroner_main"
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "attachKeyFrame": true,
+          "pos": [
+            1.6,
+            1.55,
+            1.6
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:portable_identity_scanner",
+          "linkId": "coroner_item"
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "coroner_skill_target_0",
+            "outline": -8750470
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "coroner_skill_target_0",
+            "color": -8750470
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": "ponder.starrailexpress.label.items",
+            "lines": [
+              {
+                "en_us": "Right-click a corpse to view the deceased's inventory.",
+                "zh_cn": "右键尸体可以查看死者的背包物品。",
+                "zh_tw": "右鍵屍體可以查看死者的背包物品。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "coroner_skill_target_0",
+            "to": [
+              6.2,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 137,
+          "text": {
+            "en_us": "Right-click a corpse to view the deceased's inventory.",
+            "zh_cn": "右键尸体可以查看死者的背包物品。",
+            "zh_tw": "右鍵屍體可以查看死者的背包物品。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 147
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Coroner",
+        "zh_cn": "验尸官",
+        "zh_tw": "驗屍官"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "coroner_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Right-click an unobstructed real corpse within 5 blocks to privately reveal its name and role at death in the center of your screen.",
+                "zh_cn": "扫描仪可以在冷却结束后丢弃。开局或本局首次成为验尸官后的150秒内无法丢弃。",
+                "zh_tw": "掃描免費且不消耗道具，成功後按使用者冷卻120秒，冷卻期間不可丟棄，換同類道具不能繞過。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Right-click an unobstructed real corpse within 5 blocks to privately reveal its name and role at death in the center of your screen.",
+                "zh_cn": "扫描仪可以在冷却结束后丢弃。开局或本局首次成为验尸官后的150秒内无法丢弃。",
+                "zh_tw": "掃描免費且不消耗道具，成功後按使用者冷卻120秒，冷卻期間不可丟棄，換同類道具不能繞過。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Right-click an unobstructed real corpse within 5 blocks to privately reveal its name and role at death in the center of your screen.",
+            "zh_cn": "扫描仪可以在冷却结束后丢弃。开局或本局首次成为验尸官后的150秒内无法丢弃。",
+            "zh_tw": "掃描免費且不消耗道具，成功後按使用者冷卻120秒，冷卻期間不可丟棄，換同類道具不能繞過。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Coroner",
+        "zh_cn": "验尸官",
+        "zh_tw": "驗屍官"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "coroner_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "coroner",
+            "columns": 4
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:portable_identity_scanner",
+          "linkId": "coroner_shop_line_0",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 157,
+          "text": {
+            "en_us": "Buy a Portable Identity Scanner for 125 coins.",
+            "zh_cn": "商店可购买随身身份扫描仪，右键瞄准5格内的尸体，会在自己屏幕中央显示死者姓名和死亡时的职业，冷却120秒，冷却期间不可丢弃扫描仪。",
+            "zh_tw": "商店可花125金幣購買隨身身份掃描器，右鍵瞄準5格內無遮擋的真實屍體，會在自己螢幕中央顯示死者姓名和死亡時的職業。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 167
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "title": {
+        "en_us": "Coroner",
+        "zh_cn": "验尸官",
+        "zh_tw": "驗屍官"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "coroner_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "coroner_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "coroner_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "delay": 14
+          }
+        },
+        {
+          "type": "text",
+          "duration": 103,
+          "text": {
+            "en_us": "Periodically senses nearby corpses.",
+            "zh_cn": "每隔一段时间能够察觉周围的尸体。",
+            "zh_tw": "每隔一段時間能夠察覺周圍的屍體。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 113
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Coroner",
+        "zh_cn": "验尸官",
+        "zh_tw": "驗屍官"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "coroner_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "coroner_target",
+            "outline": -8750470
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Can see the deceased's info (cause of death, time of death) and can detect fake corpses.",
+                "zh_cn": "可以看到死者的信息(死亡原因、死亡时间)，可以察觉假扮的尸体。",
+                "zh_tw": "可以看到死者的資訊（死亡原因、死亡時間），可以察覺假扮的屍體。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Can see the deceased's info (cause of death, time of death) and can detect fake corpses.",
+            "zh_cn": "可以看到死者的信息(死亡原因、死亡时间)，可以察觉假扮的尸体。",
+            "zh_tw": "可以看到死者的資訊（死亡原因、死亡時間），可以察覺假扮的屍體。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

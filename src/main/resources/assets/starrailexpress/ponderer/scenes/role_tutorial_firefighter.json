@@ -1,0 +1,701 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.firefighter",
+  "items": [
+    "noellesroles:fire_axe",
+    "noellesroles:extinguisher"
+  ],
+  "title": {
+    "en_us": "Firefighter",
+    "zh_cn": "消防员",
+    "zh_tw": "消防員"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Firefighter",
+        "zh_cn": "消防员",
+        "zh_tw": "消防員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "firefighter_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 146,
+          "text": {
+            "en_us": "Use your fire axe and extinguisher to handle any emergency!",
+            "zh_cn": "使用消防斧和灭火器，应对各种紧急情况！",
+            "zh_tw": "使用消防斧和滅火器，應對各種緊急情況！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 156
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Firefighter",
+        "zh_cn": "消防员",
+        "zh_tw": "消防員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "firefighter_main"
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "attachKeyFrame": true,
+          "pos": [
+            1.6,
+            1.55,
+            1.6
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:fire_axe",
+          "linkId": "firefighter_item"
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "firefighter_main",
+            "pose": "crouching"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            2,
+            0,
+            2
+          ],
+          "blockPos2": [
+            4,
+            0,
+            4
+          ],
+          "duration": 240,
+          "color": "green"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "firefighter_main",
+            "pose": "standing"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "- Fire Axe: 5 durability; crouch + right-click a door to pry it open, consuming 1 durability.",
+            "zh_cn": "- 消防斧：拥有5点耐久，蹲下右键门可以将门撬开，并消耗1点耐久。",
+            "zh_tw": "- 消防斧：擁有5點耐久，蹲下右鍵門可以將門撬開，並消耗1點耐久。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:fire_axe",
+          "linkId": "firefighter_skill_item_1"
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:fire_axe",
+          "duration": 70,
+          "point": [
+            3.0,
+            2.9,
+            3.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "firefighter_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 35
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 130,
+          "text": {
+            "en_us": "Hold right-click to raise the axe and knife people",
+            "zh_cn": "长按右键可以将消防斧举起来刀人",
+            "zh_tw": "長按右鍵可以將消防斧舉起來刀人"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 140
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:fire_axe",
+          "linkId": "firefighter_skill_item_2"
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:fire_axe",
+          "duration": 70,
+          "point": [
+            3.0,
+            2.9,
+            3.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "firefighter_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 35
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "- Fire Extinguisher: 60 durability; right-click uses 1 durability immediately, and holding sprays continuously using 1 more durability each second",
+            "zh_cn": "- 灭火器：拥有60点耐久，右键立即消耗1点耐久，长按可蓄力持续喷射，蓄力期间每秒再消耗1点耐久",
+            "zh_tw": "- 滅火器：擁有60點耐久，右鍵立即消耗1點耐久，長按可蓄力持續噴射，蓄力期間每秒再消耗1點耐久"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Firefighter",
+        "zh_cn": "消防员",
+        "zh_tw": "消防員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "firefighter_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "firefighter",
+            "columns": 4
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:fire_axe",
+          "linkId": "firefighter_shop_line_0",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 117,
+          "text": {
+            "en_us": "Can buy a Fire Axe and a Fire Extinguisher.",
+            "zh_cn": "可以购买消防斧和灭火器。",
+            "zh_tw": "可以購買消防斧和滅火器。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 127
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.35,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:extinguisher",
+          "linkId": "firefighter_shop_line_1",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 171,
+          "text": {
+            "en_us": "The Fire Axe and Fire Extinguisher can each be bought only once globally.",
+            "zh_cn": "消防斧和灭火器全局仅能购买一次。",
+            "zh_tw": "消防斧和滅火器全局僅能購買一次。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 181
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "bond",
+      "title": {
+        "en_us": "Firefighter",
+        "zh_cn": "消防员",
+        "zh_tw": "消防員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "firefighter_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "firefighter_ally",
+            "outline": -47872
+          }
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "attachKeyFrame": true,
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Spawns bound with the Arsonist",
+                "zh_cn": "与纵火犯绑定生成",
+                "zh_tw": "與縱火犯綁定生成"
+              }
+            ],
+            "color": -47872
+          }
+        },
+        {
+          "type": "text",
+          "duration": 94,
+          "text": {
+            "en_us": "Spawns bound with the Arsonist",
+            "zh_cn": "与纵火犯绑定生成",
+            "zh_tw": "與縱火犯綁定生成"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 104
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Firefighter",
+        "zh_cn": "消防员",
+        "zh_tw": "消防員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "firefighter_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "(you can only knife when at least 3 durability remains; a knife consumes 3 durability)",
+            "zh_cn": "(剩余耐久大于等于3点时才能刀人，刀人消耗3点耐久)",
+            "zh_tw": "(剩餘耐久大於等於3點時才能刀人，刀人消耗3點耐久)"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The spray reaches players in a 5-block cone ahead and gives them Slowness and Blindness (1.5s)",
+            "zh_cn": "喷雾覆盖前方5格圆锥范围内的玩家，被喷到的人会获得缓慢和失明效果（持续1.5秒）",
+            "zh_tw": "噴霧覆蓋前方5格圓錐範圍內的玩家，被噴到的人會獲得緩慢和失明效果（持續1.5秒）"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "It washes off Arsonist gasoline and the ignition effect, grants 5 seconds of immunity to ignition, and lowers heat by 20 per second",
+            "zh_cn": "喷雾可以清除目标身上的纵火犯汽油与点燃效果，并使其在5秒内免疫点燃。",
+            "zh_tw": "噴霧可以清除目標身上的縱火犯汽油與點燃效果，並使其在5秒內免疫點燃。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 74,
+          "text": {
+            "en_us": "被灭火器喷射的玩家燃烧值每秒降低20点",
+            "zh_cn": "被灭火器喷射的玩家燃烧值每秒降低20点",
+            "zh_tw": "被滅火器噴射的玩家燃燒值每秒降低20點"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 84
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

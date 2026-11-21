@@ -16,20 +16,19 @@ import java.util.List;
 public class PonderInfoOverlayElement implements PonderOverlayElement {
     public enum Kind { MOOD, SKILL, LINES, BADGE }
 
-    private static final int BAR_WIDTH = 120;
-    private static final String KEY_PREFIX = "ponder.starrailexpress.";
+    private static final int BAR_WIDTH = 72;
     private final Kind kind;
-    private final String label;
-    private final List<String> lines;
+    private final PonderLocalizedText label;
+    private final List<PonderLocalizedText> lines;
     private final float before;
     private final float after;
     private final int accent;
     private boolean visible = true;
 
-    public PonderInfoOverlayElement(Kind kind, String label, List<String> lines,
+    public PonderInfoOverlayElement(Kind kind, PonderLocalizedText label, List<PonderLocalizedText> lines,
                                     float before, float after, int accent) {
         this.kind = kind;
-        this.label = label == null ? "" : label;
+        this.label = label == null ? PonderLocalizedText.of("") : label;
         this.lines = List.copyOf(lines == null ? List.of() : lines);
         this.before = Mth.clamp(before, 0.0F, 1.0F);
         this.after = Mth.clamp(after, 0.0F, 1.0F);
@@ -41,12 +40,6 @@ public class PonderInfoOverlayElement implements PonderOverlayElement {
         return this;
     }
 
-    /** 以 {@code ponder.starrailexpress.} 开头的文本按翻译键解析，其余按原文显示。 */
-    private static Component display(String value) {
-        String text = value == null ? "" : value;
-        return text.startsWith(KEY_PREFIX) ? Component.translatable(text) : Component.literal(text);
-    }
-
     @Override public boolean isVisible() { return visible; }
     @Override public void setVisible(boolean visible) { this.visible = visible; }
 
@@ -55,21 +48,19 @@ public class PonderInfoOverlayElement implements PonderOverlayElement {
         if (!visible) return;
         Font font = Minecraft.getInstance().font;
         int width = 60;
-        for (String line : lines) width = Math.max(width, font.width(line) + 22);
-        width = Math.max(width, font.width(label) + 22);
+        for (PonderLocalizedText line : lines) width = Math.max(width, font.width(line.plain()) + 22);
+        width = Math.max(width, font.width(label.plain()) + 22);
         if (kind == Kind.MOOD) width = Math.max(width, BAR_WIDTH + 22);
         width = Math.min(width, Math.max(140, screen.width - 40));
 
         int x = screen.width - width - 16;
-        int y = 24;
-        int height = kind == Kind.MOOD ? 58 : 20 + lines.size() * (font.lineHeight + 3);
-        graphics.fill(x, y, x + width, y + height, 0xC0101018);
-        graphics.renderOutline(x, y, width, height, 0xFF3A3A4A);
-
-        int textX = x + 10;
-        int textY = y + 7;
+        // 与左上角状态面板统一下移，避开 Ponder 顶部的原生标题 / 段落标签。
+        int y = 112;
+        // 不画整块半透明面板和外框：只要文字与窄状态条，背景保持透明。
+        int textX = x + 2;
+        int textY = y + 2;
         if (!label.isEmpty()) {
-            graphics.drawString(font, display(label), textX, textY, accent);
+            graphics.drawString(font, label.resolve(), textX, textY, accent, true);
             textY += font.lineHeight + 4;
         }
         if (kind == Kind.MOOD) {
@@ -81,12 +72,12 @@ public class PonderInfoOverlayElement implements PonderOverlayElement {
                     textX + 1 + Math.round((BAR_WIDTH - 2) * after), textY + 11, accent);
             graphics.drawString(font, Component.literal(
                     Math.round(before * 100) + "% -> " + Math.round(after * 100) + "%"),
-                    textX, textY + 15, 0xFFDDDDDD);
+                    textX, textY + 15, 0xFFDDDDDD, true);
             return;
         }
-        for (String line : lines) {
-            graphics.drawString(font, display(line), textX, textY,
-                    kind == Kind.BADGE ? accent : 0xFFEEEEEE);
+        for (PonderLocalizedText line : lines) {
+            graphics.drawString(font, line.resolve(), textX, textY,
+                    kind == Kind.BADGE ? accent : 0xFFEEEEEE, true);
             textY += font.lineHeight + 3;
         }
     }

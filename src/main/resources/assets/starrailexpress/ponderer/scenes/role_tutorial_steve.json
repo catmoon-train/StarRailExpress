@@ -1,0 +1,585 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.steve",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Steve",
+    "zh_cn": "Steve",
+    "zh_tw": "Steve"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Steve",
+        "zh_cn": "Steve",
+        "zh_tw": "Steve"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "steve_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Sheriff team",
+            "zh_cn": "警长阵营",
+            "zh_tw": "警長陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 56,
+          "text": {
+            "en_us": "方块世界的建造者。",
+            "zh_cn": "方块世界的建造者。",
+            "zh_tw": "方塊世界的建造者。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 66
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Steve",
+        "zh_cn": "Steve",
+        "zh_tw": "Steve"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "steve_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Start with an iron pickaxe: hold left-click to mine task nodes, once per second, 32 times total. Each mining has a 30% chance of no yield; otherwise gain one random virtual plank, iron ingot, gold ingot, or diamond. Materials are shown at the top right, use no inventory space and cannot drop. Even empty mining consumes durability.",
+                "zh_cn": "开局获得一把铁镐：按住左键开采任务点，每 1 秒采一次，共 32 次。每次有30%概率无产出，否则等概率获得一份木板、铁锭、金锭或钻石虚拟材料。材料显示在右上角，不占背包、不能掉落；空挖也消耗耐久。",
+                "zh_tw": "開局獲得一把鐵鎬：按住左鍵開採任務點，每 1 秒采一次，共 32 次。每次有30%概率無產出，否則等概率獲得一份木板、鐵錠、金錠或鑽石虛擬材料。材料顯示在右上角，不占背包、不能掉落；空挖也消耗耐久。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Start with an iron pickaxe: hold left-click to mine task nodes, once per second, 32 times total. Each mining has a 30% chance of no yield; otherwise gain one random virtual plank, iron ingot, gold ingot, or diamond. Materials are shown at the top right, use no inventory space and cannot drop. Even empty mining consumes durability.",
+            "zh_cn": "开局获得一把铁镐：按住左键开采任务点，每 1 秒采一次，共 32 次。每次有30%概率无产出，否则等概率获得一份木板、铁锭、金锭或钻石虚拟材料。材料显示在右上角，不占背包、不能掉落；空挖也消耗耐久。",
+            "zh_tw": "開局獲得一把鐵鎬：按住左鍵開採任務點，每 1 秒采一次，共 32 次。每次有30%概率無產出，否則等概率獲得一份木板、鐵錠、金錠或鑽石虛擬材料。材料顯示在右上角，不占背包、不能掉落；空挖也消耗耐久。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Steve",
+        "zh_cn": "Steve",
+        "zh_tw": "Steve"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "steve_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Press the skill key or consume a piston to build a wall lasting 25 seconds, sharing a 45-second cooldown between the two.",
+                "zh_cn": "用技能键或消耗一个活塞可以建造一堵墙，墙体持续 25 秒，两者共享 45 秒冷却。",
+                "zh_tw": "用技能鍵或消耗一個活塞可以建造一堵牆，牆體持續 25 秒，兩者共用 45 秒冷卻。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Press the skill key or consume a piston to build a wall lasting 25 seconds, sharing a 45-second cooldown between the two.",
+                "zh_cn": "用技能键或消耗一个活塞可以建造一堵墙，墙体持续 25 秒，两者共享 45 秒冷却。",
+                "zh_tw": "用技能鍵或消耗一個活塞可以建造一堵牆，牆體持續 25 秒，兩者共用 45 秒冷卻。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Press the skill key or consume a piston to build a wall lasting 25 seconds, sharing a 45-second cooldown between the two.",
+            "zh_cn": "用技能键或消耗一个活塞可以建造一堵墙，墙体持续 25 秒，两者共享 45 秒冷却。",
+            "zh_tw": "用技能鍵或消耗一個活塞可以建造一堵牆，牆體持續 25 秒，兩者共用 45 秒冷卻。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Steve",
+        "zh_cn": "Steve",
+        "zh_tw": "Steve"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "steve_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "steve",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The shop takes no coins, only materials: boat 5 planks, diamond pickaxe 3 diamonds, diamond sword 2 diamonds, minecart 5 iron ingots, golden apple 8 gold ingots, piston 4 iron ingots.",
+            "zh_cn": "商店不收金币，只收材料：船 5 木板、钻石镐 3 钻石、钻石剑 2 钻石、矿车 5 铁锭、金苹果 8 金锭、活塞 4 铁锭。",
+            "zh_tw": "商店不收金幣，只收材料：船 5 木板、鑽石鎬 3 鑽石、鑽石劍 2 鑽石、礦車 5 鐵錠、金蘋果 8 金錠、活塞 4 鐵錠。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vitals",
+      "title": {
+        "en_us": "Steve",
+        "zh_cn": "Steve",
+        "zh_tw": "Steve"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "steve_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "attachKeyFrame": true,
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.4,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
+              }
+            ],
+            "lines": [
+              {
+                "en_us": "The diamond sword deals virtual-health damage to players; at zero virtual health they die, durability 12.",
+                "zh_cn": "钻石剑可以对玩家造成虚拟血量伤害，虚拟血量归零时击杀，耐久 12。",
+                "zh_tw": "鑽石劍可以對玩家造成虛擬血量傷害，虛擬血量歸零時擊殺，耐久 12。"
+              },
+              {
+                "en_us": "Eating a golden apple grants a 20-second weak shield that only blocks knives.",
+                "zh_cn": "吃完金苹果除会获得 20 秒仅能抵挡刀的弱效护盾。",
+                "zh_tw": "吃完金蘋果除會獲得 20 秒僅能抵擋刀的弱效護盾。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The diamond sword deals virtual-health damage to players; at zero virtual health they die, durability 12.",
+            "zh_cn": "钻石剑可以对玩家造成虚拟血量伤害，虚拟血量归零时击杀，耐久 12。",
+            "zh_tw": "鑽石劍可以對玩家造成虛擬血量傷害，虛擬血量歸零時擊殺，耐久 12。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "steve_skill_target_1",
+            "outline": -11490746
+          }
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 35
+        },
+        {
+          "type": "text",
+          "duration": 178,
+          "text": {
+            "en_us": "Eating a golden apple grants a 20-second weak shield that only blocks knives.",
+            "zh_cn": "吃完金苹果除会获得 20 秒仅能抵挡刀的弱效护盾。",
+            "zh_tw": "吃完金蘋果除會獲得 20 秒僅能抵擋刀的弱效護盾。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 188
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Steve",
+        "zh_cn": "Steve",
+        "zh_tw": "Steve"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "steve_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 155,
+          "text": {
+            "en_us": "Always appears via command-block events; never spawns naturally.",
+            "zh_cn": "命令方块事件必然出现，不会自然刷新。",
+            "zh_tw": "命令方塊事件必然出現，不會自然刷新。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 165
+        },
+        {
+          "type": "text",
+          "duration": 187,
+          "text": {
+            "en_us": "The diamond pickaxe mines faster, once per 0.5 seconds, and can be used 128 times.",
+            "zh_cn": "钻石镐开采得更快，每 0.5 秒开采一次，能用 128 次。",
+            "zh_tw": "鑽石鎬開採得更快，每 0.5 秒開採一次，能用 128 次。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 197
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

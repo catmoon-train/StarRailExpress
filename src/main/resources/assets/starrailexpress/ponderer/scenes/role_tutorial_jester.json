@@ -81,7 +81,7 @@
         },
         {
           "type": "idle",
-          "duration": 30
+          "duration": 70
         },
         {
           "type": "rotate_camera_y",
@@ -188,7 +188,7 @@
         },
         {
           "type": "idle",
-          "duration": 40
+          "duration": 90
         },
         {
           "type": "rotate_camera_y",
@@ -278,7 +278,7 @@
         },
         {
           "type": "idle",
-          "duration": 50
+          "duration": 90
         },
         {
           "type": "rotate_camera_y",
@@ -311,7 +311,7 @@
             4.0
           ],
           "yaw": 0.0,
-          "nbt": "{CustomName:'好人',CustomNameVisible:1b}",
+          "nbt": "{CustomName:'{\"text\":\"好人\"}',CustomNameVisible:1b}",
           "linkId": "civilian",
           "attachKeyFrame": true
         },
@@ -341,7 +341,7 @@
             2.5
           ],
           "yaw": 140.0,
-          "nbt": "{CustomName:'小丑',CustomNameVisible:1b}",
+          "nbt": "{CustomName:'{\"text\":\"小丑\"}',CustomNameVisible:1b}",
           "linkId": "jester_body",
           "attachKeyFrame": true
         },
@@ -367,7 +367,7 @@
         },
         {
           "type": "idle",
-          "duration": 70
+          "duration": 110
         },
         {
           "type": "rotate_camera_y",
@@ -415,7 +415,7 @@
             3.0
           ],
           "yaw": 120.0,
-          "nbt": "{CustomName:'好人',CustomNameVisible:1b}",
+          "nbt": "{CustomName:'{\"text\":\"好人\"}',CustomNameVisible:1b}",
           "linkId": "victim",
           "attachKeyFrame": true
         },
@@ -441,7 +441,7 @@
         },
         {
           "type": "idle",
-          "duration": 40
+          "duration": 80
         },
         {
           "type": "rotate_camera_y",
@@ -661,7 +661,7 @@
         },
         {
           "type": "idle",
-          "duration": 60
+          "duration": 90
         },
         {
           "type": "rotate_camera_y",
@@ -757,7 +757,7 @@
         },
         {
           "type": "idle",
-          "duration": 40
+          "duration": 90
         },
         {
           "type": "rotate_camera_y",

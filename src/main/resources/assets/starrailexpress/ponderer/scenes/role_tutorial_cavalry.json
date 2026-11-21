@@ -1,0 +1,647 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.cavalry",
+  "items": [
+    "noellesroles:super_pig_horseshoe"
+  ],
+  "title": {
+    "en_us": "Cavalry",
+    "zh_cn": "骑兵",
+    "zh_tw": "騎兵"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_room"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Cavalry",
+        "zh_cn": "骑兵",
+        "zh_tw": "騎兵"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "cavalry_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Sheriff team",
+            "zh_cn": "警长阵营",
+            "zh_tw": "警長陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 158,
+          "text": {
+            "en_us": "Mount your steed and guard the order of the train with your lance!",
+            "zh_cn": "驾上你的坐骑，用长矛守护秩序！",
+            "zh_tw": "駕上你的坐騎，用長矛守護秩序！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 168
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Cavalry",
+        "zh_cn": "骑兵",
+        "zh_tw": "騎兵"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "cavalry_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "cavalry",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 99,
+          "text": {
+            "en_us": "Starts with a Super Pig Horseshoe",
+            "zh_cn": "开局自带一个超级猪马蹄铁",
+            "zh_tw": "開局自帶一個超級豬馬蹄鐵"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 109
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "cavalry_skill_target_1",
+            "outline": -6923736
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:super_pig_horseshoe",
+          "linkId": "cavalry_skill_item_1"
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:super_pig_horseshoe",
+          "duration": 70,
+          "point": [
+            3.0,
+            2.9,
+            3.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "cavalry_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 35
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The spear's left-click thrust needs a full charge; hold right-click to dash, dealing damage once you reach speed",
+            "zh_cn": "矛的左键直刺需要满蓄力，长按右键冲刺，在到达一定速度后会对玩家造成伤害",
+            "zh_tw": "矛的左鍵直刺需要滿蓄力，長按右鍵衝刺，在到達一定速度後會對玩家造成傷害"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "cavalry_skill_target_2",
+            "outline": -6923736
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:super_pig_horseshoe",
+          "linkId": "cavalry_skill_item_2"
+        },
+        {
+          "type": "show_controls",
+          "action": "left",
+          "item": "noellesroles:super_pig_horseshoe",
+          "duration": 70,
+          "point": [
+            3.0,
+            2.9,
+            3.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "cavalry_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 35
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 142,
+          "text": {
+            "en_us": "Dash: holding the spear and left-clicking lunges forward.",
+            "zh_cn": "突进：玩家手持矛左键时会向前突刺。",
+            "zh_tw": "突進：玩家手持矛左鍵時會向前突刺。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 152
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Cavalry",
+        "zh_cn": "骑兵",
+        "zh_tw": "騎兵"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "cavalry_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "cavalry",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 157,
+          "text": {
+            "en_us": "Shop sells netherite spear, dash enchantment, Super Pig Horseshoe",
+            "zh_cn": "商店可购买下界合金矛、突进附魔、超级猪马蹄铁",
+            "zh_tw": "商店可購買下界合金矛、突進附魔、超級豬馬蹄鐵"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 167
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vitals",
+      "title": {
+        "en_us": "Cavalry",
+        "zh_cn": "骑兵",
+        "zh_tw": "騎兵"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "cavalry_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "attachKeyFrame": true,
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.4,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
+              }
+            ],
+            "lines": [
+              {
+                "en_us": "While mounted, the Cavalry gets a shield that vanishes on dismount and refills on mount; once broken, it no longer refills.",
+                "zh_cn": "骑兵在骑马时会获得一层护盾，此护盾会在下马时消失上马时补充，当此护盾被打破后，则上马不再补充护盾。",
+                "zh_tw": "騎兵在騎馬時會獲得一層護盾，此護盾會在下馬時消失上馬時補充，當此護盾被打破後，則上馬不再補充護盾。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "cavalry_skill_target_0",
+            "outline": -6923736
+          }
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 35
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "While mounted, the Cavalry gets a shield that vanishes on dismount and refills on mount; once broken, it no longer refills.",
+            "zh_cn": "骑兵在骑马时会获得一层护盾，此护盾会在下马时消失上马时补充，当此护盾被打破后，则上马不再补充护盾。",
+            "zh_tw": "騎兵在騎馬時會獲得一層護盾，此護盾會在下馬時消失上馬時補充，當此護盾被打破後，則上馬不再補充護盾。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Cavalry",
+        "zh_cn": "骑兵",
+        "zh_tw": "騎兵"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "cavalry_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 85,
+          "text": {
+            "en_us": "Stamina 2.5x a Civilian's",
+            "zh_cn": "体力为平民的2.5倍",
+            "zh_tw": "體力為平民的2.5倍"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 95
+        },
+        {
+          "type": "text",
+          "duration": 79,
+          "text": {
+            "en_us": "Only on horseback maps",
+            "zh_cn": "仅在骑马地图中生成",
+            "zh_tw": "僅在騎馬地圖中生成"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 89
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 169,
+          "text": {
+            "en_us": "On hit, vanilla damage doubles to virtual damage; death cause is \"spear\"",
+            "zh_cn": "命中玩家时原版伤害会转化为双倍的虚拟伤害，死因为「矛」",
+            "zh_tw": "命中玩家時原版傷害會轉化為雙倍的虛擬傷害，死因為「矛」"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 179
+        },
+        {
+          "type": "text",
+          "duration": 130,
+          "text": {
+            "en_us": "On death, the netherite spear drops as a revolver.",
+            "zh_cn": "骑兵死亡时，下界合金矛会掉落为左轮手枪",
+            "zh_tw": "騎兵死亡時，下界合金矛會掉落為左輪手槍"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 140
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

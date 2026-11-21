@@ -1,0 +1,680 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.mustard",
+  "items": [
+    "noellesroles:puppet_hand",
+    "noellesroles:puppet_core"
+  ],
+  "title": {
+    "en_us": "Mustard",
+    "zh_cn": "芥末",
+    "zh_tw": "芥末"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_carriage"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Mustard",
+        "zh_cn": "芥末",
+        "zh_tw": "芥末"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mustard_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 68,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營，僅由命令方塊事件產生。"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 78
+        },
+        {
+          "type": "text",
+          "duration": 176,
+          "text": {
+            "en_us": "Created only by the Command Block event.",
+            "zh_cn": "仅由命令方块事件产生。",
+            "zh_tw": "出生自帶 1 個傀儡核心。手持核心對屍體使用，將原玩家復活為由其本人操控的鐵傀儡；對自己的傀儡使用則升級一次，每次成功使用消耗 1 個核心，升級無上限。"
+          },
+          "point": [
+            4.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 186
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            4,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 131,
+          "text": {
+            "en_us": "Raise the dead and make your puppets fight for you.",
+            "zh_cn": "唤醒死者，让傀儡为你而战。",
+            "zh_tw": "喚醒死者，讓傀儡為你而戰。"
+          },
+          "point": [
+            4.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 141
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Mustard",
+        "zh_cn": "芥末",
+        "zh_tw": "芥末"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mustard_main"
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "attachKeyFrame": true,
+          "pos": [
+            2.6,
+            1.55,
+            1.6
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:puppet_hand",
+          "linkId": "mustard_item"
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You start with one Puppet Core. Use a core on a corpse to revive its original player as a player-controlled Iron Golem puppet, or on your own puppet to upgrade it. Each successful use consumes one core, and upgrades are unlimited.",
+            "zh_cn": "你出生自带1个傀儡核心。手持核心对尸体使用，可将其原玩家复活为由本人操控的铁傀儡；对自己的傀儡使用则升级一次，每次成功使用消耗1个核心，升级没有上限。",
+            "zh_tw": "技能將自己的所有存活傀儡傳送至身邊，隨後 30 秒內受到的第一次傷害由最近的存活傀儡原樣承擔，傀儡不一定死亡。冷卻 120 秒，沒有存活傀儡時不進入冷卻。強制死亡與列車死亡不觸發替傷。"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Mustard",
+        "zh_cn": "芥末",
+        "zh_tw": "芥末"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mustard_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Puppet Strength",
+                "zh_cn": "若没有存活傀儡则技能不进入冷却。强制死亡与列车死亡不会触发替伤。",
+                "zh_tw": "若没有存活傀儡则技能不进入冷却。强制死亡与列车死亡不会触发替伤。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              4.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:entity.enderman.teleport",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_teleport",
+          "parameters": {
+            "linkId": "mustard_main",
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            6,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "text",
+          "duration": 153,
+          "text": {
+            "en_us": "Recall and Redirect (skill)",
+            "zh_cn": "召回与替伤（技能）",
+            "zh_tw": "傀儡每次攻擊造成 5 點虛擬血量傷害，每次升級增加 5 點；升級後攻擊還會令目標僵直 1 秒。芥末死亡時，其所有傀儡也會死亡。"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 163
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              4.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "mustard_main",
+            "to": [
+              5.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            6,
+            0,
+            2
+          ],
+          "blockPos2": [
+            6,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            6,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 97,
+          "text": {
+            "en_us": "Puppet Strength",
+            "zh_cn": "若没有存活傀儡则技能不进入冷却。强制死亡与列车死亡不会触发替伤。",
+            "zh_tw": "若没有存活傀儡则技能不进入冷却。强制死亡与列车死亡不会触发替伤。"
+          },
+          "point": [
+            4.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 107
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Mustard",
+        "zh_cn": "芥末",
+        "zh_tw": "芥末"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mustard_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "mustard",
+            "columns": 4
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:puppet_hand",
+          "linkId": "mustard_shop_line_0",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Puppet Hand costs 100 coins and deals 5 virtual-health damage per melee hit while held. Puppet Core starts at 100 coins and rises by 25 after each successful purchase.",
+            "zh_cn": "商店",
+            "zh_tw": "商店"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vitals",
+      "title": {
+        "en_us": "Mustard",
+        "zh_cn": "芥末",
+        "zh_tw": "芥末"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mustard_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "attachKeyFrame": true,
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.4,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
+              }
+            ],
+            "lines": [
+              {
+                "en_us": "Shop",
+                "zh_cn": "傀儡每次攻击造成5点虚拟血量伤害，每升级一次增加5点；升级后的攻击还会令目标僵直1秒。芥末死亡时，其所有傀儡也会一同死亡。",
+                "zh_tw": "傀儡每次攻击造成5点虚拟血量伤害，每升级一次增加5点；升级后的攻击还会令目标僵直1秒。芥末死亡时，其所有傀儡也会一同死亡。"
+              },
+              {
+                "en_us": "傀儡之手:手持时每次近战攻击造成5点虚拟血量伤害。",
+                "zh_cn": "傀儡之手:手持时每次近战攻击造成5点虚拟血量伤害。",
+                "zh_tw": "傀儡之手:手持时每次近战攻击造成5点虚拟血量伤害。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 149,
+          "text": {
+            "en_us": "Shop",
+            "zh_cn": "傀儡每次攻击造成5点虚拟血量伤害，每升级一次增加5点；升级后的攻击还会令目标僵直1秒。芥末死亡时，其所有傀儡也会一同死亡。",
+            "zh_tw": "傀儡每次攻击造成5点虚拟血量伤害，每升级一次增加5点；升级后的攻击还会令目标僵直1秒。芥末死亡时，其所有傀儡也会一同死亡。"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 159
+        },
+        {
+          "type": "text",
+          "duration": 85,
+          "text": {
+            "en_us": "傀儡之手:手持时每次近战攻击造成5点虚拟血量伤害。",
+            "zh_cn": "傀儡之手:手持时每次近战攻击造成5点虚拟血量伤害。",
+            "zh_tw": "傀儡之手:手持时每次近战攻击造成5点虚拟血量伤害。"
+          },
+          "point": [
+            4.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 95
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Mustard",
+        "zh_cn": "芥末",
+        "zh_tw": "芥末"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mustard_main"
+          }
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            4,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Teleport all your living puppets to your side, then for 30 seconds the first damage you take is redirected unchanged to the nearest living puppet; the puppet is not necessarily killed. Cooldown: 120 seconds. If you have no living puppet, the skill does not start its cooldown. Forced deaths and train deaths do not trigger this redirect.",
+                "zh_cn": "将自己的所有存活傀儡传送至身边，随后30秒内你受到的第一次伤害会由距离最近的存活傀儡原样承担，傀儡不一定因此死亡。",
+                "zh_tw": "商店：傀儡之手 100 金幣，手持攻擊每次造成 5 點虛擬血量傷害；傀儡核心初始 100 金幣，每次成功購買後漲價 25 金幣。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Teleport all your living puppets to your side, then for 30 seconds the first damage you take is redirected unchanged to the nearest living puppet; the puppet is not necessarily killed. Cooldown: 120 seconds. If you have no living puppet, the skill does not start its cooldown. Forced deaths and train deaths do not trigger this redirect.",
+            "zh_cn": "将自己的所有存活傀儡传送至身边，随后30秒内你受到的第一次伤害会由距离最近的存活傀儡原样承担，傀儡不一定因此死亡。",
+            "zh_tw": "商店：傀儡之手 100 金幣，手持攻擊每次造成 5 點虛擬血量傷害；傀儡核心初始 100 金幣，每次成功購買後漲價 25 金幣。"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Puppets deal 5 virtual-health damage per attack, plus 5 per upgrade. Upgraded attacks also stun the target for 1 second. When Mustard dies, all of its puppets die with it.",
+            "zh_cn": "傀儡强度",
+            "zh_tw": "傀儡强度"
+          },
+          "point": [
+            4.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,612 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.baka",
+  "items": [
+    "noellesroles:danmuku",
+    "noellesroles:problem_set"
+  ],
+  "title": {
+    "en_us": "Baka",
+    "zh_cn": "BAKA",
+    "zh_tw": "BAKA"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Baka",
+        "zh_cn": "BAKA",
+        "zh_tw": "BAKA"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "baka_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "1, 2, ⑨",
+            "zh_cn": "1，2，⑨",
+            "zh_tw": "1，2，⑨"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 65
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Baka",
+        "zh_cn": "BAKA",
+        "zh_tw": "BAKA"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "baka_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "baka_target"
+          }
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "baka_main",
+            "item": "noellesroles:danmuku"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.0,
+            1.55,
+            2.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:danmuku",
+          "linkId": "baka_danmuku",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:danmuku",
+          "duration": 90,
+          "point": [
+            3.0,
+            3.0,
+            3.0
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "baka_target",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 164,
+          "text": {
+            "en_us": "Danmaku: hold right-click and release to fire, killing the player hit",
+            "zh_cn": "弹幕：长按右键松手后发射，使被命中的玩家死亡",
+            "zh_tw": "彈幕：長按右鍵鬆手後發射，使被命中的玩家死亡"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 174
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Baka",
+        "zh_cn": "BAKA",
+        "zh_tw": "BAKA"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "baka_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "baka",
+            "columns": 4
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.0,
+            1.55,
+            2.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:problem_set",
+          "linkId": "baka_shop_book",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 117,
+          "text": {
+            "en_us": "The shop sells Exercise Books for 100 coin.",
+            "zh_cn": "你可以在商店花费100金币购买习题集。",
+            "zh_tw": "你可以在商店花費100金幣購買習題集。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 127
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.0,
+            1.55,
+            2.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:problem_set",
+          "linkId": "baka_shop_book",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 169,
+          "text": {
+            "en_us": "Other players who complete it get 100 coin; failure means instant death!",
+            "zh_cn": "其他玩家成功完成可获得100金币，失败则立即死亡！",
+            "zh_tw": "其他玩家成功完成可獲得100金幣，失敗則立即死亡！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 179
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "panel",
+      "title": {
+        "en_us": "Baka",
+        "zh_cn": "BAKA",
+        "zh_tw": "BAKA"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "baka_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.label.notes",
+            "lines": [
+              {
+                "en_us": "Right-click the exercise book to enter the quiz interface; complete all questions within the time limit.",
+                "zh_cn": "右键习题集进入做题界面，在规定时间内完成所有题目。",
+                "zh_tw": "右鍵習題集進入做題介面，在規定時間內完成所有題目。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.0,
+            1.55,
+            2.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:problem_set",
+          "linkId": "baka_problem_set",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "baka_main",
+            "item": "noellesroles:problem_set"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:problem_set",
+          "duration": 70,
+          "point": [
+            3.0,
+            3.0,
+            3.0
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Right-click the exercise book to enter the quiz interface; complete all questions within the time limit.",
+            "zh_cn": "右键习题集进入做题界面，在规定时间内完成所有题目。",
+            "zh_tw": "右鍵習題集進入做題介面，在規定時間內完成所有題目。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "mood",
+      "title": {
+        "en_us": "Baka",
+        "zh_cn": "BAKA",
+        "zh_tw": "BAKA"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "baka_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_mood",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.sanity",
+            "before": 0.35,
+            "after": 0.85,
+            "lines": [
+              {
+                "en_us": "You can close the Exam Grinder's exam page directly, but still suffer the Sanity-drain penalty.",
+                "zh_cn": "你可以直接关闭小镇做题家的考试页面，但你仍会受到san值降低惩罚。",
+                "zh_tw": "你可以直接關閉小鎮做題家的考試頁面，但你仍會受到san值降低懲罰。"
+              },
+              {
+                "en_us": "Success grants 200 coin; otherwise Sanity drops 30%.",
+                "zh_cn": "你成功完成可获得200金币，否则san值降低30%。",
+                "zh_tw": "你成功完成可獲得200金幣，否則san值降低30%。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You can close the Exam Grinder's exam page directly, but still suffer the Sanity-drain penalty.",
+            "zh_cn": "你可以直接关闭小镇做题家的考试页面，但你仍会受到san值降低惩罚。",
+            "zh_tw": "你可以直接關閉小鎮做題家的考試頁面，但你仍會受到san值降低懲罰。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 133,
+          "text": {
+            "en_us": "Success grants 200 coin; otherwise Sanity drops 30%.",
+            "zh_cn": "你成功完成可获得200金币，否则san值降低30%。",
+            "zh_tw": "你成功完成可獲得200金幣，否則san值降低30%。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 143
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Baka",
+        "zh_cn": "BAKA",
+        "zh_tw": "BAKA"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "baka_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 131,
+          "text": {
+            "en_us": "You do not die from the Exam Grinder's forced exam.",
+            "zh_cn": "你不会因小镇做题家的强制考试而死。",
+            "zh_tw": "你不會因小鎮做題家的強制考試而死。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 141
+        },
+        {
+          "type": "text",
+          "duration": 137,
+          "text": {
+            "en_us": "You can also throw the exercise book to other players.",
+            "zh_cn": "你也可以将习题集丢给其他玩家。",
+            "zh_tw": "你也可以將習題集丟給其他玩家。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 147
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,757 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.painter",
+  "items": [
+    "starrailexpress:drawing_board"
+  ],
+  "title": {
+    "en_us": "Painter",
+    "zh_cn": "画家",
+    "zh_tw": "畫家"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_water"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Painter",
+        "zh_cn": "画家",
+        "zh_tw": "畫家"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_water",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "painter_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 122,
+          "text": {
+            "en_us": "Every moment is inspiration for your painting!",
+            "zh_cn": "每一个瞬间都是你绘画的灵感！",
+            "zh_tw": "每一個瞬間都是你繪畫的靈感！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 132
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Painter",
+        "zh_cn": "画家",
+        "zh_tw": "畫家"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_water",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "painter_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "painter",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You start with a Canvas; by painting an item's texture on the Canvas you obtain that item.",
+            "zh_cn": "初始拥有一个画板，你可以通过在画板中描绘物品的材质来获取相应的物品。",
+            "zh_tw": "初始擁有一個畫板，你可以通過在畫板中描繪物品的材質來獲取相應的物品。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Only one of each item can be obtained; trying to draw the same item again isn't recognized.",
+            "zh_cn": "每种物品只能获取一个，若再次尝试画同一种物品则不会被识别。",
+            "zh_tw": "每種物品只能獲取一個，若再次嘗試畫同一種物品則不會被識別。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "starrailexpress:drawing_board",
+          "linkId": "painter_skill_item_2"
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "starrailexpress:drawing_board",
+          "duration": 70,
+          "point": [
+            3.0,
+            2.9,
+            3.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "painter_main",
+            "to": [
+              2.1,
+              1.0,
+              4.0
+            ],
+            "duration": 35
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Canvas: right-click to open and paint in the area; on confirm the system recognizes the painting. On success you receive the item and consume one Canvas.",
+            "zh_cn": "画板：右键打开，在绘画区域内作画，确定时系统会根据绘画内容进行识别，成功识别出物品后你会获得绘画的物品并消耗1个画板。",
+            "zh_tw": "畫板：右鍵打開，在繪畫區域內作畫，確定時系統會根據繪畫內容進行識別，成功識別出物品後你會獲得繪畫的物品並消耗1個畫板。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "If the item texture contains white, fill it in on the palette; the system ignores background white.",
+            "zh_cn": "如果物品材质中包含白色，请在调色盘中使用白色填涂，系统不会识别背景的白色。",
+            "zh_tw": "如果物品材質中包含白色，請在調色盤中使用白色填塗，系統不會識別背景的白色。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 67,
+          "text": {
+            "en_us": "You can obtain:",
+            "zh_cn": "你可以通过画板获取以下物品",
+            "zh_tw": "你可以通過畫板獲取以下物品"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 77
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Painter",
+        "zh_cn": "画家",
+        "zh_tw": "畫家"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_water",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "painter_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Skill 1 - Artistic Spark: gain a Canvas when any of these happen (once each):",
+                "zh_cn": "技能一 - 绘画灵感：触发以下场景时获得画板，每种场景只会给予一次：",
+                "zh_tw": "技能一 - 繪畫靈感：觸發以下場景時獲得畫板，每種場景只會給予一次："
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "painter_main",
+            "to": [
+              2.1,
+              1.0,
+              4.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            4
+          ],
+          "blockPos2": [
+            3,
+            0,
+            4
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            4
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 178,
+          "text": {
+            "en_us": "Skill 1 - Artistic Spark: gain a Canvas when any of these happen (once each):",
+            "zh_cn": "技能一 - 绘画灵感：触发以下场景时获得画板，每种场景只会给予一次：",
+            "zh_tw": "技能一 - 繪畫靈感：觸發以下場景時獲得畫板，每種場景只會給予一次："
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 188
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "painter_main",
+            "to": [
+              2.1,
+              1.0,
+              4.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            4
+          ],
+          "blockPos2": [
+            3,
+            0,
+            4
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            4
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 149,
+          "text": {
+            "en_us": "Skill 2 - Quest: automatically gain a Canvas every 4 minutes.",
+            "zh_cn": "技能二 - 求索：每过4分钟自动获得一个画板。",
+            "zh_tw": "技能二 - 求索：每過4分鐘自動獲得一個畫板。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 159
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "painter_main",
+            "to": [
+              2.1,
+              1.0,
+              4.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            4
+          ],
+          "blockPos2": [
+            3,
+            0,
+            4
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            4
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 171,
+          "text": {
+            "en_us": "Skill 3 - Kindred: when a Painter and Writer coexist, both gain a Canvas.",
+            "zh_cn": "技能三 - 挚友：当场上同时存在画家和作家时，同时给予作家和画家一个画板。",
+            "zh_tw": "技能三 - 摯友：當場上同時存在畫家和作家時，同時給予作家和畫家一個畫板。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 181
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "panel",
+      "title": {
+        "en_us": "Painter",
+        "zh_cn": "画家",
+        "zh_tw": "畫家"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_water",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "painter_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.label.notes",
+            "lines": [
+              {
+                "en_us": "- Wheelchair, sawed-off shotgun, baton, walkie-talkie, remote surveillance terminal, lock, pocket watch, vitamins, fire axe, throwing knife",
+                "zh_cn": "- 轮椅、短管霰弹枪、警棍、对讲机、远程监控终端、锁、怀表、维生素、消防斧、飞刀",
+                "zh_tw": "- 輪椅、短管霰彈槍、警棍、對講機、遠程監控終端、鎖、懷錶、維生素、消防斧、飛刀"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "- Wheelchair, sawed-off shotgun, baton, walkie-talkie, remote surveillance terminal, lock, pocket watch, vitamins, fire axe, throwing knife",
+            "zh_cn": "- 轮椅、短管霰弹枪、警棍、对讲机、远程监控终端、锁、怀表、维生素、消防斧、飞刀",
+            "zh_tw": "- 輪椅、短管霰彈槍、警棍、對講機、遠程監控終端、鎖、懷錶、維生素、消防斧、飛刀"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Painter",
+        "zh_cn": "画家",
+        "zh_tw": "畫家"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_water",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "painter_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 137,
+          "text": {
+            "en_us": "- Pick up a photographer's photo dropped on the ground",
+            "zh_cn": "- 捡起摄影师丢在地上的照片",
+            "zh_tw": "- 撿起攝影師丟在地上的照片"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 147
+        },
+        {
+          "type": "text",
+          "duration": 131,
+          "text": {
+            "en_us": "- Pick up a revolver / patrol pistol off the ground",
+            "zh_cn": "- 从地上捡起左轮手枪/巡警手枪",
+            "zh_tw": "- 從地上撿起左輪手槍/巡警手槍"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 141
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 76,
+          "text": {
+            "en_us": "- Sit for 40 seconds",
+            "zh_cn": "- 坐着的时间达到40秒",
+            "zh_tw": "- 坐著的時間達到40秒"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 86
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

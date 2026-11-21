@@ -1,0 +1,726 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.pumpkin_spirit",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Pumpkin Spirit",
+    "zh_cn": "南瓜精",
+    "zh_tw": "南瓜精"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_room"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Pumpkin Spirit",
+        "zh_cn": "南瓜精",
+        "zh_tw": "南瓜精"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pumpkin_spirit_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Independent neutral. Naturally available only in normal Murder on Halloween-enabled maps, at most one per round.",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Your size is reduced by 80% and you cannot kill other players. Win alone by cumulatively collecting pumpkins equal to five times the starting player count. The target never changes; dropping, trading, and picking up previously claimed pumpkins does not count again. Receive one candy bag for every ten pumpkins collected.",
+            "zh_cn": "拥有独立胜利条件。",
+            "zh_tw": "擁有獨立勝利條件。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Collect pumpkins equal to five times the starting player count to win alone. Dropping and picking them up again does not count.",
+            "zh_cn": "不给南瓜就捣蛋！",
+            "zh_tw": "不給南瓜就搗蛋！"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Pumpkin Spirit",
+        "zh_cn": "南瓜精",
+        "zh_tw": "南瓜精"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pumpkin_spirit_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Use the role skill key to become a real flying bat for 15 seconds, with a 30-second cooldown. Timers freeze while paused. Your exclusive shop sells only candy for 50 coins each. Another player eating candy you actually dropped grants you two pumpkins; eating it yourself grants none.",
+            "zh_cn": "累计获得开局人数×5个南瓜即独立获胜",
+            "zh_tw": "累計獲得開局人數×5個南瓜即獨立獲勝"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Pumpkin Spirit",
+        "zh_cn": "南瓜精",
+        "zh_tw": "南瓜精"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pumpkin_spirit_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "你可以攻击3格内可见的存活玩家，为他戴上持续15秒的南瓜头并使你获得1个南瓜；每个目标冷却15秒，安全期无效。",
+                "zh_cn": "你可以攻击3格内可见的存活玩家，为他戴上持续15秒的南瓜头并使你获得1个南瓜；每个目标冷却15秒，安全期无效。",
+                "zh_tw": "你可以攻擊3格內可見的存活玩家，為他戴上持續15秒的南瓜頭並使你獲得1個南瓜；每個目標冷卻15秒，安全期無效。"
+              },
+              {
+                "en_us": "按技能键变成蝙蝠并飞行15秒，冷却30秒。",
+                "zh_cn": "按技能键变成蝙蝠并飞行15秒，冷却30秒。",
+                "zh_tw": "按技能鍵變成蝙蝠並飛行15秒，冷卻30秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pumpkin_spirit_skill_target_0",
+            "outline": -65536
+          }
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "你可以攻击3格内可见的存活玩家，为他戴上持续15秒的南瓜头并使你获得1个南瓜；每个目标冷却15秒，安全期无效。",
+                "zh_cn": "你可以攻击3格内可见的存活玩家，为他戴上持续15秒的南瓜头并使你获得1个南瓜；每个目标冷却15秒，安全期无效。",
+                "zh_tw": "你可以攻擊3格內可見的存活玩家，為他戴上持續15秒的南瓜頭並使你獲得1個南瓜；每個目標冷卻15秒，安全期無效。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 139,
+          "text": {
+            "en_us": "你可以攻击3格内可见的存活玩家，为他戴上持续15秒的南瓜头并使你获得1个南瓜；每个目标冷却15秒，安全期无效。",
+            "zh_cn": "你可以攻击3格内可见的存活玩家，为他戴上持续15秒的南瓜头并使你获得1个南瓜；每个目标冷却15秒，安全期无效。",
+            "zh_tw": "你可以攻擊3格內可見的存活玩家，為他戴上持續15秒的南瓜頭並使你獲得1個南瓜；每個目標冷卻15秒，安全期無效。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 149
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 77,
+          "text": {
+            "en_us": "按技能键变成蝙蝠并飞行15秒，冷却30秒。",
+            "zh_cn": "按技能键变成蝙蝠并飞行15秒，冷却30秒。",
+            "zh_tw": "按技能鍵變成蝙蝠並飛行15秒，冷卻30秒。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 87
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Pumpkin Spirit",
+        "zh_cn": "南瓜精",
+        "zh_tw": "南瓜精"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pumpkin_spirit_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "pumpkin_spirit",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "你完成任务会获得60金币",
+            "zh_cn": "你完成任务会获得60金币",
+            "zh_tw": "你完成任務會獲得60金幣"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 108,
+          "text": {
+            "en_us": "商店可购买糖果，丢出去的糖果被别人吃掉时会使你获得2个南瓜，自己吃不给南瓜。",
+            "zh_cn": "商店可购买糖果，丢出去的糖果被别人吃掉时会使你获得2个南瓜，自己吃不给南瓜。",
+            "zh_tw": "商店可購買糖果，丟出去的糖果被別人吃掉時會使你獲得2個南瓜，自己吃不給南瓜。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 118
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Pumpkin Spirit",
+        "zh_cn": "南瓜精",
+        "zh_tw": "南瓜精"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pumpkin_spirit_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "pumpkin_spirit_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_entity",
+          "entity": "minecraft:bat",
+          "pos": [
+            3.0,
+            1.0,
+            3.0
+          ],
+          "yaw": 180.0,
+          "linkId": "pumpkin_spirit_disguised",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "按技能键变成蝙蝠并飞行15秒，冷却30秒。",
+                "zh_cn": "按技能键变成蝙蝠并飞行15秒，冷却30秒。",
+                "zh_tw": "按技能鍵變成蝙蝠並飛行15秒，冷卻30秒。"
+              }
+            ],
+            "color": 16753920
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 77,
+          "text": {
+            "en_us": "按技能键变成蝙蝠并飞行15秒，冷却30秒。",
+            "zh_cn": "按技能键变成蝙蝠并飞行15秒，冷却30秒。",
+            "zh_tw": "按技能鍵變成蝙蝠並飛行15秒，冷卻30秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 87
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Pumpkin Spirit",
+        "zh_cn": "南瓜精",
+        "zh_tw": "南瓜精"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pumpkin_spirit_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Completing a real task grants 60 coins. Other players completing tasks within 8 blocks grant 1 pumpkin; their final deaths within 8 blocks grant 2.",
+            "zh_cn": "仅在万圣节地图中刷新。",
+            "zh_tw": "僅在萬聖節地圖中刷新。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Attack a visible living player within 3 blocks to give them a pumpkin head for 15 seconds and gain one pumpkin. Each target has a 15-second cooldown; safe time prevents this. Their original helmet is returned.",
+            "zh_cn": "你的体型缩小80%，且无法击杀其他玩家。",
+            "zh_tw": "你的體型縮小80%，且無法擊殺其他玩家。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "After death, every valid door knock independently has a 50% chance to revive you safely beside the knocker and give them a pumpkin head for 15 seconds. Killers receive no kill coins for killing you. A civilian who kills you wears a pumpkin head and receives Slowness I for 20 seconds.",
+            "zh_cn": "已领取的南瓜再次丢弃并重捡不会重复计数。",
+            "zh_tw": "已領取的南瓜再次丟棄並重撿不會重複計數。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "A living Desperado immediately suppresses and kills you, preventing door revival and victory. When they die, change roles, or disconnect, you automatically revive at a safe location.",
+            "zh_cn": "每累计10个南瓜获得1个糖果袋。",
+            "zh_tw": "每累計10個南瓜獲得1個糖果袋。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 110,
+          "text": {
+            "en_us": "8格内其他玩家完成任务会使你获得1个南瓜，其他玩家最终死亡会使你获得2个南瓜。",
+            "zh_cn": "8格内其他玩家完成任务会使你获得1个南瓜，其他玩家最终死亡会使你获得2个南瓜。",
+            "zh_tw": "8格內其他玩家完成任務會使你獲得1個南瓜，其他玩家最終死亡會使你獲得2個南瓜。"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 120
+        },
+        {
+          "type": "text",
+          "duration": 117,
+          "text": {
+            "en_us": "死亡后，玩家每次敲门有50%概率在会使你在敲门者身边复活，并为其佩戴上15秒的南瓜头。",
+            "zh_cn": "死亡后，玩家每次敲门有50%概率在会使你在敲门者身边复活，并为其佩戴上15秒的南瓜头。",
+            "zh_tw": "死亡後，玩家每次敲門有50%概率在會使你在敲門者身邊復活，並為其佩戴上15秒的南瓜頭。"
+          },
+          "point": [
+            3.0,
+            3.2,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 127
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 63,
+          "text": {
+            "en_us": "杀手击杀你不会获得击杀收入",
+            "zh_cn": "杀手击杀你不会获得击杀收入",
+            "zh_tw": "殺手擊殺你不會獲得擊殺收入"
+          },
+          "point": [
+            3.0,
+            3.48,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 73
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

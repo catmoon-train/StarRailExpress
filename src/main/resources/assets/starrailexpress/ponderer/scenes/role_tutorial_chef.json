@@ -1,0 +1,879 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.chef",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Chef",
+    "zh_cn": "厨师",
+    "zh_tw": "廚師"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Chef",
+        "zh_cn": "厨师",
+        "zh_tw": "廚師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "chef_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 175,
+          "text": {
+            "en_us": "As the chef on this journey, you want to bring delicious meals to everyone.",
+            "zh_cn": "作为旅途随程的厨师，你想为所有人带来美味佳肴。",
+            "zh_tw": "作為旅途隨程的廚師，你想為所有人帶來美味佳餚。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 185
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Chef",
+        "zh_cn": "厨师",
+        "zh_tw": "廚師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "chef_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "All players may repeatedly take food and drinks from these plates; each player has a 30-second cooldown between takes.",
+                "zh_cn": "所有玩家都可以从这些盘子里反复拿取食物和饮料，每名玩家每次拿取之间有30秒冷却。",
+                "zh_tw": "所有玩家都可以從這些盤子裏反復拿取食物和飲料，每名玩家每次拿取之間有30秒冷卻。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "chef_main",
+            "item": "trainmurdermystery:note"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:note",
+          "duration": 65,
+          "point": [
+            3.0,
+            2.9,
+            3.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The Chef presses the skill-switch key to toggle between 【Food Plate】 and 【Drink Plate】.",
+            "zh_cn": "厨师按下技能切换键可以在「食物盘」与「饮料盘」之间切换。",
+            "zh_tw": "廚師按下技能切換鍵可以在「食物盤」與「飲料盤」之間切換。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "chef_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The Chef uses the skill to place a food/drink plate at their feet (max 2 per match; plates persist until match end).",
+            "zh_cn": "厨师释放技能会在自己脚底放置一个食物盘/饮料盘（一局只能放2个，盘子会一直存在到当局游戏结束）。",
+            "zh_tw": "廚師釋放技能會在自己腳底放置一個食物盤/飲料盤（一局只能放2個，盤子會一直存在到當局遊戲結束）。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "chef_skill_target_2",
+            "outline": -1704192
+          }
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "All players may repeatedly take food and drinks from these plates; each player has a 30-second cooldown between takes.",
+                "zh_cn": "所有玩家都可以从这些盘子里反复拿取食物和饮料，每名玩家每次拿取之间有30秒冷却。",
+                "zh_tw": "所有玩家都可以從這些盤子裏反復拿取食物和飲料，每名玩家每次拿取之間有30秒冷卻。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "All players may repeatedly take food and drinks from these plates; each player has a 30-second cooldown between takes.",
+            "zh_cn": "所有玩家都可以从这些盘子里反复拿取食物和饮料，每名玩家每次拿取之间有30秒冷却。",
+            "zh_tw": "所有玩家都可以從這些盤子裏反復拿取食物和飲料，每名玩家每次拿取之間有30秒冷卻。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Chef",
+        "zh_cn": "厨师",
+        "zh_tw": "廚師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "chef_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "chef",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 169,
+          "text": {
+            "en_us": "The shop sells a Pot, Snacks, and Water (Snacks and Water can be thrown)",
+            "zh_cn": "可以在商店中购买锅，零食和水(零食和水可以被丢出)",
+            "zh_tw": "可以在商店中購買鍋，零食和水(零食和水可以被丟出)"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 179
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Chef",
+        "zh_cn": "厨师",
+        "zh_tw": "廚師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "chef_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "chef_target",
+            "outline": -1704192
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "The Chef can temporarily see-through players who have eaten food.",
+                "zh_cn": "厨师可以暂时透视吃了食物的玩家。",
+                "zh_tw": "廚師可以暫時透視吃了食物的玩家。"
+              },
+              {
+                "en_us": "debuffs include: Glowing, Slowness I, Darkness, Nausea.",
+                "zh_cn": "debuff包含：发光、缓慢1、黑暗、反胃。",
+                "zh_tw": "debuff包含：發光、緩慢1、黑暗、反胃。"
+              },
+              {
+                "en_us": "Avoid adding Rotten Flesh, Spider Eyes, Poisonous Potatoes, or Glow Berries to the pot.",
+                "zh_cn": "尽量避免向锅中加入腐肉、蜘蛛眼、毒马铃薯、发光浆果。",
+                "zh_tw": "儘量避免向鍋中加入腐肉、蜘蛛眼、毒馬鈴薯、發光漿果。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 157,
+          "text": {
+            "en_us": "The Chef can temporarily see-through players who have eaten food.",
+            "zh_cn": "厨师可以暂时透视吃了食物的玩家。",
+            "zh_tw": "廚師可以暫時透視吃了食物的玩家。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 167
+        },
+        {
+          "type": "text",
+          "duration": 139,
+          "text": {
+            "en_us": "debuffs include: Glowing, Slowness I, Darkness, Nausea.",
+            "zh_cn": "debuff包含：发光、缓慢1、黑暗、反胃。",
+            "zh_tw": "debuff包含：發光、緩慢1、黑暗、反胃。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 149
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Avoid adding Rotten Flesh, Spider Eyes, Poisonous Potatoes, or Glow Berries to the pot.",
+            "zh_cn": "尽量避免向锅中加入腐肉、蜘蛛眼、毒马铃薯、发光浆果。",
+            "zh_tw": "儘量避免向鍋中加入腐肉、蜘蛛眼、毒馬鈴薯、發光漿果。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "mood",
+      "title": {
+        "en_us": "Chef",
+        "zh_cn": "厨师",
+        "zh_tw": "廚師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "chef_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_mood",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.sanity",
+            "before": 0.35,
+            "after": 0.85,
+            "lines": [
+              {
+                "en_us": "buffs include: skip current task, reduce item cooldowns, Night Vision, Speed I, Sanity regen, coin.",
+                "zh_cn": "buff包含：跳过当前任务、减少道具冷却、夜视、速度1、回san、加金币。",
+                "zh_tw": "buff包含：跳過當前任務、減少道具冷卻、夜視、速度1、回san、加金幣。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "buffs include: skip current task, reduce item cooldowns, Night Vision, Speed I, Sanity regen, coin.",
+            "zh_cn": "buff包含：跳过当前任务、减少道具冷却、夜视、速度1、回san、加金币。",
+            "zh_tw": "buff包含：跳過當前任務、減少道具冷卻、夜視、速度1、回san、加金幣。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vitals",
+      "title": {
+        "en_us": "Chef",
+        "zh_cn": "厨师",
+        "zh_tw": "廚師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "chef_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "attachKeyFrame": true,
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.4,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
+              }
+            ],
+            "lines": [
+              {
+                "en_us": "The Chef's food/drink plates cannot be poisoned or shielded",
+                "zh_cn": "厨师放置的食物盘/饮料盘无法被下毒也无法使用护盾试剂",
+                "zh_tw": "廚師放置的食物盤/飲料盤無法被下毒也無法使用護盾試劑"
+              }
+            ]
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "chef_skill_target_0",
+            "outline": -1704192
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "chef_skill_item_0"
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:note",
+          "duration": 70,
+          "point": [
+            3.0,
+            3.0,
+            3.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "idle",
+          "duration": 35
+        },
+        {
+          "type": "text",
+          "duration": 146,
+          "text": {
+            "en_us": "The Chef's food/drink plates cannot be poisoned or shielded",
+            "zh_cn": "厨师放置的食物盘/饮料盘无法被下毒也无法使用护盾试剂",
+            "zh_tw": "廚師放置的食物盤/飲料盤無法被下毒也無法使用護盾試劑"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 156
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Chef",
+        "zh_cn": "厨师",
+        "zh_tw": "廚師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "chef_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Each task completed grants the Chef one ingredient; every two ingredients plus one food from a food plate can be cooked into a dish in the pot (the dish can be thrown).",
+            "zh_cn": "厨师每完成一个任务会获得一份食材，每两份食材和一份食物盘中的食物可以在锅中烹饪成一道美食（美食可被丢出）。",
+            "zh_tw": "廚師每完成一個任務會獲得一份食材，每兩份食材和一份食物盤中的食物可以在鍋中烹飪成一道美食（美食可被丟出）。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 149,
+          "text": {
+            "en_us": "The dish's potion effects show no icon but still take effect.",
+            "zh_cn": "美食的药水效果不显示图标但实际生效。",
+            "zh_tw": "美食的藥水效果不顯示圖示但實際生效。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 159
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Cooking minigame: press A and D to move the pot left and right to catch falling ingredients.",
+            "zh_cn": "烹饪小游戏：按A键和D键左右移动锅，接住从天而降的食材。",
+            "zh_tw": "烹飪小遊戲：按A鍵和D鍵左右移動鍋，接住從天而降的食材。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

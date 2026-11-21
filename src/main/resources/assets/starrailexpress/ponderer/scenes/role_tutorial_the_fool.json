@@ -1,0 +1,553 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.the_fool",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Fool",
+    "zh_cn": "愚者",
+    "zh_tw": "愚者"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Fool",
+        "zh_cn": "愚者",
+        "zh_tw": "愚者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "the_fool_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Sheriff team",
+            "zh_cn": "警长阵营",
+            "zh_tw": "警長陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Wield the Tarot Club's power to root out the heretic hiding among the crowd, and defend justice in the name of judgment!",
+            "zh_cn": "利用塔罗会的力量，找出隐藏在人群中的异端，以审判之名守护正义！",
+            "zh_tw": "利用塔羅會的力量，找出隱藏在人群中的異端，以審判之名守護正義！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Fool",
+        "zh_cn": "愚者",
+        "zh_tw": "愚者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "the_fool_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 110,
+          "text": {
+            "en_us": "You start with the Executioner's Pistol",
+            "zh_cn": "开局自带处刑者手枪",
+            "zh_tw": "開局自帶處刑者手槍"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 120
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "domain",
+      "title": {
+        "en_us": "Fool",
+        "zh_cn": "愚者",
+        "zh_tw": "愚者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "the_fool_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_domain",
+          "attachKeyFrame": true,
+          "parameters": {
+            "domain": "fool_meeting",
+            "pos": [
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 151,
+          "text": {
+            "en_us": "The Fool can buy Name Vouchers (right-click to post on a wall)",
+            "zh_cn": "愚者可购买尊名纸条(右键贴墙上)",
+            "zh_tw": "愚者可購買尊名紙條(右鍵貼牆上)"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 161
+        },
+        {
+          "type": "text",
+          "duration": 185,
+          "text": {
+            "en_us": "Other players near a voucher press J to pray and become members of the Tarot Cult",
+            "zh_cn": "其他玩家在纸条附近按J键祷告成为塔罗会成员",
+            "zh_tw": "其他玩家在紙條附近按J鍵禱告成為塔羅會成員"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 195
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The Fool can hold a Tarot Meeting while alive or dead (6 min cooldown while alive, 8 min after death)",
+            "zh_cn": "愚者可以在存活时或死亡后按技能键召开塔罗会(愚者存活时开会冷却6分钟，死亡后开会冷却8分钟)",
+            "zh_tw": "愚者可以在存活時或死亡後按技能鍵召開塔羅會(愚者存活時開會冷卻6分鐘，死亡後開會冷卻8分鐘)"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 151,
+          "text": {
+            "en_us": "The meeting lasts 60 seconds; press G to settle the vote early",
+            "zh_cn": "塔罗会持续60秒，愚者按G可提前结算投票",
+            "zh_tw": "塔羅會持續60秒，愚者按G可提前結算投票"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 161
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 158,
+          "text": {
+            "en_us": "All attendees may vote for any non-Fool player, including the dead",
+            "zh_cn": "所有参会者可投票给任意非愚者玩家，包括死人",
+            "zh_tw": "所有參會者可投票給任意非愚者玩家，包括死人"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 168
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "On a tie, no votes, or if the top-voted player is already dead, the Fool receives a one-time pistol",
+            "zh_cn": "平票、无人投票或票数最高者已死亡时，愚者会获得一把一次性手枪",
+            "zh_tw": "平票、無人投票或票數最高者已死亡時，愚者會獲得一把一次性手槍"
+          },
+          "point": [
+            3.0,
+            3.2,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "If the top-voted player is alive, they are locked as the Heretic after voting; the Fool is immune to one hit from the Heretic",
+            "zh_cn": "票数最高者存活时会在投票结束后被愚者锁定为异端，愚者免疫一次来自异端造成的一次伤害",
+            "zh_tw": "票數最高者存活時會在投票結束後被愚者鎖定為異端，愚者免疫一次來自異端造成的一次傷害"
+          },
+          "point": [
+            3.0,
+            3.48,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Fool",
+        "zh_cn": "愚者",
+        "zh_tw": "愚者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "the_fool_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "the_fool",
+            "columns": 4
+          }
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "panel",
+      "title": {
+        "en_us": "Fool",
+        "zh_cn": "愚者",
+        "zh_tw": "愚者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "the_fool_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.label.notes",
+            "lines": [
+              {
+                "en_us": "Members press J to join or open the vote screen",
+                "zh_cn": "成员可以按J键入会或打开投票界面",
+                "zh_tw": "成員可以按J鍵入會或打開投票介面"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 124,
+          "text": {
+            "en_us": "Members press J to join or open the vote screen",
+            "zh_cn": "成员可以按J键入会或打开投票界面",
+            "zh_tw": "成員可以按J鍵入會或打開投票介面"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 134
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Fool",
+        "zh_cn": "愚者",
+        "zh_tw": "愚者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "the_fool_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The Executioner's Pistol can only execute the current Heretic; firing at others just clicks empty",
+            "zh_cn": "处刑者手枪只能处决当前异端，打错只会空枪",
+            "zh_tw": "處刑者手槍只能處決當前異端，打錯只會空槍"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 171,
+          "text": {
+            "en_us": "Spiritual Cloak: gain 5 seconds of invincibility but cannot attack others",
+            "zh_cn": "灵性斗篷：获得5秒无敌且无法攻击他人",
+            "zh_tw": "靈性斗篷：獲得5秒無敵且無法攻擊他人"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 181
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -80,8 +80,9 @@ does not have member field 'int field_22790'
   护盾试剂入盘是 `minecraft:effect`；其它粒子先查对应物品/技能/方块实体源码，不要自行编造。
   粒子步骤不阻塞时间轴，需要观察时补 `idle`。
 - 房间结构用 `tools/generate_ponder_structures.py` 生成，尺寸 7x4x7、顶部敞开，便于相机俯视。
-  小丑和酒保教程只保留背面（z=6）一堵墙，侧墙和前墙会挡住俯视镜头；其它新教程可复用
-  `starrailexpress:role_tutorial_common`。
+  **所有场景都只保留背面（z=最大）一堵墙**：z=0 的前墙与 x=0 / x=最大 的两侧墙会挡住俯视镜头，
+  表现对齐小丑 / 酒保场景。生成器里的 `build_room` / `build_shell` 已统一按此规则出图，
+  其它新教程可复用 `starrailexpress:role_tutorial_common`。
 
 ## 5. 动态占位符
 
@@ -161,8 +162,10 @@ does not have member field 'int field_22790'
 ## 9. 方块与物品映射
 
 - 场景结构只用本模组方块。具体使用哪些方块必须由职业介绍和代码决定，不要限定为少数示例。
-- 门：只有明确说明是《我的世界》原版门时，场景才使用原版门；否则一律使用本模组门。搭建普通场景时用本模组玻璃门 `trainmurdermystery:small_glass_door`；只有搭建玩家出生房间且文案明确是房间门时，才用 `trainmurdermystery:small_wood_door`，出生房间还必须包含本模组的床 `trainmurdermystery:white_trimmed_bed`。
-- 铁门 / 钢门：使用 `trainmurdermystery:` 命名空间中的钢门，不用 `navy_steel_door`。源码注册的钢门包括 `anthracite_steel_door`、`khaki_steel_door`、`maroon_steel_door`、`muntz_steel_door`、`navy_steel_door`；按场景需要选择，不要默认用 navy。`starrailexpress:scifi_door` 不是常见房间木门。
+- 门：只有明确说明是《我的世界》原版门时，场景才使用原版门；否则一律使用本模组门。**但 wathe 空壳包里的 `trainmurdermystery:small_wood_door`、`small_glass_door` 与 `anthracite/khaki/maroon/muntz/navy_steel_door` 的 blockstate 模型只有 particle 纹理、没有任何 elements，放进结构里完全不可见**。因此：
+  - 房间门 / 普通门用 `starrailexpress:light_blue_oak_door`（本模组注册的真实 `DoorBlock`，带 `minecraft:block/door_*` 父模型）；出生房间还必须包含本模组的床 `trainmurdermystery:white_trimmed_bed`。
+  - 钢门用 `trainmurdermystery:metal_sheet_door`（同样有真实门模型），不用 `navy_steel_door` 这类空壳门。
+  - 两格门必须在调色板里写 `facing` / `half=lower|upper` / `hinge` / `open=false`，否则 blockstate 匹配不到 variant，同样不渲染。`tools/generate_ponder_structures.py` 的 `door_palette()` 已封装。
 - 职业涉及食物 / 饮料盘时使用 `trainmurdermystery:food_platter`、`trainmurdermystery:drink_tray`；涉及床 / 马桶时选择本模组对应方块，例如 `trainmurdermystery:white_trimmed_bed`、`trainmurdermystery:light_toilet`。
   床是两格方块：结构里必须同时放脚和头两块，并在调色板写入 `facing`、`part`、`occupied` 属性，
   否则床不会渲染。生成器中的 `bed_palette()` 已封装这一写法。
@@ -384,6 +387,11 @@ InvalidInjectionException: non-static callback method ... targets a static metho
 | `starrailexpress:role_effects` | 速度、药水、护盾层数等状态与叠加 | `bars`、`lines` |
 | `starrailexpress:role_bond` | 绑定生成、队友/仇敌等关联关系 | `lines`、`color`；可再用 `role_player.outline` 标出对应玩家 |
 | `starrailexpress:role_panel` | 信件、笔记、任务清单、物品栏查看、身份揭示等文书界面 | `lines`、`title` |
+| `starrailexpress:role_pose` | 改变已建玩家模型的姿态（技能中途蹲下 / 站起） | `linkId`、`pose` |
+| `starrailexpress:role_hold` | 给已建玩家模型换手持物（切药剂 / 换武器） | `linkId`、`item` |
+| `starrailexpress:role_outline` | 给已建玩家模型加 / 改本能透视边框（施法后看见目标） | `linkId`、`color`、`lineWidth`、`expand` |
+| `starrailexpress:role_scale` | 缩放已建玩家模型（兔兔 / 侏儒被抱到头顶） | `linkId`、`scale` |
+| `starrailexpress:role_hide` | 隐藏 / 恢复已建玩家模型，配合 `create_entity` 演「变成实体」 | `linkId`、`visible` |
 
 前四种原步骤共用 `PonderInfoOverlayElement`，绘制在右上角；后六种共用 `PonderStateOverlayElement`，
 绘制在左上角，两者不会互相遮挡，也不遮挡场景中央的玩家模型与字幕。
@@ -603,6 +611,80 @@ InvalidInjectionException: non-static callback method ... targets a static metho
 | `linkId` | string | 必填，指向 `role_player` / `role_walk` 建的模型 |
 | `pos` | `[x,y,z]` | 落点 |
 
+### `starrailexpress:role_items`
+
+摆出该职业的**真实初始物品**：物品直接读 `RoleInitialItems.getInitialItemsForRole(role)`，
+与游戏内开局发放的一致，因此不必在场景 JSON 里逐条手写物品 id。
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `role` | string | 职业 id；**支持只写路径**（如 `jester`），先按完整 id 查、查不到再按路径查 |
+| `origin` | `[x,y,z]` | 第一个物品的位置，默认 `[2,1.4,3]` |
+| `spacing` | number | 间距，默认 0.8 |
+| `max` | int | 最多摆几个，默认 4 |
+| `linkId` | string | 生成的实体 linkId 前缀 |
+
+`role_shop` 的 `role` 字段同样支持只写路径（命名空间在不同来源里并不统一）。
+
+### `starrailexpress:role_death`
+
+死亡动画：**玩家模型直接消失 → 在同一位置生成尸体**。
+游戏里被击杀的玩家会直接从世界移除并在原地留下 `trainmurdermystery:player_body`，
+思索沙盒没有这个过程，所以显式演出：不摆趴下姿态，模型立即隐藏，同时在原坐标生成尸体实体。
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `linkId` | string | 要消失的玩家模型 |
+| `pos` | `[x,y,z]` | 尸体生成位置；省略时取模型当前位置 |
+| `name` | string | 尸体名。含 `.` 且不含空格时按**翻译键**处理，否则按字面文本 |
+| `entity` | string | 尸体实体 id，默认 `trainmurdermystery:player_body` |
+| `delay` | int | 兼容旧场景保留，当前不生效 |
+| `yaw` | number | 尸体朝向 |
+
+> **CustomName 必须是 JSON 文本组件**：`Entity.load` 用 `Component.Serializer.fromJson`
+> 解析 `CustomName`，直接写 `'酒保'` 会在加载时抛 `JsonSyntaxException`，
+> 整个场景被判为 unavailable。正确写法：`{CustomName:'{"text":"酒保"}',CustomNameVisible:1b}`
+> 或翻译键 `{CustomName:'{"translate":"announcement.star.role.bartender"}',CustomNameVisible:1b}`。
+
+### `starrailexpress:role_screen`
+
+模拟「背包界面里的选人列表」：神权冷笑、巫毒师、变形者等职业的技能是在背包里挑一个玩家来施放，
+游戏内对应 `RoleScreenHelper` 挂在背包上的一排玩家头像。离屏沙盒构造不出真实背包，
+因此按同一版式自绘一份。
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `title` | string / 三语对象 | 面板标题 |
+| `hint` | string / 三语对象 | 面板下方提示 |
+| `players` | string[] | 列表里的玩家名，默认 `Steve / Alex / Notch / Dinnerbone / jeb_ / Herobrine` |
+| `columns` | int | 每行个数，默认 6 |
+| `color` | int | 标题颜色 |
+
+头像用默认玩家皮肤填充：思索是离屏场景，没有真实在线玩家，
+用固定的用户名与默认皮肤才能保证每次播放画面一致。
+
+### `starrailexpress:role_ambience`
+
+环境染色：给整块画面叠一层颜色，用来近似「紫天 / 橙天 / 夜雾」这类整局世界状态。
+离屏沙盒没有服务端的天空、雾与全局光照入口，只能近似。
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `color` | int | RGB |
+| `alpha` | number | 0~1，默认 0.45 |
+| `mode` | string | `sky`（天顶渐变）/ `fog`（整体染色），默认 `fog` |
+
+颜色优先级按 `docs/halloween-ambience.md`：命令方块紫 > 万圣节橙，
+黑暗 / 失明的黑雾再压过橙色。
+
+### 覆盖层的三语文本
+
+`role_skill` / `role_panel` / `role_bond` / `role_render` / `role_disguise` / `role_mood` /
+`role_vitals` / `role_timer` / `role_effects` / `role_currency` / `role_screen` 的
+`lines` 与 `title` 接受 `{en_us, zh_cn, zh_tw}` 对象，也仍然接受单语言字符串。
+解析顺序与场景 `text` 步骤一致：当前语言 → `en_us` → 首个可用值，
+实现见 `PonderLocalizedText`。
+
 ### 参考实现：召回者（2026-11-20）
 
 - 场景：`assets/starrailexpress/ponderer/scenes/role_tutorial_recaller.json`
@@ -636,4 +718,161 @@ indicate_success [2,0,4] + idle 80 + rotate_camera_y
 粒子与音效直接取自源码：`ParticleTypes.PORTAL` 环绕 16 点 + 中心 10 点（`y + 0.9`），
 音效 `SoundEvents.ENDERMAN_TELEPORT`（`minecraft:entity.enderman.teleport`，`source: players`）。
 `role_teleport` 故意做成瞬移：游戏内 `teleportTo` 就是瞬移，做插值反而不符合实际表现。
+
+### 逐句动作编排（2026-11-21，除酒保 / 小丑 / 召回者外全部新增场景）
+
+`tools/gen_ponder_scenes.py` 的 `build_skill_act()` 不再给技能段落只塞一个键帽和
+`role_skill` 面板：它逐句读取职业介绍原文，按句子里真正发生的机制组合动作，
+每句原文前面都有一组对应的演示，做到「按一次键 → 画面变一次」。已实现的演绎包括：
+
+- 交换位置：第二玩家模型 + 走到对方面前 → 两处传送粒子 → 两个模型互换坐标；
+- 标记 / 回到：原地高亮标点 → 走开 → 再按键 → 起跳点和落点各播一次传送粒子；
+- 指向玩家查看界面：目标模型 + `role_outline` → `role_panel` → 目标走开；
+- 蹲下察觉：`role_pose` 蹲下 → 区域高亮 + 效果粒子 → 站起；
+- 击杀 / 尸体：目标模型 → 走近 → `role_death` 直接消失并留下尸体；
+- 中毒 / 护盾 / 治愈：摆出真实物品、`show_controls` 右键提示，配合 `wathe:poison`
+  或 `minecraft:effect` 粒子，血量 / 护盾条显示前后变化；
+- 冷却 / 延迟 / 代价：`role_timer`、`role_currency` 显示进度或金币变化；
+- 切换药剂 / 武器：`role_hold` 当场换手持物，不用重建模型；
+- 传送 / 瞬移 / 召回：两端粒子 + `role_teleport` + 落地指示。
+
+同一段落里同类覆盖层只保留第一块，避免左上角的金币 / 冷却 / 血量面板互相遮挡。
+每条介绍句的目标玩家和物品实体用独立 `linkId`，前一句留下的尸体不会串到下一句。
+
+## 18. 全覆盖实现（2026-11-21）
+
+- 272 个职业 / 事件场景全部生成，索引 `content/role_tutorials.json` 登记 272 条。
+- 生成与自检脚本见 `tools/gen_ponder_scenes.py` 与 `tools/verify_ponder_scenes.py`。
+- 详细记录见 `docs/职业思索系统全覆盖实现记录.md`。
+- **清单里的场景路径必须是 `<命名空间>:<路径>`**（Ponderer `docs/PONDERER_LIB.md` 的格式），
+  写成 `<命名空间>/<路径>` 会被 `ResourceLocation.parse` 解析不出来，场景根本不会加载。
+
+## 19. 逐职业特写与通用修正（2026-11-21 二次修订）
+
+### 通用问题
+
+- **走动终点姿势鬼畜**：`PonderWalkInstruction` 是逐 tick 手动调用
+  `setWalkProgress` 的，场景不跑原版 `Entity#tick`。原来终点只 `setSpeed(0)`，
+  `WalkAnimationState.pos` 还停在半个步幅上，腿会僵在一个奇怪角度。现在起始与终点
+  都用 `update(-position(), 1.0F)` 把相位推回 0，再 `setSpeed(0)`（与
+  `MirrorReflection` 同步倒影步幅的写法一致）。这是所有职业共用的修复。
+- **覆盖层挡住思索 UI**：`PonderStateOverlayElement` 与 `PonderInfoOverlayElement`
+  原来都画在 `y=24`，正好压在 Ponder 顶部标题 / 段落标签上。现在统一下移到 `y=112`。
+  同时去掉横跨大半个屏幕的半透明底板与外框，只保留窄状态条和文字；状态条宽度从
+  110 / 120 缩到 72，文字加投影保证任意背景下可读。
+- **被动描述不再乱加技能键**：`ACTION_WORDS` 去掉了过宽的「金币」「使用」，
+  并且只有句子里明确写了触发方式（技能 / 按下 / 右键 / 按住 / 施放 / 切换等）才画
+  键帽和走动。baka 这类没有主动技能的职业不会再出现「右键便签 + 走动」。
+- **商店商品要在对应介绍处出现**：`extract_ponder_role_facts.py` 补扫
+  `RoleShopHandler` 的 `ArrayList<ShopEntry>` 局部变量，唱片师的音箱与 19 张原版唱片、
+  纵火犯等职业的商店条目现在都能提取到；`shop` 段落逐句把真实商品实体摆在玩家旁边。
+
+### 逐职业特写
+
+| 职业 | 演示 |
+| --- | --- |
+| 卡布奇诺咖啡师 | 两名玩家同场；右键目标后目标先落到脚边再被抱到咖啡师头顶，缩小为 0.62 倍并切蹲坐姿态（Minecraft 玩家没有 `SITTING` pose，这是最接近的「坐在头顶」），配 60 秒倒计时 |
+| 鵺 | 站一名观察者；地上放真刀 / 真枪 / 开锁器，手里分别显示枪 / 刀 / 万能钥匙，正好对应「持刀显示枪、持枪显示刀」；另外把短冷却击杀演成挥刀 + 计时，而不是普通击杀流程 |
+| 纵火犯 | 浇油对象与未浇油对象同时在场；浇油用真实 `jerry_can`，点火用 `lighter`，疯魔阶段换成 `flamethrower`，大油罐单独演示；透视段分别用橙色 / 灰色边框，和介绍文字一致；被烧死的目标 `role_death.corpse=false`，不留尸体 |
+| baka | 没有主动技能：只演示 `danmuku` 长按右键命中目标、`problem_set` 右键打开做题界面以及商店里的习题集；不再有技能键帽、走动或便签 |
+| 唱片师 | 商店介绍出现时同时摆出音箱与真实唱片，左侧玩家旁听 |
+
+这些职业走 `ROLE_SEGMENT_OVERRIDES` 的逐段覆写，不套用通用模版。
+
+## 20. 伪装 / 变身演示核查（2026-11-21）
+
+检查了所有介绍里出现「伪装 / 变身 / 变成 / 化身 / 改变皮肤」的职业。原来的 `form`
+段落只有一块 `role_disguise` 文字面板，画面里还是原来的玩家模型，等于没有演示；
+现在统一改成「原玩家消失 → 新形态出现」，并逐职业指定变成什么：
+
+| 类型 | 职业 | 实际画面 |
+| --- | --- | --- |
+| 变成兔兔 | 兔兔万岁 | 三名玩家消失，原位出现三只 `minecraft:rabbit`，配金币花费和限时 |
+| 变成实体 | 雪傀儡、皮革噶的、南瓜精 | 玩家消失，原位生成 `snow_golem` / `pig` / `bat` |
+| 变成方块 | 金属怪、自然精灵 | 玩家消失，原位放 `steel_coil` / `grass_block` 伪装方块 |
+| 换成皮肤 | 变形者、窃皮者、宿命的罪人、阿蒙、魔术师、秃鹫、赌徒、惧魔、 entity_303、乌鸦 | 玩家消失，换成真实存在的 psycho 皮肤贴图（Remilia / 黑白 / 白色 / 小丑 / 猫杀手） |
+| 多人形象互换 | 嬉命人、恐惧领主、紫怪 | 两名玩家分别换皮，体现「交换皮肤 / 皮肤名称混乱 / 伪装成亲近的人」 |
+| 形态缩放 | 恐惧领主、黑白熊 | 在换皮同时放大到 1.5 倍；阿蒙寄宿时缩小到 0.25 倍 |
+| 武器外观伪装 | 鵺 | 地上放真刀 / 真枪，手里显示枪 / 刀（上一节已实现） |
+
+`roulette_devil` 的「常态伪装」是黑烟形体，没有可用皮肤贴图，用玩家消失 + 黑烟粒子 + 文字标签表达。
+`best_vigilante`、`elf`、`leader` 等句子说的是身份或道具变化，不是视觉变身，仍按原段落演示。
+
+新增的 `starrailexpress:role_hide` 只控制 `setVisible`，不生成尸体；和 `role_death`
+的区别是后者会留 `player_body`（除非传 `corpse=false`）。
+
+## 21. 按编写准则的全量核查（2026-11-21）
+
+对照 `docs/PONDERER_SCENE_AUTHORING.md` 逐条核查了 269 个普通职业场景
+（酒保、小丑、召回者按要求排除）。新增 `tools/audit_ponder_authoring.py` 做静态审计，
+检查：场景 id 与文件名、标题 / 段落标题三语、首步 `show_structure`、文本 point
+是否指向主角、时间轴间隔（相邻文本至少 10 tick、末条文本后有足够 `idle`）、
+`create_item_entity.motion`、`show_controls.action`、连续三块纯文本、
+「提到粒子 / 释放 / 投掷却没有 `spawn_particles`」。
+
+审计发现并已修正的问题：
+
+- 时间轴原本只保证文本不重叠，没有留 10 tick 间隔；生成器现在统一按 `duration + 10` 补 `idle`。
+- 注释点原来按 0.45 格逐句抬高，第 7 句以后离玩家超过 2.6 格；改成 7 句一轮、每句 0.28 格，
+  超出一轮用 0.15 格横移错开，既保持唯一又始终指向玩家模型。
+- 大量段落连着三句以上纯文本；`SceneBuilder.say()` 现在在第三句前自动插一个非阻塞
+  `indicate_success`，打断纯文本串，不推进时间轴。
+- 22 处介绍写了「粒子 / 释放 / 投掷」但段落没有粒子；`ensure_particles()` 会按
+  `SOURCE_PARTICLE_BY_ROLE` 补上对应职业源码里真实发射的粒子（下一节详述）。
+
+最终结果：审计 0 violation，`tools/verify_ponder_scenes.py` 272 个场景 0 error、
+2 条既有 warning（酒保 / 小丑的自定义正文，按要求未改）。
+
+已知的**有意偏离准则**：准则 §4 写「一个段落只放一个玩家模型」，但按本次需求，
+涉及交换、抱人、浇油、伪装互换等机制时必须同时出现多个玩家，才能把效果演示出来；
+这些场景保留多玩家。物品实体不显式移除，因为每次段落切换都会重置离屏场景，
+不存在跨段残留。
+
+## 22. 粒子以源码为准（2026-11-21）
+
+之前用 `minecraft:effect` 给所有「释放 / 粒子」兜底是不符合编写准则的。现在生成器
+只从 `SOURCE_PARTICLE_BY_ROLE` 取粒子，且该表逐项对应 Java 源码：
+
+- `wathe:poison`：`TMMParticles.POISON`，毒床 / 厕所毒气 / 毒区 / 客户端毒事件。
+- 爆炸：`wathe:explosion` / `wathe:big_explosion`（`TMMParticles`、手雷 / 鞭炮），
+  `minecraft:explosion_emitter`（飞机坠毁、实体之无、萃香等）。
+- 纵火犯：`stupid_express:arsonist_flame` / `arsonist_kill` / `arsonist_shot`
+  （`ArsonistRoleData`、`ArsonistBurnedBodies`、`ArsonistFlameClientEffects`），
+  油罐冒烟用 `minecraft:smoke`（`LargeOilCanEntity`）。
+- 治愈：`minecraft:heart`（`WheelchairEffectBlockHandler`）。
+- 传送：`minecraft:portal`（回忆者 / 幻灵乐师 / 星摘取者 / 共谋者），
+  `minecraft:reverse_portal`（归乡者 / 怀旧者）。
+- 按职业写死：`wizard` 火焰/雪/烟/女巫/lava，`warlock` soul，`dreadlord` squid_ink，
+  `pooler` splash/bubble/end_rod，`wraith_assassin` soul_fire_flame/smoke/dust，
+  `dream` 红色 dust，`star_gatherer` end_rod/electric_spark，
+  `trapper` wax_on/electric_spark，`ghost_eye` sculk_soul，`diviner` enchant，
+  `glitch_robot` effect，轮盘恶魔 `wathe:black_smoke` 等。
+
+护盾、金币、南瓜、蝙蝠、番茄、技能文字通告在源码里没有专属粒子发射，
+对应段落不再硬塞粒子。`tools/audit_ponder_authoring.py` 现在会逐职业核对：
+每个 `spawn_particles` 的粒子 id 必须在该职业的源码粒子集合里，否则报 violation。
+
+结果：269 个场景粒子审计 0 violation；`verify_ponder_scenes.py` 272 个场景 0 error。
+
+## 23. 商店页、走动重置、本能颜色与踢门（2026-11-21）
+
+- **商店页**：生成器现在对介绍里出现「商店 / 可购买 / 购买 / 兑换」的所有职业强制
+  建立 `shop` 段落，并在对应介绍处摆出真实商品。复查 269 个职业，0 个漏页。
+  仙人（`ibaraki_kasen`）的商店段在「狼狗」那一句生成原版 `minecraft:wolf`，
+  表现“购买后自动召唤”。
+- **走动终点重置**：`javap` 确认 1.21.1 的 `net.minecraft.world.entity.WalkAnimationState`
+  中 `speedOld`、`speed`、`position` 都是 public 字段。之前用
+  `update(-position(), 1)` + `setSpeed(0)` 仍会被插值带回去；现在在起步和终点直接
+  把三个字段清零，所有职业共用。
+- **本能透视颜色**：`INSTINCT_COLOR_BY_ROLE` 按源码返回值覆盖介绍里明确提到的颜色。
+  初学者看另一位初学者是 `0xFFFFD154`（`SERoles.INITIATE.color()`，条件是自己拿刀且
+  目标也是初学者），不再沿用默认红色；家族透视棕色 `0xFF8B4513` / 教父蓝
+  `0xFF87CEEB`，肉汁深蓝 `0xFF0000B4`，指挥官警长蓝 `0xFF3F48CC`，
+  轮盘恶魔蓝 `0xFF3388FF`，黑警浅黑 / 红，等等。需要多种颜色的段落会摆多个
+  目标玩家，各自用源码颜色。
+- **玉将军飞踢**：`skill` 段现在先放一扇 `trainmurdermystery:metal_sheet_door`，
+  按键后玩家走向门、门被置空、目标玩家被击退；不再只有文字描述。
+
+最终：`verify_ponder_scenes.py` 272 个场景 0 error，`audit_ponder_authoring.py`
+269 个场景 0 violation，`compileJava --offline` 编译成功。
 

@@ -1,0 +1,425 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.heng_xing_ti",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Stellar Body",
+    "zh_cn": "恒星体",
+    "zh_tw": "恒星體"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_room"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Stellar Body",
+        "zh_cn": "恒星体",
+        "zh_tw": "恒星體"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "heng_xing_ti_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 97,
+          "text": {
+            "en_us": "Wins together with the Civilians",
+            "zh_cn": "与平民一同获胜",
+            "zh_tw": "與平民一同獲勝"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 107
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Stellar Body",
+            "zh_cn": "星体环绕在四周...",
+            "zh_tw": "星體環繞在四周..."
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Stellar Body",
+        "zh_cn": "恒星体",
+        "zh_tw": "恒星體"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "heng_xing_ti_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Permanently glowing. Use the skill to instantly start a 15s Orbit Field: during it you have 2 layers of timed shield, and the 8 nearest Passengers within 10 blocks are indiscriminately teleported around you; 240s cooldown.",
+                "zh_cn": "常态发光。使用技能立即开启15s环绕带：期间你拥有2层限时盾，周围10格内最近的的8名乘客都会无差别的传送至自身一定周围，冷却240s。",
+                "zh_tw": "常態發光。使用技能立即開啟15s環繞帶：期間你擁有2層限時盾，周圍10格內最近的的8名乘客都會無差別的傳送至自身一定周圍，冷卻240s。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Permanently glowing. Use the skill to instantly start a 15s Orbit Field: during it you have 2 layers of timed shield, and the 8 nearest Passengers within 10 blocks are indiscriminately teleported around you; 240s cooldown.",
+                "zh_cn": "常态发光。使用技能立即开启15s环绕带：期间你拥有2层限时盾，周围10格内最近的的8名乘客都会无差别的传送至自身一定周围，冷却240s。",
+                "zh_tw": "常態發光。使用技能立即開啟15s環繞帶：期間你擁有2層限時盾，周圍10格內最近的的8名乘客都會無差別的傳送至自身一定周圍，冷卻240s。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Permanently glowing. Use the skill to instantly start a 15s Orbit Field: during it you have 2 layers of timed shield, and the 8 nearest Passengers within 10 blocks are indiscriminately teleported around you; 240s cooldown.",
+            "zh_cn": "常态发光。使用技能立即开启15s环绕带：期间你拥有2层限时盾，周围10格内最近的的8名乘客都会无差别的传送至自身一定周围，冷却240s。",
+            "zh_tw": "常態發光。使用技能立即開啟15s環繞帶：期間你擁有2層限時盾，周圍10格內最近的的8名乘客都會無差別的傳送至自身一定周圍，冷卻240s。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "heng_xing_ti_skill_target_1",
+            "outline": -10198016
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "heng_xing_ti_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Players attracted by you cannot use items or skills during this and are invulnerable.",
+            "zh_cn": "被你吸引的玩家期间无法使用物品、使用技能，且期间会无敌。",
+            "zh_tw": "被你吸引的玩家期間無法使用物品、使用技能，且期間會無敵。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "If a player you attract accidentally falls into the void soon after (not by their own action and not caused by others), they return to their room.",
+            "zh_cn": "如果你吸引的玩家在近期意外落入虚空（非主动且非其他人导致）将会返回自己房间。",
+            "zh_tw": "如果你吸引的玩家在近期意外落入虛空（非主動且非其他人導致）將會返回自己房間。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Stellar Body",
+        "zh_cn": "恒星体",
+        "zh_tw": "恒星體"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "heng_xing_ti_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 72,
+          "text": {
+            "en_us": "An easter-egg role",
+            "zh_cn": "彩蛋职业",
+            "zh_tw": "彩蛋職業"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 82
+        },
+        {
+          "type": "text",
+          "duration": 85,
+          "text": {
+            "en_us": "May have mysterious bugs.",
+            "zh_cn": "可能有神秘BUG。",
+            "zh_tw": "可能有神秘BUG。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 95
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

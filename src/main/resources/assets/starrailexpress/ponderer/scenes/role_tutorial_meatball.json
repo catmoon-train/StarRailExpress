@@ -1,0 +1,559 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.meatball",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Gravy",
+    "zh_cn": "肉汁",
+    "zh_tw": "肉汁"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Gravy",
+        "zh_cn": "肉汁",
+        "zh_tw": "肉汁"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "meatball_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Killers can only kill you when you are alone with them; stay aware of your surroundings!",
+            "zh_cn": "杀手只能在与你独处的时候将你击杀，多留意周围！",
+            "zh_tw": "殺手只能在與你獨處的時候將你擊殺，多留意周圍！"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Gravy",
+        "zh_cn": "肉汁",
+        "zh_tw": "肉汁"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "meatball_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "meatball",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 124,
+          "text": {
+            "en_us": "Each task you complete earns 40 coins of bounty",
+            "zh_cn": "你每做一个任务会积累40金币的赏金",
+            "zh_tw": "你每做一個任務會積累40金幣的賞金"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 134
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Gravy",
+        "zh_cn": "肉汁",
+        "zh_tw": "肉汁"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "meatball_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "meatball_target",
+            "outline": 4278190260
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "When a Killer is within 4 blocks of Gravy, they see a deep-blue outline and learn your identity",
+                "zh_cn": "杀手在肉汁4格范围内时杀手看肉汁的透视框为深蓝色并会得知你的身份",
+                "zh_tw": "殺手在肉汁4格範圍內時殺手看肉汁的透視框為深藍色並會得知你的身份"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When a Killer is within 4 blocks of Gravy, they see a deep-blue outline and learn your identity",
+            "zh_cn": "杀手在肉汁4格范围内时杀手看肉汁的透视框为深蓝色并会得知你的身份",
+            "zh_tw": "殺手在肉汁4格範圍內時殺手看肉汁的透視框為深藍色並會得知你的身份"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "mood",
+      "title": {
+        "en_us": "Gravy",
+        "zh_cn": "肉汁",
+        "zh_tw": "肉汁"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "meatball_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_mood",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.sanity",
+            "before": 0.35,
+            "after": 0.85,
+            "lines": [
+              {
+                "en_us": "Your Sanity drains slowly",
+                "zh_cn": "你的san值消耗较慢",
+                "zh_tw": "你的san值消耗較慢"
+              },
+              {
+                "en_us": "So try to restore Sanity through non-task means",
+                "zh_cn": "所以请尽量通过非任务的方式回复san值",
+                "zh_tw": "所以請儘量通過非任務的方式回復san值"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 85,
+          "text": {
+            "en_us": "Your Sanity drains slowly",
+            "zh_cn": "你的san值消耗较慢",
+            "zh_tw": "你的san值消耗較慢"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 95
+        },
+        {
+          "type": "text",
+          "duration": 124,
+          "text": {
+            "en_us": "So try to restore Sanity through non-task means",
+            "zh_cn": "所以请尽量通过非任务的方式回复san值",
+            "zh_tw": "所以請儘量通過非任務的方式回復san值"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 134
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Gravy",
+        "zh_cn": "肉汁",
+        "zh_tw": "肉汁"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "meatball_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You have no collision; Killers/Neutrals can only kill you when alone with you (defined as no other good-aligned player within 4 blocks)",
+            "zh_cn": "你没有碰撞体积，杀手/中立只能在与你独处的时候击杀你（4格半径范围内没有其他好人阵营时会被判定为独处）",
+            "zh_tw": "你沒有碰撞體積，殺手/中立只能在與你獨處的時候擊殺你（4格半徑範圍內沒有其他好人陣營時會被判定為獨處）"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 117,
+          "text": {
+            "en_us": "You are not the Executioner's first target.",
+            "zh_cn": "你不会优先成为刽子手的目标。",
+            "zh_tw": "你不會優先成為劊子手的目標。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 127
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 112,
+          "text": {
+            "en_us": "Near doorframes you cannot avoid damage.",
+            "zh_cn": "靠近门框时，你无法免疫伤害。",
+            "zh_tw": "靠近門框時，你無法免疫傷害。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 122
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "meatball_skill_target_3",
+            "outline": 4278190260
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "meatball_skill_item_3"
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:note",
+          "duration": 70,
+          "point": [
+            3.0,
+            3.0,
+            3.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "idle",
+          "duration": 35
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Gravy cannot avoid: good-meaning-kill deaths / being killed by a good player / untraceable damage / Bomber bombs / poison / virus infection / immolation / Loose End damage.",
+            "zh_cn": "肉汁无法免疫好人误杀/被好人误杀/无来源伤害/炸弹客的炸弹/中毒/病毒感染/欲火焚身/亡命徒的伤害。",
+            "zh_tw": "肉汁無法免疫好人誤殺/被好人誤殺/無來源傷害/炸彈客的炸彈/中毒/病毒感染/欲火焚身/亡命徒的傷害。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 164,
+          "text": {
+            "en_us": "Conspirators cannot kill Gravy among a crowd with the conspiracy book",
+            "zh_cn": "阴谋家无法通过阴谋书页击杀人群中的肉汁",
+            "zh_tw": "陰謀家無法通過陰謀書頁擊殺人群中的肉汁"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 174
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 131,
+          "text": {
+            "en_us": "Killers who kill you collect all accumulated bounty",
+            "zh_cn": "杀手击杀你会获得所有累计的赏金",
+            "zh_tw": "殺手擊殺你會獲得所有累計的賞金"
+          },
+          "point": [
+            3.0,
+            3.2,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 141
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,497 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.fog_guest",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "fog_guest",
+    "zh_cn": "fog_guest",
+    "zh_tw": "fog_guest"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "fog_guest",
+        "zh_cn": "fog_guest",
+        "zh_tw": "fog_guest"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "fog_guest_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 68,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營，僅由命令方塊事件產生。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 78
+        },
+        {
+          "type": "text",
+          "duration": 142,
+          "text": {
+            "en_us": "Only created by the Command Block event.",
+            "zh_cn": "仅由命令方块事件产生。",
+            "zh_tw": "霧起：在自身位置釋放半徑15格、高5格的霧區，持續22秒。霧內玩家獲得黑暗和緩慢I，霧外無法看清霧內。冷卻80秒。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 152
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 112,
+          "text": {
+            "en_us": "Kill all the passengers to win the match",
+            "zh_cn": "击杀所有平民取得胜利",
+            "zh_tw": "殺死所有平民取得勝利"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 122
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "fog_guest",
+        "zh_cn": "fog_guest",
+        "zh_tw": "fog_guest"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "fog_guest_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "fog_guest_skill_target_0",
+            "outline": -65536
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "fog_guest_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 45
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 15
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "fog_guest_skill_target_0",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Starts with a Fog Blade: Right-click to kill a visible player within 4 blocks who is inside fog or blinded by a Fog Bell. 5-second cooldown.",
+            "zh_cn": "初始携带雾刃，右键只能击杀4格内视线中处于雾区或被雾铃遮眼的玩家，冷却5秒。",
+            "zh_tw": "商店：開鎖器130金幣；霧鈴230金幣，使半徑4格內其他玩家黑暗、失明4秒，冷卻25秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "fog_guest",
+        "zh_cn": "fog_guest",
+        "zh_tw": "fog_guest"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "fog_guest_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Rising Fog: Creates a stationary fog zone with a 15-block radius and 5-block height for 22 seconds. Players inside receive Darkness and Slowness I; outsiders cannot see inside. 80-second cooldown.",
+                "zh_cn": "雾起：在自身位置释放半径15格、高5格的雾区，持续22秒。雾内玩家获得黑暗和缓慢I，雾外无法看清雾内。冷却80秒。",
+                "zh_tw": "霧隱：只能在霧區內釋放，自身隱身5秒，冷卻10秒。"
+              },
+              {
+                "en_us": "Fog Veil: Only usable inside fog. Become invisible for 5 seconds. 10-second cooldown.",
+                "zh_cn": "雾隐：只能在雾区内释放，自身隐身5秒，冷却10秒。",
+                "zh_tw": "初始攜帶霧刃，右鍵只能擊殺4格內視線中處於霧區或被霧鈴遮眼的玩家，冷卻5秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "fog_guest_skill_target_0",
+            "outline": -65536
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Rising Fog: Creates a stationary fog zone with a 15-block radius and 5-block height for 22 seconds. Players inside receive Darkness and Slowness I; outsiders cannot see inside. 80-second cooldown.",
+                "zh_cn": "雾起：在自身位置释放半径15格、高5格的雾区，持续22秒。雾内玩家获得黑暗和缓慢I，雾外无法看清雾内。冷却80秒。",
+                "zh_tw": "霧隱：只能在霧區內釋放，自身隱身5秒，冷卻10秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Rising Fog: Creates a stationary fog zone with a 15-block radius and 5-block height for 22 seconds. Players inside receive Darkness and Slowness I; outsiders cannot see inside. 80-second cooldown.",
+            "zh_cn": "雾起：在自身位置释放半径15格、高5格的雾区，持续22秒。雾内玩家获得黑暗和缓慢I，雾外无法看清雾内。冷却80秒。",
+            "zh_tw": "霧隱：只能在霧區內釋放，自身隱身5秒，冷卻10秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Fog Veil: Only usable inside fog. Become invisible for 5 seconds. 10-second cooldown.",
+            "zh_cn": "雾隐：只能在雾区内释放，自身隐身5秒，冷却10秒。",
+            "zh_tw": "初始攜帶霧刃，右鍵只能擊殺4格內視線中處於霧區或被霧鈴遮眼的玩家，冷卻5秒。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "fog_guest",
+        "zh_cn": "fog_guest",
+        "zh_tw": "fog_guest"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "fog_guest_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "fog_guest",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Shop: Lockpick 130 coins; Fog Bell 230 coins, inflicting Darkness and Blindness on other players within 4 blocks for 4 seconds. 25-second cooldown.",
+            "zh_cn": "商店：开锁器130金币；雾铃230金币，使半径4格内其他玩家黑暗、失明4秒，冷却25秒。",
+            "zh_tw": "商店：开锁器130金币；雾铃230金币，使半径4格内其他玩家黑暗、失明4秒，冷却25秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,760 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.lender",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Lender",
+    "zh_cn": "放贷人",
+    "zh_tw": "放貸人"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Lender",
+        "zh_cn": "放贷人",
+        "zh_tw": "放貸人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "lender_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 99,
+          "text": {
+            "en_us": "Give costly help to those in need",
+            "zh_cn": "给予需要的人有代价的帮助",
+            "zh_tw": "給予需要的人有代價的幫助"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 109
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Lender",
+        "zh_cn": "放贷人",
+        "zh_tw": "放貸人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "lender_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 79,
+          "text": {
+            "en_us": "Starts with 175 coins.",
+            "zh_cn": "开局拥有175金币",
+            "zh_tw": "開局擁有175金幣"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 89
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "lender_skill_target_1",
+            "outline": -4684277
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "With a contract, interest grows 25 coins every 45s; the player may right-click the contract to pay back early.",
+                "zh_cn": "拥有贷款合同后，贷款利息每过45秒会增加25金币，期间玩家可以右键贷款合同还清金币。",
+                "zh_tw": "擁有貸款合同後，貸款利息每過45秒會增加25金幣，期間玩家可以右鍵貸款合同還清金幣。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "With a contract, interest grows 25 coins every 45s; the player may right-click the contract to pay back early.",
+            "zh_cn": "拥有贷款合同后，贷款利息每过45秒会增加25金币，期间玩家可以右键贷款合同还清金币。",
+            "zh_tw": "擁有貸款合同後，貸款利息每過45秒會增加25金幣，期間玩家可以右鍵貸款合同還清金幣。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "lender_skill_item_2"
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:note",
+          "duration": 70,
+          "point": [
+            3.0,
+            2.9,
+            3.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "lender_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 35
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 88,
+          "text": {
+            "en_us": "Hand: can't use right-click",
+            "zh_cn": "手：无法使用右键",
+            "zh_tw": "手：無法使用右鍵"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 98
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Lender",
+        "zh_cn": "放贷人",
+        "zh_tw": "放貸人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "lender_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "On accept, a contract page opens; fill in the amount (max 175 coins) and confirm; the filler receives a \"loan contract\" and the amount.",
+                "zh_cn": "接受请求后会打开一个合同页面，合同页面需要填写对应的金额（不能超过175金币），按下确定键后，填写合同的人会获得一份“贷款合同”并获得对应的金额。",
+                "zh_tw": "接受請求後會打開一個合同頁面，合同頁面需要填寫對應的金額（不能超過175金幣），按下確定鍵後，填寫合同的人會獲得一份“貸款合同”並獲得對應的金額。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "lender_skill_target_0",
+            "outline": -4684277
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "lender_skill_item_0"
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:note",
+          "duration": 70,
+          "point": [
+            3.0,
+            2.9,
+            3.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "lender_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 35
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Use the skill on a player to make a loan offer; the player accepts by right-clicking you.",
+            "zh_cn": "对玩家释放技能可以发起贷款请求，此时被请求的人可以通过右键放贷人接受请求。",
+            "zh_tw": "對玩家釋放技能可以發起貸款請求，此時被請求的人可以通過右鍵放貸人接受請求。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            3.9,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "lender_skill_item_1"
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.5
+            ],
+            "lines": [
+              {
+                "en_us": "On accept, a contract page opens; fill in the amount (max 175 coins) and confirm; the filler receives a \"loan contract\" and the amount.",
+                "zh_cn": "接受请求后会打开一个合同页面，合同页面需要填写对应的金额（不能超过175金币），按下确定键后，填写合同的人会获得一份“贷款合同”并获得对应的金额。",
+                "zh_tw": "接受請求後會打開一個合同頁面，合同頁面需要填寫對應的金額（不能超過175金幣），按下確定鍵後，填寫合同的人會獲得一份“貸款合同”並獲得對應的金額。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 35
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "On accept, a contract page opens; fill in the amount (max 175 coins) and confirm; the filler receives a \"loan contract\" and the amount.",
+            "zh_cn": "接受请求后会打开一个合同页面，合同页面需要填写对应的金额（不能超过175金币），按下确定键后，填写合同的人会获得一份“贷款合同”并获得对应的金额。",
+            "zh_tw": "接受請求後會打開一個合同頁面，合同頁面需要填寫對應的金額（不能超過175金幣），按下確定鍵後，填寫合同的人會獲得一份“貸款合同”並獲得對應的金額。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Lender",
+        "zh_cn": "放贷人",
+        "zh_tw": "放貸人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "lender_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "lender",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 115,
+          "text": {
+            "en_us": "The Lender must hold enough coins to lend.",
+            "zh_cn": "放贷人放贷需要有对应金额的金币",
+            "zh_tw": "放貸人放貸需要有對應金額的金幣"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 125
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Lender",
+        "zh_cn": "放贷人",
+        "zh_tw": "放貸人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "lender_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 131,
+          "text": {
+            "en_us": "Survive to the end and win attached to either side.",
+            "zh_cn": "存活到最后依附任意一方获胜。",
+            "zh_tw": "存活到最後依附任意一方獲勝。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 141
+        },
+        {
+          "type": "text",
+          "duration": 133,
+          "text": {
+            "en_us": "On repayment, principal + interest go to the Lender.",
+            "zh_cn": "贷款人还款时，贷款金额会连本带息还给放贷人。",
+            "zh_tw": "貸款人還款時，貸款金額會連本帶息還給放貸人。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 143
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 173,
+          "text": {
+            "en_us": "If the player doesn't repay within 3.5 minutes, forced repayment triggers.",
+            "zh_cn": "若玩家未能在3分半内还清合同所需金额，则会在3分半钟后使玩家强制还款。",
+            "zh_tw": "若玩家未能在3分半內還清合同所需金額，則會在3分半鐘後使玩家強制還款。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 183
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Forced repayment deducts coins first; if insufficient, it randomly removes one of the player's limbs.",
+            "zh_cn": "强制还款会优先扣除金额，若金额不足，则会在扣光现有金额的基础上随机卸下玩家的一个肢体。",
+            "zh_tw": "強制還款會優先扣除金額，若金額不足，則會在扣光現有金額的基礎上隨機卸下玩家的一個肢體。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 92,
+          "text": {
+            "en_us": "Eye: Blindness 2 + Darkness 1",
+            "zh_cn": "眼睛：失明 2+黑暗1",
+            "zh_tw": "眼睛：失明 2+黑暗1"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 102
+        },
+        {
+          "type": "text",
+          "duration": 104,
+          "text": {
+            "en_us": "Heart: death (cause: cardiac arrest)",
+            "zh_cn": "心脏：死亡（死因为心脏骤停）",
+            "zh_tw": "心臟：死亡（死因為心臟驟停）"
+          },
+          "point": [
+            3.0,
+            3.2,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 114
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

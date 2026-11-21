@@ -65,7 +65,7 @@
         },
         {
           "type": "idle",
-          "duration": 40
+          "duration": 80
         },
         {
           "type": "rotate_camera_y",
@@ -98,7 +98,7 @@
             3.0
           ],
           "yaw": 180.0,
-          "nbt": "{CustomName:'酒保',CustomNameVisible:1b}",
+          "nbt": "{CustomName:'{\"text\":\"酒保\"}',CustomNameVisible:1b}",
           "linkId": "bartender",
           "attachKeyFrame": true
         },
@@ -148,7 +148,7 @@
         },
         {
           "type": "idle",
-          "duration": 50
+          "duration": 90
         },
         {
           "type": "rotate_camera_y",
@@ -371,7 +371,7 @@
         },
         {
           "type": "idle",
-          "duration": 40
+          "duration": 80
         },
         {
           "type": "rotate_camera_y",
@@ -652,7 +652,7 @@
         },
         {
           "type": "idle",
-          "duration": 60
+          "duration": 90
         },
         {
           "type": "rotate_camera_y",
@@ -744,7 +744,7 @@
         },
         {
           "type": "idle",
-          "duration": 60
+          "duration": 100
         },
         {
           "type": "rotate_camera_y",

@@ -1,0 +1,744 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.swast",
+  "items": [
+    "trainmurdermystery:sniper_rifle",
+    "trainmurdermystery:magnum_bullet",
+    "trainmurdermystery:scope",
+    "trainmurdermystery:iron_door_key"
+  ],
+  "title": {
+    "en_us": "SWAT",
+    "zh_cn": "特警",
+    "zh_tw": "特警"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_corridor"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "SWAT",
+        "zh_cn": "特警",
+        "zh_tw": "特警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_corridor",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              6.0
+            ],
+            "yaw": 180.0,
+            "linkId": "swast_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Sheriff team",
+            "zh_cn": "警长阵营",
+            "zh_tw": "警長陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 185,
+          "text": {
+            "en_us": "Bullets streaking across the sky will pierce every killer's heart with precision.",
+            "zh_cn": "划响天空的子弹，会精准的击中每个杀手的心脏。",
+            "zh_tw": "劃響天空的子彈，會精准的擊中每個殺手的心臟。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 195
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "SWAT",
+        "zh_cn": "特警",
+        "zh_tw": "特警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_corridor",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              6.0
+            ],
+            "yaw": 180.0,
+            "linkId": "swast_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "swast",
+            "origin": [
+              1.6,
+              1.55,
+              4.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 158,
+          "text": {
+            "en_us": "Starts with a Sniper and a Magnum round; cannot pick up Revolvers.",
+            "zh_cn": "开局自带狙击枪和一颗马格南子弹，无法捡起左轮手枪。",
+            "zh_tw": "開局自帶狙擊槍和一顆馬格南子彈，無法撿起左輪手槍。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 168
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              6.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            6.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:sniper_rifle",
+          "linkId": "swast_skill_item_1"
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:sniper_rifle",
+          "duration": 70,
+          "point": [
+            3.0,
+            2.9,
+            6.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "swast_main",
+            "to": [
+              4.1,
+              1.0,
+              7.0
+            ],
+            "duration": 35
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "After mounting a scope, right-click toggles it. Must wait 4s after each shot before firing again.",
+            "zh_cn": "安装瞄准镜后右键打开/关闭瞄准镜。射击后需等待4s才能再次射击。",
+            "zh_tw": "安裝瞄準鏡後右鍵打開/關閉瞄準鏡。射擊後需等待4s才能再次射擊。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "SWAT",
+        "zh_cn": "特警",
+        "zh_tw": "特警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_corridor",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              6.0
+            ],
+            "yaw": 180.0,
+            "linkId": "swast_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "swast",
+            "columns": 4
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            4.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:magnum_bullet",
+          "linkId": "swast_shop_line_0",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 142,
+          "text": {
+            "en_us": "The shop sells Magnum Rounds, Scopes, and Iron Door Keys.",
+            "zh_cn": "商店可购买马格南子弹、瞄准镜、铁门钥匙。",
+            "zh_tw": "商店可購買馬格南子彈、瞄準鏡、鐵門鑰匙。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 152
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "title": {
+        "en_us": "SWAT",
+        "zh_cn": "特警",
+        "zh_tw": "特警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_corridor",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              6.0
+            ],
+            "yaw": 180.0,
+            "linkId": "swast_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              7.0
+            ],
+            "yaw": 180.0,
+            "linkId": "swast_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "swast_victim",
+            "pos": [
+              5.0,
+              1.0,
+              7.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "delay": 14
+          }
+        },
+        {
+          "type": "text",
+          "duration": 103,
+          "text": {
+            "en_us": "The SWAT drops a Revolver on death.",
+            "zh_cn": "特警死后掉落左轮手枪。",
+            "zh_tw": "特警死後掉落左輪手槍。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 113
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "mood",
+      "title": {
+        "en_us": "SWAT",
+        "zh_cn": "特警",
+        "zh_tw": "特警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_corridor",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              6.0
+            ],
+            "yaw": 180.0,
+            "linkId": "swast_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_mood",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.sanity",
+            "before": 0.35,
+            "after": 0.85,
+            "lines": [
+              {
+                "en_us": "Your Sanity does not drop naturally while alone.",
+                "zh_cn": "你在独处时不会自然降低san值。",
+                "zh_tw": "你在獨處時不會自然降低san值。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 126,
+          "text": {
+            "en_us": "Your Sanity does not drop naturally while alone.",
+            "zh_cn": "你在独处时不会自然降低san值。",
+            "zh_tw": "你在獨處時不會自然降低san值。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 136
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vitals",
+      "title": {
+        "en_us": "SWAT",
+        "zh_cn": "特警",
+        "zh_tw": "特警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_corridor",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              6.0
+            ],
+            "yaw": 180.0,
+            "linkId": "swast_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "attachKeyFrame": true,
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.4,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
+              }
+            ],
+            "lines": [
+              {
+                "en_us": "When the sniper hits a player beyond 50 blocks, it ignores shields and kills them outright.",
+                "zh_cn": "当狙击枪命中50格以外的玩家时，会无视护盾直接将其击毙。",
+                "zh_tw": "當狙擊槍命中50格以外的玩家時，會無視護盾直接將其擊斃。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              7.0
+            ],
+            "yaw": 180.0,
+            "linkId": "swast_skill_target_0",
+            "outline": -16728065
+          }
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            7
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 35
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When the sniper hits a player beyond 50 blocks, it ignores shields and kills them outright.",
+            "zh_cn": "当狙击枪命中50格以外的玩家时，会无视护盾直接将其击毙。",
+            "zh_tw": "當狙擊槍命中50格以外的玩家時，會無視護盾直接將其擊斃。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "SWAT",
+        "zh_cn": "特警",
+        "zh_tw": "特警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_corridor",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              6.0
+            ],
+            "yaw": 180.0,
+            "linkId": "swast_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 117,
+          "text": {
+            "en_us": "Only spawns with a chance on specific maps.",
+            "zh_cn": "仅会在特定地图有概率生成。",
+            "zh_tw": "僅會在特定地圖有概率生成。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 127
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              6.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            6.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:sniper_rifle",
+          "linkId": "swast_skill_item_1"
+        },
+        {
+          "type": "show_controls",
+          "action": "left",
+          "item": "trainmurdermystery:sniper_rifle",
+          "duration": 70,
+          "point": [
+            3.0,
+            2.9,
+            6.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "swast_main",
+            "to": [
+              4.1,
+              1.0,
+              7.0
+            ],
+            "duration": 35
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Sniper controls: left-click fires; R reloads (6s); press Z to mount/remove the scope (2s; rebindable in Controls).",
+            "zh_cn": "狙击枪操作：左键发射子弹，默认R键装弹(6s)，Z键安装/卸载瞄准镜(2s)。",
+            "zh_tw": "狙擊槍操作：左鍵發射子彈，默認R鍵裝彈(6s)，Z鍵安裝/卸載瞄準鏡(2s)。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 133,
+          "text": {
+            "en_us": "The sniper only pierces barriers and barrier panels.",
+            "zh_cn": "狙击枪仅可穿透屏障和屏障镶板。",
+            "zh_tw": "狙擊槍僅可穿透屏障和屏障鑲板。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            6.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 143
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

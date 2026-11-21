@@ -1,0 +1,609 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.niaoshoushou",
+  "items": [
+    "noellesroles:niaoshoushou_knife",
+    "noellesroles:niaoshoushou_incendiary_grenade",
+    "noellesroles:niaoshoushou_family_photo",
+    "noellesroles:niaoshoushou_missile"
+  ],
+  "title": {
+    "en_us": "Niaoshoushou",
+    "zh_cn": "鸟兽兽",
+    "zh_tw": "鳥獸獸"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_graveyard"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Niaoshoushou",
+        "zh_cn": "鸟兽兽",
+        "zh_tw": "鳥獸獸"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "niaoshoushou_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 137,
+          "text": {
+            "en_us": "Hunt targets with fire, loitering missiles, and cover.",
+            "zh_cn": "用火焰、巡飞弹与掩体追猎目标。",
+            "zh_tw": "用火焰、巡飛彈與掩體追獵目標。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 147
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Niaoshoushou",
+        "zh_cn": "鸟兽兽",
+        "zh_tw": "鳥獸獸"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "niaoshoushou_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Passive [Super Stamina]: run 5s continuously for Speed I.",
+                "zh_cn": "被动【超强耐力】：连续跑步5秒后获得速度I。",
+                "zh_tw": "被動【超強耐力】：連續跑步5秒後獲得速度I。"
+              },
+              {
+                "en_us": "- Incendiary grenade (throwable, 45s cd);",
+                "zh_cn": "- 燃烧弹（可投掷，拥有45秒冷却）；",
+                "zh_tw": "- 燃燒彈（可投擲，擁有45秒冷卻）；"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 142,
+          "text": {
+            "en_us": "Passive [Super Stamina]: run 5s continuously for Speed I.",
+            "zh_cn": "被动【超强耐力】：连续跑步5秒后获得速度I。",
+            "zh_tw": "被動【超強耐力】：連續跑步5秒後獲得速度I。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 152
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "- Incendiary grenade (throwable, 45s cd);",
+                "zh_cn": "- 燃烧弹（可投掷，拥有45秒冷却）；",
+                "zh_tw": "- 燃燒彈（可投擲，擁有45秒冷卻）；"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "- Incendiary grenade (throwable, 45s cd);",
+            "zh_cn": "- 燃烧弹（可投掷，拥有45秒冷却）；",
+            "zh_tw": "- 燃燒彈（可投擲，擁有45秒冷卻）；"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 123
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "- Loitering missile (60s cd, steerable with arrow keys, explodes on hitting a player or ground);",
+            "zh_cn": "- 巡飞弹（60秒冷却，可手动通过方向键控制，碰人或地面后爆炸）；",
+            "zh_tw": "- 巡飛彈（60秒冷卻，可手動通過方向鍵控制，碰人或地面後爆炸）；"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 122,
+          "text": {
+            "en_us": "- Area lights out (30-block radius, 2 min cd).",
+            "zh_cn": "- 范围关灯（半径30格，2分钟冷却）。",
+            "zh_tw": "- 範圍關燈（半徑30格，2分鐘冷卻）。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 132
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 171,
+          "text": {
+            "en_us": "Skill [Cover]: place a 3x2 wall for 20s; refills every 60s, max 2 stored.",
+            "zh_cn": "技能【掩体生成】：放置3x2的墙壁，持续20秒；60秒补充1次，最多储存2次。",
+            "zh_tw": "技能【掩體生成】：放置3x2的牆壁，持續20秒；60秒補充1次，最多儲存2次。"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 181
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Niaoshoushou",
+        "zh_cn": "鸟兽兽",
+        "zh_tw": "鳥獸獸"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "niaoshoushou_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "niaoshoushou",
+            "columns": 4
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:niaoshoushou_knife",
+          "linkId": "niaoshoushou_shop_line_0",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Shop:",
+            "zh_cn": "商店：",
+            "zh_tw": "商店："
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 65
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.35,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:niaoshoushou_incendiary_grenade",
+          "linkId": "niaoshoushou_shop_line_1",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "- Family Portrait (one per match, right-click two Killer players or a Magician to form a family! Each member gets 30% of the other two's combined coins; after everyone dies, Niaoshoushou revives in a random room with Speed II and one incendiary);",
+            "zh_cn": "- 全家福（每局限购1张，右键两名杀手阵营玩家或魔术师与它们组成家庭！队伍成员各获得其他两人的金币总额30%。全员死亡后鸟兽兽在随机房间复活并获得速度II与1颗燃烧弹）；",
+            "zh_tw": "- 全家福（每局限購1張，右鍵兩名殺手陣營玩家或魔術師與它們組成家庭！隊伍成員各獲得其他兩人的金幣總額30%。全員死亡後鳥獸獸在隨機房間復活並獲得速度II與1顆燃燒彈）；"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "title": {
+        "en_us": "Niaoshoushou",
+        "zh_cn": "鸟兽兽",
+        "zh_tw": "鳥獸獸"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "niaoshoushou_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "niaoshoushou_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "niaoshoushou_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "delay": 14
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Passive [Niaoshoushou's Flame]: corpses of players you kill burn and vanish after 5s.",
+            "zh_cn": "被动【鸟兽兽的火焰】：你击杀的目标尸体会燃烧，并在5秒后消失。",
+            "zh_tw": "被動【鳥獸獸的火焰】：你擊殺的目標屍體會燃燒，並在5秒後消失。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Niaoshoushou",
+        "zh_cn": "鸟兽兽",
+        "zh_tw": "鳥獸獸"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "niaoshoushou_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 126,
+          "text": {
+            "en_us": "- Kukri (4 durability, attacks and pries doors);",
+            "zh_cn": "- 尼泊尔军刀（4点耐久，可攻击并撬门）；",
+            "zh_tw": "- 尼泊爾軍刀（4點耐久，可攻擊並撬門）；"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 136
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,622 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.great_detective",
+  "items": [
+    "noellesroles:deduction_book"
+  ],
+  "title": {
+    "en_us": "Great Detective",
+    "zh_cn": "大侦探",
+    "zh_tw": "大偵探"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_graveyard"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Great Detective",
+        "zh_cn": "大侦探",
+        "zh_tw": "大偵探"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "great_detective_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 166,
+          "text": {
+            "en_us": "Stay and inspect the scene; turn the fragments into ironclad evidence.",
+            "zh_cn": "驻足勘察，把碎片写成铁证。",
+            "zh_tw": "駐足勘察，把碎片寫成鐵證。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 176
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Great Detective",
+        "zh_cn": "大侦探",
+        "zh_tw": "大偵探"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "great_detective_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "great_detective",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:deduction_book",
+          "linkId": "great_detective_skill_item_0"
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:deduction_book",
+          "duration": 70,
+          "point": [
+            3.0,
+            2.9,
+            3.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "great_detective_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 35
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:smoke",
+          "pos": [
+            5.0,
+            1.8,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 55,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 140,
+          "text": {
+            "en_us": "You start with a Reasoning Book; right-click to open it.",
+            "zh_cn": "开局拥有「推理之书」，右键打开查看。",
+            "zh_tw": "開局擁有「推理之書」，右鍵打開查看。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 150
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "great_detective_skill_target_1",
+            "outline": -12042869
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "great_detective_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 45
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 15
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:smoke",
+          "pos": [
+            5.0,
+            2.1,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 10,
+          "duration": 30,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "great_detective_skill_target_1",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:smoke",
+          "pos": [
+            5.0,
+            1.6,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 45,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Right-click a corpse to begin investigating: stay still for 4 seconds. Record the time of death and randomly gain one clue to the killer (modifier / weapon type / true role / one character of the name / room / team / main-hand item / coin bracket / corpses left behind / players within 8 blocks / floor / whether armed / relative distance). Each corpse once. 28s cooldown.",
+            "zh_cn": "对着尸体右键开始勘察：需静止不动 4 秒。完成后记下该死者的死亡时间，并随机获得一条凶手线索（修饰符 / 凶器类型 / 真实职业 / 名字中的 1 个字 / 所在房间 / 阵营 / 主手持物 / 金币档 / 已留下的尸体数 / 周围8格人数 / 楼层 / 身上有无枪 / 相对距离）。每具尸体只能勘察一次。冷却 28 秒。",
+            "zh_tw": "對著屍體右鍵開始勘察：需靜止不動 4 秒。完成後記下該死者的死亡時間，並隨機獲得一條兇手線索（修飾符 / 兇器類型 / 真實職業 / 名字中的 1 個字 / 所在房間 / 陣營 / 主手持物 / 金幣檔 / 已留下的屍體數 / 周圍8格人數 / 樓層 / 身上有無槍 / 相對距離）。每具屍體只能勘察一次。冷卻 28 秒。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "title": {
+        "en_us": "Great Detective",
+        "zh_cn": "大侦探",
+        "zh_tw": "大偵探"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "great_detective_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "great_detective_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "great_detective_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "delay": 14
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Moving interrupts the investigation (no cooldown). Corpses with no killer cannot be deduced but still start the cooldown.",
+            "zh_cn": "移动会中断勘察（不进入冷却）。无凶手的尸体无法推敲，但仍会进入冷却。",
+            "zh_tw": "移動會中斷勘察（不進入冷卻）。無兇手的屍體無法推敲，但仍會進入冷卻。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Great Detective",
+        "zh_cn": "大侦探",
+        "zh_tw": "大偵探"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "great_detective_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "great_detective_psycho",
+            "outline": -12042869
+          }
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "If the investigated corpse is a fake one from Dead Whisperer, you immediately expose it and it counts as them stabbing themselves.",
+                "zh_cn": "若勘察对象为亡语杀手伪装的尸体，将立刻揭穿并视为其用刀刺死了自己。",
+                "zh_tw": "若勘察對象為亡語殺手偽裝的屍體，將立刻揭穿並視為其用刀刺死了自己。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "If the investigated corpse is a fake one from Dead Whisperer, you immediately expose it and it counts as them stabbing themselves.",
+            "zh_cn": "若勘察对象为亡语杀手伪装的尸体，将立刻揭穿并视为其用刀刺死了自己。",
+            "zh_tw": "若勘察對象為亡語殺手偽裝的屍體，將立刻揭穿並視為其用刀刺死了自己。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Great Detective",
+        "zh_cn": "大侦探",
+        "zh_tw": "大偵探"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "great_detective_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Each page of the Reasoning Book corresponds to one killer; if you have no book, a new one is given.",
+            "zh_cn": "推理之书每页对应一名凶手；若身上没有书会自动补发。",
+            "zh_tw": "推理之書每頁對應一名兇手；若身上沒有書會自動補發。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When a killer has >=3 clues, you may choose on the book to reveal their Location (distance at trigger) or Status (alive or dead). One per killer.",
+            "zh_cn": "当某名凶手的线索≥3 条时，可在书上选择查明「方位」（触发时的距离）或「生死」（当前是否存活），每名凶手只能查明一项。",
+            "zh_tw": "當某名兇手的線索≥3 條時，可在書上選擇查明「方位」（觸發時的距離）或「生死」（當前是否存活），每名兇手只能查明一項。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,629 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.water_ghost",
+  "items": [
+    "trainmurdermystery:lockpick"
+  ],
+  "title": {
+    "en_us": "Water Ghost",
+    "zh_cn": "水鬼",
+    "zh_tw": "水鬼"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_water"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Water Ghost",
+        "zh_cn": "水鬼",
+        "zh_tw": "水鬼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_water",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "water_ghost_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 130,
+          "text": {
+            "en_us": "The vengeful spirits of the deep echo in your ears",
+            "zh_cn": "海底的怨灵始终回响在你的耳边",
+            "zh_tw": "海底的怨靈始終迴響在你的耳邊"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 140
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Water Ghost",
+        "zh_cn": "水鬼",
+        "zh_tw": "水鬼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_water",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "water_ghost_main"
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "attachKeyFrame": true,
+          "pos": [
+            1.6,
+            1.55,
+            1.6
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:lockpick",
+          "linkId": "water_ghost_item"
+        },
+        {
+          "type": "text",
+          "duration": 74,
+          "text": {
+            "en_us": "Has Water Breathing",
+            "zh_cn": "自带水下呼吸效果",
+            "zh_tw": "自帶水下呼吸效果"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 84
+        },
+        {
+          "type": "text",
+          "duration": 97,
+          "text": {
+            "en_us": "Starts with a Riptide II Trident",
+            "zh_cn": "开局拥有一个激流2三叉戟",
+            "zh_tw": "開局擁有一個激流2三叉戟"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 107
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Water Ghost",
+        "zh_cn": "水鬼",
+        "zh_tw": "水鬼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_water",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "water_ghost_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Skill: press the skill key for 10 seconds of Dolphin's Grace I, 40-second cooldown",
+                "zh_cn": "技能：按下技能键获得10秒海豚的恩惠1，冷却40秒",
+                "zh_tw": "技能：按下技能鍵獲得10秒海豚的恩惠1，冷卻40秒"
+              },
+              {
+                "en_us": "Passive: the Riptide trident enters a 30-second cooldown after killing a player",
+                "zh_cn": "被动：激流三叉戟击杀玩家后进入30秒冷却",
+                "zh_tw": "被動：激流三叉戟擊殺玩家後進入30秒冷卻"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Skill: press the skill key for 10 seconds of Dolphin's Grace I, 40-second cooldown",
+                "zh_cn": "技能：按下技能键获得10秒海豚的恩惠1，冷却40秒",
+                "zh_tw": "技能：按下技能鍵獲得10秒海豚的恩惠1，冷卻40秒"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 187,
+          "text": {
+            "en_us": "Skill: press the skill key for 10 seconds of Dolphin's Grace I, 40-second cooldown",
+            "zh_cn": "技能：按下技能键获得10秒海豚的恩惠1，冷却40秒",
+            "zh_tw": "技能：按下技能鍵獲得10秒海豚的恩惠1，冷卻40秒"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 197
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              4.0
+            ],
+            "yaw": 180.0,
+            "linkId": "water_ghost_skill_target_1",
+            "outline": -14785356
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 15
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "water_ghost_skill_target_1",
+            "pos": [
+              3.0,
+              1.0,
+              4.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            4
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "text",
+          "duration": 182,
+          "text": {
+            "en_us": "Passive: the Riptide trident enters a 30-second cooldown after killing a player",
+            "zh_cn": "被动：激流三叉戟击杀玩家后进入30秒冷却",
+            "zh_tw": "被動：激流三叉戟擊殺玩家後進入30秒冷卻"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 192
+        },
+        {
+          "type": "text",
+          "duration": 164,
+          "text": {
+            "en_us": "Passive: the Water Ghost dries out and dies after 35 seconds on land!",
+            "zh_cn": "被动：水鬼在陆地上超过35秒就会干涸而死！",
+            "zh_tw": "被動：水鬼在陸地上超過35秒就會乾涸而死！"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 174
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Water Ghost",
+        "zh_cn": "水鬼",
+        "zh_tw": "水鬼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_water",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "water_ghost_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "water_ghost",
+            "columns": 4
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:lockpick",
+          "linkId": "water_ghost_shop_line_0",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 97,
+          "text": {
+            "en_us": "The shop sells Lockpick and Rain",
+            "zh_cn": "商店可购买开锁器、下雨",
+            "zh_tw": "商店可購買開鎖器、下雨"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 107
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "title": {
+        "en_us": "Water Ghost",
+        "zh_cn": "水鬼",
+        "zh_tw": "水鬼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_water",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "water_ghost_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              4.0
+            ],
+            "yaw": 180.0,
+            "linkId": "water_ghost_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "water_ghost_victim",
+            "pos": [
+              3.0,
+              1.0,
+              4.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "delay": 14
+          }
+        },
+        {
+          "type": "text",
+          "duration": 148,
+          "text": {
+            "en_us": "When the Water Ghost dies, their trident drops as a Revolver",
+            "zh_cn": "水鬼死后，身上的三叉戟会掉落为左轮手枪",
+            "zh_tw": "水鬼死後，身上的三叉戟會掉落為左輪手槍"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 158
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Water Ghost",
+        "zh_cn": "水鬼",
+        "zh_tw": "水鬼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_water",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "water_ghost_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 94,
+          "text": {
+            "en_us": "Only spawns on underwater maps",
+            "zh_cn": "仅会在水下地图刷新",
+            "zh_tw": "僅會在水下地圖刷新"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 104
+        },
+        {
+          "type": "text",
+          "duration": 112,
+          "text": {
+            "en_us": "Only the trident's dash can kill targets",
+            "zh_cn": "只有使用三叉戟的冲刺才能击杀目标",
+            "zh_tw": "只有使用三叉戟的衝刺才能擊殺目標"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 122
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}
