@@ -76,7 +76,7 @@ public class SREGameModes {
     // Three Way War Mode (haiman)
     public static final ResourceLocation THREE_WAY_WAR_MODE_ID = SRE.haimanId("three_way_war");
 
-    // 三项随机模式 (haiman)：谋杀 / 职业轮选 / 志愿海选
+    // 三项随机模式 (haiman)：阳光志愿 / 职业轮选 / 志愿海选
     public static final ResourceLocation THREE_RANDOM_MODE_ID = SRE.haimanId("three_random");
 
     // 五项随机模式 (haiman)：谋杀 / 职业轮选 / 志愿海选 / 志愿 / 阳光自选
@@ -151,7 +151,7 @@ public class SREGameModes {
 
     // 三项随机模式 (haiman)：发车时从三个模式中随机抽一个
     public static final GameMode THREE_RANDOM_MODE = registerGameMode(new SRERandomGameMode(
-            THREE_RANDOM_MODE_ID, MURDER, ROLE_ROTATION_MODE, VOLUNTEER_OPEN_SELECT_MODE));
+            THREE_RANDOM_MODE_ID, VOLUNTEER_MODE, ROLE_ROTATION_MODE, VOLUNTEER_OPEN_SELECT_MODE));
 
     // 五项随机模式 (haiman)：发车时从五个模式中随机抽一个
     public static final GameMode FIVE_RANDOM_MODE = registerGameMode(new SRERandomGameMode(

@@ -33,8 +33,8 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  * <p>目前有两个实例：
  * <ul>
- * <li>{@code haiman:three_random} 三项随机模式：谋杀、职业轮选、志愿海选；</li>
- * <li>{@code haiman:five_random} 五项随机模式：在三项的基础上再加志愿、阳光自选。</li>
+ * <li>{@code haiman:three_random} 三项随机模式：阳光志愿、职业轮选、志愿海选；</li>
+ * <li>{@code haiman:five_random} 五项随机模式：谋杀、职业轮选、志愿海选、阳光志愿、阳光自选。</li>
  * </ul>
  *
  * <p>本类继承谋杀模式只是兜底：正常流程不会用它的 {@code initializeGame}，
