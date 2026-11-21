@@ -16,7 +16,6 @@
 package org.agmas.noellesroles.game.roles.special.super_loose_end;
 
 import io.wifi.starrailexpress.SREConfig;
-import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ItemComponentUtils;
 import net.minecraft.resources.ResourceLocation;
@@ -107,8 +106,6 @@ public class SuperLooseEnd extends VariantLooseEndRole {
             }
             else
                 killer.addItem(TMMItems.DEFENSE_VIAL.getDefaultInstance());
-            // 击杀获得50
-            SREPlayerShopComponent.KEY.get(killer).addToBalance(50);
         }
     }
 }
