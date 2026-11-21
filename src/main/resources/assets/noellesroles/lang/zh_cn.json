@@ -3407,7 +3407,7 @@
   "screen.noellesroles.great_detective.clue.modifier": "携带修饰：%s",
   "screen.noellesroles.great_detective.clue.name": "名字中带有：%s",
   "screen.noellesroles.great_detective.clue.room": "杀手所在：%s 号房间",
-  "screen.noellesroles.great_detective.clue.faction": "阵营：%s",
+  "screen.noellesroles.great_detective.clue.faction": "凶手阵营：%s",
   "screen.noellesroles.great_detective.clue.held": "主手：%s",
   "screen.noellesroles.great_detective.clue.gold": "金币：%s",
   "screen.noellesroles.great_detective.clue.kills": "已留下尸体：%s 具",

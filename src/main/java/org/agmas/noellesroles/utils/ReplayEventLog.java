@@ -38,9 +38,25 @@ public final class ReplayEventLog {
             if (SRE.REPLAY_MANAGER != null) {
                 SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable(key, args));
             }
-        } catch (Throwable ignored) {
-            // 回放不可用时不影响游戏逻辑
+        } catch (Throwable t) {
+            SRE.LOGGER.warn("Failed to record replay event: " + key, t);
         }
+    }
+
+    /**
+     * 玩家占位符版：单个玩家的显示文本解析失败时回退成纯名字，保证事件本身不会丢。
+     * 死亡/换职中途调用尤其需要这个兜底。
+     */
+    public static void recordPlayers(String key, Player... players) {
+        Object[] args = new Object[players.length];
+        for (int i = 0; i < players.length; i++) {
+            try {
+                args[i] = player(players[i]);
+            } catch (Throwable t) {
+                args[i] = name(players[i]);
+            }
+        }
+        record(key, args);
     }
 
     /**

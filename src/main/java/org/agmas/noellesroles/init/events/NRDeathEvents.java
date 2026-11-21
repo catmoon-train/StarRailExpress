@@ -1393,12 +1393,11 @@ public class NRDeathEvents {
                         && gameWorldComponent.isInnocent(killer)) {
                     SREPlayerPsychoComponent component = SREPlayerPsychoComponent.KEY.get(victim);
                     if (component.getPsychoTicks() <= 0) {
+                        // 回放记录：先记录再切换狂暴状态，解析玩家显示文本失败时回退为纯名字，避免事件丢失。
+                        ReplayEventLog.recordPlayers("replay.event.jester.berserk", killer, victim);
                         component.startPsycho();
                         component.psychoTicks = GameConstants.getInTicks(0, 45);
                         component.armour = 0;
-                        // 回放记录：小丑被其它玩家（击杀者）激活狂暴
-                        ReplayEventLog.record("replay.event.jester.berserk",
-                                ReplayEventLog.player(killer), ReplayEventLog.player(victim));
                         return false;
                     }
                 }

@@ -3351,7 +3351,7 @@
   "screen.noellesroles.great_detective.clue.modifier": "Carried modifier: %s",
   "screen.noellesroles.great_detective.clue.name": "Name contains: %s",
   "screen.noellesroles.great_detective.clue.room": "Killer in: Room %s",
-  "screen.noellesroles.great_detective.clue.faction": "Faction: %s",
+  "screen.noellesroles.great_detective.clue.faction": "Killer faction: %s",
   "screen.noellesroles.great_detective.clue.held": "Main hand: %s",
   "screen.noellesroles.great_detective.clue.gold": "Coins: %s",
   "screen.noellesroles.great_detective.clue.kills": "Corpses left: %s",
