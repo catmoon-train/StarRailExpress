@@ -17,6 +17,7 @@ import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.content.block.entity.SeatEntity;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.modes.funny.SREDevilRouletteGameMode;
+import io.wifi.starrailexpress.index.TMMSounds;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
@@ -30,6 +31,8 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Display;
@@ -45,6 +48,7 @@ import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.game.minigame.DevilRouletteGame;
 import org.agmas.noellesroles.game.minigame.roulette.*;
 import org.agmas.noellesroles.init.ModBlocks;
+import org.agmas.noellesroles.utils.RoleUtils;
 import java.util.*;
 import java.util.function.BiConsumer;
 
@@ -169,7 +173,12 @@ public class DevilRouletteTableEntity extends BlockEntity {
         publish();
     }
     private int budget() { return AFK_TICK; }
-    private void ready() { readyTicks = 0; begin(RoulettePhase.READY); }
+    private void ready() {
+        readyTicks = 0;
+        begin(RoulettePhase.READY);
+        // 只给当前回合玩家单独播放，另一位玩家不会收到这个音效包。
+        RoleUtils.playSound(player(round().operator()), SoundEvents.VILLAGER_YES, SoundSource.MASTER, 1.0F, 1.0F);
+    }
     private void reload() {
         if (round().ended()) { begin(RoulettePhase.ENDING); return; }
         clearPrivate(); round().reload(); shell = -1; delta = 0; actionItem = null; stolenItem = null;
@@ -300,7 +309,15 @@ public class DevilRouletteTableEntity extends BlockEntity {
         if (game == null || round().ended()) return;
         int before = round().remaining();
         result = phase == RoulettePhase.SHOOT ? round().fire(target) : round().use(effect);
-        if (!result.valid()) { message = result.message(); publish(); return; }
+        if (!result.valid()) {
+            message = result.message();
+            if (phase == RoulettePhase.SHOOT && "roulette.error.empty".equals(message)) {
+                // 德林加手枪空枪射击使用 item.revolver.click，这里保持同一音效。
+                level.playSound(null, worldPosition.getX() + 0.5D, worldPosition.getY() + 0.5D,
+                        worldPosition.getZ() + 0.5D, TMMSounds.ITEM_REVOLVER_CLICK, SoundSource.PLAYERS, 0.5F, 1F);
+            }
+            publish(); return;
+        }
         actor = result.actor(); target = result.target(); shell = result.shell(); delta = result.delta(); message = result.message();
         if (phase == RoulettePhase.SHOOT) {
             if (result.skipped()) message = "roulette.result.cuffs_skipped";
