@@ -67,9 +67,14 @@ does not have member field 'int field_22790'
 
 - 一个段落只讲一个功能，段落 id 用功能名（如 `faction` / `tools` / `rampage` / `door`），这样 Ponder 界面里能按功能分段浏览。
 - 一个段落只放一个玩家模型；只有需要演示“被击杀”时才加尸体实体。
+- 确实需要多个玩家同桌演示时，站位必须错开且不能和方块重合：床占两格、盘子和马桶各占一格，玩家碰撞箱约 0.6 格宽，至少留出这些方块的范围；不要让玩家模型站在食物盘、饮料盘、马桶、床上或被背墙吞掉。
 - 物品要直观：关键物品用 `create_item_entity` 摆出来（`motion` 必须写 `[0,0,0]`，否则物品会飞走），再用 `show_controls` 带 `item` 显示物品图标与操作提示。
 - 文本位置必须错开：同一段里不同文案用不同的 `point`，高度也要错开，否则会叠在一起。
+- 凡是对该职业玩家本身的描述（阵营、身份、状态、能力归属等），`text.point` 必须落在该段落的玩家模型坐标附近（含合适高度），让箭头/文字指向玩家；不能指向桌子、方块或空白区域。介绍道具或方块时再把 `point` 放到对应物体上。
 - 动画感来自 `idle` 停顿、`rotate_camera_y` 镜头转动、`indicate_success` / `indicate_redstone` 指示块。
+- **同一段落的多条 `text` 必须用 `idle` 错开**：`text` 的 `duration` 只是显示存活时间，不推进时间轴，
+  紧随其后的 `idle` 必须 ≥ 上一条的 `duration`（再多留 10 tick），否则文字会重叠成一片。
+  自检方法与踩坑实例见 `docs/PONDERER_SCENE_AUTHORING.md` 第 3 节。
 - 只要介绍或源码里涉及物品释放、技能释放、物品使用等会产生粒子特效的，演示中也必须补上对应的粒子特效，
   用 Ponderer 的 `spawn_particles` 步骤实现。优先使用游戏内真实粒子 id：下毒是 `wathe:poison`、
   护盾试剂入盘是 `minecraft:effect`；其它粒子先查对应物品/技能/方块实体源码，不要自行编造。
@@ -243,6 +248,7 @@ gradlew compileJava --offline
 
 - `src/main/resources/assets/starrailexpress/ponderer/scenes/role_tutorial_jester.json`
 - `src/main/resources/assets/starrailexpress/ponderer/scenes/role_tutorial_bartender.json`
+- `src/main/resources/assets/starrailexpress/ponderer/scenes/role_tutorial_recaller.json`（技能动画示范，见第 17 节）
 - `src/main/java/org/agmas/noellesroles/client/screen/RolePonderTutorial.java`
 
 ## 13. 本项目注册的思索扩展
@@ -250,7 +256,12 @@ gradlew compileJava --offline
 `assets/starrailexpress/ponderer/content/role_tutorials.json` 的 `extensions`
 声明了 `starrailexpress:role_tutorial`，对应
 `io.wifi.starrailexpress.client.ponder.PonderSreExtension`。
-扩展由 `PonderSreRegistration.register()` 在客户端初始化时注册，因此场景可以直接使用：
+扩展由 `PonderSreRegistration.register()` 在客户端初始化时注册，因此场景可以直接使用。
+
+**自定义步骤的参数必须写在 `parameters` 子对象里**。PondererLib 的 `SceneStepExecutor`
+只把 `DslStep.parameters` 交给 `StepCodec.decode`；写在步骤顶层的字段会进入 `extensionData`，
+运行时全部读不到，表现为玩家位置/皮肤/边框/商店都变成默认值（所有玩家叠在 `[3,1,3]`、
+商店为空）。`tools/wrap_ponder_custom_step_params.py` 可以批量修正已有场景。
 
 ### `starrailexpress:role_player`
 
@@ -265,18 +276,54 @@ gradlew compileJava --offline
 | `lineWidth` | number | 边框线宽，默认 1.0 |
 | `expand` | number | 边框相对碰撞箱外扩，默认 0.12 |
 | `linkId` | string | 存入步骤 `state`，供后续步骤引用 |
+| `heldItem` | string | 模型右手持有的物品 id，用于演示换武器/狂暴形态 |
+| `pose` | string | 模型姿态，见下表；省略为 `standing` |
+| `walkTo` | `[x,y,z]` | 建好模型后走到这个坐标（阻塞，等价于紧跟一条 `role_walk`） |
+| `walkDelay` | int | 走动前先站住多少 tick（默认 0） |
+| `walkDuration` | int | 走动耗时，默认 40 |
+
+`pose` 取值（与游戏内同一套姿态）：
+
+| 值 | 姿态 | 对应游戏内表现 |
+| --- | --- | --- |
+| `standing` | 站立 | 默认 |
+| `crouching` | 蹲下 | `Pose.CROUCHING` + shift 状态（潜行） |
+| `swimming` | 趴下 | `Pose.SWIMMING`，玩家趴下/爬行就是这一姿态 |
+| `sleeping` | 躺下 | `Pose.SLEEPING` |
+| `spin_attack` | 旋转攻击 | `Pose.SPIN_ATTACK`（重锤类动作） |
+| `fall_flying` | 鞘翅飞行 | `Pose.FALL_FLYING` |
+
+需要演示蹲下、趴下、躺下的职业直接写 `pose`，不要用 `set_block` 摆姿势或省略。
 
 边框颜色与游戏内本能透视同源：`InstinctManager` 的返回值即此处应填的颜色。
+边框按玩家模型本身渲染：同一套顶点沿法线外扩一圈、剔除正面只画背面，
+内圈被模型本体挡掉，所以屏幕上只有一圈描边，不会把模型表面涂成纯色，
+也不是包住整个人的单个矩形盒子。
+
+手持物品走原版 `ItemInHandLayer`：物品挂在模型主手槽（`setItemSlot`），
+手臂姿势与握持变换都由原版决定，不要用 `ItemRenderer#renderStatic` 自己摆位置。
+手持物品本身不参与描边：物品模型多是薄片/小盒，按背面壳外扩只会变成一块色块，
+所以描边那一遍会临时摘掉主手物品。
+
+注意不能照抄原版的发光轮廓：`OutlineBufferSource` 产出的 `RenderType.outline(...)`
+输出目标是 `LevelRenderer.entityTarget()`，只有世界渲染末尾的
+`LevelRenderer#doEntityOutline()` 才会把它叠回屏幕；思索是 GUI 场景，那一步永远不执行，
+轮廓会被写进一个没人读的离屏缓冲，屏幕上什么都看不到。
+所以轮廓直接写进 `SuperRenderTypeBuffer#getLateBuffer`，随场景一起冲刷。
 常用值：杀手 `-65536`（红）、中立 `-26368`（橙）、护盾蓝 `-16776961`、
 护盾+毒黄绿 `-10189185`、中毒红 `-65536`、喝饮料绿 `-16711936`。
 
 皮肤覆盖由 `PonderSkinAccess` 登记，并在 `PlayerEntityRendererMixin#getTextureLocation`
-最前面返回，因此优先于职业皮肤与疯魔皮肤逻辑。小丑狂暴示例：
+最前面返回，因此优先于职业皮肤与疯魔皮肤逻辑。登记表按**玩家模型对象身份**判等，
+不能按 UUID/GameProfile 判等：不同段落的模型共用观看者身份，按 UUID 会让后一段的皮肤覆盖前一段，
+表现就是狂暴皮肤切不过去。小丑狂暴示例：
 
 ```json
-{"type": "starrailexpress:role_player", "pos": [2.2, 1.0, 3.0], "yaw": 200.0,
+{"type": "starrailexpress:role_player", "parameters": {
+ "pos": [2.2, 1.0, 3.0], "yaw": 200.0,
  "skin": "starrailexpress:textures/entity/custom_psycho/jester.png",
- "outline": -65536, "linkId": "jester_rampage"}
+ "heldItem": "trainmurdermystery:bat",
+ "outline": -65536, "linkId": "jester_rampage"}}
 ```
 
 ### `starrailexpress:role_shop`
@@ -288,9 +335,19 @@ gradlew compileJava --offline
 | --- | --- | --- |
 | `role` | string | 职业 id，如 `noellesroles:jester` |
 | `columns` | int | 每行商品数，默认 4 |
+| `items` | array | 可选兜底商品；动态商店数据为空时使用，元素为 `{"item":"ns:path","price":200,"currency":"money"}` |
 
 商店界面本身依赖真实 `InventoryMenu` 与服务端同步数据，无法在 Ponder 离屏沙盒里构造，
 因此改为按同一数据源自绘陈列（`PonderShopOverlayElement`，`PonderOverlayElement` 实现）。
+
+动态数据必须和 U 键职业介绍页的 `ShopTab` 用同一种取法：
+
+1. 先检查 `RoleShopHandler.haveRegistered`，为 false 时调用 `RoleShopHandler.shopRegister()`；
+   介绍页构造函数里也有这段保护，缺了它商店条目表就是空的。
+2. 用 `ShopContent.getShopEntries(roleId, null)` 读取，传 `null` 表示不按当前对局状态过滤；
+   传 `Minecraft.getInstance().player` 会让依赖对局状态的修改器过滤掉条目。
+`PonderShopEntries` 已按此实现。若场景显式写了 `items`，则以它为准（保证离屏演示稳定），
+动态数据只在没写 `items` 时使用。
 
 ## 14. 已知上游问题修复：编辑器 mixin 注入失败
 
@@ -336,12 +393,12 @@ InvalidInjectionException: non-static callback method ... targets a static metho
 示例（护士的虚拟血量 + 护盾、滞时鬼的回溯进度、信使的信件界面）：
 
 ```json
-{"type": "starrailexpress:role_vitals", "bars": [
+{"type": "starrailexpress:role_vitals", "parameters": {"bars": [
   {"label": "虚拟血量", "before": 0.45, "after": 1.0, "color": -65536},
   {"label": "虚拟护盾", "before": 0.0, "after": 1.0, "color": -16776961}
-]}
-{"type": "starrailexpress:role_timer", "progress": [0.0, 1.0], "lines": ["锚定 20 秒后回溯"]}
-{"type": "starrailexpress:role_panel", "title": "信件", "lines": ["收件人：……", "附带效果：San 恢复"]}
+]}}
+{"type": "starrailexpress:role_timer", "parameters": {"progress": [0.0, 1.0], "lines": ["锚定 20 秒后回溯"]}}
+{"type": "starrailexpress:role_panel", "parameters": {"title": "信件", "lines": ["收件人：……", "附带效果：San 恢复"]}}
 ```
 
 `lines` 里的文字必须来自职业介绍原文或源码里实际显示的内容，不要自行编写旁白。
@@ -354,10 +411,14 @@ InvalidInjectionException: non-static callback method ... targets a static metho
 本能透视边框必须使用 `InstinctManager` 的真实返回值：
 
 - `InstinctType.OBSERVER_ROLE_COLOR` 取**观察者自己的职业颜色**，例如小丑看别人是
-  `new Color(186,85,211).getRGB()`（`-4562477`），不是固定的粉/红；
+  `new Color(186,85,211).getRGB()`（`0xFFBA55D3`，有符号十进制 `-4565549`），不是固定的粉/红；
+- 小丑（`ModRoles.JESTER`）的直觉类型就是 `OBSERVER_ROLE_COLOR`（`setToggledOnInstinctType`），
+  并且 `setCanSeeTeammateKillerRole(false)`：**看所有人都是小丑自己的颜色，分不出队友/杀手/中立**。
+  所以小丑教程里所有其它玩家模型都用同一个 `-4565549`，不要照搬杀手那套"杀手红、其它中立橙"；
 - `InstinctType.TARGET_ROLE_COLOR` 取目标职业颜色；`CUSTOM` 取其固定颜色；
 - 杀手默认直觉见 `InstinctManager#getDefaultKillerAliveInstinct`：杀手红、杀手方中立橙、
   平民蓝、小丑粉色、疫使深绿、肉汁 4 格内深蓝等，均按源码数值填写。
+  注意这套配色是**杀手视角**的，不要套用到其它阵营的观察者。
 - 酒保的护盾蓝、护盾+毒黄绿、中毒红、喝饮料绿沿用现有场景数值。
 
 ### 工具
@@ -376,3 +437,203 @@ InvalidInjectionException: non-static callback method ... targets a static metho
 新增单个职业教程时：在 `content/role_tutorials.json` 的 `scenes` 追加一份场景路径，
 场景 `id` 使用 `starrailexpress:role_tutorial.<职业 path>`（与
 `RolePonderTutorial.SCENE_PREFIX` 一致），文案只引用 `role_modifier_intro` 的原文。
+
+## 16. 领域场景适配（2026-11-20）
+
+### `starrailexpress:role_domain`
+
+职业的介绍里出现「领域技」时，用这一步把教程场景切换成对应领域。
+领域等级与服务端 `ModEffects.DOMAIN_MARK` 的 amplifier 一一对应（见 `ModEffects` 注释），
+一个领域只占一个等级，0~5 已全部分配。
+
+| `domain` | 等级 | 场景 | 服务端原实现 |
+| --- | --- | --- | --- |
+| `fool_meeting` | 0 | 愚者开会：灰白大厅、柱廊、青铜长桌、王座高台 | `TarotAssemblySceneBuilder` |
+| `warlock_ash_marrow` | 1 | 灰髓之境：圆形凝灰岩祭场、灰玻璃雾墙、黑石祭坛、垂链 | `WarlockDomainSceneBuilder` |
+| `adventurer_travelogue` | 2 | 格罗赛尔游记：旅途营地（营火、帐篷、补给、路灯） | 配置坐标处的现成地图，无场景构建器 |
+| `pooler_moon` | 3 | 吞月：苍白月面、陨石坑、玻璃边墙、月白柱 | `PoolerDomainSceneBuilder#buildMoon` |
+| `pooler_aquarium` | 4 | 水中镜：玻璃水缸、珊瑚海草、中央气泡柱 | `PoolerDomainSceneBuilder#buildAquarium` |
+| `devil_black_room` | 5 | 秘密黑室：黑混凝土密室、深板岩地砖、中央赌桌 | `RouletteDevilRoom#build` |
+
+字段：
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `domain` | string | 必填，上表的 id；也接受 `starrailexpress:pooler_moon` / `POOLER_MOON` 写法 |
+| `pos` | `[x,y,z]` 或 `"x,y,z"` | 领域地面的中心，默认 `[0,0,0]`，与房间同一坐标系 |
+| `scale` | number | 可选，`scaleSceneView` 的取景缩放，**作用于整个场景**，只在整段都以领域为主时使用 |
+
+要点：
+
+- 服务端的领域场景全部是 `level.setBlock` 现搭，客户端没有 `ServerLevel`，
+  所以由 `io.wifi.starrailexpress.client.ponder.PonderDomainScenes` 按同样的配色与结构
+  重建一份缩小版（半径 5~8 格，能放进思索取景框）。
+- 每个领域场景开头都会把以 `pos` 为中心的一大块区域清成空气，
+  所以「切场景」不需要另写清场步骤：直接在建好的教程房间后面接 `role_domain` 即可，
+  原来的房间会被领域场景覆盖掉。
+- 领域里如果有玩家模型，继续用 `role_player`（`pos` 按领域坐标重写），
+  它的本能透视边框照常生效。
+- 目前只做了适配与六个领域场景，**具体职业的领域技段落尚未编写**。
+  新增领域时：先给 `ModEffects.DOMAIN_MARK` 分配不小于 6 的新等级，
+  再在 `PonderDomains` 加枚举项、在 `PonderDomainScenes` 加同名分支。
+- 冒险家游记在原项目里是配置坐标处的一张现成地图，没有构建器，
+  这里的「旅途营地」是按领域语义重建的代表性场景，后续如需更贴近原图可继续补充。
+
+## 17. 思索里「技能」怎么演（2026-11-20）
+
+技能段落的目标是让玩家看完就知道「按什么键、会看到什么、有什么代价」，不是复述介绍文案。
+
+**硬性要求：技能必须按「代码实际行为 + 职业介绍」做成具体、形象的动画，不能只写一段文字说明。**
+用之前先读这个技能的实现（`AbilityHandler` 的分支、对应 `RoleData`、HUD 与相关 mixin），确认：
+
+- 触发方式（哪个键、什么条件下按得动）；
+- 依次发生了哪些可见变化（位置、姿态、方块、界面、实体）；
+- 源码里有没有粒子 / 音效（有就照抄 id，没有就不要凭空加）；
+- 有没有代价（金币、冷却、消耗品），用 `role_currency` / `role_timer` 或文案体现。
+
+介绍里没写、但代码里确实发生的视觉细节（例如传送的粒子、蹲下的姿态）必须演出来；
+介绍里有、代码里没有的机制则不要演——两者冲突时以代码为准并在段评里记录差异。
+
+一个技能段落的固定骨架：
+
+1. **站位**：`show_structure` → `role_player` 把职业玩家模型放到演示位，`linkId` 必须写（后续要驱动它）。
+2. **触发**：`role_key` 显示「按下技能键」（键帽显示玩家当前实际绑定，改键自动跟随）。
+3. **前置状态**：标点、物品、界面、血条等，用 `highlight_section` / `create_item_entity` / `role_*` 覆盖层交代清楚。
+4. **动作**：`role_walk` 走动、`role_teleport` 落位；姿态变化写 `role_player.pose`。
+5. **结果**：`spawn_particles` 复刻源码里的粒子，`play_sound` 复刻音效，`indicate_success` 标记结果。
+6. **收尾**：`idle` 留出观察时间，最后 `rotate_camera_y` 换个角度避免段落结束太突然。
+
+多次使用同一个技能时，每次触发前都要重新显示一次 `role_key`，让「按一次 → 变一次」的因果看得见。
+
+### 按键提示的写法
+
+- Ponderer 内置的 `show_controls` **只支持鼠标动作**（`action: left|right|scroll`，以及
+  `whileSneaking` / `whileCTRL` 修饰），没有「按下键盘技能键」的图形。鼠标交互就用它。
+- 键盘技能键一律用 `role_key`：键帽挂在世界坐标上、走 Ponder 自带的控件绘制，键名取自
+  `NoellesrolesClient.abilityBind` 等实际绑定（`getTranslatedKeyMessage()`），玩家改键后自动跟着变，不要写死字母。
+- `role_skill` 是右上角的信息面板，用来补充技能效果/代价，不承担「按键」的表达。
+- 面向玩家的正文仍然只能用 `text`（`en_us` / `zh_cn` / `zh_tw` 三语齐全），文案只引用职业介绍原文。
+
+### 动画与时间轴
+
+- `role_walk` 是**阻塞**步骤：`duration` 个 tick 内模型走过去，时间轴同步推进。
+  位移用「一次性指令 + `idle(1)`」逐 tick 推进（见下面的实现标准），不依赖元素自己的 tick。
+- `role_teleport` 只做落位，不占时间轴；粒子、音效要另外写 `spawn_particles` / `play_sound`。
+- `role_key` 不阻塞，`duration` 只是键帽存活时长（默认 60），要停顿请补 `idle`。
+- `spawn_particles`、`play_sound`、`indicate_success`、`highlight_section` 都不阻塞，
+  需要观察就补 `idle`。
+- 传送类演示要写**两处**粒子：起跳点（传送前）与落点（传送后），游戏内 `teleport()` 就是两端各播一次。
+
+### 实现标准（2026-11-21 定稿，新增动画步骤照这个写）
+
+这一段是「让模型真的动起来」踩过的坑，换别的写法很容易出现「步骤执行了、模型纹丝不动」。
+
+1. **位移用「一次性指令 + `idle(1)`」铺进时间轴**
+
+   ```java
+   scene.addInstruction(ps -> target.beginWalk(to, total));      // 起算
+   for (int i = 1; i <= total; i++) {
+       final float progress = i / (float) total;
+       scene.addInstruction(ps -> target.setWalkProgress(progress));  // 每 tick 推一次
+       scene.idle(1);
+   }
+   ```
+
+   - `scene.addInstruction(Consumer<PonderScene>)` 是**时间轴指令**（Ponder 内部包成 `PonderInstruction.Simple`），
+     到点执行一次，和 `idle` 共用同一套调度；`role_player` 把模型加入场景用的就是它，最稳。
+   - **不要**把位移写进元素自己的 `tick()`，也**不要**自定义 `TickingInstruction` 子类：
+     Ponderer 会给步骤里加的每条指令再包一层 `InterfaceTargetInstruction`，
+     自定义子类的 `onScheduled` / `firstTick` 生命周期不一定按预期走。
+
+2. **跨步骤引用传元素实例，不要用 `ps.resolve(link)`**
+   `role_player` 建模型时 `context.state().put(linkId, element)` 存的是 `PonderPlayerElement` 实例，
+   `role_walk` / `role_teleport` 取实例直接调用。`ps.resolve` 找不到时会**静默返回 null**，
+   表现为「日志说步骤跑了，画面完全不动」，极难排查。
+
+3. **运行时兜底**：取不到实例时用 `PonderPlayerElement.findInScene(scene)`
+   （内部是 `PonderScene.forEach(PonderPlayerElement.class, ...)`）现找一遍，
+   找不到才 warn 并跳过，绝不能让时间轴卡住。
+
+4. **技能动作不要拆段**：一段里走完「触发 → 变化 → 结果」。拆成两段的话，
+   玩家点到中间那段只会看到一个站着不动的人。
+
+5. **按键提示用自带控件**：`scene.overlay().showControls(point, Pointing, ticks).showing(keyCap)`，
+   不要自己在屏幕固定位置画键帽。
+
+6. **排查方法**：怀疑时间轴没走时，临时在指令里打
+   `ps.getCurrentTime()` / `ps.getTotalTime()`（`PonderScene` 的场景时钟），
+   能直接区分「没走到这一步」和「总时长不够」；定位完把日志删掉。
+
+模型元素对外就四个方法：`beginWalk(to, ticks)`、`setWalkProgress(p)`、`teleportTo(pos)`、`currentLocation()`，
+外加静态的 `findInScene(scene)`。
+
+### `starrailexpress:role_key`
+
+键帽走 Ponder 自带的 `overlay().showControls(point, Pointing, ticks).showing(icon)`，
+和鼠标左/右键提示**完全同一套摆放与对话框绘制**，只把图标换成键帽——
+所以它会贴在世界坐标上、随镜头自动挪位，不要自己算屏幕位置。
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `point` | `[x,y,z]` | 锚点，写在模型头/胸口上方，和同段 `text` 的 `point` 靠近即可 |
+| `direction` | string | 指示方向 `down`（默认）/`up`/`left`/`right` |
+| `keyBind` | string | 取哪个绑定：`ability`（默认）、`next_ability`、`guess_role_note`、`map_intro`、`task_instinct` |
+| `key` | string | 可选，直接指定键名（写死用，一般不填） |
+| `text` | string | 键帽下方的说明；`ponder.` / `key.` 开头按翻译键解析，默认 `按下技能键` |
+| `duration` | int | 键帽存活 tick，默认 60，`<= 0` 表示整段保持 |
+| `color` | int | 键帽描边颜色，默认金色 |
+
+### `starrailexpress:role_walk`
+
+参数（都写在 `parameters` 里）：
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `linkId` | string | 命中已有模型时驱动那个模型；不写就按 `from` 新建一个 |
+| `from` | `[x,y,z]` | 新建模型时的起点 |
+| `to` | `[x,y,z]` | 终点，必填 |
+| `duration` | int | 走动耗时（tick），默认 40，同时就是阻塞时长 |
+| `yaw` | number | 面向；省略时按 `from → to` 的水平方向自动计算 |
+| `skin` / `heldItem` / `outline` / `pose` | | 同 `role_player`，只在新建模型时生效 |
+
+### `starrailexpress:role_teleport`
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `linkId` | string | 必填，指向 `role_player` / `role_walk` 建的模型 |
+| `pos` | `[x,y,z]` | 落点 |
+
+### 参考实现：召回者（2026-11-20）
+
+- 场景：`assets/starrailexpress/ponderer/scenes/role_tutorial_recaller.json`
+- 结构：`starrailexpress:role_tutorial_recaller`（`tools/generate_ponder_structures.py` 的 `recaller()` 生成：
+  7x4x7、顶部敞开、只留背墙；标点处是 3x3 大理石方台，正中一格换船体板，让「记录的地点」有地标）
+- 技能事实来源：`RecallerRoleData`（标点 / 传送 / 粒子）与 `AbilityHandler` 的 `RECALLER` 分支（扣 100 金币）
+- 介绍原文只有「标点 + 花 100 金币回来」两句，没有走动、传送动画与粒子描述，
+  所以动画由场景补足：**按技能键 → 原地标点 → 走开 → 再按技能键 → 传送回来**
+- 只分两段：`faction`（阵营 / 胜利目标）与 `skill`（完整动画）。技能动作**不要**拆成两段，
+  否则玩家点到中间那段就看不到走动与传送。
+- `skill` 段落的时间轴：
+
+```text
+show_structure + role_player [2,1,4] linkId=recaller   ← 站在标点处
+idle 15
+role_key point=[2,2.2,4]                     ← 第一次「按下技能键」
+highlight_section [2,0,4] duration=400        ← 原地标点，整段可见
+idle 60
+text duration=90（介绍原句）+ idle 100
+role_walk to [2,1,1] duration=60              ← 走开，阻塞 60 tick
+idle 20
+role_key point=[2,2.2,1]                     ← 第二次「按下技能键」
+idle 30
+spawn_particles minecraft:portal（起跳点）
+play_sound minecraft:entity.enderman.teleport
+role_teleport [2,1,4]                        ← 瞬移回标点，不做滑动
+spawn_particles minecraft:portal（落点）
+indicate_success [2,0,4] + idle 80 + rotate_camera_y
+```
+
+粒子与音效直接取自源码：`ParticleTypes.PORTAL` 环绕 16 点 + 中心 10 点（`y + 0.9`），
+音效 `SoundEvents.ENDERMAN_TELEPORT`（`minecraft:entity.enderman.teleport`，`source: players`）。
+`role_teleport` 故意做成瞬移：游戏内 `teleportTo` 就是瞬移，做插值反而不符合实际表现。
+

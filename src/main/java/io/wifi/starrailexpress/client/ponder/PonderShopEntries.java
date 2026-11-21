@@ -18,8 +18,7 @@ package io.wifi.starrailexpress.client.ponder;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.util.ShopEntry;
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.init.RoleShopHandler;
 import net.minecraft.world.item.ItemStack;
 
 import org.jetbrains.annotations.Nullable;
@@ -48,8 +47,12 @@ public final class PonderShopEntries {
         }
         List<ShopEntry> source;
         try {
-            Player player = Minecraft.getInstance().player;
-            source = ShopContent.getShopEntries(role.getIdentifier(), player);
+            // 与 U 键介绍页一致：先确保商店注册完成，再按「无玩家」读取全部展示条目。
+            // 传当前玩家会让依赖对局状态的修改器过滤掉条目，导致思索里商店为空。
+            if (!RoleShopHandler.haveRegistered) {
+                RoleShopHandler.shopRegister();
+            }
+            source = ShopContent.getShopEntries(role.getIdentifier(), null);
         } catch (Throwable error) {
             return List.of();
         }

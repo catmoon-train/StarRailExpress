@@ -22,8 +22,12 @@ import net.createmod.ponder.foundation.element.ElementLinkImpl;
 import net.createmod.ponder.foundation.instruction.FadeOutOfSceneInstruction;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Consumer;
 
 /**
  * 在思索场景里创建「职业演示用玩家模型」。
@@ -64,10 +68,13 @@ public final class PonderPlayerPreset {
         private float bodyYaw = 180.0F;
         private float headYaw = 180.0F;
         private float pitch = 0.0F;
+        private Pose pose = Pose.STANDING;
         @Nullable
         private GameProfile profile;
         @Nullable
         private ResourceLocation skin;
+        @Nullable
+        private ItemStack heldItem;
         private int outlineColor = NO_OUTLINE;
         private float outlineLineWidth = 1.0F;
         private float outlineExpand = 0.12F;
@@ -90,6 +97,15 @@ public final class PonderPlayerPreset {
             return this;
         }
 
+        /**
+         * 模型姿态：站立、蹲下（{@link Pose#CROUCHING}）、趴下（{@link Pose#SWIMMING}）、
+         * 睡眠（{@link Pose#SLEEPING}）等；缺省站立。
+         */
+        public Builder pose(Pose pose) {
+            this.pose = pose == null ? Pose.STANDING : pose;
+            return this;
+        }
+
         /** 使用指定身份（皮肤来源）；缺省为观看者本人。 */
         public Builder profile(@Nullable GameProfile profile) {
             this.profile = profile;
@@ -99,6 +115,12 @@ public final class PonderPlayerPreset {
         /** 强制使用指定皮肤贴图，优先于身份皮肤。 */
         public Builder skin(@Nullable ResourceLocation skin) {
             this.skin = skin;
+            return this;
+        }
+
+        /** 让模型右手持有指定物品，用于演示换武器 / 狂暴形态。 */
+        public Builder heldItem(@Nullable ItemStack heldItem) {
+            this.heldItem = heldItem;
             return this;
         }
 
@@ -122,11 +144,23 @@ public final class PonderPlayerPreset {
 
         /** 把玩家模型加入场景，返回可用于后续淡出/移动的链接。 */
         public ElementLink<PonderPlayerElement> addTo(SceneBuilder scene) {
+            return addTo(scene, null);
+        }
+
+        /**
+         * 把玩家模型加入场景，并把元素实例交给 {@code setup}，用于追加走动 / 传送指令。
+         *
+         * <p>「把元素加入场景」那条指令先追加，{@code setup} 里的指令追加在其后，
+         * 所以可以直接在 {@code setup} 里驱动元素（例如 {@code element.walkTo(...)}）。
+         */
+        public ElementLink<PonderPlayerElement> addTo(SceneBuilder scene, Consumer<PonderPlayerElement> setup) {
             PonderPlayerElement element = new PonderPlayerElement(location)
                     .profile(profile)
                     .skin(skin)
+                    .heldItem(heldItem)
                     .outline(outlineColor, outlineLineWidth, outlineExpand)
-                    .facing(bodyYaw, headYaw, pitch);
+                    .facing(bodyYaw, headYaw, pitch)
+                    .pose(pose);
             ElementLink<PonderPlayerElement> link = new ElementLinkImpl<>(PonderPlayerElement.class);
             scene.addInstruction(ps -> {
                 element.bindOutliner(ps.getOutliner());
@@ -135,6 +169,9 @@ public final class PonderPlayerPreset {
                 element.setVisible(true);
                 element.forceApplyFade(1.0F);
             });
+            if (setup != null) {
+                setup.accept(element);
+            }
             return link;
         }
     }

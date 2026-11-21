@@ -1,96 +1,770 @@
 {
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.jester",
-  "items": ["noellesroles:fake_knife"],
+  "items": [
+    "noellesroles:fake_knife"
+  ],
   "title": {
     "en_us": "Jester",
     "zh_cn": "小丑",
     "zh_tw": "小丑"
   },
-  "structures": ["starrailexpress:role_tutorial_jester"],
+  "structures": [
+    "starrailexpress:role_tutorial_jester"
+  ],
   "tags": [],
   "customTags": {},
   "scenes": [
     {
       "id": "faction",
-      "title": {"en_us": "Jester", "zh_cn": "小丑", "zh_tw": "小丑"},
+      "title": {
+        "en_us": "Jester",
+        "zh_cn": "小丑",
+        "zh_tw": "小丑"
+      },
       "steps": [
-        {"type": "show_structure", "structure": "starrailexpress:role_tutorial_jester", "scale": 1.0, "attachKeyFrame": true},
-        {"type": "starrailexpress:role_player", "pos": [3.0, 1.0, 3.0], "yaw": 180.0, "linkId": "jester", "attachKeyFrame": true},
-        {"type": "text", "duration": 70, "text": {"en_us": "Neutral team", "zh_cn": "中立阵营", "zh_tw": "中立陣營"}, "point": [1.0, 2.1, 1.0], "placeNearTarget": true, "attachKeyFrame": true},
-        {"type": "idle", "duration": 30},
-        {"type": "text", "duration": 70, "text": {"en_us": "Wins together with the Killers", "zh_cn": "与杀手一同获胜", "zh_tw": "與殺手一同獲勝"}, "point": [5.0, 2.1, 1.0], "placeNearTarget": true, "attachKeyFrame": true},
-        {"type": "idle", "duration": 30},
-        {"type": "rotate_camera_y", "degrees": 20.0, "duration": 50, "attachKeyFrame": true}
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_jester",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "jester",
+            "skin": "minecraft:textures/entity/player/wide/steve.png"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 70,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            2.1,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "text",
+          "duration": 70,
+          "text": {
+            "en_us": "Wins together with the Killers",
+            "zh_cn": "与杀手一同获胜",
+            "zh_tw": "與殺手一同獲勝"
+          },
+          "point": [
+            3.0,
+            1.5,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 20.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
       ]
     },
     {
       "id": "tools",
-      "title": {"en_us": "Jester", "zh_cn": "小丑", "zh_tw": "小丑"},
+      "title": {
+        "en_us": "Jester",
+        "zh_cn": "小丑",
+        "zh_tw": "小丑"
+      },
       "steps": [
-        {"type": "show_structure", "structure": "starrailexpress:role_tutorial_jester", "scale": 1.0, "attachKeyFrame": true},
-        {"type": "starrailexpress:role_player", "pos": [3.0, 1.0, 3.0], "yaw": 180.0, "linkId": "jester", "attachKeyFrame": true},
-        {"type": "create_item_entity", "pos": [2.0, 1.3, 4.8], "motion": [0.0, 0.0, 0.0], "count": 1, "item": "noellesroles:fake_knife", "linkId": "fake_knife", "attachKeyFrame": true},
-        {"type": "create_item_entity", "pos": [4.0, 1.3, 4.8], "motion": [0.0, 0.0, 0.0], "count": 1, "item": "noellesroles:fake_revolver", "linkId": "fake_revolver", "attachKeyFrame": true},
-        {"type": "idle", "duration": 20},
-        {"type": "show_controls", "action": "right", "item": "noellesroles:fake_knife", "duration": 70, "point": [3.0, 2.2, 4.6], "direction": "down", "attachKeyFrame": true},
-        {"type": "text", "duration": 90, "text": {"en_us": "Starts with a Fake Gun and Fake Knife; has Jester see-through; being killed by a good player triggers Rampage (kills by Killers / neutrals do not trigger Rampage)", "zh_cn": "初始拥有假枪和假刀，拥有小丑透视，被好人击杀后会触发狂暴(杀手/中立击杀不会触发狂暴)", "zh_tw": "初始擁有假槍和假刀，擁有小丑透視，被好人擊殺後會觸發狂暴(殺手/中立擊殺不會觸發狂暴)"}, "point": [3.0, 3.3, 1.0], "placeNearTarget": true, "attachKeyFrame": true},
-        {"type": "idle", "duration": 40},
-        {"type": "rotate_camera_y", "degrees": -25.0, "duration": 50, "attachKeyFrame": true}
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_jester",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "jester",
+            "skin": "minecraft:textures/entity/player/wide/steve.png"
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.0,
+            1.3,
+            4.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:fake_knife",
+          "linkId": "fake_knife",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            4.0,
+            1.3,
+            4.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:fake_revolver",
+          "linkId": "fake_revolver",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:fake_knife",
+          "duration": 70,
+          "point": [
+            3.0,
+            2.2,
+            4.6
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 90,
+          "text": {
+            "en_us": "Starts with a Fake Gun and Fake Knife; has Jester see-through; being killed by a good player triggers Rampage (kills by Killers / neutrals do not trigger Rampage)",
+            "zh_cn": "初始拥有假枪和假刀，拥有小丑透视，被好人击杀后会触发狂暴(杀手/中立击杀不会触发狂暴)",
+            "zh_tw": "初始擁有假槍和假刀，擁有小丑透視，被好人擊殺後會觸發狂暴(殺手/中立擊殺不會觸發狂暴)"
+          },
+          "point": [
+            3.0,
+            3.3,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": -25.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
       ]
     },
     {
       "id": "see_through",
-      "title": {"en_us": "Jester", "zh_cn": "小丑", "zh_tw": "小丑"},
+      "title": {
+        "en_us": "Jester",
+        "zh_cn": "小丑",
+        "zh_tw": "小丑"
+      },
       "steps": [
-        {"type": "show_structure", "structure": "starrailexpress:role_tutorial_jester", "scale": 1.0, "attachKeyFrame": true},
-        {"type": "starrailexpress:role_player", "pos": [3.0, 1.0, 4.0], "yaw": 180.0, "linkId": "jester", "attachKeyFrame": true},
-        {"type": "starrailexpress:role_player", "pos": [2.0, 1.0, 2.0], "yaw": 0.0, "outline": -65536, "linkId": "killer", "attachKeyFrame": true},
-        {"type": "starrailexpress:role_player", "pos": [4.5, 1.0, 2.0], "yaw": 0.0, "outline": -26368, "linkId": "neutral", "attachKeyFrame": true},
-        {"type": "idle", "duration": 20},
-        {"type": "text", "duration": 90, "text": {"en_us": "Jester see-through marks killers in red and other neutrals in orange", "zh_cn": "小丑透视把杀手标为红色、其他中立标为橙色", "zh_tw": "小丑透視把殺手標為紅色、其他中立標為橙色"}, "point": [3.0, 3.0, 1.0], "placeNearTarget": true, "attachKeyFrame": true},
-        {"type": "idle", "duration": 50},
-        {"type": "rotate_camera_y", "degrees": 15.0, "duration": 50, "attachKeyFrame": true}
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_jester",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              4.0
+            ],
+            "yaw": 180.0,
+            "linkId": "jester",
+            "skin": "minecraft:textures/entity/player/wide/steve.png"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              1.5,
+              1.0,
+              2.5
+            ],
+            "yaw": 0.0,
+            "outline": -4565549,
+            "linkId": "other_a",
+            "skin": "minecraft:textures/entity/player/wide/steve.png"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.5
+            ],
+            "yaw": 0.0,
+            "outline": -4565549,
+            "linkId": "other_b",
+            "skin": "minecraft:textures/entity/player/wide/steve.png"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 90,
+          "text": {
+            "en_us": "Jester see-through outlines everyone in the Jester's own color, so teammates and enemies look identical",
+            "zh_cn": "小丑透视把所有人的边框都标成小丑自己的颜色，且分辨不出队友",
+            "zh_tw": "小丑透視把所有人的邊框都標成小丑自己的顏色，且分辨不出隊友"
+          },
+          "point": [
+            3.0,
+            3.0,
+            4.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 50
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 15.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "rampage_trigger",
+      "title": {
+        "en_us": "Jester",
+        "zh_cn": "小丑",
+        "zh_tw": "小丑"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_jester",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_entity",
+          "entity": "minecraft:player",
+          "pos": [
+            2.0,
+            1.0,
+            4.0
+          ],
+          "yaw": 0.0,
+          "nbt": "{CustomName:'好人',CustomNameVisible:1b}",
+          "linkId": "civilian",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.4,
+            3.4
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:knife",
+          "linkId": "knife",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_entity",
+          "entity": "trainmurdermystery:player_body",
+          "pos": [
+            3.2,
+            1.0,
+            2.5
+          ],
+          "yaw": 140.0,
+          "nbt": "{CustomName:'小丑',CustomNameVisible:1b}",
+          "linkId": "jester_body",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 110,
+          "text": {
+            "en_us": "Starts with a Fake Gun and Fake Knife; has Jester see-through; being killed by a good player triggers Rampage (kills by Killers / neutrals do not trigger Rampage)",
+            "zh_cn": "初始拥有假枪和假刀，拥有小丑透视，被好人击杀后会触发狂暴(杀手/中立击杀不会触发狂暴)",
+            "zh_tw": "初始擁有假槍和假刀，擁有小丑透視，被好人擊殺後會觸發狂暴(殺手/中立擊殺不會觸發狂暴)"
+          },
+          "point": [
+            3.2,
+            2.6,
+            2.5
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 70
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 15.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
       ]
     },
     {
       "id": "rampage",
-      "title": {"en_us": "Jester", "zh_cn": "小丑", "zh_tw": "小丑"},
+      "title": {
+        "en_us": "Jester",
+        "zh_cn": "小丑",
+        "zh_tw": "小丑"
+      },
       "steps": [
-        {"type": "show_structure", "structure": "starrailexpress:role_tutorial_jester", "scale": 1.0, "attachKeyFrame": true},
-        {"type": "starrailexpress:role_player", "pos": [2.2, 1.0, 3.0], "yaw": 200.0, "skin": "starrailexpress:textures/entity/custom_psycho/jester.png", "outline": -65536, "linkId": "jester_rampage", "attachKeyFrame": true},
-        {"type": "create_entity", "entity": "trainmurdermystery:player_body", "pos": [4.6, 1.0, 3.0], "yaw": 120.0, "nbt": "{CustomName:'好人',CustomNameVisible:1b}", "linkId": "victim", "attachKeyFrame": true},
-        {"type": "idle", "duration": 20},
-        {"type": "text", "duration": 80, "text": {"en_us": "Jester Rampage has no shield and its own background music.", "zh_cn": "小丑狂暴没有护盾，且拥有独立的背景音乐。", "zh_tw": "小丑狂暴沒有護盾，且擁有獨立的背景音樂。"}, "point": [1.0, 2.2, 1.0], "placeNearTarget": true, "attachKeyFrame": true},
-        {"type": "idle", "duration": 40},
-        {"type": "rotate_camera_y", "degrees": 15.0, "duration": 50, "attachKeyFrame": true}
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_jester",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              2.2,
+              1.0,
+              3.0
+            ],
+            "yaw": 200.0,
+            "skin": "starrailexpress:textures/entity/custom_psycho/jester.png",
+            "heldItem": "trainmurdermystery:bat",
+            "linkId": "jester_rampage"
+          }
+        },
+        {
+          "type": "create_entity",
+          "entity": "trainmurdermystery:player_body",
+          "pos": [
+            4.6,
+            1.0,
+            3.0
+          ],
+          "yaw": 120.0,
+          "nbt": "{CustomName:'好人',CustomNameVisible:1b}",
+          "linkId": "victim",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 80,
+          "text": {
+            "en_us": "Jester Rampage has no shield and its own background music.",
+            "zh_cn": "小丑狂暴没有护盾，且拥有独立的背景音乐。",
+            "zh_tw": "小丑狂暴沒有護盾，且擁有獨立的背景音樂。"
+          },
+          "point": [
+            2.2,
+            2.4,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 15.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
       ]
     },
     {
       "id": "shop",
-      "title": {"en_us": "Jester", "zh_cn": "小丑", "zh_tw": "小丑"},
+      "title": {
+        "en_us": "Jester",
+        "zh_cn": "小丑",
+        "zh_tw": "小丑"
+      },
       "steps": [
-        {"type": "show_structure", "structure": "starrailexpress:role_tutorial_jester", "scale": 1.0, "attachKeyFrame": true},
-        {"type": "starrailexpress:role_player", "pos": [3.0, 1.0, 3.0], "yaw": 180.0, "linkId": "jester", "attachKeyFrame": true},
-        {"type": "starrailexpress:role_shop", "role": "noellesroles:jester", "columns": 4, "attachKeyFrame": true},
-        {"type": "idle", "duration": 20},
-        {"type": "text", "duration": 90, "text": {"en_us": "Can buy Fake Poison, which the Poisoner's Catalyst can trigger into a lethal dose.", "zh_cn": "可购买假毒，假毒可以被毒师的催化剂触发致死。", "zh_tw": "可購買假毒，假毒可以被毒師的催化劑觸發致死。"}, "point": [3.0, 3.0, 1.0], "placeNearTarget": true, "attachKeyFrame": true},
-        {"type": "idle", "duration": 60},
-        {"type": "rotate_camera_y", "degrees": 10.0, "duration": 50, "attachKeyFrame": true}
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_jester",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "jester",
+            "skin": "minecraft:textures/entity/player/wide/steve.png"
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            3.0,
+            1.5,
+            4.6
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:delusion_vial",
+          "linkId": "shop_item",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "noellesroles:jester",
+            "columns": 4,
+            "items": [
+              {
+                "item": "noellesroles:delusion_vial",
+                "price": 30,
+                "currency": "money"
+              }
+            ]
+          }
+        },
+        {
+          "type": "indicate_redstone",
+          "blockPos": [
+            2,
+            1,
+            1
+          ],
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_redstone",
+          "blockPos": [
+            4,
+            1,
+            1
+          ],
+          "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "wathe:poison",
+          "pos": [
+            2.5,
+            1.0,
+            1.5
+          ],
+          "distribution": "box",
+          "spread": [
+            0.4,
+            0.1,
+            0.4
+          ],
+          "count": 1,
+          "duration": 90,
+          "motion": [
+            0,
+            0.05,
+            0
+          ],
+          "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "wathe:poison",
+          "pos": [
+            4.5,
+            1.0,
+            1.5
+          ],
+          "distribution": "box",
+          "spread": [
+            0.4,
+            0.1,
+            0.4
+          ],
+          "count": 1,
+          "duration": 90,
+          "motion": [
+            0,
+            0.05,
+            0
+          ],
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_redstone",
+          "blockPos": [
+            2,
+            1,
+            1
+          ],
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_redstone",
+          "blockPos": [
+            4,
+            1,
+            1
+          ],
+          "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "wathe:poison",
+          "pos": [
+            2.5,
+            1.0,
+            1.5
+          ],
+          "distribution": "box",
+          "spread": [
+            0.4,
+            0.1,
+            0.4
+          ],
+          "count": 1,
+          "duration": 90,
+          "motion": [
+            0,
+            0.05,
+            0
+          ],
+          "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "wathe:poison",
+          "pos": [
+            4.5,
+            1.0,
+            1.5
+          ],
+          "distribution": "box",
+          "spread": [
+            0.4,
+            0.1,
+            0.4
+          ],
+          "count": 1,
+          "duration": 90,
+          "motion": [
+            0,
+            0.05,
+            0
+          ],
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 90,
+          "text": {
+            "en_us": "Can buy Fake Poison, which the Poisoner's Catalyst can trigger into a lethal dose.",
+            "zh_cn": "可购买假毒，假毒可以被毒师的催化剂触发致死。",
+            "zh_tw": "可購買假毒，假毒可以被毒師的催化劑觸發致死。"
+          },
+          "point": [
+            3.0,
+            3.0,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 60
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 10.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
       ]
     },
     {
       "id": "door",
-      "title": {"en_us": "Jester", "zh_cn": "小丑", "zh_tw": "小丑"},
+      "title": {
+        "en_us": "Jester",
+        "zh_cn": "小丑",
+        "zh_tw": "小丑"
+      },
       "steps": [
-        {"type": "show_structure", "structure": "starrailexpress:role_tutorial_jester", "scale": 1.0, "attachKeyFrame": true},
-        {"type": "set_block", "block": "trainmurdermystery:small_glass_door", "blockProperties": {"half": "lower"}, "blockPos": [3, 1, 6], "blockPos2": [3, 1, 6], "attachKeyFrame": true},
-        {"type": "set_block", "block": "trainmurdermystery:small_glass_door", "blockProperties": {"half": "upper"}, "blockPos": [3, 2, 6], "blockPos2": [3, 2, 6], "attachKeyFrame": true},
-        {"type": "starrailexpress:role_player", "pos": [3.0, 1.0, 4.0], "yaw": 0.0, "linkId": "jester", "attachKeyFrame": true},
-        {"type": "idle", "duration": 20},
-        {"type": "text", "duration": 90, "text": {"en_us": "The Jester has no collision box when near door frames.", "zh_cn": "小丑靠近门框时没有碰撞体积。", "zh_tw": "小丑靠近門框時沒有碰撞體積。"}, "point": [3.0, 2.6, 5.0], "placeNearTarget": true, "attachKeyFrame": true},
-        {"type": "idle", "duration": 40},
-        {"type": "rotate_camera_y", "degrees": 20.0, "duration": 50, "attachKeyFrame": true}
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_jester",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "set_block",
+          "block": "trainmurdermystery:small_glass_door",
+          "blockProperties": {
+            "half": "lower"
+          },
+          "blockPos": [
+            3,
+            1,
+            6
+          ],
+          "blockPos2": [
+            3,
+            1,
+            6
+          ],
+          "attachKeyFrame": true
+        },
+        {
+          "type": "set_block",
+          "block": "trainmurdermystery:small_glass_door",
+          "blockProperties": {
+            "half": "upper"
+          },
+          "blockPos": [
+            3,
+            2,
+            6
+          ],
+          "blockPos2": [
+            3,
+            2,
+            6
+          ],
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              4.0
+            ],
+            "yaw": 0.0,
+            "linkId": "jester",
+            "skin": "minecraft:textures/entity/player/wide/steve.png"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 90,
+          "text": {
+            "en_us": "The Jester has no collision box when near door frames.",
+            "zh_cn": "小丑靠近门框时没有碰撞体积。",
+            "zh_tw": "小丑靠近門框時沒有碰撞體積。"
+          },
+          "point": [
+            3.0,
+            2.6,
+            4.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 20.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
       ]
     }
   ]

@@ -22,11 +22,20 @@ import com.nododiiiii.ponderer.runtime.api.RuntimeEngine;
 import com.nododiiiii.ponderer.runtime.api.StepBuildContext;
 import com.nododiiiii.ponderer.runtime.api.StepCodec;
 import com.nododiiiii.ponderer.runtime.api.StepType;
-import net.createmod.ponder.api.element.ElementLink;
+import net.createmod.catnip.math.Pointing;
 import net.createmod.ponder.api.scene.SceneBuilder;
+import net.createmod.ponder.foundation.PonderScene;
+import io.wifi.starrailexpress.util.ShopEntry;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.client.NoellesrolesClient;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +50,11 @@ import java.util.List;
  *
  * <ul>
  *   <li>{@code starrailexpress:role_player} —— 创建可指定皮肤与本能透视边框的玩家模型；</li>
- *   <li>{@code starrailexpress:role_shop} —— 显示该职业的实际商店陈列。</li>
+ *   <li>{@code starrailexpress:role_domain} —— 把场景切换成领域技对应的六个领域场景之一；</li>
+ *   <li>{@code starrailexpress:role_shop} —— 显示该职业的实际商店陈列；</li>
+ *   <li>{@code starrailexpress:role_walk} —— 让玩家模型走到指定坐标（占时间轴）；</li>
+ *   <li>{@code starrailexpress:role_teleport} —— 把玩家模型传送到指定坐标；</li>
+ *   <li>{@code starrailexpress:role_key} —— 屏幕下方显示按下技能键之类的按键提示。</li>
  * </ul>
  *
  * <p>扩展在场景注册与编译之前安装，注册失败只影响扩展步骤，不影响普通场景。
@@ -53,6 +66,9 @@ public final class PonderSreExtension {
 
     /** 创建职业演示玩家模型（皮肤 + 本能透视边框）。 */
     public static final String STEP_ROLE_PLAYER = "starrailexpress:role_player";
+
+    /** 把场景切换成某个领域（领域技演示）。 */
+    public static final String STEP_ROLE_DOMAIN = "starrailexpress:role_domain";
 
     /** 显示职业商店陈列。 */
     public static final String STEP_ROLE_SHOP = "starrailexpress:role_shop";
@@ -87,6 +103,15 @@ public final class PonderSreExtension {
     /** 显示信件、笔记、任务清单、身份揭示等文书界面。 */
     public static final String STEP_ROLE_PANEL = "starrailexpress:role_panel";
 
+    /** 让职业玩家模型走到指定位置（带迈腿动作，占时间轴）。 */
+    public static final String STEP_ROLE_WALK = "starrailexpress:role_walk";
+
+    /** 把职业玩家模型传送到指定位置（配合粒子演示传送 / 召回）。 */
+    public static final String STEP_ROLE_TELEPORT = "starrailexpress:role_teleport";
+
+    /** 屏幕下方显示按键提示（键帽 + 说明），用于技能触发。 */
+    public static final String STEP_ROLE_KEY = "starrailexpress:role_key";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PonderSreExtension.class);
 
     /** 扩展步骤在编辑器与覆盖层里显示的文本全部走语言文件。 */
@@ -103,6 +128,7 @@ public final class PonderSreExtension {
     /** 把扩展安装到引擎；由 {@code ResourceSceneContents} 按清单声明调用。 */
     public static void install(RuntimeEngine engine) {
         engine.steps().register(STEP_ROLE_PLAYER, new RolePlayerStep());
+        engine.steps().register(STEP_ROLE_DOMAIN, new RoleDomainStep());
         engine.steps().register(STEP_ROLE_SHOP, new RoleShopStep());
         engine.steps().register(STEP_ROLE_MOOD, new RoleInfoStep(KEY_PREFIX + "role_mood", PonderInfoOverlayElement.Kind.MOOD));
         engine.steps().register(STEP_ROLE_SKILL, new RoleInfoStep(KEY_PREFIX + "role_skill", PonderInfoOverlayElement.Kind.SKILL));
@@ -114,12 +140,16 @@ public final class PonderSreExtension {
         engine.steps().register(STEP_ROLE_EFFECTS, new RoleStateStep(KEY_PREFIX + "role_effects"));
         engine.steps().register(STEP_ROLE_BOND, new RoleStateStep(KEY_PREFIX + "role_bond"));
         engine.steps().register(STEP_ROLE_PANEL, new RoleStateStep(KEY_PREFIX + "role_panel"));
+        engine.steps().register(STEP_ROLE_WALK, new RoleWalkStep());
+        engine.steps().register(STEP_ROLE_TELEPORT, new RoleTeleportStep());
+        engine.steps().register(STEP_ROLE_KEY, new RoleKeyStep());
         LOGGER.info("StarRailExpress Ponderer extension installed: {}", EXTENSION_ID);
     }
 
     /** {@code role_player} 的参数。 */
     record RolePlayerParams(Vec3 pos, Float yaw, ResourceLocation skin, Integer outline,
-                            String linkId, Float lineWidth, Float expand) {
+                            String linkId, Float lineWidth, Float expand, String heldItem, Pose pose,
+                            Vec3 walkTo, Integer walkDelay, Integer walkDuration) {
     }
 
     /** 玩家模型步骤：可选皮肤与本能透视边框。 */
@@ -136,7 +166,12 @@ public final class PonderSreExtension {
                             readInt(data, "outline"),
                             readString(data, "linkId"),
                             readFloat(data, "lineWidth"),
-                            readFloat(data, "expand"));
+                            readFloat(data, "expand"),
+                            readString(data, "heldItem"),
+                            readPose(data),
+                            readVec(data, "walkTo", null),
+                            readInt(data, "walkDelay"),
+                            readInt(data, "walkDuration"));
                 }
 
                 @Override
@@ -161,6 +196,22 @@ public final class PonderSreExtension {
                     }
                     if (value.expand() != null) {
                         data.addProperty("expand", value.expand());
+                    }
+                    if (value.heldItem() != null) {
+                        data.addProperty("heldItem", value.heldItem());
+                    }
+                    if (value.pose() != null && value.pose() != Pose.STANDING) {
+                        data.addProperty("pose", poseName(value.pose()));
+                    }
+                    if (value.walkTo() != null) {
+                        data.addProperty("walkTo", value.walkTo().x + "," + value.walkTo().y
+                                + "," + value.walkTo().z);
+                    }
+                    if (value.walkDelay() != null) {
+                        data.addProperty("walkDelay", value.walkDelay());
+                    }
+                    if (value.walkDuration() != null) {
+                        data.addProperty("walkDuration", value.walkDuration());
                     }
                     return data;
                 }
@@ -191,17 +242,455 @@ public final class PonderSreExtension {
             if (params.expand() != null) {
                 builder.outlineExpand(params.expand());
             }
-            ElementLink<PonderPlayerElement> link = builder.addTo(scene);
-            String linkId = params.linkId();
-            if (linkId != null && !linkId.isBlank()) {
-                // 供后续步骤按 linkId 淡出或复用同一模型。
-                context.state().put(linkId, link);
+            if (params.heldItem() != null) {
+                ResourceLocation itemId = ResourceLocation.tryParse(params.heldItem());
+                if (itemId != null) {
+                    builder.heldItem(new ItemStack(BuiltInRegistries.ITEM.get(itemId)));
+                }
             }
+            builder.pose(params.pose());
+            String linkId = params.linkId();
+            Vec3 walkTo = params.walkTo();
+            int walkDelay = params.walkDelay() == null ? 0 : Math.max(0, params.walkDelay());
+            int walkTicks = params.walkDuration() == null ? 40 : Math.max(1, params.walkDuration());
+            builder.addTo(scene, element -> {
+                // 直接把元素实例交给后续步骤用，不经过 ps.resolve()，少一层可能失败的查找。
+                if (linkId != null && !linkId.isBlank()) {
+                    context.state().put(linkId, element);
+                }
+                if (walkTo != null) {
+                    // 同一段里「先站住讲两句、再走过去」，免得再拆一个步骤来驱动模型。
+                    if (walkDelay > 0) {
+                        scene.idle(walkDelay);
+                    }
+                    scheduleWalk(scene, element, walkTo, walkTicks);
+                }
+            });
         }
     }
 
+    /** {@code role_walk} 的参数。 */
+    record RoleWalkParams(Vec3 from, Vec3 to, Integer duration, Float yaw, ResourceLocation skin,
+                          Integer outline, String linkId, String heldItem, Pose pose) {
+    }
+
+    /**
+     * 走动步骤：让职业玩家模型走到指定的绝对坐标，并占掉 {@code duration} 个 tick。
+     *
+     * <p>{@code linkId} 能命中之前步骤登记的模型时，直接驱动那个模型；
+     * 没有命中时在 {@code from} 新建一个模型再走过去，方便单独演示「走向某处」。
+     */
+    static final class RoleWalkStep implements StepType<RoleWalkParams> {
+        @Override
+        public StepCodec<RoleWalkParams> codec() {
+            return new StepCodec<>() {
+                @Override
+                public RoleWalkParams decode(JsonObject data) {
+                    Vec3 from = readVec(data, "from", new Vec3(2.0, 1.0, 4.0));
+                    return new RoleWalkParams(from, readVec(data, "to", from), readInt(data, "duration"),
+                            readFloat(data, "yaw"), readSkin(data), readInt(data, "outline"),
+                            readString(data, "linkId"), readString(data, "heldItem"), readPose(data));
+                }
+
+                @Override
+                public JsonObject encode(RoleWalkParams value) {
+                    JsonObject data = new JsonObject();
+                    data.addProperty("from",
+                            value.from().x + "," + value.from().y + "," + value.from().z);
+                    data.addProperty("to", value.to().x + "," + value.to().y + "," + value.to().z);
+                    if (value.duration() != null) {
+                        data.addProperty("duration", value.duration());
+                    }
+                    if (value.yaw() != null) {
+                        data.addProperty("yaw", value.yaw());
+                    }
+                    if (value.skin() != null) {
+                        data.addProperty("skin", value.skin().toString());
+                    }
+                    if (value.outline() != null) {
+                        data.addProperty("outline", value.outline());
+                    }
+                    if (value.linkId() != null) {
+                        data.addProperty("linkId", value.linkId());
+                    }
+                    if (value.heldItem() != null) {
+                        data.addProperty("heldItem", value.heldItem());
+                    }
+                    if (value.pose() != null && value.pose() != Pose.STANDING) {
+                        data.addProperty("pose", poseName(value.pose()));
+                    }
+                    return data;
+                }
+            };
+        }
+
+        @Override
+        public String editorLabel() {
+            return text(KEY_PREFIX + "role_walk");
+        }
+
+        @Override
+        public void build(RoleWalkParams params, StepBuildContext context) {
+            SceneBuilder scene = context.builder();
+            int ticks = params.duration() == null ? 40 : Math.max(1, params.duration());
+            Vec3 to = params.to();
+            String linkId = params.linkId();
+
+            PonderPlayerElement existing = playerElement(context, linkId);
+            if (existing != null) {
+                // 走动指令本身是阻塞的，后面的动作会等模型走到位。
+                scheduleWalk(scene, existing, to, ticks);
+                return;
+            }
+
+            Vec3 from = params.from();
+            PonderPlayerPreset.Builder builder = PonderPlayerPreset.at(from)
+                    .facing(params.yaw() == null ? yawToward(from, to) : params.yaw());
+            if (params.skin() != null) {
+                builder.skin(params.skin());
+            }
+            if (params.outline() != null) {
+                builder.outline(params.outline());
+            }
+            if (params.heldItem() != null) {
+                ResourceLocation itemId = ResourceLocation.tryParse(params.heldItem());
+                if (itemId != null) {
+                    builder.heldItem(new ItemStack(BuiltInRegistries.ITEM.get(itemId)));
+                }
+            }
+            builder.pose(params.pose());
+            builder.addTo(scene, element -> {
+                if (linkId != null && !linkId.isBlank()) {
+                    context.state().put(linkId, element);
+                }
+                scheduleWalk(scene, element, to, ticks);
+            });
+        }
+    }
+
+    /** {@code role_teleport} 的参数。 */
+    record RoleTeleportParams(String linkId, Vec3 pos) {
+    }
+
+    /**
+     * 传送步骤：把之前登记的玩家模型瞬间挪到 {@code pos}。
+     *
+     * <p>只负责落位，前后的粒子爆发与音效由场景里的 {@code spawn_particles} / {@code play_sound}
+     * 显式写出——游戏内这些效果本来就是传送调用的副作用，写出来更容易调整观感。
+     */
+    static final class RoleTeleportStep implements StepType<RoleTeleportParams> {
+        @Override
+        public StepCodec<RoleTeleportParams> codec() {
+            return new StepCodec<>() {
+                @Override
+                public RoleTeleportParams decode(JsonObject data) {
+                    return new RoleTeleportParams(readString(data, "linkId"),
+                            readVec(data, "pos", Vec3.ZERO));
+                }
+
+                @Override
+                public JsonObject encode(RoleTeleportParams value) {
+                    JsonObject data = new JsonObject();
+                    if (value.linkId() != null) {
+                        data.addProperty("linkId", value.linkId());
+                    }
+                    data.addProperty("pos", value.pos().x + "," + value.pos().y + "," + value.pos().z);
+                    return data;
+                }
+            };
+        }
+
+        @Override
+        public String editorLabel() {
+            return text(KEY_PREFIX + "role_teleport");
+        }
+
+        @Override
+        public void build(RoleTeleportParams params, StepBuildContext context) {
+            PonderPlayerElement element = playerElement(context, params.linkId());
+            Vec3 pos = params.pos();
+            context.builder().addInstruction(ps -> {
+                PonderPlayerElement target = element != null ? element : PonderPlayerElement.findInScene(ps);
+                if (target == null) {
+                    LOGGER.warn("role_teleport: 场景里没有可传送的玩家模型（linkId={}）", params.linkId());
+                    return;
+                }
+                target.teleportTo(pos);
+            });
+        }
+    }
+
+    /** {@code role_key} 的参数。 */
+    record RoleKeyParams(Vec3 point, String direction, String keyBind, String key, String text,
+                         Integer duration, Integer color) {
+    }
+
+    /**
+     * 按键提示步骤：键帽挂在世界坐标上，走 Ponder 自带的 {@code showControls} 控件。
+     *
+     * <p>和鼠标左/右键提示完全同一套摆放与对话框绘制，只是把图标换成了键帽，
+     * 所以它会贴着文本框、随镜头自动挪位，而不是自己算屏幕位置。
+     */
+    static final class RoleKeyStep implements StepType<RoleKeyParams> {
+        @Override
+        public StepCodec<RoleKeyParams> codec() {
+            return new StepCodec<>() {
+                @Override
+                public RoleKeyParams decode(JsonObject data) {
+                    String keyBind = readString(data, "keyBind");
+                    String text = readString(data, "text");
+                    return new RoleKeyParams(
+                            readVec(data, "point", null),
+                            readString(data, "direction"),
+                            keyBind == null || keyBind.isBlank() ? "ability" : keyBind,
+                            readString(data, "key"),
+                            text == null || text.isBlank() ? "ponder.starrailexpress.ponder.press_skill" : text,
+                            readInt(data, "duration"),
+                            readInt(data, "color"));
+                }
+
+                @Override
+                public JsonObject encode(RoleKeyParams value) {
+                    JsonObject data = new JsonObject();
+                    if (value.point() != null) {
+                        data.addProperty("point",
+                                value.point().x + "," + value.point().y + "," + value.point().z);
+                    }
+                    if (value.direction() != null) {
+                        data.addProperty("direction", value.direction());
+                    }
+                    data.addProperty("keyBind", value.keyBind());
+                    if (value.key() != null) {
+                        data.addProperty("key", value.key());
+                    }
+                    data.addProperty("text", value.text());
+                    if (value.duration() != null) {
+                        data.addProperty("duration", value.duration());
+                    }
+                    if (value.color() != null) {
+                        data.addProperty("color", value.color());
+                    }
+                    return data;
+                }
+            };
+        }
+
+        @Override
+        public String editorLabel() {
+            return text(KEY_PREFIX + "role_key");
+        }
+
+        @Override
+        public void build(RoleKeyParams params, StepBuildContext context) {
+            String keyName = resolveKeyName(params.keyBind(), params.key());
+            String caption = resolveText(params.text());
+            int accent = params.color() == null ? 0xFFFFD700 : params.color();
+            int lifeTicks = params.duration() == null ? 60 : params.duration();
+            Vec3 point = params.point() == null ? Vec3.ZERO : params.point();
+            context.builder().overlay()
+                    .showControls(point, parseDirection(params.direction()), lifeTicks)
+                    .showing(new PonderKeyCapScreenElement(keyName, caption, accent));
+        }
+    }
+
+    /** 控件的指向：默认从上方指下来。 */
+    private static Pointing parseDirection(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return Pointing.DOWN;
+        }
+        return switch (raw.trim().toLowerCase(java.util.Locale.ROOT)) {
+            case "up" -> Pointing.UP;
+            case "left" -> Pointing.LEFT;
+            case "right" -> Pointing.RIGHT;
+            default -> Pointing.DOWN;
+        };
+    }
+
+    /** 读当前实际绑定的按键名；{@code key} 显式写了按键时优先用它。 */
+    private static String resolveKeyName(String keyBind, String key) {
+        if (key != null && !key.isBlank()) {
+            return key;
+        }
+        KeyMapping mapping = switch (keyBind == null ? "" : keyBind.toLowerCase(java.util.Locale.ROOT)) {
+            case "next_ability", "next" -> NoellesrolesClient.nextAbilityBind;
+            case "guess_role_note" -> NoellesrolesClient.roleGuessNoteClientBind;
+            case "map_intro" -> NoellesrolesClient.mapIntroClientBind;
+            case "task_instinct" -> NoellesrolesClient.taskInstinctBind;
+            default -> NoellesrolesClient.abilityBind;
+        };
+        if (mapping == null) {
+            return "?";
+        }
+        String keyName = mapping.getTranslatedKeyMessage().getString();
+        return keyName.isBlank() ? "?" : keyName;
+    }
+
+    /** 说明文字：翻译键写法按当前语言解析，其余按原文显示。 */
+    private static String resolveText(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return "";
+        }
+        if (raw.startsWith("ponder.") || raw.startsWith("key.")) {
+            return Component.translatable(raw).getString();
+        }
+        return raw;
+    }
+
+    /**
+     * 把「走 N tick」铺进时间轴。
+     *
+     * <p>只用两种最基础的调度片段：一次性指令（和 {@code role_player} 添加模型用的是同一种）
+     * 与 {@code idle(1)}，逐 tick 推进 {@link PonderPlayerElement#setWalkProgress(float)}。
+     * 元素实例没传进来时，运行时会回退到「在场景里找玩家模型」。
+     */
+    private static void scheduleWalk(SceneBuilder scene, @Nullable PonderPlayerElement element,
+                                     Vec3 to, int ticks) {
+        int total = Math.max(1, ticks);
+        scene.addInstruction(ps -> {
+            PonderPlayerElement target = resolvePlayer(ps, element);
+            if (target == null) {
+                LOGGER.warn("role_walk: 场景里找不到玩家模型，走动被跳过（to={}）", to);
+                return;
+            }
+            target.beginWalk(to, total);
+        });
+        for (int step = 1; step <= total; step++) {
+            final float progress = step / (float) total;
+            scene.addInstruction(ps -> {
+                PonderPlayerElement target = resolvePlayer(ps, element);
+                if (target == null) {
+                    return;
+                }
+                target.setWalkProgress(progress);
+            });
+            scene.idle(1);
+        }
+    }
+
+    private static PonderPlayerElement resolvePlayer(PonderScene ps, @Nullable PonderPlayerElement element) {
+        return element != null ? element : PonderPlayerElement.findInScene(ps);
+    }
+
+    /** 按 {@code linkId} 取出之前步骤登记的玩家模型实例。 */
+    private static PonderPlayerElement playerElement(StepBuildContext context, String linkId) {
+        if (linkId == null || linkId.isBlank()) {
+            return null;
+        }
+        Object stored = context.state().get(linkId);
+        return stored instanceof PonderPlayerElement element ? element : null;
+    }
+
+    /** 按 A→B 的水平方向求模型朝向（Minecraft 的 yaw：0 朝 +Z，180 朝 -Z）。 */
+    private static float yawToward(Vec3 from, Vec3 to) {
+        double dx = to.x - from.x;
+        double dz = to.z - from.z;
+        if (Math.abs(dx) < 1.0E-4 && Math.abs(dz) < 1.0E-4) {
+            return 180.0F;
+        }
+        return (float) Math.toDegrees(Math.atan2(-dx, dz));
+    }
+
+    /**
+     * 模型姿态：{@code standing} / {@code crouching}（蹲下）/ {@code swimming}（趴下）/
+     * {@code sleeping}（躺下）/ {@code spin_attack} / {@code fall_flying}（鞘翅）。
+     *
+     * <p>游戏内玩家蹲下就是这个姿态，趴下用的是游泳姿态，这里与之一致，
+     * 用到蹲下、趴下、躺下演示的职业直接写 {@code pose} 即可。
+     */
+    private static Pose readPose(JsonObject data) {
+        String raw = readString(data, "pose");
+        if (raw == null || raw.isBlank()) {
+            return Pose.STANDING;
+        }
+        return switch (raw.trim().toLowerCase(java.util.Locale.ROOT)) {
+            case "crouching", "crouch", "sneaking", "sneak" -> Pose.CROUCHING;
+            case "swimming", "crawling", "crawl", "prone" -> Pose.SWIMMING;
+            case "sleeping", "sleep", "lying" -> Pose.SLEEPING;
+            case "spin_attack", "spin" -> Pose.SPIN_ATTACK;
+            case "fall_flying", "elytra", "flying" -> Pose.FALL_FLYING;
+            default -> Pose.STANDING;
+        };
+    }
+
+    /** {@link #readPose} 的反向映射，供编辑器回写。 */
+    private static String poseName(Pose pose) {
+        return switch (pose) {
+            case CROUCHING -> "crouching";
+            case SWIMMING -> "swimming";
+            case SLEEPING -> "sleeping";
+            case SPIN_ATTACK -> "spin_attack";
+            case FALL_FLYING -> "fall_flying";
+            default -> "standing";
+        };
+    }
+
+    /** {@code role_domain} 的参数。 */
+    record RoleDomainParams(PonderDomains domain, Vec3 pos, Float scale) {
+    }
+
+    /**
+     * 领域场景步骤：演示到领域技时，把教程场景切换成对应领域。
+     *
+     * <p>场景由 {@link PonderDomainScenes} 在客户端重建，开头会先清掉以 {@code pos}
+     * 为中心的一大块区域，所以不需要额外写清场步骤。
+     */
+    static final class RoleDomainStep implements StepType<RoleDomainParams> {
+        @Override
+        public StepCodec<RoleDomainParams> codec() {
+            return new StepCodec<>() {
+                @Override
+                public RoleDomainParams decode(JsonObject data) {
+                    String raw = readString(data, "domain");
+                    PonderDomains domain = PonderDomains.byId(raw);
+                    if (domain == null) {
+                        LOGGER.warn("role_domain step has an unknown domain id: {}", raw);
+                    }
+                    return new RoleDomainParams(domain, readVec(data, "pos", Vec3.ZERO),
+                            readFloat(data, "scale"));
+                }
+
+                @Override
+                public JsonObject encode(RoleDomainParams value) {
+                    JsonObject data = new JsonObject();
+                    if (value.domain() != null) {
+                        data.addProperty("domain", value.domain().id());
+                    }
+                    data.addProperty("pos",
+                            value.pos().x + "," + value.pos().y + "," + value.pos().z);
+                    if (value.scale() != null) {
+                        data.addProperty("scale", value.scale());
+                    }
+                    return data;
+                }
+            };
+        }
+
+        @Override
+        public String editorLabel() {
+            return text(KEY_PREFIX + "role_domain");
+        }
+
+        @Override
+        public void build(RoleDomainParams params, StepBuildContext context) {
+            if (params.domain() == null) {
+                return;
+            }
+            SceneBuilder scene = context.builder();
+            if (params.scale() != null) {
+                // 领域比普通教程房间大，需要时可以用 scale 把取景框拉远（作用于整个场景）。
+                scene.scaleSceneView(params.scale());
+            }
+            BlockPos center = BlockPos.containing(params.pos().x, params.pos().y, params.pos().z);
+            params.domain().build(scene, context.util(), center);
+        }
+    }
+
+    /** {@code role_shop} 的静态兜底商品；动态商店数据为空时使用。 */
+    record ShopFallback(String item, int price, String currency) {
+    }
+
     /** {@code role_shop} 的参数。 */
-    record RoleShopParams(ResourceLocation role, Integer columns) {
+    record RoleShopParams(ResourceLocation role, Integer columns, List<ShopFallback> items) {
     }
 
     /** 职业商店步骤：按职业实际商店数据绘制陈列。 */
@@ -213,7 +702,7 @@ public final class PonderSreExtension {
                 public RoleShopParams decode(JsonObject data) {
                     String raw = readString(data, "role");
                     ResourceLocation role = raw == null ? null : ResourceLocation.tryParse(raw);
-                    return new RoleShopParams(role, readInt(data, "columns"));
+                    return new RoleShopParams(role, readInt(data, "columns"), readFallbackItems(data));
                 }
 
                 @Override
@@ -225,6 +714,15 @@ public final class PonderSreExtension {
                     if (value.columns() != null) {
                         data.addProperty("columns", value.columns());
                     }
+                    JsonArray items = new JsonArray();
+                    for (ShopFallback item : value.items()) {
+                        JsonObject entry = new JsonObject();
+                        entry.addProperty("item", item.item());
+                        entry.addProperty("price", item.price());
+                        entry.addProperty("currency", item.currency());
+                        items.add(entry);
+                    }
+                    data.add("items", items);
                     return data;
                 }
             };
@@ -242,10 +740,60 @@ public final class PonderSreExtension {
                 return;
             }
             int columns = params.columns() == null ? 4 : params.columns();
-            PonderShopOverlayElement overlay = PonderShopOverlayElement.forRole(role, columns);
-            if (overlay != null) {
-                overlay.addTo(context.builder());
+            List<PonderShopOverlayElement.Entry> entries = params.items().isEmpty()
+                    ? PonderShopEntries.build(role)
+                    : buildFallbackEntries(params.items());
+            if (entries.isEmpty()) {
+                entries = PonderShopEntries.build(role);
             }
+            if (!entries.isEmpty()) {
+                new PonderShopOverlayElement(entries,
+                        Component.translatable("gui.starrailexpress.shop.role_shop"), columns)
+                        .addTo(context.builder());
+            }
+        }
+
+        private static List<PonderShopOverlayElement.Entry> buildFallbackEntries(List<ShopFallback> items) {
+            List<PonderShopOverlayElement.Entry> result = new ArrayList<>();
+            for (ShopFallback item : items) {
+                ResourceLocation id = ResourceLocation.tryParse(item.item());
+                if (id == null) {
+                    continue;
+                }
+                ItemStack stack = new ItemStack(BuiltInRegistries.ITEM.get(id));
+                if (stack.isEmpty()) {
+                    continue;
+                }
+                ShopEntry.Currency currency = ShopEntry.Currency.fromSerializedName(item.currency());
+                if (currency == null) {
+                    currency = ShopEntry.Currency.MONEY;
+                }
+                result.add(new PonderShopOverlayElement.Entry(stack, item.price(),
+                        item.price() + currency.iconText(), currency.color()));
+            }
+            return List.copyOf(result);
+        }
+
+        private static List<ShopFallback> readFallbackItems(JsonObject data) {
+            if (data == null || !data.has("items") || !data.get("items").isJsonArray()) {
+                return List.of();
+            }
+            List<ShopFallback> result = new ArrayList<>();
+            for (JsonElement element : data.getAsJsonArray("items")) {
+                if (!element.isJsonObject()) {
+                    continue;
+                }
+                JsonObject object = element.getAsJsonObject();
+                String item = readString(object, "item");
+                if (item == null || item.isBlank()) {
+                    continue;
+                }
+                Integer price = readInt(object, "price");
+                String currency = readString(object, "currency");
+                result.add(new ShopFallback(item, price == null ? 0 : price,
+                        currency == null ? "money" : currency));
+            }
+            return List.copyOf(result);
         }
     }
 

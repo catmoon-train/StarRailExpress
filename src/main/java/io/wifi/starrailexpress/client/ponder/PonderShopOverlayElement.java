@@ -105,8 +105,8 @@ public class PonderShopOverlayElement implements PonderOverlayElement {
         int gridHeight = rows * CELL + (rows - 1) * (ROW_GAP + font.lineHeight);
 
         int centerX = screen.width / 2;
-        // 靠下摆放，避免遮挡场景中心的模型与文字。
-        int top = screen.height - gridHeight - 52;
+        // 放在画面上方中央：底部会被 PonderUI 自己的播放控制条和字幕背景覆盖。
+        int top = 30;
         int left = centerX - gridWidth / 2;
 
         renderPanel(graphics, left - 10, top - 24, gridWidth + 20, gridHeight + 34);

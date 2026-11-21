@@ -2,7 +2,8 @@
   "formatVersion": 1,
   "scenes": [
     "starrailexpress:ponderer/scenes/role_tutorial_jester.json",
-    "starrailexpress:ponderer/scenes/role_tutorial_bartender.json"
+    "starrailexpress:ponderer/scenes/role_tutorial_bartender.json",
+    "starrailexpress:ponderer/scenes/role_tutorial_recaller.json"
   ],
   "extensions": [
     "starrailexpress:role_tutorial"
