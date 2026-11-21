@@ -56,7 +56,15 @@ public class MonokumaRole extends CustomWinnerRole {
   public void onKill(Player victim, boolean spawnBody, Player killer, ResourceLocation deathReason) {
     if (killer == null)
       return;
-    RoleData.ifPresent(MonokumaRoleData.class, killer, MonokumaRoleData::onKillPlayer);
+    RoleData.ifPresent(MonokumaRoleData.class, killer, data -> {
+      // 试炼（狂暴前奏阶段）期间被黑白杀死的玩家，会被记入黑白熊的"被转化名单"，
+      // 等黑白完成试炼变身成黑白熊时，这些被杀玩家也会一并复活并变成黑白熊。
+      // 必须先登记当前受害者，再判断是否满足变身条件，否则完成试炼的那一击不会登记进来。
+      if (victim instanceof net.minecraft.server.level.ServerPlayer serverVictim) {
+        data.registerFrenzyVictim(serverVictim);
+      }
+      data.onKillPlayer();
+    });
     return;
   }
 

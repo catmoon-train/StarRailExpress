@@ -35,6 +35,11 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.phys.Vec3;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import org.agmas.noellesroles.game.roles.neutral.monokuma.YinYangSwordItem;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.game.roles.neutral.panda.PandaClientHandle;
@@ -57,6 +62,17 @@ public class MonokumaRoleData extends SimpleRoleData {
     public static final int AURA_COIN_INTERVAL = 5 * 20;
     public static final int AURA_COIN_AMOUNT = 8;
 
+
+    /**
+     * 试炼（狂暴前奏阶段）期间被黑白杀死的玩家及其死亡位置。
+     * 仅在服务端记录，不会同步给客户端；黑白完成试炼变身时据此复活并转化这些玩家。
+     */
+    public final List<FrenzyVictim> frenzyVictims = new ArrayList<>();
+
+    /**
+     * 试炼期间被杀的玩家留档：uuid 用于定位在线玩家，pos 用于复活落点。
+     */
+    public record FrenzyVictim(UUID uuid, Vec3 pos) {}
     /** 仅服务端：杀人计数 */
     public int kill_count = 0;
     // ==================== 状态 ====================
@@ -130,6 +146,7 @@ public class MonokumaRoleData extends SimpleRoleData {
         this.isMonokumaMarked = false;
         this.isPanda = false;
         this.kill_count = 0;
+        this.frenzyVictims.clear();
         this.sync();
         // isPanda 清零后 shouldSyncWith 只含本人，熊猫皮会留在其他玩家的屏幕上；
         // 这里显式广播给所有玩家，确保外观立即复位（无声换职业路径不走上面的广播）。
@@ -236,6 +253,21 @@ public class MonokumaRoleData extends SimpleRoleData {
     }
 
     /**
+     * 试炼（狂暴前奏阶段）期间被黑白杀死时登记受害者。
+     * 仅在 phase==2（狂暴前奏/试炼中）记录，且同一玩家去重；黑白完成试炼变身时据此一并转化。
+     */
+    public void registerFrenzyVictim(ServerPlayer victim) {
+        if (phase != 2 || victim == null)
+            return;
+        if (victim.equals(player))
+            return;
+        for (FrenzyVictim v : frenzyVictims) {
+            if (v.uuid().equals(victim.getUUID()))
+                return;
+        }
+        frenzyVictims.add(new FrenzyVictim(victim.getUUID(), victim.position()));
+    }
+    /**
      * 狂暴前奏结束，变身黑白熊
      */
     private void transformToMonokuma() {
@@ -289,9 +321,59 @@ public class MonokumaRoleData extends SimpleRoleData {
         serverLevel.playSound(null, sp.getX(), sp.getY(), sp.getZ(),
                 SoundEvents.END_PORTAL_SPAWN, SoundSource.PLAYERS, 1.0f, 0.5f);
 
+        // 试炼完成：把试炼（狂暴前奏）期间被黑白杀死的玩家复活并一并转化为黑白熊。
+        // 延迟到干净的服务端任务栈执行：完成试炼的最后一击此刻仍在死亡流程中，
+        // 该受害者尚未进入观察者状态，立即转换会被 isSpectator 检查跳过。
+        if (!frenzyVictims.isEmpty()) {
+            List<FrenzyVictim> victims = new ArrayList<>(frenzyVictims);
+            frenzyVictims.clear();
+            if (sp.getServer() != null) {
+                sp.getServer().execute(() -> {
+                    try {
+                        for (FrenzyVictim v : victims) {
+                            doConvertVictimToBear(sp.serverLevel(), v);
+                        }
+                    } catch (Exception e) {
+                        org.agmas.noellesroles.Noellesroles.LOGGER.error("黑白试炼转化玩家失败", e);
+                    }
+                });
+            }
+        }
         this.sync();
     }
-
+    /**
+     * 把试炼（狂暴前奏）期间被黑白杀死的玩家复活并转化为黑白熊（phase 3），作为白黑的同伴。
+     * 仅复活当前在线且处于观察者（已死亡）状态的玩家；离线或仍在场的存活玩家会被跳过。
+     */
+    private void doConvertVictimToBear(ServerLevel serverLevel, FrenzyVictim victim) {
+        if (victim == null)
+            return;
+        net.minecraft.world.entity.player.Player targetPlayer = serverLevel.getPlayerByUUID(victim.uuid());
+        if (!(targetPlayer instanceof ServerPlayer target))
+            return; // 已离线或非玩家
+        if (!target.isSpectator())
+            return; // 仍存活（例如已被其他人救起），跳过避免误伤
+        try {
+            GameUtils.revivePlayer(target, victim.pos().x, victim.pos().y, victim.pos().z);
+            target.getInventory().clearContent();
+            RoleUtils.changeRole(target, ModRoles.MONOKUMA);
+            MonokumaRoleData data = io.wifi.starrailexpress.api.data.RoleData.getNullable(MonokumaRoleData.class, target);
+            if (data == null)
+                return;
+            data.isMonokumaMarked = true;
+            data.frenzyTimer = 0;
+            data.setPandaForm(true);
+            // 必须先置 phase=3（服务端逻辑用），再做 panda/inc 同步。
+            data.phase = 3;
+            target.addEffect(new MobEffectInstance(ModEffects.INVINCIBLE, -1, 0, true, false, false));
+            target.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, -1, 0, true, false, false));
+            target.removeEffect(ModEffects.MONOKUMA_FRENZY);
+            data.sync();
+            RoleUtils.sendWelcomeAnnouncement(target);
+        } catch (Exception e) {
+            org.agmas.noellesroles.Noellesroles.LOGGER.error("黑白试炼转化玩家失败", e);
+        }
+    }
     // ==================== 光环效果 ====================
 
     /**
