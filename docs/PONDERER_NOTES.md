@@ -799,3 +799,30 @@ indicate_success [2,0,4] + idle 80 + rotate_camera_y
 新增的 `starrailexpress:role_hide` 只控制 `setVisible`，不生成尸体；和 `role_death`
 的区别是后者会留 `player_body`（除非传 `corpse=false`）。
 
+## 21. 按编写准则的全量核查（2026-11-21）
+
+对照 `docs/PONDERER_SCENE_AUTHORING.md` 逐条核查了 269 个普通职业场景
+（酒保、小丑、召回者按要求排除）。新增 `tools/audit_ponder_authoring.py` 做静态审计，
+检查：场景 id 与文件名、标题 / 段落标题三语、首步 `show_structure`、文本 point
+是否指向主角、时间轴间隔（相邻文本至少 10 tick、末条文本后有足够 `idle`）、
+`create_item_entity.motion`、`show_controls.action`、连续三块纯文本、
+「提到粒子 / 释放 / 投掷却没有 `spawn_particles`」。
+
+审计发现并已修正的问题：
+
+- 时间轴原本只保证文本不重叠，没有留 10 tick 间隔；生成器现在统一按 `duration + 10` 补 `idle`。
+- 注释点原来按 0.45 格逐句抬高，第 7 句以后离玩家超过 2.6 格；改成 7 句一轮、每句 0.28 格，
+  超出一轮用 0.15 格横移错开，既保持唯一又始终指向玩家模型。
+- 大量段落连着三句以上纯文本；`SceneBuilder.say()` 现在在第三句前自动插一个非阻塞
+  `indicate_success`，打断纯文本串，不推进时间轴。
+- 22 处介绍写了「粒子 / 释放 / 投掷」但段落没有粒子；`ensure_particles()` 会补一个
+  `minecraft:effect` 效果粒子（已有粒子的段落不重复补）。
+
+最终结果：审计 0 violation，`tools/verify_ponder_scenes.py` 272 个场景 0 error、
+2 条既有 warning（酒保 / 小丑的自定义正文，按要求未改）。
+
+已知的**有意偏离准则**：准则 §4 写「一个段落只放一个玩家模型」，但按本次需求，
+涉及交换、抱人、浇油、伪装互换等机制时必须同时出现多个玩家，才能把效果演示出来；
+这些场景保留多玩家。物品实体不显式移除，因为每次段落切换都会重置离屏场景，
+不存在跨段残留。
+

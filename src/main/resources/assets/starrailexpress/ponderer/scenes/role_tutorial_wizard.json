@@ -78,7 +78,7 @@
           },
           "point": [
             3.0,
-            2.25,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,
@@ -308,7 +308,7 @@
           },
           "point": [
             3.0,
-            2.25,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,
@@ -442,7 +442,7 @@
           },
           "point": [
             3.0,
-            2.7,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,
@@ -496,7 +496,7 @@
           },
           "point": [
             3.0,
-            3.15,
+            2.64,
             3.0
           ],
           "placeNearTarget": true,
@@ -578,7 +578,7 @@
           },
           "point": [
             3.0,
-            3.6,
+            2.92,
             3.0
           ],
           "placeNearTarget": true,
@@ -640,7 +640,7 @@
           },
           "point": [
             3.0,
-            4.05,
+            3.2,
             3.0
           ],
           "placeNearTarget": true,
@@ -724,7 +724,7 @@
           },
           "point": [
             3.0,
-            4.5,
+            3.48,
             3.0
           ],
           "placeNearTarget": true,
@@ -857,9 +857,9 @@
             "zh_tw": "· Explosion!：至少需要 400 魔素才能釋放，釋放技能時直接扣除當前 85% 魔素，使法杖的下一次攻擊替換為可穿牆的九環火球術（範圍傷害，單次至多擊殺 3 人）。"
           },
           "point": [
-            3.0,
-            4.95,
-            3.0
+            3.15,
+            1.8,
+            2.85
           ],
           "placeNearTarget": true,
           "attachKeyFrame": true
@@ -913,9 +913,9 @@
             "zh_tw": "· 閃影步：消耗 80 魔素（冷卻 15 秒），向視線方向瞬移至多 8 格，遇牆提前落點"
           },
           "point": [
-            3.0,
-            5.4,
-            3.0
+            3.15,
+            2.08,
+            2.85
           ],
           "placeNearTarget": true,
           "attachKeyFrame": true
@@ -1200,7 +1200,7 @@
           },
           "point": [
             3.0,
-            2.25,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,

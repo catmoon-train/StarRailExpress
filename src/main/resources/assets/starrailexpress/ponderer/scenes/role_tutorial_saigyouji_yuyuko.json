@@ -78,7 +78,7 @@
           },
           "point": [
             3.0,
-            2.25,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,
@@ -87,6 +87,14 @@
         {
           "type": "idle",
           "duration": 118
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
         },
         {
           "type": "text",
@@ -98,7 +106,7 @@
           },
           "point": [
             3.0,
-            2.7,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,

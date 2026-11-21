@@ -609,6 +609,17 @@ def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None
     return steps, panel
 
 
+# PONDERER_SCENE_AUTHORING.md §4：避免连续三块纯文本。加计数用的视觉步骤集合。
+VISUAL_STEP_TYPES = {
+    "spawn_particles", "highlight_section", "create_item_entity", "create_entity",
+    "show_controls", "indicate_success", "indicate_redstone", "set_block",
+    "starrailexpress:role_key", "starrailexpress:role_walk",
+    "starrailexpress:role_teleport", "starrailexpress:role_pose",
+    "starrailexpress:role_hold", "starrailexpress:role_hide",
+    "starrailexpress:role_outline", "starrailexpress:role_scale",
+}
+
+
 class SceneBuilder:
     """一个段落的步骤收集器，负责文本位置与时间轴自检。"""
 
@@ -616,18 +627,30 @@ class SceneBuilder:
         self.origin = origin
         self.steps = []
         self.text_count = 0
+        self.consecutive_texts = 0
 
     def add(self, step):
+        if step.get("type") in VISUAL_STEP_TYPES:
+            self.consecutive_texts = 0
         self.steps.append(step)
 
     def point(self, index):
+        # 文档要求注释指向玩家模型；把高度限制在 2.5 格内，多的注释用小范围横移错开。
         x, y, z = self.origin
-        return [x, round(y + 0.8 + 0.45 * index, 2), z]
+        level = index % 7
+        ring = index // 7
+        return [round(x + 0.15 * ring, 2), round(y + 0.8 + 0.28 * level, 2),
+                round(z - 0.15 * ring, 2)]
 
     def say(self, text):
         duration = text_duration(text)
+        if self.consecutive_texts >= 2:
+            # 第三块文案前补一个非阻塞指示，避免「连续三个纯文本块」。
+            self.add({"type": "indicate_success",
+                      "blockPos": [int(self.origin[0]), 0, int(self.origin[2])]})
         self.add(make_text(text, self.point(self.text_count), duration))
         self.text_count += 1
+        self.consecutive_texts += 1
         self.add({"type": "idle", "duration": duration + 10})
         return duration
 
@@ -914,6 +937,21 @@ def override_disc_master_shop(builder, ctx):
         builder.add(custom("role_hold", {"linkId": rid + "_main", "item": "noellesroles:speaker"}))
         builder.add(show_right_click([p[0], p[1] + 2.0, p[2]], "minecraft:music_disc_13"))
         builder.say(line)
+
+
+PARTICLE_WORDS = ("粒子", "释放", "投掷", "喷洒", "喷出")
+
+
+def ensure_particles(builder, lines):
+    """文档要求：介绍提到释放 / 粒子 / 投掷时，画面里必须出现对应粒子。"""
+    body = "".join(line.get("zh_cn", "") for line in lines)
+    if not any(word in body for word in PARTICLE_WORDS):
+        return
+    if any(step.get("type") == "spawn_particles" for step in builder.steps):
+        return
+    x, y, z = builder.origin
+    builder.steps.insert(1, scene_particle("minecraft:effect", [x, y + 0.9, z],
+                                           count=8, duration=60))
 
 
 def mob_entity(entity, pos, link_id, nbt=None):
@@ -1271,6 +1309,9 @@ def build_role_scene(rid, facts, intros, names, goals):
         builder.say(trio(relation_index))
     if goal_text:
         builder.say(goal_text)
+    ensure_particles(builder, [faction_line] +
+                    ([trio(relation_index)] if relation_index is not None else []) +
+                    ([goal_text] if goal_text else []))
     builder.finish()
     scenes.append({"id": "faction", "title": title, "steps": builder.steps})
 
@@ -1299,6 +1340,7 @@ def build_role_scene(rid, facts, intros, names, goals):
             override(builder, {"rid": rid, "facts": facts, "lines": lines, "key": key,
                                "player_pos": player_pos, "second_pos": second_pos,
                                "outline_color": outline_color, "all_lines": all_trios})
+            ensure_particles(builder, all_trios)
             builder.finish()
             scenes.append({"id": key, "title": title, "steps": builder.steps})
             continue
@@ -1408,6 +1450,7 @@ def build_role_scene(rid, facts, intros, names, goals):
                 for step in acts:
                     builder.add(step)
             builder.say(line)
+        ensure_particles(builder, lines)
         builder.finish()
         scenes.append({"id": key, "title": title, "steps": builder.steps})
 
@@ -1533,6 +1576,7 @@ def event_scene(rid, facts, intros, names, goals):
 
         for line_index in line_indices:
             builder.say(trio(line_index))
+        ensure_particles(builder, [trio(i) for i in line_indices])
         builder.finish()
         scenes.append({"id": segment_id, "title": title, "steps": builder.steps})
 

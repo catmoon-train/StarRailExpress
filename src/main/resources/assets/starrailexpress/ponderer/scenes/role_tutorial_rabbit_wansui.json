@@ -78,7 +78,7 @@
           },
           "point": [
             4.0,
-            2.25,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,
@@ -87,6 +87,14 @@
         {
           "type": "idle",
           "duration": 116
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            4,
+            0,
+            3
+          ]
         },
         {
           "type": "text",
@@ -98,7 +106,7 @@
           },
           "point": [
             4.0,
-            2.7,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,
@@ -536,7 +544,7 @@
           },
           "point": [
             4.0,
-            2.25,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,
@@ -545,6 +553,14 @@
         {
           "type": "idle",
           "duration": 131
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            4,
+            0,
+            3
+          ]
         },
         {
           "type": "text",
@@ -556,7 +572,7 @@
           },
           "point": [
             4.0,
-            2.7,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,
@@ -576,7 +592,7 @@
           },
           "point": [
             4.0,
-            3.15,
+            2.64,
             3.0
           ],
           "placeNearTarget": true,
@@ -585,6 +601,14 @@
         {
           "type": "idle",
           "duration": 158
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            4,
+            0,
+            3
+          ]
         },
         {
           "type": "text",
@@ -596,7 +620,7 @@
           },
           "point": [
             4.0,
-            3.6,
+            2.92,
             3.0
           ],
           "placeNearTarget": true,
@@ -711,7 +735,7 @@
           },
           "point": [
             4.0,
-            2.25,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,

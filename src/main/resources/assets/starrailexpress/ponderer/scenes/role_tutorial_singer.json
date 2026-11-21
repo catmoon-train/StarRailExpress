@@ -78,7 +78,7 @@
           },
           "point": [
             3.0,
-            2.25,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,
@@ -161,7 +161,7 @@
           },
           "point": [
             3.0,
-            2.25,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,
@@ -263,6 +263,28 @@
           "structure": "starrailexpress:role_tutorial_common",
           "scale": 1.0,
           "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
         },
         {
           "type": "starrailexpress:role_player",
@@ -390,7 +412,7 @@
           },
           "point": [
             3.0,
-            2.25,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,
@@ -399,6 +421,14 @@
         {
           "type": "idle",
           "duration": 104
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
         },
         {
           "type": "text",
@@ -410,7 +440,7 @@
           },
           "point": [
             3.0,
-            2.7,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,
@@ -430,7 +460,7 @@
           },
           "point": [
             3.0,
-            3.15,
+            2.64,
             3.0
           ],
           "placeNearTarget": true,

@@ -78,7 +78,7 @@
           },
           "point": [
             3.0,
-            2.25,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,
@@ -382,7 +382,7 @@
           },
           "point": [
             3.0,
-            2.25,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,
@@ -391,6 +391,14 @@
         {
           "type": "idle",
           "duration": 152
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
         },
         {
           "type": "text",
@@ -402,7 +410,7 @@
           },
           "point": [
             3.0,
-            2.7,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,
@@ -422,7 +430,7 @@
           },
           "point": [
             3.0,
-            3.15,
+            2.64,
             3.0
           ],
           "placeNearTarget": true,
@@ -431,6 +439,14 @@
         {
           "type": "idle",
           "duration": 197
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
         },
         {
           "type": "text",
@@ -442,7 +458,7 @@
           },
           "point": [
             3.0,
-            3.6,
+            2.92,
             3.0
           ],
           "placeNearTarget": true,
@@ -462,7 +478,7 @@
           },
           "point": [
             3.0,
-            4.05,
+            3.2,
             3.0
           ],
           "placeNearTarget": true,
@@ -471,6 +487,14 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
         },
         {
           "type": "text",
@@ -482,7 +506,7 @@
           },
           "point": [
             3.0,
-            4.5,
+            3.48,
             3.0
           ],
           "placeNearTarget": true,
@@ -501,9 +525,9 @@
             "zh_tw": "若另一位初學者被好人殺死，你將變成隨機殺手陣營。"
           },
           "point": [
-            3.0,
-            4.95,
-            3.0
+            3.15,
+            1.8,
+            2.85
           ],
           "placeNearTarget": true,
           "attachKeyFrame": true
@@ -511,6 +535,14 @@
         {
           "type": "idle",
           "duration": 197
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
         },
         {
           "type": "text",
@@ -521,9 +553,9 @@
             "zh_tw": "若另一位初學者被中立殺死，你將變成隨機中立陣營。"
           },
           "point": [
-            3.0,
-            5.4,
-            3.0
+            3.15,
+            2.08,
+            2.85
           ],
           "placeNearTarget": true,
           "attachKeyFrame": true
