@@ -397,8 +397,9 @@ public class SREMurderGameMode extends GameMode {
         if (!modifier.isTeamApplicable(role)) {
             return false;
         }
-        // 修饰符的阵营生成判断统一走最真实的阵营（RoleTeam，不看隐藏身份）
-        if (modifier.killerOnly && !RoleTeam.isKillerTeamReal(role)) {
+        // killerOnly 只给真实杀手阵营（RoleTeam.KILLER），不含杀手方中立；
+        // 其余阵营判断也走真实阵营（RoleTeam），隐藏身份不参与修饰符适用性判定。
+        if (modifier.killerOnly && !RoleTeam.isKiller(role)) {
             return false;
         }
         if (modifier.civilianOnly && !RoleTeam.isInnocentCamp(role)) {

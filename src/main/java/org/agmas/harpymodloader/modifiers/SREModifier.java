@@ -39,6 +39,7 @@ public class SREModifier extends SREAbstractInfoClass {
     public int color;
     public HashSet<SRERole> cannotBeAppliedTo = null;
     public HashSet<SRERole> canOnlyBeAppliedTo = null;
+    /** 是否只分配给真实杀手阵营（{@link io.wifi.starrailexpress.api.RoleTeam#KILLER}），不含杀手方中立。 */
     public boolean killerOnly = false;
     public boolean civilianOnly = false;
     public boolean notVigilante = false;
