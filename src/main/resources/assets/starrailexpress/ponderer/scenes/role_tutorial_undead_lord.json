@@ -202,7 +202,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "minecraft:witch",
           "pos": [
             3.0,
             1.9,
@@ -258,7 +258,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "minecraft:witch",
           "pos": [
             3.0,
             1.9,

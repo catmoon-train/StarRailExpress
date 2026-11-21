@@ -267,28 +267,6 @@
           "attachKeyFrame": true
         },
         {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            5.0,
-            1.8,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 55,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "idle",
           "duration": 25
         },
@@ -409,28 +387,6 @@
           "color": "green"
         },
         {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            5.0,
-            1.9,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 6,
-          "duration": 50,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "indicate_success",
           "blockPos": [
             5,
@@ -478,28 +434,6 @@
           "color": "green"
         },
         {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            5.0,
-            1.9,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 6,
-          "duration": 50,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "indicate_success",
           "blockPos": [
             5,
@@ -545,28 +479,6 @@
           ],
           "duration": 200,
           "color": "green"
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            5.0,
-            1.9,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 6,
-          "duration": 50,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
         },
         {
           "type": "indicate_success",
@@ -646,28 +558,6 @@
           "duration": 40
         },
         {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            3.0,
-            1.9,
-            3.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 60,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "text",
           "duration": 126,
           "text": {
@@ -730,28 +620,6 @@
           "color": "green"
         },
         {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            5.0,
-            1.9,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 6,
-          "duration": 50,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "indicate_success",
           "blockPos": [
             5,
@@ -796,28 +664,6 @@
         {
           "type": "idle",
           "duration": 40
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            3.0,
-            1.9,
-            3.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 60,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
         },
         {
           "type": "text",
@@ -866,28 +712,6 @@
         {
           "type": "idle",
           "duration": 40
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            3.0,
-            1.9,
-            3.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 60,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
         },
         {
           "type": "text",

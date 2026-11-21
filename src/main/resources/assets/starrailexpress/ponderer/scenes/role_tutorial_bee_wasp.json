@@ -262,28 +262,6 @@
           "attachKeyFrame": true
         },
         {
-          "type": "spawn_particles",
-          "particle": "wathe:poison",
-          "pos": [
-            5.0,
-            1.8,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 80,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "idle",
           "duration": 35
         },

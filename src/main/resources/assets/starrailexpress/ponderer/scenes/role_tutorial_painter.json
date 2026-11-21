@@ -231,28 +231,6 @@
           "attachKeyFrame": true
         },
         {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            3.0,
-            1.8,
-            4.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 55,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "idle",
           "duration": 25
         },
@@ -416,28 +394,6 @@
           "color": "green"
         },
         {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            3.0,
-            1.9,
-            4.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 6,
-          "duration": 50,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "indicate_success",
           "blockPos": [
             3,
@@ -512,28 +468,6 @@
           "color": "green"
         },
         {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            3.0,
-            1.9,
-            4.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 6,
-          "duration": 50,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "indicate_success",
           "blockPos": [
             3,
@@ -606,28 +540,6 @@
           ],
           "duration": 200,
           "color": "green"
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            3.0,
-            1.9,
-            4.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 6,
-          "duration": 50,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
         },
         {
           "type": "indicate_success",

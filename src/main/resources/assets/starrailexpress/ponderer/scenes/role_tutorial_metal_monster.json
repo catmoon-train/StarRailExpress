@@ -166,28 +166,6 @@
           }
         },
         {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            6.0,
-            1.9,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 10,
-          "duration": 80,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "starrailexpress:role_vitals",
           "parameters": {
             "bars": [
@@ -380,28 +358,6 @@
           "attachKeyFrame": true
         },
         {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            6.0,
-            1.9,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 10,
-          "duration": 80,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "starrailexpress:role_vitals",
           "parameters": {
             "bars": [
@@ -482,28 +438,6 @@
           "duration": 40
         },
         {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            4.0,
-            1.9,
-            3.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 60,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -550,28 +484,6 @@
         {
           "type": "idle",
           "duration": 40
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            4.0,
-            1.9,
-            3.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 60,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
         },
         {
           "type": "text",

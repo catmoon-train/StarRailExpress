@@ -182,7 +182,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "minecraft:reverse_portal",
           "pos": [
             5.0,
             1.9,
@@ -412,7 +412,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "minecraft:reverse_portal",
           "pos": [
             3.0,
             1.9,
@@ -542,7 +542,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "minecraft:reverse_portal",
           "pos": [
             3.0,
             1.9,

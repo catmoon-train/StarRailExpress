@@ -284,7 +284,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "minecraft:smoke",
           "pos": [
             5.0,
             1.9,
@@ -385,7 +385,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "minecraft:smoke",
           "pos": [
             5.0,
             1.9,
@@ -539,7 +539,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "minecraft:smoke",
           "pos": [
             5.0,
             1.9,
@@ -687,7 +687,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:flame",
+          "particle": "stupid_express:arsonist_flame",
           "pos": [
             5.0,
             1.9,
@@ -709,7 +709,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:flame",
+          "particle": "stupid_express:arsonist_flame",
           "pos": [
             5.0,
             1.9,
@@ -756,6 +756,28 @@
           "attachKeyFrame": true
         },
         {
+          "type": "spawn_particles",
+          "particle": "stupid_express:arsonist_kill",
+          "pos": [
+            5.0,
+            1.9,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 12,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -799,7 +821,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "stupid_express:arsonist_flame",
           "pos": [
             3.0,
             1.9,
@@ -1116,7 +1138,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "stupid_express:arsonist_flame",
           "pos": [
             3.0,
             1.9,

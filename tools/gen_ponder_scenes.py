@@ -300,15 +300,45 @@ def show_structure(nbt):
 # 中毒 / 护盾 / 治愈粒子、金币与冷却变化、尸体与透视等。
 # 每条介绍句都配一段对应动作，做到「按一次键 → 画面变一次」。
 
-# 介绍里出现这些词时优先用对应的真实粒子（不凭空编 id）。
-PARTICLE_BY_WORD = [
-    (("中毒", "下毒", "毒药", "剧毒"), "wathe:poison"),
-    (("护盾", "药剂", "药水", "治疗", "治愈", "恢复"), "minecraft:effect"),
-    (("爆炸", "炸"), "minecraft:explosion"),
-    (("燃烧", "火焰", "点燃"), "minecraft:flame"),
-    (("传送", "瞬移", "召回", "回到"), "minecraft:portal"),
-    (("击杀", "杀死", "死亡", "尸体"), "minecraft:smoke"),
-]
+# 粒子 id 必须以 Java 源码为准：只按职业查 SOURCE_PARTICLE_BY_ROLE，
+# 不再按介绍里的词猜粒子，也不拿 minecraft:effect 兜底。
+
+# 源码里按职业写死的粒子，优先级高于上面的通用词表。
+# 依据见 docs/PONDERER_NOTES.md §22；新增条目必须附源码文件与行号。
+SOURCE_PARTICLE_BY_ROLE = {
+    "alchemist": "wathe:poison",
+    "arsonist": "stupid_express:arsonist_flame",
+    "conspirator": "minecraft:dragon_breath",
+    "delayer": "minecraft:enchant",
+    "diviner": "minecraft:enchant",
+    "doctor": "minecraft:heart",
+    "dreadlord": "minecraft:squid_ink",
+    "dream": "minecraft:dust",
+    "executioner": "minecraft:soul_fire_flame",
+    "ghost_eye": "minecraft:sculk_soul",
+    "glitch_robot": "minecraft:effect",
+    "great_detective": "minecraft:smoke",
+    "ibuki_suika": "minecraft:explosion_emitter",
+    "leather_pig": "minecraft:cloud",
+    "loose_end": "minecraft:portal",
+    "magician": "minecraft:soul_fire_flame",
+    "magic_apprentice": "minecraft:snowflake",
+    "musician_phantom": "minecraft:portal",
+    "nostalgist": "minecraft:reverse_portal",
+    "nurse": "minecraft:heart",
+    "paper_doll": "minecraft:cloud",
+    "pooler": "minecraft:splash",
+    "return_traveler": "minecraft:reverse_portal",
+    "roulette_devil": "wathe:black_smoke",
+    "star_gatherer": "minecraft:end_rod",
+    "tailor": "minecraft:end_rod",
+    "trapper": "minecraft:electric_spark",
+    "undead_lord": "minecraft:witch",
+    "warlock": "minecraft:soul",
+    "wizard": "minecraft:lava",
+    "wraith_assassin": "minecraft:soul_fire_flame",
+    "zhang_angel": "minecraft:electric_spark",
+}
 SOUND_BY_WORD = [
     (("传送", "瞬移", "召回", "回到"), "minecraft:entity.enderman.teleport"),
     (("爆炸", "炸"), "minecraft:entity.generic.explode"),
@@ -359,6 +389,11 @@ def particle_for(text):
         if any(word in text for word in words):
             return particle
     return None
+
+
+def particle_for_role(text, rid):
+    """只使用在对应职业源码里确认过的粒子；没有证据就不发射。"""
+    return SOURCE_PARTICLE_BY_ROLE.get(rid)
 
 
 def sound_for(text):
@@ -414,9 +449,13 @@ def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None
         if triggered:
             steps.append(custom("role_walk", {"linkId": link, "to": list(point), "duration": duration}))
 
+    def emit(particle, point, **kwargs):
+        # 源码没写粒子的机制不产生粒子，避免用 minecraft:effect 乱兜底。
+        if particle:
+            steps.append(scene_particle(particle, point, **kwargs))
+
     def particles_at(point, **kwargs):
-        particle = particle_for(zh) or "minecraft:effect"
-        steps.append(scene_particle(particle, point, **kwargs))
+        emit(particle_for_role(zh, rid), point, **kwargs)
 
     # 互动类机制需要一个目标玩家；放在模型视线前方，不与主角重合。
     target_added = False
@@ -437,8 +476,8 @@ def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None
         key()
         walk_to([tx, ty, tz - 0.8], 40)
         steps.append({"type": "idle", "duration": 20})
-        steps.append(scene_particle("minecraft:portal", [px, py + 0.9, pz], count=12, duration=40))
-        steps.append(scene_particle("minecraft:portal", [tx, ty + 0.9, tz], count=12, duration=40))
+        emit(SOURCE_PARTICLE_BY_ROLE.get(rid), [px, py + 0.9, pz], count=12, duration=40)
+        emit(SOURCE_PARTICLE_BY_ROLE.get(rid), [tx, ty + 0.9, tz], count=12, duration=40)
         steps.append(custom("role_teleport", {"linkId": link, "pos": [tx, ty, tz]}))
         steps.append(custom("role_teleport", {"linkId": target_link, "pos": [px, py, pz]}))
         steps.append({"type": "indicate_success", "blockPos": [int(px), int(py), int(pz)]})
@@ -455,12 +494,12 @@ def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None
         walk_to(away, 50)
         steps.append({"type": "idle", "duration": 20})
         key()
-        steps.append(scene_particle("minecraft:portal", [away[0], away[1] + 0.9, away[2]], count=12, duration=45))
+        emit(SOURCE_PARTICLE_BY_ROLE.get(rid), [away[0], away[1] + 0.9, away[2]], count=12, duration=45)
         sound = sound_for(zh)
         if sound:
             steps.append(scene_sound(sound))
         steps.append(custom("role_teleport", {"linkId": link, "pos": [px, py, pz]}))
-        steps.append(scene_particle("minecraft:portal", [px, py + 0.9, pz], count=12, duration=45))
+        emit(SOURCE_PARTICLE_BY_ROLE.get(rid), [px, py + 0.9, pz], count=12, duration=45)
         steps.append({"type": "indicate_success", "blockPos": mark})
         steps.append({"type": "idle", "duration": 30})
         return steps, panel
@@ -485,7 +524,7 @@ def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None
         steps.append({"type": "highlight_section", "blockPos": [int(px) - 1, 0, int(pz) - 1],
                       "blockPos2": [int(px) + 1, 0, int(pz) + 1],
                       "duration": 240, "color": "green"})
-        steps.append(scene_particle("minecraft:effect", [px, py + 0.4, pz], count=10, duration=70))
+        emit(particle_for_role(zh, rid), [px, py + 0.4, pz], count=10, duration=70)
         steps.append({"type": "idle", "duration": 40})
         steps.append(custom("role_pose", {"linkId": link, "pose": "standing"}))
         return steps, panel
@@ -495,10 +534,10 @@ def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None
         key()
         walk_to([tx - 0.9, ty, tz], 45)
         steps.append({"type": "idle", "duration": 15})
-        steps.append(scene_particle("minecraft:crit", [tx, ty + 1.1, tz], count=10, duration=30))
+        emit(particle_for_role(zh, rid), [tx, ty + 1.1, tz], count=10, duration=30)
         steps.append(custom("role_death", {"linkId": target_link, "pos": [tx, ty, tz],
                                            "name": "ponder.starrailexpress.label.victim"}))
-        steps.append(scene_particle("minecraft:smoke", [tx, ty + 0.6, tz], count=8, duration=45))
+        emit(particle_for_role(zh, rid), [tx, ty + 0.6, tz], count=8, duration=45)
         steps.append({"type": "indicate_success", "blockPos": [int(tx), 0, int(tz)]})
         steps.append({"type": "idle", "duration": 30})
         return steps, panel
@@ -513,14 +552,14 @@ def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None
                       "duration": 70, "point": [px, py + 2.0, pz],
                       "direction": "down"})
         walk_to([tx - 0.9, ty, tz], 40)
-        steps.append(scene_particle("wathe:poison", [tx, ty + 0.8, tz], count=8, duration=80))
+        emit(particle_for_role(zh, rid), [tx, ty + 0.8, tz], count=8, duration=80)
         steps.append({"type": "idle", "duration": 35})
         return steps, panel
 
     if any(word in zh for word in ("治愈", "治疗", "回血", "恢复", "护盾")):
         add_target()
         key()
-        steps.append(scene_particle("minecraft:effect", [tx, ty + 0.9, tz], count=10, duration=80))
+        emit(particle_for_role(zh, rid), [tx, ty + 0.9, tz], count=10, duration=80)
         steps.append(custom("role_vitals", {"bars": [
             {"label": "ponder.starrailexpress.label.vitals", "before": 0.35,
              "after": 1.0, "color": -65536},
@@ -568,12 +607,12 @@ def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None
 
     if any(word in zh for word in ("传送", "瞬移", "回到", "召回", "前往")):
         key()
-        steps.append(scene_particle("minecraft:portal", [px, py + 0.9, pz], count=12, duration=50))
+        emit(SOURCE_PARTICLE_BY_ROLE.get(rid), [px, py + 0.9, pz], count=12, duration=50)
         sound = sound_for(zh)
         if sound:
             steps.append(scene_sound(sound))
         steps.append(custom("role_teleport", {"linkId": link, "pos": [tx, ty, tz]}))
-        steps.append(scene_particle("minecraft:portal", [tx, ty + 0.9, tz], count=12, duration=50))
+        emit(SOURCE_PARTICLE_BY_ROLE.get(rid), [tx, ty + 0.9, tz], count=12, duration=50)
         steps.append({"type": "indicate_success", "blockPos": [int(tx), 0, int(tz)]})
         steps.append({"type": "idle", "duration": 30})
         return steps, panel
@@ -713,7 +752,6 @@ def override_kafu_skill(builder, ctx):
         builder.add(custom("role_teleport", {"linkId": rider, "pos": [p[0], p[1] + 1.8, p[2]]}))
         builder.add(custom("role_pose", {"linkId": rider, "pose": "crouching"}))
         builder.add(custom("role_scale", {"linkId": rider, "scale": 0.62}))
-        builder.add(scene_particle("minecraft:effect", head, count=8, duration=60))
         builder.add(custom("role_timer", {"progress": [1.0, 0.0], "lines": [line]}))
         builder.add({"type": "indicate_success", "blockPos": [int(p[0]), 0, int(p[2])]})
         builder.say(line)
@@ -748,7 +786,6 @@ def override_nue_skill(builder, ctx):
         builder.add(custom("role_hold", {"linkId": main, "item": "trainmurdermystery:knife"}))
         builder.add(key_cap([p[0], p[1] + 2.0, p[2]]))
         builder.add(custom("role_walk", {"linkId": main, "to": [t[0] - 0.8, t[1], t[2]], "duration": 36}))
-        builder.add(scene_particle("minecraft:crit", [t[0], t[1] + 1.1, t[2]], count=8, duration=30))
         builder.add(custom("role_death", {"linkId": rid + "_target", "pos": t}))
         builder.add(custom("role_timer", {"progress": [1.0, 0.0], "lines": [line]}))
         builder.say(line)
@@ -777,7 +814,7 @@ def override_arsonist_items(builder, ctx):
             builder.add(custom("role_hold", {"linkId": main, "item": cans[0]}))
             builder.add(show_right_click([p[0], p[1] + 2.0, p[2]], cans[0]))
             builder.add(custom("role_walk", {"linkId": main, "to": [t[0] - 0.8, t[1], t[2]], "duration": 40}))
-            builder.add(scene_particle("minecraft:effect", [t[0], t[1] + 0.9, t[2]], count=10, duration=70))
+            builder.add(scene_particle("minecraft:smoke", [t[0], t[1] + 0.9, t[2]], count=10, duration=70))
             builder.add(custom("role_outline", {"linkId": oiled, "color": ORANGE}))
             if not currency_used:
                 builder.add(custom("role_currency", {"progress": [0.3, 0.6], "lines": [line]}))
@@ -796,7 +833,7 @@ def override_arsonist_items(builder, ctx):
             builder.add(item_entity([p[0] - 1.0, p[1] + 0.55, p[2] - 1.0],
                                     "stupid_express:large_oil_can", rid + "_large_can"))
             builder.add(show_right_click([p[0], p[1] + 2.0, p[2]], "stupid_express:large_oil_can"))
-            builder.add(scene_particle("minecraft:flame", [t[0], t[1] + 0.9, t[2]], count=12, duration=70))
+            builder.add(scene_particle("stupid_express:arsonist_flame", [t[0], t[1] + 0.9, t[2]], count=12, duration=70))
             builder.add(custom("role_outline", {"linkId": oiled, "color": ORANGE}))
             builder.add(custom("role_outline", {"linkId": dry, "color": GRAY}))
         builder.say(line)
@@ -813,11 +850,12 @@ def override_arsonist_skill(builder, ctx):
         builder.add(custom("role_hold", {"linkId": main, "item": "stupid_express:lighter"}))
         builder.add(key_cap([p[0], p[1] + 2.0, p[2]]))
         builder.add(show_right_click([p[0], p[1] + 2.0, p[2]], "stupid_express:lighter"))
-        builder.add(scene_particle("minecraft:flame", [t[0], t[1] + 0.9, t[2]], count=14, duration=80))
-        builder.add(scene_particle("minecraft:flame", [third[0], third[1] + 0.9, third[2]],
+        builder.add(scene_particle("stupid_express:arsonist_flame", [t[0], t[1] + 0.9, t[2]], count=14, duration=80))
+        builder.add(scene_particle("stupid_express:arsonist_flame", [third[0], third[1] + 0.9, third[2]],
                                    count=14, duration=80))
         builder.add(custom("role_death", {"linkId": rid + "_burn_1", "pos": t, "corpse": False}))
         builder.add(custom("role_death", {"linkId": rid + "_burn_2", "pos": third, "corpse": False}))
+        builder.add(scene_particle("stupid_express:arsonist_kill", [t[0], t[1] + 0.9, t[2]], count=12, duration=60))
         builder.say(line)
 
 
@@ -874,7 +912,6 @@ def override_baka_items(builder, ctx):
         builder.add(item_entity([p[0] - 1.0, p[1] + 0.55, p[2] - 1.0],
                                 "noellesroles:danmuku", rid + "_danmuku"))
         builder.add(show_right_click([p[0], p[1] + 2.0, p[2]], "noellesroles:danmuku", 90))
-        builder.add(scene_particle("minecraft:crit", [t[0], t[1] + 1.1, t[2]], count=8, duration=30))
         builder.add(custom("role_death", {"linkId": rid + "_target", "pos": t}))
         builder.say(line)
 
@@ -942,15 +979,19 @@ def override_disc_master_shop(builder, ctx):
 PARTICLE_WORDS = ("粒子", "释放", "投掷", "喷洒", "喷出")
 
 
-def ensure_particles(builder, lines):
-    """文档要求：介绍提到释放 / 粒子 / 投掷时，画面里必须出现对应粒子。"""
+def ensure_particles(builder, lines, rid=""):
+    """文档要求：源码里发射了粒子时，介绍对应画面里也要出现同一个粒子。"""
     body = "".join(line.get("zh_cn", "") for line in lines)
     if not any(word in body for word in PARTICLE_WORDS):
         return
     if any(step.get("type") == "spawn_particles" for step in builder.steps):
         return
+    particle = particle_for_role(body, rid)
+    if not particle:
+        # 源码没有对应粒子发射，就不凭空补一个。
+        return
     x, y, z = builder.origin
-    builder.steps.insert(1, scene_particle("minecraft:effect", [x, y + 0.9, z],
+    builder.steps.insert(1, scene_particle(particle, [x, y + 0.9, z],
                                            count=8, duration=60))
 
 
@@ -1112,7 +1153,7 @@ def override_roulette_devil_form(builder, ctx):
              "黑色烟雾" in line.get("zh_cn", "")]
     p = ctx["player_pos"]
     disguise_perform(builder, ctx, lines or ctx["all_lines"][:2],
-                     extra=[scene_particle("minecraft:smoke", [p[0], p[1] + 0.9, p[2]],
+                     extra=[scene_particle("wathe:black_smoke", [p[0], p[1] + 0.9, p[2]],
                                            count=12, duration=80)])
 
 
@@ -1311,7 +1352,7 @@ def build_role_scene(rid, facts, intros, names, goals):
         builder.say(goal_text)
     ensure_particles(builder, [faction_line] +
                     ([trio(relation_index)] if relation_index is not None else []) +
-                    ([goal_text] if goal_text else []))
+                    ([goal_text] if goal_text else []), rid)
     builder.finish()
     scenes.append({"id": "faction", "title": title, "steps": builder.steps})
 
@@ -1340,7 +1381,7 @@ def build_role_scene(rid, facts, intros, names, goals):
             override(builder, {"rid": rid, "facts": facts, "lines": lines, "key": key,
                                "player_pos": player_pos, "second_pos": second_pos,
                                "outline_color": outline_color, "all_lines": all_trios})
-            ensure_particles(builder, all_trios)
+            ensure_particles(builder, all_trios, rid)
             builder.finish()
             scenes.append({"id": key, "title": title, "steps": builder.steps})
             continue
@@ -1450,7 +1491,7 @@ def build_role_scene(rid, facts, intros, names, goals):
                 for step in acts:
                     builder.add(step)
             builder.say(line)
-        ensure_particles(builder, lines)
+        ensure_particles(builder, lines, rid)
         builder.finish()
         scenes.append({"id": key, "title": title, "steps": builder.steps})
 
@@ -1576,7 +1617,7 @@ def event_scene(rid, facts, intros, names, goals):
 
         for line_index in line_indices:
             builder.say(trio(line_index))
-        ensure_particles(builder, [trio(i) for i in line_indices])
+        ensure_particles(builder, [trio(i) for i in line_indices], rid)
         builder.finish()
         scenes.append({"id": segment_id, "title": title, "steps": builder.steps})
 

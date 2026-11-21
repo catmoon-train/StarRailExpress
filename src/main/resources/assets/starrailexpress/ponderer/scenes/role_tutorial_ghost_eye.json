@@ -170,7 +170,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "minecraft:sculk_soul",
           "pos": [
             3.0,
             1.9,

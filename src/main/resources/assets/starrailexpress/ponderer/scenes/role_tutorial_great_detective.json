@@ -192,7 +192,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "minecraft:smoke",
           "pos": [
             5.0,
             1.8,
@@ -283,7 +283,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:crit",
+          "particle": "minecraft:smoke",
           "pos": [
             5.0,
             2.1,

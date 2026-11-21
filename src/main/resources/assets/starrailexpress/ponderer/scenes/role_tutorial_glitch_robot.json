@@ -535,7 +535,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "wathe:poison",
+          "particle": "minecraft:effect",
           "pos": [
             5.0,
             1.8,

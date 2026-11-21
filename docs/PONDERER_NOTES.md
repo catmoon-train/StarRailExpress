@@ -815,8 +815,8 @@ indicate_success [2,0,4] + idle 80 + rotate_camera_y
   超出一轮用 0.15 格横移错开，既保持唯一又始终指向玩家模型。
 - 大量段落连着三句以上纯文本；`SceneBuilder.say()` 现在在第三句前自动插一个非阻塞
   `indicate_success`，打断纯文本串，不推进时间轴。
-- 22 处介绍写了「粒子 / 释放 / 投掷」但段落没有粒子；`ensure_particles()` 会补一个
-  `minecraft:effect` 效果粒子（已有粒子的段落不重复补）。
+- 22 处介绍写了「粒子 / 释放 / 投掷」但段落没有粒子；`ensure_particles()` 会按
+  `SOURCE_PARTICLE_BY_ROLE` 补上对应职业源码里真实发射的粒子（下一节详述）。
 
 最终结果：审计 0 violation，`tools/verify_ponder_scenes.py` 272 个场景 0 error、
 2 条既有 warning（酒保 / 小丑的自定义正文，按要求未改）。
@@ -825,4 +825,30 @@ indicate_success [2,0,4] + idle 80 + rotate_camera_y
 涉及交换、抱人、浇油、伪装互换等机制时必须同时出现多个玩家，才能把效果演示出来；
 这些场景保留多玩家。物品实体不显式移除，因为每次段落切换都会重置离屏场景，
 不存在跨段残留。
+
+## 22. 粒子以源码为准（2026-11-21）
+
+之前用 `minecraft:effect` 给所有「释放 / 粒子」兜底是不符合编写准则的。现在生成器
+只从 `SOURCE_PARTICLE_BY_ROLE` 取粒子，且该表逐项对应 Java 源码：
+
+- `wathe:poison`：`TMMParticles.POISON`，毒床 / 厕所毒气 / 毒区 / 客户端毒事件。
+- 爆炸：`wathe:explosion` / `wathe:big_explosion`（`TMMParticles`、手雷 / 鞭炮），
+  `minecraft:explosion_emitter`（飞机坠毁、实体之无、萃香等）。
+- 纵火犯：`stupid_express:arsonist_flame` / `arsonist_kill` / `arsonist_shot`
+  （`ArsonistRoleData`、`ArsonistBurnedBodies`、`ArsonistFlameClientEffects`），
+  油罐冒烟用 `minecraft:smoke`（`LargeOilCanEntity`）。
+- 治愈：`minecraft:heart`（`WheelchairEffectBlockHandler`）。
+- 传送：`minecraft:portal`（回忆者 / 幻灵乐师 / 星摘取者 / 共谋者），
+  `minecraft:reverse_portal`（归乡者 / 怀旧者）。
+- 按职业写死：`wizard` 火焰/雪/烟/女巫/lava，`warlock` soul，`dreadlord` squid_ink，
+  `pooler` splash/bubble/end_rod，`wraith_assassin` soul_fire_flame/smoke/dust，
+  `dream` 红色 dust，`star_gatherer` end_rod/electric_spark，
+  `trapper` wax_on/electric_spark，`ghost_eye` sculk_soul，`diviner` enchant，
+  `glitch_robot` effect，轮盘恶魔 `wathe:black_smoke` 等。
+
+护盾、金币、南瓜、蝙蝠、番茄、技能文字通告在源码里没有专属粒子发射，
+对应段落不再硬塞粒子。`tools/audit_ponder_authoring.py` 现在会逐职业核对：
+每个 `spawn_particles` 的粒子 id 必须在该职业的源码粒子集合里，否则报 violation。
+
+结果：269 个场景粒子审计 0 violation；`verify_ponder_scenes.py` 272 个场景 0 error。
 

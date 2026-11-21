@@ -184,7 +184,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "minecraft:electric_spark",
           "pos": [
             3.0,
             1.9,

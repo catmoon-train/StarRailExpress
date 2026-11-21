@@ -189,28 +189,6 @@
           "duration": 40
         },
         {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            3.0,
-            1.9,
-            3.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 60,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -341,28 +319,6 @@
           "color": "green"
         },
         {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            5.0,
-            1.9,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 6,
-          "duration": 50,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "indicate_success",
           "blockPos": [
             5,
@@ -413,28 +369,6 @@
           "duration": 15
         },
         {
-          "type": "spawn_particles",
-          "particle": "minecraft:crit",
-          "pos": [
-            5.0,
-            2.1,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 10,
-          "duration": 30,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "starrailexpress:role_death",
           "parameters": {
             "linkId": "swordsman_skill_target_1",
@@ -446,28 +380,6 @@
             "name": "ponder.starrailexpress.label.victim"
           },
           "attachKeyFrame": true
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:smoke",
-          "pos": [
-            5.0,
-            1.6,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 45,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
         },
         {
           "type": "indicate_success",
@@ -533,28 +445,6 @@
           "duration": 40
         },
         {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            3.0,
-            1.9,
-            3.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 60,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -617,28 +507,6 @@
           "color": "green"
         },
         {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            5.0,
-            1.9,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 6,
-          "duration": 50,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "indicate_success",
           "blockPos": [
             5,
@@ -697,28 +565,6 @@
             "duration": 60
           },
           "attachKeyFrame": true
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            5.0,
-            1.9,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 10,
-          "duration": 80,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
         },
         {
           "type": "indicate_success",
@@ -1072,28 +918,6 @@
             "duration": 35
           },
           "attachKeyFrame": true
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            5.0,
-            1.8,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 55,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
         },
         {
           "type": "idle",

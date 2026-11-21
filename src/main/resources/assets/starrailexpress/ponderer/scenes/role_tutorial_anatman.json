@@ -183,28 +183,6 @@
           "duration": 40
         },
         {
-          "type": "spawn_particles",
-          "particle": "minecraft:smoke",
-          "pos": [
-            4.0,
-            1.9,
-            3.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 60,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -388,28 +366,6 @@
           "duration": 40
         },
         {
-          "type": "spawn_particles",
-          "particle": "minecraft:portal",
-          "pos": [
-            4.0,
-            1.9,
-            3.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 60,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "text",
           "duration": 146,
           "text": {
@@ -442,28 +398,6 @@
         {
           "type": "idle",
           "duration": 40
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            4.0,
-            1.9,
-            3.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 60,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
         },
         {
           "type": "text",

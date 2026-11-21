@@ -180,28 +180,6 @@
           "color": "green"
         },
         {
-          "type": "spawn_particles",
-          "particle": "minecraft:effect",
-          "pos": [
-            5.0,
-            1.9,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 6,
-          "duration": 50,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "indicate_success",
           "blockPos": [
             5,
@@ -283,28 +261,6 @@
           }
         },
         {
-          "type": "spawn_particles",
-          "particle": "minecraft:portal",
-          "pos": [
-            3.0,
-            1.9,
-            3.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 12,
-          "duration": 50,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "play_sound",
           "sound": "minecraft:entity.enderman.teleport",
           "soundVolume": 1.0,
@@ -322,28 +278,6 @@
             ]
           },
           "attachKeyFrame": true
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:portal",
-          "pos": [
-            5.0,
-            1.9,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 12,
-          "duration": 50,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
         },
         {
           "type": "indicate_success",

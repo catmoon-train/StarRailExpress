@@ -174,28 +174,6 @@
           "attachKeyFrame": true
         },
         {
-          "type": "spawn_particles",
-          "particle": "minecraft:crit",
-          "pos": [
-            5.0,
-            2.1,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 30,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "starrailexpress:role_death",
           "parameters": {
             "linkId": "baka_target",

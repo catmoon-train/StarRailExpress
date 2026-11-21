@@ -239,7 +239,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "wathe:poison",
           "pos": [
             5.0,
             1.9,
@@ -547,7 +547,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "wathe:poison",
           "pos": [
             3.0,
             1.4,

@@ -219,7 +219,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "minecraft:end_rod",
           "pos": [
             3.0,
             1.9,
@@ -303,7 +303,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "minecraft:end_rod",
           "pos": [
             3.0,
             1.9,
@@ -425,7 +425,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:smoke",
+          "particle": "minecraft:end_rod",
           "pos": [
             3.0,
             1.9,

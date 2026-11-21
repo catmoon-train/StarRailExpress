@@ -427,7 +427,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "wathe:poison",
+          "particle": "minecraft:heart",
           "pos": [
             5.0,
             1.8,
@@ -633,7 +633,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "wathe:poison",
+          "particle": "minecraft:heart",
           "pos": [
             5.0,
             1.8,
@@ -741,7 +741,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "minecraft:heart",
           "pos": [
             5.0,
             1.9,
@@ -829,7 +829,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "minecraft:heart",
           "pos": [
             5.0,
             1.9,

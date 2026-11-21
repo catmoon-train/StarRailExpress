@@ -154,7 +154,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "minecraft:enchant",
           "pos": [
             5.0,
             1.9,
@@ -253,7 +253,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:crit",
+          "particle": "minecraft:enchant",
           "pos": [
             5.0,
             2.1,
@@ -288,7 +288,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:smoke",
+          "particle": "minecraft:enchant",
           "pos": [
             5.0,
             1.6,
@@ -436,7 +436,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:portal",
+          "particle": "minecraft:enchant",
           "pos": [
             3.0,
             1.9,

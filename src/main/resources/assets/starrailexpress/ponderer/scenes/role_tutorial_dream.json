@@ -162,7 +162,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "minecraft:dust",
           "pos": [
             3.0,
             1.4,
@@ -315,7 +315,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "minecraft:dust",
           "pos": [
             3.0,
             1.9,
@@ -385,7 +385,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "minecraft:dust",
           "pos": [
             3.0,
             1.9,
@@ -455,7 +455,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "minecraft:dust",
           "pos": [
             3.0,
             1.9,
@@ -519,7 +519,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "minecraft:dust",
           "pos": [
             3.0,
             1.9,

@@ -258,7 +258,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "minecraft:soul_fire_flame",
           "pos": [
             3.0,
             1.9,
@@ -342,7 +342,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "minecraft:soul_fire_flame",
           "pos": [
             3.0,
             1.9,
@@ -469,7 +469,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:effect",
+          "particle": "minecraft:soul_fire_flame",
           "pos": [
             3.0,
             1.9,
@@ -675,7 +675,7 @@
         },
         {
           "type": "spawn_particles",
-          "particle": "minecraft:smoke",
+          "particle": "minecraft:soul_fire_flame",
           "pos": [
             3.0,
             1.9,

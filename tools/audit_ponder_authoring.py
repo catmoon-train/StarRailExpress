@@ -18,6 +18,46 @@ VISUAL = {"spawn_particles", "highlight_section", "create_item_entity",
           "indicate_redstone", "set_block"}
 PARTICLE_WORDS = ("\u7c92\u5b50", "\u91ca\u653e", "\u6295\u63b7", "\u55b7\u6d12", "\u55b7\u51fa")
 
+# 源码里确认过的粒子。按职业分组，未列出的职业不应在场景里发射粒子。
+# 依据：TMMParticles.java、各 role_data/*.java、stupid_express 客户端特效注册。
+SOURCE_PARTICLES = {
+    "alchemist": {"wathe:poison"},
+    "arsonist": {"stupid_express:arsonist_flame", "stupid_express:arsonist_kill",
+                 "stupid_express:arsonist_shot", "minecraft:flame", "minecraft:smoke"},
+    "conspirator": {"minecraft:witch", "minecraft:portal", "minecraft:dragon_breath"},
+    "delayer": {"minecraft:enchant"},
+    "diviner": {"minecraft:soul_fire_flame", "minecraft:enchant"},
+    "doctor": {"minecraft:heart"},
+    "dreadlord": {"minecraft:squid_ink"},
+    "dream": {"minecraft:dust"},
+    "executioner": {"minecraft:flame", "minecraft:soul_fire_flame",
+                    "minecraft:totem_of_undying", "minecraft:portal"},
+    "ghost_eye": {"minecraft:sculk_soul"},
+    "glitch_robot": {"minecraft:effect"},
+    "great_detective": {"minecraft:smoke", "minecraft:enchant"},
+    "ibuki_suika": {"minecraft:explosion_emitter"},
+    "leather_pig": {"minecraft:cloud"},
+    "loose_end": {"minecraft:portal"},
+    "magician": {"minecraft:flame", "minecraft:soul_fire_flame"},
+    "magic_apprentice": {"minecraft:flame", "minecraft:snowflake", "minecraft:cloud"},
+    "musician_phantom": {"minecraft:portal"},
+    "nostalgist": {"minecraft:reverse_portal", "minecraft:portal"},
+    "nurse": {"minecraft:heart"},
+    "paper_doll": {"minecraft:cloud"},
+    "pooler": {"minecraft:splash", "minecraft:bubble", "minecraft:end_rod"},
+    "return_traveler": {"minecraft:reverse_portal", "minecraft:portal", "minecraft:soul"},
+    "roulette_devil": {"wathe:black_smoke"},
+    "star_gatherer": {"minecraft:end_rod", "minecraft:electric_spark", "minecraft:portal"},
+    "tailor": {"minecraft:end_rod"},
+    "trapper": {"minecraft:wax_on", "minecraft:electric_spark"},
+    "undead_lord": {"minecraft:witch"},
+    "warlock": {"minecraft:soul"},
+    "wizard": {"minecraft:enchant", "minecraft:snowflake", "minecraft:smoke",
+               "minecraft:large_smoke", "minecraft:witch", "minecraft:lava"},
+    "wraith_assassin": {"minecraft:soul_fire_flame", "minecraft:smoke", "minecraft:dust"},
+    "zhang_angel": {"minecraft:electric_spark"},
+}
+
 violations = []
 
 
@@ -29,6 +69,7 @@ for path in sorted(glob.glob(os.path.join(SCENES, "*.json"))):
     filename = os.path.basename(path)
     if filename in EXCLUDED:
         continue
+    rid = filename[len("role_tutorial_"):-len(".json")]
     with open(path, encoding="utf-8-sig") as handle:
         scene = json.load(handle)
 
@@ -107,11 +148,16 @@ for path in sorted(glob.glob(os.path.join(SCENES, "*.json"))):
             if now < last_start + last_duration:
                 add(where, "idle after last text is insufficient")
 
-        has_particles = any(step["type"] == "spawn_particles" for step in steps)
         body = "".join(step.get("text", {}).get("zh_cn", "")
                        for step in steps if step["type"] == "text")
-        if any(word in body for word in PARTICLE_WORDS) and not has_particles:
-            add(where, "particle wording but no spawn_particles")
+        used_particles = [step.get("particle") for step in steps
+                          if step["type"] == "spawn_particles"]
+        allowed = SOURCE_PARTICLES.get(rid, set())
+        for particle in used_particles:
+            if particle not in allowed:
+                add(where, "particle not backed by source: " + str(particle))
+        if any(word in body for word in PARTICLE_WORDS) and allowed and not used_particles:
+            add(where, "source has particle but scene emitted none")
 
 print("audited scenes:", len([p for p in glob.glob(os.path.join(SCENES, "*.json"))
                               if os.path.basename(p) not in EXCLUDED]))
