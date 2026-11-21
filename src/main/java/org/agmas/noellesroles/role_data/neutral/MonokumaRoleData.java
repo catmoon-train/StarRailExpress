@@ -35,6 +35,9 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
@@ -61,6 +64,23 @@ public class MonokumaRoleData extends SimpleRoleData {
     /** 光环金币：每5秒8金币 → 每100 tick */
     public static final int AURA_COIN_INTERVAL = 5 * 20;
     public static final int AURA_COIN_AMOUNT = 8;
+
+    /** 吃竹子技能：持续时间 5 秒 = 100 tick */
+    public static final int EAT_BAMBOO_DURATION = 5 * 20;
+
+    /** 吃竹子技能：冷却 60 秒 */
+    public static final int EAT_BAMBOO_COOLDOWN_SECONDS = 60;
+
+    /** 吃竹子时体型扩大 100%（1.0 → 2.0） */
+    public static final AttributeModifier EAT_BAMBOO_SCALE = new AttributeModifier(
+            Noellesroles.id("monokuma_eat_bamboo_scale"), 1.0D, AttributeModifier.Operation.ADD_VALUE);
+
+    /** 小黑白熊（被击杀转化来的）体型缩小 60%（1.0 → 0.4） */
+    public static final AttributeModifier SMALL_BEAR_SCALE = new AttributeModifier(
+            Noellesroles.id("monokuma_small_bear_scale"), -0.6D, AttributeModifier.Operation.ADD_VALUE);
+
+    /** 吃竹子时给周围存活玩家缓慢的范围（格），与黑白熊光环一致 */
+    public static final double EAT_BAMBOO_SLOW_RANGE = 6.0;
 
 
     /**
@@ -102,6 +122,15 @@ public class MonokumaRoleData extends SimpleRoleData {
     /** 冲刺动画计时器（客户端模型使用） */
     public int dashAnimTimer = 0;
 
+    /**
+     * 是否「真」黑白熊（完成试炼的本体）。
+     * false = 由试炼中被杀玩家转化来的小黑白熊：没有无敌、没有金币/体力光环、不能使用吃竹子技能。
+     */
+    public boolean isPrime = false;
+
+    /** 吃竹子剩余时间（tick，>0 表示正在吃；同步给客户端播放熊猫吃竹子动画） */
+    public int eatBambooTicks = 0;
+
     public MonokumaRoleData(RoleDataContext context) {
         super(context);
     }
@@ -138,11 +167,19 @@ public class MonokumaRoleData extends SimpleRoleData {
             sp.removeEffect(MobEffects.INVISIBILITY);
             sp.removeEffect(ModEffects.INVINCIBLE);
         }
+        // 吃竹子/小黑白熊的体型缩放与定身效果必须收回，否则转职、复活或重置后体型残留。
+        if (player instanceof ServerPlayer sp) {
+            removeScaleModifier(sp, EAT_BAMBOO_SCALE);
+            removeScaleModifier(sp, SMALL_BEAR_SCALE);
+            sp.removeEffect(ModEffects.MOVE_BANED);
+        }
         this.phase = 0;
         this.frenzyTimer = 0;
         this.auraCoinTimer = 0;
         this.aoeChargeTimer = 0;
         this.dashAnimTimer = 0;
+        this.eatBambooTicks = 0;
+        this.isPrime = false;
         this.isMonokumaMarked = false;
         this.isPanda = false;
         this.kill_count = 0;
@@ -267,6 +304,71 @@ public class MonokumaRoleData extends SimpleRoleData {
         }
         frenzyVictims.add(new FrenzyVictim(victim.getUUID(), victim.position()));
     }
+
+    // ==================== 吃竹子技能 ====================
+
+    /**
+     * 真黑白熊按下技能键：开始吃竹子。
+     * 仅真黑白熊（本体）可用；小黑白熊与狂暴前奏阶段不可用。冷却由统一技能系统（RoleSkill）管理。
+     *
+     * @return 是否成功开始（true = 进入冷却）
+     */
+    public boolean startEatBamboo(ServerPlayer sp) {
+        if (phase != 3 || !isPrime)
+            return false; // 只有真黑白熊在黑白熊形态才能吃
+        if (eatBambooTicks > 0)
+            return false; // 正在吃
+        if (sp.isSpectator() || !GameUtils.isPlayerAliveAndSurvival(sp))
+            return false;
+        eatBambooTicks = EAT_BAMBOO_DURATION;
+        // 体型扩大 100%
+        setScaleModifier(sp, EAT_BAMBOO_SCALE);
+        // 吃竹子期间无法移动（键盘拦截；结束后主动移除）
+        sp.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, EAT_BAMBOO_DURATION + 10, 0, true, false, true));
+        this.sync();
+        return true;
+    }
+
+    /** 吃竹子每 tick：给周围存活玩家缓慢 I；计时结束时收回体型与定身。 */
+    private void tickEatBamboo(ServerPlayer sp) {
+        eatBambooTicks--;
+        // 每 20 tick（1 秒）刷新一次周围玩家的缓慢 I（持续 40 tick 覆盖两次刷新间隔）
+        if (sp.tickCount % 20 == 0) {
+            ServerLevel level = sp.serverLevel();
+            for (ServerPlayer target : level.players()) {
+                if (target == sp)
+                    continue;
+                if (!GameUtils.isPlayerAliveAndSurvival(target))
+                    continue;
+                if (sp.distanceTo(target) <= EAT_BAMBOO_SLOW_RANGE) {
+                    target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 40, 0, false, true, true));
+                }
+            }
+        }
+        if (eatBambooTicks <= 0) {
+            eatBambooTicks = 0;
+            removeScaleModifier(sp, EAT_BAMBOO_SCALE);
+            sp.removeEffect(ModEffects.MOVE_BANED);
+            this.sync();
+        }
+    }
+
+    /** 给玩家套用体型 modifier（同 id 先去重，避免重复叠加）。 */
+    private static void setScaleModifier(ServerPlayer sp, AttributeModifier modifier) {
+        AttributeInstance scale = sp.getAttribute(Attributes.SCALE);
+        if (scale == null)
+            return;
+        scale.removeModifier(modifier.id());
+        scale.addPermanentModifier(modifier);
+    }
+
+    /** 移除体型 modifier。 */
+    private static void removeScaleModifier(ServerPlayer sp, AttributeModifier modifier) {
+        AttributeInstance scale = sp.getAttribute(Attributes.SCALE);
+        if (scale == null)
+            return;
+        scale.removeModifier(modifier.id());
+    }
     /**
      * 狂暴前奏结束，变身黑白熊
      */
@@ -280,6 +382,12 @@ public class MonokumaRoleData extends SimpleRoleData {
         phase = 3;
         frenzyTimer = 0;
         auraCoinTimer = 0;
+        // 本体是真黑白熊：无敌（下方给）、金币/体力光环、吃竹子技能都只属于本体。
+        isPrime = true;
+        eatBambooTicks = 0;
+        // 确保本体是标准体型（若曾是其它形态留下的缩放，一并清掉）
+        removeScaleModifier(sp, SMALL_BEAR_SCALE);
+        removeScaleModifier(sp, EAT_BAMBOO_SCALE);
 
         // 移除阴阳剑
         org.agmas.noellesroles.utils.MCItemsUtils.clearItem(player, ModItems.YINYANG_SWORD);
@@ -362,10 +470,14 @@ public class MonokumaRoleData extends SimpleRoleData {
                 return;
             data.isMonokumaMarked = true;
             data.frenzyTimer = 0;
+            // 被击杀转化来的玩家是小黑白熊：没有无敌、没有光环、不能吃竹子。
+            data.isPrime = false;
+            data.eatBambooTicks = 0;
             data.setPandaForm(true);
             // 必须先置 phase=3（服务端逻辑用），再做 panda/inc 同步。
             data.phase = 3;
-            target.addEffect(new MobEffectInstance(ModEffects.INVINCIBLE, -1, 0, true, false, false));
+            // 小黑白熊体型缩小 60%
+            setScaleModifier(target, SMALL_BEAR_SCALE);
             target.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, -1, 0, true, false, false));
             target.removeEffect(ModEffects.MONOKUMA_FRENZY);
             data.sync();
@@ -479,7 +591,15 @@ public class MonokumaRoleData extends SimpleRoleData {
 
         // 黑白熊阶段
         if (phase == 3) {
-            applyAuraEffects(sp);
+            // 金币/体力光环只属于真黑白熊本体，小黑白熊没有
+            if (isPrime) {
+                applyAuraEffects(sp);
+            }
+
+            // 吃竹子：体型×2、周围人缓慢 I、黑白熊无法移动（仅真黑白熊会进入这个状态）
+            if (eatBambooTicks > 0) {
+                tickEatBamboo(sp);
+            }
 
             // 黑白熊无法使用任何道具 - 强制空手
             if (!player.getMainHandItem().isEmpty()) {
@@ -512,6 +632,8 @@ public class MonokumaRoleData extends SimpleRoleData {
         tag.putInt("d", dashAnimTimer);
         tag.putBoolean("i", isMonokumaMarked);
         tag.putBoolean("panda", isPanda);
+        tag.putBoolean("prime", isPrime);
+        tag.putInt("eat", eatBambooTicks);
     }
 
     @Override
@@ -522,5 +644,7 @@ public class MonokumaRoleData extends SimpleRoleData {
         this.dashAnimTimer = tag.contains("d") ? tag.getInt("d") : 0;
         this.isMonokumaMarked = tag.contains("i") && tag.getBoolean("i");
         this.isPanda = tag.contains("panda") && tag.getBoolean("panda");
+        this.isPrime = tag.contains("prime") && tag.getBoolean("prime");
+        this.eatBambooTicks = tag.contains("eat") ? tag.getInt("eat") : 0;
     }
 }

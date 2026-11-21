@@ -4219,6 +4219,7 @@
   "effect.noellesroles.move_upside_down": "Movement inverted",
   "skill.noellesroles.dream.brew": "Brew Potion",
   "skill.noellesroles.delayer.anchor": "Time Anchor",
+  "skill.noellesroles.monokuma.eat_bamboo": "Eat Bamboo",
   "message.noellesroles.dream.mask_cooldown_simple": "Giant Screen Mask on cooldown!",
   "message.noellesroles.dream.berserk_start": "You put on the Giant Screen Mask; Rampage begins!",
   "message.noellesroles.dream.leather_pig_reward": "You killed the Leather Pig; $100,000 arrives! (coins +%s)",

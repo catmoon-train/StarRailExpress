@@ -70,6 +70,9 @@ public class PandaDisguiseRenderer {
         panda.walkAnimation.speed = player.walkAnimation.speed;
         // 复制本体的 tickCount，让熊猫模型的年龄类动画（头部摆动等）继续推进
         panda.tickCount = player.tickCount;
+        // 吃竹子：让熊猫摆出吃竹子姿势（Panda#isEating 由同步数据 EAT_COUNTER 决定）。
+        // 这只熊猫从未入世界、不会自己 tick 递减，所以每帧显式设定/清零。
+        panda.eat(PandaState.isEating(player));
         panda.setDeltaMovement(0.0, 0.0, 0.0);
         // 刻意不复制玩家的隐身状态：黑白形态常带隐身（用来隐藏药水气泡），
         // 熊猫本体必须照常显示，否则伪装直接消失。
@@ -81,7 +84,18 @@ public class PandaDisguiseRenderer {
         if (renderer == null) {
             return false;
         }
-        renderer.render(panda, yaw, tickDelta, poseStack, bufferSource, packedLight);
+        // 体型缩放：真黑白熊 1.0、小黑白熊 0.4（缩小 60%，服务端 SCALE 属性同步）、吃竹子 2.0。
+        // 熊猫是客户端自建实体，不受玩家 SCALE 属性自动影响，这里手动套到 poseStack 上。
+        float scale = player.getScale();
+        poseStack.pushPose();
+        try {
+            if (Math.abs(scale - 1.0F) > 1.0E-3F) {
+                poseStack.scale(scale, scale, scale);
+            }
+            renderer.render(panda, yaw, tickDelta, poseStack, bufferSource, packedLight);
+        } finally {
+            poseStack.popPose();
+        }
         return true;
     }
 

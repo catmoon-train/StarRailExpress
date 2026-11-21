@@ -160,6 +160,9 @@ public class MonokumaEventHandler {
             } else if (comp == null) {
                 return true;
             } else if (comp.phase == 3) {
+                // 只有真黑白熊（本体）才无敌；试炼中被杀转化来的小黑白熊可以被杀死。
+                if (!comp.isPrime)
+                    return true;
                 var gameCCA = SREGameWorldComponent.KEY.get(player.level());
                 if (!gameCCA.isRole(player, ModRoles.MONOKUMA))
                     return true;

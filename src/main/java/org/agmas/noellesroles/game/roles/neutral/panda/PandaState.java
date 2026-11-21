@@ -47,4 +47,10 @@ public final class PandaState {
         LeaderRoleData leader = RoleData.getNullable(LeaderRoleData.class, player);
         return leader != null && leader.isPanda;
     }
+
+    /** 熊猫是否正在吃竹子（真黑白熊技能期间），客户端用它播放吃竹子姿势。 */
+    public static boolean isEating(Player player) {
+        MonokumaRoleData monokuma = RoleData.getNullable(MonokumaRoleData.class, player);
+        return monokuma != null && monokuma.eatBambooTicks > 0;
+    }
 }
