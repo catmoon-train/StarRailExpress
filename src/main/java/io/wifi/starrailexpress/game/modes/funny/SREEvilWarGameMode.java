@@ -467,8 +467,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                     player.addItem(TMMItems.DEFENSE_VIAL.getDefaultInstance());
                 }
             } else if (role == SpecialGameModeRoles.GHOST_LOOSE_END) {
-                // 幽灵亡命徒双持
-                player.addItem(ModItems.DESPERADO_KNIFE.getDefaultInstance());
+//                player.addItem(ModItems.DESPERADO_KNIFE.getDefaultInstance());
                 player.addItem(TMMItems.KNIFE.getDefaultInstance());
                 for (Supplier<ItemStack> itemSupplier : looseEndsItems) {
                     ItemStack itemStack = itemSupplier.get();
