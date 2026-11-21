@@ -407,15 +407,7 @@ public class ModRolesInitialEventRegister {
             // 画家角色初始化（init 由 RoleData 在职业赋予时自动调用）
             // 葬仪角色初始化（数据由 RoleData 在职业赋予时自动初始化）
             // 幻音师角色初始化（init 由 RoleData 在职业赋予时自动调用）
-            if (role.equals(ModRoles.GODFATHER)) {
-                if (player instanceof ServerPlayer sp) {
-                    for (var p : sp.serverLevel().players()) {
-                        if (p != null) {
-                            p.playNotifySound(NRSounds.MAFIA, SoundSource.MASTER, 1.0F, 1.0F);
-                        }
-                    }
-                }
-            }
+            // 教父入场音效统一由 NRGameStateEvents 在 OnGameTrueStarted 后播放，避免与开局播报重复。
             // 如果不拦截就同步
         });
 
