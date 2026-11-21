@@ -143,21 +143,7 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "attachKeyFrame": true,
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60
-          }
-        },
-        {
           "type": "starrailexpress:role_skill",
-          "attachKeyFrame": true,
           "parameters": {
             "label": "ponder.starrailexpress.label.skill",
             "lines": [
@@ -167,7 +153,75 @@
                 "zh_tw": "技能白閃：灼瞎 14 格內正在看你的人 3.5 秒，並讓他們發光。你自己也會失明 1 秒，冷卻 30 秒。"
               }
             ]
-          }
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Skill \"white flash\": blinds for 3.5 seconds everyone within 14 blocks who is looking at you and makes them glow. You are blinded for 1 second as well, cooldown 30 seconds.",
+                "zh_cn": "技能白闪：灼瞎 14 格内正在看你的人 3.5 秒，并让他们发光。你自己也会失明 1 秒，冷却 30 秒。",
+                "zh_tw": "技能白閃：灼瞎 14 格內正在看你的人 3.5 秒，並讓他們發光。你自己也會失明 1 秒，冷卻 30 秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
         },
         {
           "type": "text",

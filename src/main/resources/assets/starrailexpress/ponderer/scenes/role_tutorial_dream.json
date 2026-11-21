@@ -124,6 +124,77 @@
           }
         },
         {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "dream_main",
+            "pose": "crouching"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            2,
+            0,
+            2
+          ],
+          "blockPos2": [
+            4,
+            0,
+            4
+          ],
+          "duration": 240,
+          "color": "green"
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            3.0,
+            1.4,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 10,
+          "duration": 70,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "dream_main",
+            "pose": "standing"
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -179,21 +250,7 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "attachKeyFrame": true,
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60
-          }
-        },
-        {
           "type": "starrailexpress:role_skill",
-          "attachKeyFrame": true,
           "parameters": {
             "label": "ponder.starrailexpress.label.skill",
             "lines": [
@@ -206,14 +263,77 @@
                 "en_us": "Iron Axe (135 coins, half price second buy): 12 durability; left-click attack requires a full charge. Normal hit 9 damage, jump hit 12; hits knock back and stun 1s (no move/skill/items/inventory + vision impaired); right-click to hop (0.2s cd), no hop above 3 blocks fall and a 1.5s penalty cd.",
                 "zh_cn": "铁斧(135金币，第二次购买半价)：12耐久，蓄力条满才能左键攻击，平A 9伤害、跳劈12伤害，命中造成击退并眩晕1秒（无法移动/技能/物品/背包+视野受限）；右键原地跳跃(0.2秒冷却)，离地超过3格无法跳跃并进入1.5秒惩罚冷却。",
                 "zh_tw": "鐵斧(135金幣，第二次購買半價)：12耐久，蓄力條滿才能左鍵攻擊，平A 9傷害、跳劈12傷害，命中造成擊退並眩暈1秒（無法移動/技能/物品/背包+視野受限）；右鍵原地跳躍(0.2秒冷卻)，離地超過3格無法跳躍並進入1.5秒懲罰冷卻。"
-              },
-              {
-                "en_us": "Boat (100 coins): place on the ground to force nearby players aboard; they can't leave until it vanishes (10s); 60s cd.",
-                "zh_cn": "船(100金币)：放在地上强制周围玩家坐上，船消失前无法下船，10秒后消失，冷却60秒。",
-                "zh_tw": "船(100金幣)：放在地上強制周圍玩家坐上，船消失前無法下船，10秒後消失，冷卻60秒。"
               }
             ]
-          }
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "[Skill · Brew] (90s cd): brew a potion; drinking turns you invisible for 5s, during which you can't attack or be hurt.",
+                "zh_cn": "【技能·制酒】(冷却90秒)：酿一瓶酒，喝下后隐身5秒，期间无法攻击也无法受伤。",
+                "zh_tw": "【技能·制酒】(冷卻90秒)：釀一瓶酒，喝下後隱身5秒，期間無法攻擊也無法受傷。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
         },
         {
           "type": "text",
@@ -236,6 +356,56 @@
           "duration": 200
         },
         {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -254,6 +424,56 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
         },
         {
           "type": "text",

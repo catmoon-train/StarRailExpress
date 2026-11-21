@@ -124,21 +124,7 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "attachKeyFrame": true,
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60
-          }
-        },
-        {
           "type": "starrailexpress:role_skill",
-          "attachKeyFrame": true,
           "parameters": {
             "label": "ponder.starrailexpress.label.skill",
             "lines": [
@@ -148,7 +134,75 @@
                 "zh_tw": "【煙霧吐息】（技能鍵）：消耗 100 金幣，在當前位置生成一團持續7秒的煙霧。煙霧內的玩家失明且無法開啟本能透視。冷卻 60 秒。"
               }
             ]
-          }
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "[Smoke Breath] (skill key): costs 100 coins, creates a 7s smoke cloud at your position. Players inside are blinded and can't use instinct see-through. 60s cd.",
+                "zh_cn": "【烟雾吐息】（技能键）：消耗 100 金币，在当前位置生成一团持续7秒的烟雾。烟雾内的玩家失明且无法开启本能透视。冷却 60 秒。",
+                "zh_tw": "【煙霧吐息】（技能鍵）：消耗 100 金幣，在當前位置生成一團持續7秒的煙霧。煙霧內的玩家失明且無法開啟本能透視。冷卻 60 秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
         },
         {
           "type": "text",

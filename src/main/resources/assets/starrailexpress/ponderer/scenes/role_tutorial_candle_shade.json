@@ -144,21 +144,7 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "attachKeyFrame": true,
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60
-          }
-        },
-        {
           "type": "starrailexpress:role_skill",
-          "attachKeyFrame": true,
           "parameters": {
             "label": "ponder.starrailexpress.label.skill",
             "lines": [
@@ -168,7 +154,75 @@
                 "zh_tw": "技能點燈：點亮前方14格內所有無遮擋的存活玩家8秒。對方在10格內看著你時會吹滅自己的燭火，你會獲得1秒失明。冷卻18秒。"
               }
             ]
-          }
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Skill \"light up\": lights up every unobstructed living player within 14 blocks in front of you for 8 seconds. When the target looks at you within 10 blocks they blow out their own candle and you are blinded for 1 second. Cooldown 18 seconds.",
+                "zh_cn": "技能点灯：点亮前方14格内所有无遮挡的存活玩家8秒。对方在10格内看着你时会吹灭自己的烛火，你会获得1秒失明。冷却18秒。",
+                "zh_tw": "技能點燈：點亮前方14格內所有無遮擋的存活玩家8秒。對方在10格內看著你時會吹滅自己的燭火，你會獲得1秒失明。冷卻18秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
         },
         {
           "type": "text",

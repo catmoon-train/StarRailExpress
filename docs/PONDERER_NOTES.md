@@ -80,8 +80,9 @@ does not have member field 'int field_22790'
   护盾试剂入盘是 `minecraft:effect`；其它粒子先查对应物品/技能/方块实体源码，不要自行编造。
   粒子步骤不阻塞时间轴，需要观察时补 `idle`。
 - 房间结构用 `tools/generate_ponder_structures.py` 生成，尺寸 7x4x7、顶部敞开，便于相机俯视。
-  小丑和酒保教程只保留背面（z=6）一堵墙，侧墙和前墙会挡住俯视镜头；其它新教程可复用
-  `starrailexpress:role_tutorial_common`。
+  **所有场景都只保留背面（z=最大）一堵墙**：z=0 的前墙与 x=0 / x=最大 的两侧墙会挡住俯视镜头，
+  表现对齐小丑 / 酒保场景。生成器里的 `build_room` / `build_shell` 已统一按此规则出图，
+  其它新教程可复用 `starrailexpress:role_tutorial_common`。
 
 ## 5. 动态占位符
 
@@ -161,8 +162,10 @@ does not have member field 'int field_22790'
 ## 9. 方块与物品映射
 
 - 场景结构只用本模组方块。具体使用哪些方块必须由职业介绍和代码决定，不要限定为少数示例。
-- 门：只有明确说明是《我的世界》原版门时，场景才使用原版门；否则一律使用本模组门。搭建普通场景时用本模组玻璃门 `trainmurdermystery:small_glass_door`；只有搭建玩家出生房间且文案明确是房间门时，才用 `trainmurdermystery:small_wood_door`，出生房间还必须包含本模组的床 `trainmurdermystery:white_trimmed_bed`。
-- 铁门 / 钢门：使用 `trainmurdermystery:` 命名空间中的钢门，不用 `navy_steel_door`。源码注册的钢门包括 `anthracite_steel_door`、`khaki_steel_door`、`maroon_steel_door`、`muntz_steel_door`、`navy_steel_door`；按场景需要选择，不要默认用 navy。`starrailexpress:scifi_door` 不是常见房间木门。
+- 门：只有明确说明是《我的世界》原版门时，场景才使用原版门；否则一律使用本模组门。**但 wathe 空壳包里的 `trainmurdermystery:small_wood_door`、`small_glass_door` 与 `anthracite/khaki/maroon/muntz/navy_steel_door` 的 blockstate 模型只有 particle 纹理、没有任何 elements，放进结构里完全不可见**。因此：
+  - 房间门 / 普通门用 `starrailexpress:light_blue_oak_door`（本模组注册的真实 `DoorBlock`，带 `minecraft:block/door_*` 父模型）；出生房间还必须包含本模组的床 `trainmurdermystery:white_trimmed_bed`。
+  - 钢门用 `trainmurdermystery:metal_sheet_door`（同样有真实门模型），不用 `navy_steel_door` 这类空壳门。
+  - 两格门必须在调色板里写 `facing` / `half=lower|upper` / `hinge` / `open=false`，否则 blockstate 匹配不到 variant，同样不渲染。`tools/generate_ponder_structures.py` 的 `door_palette()` 已封装。
 - 职业涉及食物 / 饮料盘时使用 `trainmurdermystery:food_platter`、`trainmurdermystery:drink_tray`；涉及床 / 马桶时选择本模组对应方块，例如 `trainmurdermystery:white_trimmed_bed`、`trainmurdermystery:light_toilet`。
   床是两格方块：结构里必须同时放脚和头两块，并在调色板写入 `facing`、`part`、`occupied` 属性，
   否则床不会渲染。生成器中的 `bed_palette()` 已封装这一写法。
@@ -384,6 +387,9 @@ InvalidInjectionException: non-static callback method ... targets a static metho
 | `starrailexpress:role_effects` | 速度、药水、护盾层数等状态与叠加 | `bars`、`lines` |
 | `starrailexpress:role_bond` | 绑定生成、队友/仇敌等关联关系 | `lines`、`color`；可再用 `role_player.outline` 标出对应玩家 |
 | `starrailexpress:role_panel` | 信件、笔记、任务清单、物品栏查看、身份揭示等文书界面 | `lines`、`title` |
+| `starrailexpress:role_pose` | 改变已建玩家模型的姿态（技能中途蹲下 / 站起） | `linkId`、`pose` |
+| `starrailexpress:role_hold` | 给已建玩家模型换手持物（切药剂 / 换武器） | `linkId`、`item` |
+| `starrailexpress:role_outline` | 给已建玩家模型加 / 改本能透视边框（施法后看见目标） | `linkId`、`color`、`lineWidth`、`expand` |
 
 前四种原步骤共用 `PonderInfoOverlayElement`，绘制在右上角；后六种共用 `PonderStateOverlayElement`，
 绘制在左上角，两者不会互相遮挡，也不遮挡场景中央的玩家模型与字幕。
@@ -620,18 +626,17 @@ InvalidInjectionException: non-static callback method ... targets a static metho
 
 ### `starrailexpress:role_death`
 
-死亡动画：**玩家模型倒下 → 消失 → 在同一位置生成尸体**。
-游戏里被击杀的玩家会在原地留下 `trainmurdermystery:player_body`，思索沙盒没有这个过程，
-所以显式演出：先摆出趴下的姿态（`Pose.SWIMMING`，即游戏的死亡姿态），
-等一小段时间后让模型消失，再在原坐标生成尸体实体。
+死亡动画：**玩家模型直接消失 → 在同一位置生成尸体**。
+游戏里被击杀的玩家会直接从世界移除并在原地留下 `trainmurdermystery:player_body`，
+思索沙盒没有这个过程，所以显式演出：不摆趴下姿态，模型立即隐藏，同时在原坐标生成尸体实体。
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
-| `linkId` | string | 要倒下的玩家模型 |
+| `linkId` | string | 要消失的玩家模型 |
 | `pos` | `[x,y,z]` | 尸体生成位置；省略时取模型当前位置 |
 | `name` | string | 尸体名。含 `.` 且不含空格时按**翻译键**处理，否则按字面文本 |
 | `entity` | string | 尸体实体 id，默认 `trainmurdermystery:player_body` |
-| `delay` | int | 倒下到消失之间的 tick，默认 14 |
+| `delay` | int | 兼容旧场景保留，当前不生效 |
 | `yaw` | number | 尸体朝向 |
 
 > **CustomName 必须是 JSON 文本组件**：`Entity.load` 用 `Component.Serializer.fromJson`
@@ -711,6 +716,26 @@ indicate_success [2,0,4] + idle 80 + rotate_camera_y
 粒子与音效直接取自源码：`ParticleTypes.PORTAL` 环绕 16 点 + 中心 10 点（`y + 0.9`），
 音效 `SoundEvents.ENDERMAN_TELEPORT`（`minecraft:entity.enderman.teleport`，`source: players`）。
 `role_teleport` 故意做成瞬移：游戏内 `teleportTo` 就是瞬移，做插值反而不符合实际表现。
+
+### 逐句动作编排（2026-11-21，除酒保 / 小丑 / 召回者外全部新增场景）
+
+`tools/gen_ponder_scenes.py` 的 `build_skill_act()` 不再给技能段落只塞一个键帽和
+`role_skill` 面板：它逐句读取职业介绍原文，按句子里真正发生的机制组合动作，
+每句原文前面都有一组对应的演示，做到「按一次键 → 画面变一次」。已实现的演绎包括：
+
+- 交换位置：第二玩家模型 + 走到对方面前 → 两处传送粒子 → 两个模型互换坐标；
+- 标记 / 回到：原地高亮标点 → 走开 → 再按键 → 起跳点和落点各播一次传送粒子；
+- 指向玩家查看界面：目标模型 + `role_outline` → `role_panel` → 目标走开；
+- 蹲下察觉：`role_pose` 蹲下 → 区域高亮 + 效果粒子 → 站起；
+- 击杀 / 尸体：目标模型 → 走近 → `role_death` 直接消失并留下尸体；
+- 中毒 / 护盾 / 治愈：摆出真实物品、`show_controls` 右键提示，配合 `wathe:poison`
+  或 `minecraft:effect` 粒子，血量 / 护盾条显示前后变化；
+- 冷却 / 延迟 / 代价：`role_timer`、`role_currency` 显示进度或金币变化；
+- 切换药剂 / 武器：`role_hold` 当场换手持物，不用重建模型；
+- 传送 / 瞬移 / 召回：两端粒子 + `role_teleport` + 落地指示。
+
+同一段落里同类覆盖层只保留第一块，避免左上角的金币 / 冷却 / 血量面板互相遮挡。
+每条介绍句的目标玩家和物品实体用独立 `linkId`，前一句留下的尸体不会串到下一句。
 
 ## 18. 全覆盖实现（2026-11-21）
 

@@ -124,21 +124,7 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "attachKeyFrame": true,
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60
-          }
-        },
-        {
           "type": "starrailexpress:role_skill",
-          "attachKeyFrame": true,
           "parameters": {
             "label": "ponder.starrailexpress.label.skill",
             "lines": [
@@ -151,14 +137,77 @@
                 "en_us": "Gong: when struck, non-Civilian/non-Sheriff players within 15 blocks cannot use skills or inventory for 10 seconds. 120s cooldown.",
                 "zh_cn": "锣：敲响后使15格内非平民/非警长阵营的玩家10秒内无法使用技能与背包。冷却120秒。",
                 "zh_tw": "鑼：敲響後使15格內非平民/非警長陣營的玩家10秒內無法使用技能與背包。冷卻120秒。"
-              },
-              {
-                "en_us": "Clapper: after striking, lasts 10 seconds; every 2 seconds reduces game time by the number of nearby players (4s each, max 1 minute total) and gives nearby players the Dream effect for 1 minute. 120s cooldown.",
-                "zh_cn": "梆：敲响后持续10秒，每2秒按周围玩家人数扣减游戏时间（每名玩家4秒，总共至多减少1分钟），同时使周围玩家获得1分钟入梦效果。冷却120秒。",
-                "zh_tw": "梆：敲響後持續10秒，每2秒按周圍玩家人數扣減遊戲時間（每名玩家4秒，總共至多減少1分鐘），同時使周圍玩家獲得1分鐘入夢效果。冷卻120秒。"
               }
             ]
-          }
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Active - Toll the Bell: press the skill key to toll a bell, letting players within 15 blocks briefly see the game time for 15 seconds. 90s cooldown.",
+                "zh_cn": "主动技能-敲钟：按下技能键敲钟，使15格内的玩家短暂透视游戏时间15秒，冷却90秒。",
+                "zh_tw": "主動技能-敲鐘：按下技能鍵敲鐘，使15格內的玩家短暫透視遊戲時間15秒，冷卻90秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
         },
         {
           "type": "text",
@@ -181,6 +230,56 @@
           "duration": 200
         },
         {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -199,6 +298,56 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
         },
         {
           "type": "text",

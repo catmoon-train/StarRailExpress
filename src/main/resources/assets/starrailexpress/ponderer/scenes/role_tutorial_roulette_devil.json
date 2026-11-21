@@ -219,8 +219,21 @@
           }
         },
         {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Roulette Duel (skill 3)",
+                "zh_cn": "对准8格内可见的玩家种下种子，不限阵营，30秒后成熟。成熟时你会收到提示，目标也会收到醒目的提醒。冷却90秒。",
+                "zh_tw": "对准8格内可见的玩家种下种子，不限阵营，30秒后成熟。成熟时你会收到提示，目标也会收到醒目的提醒。冷却90秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "starrailexpress:role_key",
-          "attachKeyFrame": true,
           "parameters": {
             "point": [
               4.0,
@@ -228,37 +241,72 @@
               3.0
             ],
             "direction": "down",
+            "keyBind": "ability",
             "duration": 60
-          }
+          },
+          "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_skill",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_walk",
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Devil Seed (skill 1)",
-                "zh_cn": "你无法拾取地上的物品，也不会与其他玩家相互挤撞；子弹会穿过你的身体，技能也无法将你选为目标。",
-                "zh_tw": "對手初始生命為3，你為4；每次操作限時固定17秒，逾時自動向自己開槍。每次補給先從2–5件中抽取，再乘70%四捨五入，得到1–4件；僅初始補給在縮減後每人再減1件，最低為0，因此對手初始0–3件，你保留額外1件的初始獎勵，初始為1–4件。後續補給仍為1–4件，不再減1，也不再給予額外獎勵；各自持有與待領合計最多8件，滿包補給暫存，已有道具保留。賭局使用獨立背包，結束後恢復原背包。對手輸掉賭局不會被處死；你自己輸掉賭局會消耗1次免死機會並返回列車。你擁有「開局實際參賽人數/8」次免死機會，向下取整且至少1次，耗盡後再輸才會死亡。賭局敗者會隨機獲得一種殘疾患者症狀，持續3分鐘。"
-              },
-              {
-                "en_us": "Everyone can see you for 20 seconds. During this time, players within 64 blocks who face you with an unobstructed view lose 2.5% of their maximum sanity every second. Cooldown: 90 seconds.",
-                "zh_cn": "恶魔种子（技能一）",
-                "zh_tw": "難民亡命徒登場時，正在進行的輪盤賭局立即中止，雙方恢復原背包並返回列車，本局不計勝負，也不消耗免死次數。存活的輪盤惡魔暫時進入旁觀，直到亡命徒死亡、階段結束後復活；在此之前不能重新發起賭局。階段開始前已死亡的惡魔不會因此復活。"
-              },
-              {
-                "en_us": "Roulette Duel (skill 3)",
-                "zh_cn": "对准8格内可见的玩家种下种子，不限阵营，30秒后成熟。成熟时你会收到提示，目标也会收到醒目的提醒。冷却90秒。",
-                "zh_tw": "对准8格内可见的玩家种下种子，不限阵营，30秒后成熟。成熟时你会收到提示，目标也会收到醒目的提醒。冷却90秒。"
-              },
-              {
-                "en_us": "In your inventory, click the portrait of a low-sanity player or a player marked by your mature seed to bring both of you to a secret dark room and sit for a duel. The same target cannot be challenged again until 60 seconds after your previous duel with them ends. Neither participant can leave the seat or be teleported away before it ends; the duel also ends if the game ends or either participant dies from another cause. Targets inside another domain or shielded by domain sanctuary cannot be challenged. If your opponent has a sanity meter, it is temporarily filled to their current mood's maximum and immune to natural sanity drain during the duel; leaving or cancelling restores their original sanity and natural-drain immunity.",
-                "zh_cn": "欲望显现（技能二）",
-                "zh_tw": "欲望显现（技能二）"
-              }
-            ]
-          }
+            "linkId": "roulette_devil_main",
+            "to": [
+              5.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            6,
+            0,
+            2
+          ],
+          "blockPos2": [
+            6,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            6.0,
+            1.9,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 6,
+          "duration": 50,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            6,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
         },
         {
           "type": "text",
@@ -281,6 +329,82 @@
           "duration": 200
         },
         {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              4.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "roulette_devil_main",
+            "to": [
+              5.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            6,
+            0,
+            2
+          ],
+          "blockPos2": [
+            6,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            6.0,
+            1.9,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 6,
+          "duration": 50,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            6,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -301,6 +425,73 @@
           "duration": 200
         },
         {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              4.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            4,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Roulette Duel (skill 3)",
+                "zh_cn": "对准8格内可见的玩家种下种子，不限阵营，30秒后成熟。成熟时你会收到提示，目标也会收到醒目的提醒。冷却90秒。",
+                "zh_tw": "对准8格内可见的玩家种下种子，不限阵营，30秒后成熟。成熟时你会收到提示，目标也会收到醒目的提醒。冷却90秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            4.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
           "type": "text",
           "duration": 139,
           "text": {
@@ -319,6 +510,82 @@
         {
           "type": "idle",
           "duration": 149
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              4.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "roulette_devil_main",
+            "to": [
+              5.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            6,
+            0,
+            2
+          ],
+          "blockPos2": [
+            6,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            6.0,
+            1.9,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 6,
+          "duration": 50,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            6,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
         },
         {
           "type": "text",

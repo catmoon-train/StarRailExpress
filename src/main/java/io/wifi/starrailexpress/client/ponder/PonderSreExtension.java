@@ -119,8 +119,17 @@ public final class PonderSreExtension {
     /** 摆出该职业的真实初始物品。 */
     public static final String STEP_ROLE_ITEMS = "starrailexpress:role_items";
 
-    /** 死亡动画：玩家模型倒下并消失，同位置生成尸体。 */
+    /** 死亡动画：玩家模型直接消失，同位置生成尸体。 */
     public static final String STEP_ROLE_DEATH = "starrailexpress:role_death";
+
+    /** 改变已存在玩家模型的姿态（蹲下 / 趴下 / 站立等）。 */
+    public static final String STEP_ROLE_POSE = "starrailexpress:role_pose";
+
+    /** 给已存在的玩家模型换手持物，用于演示切药剂 / 换武器。 */
+    public static final String STEP_ROLE_HOLD = "starrailexpress:role_hold";
+
+    /** 给已存在的玩家模型加 / 改本能透视边框。 */
+    public static final String STEP_ROLE_OUTLINE = "starrailexpress:role_outline";
 
     /** 技能界面：模拟背包里的「选人列表」面板。 */
     public static final String STEP_ROLE_SCREEN = "starrailexpress:role_screen";
@@ -161,6 +170,9 @@ public final class PonderSreExtension {
         engine.steps().register(STEP_ROLE_KEY, new RoleKeyStep());
         engine.steps().register(STEP_ROLE_ITEMS, new RoleItemsStep());
         engine.steps().register(STEP_ROLE_DEATH, new RoleDeathStep());
+        engine.steps().register(STEP_ROLE_POSE, new RolePoseStep());
+        engine.steps().register(STEP_ROLE_HOLD, new RoleHoldStep());
+        engine.steps().register(STEP_ROLE_OUTLINE, new RoleOutlineStep());
         engine.steps().register(STEP_ROLE_SCREEN, new RoleScreenStep());
         engine.steps().register(STEP_ROLE_AMBIENCE, new RoleAmbienceStep());
         LOGGER.info("StarRailExpress Ponderer extension installed: {}", EXTENSION_ID);
@@ -607,16 +619,15 @@ public final class PonderSreExtension {
         }
     }
 
-    /** {@code role_death} 的参数。 */
+    /** {@code role_death} 的参数；{@code delay} 仅为兼容旧场景保留，不再生效。 */
     record RoleDeathParams(String linkId, Vec3 pos, String name, String entity, Integer delay, Integer yaw) {
     }
 
     /**
-     * 死亡动画步骤：玩家模型倒下、消失，随后在**同一位置**生成尸体。
+     * 死亡动画步骤：玩家模型立即消失，并在**同一位置**生成尸体。
      *
-     * <p>游戏里被击杀的玩家会在原地留下 {@code trainmurdermystery:player_body}，
-     * 思索沙盒里没有这个过程，所以这里显式演出：先摆出趴下的姿态（死亡姿态），
-     * 等一小段时间后让模型消失，再在原坐标生成尸体实体。
+     * <p>游戏里被击杀的玩家会直接从世界中移除并在原地留下
+     * {@code trainmurdermystery:player_body}；这里照这个表现演出，不再让模型先趴下。
      */
     static final class RoleDeathStep implements StepType<RoleDeathParams> {
         /** 默认的 corpse 实体 id。 */
@@ -670,27 +681,16 @@ public final class PonderSreExtension {
         public void build(RoleDeathParams params, StepBuildContext context) {
             SceneBuilder scene = context.builder();
             PonderPlayerElement element = playerElement(context, params.linkId());
-            int delay = params.delay() == null ? 14 : Math.max(0, params.delay());
             float yaw = params.yaw() == null ? 0.0F : params.yaw().floatValue();
 
-            // 1) 死亡姿态：趴下。
-            scene.addInstruction(ps -> {
-                PonderPlayerElement target = resolvePlayer(ps, element);
-                if (target != null) {
-                    target.pose(Pose.SWIMMING);
-                }
-            });
-            if (delay > 0) {
-                scene.idle(delay);
-            }
-            // 2) 玩家实体消失。
+            // 1) 玩家实体直接消失：不摆死亡姿态，也不等待。
             scene.addInstruction(ps -> {
                 PonderPlayerElement target = resolvePlayer(ps, element);
                 if (target != null) {
                     target.setVisible(false);
                 }
             });
-            // 3) 同一位置生成尸体。
+            // 2) 同一位置生成尸体。
             Vec3 pos = params.pos();
             if (pos == null) {
                 if (element != null) {
@@ -730,6 +730,161 @@ public final class PonderSreExtension {
                 component = "{\"text\":\"" + name.replace("\\", "\\\\").replace("\"", "\\\"") + "\"}";
             }
             return "{CustomName:'" + component + "',CustomNameVisible:1b}";
+        }
+    }
+
+    /** {@code role_pose} 的参数：驱动已经建好的玩家模型换姿态。 */
+    record RolePoseParams(String linkId, Pose pose) {
+    }
+
+    /** 改变已有玩家模型的姿态；蹲下 / 趴下等技能动作用它接续，不必重建模型。 */
+    static final class RolePoseStep implements StepType<RolePoseParams> {
+        @Override
+        public StepCodec<RolePoseParams> codec() {
+            return new StepCodec<>() {
+                @Override
+                public RolePoseParams decode(JsonObject data) {
+                    return new RolePoseParams(readString(data, "linkId"), readPose(data));
+                }
+
+                @Override
+                public JsonObject encode(RolePoseParams value) {
+                    JsonObject data = new JsonObject();
+                    if (value.linkId() != null) {
+                        data.addProperty("linkId", value.linkId());
+                    }
+                    if (value.pose() != null && value.pose() != Pose.STANDING) {
+                        data.addProperty("pose", poseName(value.pose()));
+                    }
+                    return data;
+                }
+            };
+        }
+
+        @Override
+        public String editorLabel() {
+            return text(KEY_PREFIX + "role_pose");
+        }
+
+        @Override
+        public void build(RolePoseParams params, StepBuildContext context) {
+            SceneBuilder scene = context.builder();
+            PonderPlayerElement element = playerElement(context, params.linkId());
+            scene.addInstruction(ps -> {
+                PonderPlayerElement target = resolvePlayer(ps, element);
+                if (target != null) {
+                    target.pose(params.pose());
+                }
+            });
+        }
+    }
+
+    /** {@code role_hold} 的参数。 */
+    record RoleHoldParams(String linkId, ResourceLocation item) {
+    }
+
+    /** 给已有玩家模型换手持物；演示切药剂、换武器、拿起道具时使用。 */
+    static final class RoleHoldStep implements StepType<RoleHoldParams> {
+        @Override
+        public StepCodec<RoleHoldParams> codec() {
+            return new StepCodec<>() {
+                @Override
+                public RoleHoldParams decode(JsonObject data) {
+                    String raw = readString(data, "item");
+                    return new RoleHoldParams(readString(data, "linkId"),
+                            raw == null ? null : ResourceLocation.tryParse(raw));
+                }
+
+                @Override
+                public JsonObject encode(RoleHoldParams value) {
+                    JsonObject data = new JsonObject();
+                    if (value.linkId() != null) {
+                        data.addProperty("linkId", value.linkId());
+                    }
+                    if (value.item() != null) {
+                        data.addProperty("item", value.item().toString());
+                    }
+                    return data;
+                }
+            };
+        }
+
+        @Override
+        public String editorLabel() {
+            return text(KEY_PREFIX + "role_hold");
+        }
+
+        @Override
+        public void build(RoleHoldParams params, StepBuildContext context) {
+            SceneBuilder scene = context.builder();
+            PonderPlayerElement element = playerElement(context, params.linkId());
+            ItemStack stack = params.item() == null ? ItemStack.EMPTY
+                    : new ItemStack(BuiltInRegistries.ITEM.get(params.item()));
+            scene.addInstruction(ps -> {
+                PonderPlayerElement target = resolvePlayer(ps, element);
+                if (target != null) {
+                    target.heldItem(stack);
+                }
+            });
+        }
+    }
+
+    /** {@code role_outline} 的参数。 */
+    record RoleOutlineParams(String linkId, Integer color, Float lineWidth, Float expand) {
+    }
+
+    /** 给已有玩家模型加 / 改本能透视边框，用于「施法后看见目标」一类的变化。 */
+    static final class RoleOutlineStep implements StepType<RoleOutlineParams> {
+        @Override
+        public StepCodec<RoleOutlineParams> codec() {
+            return new StepCodec<>() {
+                @Override
+                public RoleOutlineParams decode(JsonObject data) {
+                    return new RoleOutlineParams(readString(data, "linkId"), readInt(data, "color"),
+                            readFloat(data, "lineWidth"), readFloat(data, "expand"));
+                }
+
+                @Override
+                public JsonObject encode(RoleOutlineParams value) {
+                    JsonObject data = new JsonObject();
+                    if (value.linkId() != null) {
+                        data.addProperty("linkId", value.linkId());
+                    }
+                    if (value.color() != null) {
+                        data.addProperty("color", value.color());
+                    }
+                    if (value.lineWidth() != null) {
+                        data.addProperty("lineWidth", value.lineWidth());
+                    }
+                    if (value.expand() != null) {
+                        data.addProperty("expand", value.expand());
+                    }
+                    return data;
+                }
+            };
+        }
+
+        @Override
+        public String editorLabel() {
+            return text(KEY_PREFIX + "role_outline");
+        }
+
+        @Override
+        public void build(RoleOutlineParams params, StepBuildContext context) {
+            if (params.color() == null) {
+                return;
+            }
+            SceneBuilder scene = context.builder();
+            PonderPlayerElement element = playerElement(context, params.linkId());
+            float width = params.lineWidth() == null ? 1.0F : params.lineWidth();
+            float expand = params.expand() == null ? 0.12F : params.expand();
+            int color = params.color();
+            scene.addInstruction(ps -> {
+                PonderPlayerElement target = resolvePlayer(ps, element);
+                if (target != null) {
+                    target.outline(color, width, expand);
+                }
+            });
         }
     }
 

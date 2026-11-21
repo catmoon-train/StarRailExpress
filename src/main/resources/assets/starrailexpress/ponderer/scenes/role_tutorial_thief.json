@@ -219,21 +219,7 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "attachKeyFrame": true,
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60
-          }
-        },
-        {
           "type": "starrailexpress:role_skill",
-          "attachKeyFrame": true,
           "parameters": {
             "label": "ponder.starrailexpress.label.skill",
             "lines": [
@@ -243,7 +229,75 @@
                 "zh_tw": "你可以按下技能切換鍵（默認Y鍵）切換模式：偷錢、偷物品、賣物品，對玩家按下技能鍵釋放技能（技能冷卻為30s，偷取失敗不會使技能進入冷卻，賣物品無冷卻）"
               }
             ]
-          }
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Press the skill-switch key (default Y) to switch modes: Steal Coin, Steal Item, Sell Item; press the skill key while aimed at a player to use (skill cooldown 30s; failed steals do not trigger cooldown; selling has no cooldown)",
+                "zh_cn": "你可以按下技能切换键（默认Y键）切换模式：偷钱、偷物品、卖物品，对玩家按下技能键释放技能（技能冷却为30s，偷取失败不会使技能进入冷却，卖物品无冷却）",
+                "zh_tw": "你可以按下技能切換鍵（默認Y鍵）切換模式：偷錢、偷物品、賣物品，對玩家按下技能鍵釋放技能（技能冷卻為30s，偷取失敗不會使技能進入冷卻，賣物品無冷卻）"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
         },
         {
           "type": "text",

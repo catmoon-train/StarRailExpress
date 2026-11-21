@@ -124,29 +124,10 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "attachKeyFrame": true,
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60
-          }
-        },
-        {
           "type": "starrailexpress:role_skill",
-          "attachKeyFrame": true,
           "parameters": {
             "label": "ponder.starrailexpress.label.skill",
             "lines": [
-              {
-                "en_us": "Passive: your model is a pig.",
-                "zh_cn": "被动：你的模型变成一头猪。",
-                "zh_tw": "被動：你的模型變成一頭豬。"
-              },
               {
                 "en_us": "Active · Rampage (skill key G): spend 150 coins for 30s of Rampage, highlighting all players within 40 blocks, gaining Speed III, and playing a mysterious chase sound.",
                 "zh_cn": "主动·疯魔模式（技能键 G）：消耗 150 金币进入疯魔模式 30 秒并高亮周围 40 格内所有玩家，疯魔期间获得速度 III，并播放神秘追杀音效。",
@@ -158,7 +139,8 @@
                 "zh_tw": "冷卻 45 秒。"
               }
             ]
-          }
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -181,6 +163,73 @@
           "duration": 102
         },
         {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Active · Rampage (skill key G): spend 150 coins for 30s of Rampage, highlighting all players within 40 blocks, gaining Speed III, and playing a mysterious chase sound.",
+                "zh_cn": "主动·疯魔模式（技能键 G）：消耗 150 金币进入疯魔模式 30 秒并高亮周围 40 格内所有玩家，疯魔期间获得速度 III，并播放神秘追杀音效。",
+                "zh_tw": "主動·瘋魔模式（技能鍵 G）：消耗 150 金幣進入瘋魔模式 30 秒並高亮周圍 40 格內所有玩家，瘋魔期間獲得速度 III，並播放神秘追殺音效。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -199,6 +248,56 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
         },
         {
           "type": "text",

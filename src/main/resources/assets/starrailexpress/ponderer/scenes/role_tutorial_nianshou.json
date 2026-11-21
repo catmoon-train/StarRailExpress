@@ -144,36 +144,18 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "attachKeyFrame": true,
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60
-          }
-        },
-        {
           "type": "starrailexpress:role_skill",
-          "attachKeyFrame": true,
           "parameters": {
             "label": "ponder.starrailexpress.label.skill",
             "lines": [
-              {
-                "en_us": "Passive - New Year's Eve: while you are alive, everyone gets 4 Firecrackers; if (2/3 of total players) firecrackers are around the Nian Beast (5-block radius), it dies.",
-                "zh_cn": "被动-除岁：当你存在于场上时，所有人获得4个鞭炮，如果年兽周围(5格半径)有(2/3总人数)个鞭炮则年兽死亡。",
-                "zh_tw": "被動-除歲：當你存在於場上時，所有人獲得4個鞭炮，如果年獸周圍(5格半徑)有(2/3總人數)個鞭炮則年獸死亡。"
-              },
               {
                 "en_us": "Active - Scatter Wealth: every 2 tasks completed grants a Red Packet; use the skill on someone to send it, and after 15s they get a notice and 100 coin.",
                 "zh_cn": "主动-散财：你每完成2个任务会获得1个红包，对他人使用技能发放红包可使对方在15s后收到提示并获得100金币。",
                 "zh_tw": "主動-散財：你每完成2個任務會獲得1個紅包，對他人使用技能發放紅包可使對方在15s後收到提示並獲得100金幣。"
               }
             ]
-          }
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -194,6 +176,57 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            3.9,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "nianshou_skill_item_1"
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.5
+            ],
+            "lines": [
+              {
+                "en_us": "Active - Scatter Wealth: every 2 tasks completed grants a Red Packet; use the skill on someone to send it, and after 15s they get a notice and 100 coin.",
+                "zh_cn": "主动-散财：你每完成2个任务会获得1个红包，对他人使用技能发放红包可使对方在15s后收到提示并获得100金币。",
+                "zh_tw": "主動-散財：你每完成2個任務會獲得1個紅包，對他人使用技能發放紅包可使對方在15s後收到提示並獲得100金幣。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 35
         },
         {
           "type": "text",
@@ -422,6 +455,40 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            3.9,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "nianshou_skill_item_1"
+        },
+        {
+          "type": "idle",
+          "duration": 35
         },
         {
           "type": "text",

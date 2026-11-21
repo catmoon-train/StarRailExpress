@@ -124,21 +124,7 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "attachKeyFrame": true,
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60
-          }
-        },
-        {
           "type": "starrailexpress:role_skill",
-          "attachKeyFrame": true,
           "parameters": {
             "label": "ponder.starrailexpress.label.skill",
             "lines": [
@@ -146,14 +132,10 @@
                 "en_us": "Patrol Pistol: has its own cooldown and can coexist with a Revolver.",
                 "zh_cn": "巡警手枪：拥有独立的CD，可与左轮手枪同时存在。",
                 "zh_tw": "巡警手槍：擁有獨立的CD，可與左輪手槍同時存在。"
-              },
-              {
-                "en_us": "The Patrol Pistol's cooldown is 1/5 of a normal Revolver's.",
-                "zh_cn": "巡警手枪的CD为普通左轮的1/5。",
-                "zh_tw": "巡警手槍的CD為普通左輪的1/5。"
               }
             ]
-          }
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -375,6 +357,82 @@
             "yaw": 180.0,
             "linkId": "patroller_main"
           }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "patroller_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            5.0,
+            1.9,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 6,
+          "duration": 50,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
         },
         {
           "type": "text",

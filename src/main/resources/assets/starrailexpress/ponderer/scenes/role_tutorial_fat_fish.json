@@ -143,21 +143,7 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "attachKeyFrame": true,
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60
-          }
-        },
-        {
           "type": "starrailexpress:role_skill",
-          "attachKeyFrame": true,
           "parameters": {
             "label": "ponder.starrailexpress.label.skill",
             "lines": [
@@ -170,24 +156,77 @@
                 "en_us": "Skill · Tail Lunge: dash forward and smash away players ahead (25s cd)",
                 "zh_cn": "技能·摆尾冲刺：向前冲刺并撞飞正前方的人（冷却 25 秒）",
                 "zh_tw": "技能·擺尾衝刺：向前衝刺並撞飛正前方的人（冷卻 25 秒）"
-              },
-              {
-                "en_us": "Passive · Mud Fish: no suffocation in water, Dolphin's Grace, faster stamina recovery",
-                "zh_cn": "被动·浑水鱼：在水里不会缺氧、获得海豚的恩惠，而且回体力更快",
-                "zh_tw": "被動·渾水魚：在水裏不會缺氧、獲得海豚的恩惠，而且回體力更快"
-              },
-              {
-                "en_us": "Passive · Round: anti-knockback, shoving aside players you touch while moving",
-                "zh_cn": "被动·圆滚滚：抗击退，移动时会把贴到自己的人顶开",
-                "zh_tw": "被動·圓滾滾：抗擊退，移動時會把貼到自己的人頂開"
-              },
-              {
-                "en_us": "Passive · Feeding Tofu: others right-click you with food to restore your stamina and give nearby players 5s Speed",
-                "zh_cn": "被动·投喂团子：其他玩家拿着食物右键你，可以给你恢复体力，并给周围玩家 5 秒速度效果",
-                "zh_tw": "被動·投喂團子：其他玩家拿著食物右鍵你，可以給你恢復體力，並給周圍玩家 5 秒速度效果"
               }
             ]
-          }
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Skill · Whalesong: a whale call roots and disarms players within 8 blocks and slows them (60s cd)",
+                "zh_cn": "技能·鲸歌：发出一声鲸叫，8 格内的其他玩家被定身、禁用手持并减速（冷却 60 秒）",
+                "zh_tw": "技能·鯨歌：發出一聲鯨叫，8 格內的其他玩家被定身、禁用手持並減速（冷卻 60 秒）"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
         },
         {
           "type": "text",
@@ -208,6 +247,56 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
         },
         {
           "type": "text",
@@ -268,6 +357,68 @@
         {
           "type": "idle",
           "duration": 188
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              4.0
+            ],
+            "yaw": 180.0,
+            "linkId": "fat_fish_skill_target_4",
+            "outline": -12156216
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            3.0,
+            1.9,
+            4.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 10,
+          "duration": 80,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            4
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 35
         },
         {
           "type": "text",

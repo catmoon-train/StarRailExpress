@@ -122,8 +122,21 @@
           }
         },
         {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Use the skill-switch key to switch to skill 2; hold a mushroom and press the skill key to brew it into mushroom extract, 90s cd.",
+                "zh_cn": "可使用技能切换键切换到第二技能，手持蘑菇时按技能键可将蘑菇调制为对应蘑菇素，冷却 90 秒。",
+                "zh_tw": "可使用技能切換鍵切換到第二技能，手持蘑菇時按技能鍵可將蘑菇調製為對應蘑菇素，冷卻 90 秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "starrailexpress:role_key",
-          "attachKeyFrame": true,
           "parameters": {
             "point": [
               3.0,
@@ -131,27 +144,72 @@
               3.0
             ],
             "direction": "down",
+            "keyBind": "ability",
             "duration": 60
-          }
+          },
+          "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_skill",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_walk",
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Within 3 blocks of a bed, press the skill key to open the \"cultivate mushrooms\" minigame: drag two differently colored potions onto the sample and run 3 experiments.",
-                "zh_cn": "处在床的 3 格范围内时，按技能键可打开“培育菌子”小游戏：将两种不同颜色的药水拖到研究台上的菌子样本，完成 3 次实验。",
-                "zh_tw": "處在床的 3 格範圍內時，按技能鍵可打開“培育菌子”小遊戲：將兩種不同顏色的藥水拖到研究臺上的菌子樣本，完成 3 次實驗。"
-              },
-              {
-                "en_us": "Use the skill-switch key to switch to skill 2; hold a mushroom and press the skill key to brew it into mushroom extract, 90s cd.",
-                "zh_cn": "可使用技能切换键切换到第二技能，手持蘑菇时按技能键可将蘑菇调制为对应蘑菇素，冷却 90 秒。",
-                "zh_tw": "可使用技能切換鍵切換到第二技能，手持蘑菇時按技能鍵可將蘑菇調製為對應蘑菇素，冷卻 90 秒。"
-              }
-            ]
-          }
+            "linkId": "mushroom_scholar_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            5.0,
+            1.9,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 6,
+          "duration": 50,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
         },
         {
           "type": "text",
@@ -172,6 +230,73 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Use the skill-switch key to switch to skill 2; hold a mushroom and press the skill key to brew it into mushroom extract, 90s cd.",
+                "zh_cn": "可使用技能切换键切换到第二技能，手持蘑菇时按技能键可将蘑菇调制为对应蘑菇素，冷却 90 秒。",
+                "zh_tw": "可使用技能切換鍵切換到第二技能，手持蘑菇時按技能鍵可將蘑菇調製為對應蘑菇素，冷卻 90 秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
         },
         {
           "type": "text",

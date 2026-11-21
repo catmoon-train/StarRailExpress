@@ -199,21 +199,7 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "attachKeyFrame": true,
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60
-          }
-        },
-        {
           "type": "starrailexpress:role_skill",
-          "attachKeyFrame": true,
           "parameters": {
             "label": "ponder.starrailexpress.label.skill",
             "lines": [
@@ -221,19 +207,10 @@
                 "en_us": "Off snow / ice blocks the snowball shrinks by 0.1 every 3 seconds, and vanishes once below 0.5.",
                 "zh_cn": "被动·滚雪：在雪块 / 顶层雪上每移动 4 格，可以推出一颗大雪球(基础尺寸为0.5)；之后每在雪上推动4格都会让它的尺寸变大 0.1（上限 10）。",
                 "zh_tw": "被動·滾雪：在雪塊 / 頂層雪上每移動 4 格，可以推出一顆大雪球(基礎尺寸為0.5)；之後每在雪上推動4格都會讓它的尺寸變大 0.1（上限 10）。"
-              },
-              {
-                "en_us": "A launched snowball that hits a player deals 1 vanilla damage + size×2.4 virtual damage (cause «Snowball Crush», killer credited to the rolling Snow Golem), size×1.3 knockback, and Slowness I~III based on size.",
-                "zh_cn": "技能【推出雪球】：把正在推的雪球猛地推出去。大雪球在撞到墙体后会使尺寸 -1 并反弹，雪球滚动期间可以被雪傀儡重新接住。",
-                "zh_tw": "技能【推出雪球】：把正在推的雪球猛地推出去。大雪球在撞到牆體後會使尺寸 -1 並反彈，雪球滾動期間可以被雪傀儡重新接住。"
-              },
-              {
-                "en_us": "Snowballs block the way, but players cannot stand on top of them.",
-                "zh_cn": "雪球每次被其它玩家撞击会使雪球尺寸缩小 0.5，只有雪傀儡能主动推动大雪球。",
-                "zh_tw": "雪球每次被其他玩家撞擊會使雪球尺寸縮小 0.5，只有雪傀儡能主動推動大雪球。"
               }
             ]
-          }
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -254,6 +231,82 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "snow_golem_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            5.0,
+            1.9,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 6,
+          "duration": 50,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
         },
         {
           "type": "text",

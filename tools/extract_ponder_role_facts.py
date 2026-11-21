@@ -159,6 +159,13 @@ def collect_item_constants():
             table.setdefault(const, namespace + ":" + path)
         for const, path in ITEM_CONST_RE2.findall(text):
             table.setdefault(const, namespace + ":" + path)
+        # TMMItems.java 里部分物品（画板、管理员画板等）虽然写在这个类中，
+        # 实际用的是 sreRegistrar.create，注册命名空间是 starrailexpress。
+        # 不修正的话场景 items 会拿到 trainmurdermystery:drawing_board 这种
+        # 不存在的物品，Ponderer 会直接跳过整个场景。
+        for const, path in re.findall(
+                r'([A-Z][A-Z0-9_]*)\s*=\s*sreRegistrar\.create\(\s*"([a-z0-9_/]+)"', text):
+            table[const] = "starrailexpress:" + path
     return table
 
 

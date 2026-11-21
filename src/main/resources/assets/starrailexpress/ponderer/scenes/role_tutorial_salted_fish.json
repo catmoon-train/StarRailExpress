@@ -124,8 +124,21 @@
           }
         },
         {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "The 40s cooldown only starts after the duration ends.",
+                "zh_cn": "持续时间结束后才开始 40 秒冷却。",
+                "zh_tw": "持續時間結束後才開始 40 秒冷卻。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "starrailexpress:role_key",
-          "attachKeyFrame": true,
           "parameters": {
             "point": [
               3.0,
@@ -133,27 +146,41 @@
               3.0
             ],
             "direction": "down",
+            "keyBind": "ability",
             "duration": 60
-          }
+          },
+          "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_skill",
-          "attachKeyFrame": true,
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 200,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
+            "progress": [
+              0.0,
+              1.0
+            ],
             "lines": [
               {
                 "en_us": "Press the skill key to lie facing the sun; you can't move, turn, use items or open inventory.",
                 "zh_cn": "按技能键会面朝太阳躺下，期间无法移动、转向、使用物品或打开背包。",
                 "zh_tw": "按技能鍵會面朝太陽躺下，期間無法移動、轉向、使用物品或打開背包。"
-              },
-              {
-                "en_us": "The 40s cooldown only starts after the duration ends.",
-                "zh_cn": "持续时间结束后才开始 40 秒冷却。",
-                "zh_tw": "持續時間結束後才開始 40 秒冷卻。"
               }
             ]
-          }
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
         },
         {
           "type": "text",
@@ -174,6 +201,56 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
         },
         {
           "type": "text",

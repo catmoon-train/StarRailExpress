@@ -293,6 +293,300 @@ def show_structure(nbt):
             "scale": 1.0, "attachKeyFrame": True}
 
 
+# ---------------------------------------------------------------- 技能演绎
+#
+# 技能段落不能只摆一个键帽 + 一段说明。下面按介绍原文里真正发生的机制
+# 组合出可看见的动作：按键、走动、交换位置、传送、蹲下、递交物品、
+# 中毒 / 护盾 / 治愈粒子、金币与冷却变化、尸体与透视等。
+# 每条介绍句都配一段对应动作，做到「按一次键 → 画面变一次」。
+
+# 介绍里出现这些词时优先用对应的真实粒子（不凭空编 id）。
+PARTICLE_BY_WORD = [
+    (("中毒", "下毒", "毒药", "剧毒"), "wathe:poison"),
+    (("护盾", "药剂", "药水", "治疗", "治愈", "恢复"), "minecraft:effect"),
+    (("爆炸", "炸"), "minecraft:explosion"),
+    (("燃烧", "火焰", "点燃"), "minecraft:flame"),
+    (("传送", "瞬移", "召回", "回到"), "minecraft:portal"),
+    (("击杀", "杀死", "死亡", "尸体"), "minecraft:smoke"),
+]
+SOUND_BY_WORD = [
+    (("传送", "瞬移", "召回", "回到"), "minecraft:entity.enderman.teleport"),
+    (("爆炸", "炸"), "minecraft:entity.generic.explode"),
+    (("击杀", "杀死", "死亡"), "minecraft:entity.player.hurt"),
+]
+
+
+def scene_particle(particle, pos, count=8, duration=60, spread=None):
+    return {"type": "spawn_particles", "particle": particle, "pos": list(pos),
+            "distribution": "box", "spread": spread or [0.35, 0.6, 0.35],
+            "count": count, "duration": duration, "motion": [0, 0.04, 0]}
+
+
+def scene_sound(sound):
+    return {"type": "play_sound", "sound": sound, "soundVolume": 1.0,
+            "pitch": 1.0, "source": "players"}
+
+
+def custom(kind, params):
+    return {"type": "starrailexpress:" + kind, "parameters": params, "attachKeyFrame": True}
+
+
+def key_cap(point):
+    return custom("role_key", {"point": list(point), "direction": "down",
+                               "keyBind": "ability", "duration": 60})
+
+
+def parse_seconds(text):
+    values = re.findall(r"(\d+(?:\.\d+)?)\s*(?:秒|s\b|S\b)", text)
+    return float(values[0]) if values else None
+
+
+def parse_coins(text):
+    values = re.findall(r"(\d+)\s*(?:金币|金幣|coin)", text, flags=re.IGNORECASE)
+    return int(values[0]) if values else None
+
+
+def pick_item(facts, fallback="trainmurdermystery:note"):
+    for key in ("initialItems", "shopItems"):
+        items = facts.get(key) or []
+        if items:
+            return items[0]
+    return fallback
+
+
+def particle_for(text):
+    for words, particle in PARTICLE_BY_WORD:
+        if any(word in text for word in words):
+            return particle
+    return None
+
+
+def sound_for(text):
+    for words, sound in SOUND_BY_WORD:
+        if any(word in text for word in words):
+            return sound
+    return None
+
+
+# 这些段落里的句子才需要追加动作；body / vision / bond / form / domain / shop / screen
+# 已经有各自的专属演示，再叠一套动作只会让画面变乱。
+ACT_SEGMENTS = {"skill", "panel", "details", "items", "mood", "vitals"}
+ACTION_WORDS = ("技能", "按下", "右键", "左键", "按住", "蹲下", "传送", "交换", "标记",
+                "查看", "中毒", "护盾", "治愈", "治疗", "冷却", "金币", "切换", "召回",
+                "瞬移", "施放", "释放", "使用", "打开背包", "打开物品栏")
+
+
+def has_action(zh):
+    return any(word in zh for word in ACTION_WORDS)
+
+
+def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None):
+    """把一条技能介绍翻译成一组动作步骤。
+
+    返回 ``(steps, used_state_panel)``。``used_state_panel`` 用来避免同一段里
+    两个左上角覆盖层叠在一起（金币 / 冷却 / 血量）。``suffix`` 让每条介绍句的
+    目标玩家 / 物品实体使用独立 linkId，前一句的尸体或物品不会串到下一句。
+    ``line`` 传原文的三语对象，覆盖层文案才能跟着客户端语言切换。
+    """
+    overlay_line = dict(line) if line else {"zh_cn": zh, "en_us": zh, "zh_tw": zh}
+    px, py, pz = base
+    tx, ty, tz = target
+    head = [px, py + 1.9, pz]
+    steps = []
+    panel = False
+    link = rid + "_main"
+    target_link = rid + "_skill_target_" + suffix
+    item_link = rid + "_skill_item_" + suffix
+    item = pick_item(facts)
+
+    def key():
+        steps.append(key_cap(head))
+
+    def particles_at(point, **kwargs):
+        particle = particle_for(zh) or "minecraft:effect"
+        steps.append(scene_particle(particle, point, **kwargs))
+
+    # 互动类机制需要一个目标玩家；放在模型视线前方，不与主角重合。
+    def add_target():
+        steps.append(player_step(target, target_link, outline=outline))
+
+    if "交换" in zh and "位置" in zh:
+        add_target()
+        key()
+        steps.append(custom("role_walk", {"linkId": link, "to": [tx, ty, tz - 0.8], "duration": 40}))
+        steps.append({"type": "idle", "duration": 20})
+        steps.append(scene_particle("minecraft:portal", [px, py + 0.9, pz], count=12, duration=40))
+        steps.append(scene_particle("minecraft:portal", [tx, ty + 0.9, tz], count=12, duration=40))
+        steps.append(custom("role_teleport", {"linkId": link, "pos": [tx, ty, tz]}))
+        steps.append(custom("role_teleport", {"linkId": target_link, "pos": [px, py, pz]}))
+        steps.append({"type": "indicate_success", "blockPos": [int(px), int(py), int(pz)]})
+        steps.append({"type": "idle", "duration": 30})
+        return steps, panel
+
+    if "标记" in zh and any(word in zh for word in ("传送", "回到", "召回", "返回", "记录")):
+        mark = [int(px), 0, int(pz)]
+        away = [px, py, max(1, pz - 2)]
+        key()
+        steps.append({"type": "highlight_section", "blockPos": mark, "blockPos2": mark,
+                      "duration": 380, "color": "green"})
+        steps.append({"type": "idle", "duration": 35})
+        steps.append(custom("role_walk", {"linkId": link, "to": away, "duration": 50}))
+        steps.append({"type": "idle", "duration": 20})
+        key()
+        steps.append(scene_particle("minecraft:portal", [away[0], away[1] + 0.9, away[2]], count=12, duration=45))
+        sound = sound_for(zh)
+        if sound:
+            steps.append(scene_sound(sound))
+        steps.append(custom("role_teleport", {"linkId": link, "pos": [px, py, pz]}))
+        steps.append(scene_particle("minecraft:portal", [px, py + 0.9, pz], count=12, duration=45))
+        steps.append({"type": "indicate_success", "blockPos": mark})
+        steps.append({"type": "idle", "duration": 30})
+        return steps, panel
+
+    if any(word in zh for word in ("查看", "观察")) and any(
+            word in zh for word in ("物品栏", "背包", "界面", "身上")):
+        add_target()
+        key()
+        steps.append(custom("role_outline", {"linkId": target_link, "color": outline}))
+        steps.append(custom("role_panel", {
+            "title": "ponder.starrailexpress.label.items",
+            "lines": [overlay_line]}))
+        panel = True
+        steps.append(custom("role_walk", {"linkId": target_link,
+                                          "to": [tx + 1.2, ty, tz], "duration": 40}))
+        steps.append({"type": "idle", "duration": 25})
+        return steps, panel
+
+    if "蹲下" in zh or "潜行" in zh:
+        key()
+        steps.append(custom("role_pose", {"linkId": link, "pose": "crouching"}))
+        steps.append({"type": "highlight_section", "blockPos": [int(px) - 1, 0, int(pz) - 1],
+                      "blockPos2": [int(px) + 1, 0, int(pz) + 1],
+                      "duration": 240, "color": "green"})
+        steps.append(scene_particle("minecraft:effect", [px, py + 0.4, pz], count=10, duration=70))
+        steps.append({"type": "idle", "duration": 40})
+        steps.append(custom("role_pose", {"linkId": link, "pose": "standing"}))
+        return steps, panel
+
+    if any(word in zh for word in ("击杀", "杀死", "击倒", "尸体")):
+        add_target()
+        key()
+        steps.append(custom("role_walk", {"linkId": link, "to": [tx - 0.9, ty, tz], "duration": 45}))
+        steps.append({"type": "idle", "duration": 15})
+        steps.append(scene_particle("minecraft:crit", [tx, ty + 1.1, tz], count=10, duration=30))
+        steps.append(custom("role_death", {"linkId": target_link, "pos": [tx, ty, tz],
+                                           "name": "ponder.starrailexpress.label.victim"}))
+        steps.append(scene_particle("minecraft:smoke", [tx, ty + 0.6, tz], count=8, duration=45))
+        steps.append({"type": "indicate_success", "blockPos": [int(tx), 0, int(tz)]})
+        steps.append({"type": "idle", "duration": 30})
+        return steps, panel
+
+    if any(word in zh for word in ("中毒", "下毒", "毒药", "剧毒")):
+        add_target()
+        key()
+        steps.append({"type": "create_item_entity", "pos": [px - 0.8, py + 0.5, pz],
+                      "motion": [0.0, 0.0, 0.0], "count": 1, "item": item,
+                      "linkId": item_link})
+        steps.append({"type": "show_controls", "action": "right", "item": item,
+                      "duration": 70, "point": [px, py + 2.0, pz],
+                      "direction": "down"})
+        steps.append(custom("role_walk", {"linkId": link, "to": [tx - 0.9, ty, tz], "duration": 40}))
+        steps.append(scene_particle("wathe:poison", [tx, ty + 0.8, tz], count=8, duration=80))
+        steps.append({"type": "idle", "duration": 35})
+        return steps, panel
+
+    if any(word in zh for word in ("治愈", "治疗", "回血", "恢复", "护盾")):
+        add_target()
+        key()
+        steps.append(scene_particle("minecraft:effect", [tx, ty + 0.9, tz], count=10, duration=80))
+        steps.append(custom("role_vitals", {"bars": [
+            {"label": "ponder.starrailexpress.label.vitals", "before": 0.35,
+             "after": 1.0, "color": -65536},
+            {"label": "ponder.starrailexpress.label.shield", "before": 0.0,
+             "after": 0.7, "color": -16776961}]}))
+        panel = True
+        steps.append({"type": "indicate_success", "blockPos": [int(tx), 0, int(tz)]})
+        steps.append({"type": "idle", "duration": 35})
+        return steps, panel
+
+    seconds = parse_seconds(zh)
+    if seconds is not None and any(word in zh for word in
+                                   ("冷却", "秒", "延迟", "延遲", "无法移动", "無法移動", "持续", "持續")):
+        key()
+        steps.append({"type": "highlight_section", "blockPos": [int(px), 0, int(pz)],
+                      "duration": 220, "color": "blue"})
+        steps.append(custom("role_timer", {"progress": [0.0, 1.0],
+                                           "lines": [overlay_line]}))
+        panel = True
+        steps.append({"type": "idle", "duration": 40})
+        particles_at([px, py + 0.9, pz], count=8, duration=60)
+        return steps, panel
+
+    if any(word in zh for word in ("无法移动", "無法移動", "延迟", "延遲")):
+        key()
+        steps.append({"type": "highlight_section", "blockPos": [int(px), 0, int(pz)],
+                      "duration": 200, "color": "blue"})
+        steps.append(custom("role_timer", {"progress": [0.0, 1.0],
+                                           "lines": [overlay_line]}))
+        panel = True
+        steps.append({"type": "idle", "duration": 40})
+        return steps, panel
+
+    coins = parse_coins(zh)
+    if coins is not None:
+        key()
+        steps.append({"type": "create_item_entity", "pos": [px + 0.9, py + 0.5, pz],
+                      "motion": [0.0, 0.0, 0.0], "count": 1, "item": item,
+                      "linkId": item_link})
+        steps.append(custom("role_currency", {"progress": [1.0, 0.5],
+                                              "lines": [overlay_line]}))
+        panel = True
+        steps.append({"type": "idle", "duration": 35})
+        return steps, panel
+
+    if any(word in zh for word in ("传送", "瞬移", "回到", "召回", "前往")):
+        key()
+        steps.append(scene_particle("minecraft:portal", [px, py + 0.9, pz], count=12, duration=50))
+        sound = sound_for(zh)
+        if sound:
+            steps.append(scene_sound(sound))
+        steps.append(custom("role_teleport", {"linkId": link, "pos": [tx, ty, tz]}))
+        steps.append(scene_particle("minecraft:portal", [tx, ty + 0.9, tz], count=12, duration=50))
+        steps.append({"type": "indicate_success", "blockPos": [int(tx), 0, int(tz)]})
+        steps.append({"type": "idle", "duration": 30})
+        return steps, panel
+
+    if any(word in zh for word in ("切换", "更换")):
+        key()
+        steps.append(custom("role_hold", {"linkId": link, "item": item}))
+        steps.append({"type": "show_controls", "action": "right", "item": item,
+                      "duration": 65, "point": head, "direction": "down"})
+        steps.append({"type": "idle", "duration": 30})
+        return steps, panel
+
+    if "右键" in zh or "左键" in zh:
+        key()
+        steps.append({"type": "create_item_entity", "pos": [px - 0.8, py + 0.5, pz],
+                      "motion": [0.0, 0.0, 0.0], "count": 1, "item": item,
+                      "linkId": item_link})
+        steps.append({"type": "show_controls", "action": "right" if "右键" in zh else "left",
+                      "item": item, "duration": 70, "point": head, "direction": "down"})
+        steps.append(custom("role_walk", {"linkId": link, "to": [tx - 0.9, ty, tz], "duration": 35}))
+        particles_at([tx, ty + 0.8, tz], count=8, duration=55)
+        steps.append({"type": "idle", "duration": 25})
+        return steps, panel
+
+    # 兜底也是一次真实演示：键帽 + 走向目标 + 目标处指示，而不是纯文字。
+    key()
+    steps.append(custom("role_walk", {"linkId": link, "to": [tx - 0.9, ty, tz], "duration": 40}))
+    steps.append({"type": "highlight_section", "blockPos": [int(tx), 0, int(tz)],
+                  "blockPos2": [int(tx), 0, int(tz)], "duration": 200, "color": "green"})
+    particles_at([tx, ty + 0.9, tz], count=6, duration=50)
+    steps.append({"type": "indicate_success", "blockPos": [int(tx), 0, int(tz)]})
+    steps.append({"type": "idle", "duration": 25})
+    return steps, panel
+
+
 class SceneBuilder:
     """一个段落的步骤收集器，负责文本位置与时间轴自检。"""
 
@@ -471,12 +765,14 @@ def build_role_scene(rid, facts, intros, names, goals):
                              "motion": [0.0, 0.0, 0.0], "count": 1,
                              "item": shop[0], "linkId": rid + "_item"})
         elif key == "skill":
-            builder.add({"type": "starrailexpress:role_key", "attachKeyFrame": True,
-                         "parameters": {"point": [player_pos[0], player_pos[1] + 1.9, player_pos[2]],
-                                        "direction": "down", "duration": 60}})
-            builder.add({"type": "starrailexpress:role_skill", "attachKeyFrame": True,
-                         "parameters": {"label": SEGMENT_TITLE_KEY["skill"],
-                                        "lines": [dict(line) for line in lines]}})
+            # 右上角只放冷却 / 代价等元信息，具体机制由下面逐句的动作演绎。
+            meta = [dict(line) for line in lines
+                    if any(word in line.get("zh_cn", "") for word in ("冷却", "金币", "消耗", "秒"))][:2]
+            if not meta and lines:
+                meta = [dict(lines[0])]
+            if meta:
+                builder.add(custom("role_skill", {"label": SEGMENT_TITLE_KEY["skill"],
+                                                  "lines": meta}))
         elif key == "screen":
             builder.add({"type": "starrailexpress:role_screen", "attachKeyFrame": True,
                          "parameters": {"title": SEGMENT_TITLE_KEY["screen"],
@@ -534,7 +830,23 @@ def build_role_scene(rid, facts, intros, names, goals):
             if domain:
                 builder.add({"type": "starrailexpress:role_domain", "attachKeyFrame": True,
                              "parameters": {"domain": domain, "pos": [0, 0, 0]}})
-        for line in lines:
+        state_steps = {"starrailexpress:role_vitals", "starrailexpress:role_timer",
+                       "starrailexpress:role_currency", "starrailexpress:role_panel",
+                       "starrailexpress:role_bond", "starrailexpress:role_mood",
+                       "starrailexpress:role_effects"}
+        state_used = any(step.get("type") in state_steps for step in builder.steps)
+        for index, line in enumerate(lines):
+            zh_line = line.get("zh_cn", "")
+            if key in ACT_SEGMENTS and has_action(zh_line):
+                acts, _ = build_skill_act(zh_line, rid, facts,
+                                          player_pos, second_pos, outline_color, str(index), line)
+                if state_used:
+                    # 左上角覆盖层只会画在最上层，同段保留第一块即可。
+                    acts = [step for step in acts if step.get("type") not in state_steps]
+                if any(step.get("type") in state_steps for step in acts):
+                    state_used = True
+                for step in acts:
+                    builder.add(step)
             builder.say(line)
         builder.finish()
         scenes.append({"id": key, "title": title, "steps": builder.steps})

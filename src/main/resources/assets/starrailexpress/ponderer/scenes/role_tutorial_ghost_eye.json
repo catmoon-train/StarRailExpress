@@ -124,21 +124,7 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "attachKeyFrame": true,
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60
-          }
-        },
-        {
           "type": "starrailexpress:role_skill",
-          "attachKeyFrame": true,
           "parameters": {
             "label": "ponder.starrailexpress.label.skill",
             "lines": [
@@ -148,7 +134,75 @@
                 "zh_tw": "主動·詭域(冷卻70秒)：在腳下展開半徑12格、持續6秒的領域。領域內所有人移速降低(緩慢II)；領域內的殺手無法開啟透視；除你之外的所有人陷入失明與黑暗。"
               }
             ]
-          }
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Active · Uncanny Domain (70s cd): unfold a 12-block, 6s domain at your feet. Inside, all movement slows (Slowness II); Killers can't use see-through; everyone but you is blinded and darkened.",
+                "zh_cn": "主动·诡域(冷却70秒)：在脚下展开半径12格、持续6秒的领域。领域内所有人移速降低(缓慢II)；领域内的杀手无法开启透视；除你之外的所有人陷入失明与黑暗。",
+                "zh_tw": "主動·詭域(冷卻70秒)：在腳下展開半徑12格、持續6秒的領域。領域內所有人移速降低(緩慢II)；領域內的殺手無法開啟透視；除你之外的所有人陷入失明與黑暗。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
         },
         {
           "type": "text",

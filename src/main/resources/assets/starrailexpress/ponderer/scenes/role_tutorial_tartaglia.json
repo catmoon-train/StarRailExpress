@@ -179,8 +179,35 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Bow cooldown is 5s; crossbow is 1s.",
+                "zh_cn": "弓的冷却时长为5s；弩的冷却时长为1s。",
+                "zh_tw": "弓的冷卻時長為5s；弩的冷卻時長為1s。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "tartaglia_skill_target_0",
+            "outline": -2189242
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
@@ -188,27 +215,96 @@
               3.0
             ],
             "direction": "down",
+            "keyBind": "ability",
             "duration": 60
-          }
+          },
+          "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_skill",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_walk",
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Skill [Art of Extremity · Perishing Flash]: while holding a bow or crossbow, use the skill to dash forward as a bolt of lightning, killing up to 2 players in your path.",
-                "zh_cn": "技能【极恶技 · 尽灭闪】：手持弓、弩时，使用技能，化作一道雷光向前方冲刺，杀死路径上的最多2名玩家。",
-                "zh_tw": "技能【極惡技 · 盡滅閃】：手持弓、弩時，使用技能，化作一道雷光向前方衝刺，殺死路徑上的最多2名玩家。"
-              },
-              {
-                "en_us": "Bow cooldown is 5s; crossbow is 1s.",
-                "zh_cn": "弓的冷却时长为5s；弩的冷却时长为1s。",
-                "zh_tw": "弓的冷卻時長為5s；弩的冷卻時長為1s。"
-              }
-            ]
-          }
+            "linkId": "tartaglia_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 45
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 15
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:crit",
+          "pos": [
+            5.0,
+            2.1,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 10,
+          "duration": 30,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "tartaglia_skill_target_0",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:smoke",
+          "pos": [
+            5.0,
+            1.6,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 45,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
         },
         {
           "type": "text",
@@ -229,6 +325,73 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Bow cooldown is 5s; crossbow is 1s.",
+                "zh_cn": "弓的冷却时长为5s；弩的冷却时长为1s。",
+                "zh_tw": "弓的冷卻時長為5s；弩的冷卻時長為1s。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
         },
         {
           "type": "text",

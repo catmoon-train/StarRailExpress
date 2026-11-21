@@ -92,6 +92,23 @@ def bed_palette(block_id):
     ]
 
 
+def door_palette(block_id, facing="north", hinge="left"):
+    """门的上下两半。
+
+    Ponder 里的门必须是真正有几何的模型。wathe 空壳包里的
+    ``small_wood_door`` / ``small_glass_door`` / 各色钢门模型只有 particle 纹理、
+    没有任何 elements，放进结构里是完全不可见的；本模组注册 door 方块
+    ``starrailexpress:light_blue_oak_door`` 与 ``trainmurdermystery:metal_sheet_door``
+    才带 ``minecraft:block/door_*`` 父模型。两格门还必须写 facing/half/hinge/open，
+    否则 blockstate 匹配不到 variant，同样不渲染。
+    """
+    common = {"facing": facing, "hinge": hinge, "open": "false"}
+    return [
+        (block_id, dict(common, half="lower")),
+        (block_id, dict(common, half="upper")),
+    ]
+
+
 def write_structure(path, size, blocks, palette):
     entries = [palette_entry(*item) if isinstance(item, tuple) else palette_entry(item)
                for item in palette]
@@ -107,22 +124,11 @@ def write_structure(path, size, blocks, palette):
 
 
 def build_room(floor_state, wall_state, extra_blocks):
-    """开放式房间：地板 + 四面墙（顶部敞开，便于相机俯视）。"""
-    blocks = []
-    last = SIZE - 1
-    for x in range(SIZE):
-        for z in range(SIZE):
-            blocks.append(([x, 0, z], floor_state(x, z)))
-    for x in range(SIZE):
-        for y in range(1, 4):
-            blocks.append(([x, y, 0], wall_state))
-            blocks.append(([x, y, last], wall_state))
-    for z in range(1, last):
-        for y in range(1, 4):
-            blocks.append(([0, y, z], wall_state))
-            blocks.append(([last, y, z], wall_state))
-    blocks.extend(extra_blocks)
-    return blocks
+    """开放式房间：地板 + 仅背面一堵墙（顶部敞开，便于相机俯视）。
+
+    z=0 的前墙和 x=0 / x=last 的两侧墙会挡住俯视镜头，所有场景都不再放置。
+    """
+    return build_back_wall_room(floor_state, wall_state, extra_blocks)
 
 
 def build_back_wall_room(floor_state, wall_state, extra_blocks):
@@ -183,14 +189,14 @@ def generic():
         "trainmurdermystery:white_hull",
         "trainmurdermystery:navy_steel",
         "trainmurdermystery:marble_tiles",
-        "trainmurdermystery:small_glass_door",
+        *door_palette("starrailexpress:light_blue_oak_door"),
         *bed_palette("trainmurdermystery:white_trimmed_bed"),
     ]
     extra = [
         ([3, 1, 6], 3),  # 门下半
-        ([3, 2, 6], 3),  # 门上半
-        ([5, 1, 5], 4),  # 床脚
-        ([5, 1, 4], 5),  # 床头（朝北，床占两格）
+        ([3, 2, 6], 4),  # 门上半
+        ([5, 1, 5], 5),  # 床脚
+        ([5, 1, 4], 6),  # 床头（朝北，床占两格）
     ]
     blocks = build_room(lambda x, z: 2 if (x + z) % 4 == 0 else 0, 1, extra)
     write_structure(OUT / "role_tutorial_common.nbt", [SIZE, 4, SIZE], blocks, palette)
@@ -222,9 +228,10 @@ def recaller():
 
 
 def build_shell(size, floor_state, wall_state, extra_blocks, walls="back"):
-    """通用外壳：地板 + 按需的墙。
+    """通用外壳：地板 + 仅背面（z=sz-1）一堵墙。
 
-    walls: "back"（只留背面一堵墙）、"all"（四面墙）、"sides"（只留左右两面墙）。
+    ``walls`` 参数保留兼容旧调用，但无论传什么值都不再放前墙（z=0）与两侧墙，
+    因为它们会挡住 Ponder 的俯视镜头，表现对齐酒保 / 小丑场景。
     尺寸是 (x, y, z)，地板在 y=0，墙在 y=1..y-1。
     """
     sx, sy, sz = size
@@ -234,15 +241,7 @@ def build_shell(size, floor_state, wall_state, extra_blocks, walls="back"):
             blocks.append(([x, 0, z], floor_state(x, z)))
     for x in range(sx):
         for y in range(1, sy):
-            if walls in ("back", "all"):
-                blocks.append(([x, y, sz - 1], wall_state))
-            if walls in ("back", "all"):
-                blocks.append(([x, y, 0], wall_state))
-    for z in range(1, sz - 1):
-        for y in range(1, sy):
-            if walls in ("sides", "all"):
-                blocks.append(([0, y, z], wall_state))
-                blocks.append(([sx - 1, y, z], wall_state))
+            blocks.append(([x, y, sz - 1], wall_state))
     blocks.extend(extra_blocks)
     return blocks
 
@@ -256,21 +255,21 @@ def room():
         "trainmurdermystery:mahogany_planks",       # 0 地板
         "trainmurdermystery:white_hull",           # 1 墙
         "trainmurdermystery:marble_tiles",         # 2 地砖点缀
-        "trainmurdermystery:small_wood_door",      # 3 门
-        "trainmurdermystery:coffee_table",         # 4 茶几
-        "trainmurdermystery:white_lounge_couch",   # 5 沙发
-        "trainmurdermystery:wall_lamp",            # 6 壁灯
-        *bed_palette("trainmurdermystery:white_trimmed_bed"),  # 7 脚 8 头
+        *door_palette("starrailexpress:light_blue_oak_door"),  # 3 下半 4 上半
+        "trainmurdermystery:coffee_table",         # 5 茶几
+        "trainmurdermystery:white_lounge_couch",   # 6 沙发
+        "trainmurdermystery:wall_lamp",            # 7 壁灯
+        *bed_palette("trainmurdermystery:white_trimmed_bed"),  # 8 脚 9 头
     ]
     extra = [
         ([3, 1, 6], 3),  # 门下半
-        ([3, 2, 6], 3),  # 门上半
-        ([5, 1, 5], 7),  # 床脚
-        ([5, 1, 4], 8),  # 床头
-        ([1, 1, 2], 4),  # 茶几
-        ([2, 1, 1], 5),  # 沙发
-        ([1, 1, 3], 5),  # 沙发
-        ([1, 2, 6], 6),  # 壁灯
+        ([3, 2, 6], 4),  # 门上半
+        ([5, 1, 5], 8),  # 床脚
+        ([5, 1, 4], 9),  # 床头
+        ([1, 1, 2], 5),  # 茶几
+        ([2, 1, 1], 6),  # 沙发
+        ([1, 1, 3], 6),  # 沙发
+        ([1, 2, 6], 7),  # 壁灯
     ]
     blocks = build_shell([SIZE, 4, SIZE], lambda x, z: 2 if (x + z) % 4 == 0 else 0, 1, extra)
     write_structure(OUT / "role_tutorial_room.nbt", [SIZE, 4, SIZE], blocks, palette)
@@ -288,9 +287,9 @@ def carriage():
         "trainmurdermystery:stainless_steel_walkway",  # 2 过道
         "trainmurdermystery:barrier_panel",        # 3 车窗
         "trainmurdermystery:white_lounge_couch",   # 4 座椅
-        "trainmurdermystery:navy_steel_door",      # 5 端门
-        "trainmurdermystery:neon_tube",            # 6 灯条
-        "trainmurdermystery:trimmed_railing",      # 7 扶手
+        *door_palette("trainmurdermystery:metal_sheet_door"),  # 5 下半 6 上半
+        "trainmurdermystery:neon_tube",            # 7 灯条
+        "trainmurdermystery:trimmed_railing",      # 8 扶手
     ]
     extra = []
     # 侧壁车窗
@@ -304,12 +303,12 @@ def carriage():
         extra.append(([x, 1, 1], 4))
         extra.append(([x, 1, depth - 2], 4))
     # 端门与灯条
-    extra.append(([0, 1, 3], 5))
-    extra.append(([0, 2, 3], 5))
-    extra.append(([1, 3, 3], 6))
-    extra.append(([width - 2, 3, 3], 6))
-    extra.append(([0, 1, 1], 7))
-    extra.append(([0, 1, depth - 2], 7))
+    extra.append(([4, 1, depth - 1], 5))
+    extra.append(([4, 2, depth - 1], 6))
+    extra.append(([1, 3, 3], 7))
+    extra.append(([width - 2, 3, 3], 7))
+    extra.append(([0, 1, 1], 8))
+    extra.append(([0, 1, depth - 2], 8))
     blocks = build_shell([width, 4, depth],
                          lambda x, z: 2 if z in (0, depth - 1) else 0,
                          1, extra, walls="all")
@@ -325,20 +324,20 @@ def corridor():
     palette = [
         "trainmurdermystery:anthracite_steel_tiles",  # 0 地板
         "trainmurdermystery:anthracite_steel",        # 1 墙
-        "trainmurdermystery:khaki_steel_door",        # 2 门
-        "starrailexpress:ticket_gate",                # 3 检票闸机
-        "trainmurdermystery:trimmed_railing",         # 4 扶手
-        "trainmurdermystery:wall_lamp",               # 5 壁灯
-        "trainmurdermystery:security_monitor",        # 6 监控
+        *door_palette("trainmurdermystery:metal_sheet_door"),  # 2 下半 3 上半
+        "starrailexpress:ticket_gate",                # 4 检票闸机
+        "trainmurdermystery:trimmed_railing",         # 5 扶手
+        "trainmurdermystery:wall_lamp",               # 6 壁灯
+        "trainmurdermystery:security_monitor",        # 7 监控
     ]
     extra = [
-        ([3, 1, 4], 2),  # 门下半
-        ([3, 2, 4], 2),  # 门上半
-        ([3, 1, 2], 3),  # 闸机
-        ([1, 1, 6], 4),
-        ([5, 1, 6], 4),
-        ([1, 2, 8], 5),
-        ([3, 2, 8], 6),
+        ([3, 1, 8], 2),  # 门下半（背墙）
+        ([3, 2, 8], 3),  # 门上半
+        ([3, 1, 2], 4),  # 闸机
+        ([1, 1, 6], 5),
+        ([5, 1, 6], 5),
+        ([1, 2, 8], 6),
+        ([5, 2, 8], 7),
     ]
     blocks = build_shell([SIZE, 4, depth], lambda x, z: 0, 1, extra, walls="all")
     write_structure(OUT / "role_tutorial_corridor.nbt", [SIZE, 4, depth], blocks, palette)
@@ -408,18 +407,18 @@ def command_room():
         "noellesroles:reactor",                    # 3 反应堆
         "trainmurdermystery:neon_tube",            # 4 灯条
         "trainmurdermystery:dark_steel_wall",      # 5 设备墙
-        "trainmurdermystery:metal_sheet_door",     # 6 门
+        *door_palette("trainmurdermystery:metal_sheet_door"),  # 6 下半 7 上半
     ]
     extra = [
         ([3, 1, 6], 6),
-        ([3, 2, 6], 6),
+        ([3, 2, 6], 7),
         ([1, 2, 6], 2),
         ([5, 2, 6], 2),
         ([2, 1, 2], 3),
         ([1, 3, 3], 4),
         ([5, 3, 3], 4),
-        ([0, 1, 3], 5),
-        ([6, 1, 3], 5),
+        ([2, 1, 6], 5),
+        ([4, 1, 6], 5),
     ]
     blocks = build_shell([SIZE, 4, SIZE], lambda x, z: 0, 1, extra)
     write_structure(OUT / "event_command_room.nbt", [SIZE, 4, SIZE], blocks, palette)
@@ -435,14 +434,14 @@ def night_town():
         "trainmurdermystery:mailbox",              # 3 信箱
         "trainmurdermystery:bar_table",            # 4 长桌
         "trainmurdermystery:bar_stool",            # 5 长凳
-        "trainmurdermystery:small_wood_door",      # 6 门
-        "trainmurdermystery:marble_tiles",         # 7 石板路
+        *door_palette("starrailexpress:light_blue_oak_door"),  # 6 下半 7 上半
+        "trainmurdermystery:marble_tiles",         # 8 石板路
     ]
     extra = [
         ([1, 1, 6], 6),
-        ([1, 2, 6], 6),
+        ([1, 2, 6], 7),
         ([7, 1, 6], 6),
-        ([7, 2, 6], 6),
+        ([7, 2, 6], 7),
         ([1, 2, 2], 2),
         ([7, 2, 2], 2),
         ([0, 1, 4], 3),
@@ -451,7 +450,7 @@ def night_town():
         ([8, 1, 4], 3),
     ]
     blocks = build_shell([width, 4, depth],
-                         lambda x, z: 7 if abs(x - 4) <= 1 else 0,
+                         lambda x, z: 8 if abs(x - 4) <= 1 else 0,
                          1, extra, walls="all")
     write_structure(OUT / "event_night_town.nbt", [width, 4, depth], blocks, palette)
 
@@ -464,22 +463,22 @@ def halloween_porch():
         "trainmurdermystery:trimmed_railing",      # 2 门廊栏杆
         "trainmurdermystery:trimmed_lantern",      # 3 提灯
         "trainmurdermystery:bubinga_cabinet",      # 4 柜子
-        "trainmurdermystery:small_wood_door",      # 5 门
-        "trainmurdermystery:bar_stool",            # 6 长凳
-        "trainmurdermystery:marble_tiles",        # 7 石板
+        *door_palette("starrailexpress:light_blue_oak_door"),  # 5 下半 6 上半
+        "trainmurdermystery:bar_stool",            # 7 长凳
+        "trainmurdermystery:marble_tiles",        # 8 石板
     ]
     extra = [
         ([3, 1, 6], 5),
-        ([3, 2, 6], 5),
+        ([3, 2, 6], 6),
         ([1, 1, 6], 3),
         ([5, 1, 6], 3),
         ([0, 1, 4], 2),
         ([6, 1, 4], 2),
         ([1, 1, 2], 4),
-        ([4, 1, 2], 6),
-        ([3, 1, 3], 7),
+        ([4, 1, 2], 7),
+        ([3, 1, 3], 8),
     ]
-    blocks = build_shell([SIZE, 4, SIZE], lambda x, z: 7 if (x, z) == (3, 3) else 0, 1, extra)
+    blocks = build_shell([SIZE, 4, SIZE], lambda x, z: 8 if (x, z) == (3, 3) else 0, 1, extra)
     write_structure(OUT / "event_halloween_porch.nbt", [SIZE, 4, SIZE], blocks, palette)
 
 

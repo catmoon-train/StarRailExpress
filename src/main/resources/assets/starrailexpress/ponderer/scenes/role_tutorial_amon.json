@@ -142,8 +142,21 @@
           }
         },
         {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "On usurp, the host is killed (leaving an unidentified corpse) and you take their position, skin and name.",
+                "zh_cn": "阿蒙需要在宿主身上停留 60 秒后按潜行+技能键才能夺舍宿主。若宿主死亡，你会回到宿主生前的位置。",
+                "zh_tw": "阿蒙需要在宿主身上停留 60 秒後按潛行+技能鍵才能奪舍宿主。若宿主死亡，你會回到宿主生前的位置。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "starrailexpress:role_key",
-          "attachKeyFrame": true,
           "parameters": {
             "point": [
               3.0,
@@ -151,27 +164,72 @@
               3.0
             ],
             "direction": "down",
+            "keyBind": "ability",
             "duration": 60
-          }
+          },
+          "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_skill",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_walk",
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Aim at a player within 4 blocks and press the skill key to plant a [Time Worm] in them — the victim gets no notice. Concurrent worms cap at total players/6.",
-                "zh_cn": "用准星对准 4 格内的玩家并按技能键，可在其体内种下【时之虫】——受害者不会收到提示。同时存在的时之虫上限为 总人数/6。",
-                "zh_tw": "用準星對準 4 格內的玩家並按技能鍵，可在其體內種下【時之蟲】——受害者不會收到提示。同時存在的時之蟲上限為 總人數/6。"
-              },
-              {
-                "en_us": "On usurp, the host is killed (leaving an unidentified corpse) and you take their position, skin and name.",
-                "zh_cn": "阿蒙需要在宿主身上停留 60 秒后按潜行+技能键才能夺舍宿主。若宿主死亡，你会回到宿主生前的位置。",
-                "zh_tw": "阿蒙需要在宿主身上停留 60 秒後按潛行+技能鍵才能奪舍宿主。若宿主死亡，你會回到宿主生前的位置。"
-              }
-            ]
-          }
+            "linkId": "amon_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            5.0,
+            1.9,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 6,
+          "duration": 50,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
         },
         {
           "type": "text",
@@ -192,6 +250,77 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "amon_main",
+            "pose": "crouching"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            2,
+            0,
+            2
+          ],
+          "blockPos2": [
+            4,
+            0,
+            4
+          ],
+          "duration": 240,
+          "color": "green"
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:effect",
+          "pos": [
+            3.0,
+            1.4,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 10,
+          "duration": 70,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "amon_main",
+            "pose": "standing"
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "text",
