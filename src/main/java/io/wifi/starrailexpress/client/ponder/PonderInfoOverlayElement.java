@@ -16,7 +16,7 @@ import java.util.List;
 public class PonderInfoOverlayElement implements PonderOverlayElement {
     public enum Kind { MOOD, SKILL, LINES, BADGE }
 
-    private static final int BAR_WIDTH = 120;
+    private static final int BAR_WIDTH = 72;
     private final Kind kind;
     private final PonderLocalizedText label;
     private final List<PonderLocalizedText> lines;
@@ -56,14 +56,11 @@ public class PonderInfoOverlayElement implements PonderOverlayElement {
         int x = screen.width - width - 16;
         // 与左上角状态面板统一下移，避开 Ponder 顶部的原生标题 / 段落标签。
         int y = 112;
-        int height = kind == Kind.MOOD ? 58 : 20 + lines.size() * (font.lineHeight + 3);
-        graphics.fill(x, y, x + width, y + height, 0xC0101018);
-        graphics.renderOutline(x, y, width, height, 0xFF3A3A4A);
-
-        int textX = x + 10;
-        int textY = y + 7;
+        // 不画整块半透明面板和外框：只要文字与窄状态条，背景保持透明。
+        int textX = x + 2;
+        int textY = y + 2;
         if (!label.isEmpty()) {
-            graphics.drawString(font, label.resolve(), textX, textY, accent);
+            graphics.drawString(font, label.resolve(), textX, textY, accent, true);
             textY += font.lineHeight + 4;
         }
         if (kind == Kind.MOOD) {
@@ -75,12 +72,12 @@ public class PonderInfoOverlayElement implements PonderOverlayElement {
                     textX + 1 + Math.round((BAR_WIDTH - 2) * after), textY + 11, accent);
             graphics.drawString(font, Component.literal(
                     Math.round(before * 100) + "% -> " + Math.round(after * 100) + "%"),
-                    textX, textY + 15, 0xFFDDDDDD);
+                    textX, textY + 15, 0xFFDDDDDD, true);
             return;
         }
         for (PonderLocalizedText line : lines) {
             graphics.drawString(font, line.resolve(), textX, textY,
-                    kind == Kind.BADGE ? accent : 0xFFEEEEEE);
+                    kind == Kind.BADGE ? accent : 0xFFEEEEEE, true);
             textY += font.lineHeight + 3;
         }
     }

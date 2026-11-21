@@ -21,7 +21,7 @@ public class PonderStateOverlayElement implements PonderOverlayElement {
     public record Bar(String label, float before, float after, int color) {
     }
 
-    private static final int BAR_WIDTH = 110;
+    private static final int BAR_WIDTH = 72;
 
     private final PonderLocalizedText title;
     private final List<Bar> bars;
@@ -53,32 +53,22 @@ public class PonderStateOverlayElement implements PonderOverlayElement {
     public void render(PonderScene scene, PonderUI screen, GuiGraphics graphics, float partialTicks) {
         if (!visible) return;
         Font font = Minecraft.getInstance().font;
-        int width = Math.max(150, font.width(title.plain()) + 24);
-        for (Bar bar : bars) {
-            width = Math.max(width, font.width(PonderLocalizedText.of(bar.label()).plain()) + BAR_WIDTH + 34);
-        }
-        for (PonderLocalizedText line : lines) width = Math.max(width, font.width(line.plain()) + 24);
-        width = Math.min(width, Math.max(150, screen.width / 2 - 24));
-
+        // 不画整块半透明面板和外框：原来那块会横跨大半个屏幕，压住场景本身。
+        // 状态条本身保留窄轨道，文字加投影保证在任意背景上都读得清。
         int x = 16;
         // Ponder 自己的标题栏 / 段落标签占据顶部 24~80 像素；再往下放，
         // 免得左上角的状态面板把原生 UI 盖住。
         int y = 112;
-        int rows = 1 + bars.size() * 2 + lines.size();
-        if (progressBefore != null || progressAfter != null) rows += 2;
-        int height = 14 + rows * (font.lineHeight + 2);
-        graphics.fill(x, y, x + width, y + height, 0xC0101018);
-        graphics.renderOutline(x, y, width, height, 0xFF3A3A4A);
 
-        int textX = x + 10;
-        int textY = y + 7;
+        int textX = x + 2;
+        int textY = y + 2;
         if (!title.isEmpty()) {
-            graphics.drawString(font, title.resolve(), textX, textY, accent);
+            graphics.drawString(font, title.resolve(), textX, textY, accent, true);
             textY += font.lineHeight + 5;
         }
 
         for (Bar bar : bars) {
-            graphics.drawString(font, PonderLocalizedText.of(bar.label()).resolve(), textX, textY, 0xFFDDDDDD);
+            graphics.drawString(font, PonderLocalizedText.of(bar.label()).resolve(), textX, textY, 0xFFDDDDDD, true);
             textY += font.lineHeight;
             int barX = textX + 2;
             graphics.fill(barX, textY, barX + BAR_WIDTH, textY + 8, 0xFF202028);
@@ -108,7 +98,7 @@ public class PonderStateOverlayElement implements PonderOverlayElement {
         }
 
         for (PonderLocalizedText line : lines) {
-            graphics.drawString(font, line.resolve(), textX, textY, 0xFFEEEEEE);
+            graphics.drawString(font, line.resolve(), textX, textY, 0xFFEEEEEE, true);
             textY += font.lineHeight + 3;
         }
     }

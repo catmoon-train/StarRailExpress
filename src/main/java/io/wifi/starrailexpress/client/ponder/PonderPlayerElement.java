@@ -232,10 +232,12 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
         if (puppet == null) {
             return;
         }
-        // WalkAnimationState 没有 position 的 setter；用 update(-position, 1) 把相位推回 0，
-        // 再清掉 speed。MirrorReflection 里同步倒影步幅也是同一套写法。
-        puppet.walkAnimation.update(-puppet.walkAnimation.position(), 1.0F);
-        puppet.walkAnimation.setSpeed(0.0F);
+        // WalkAnimationState 的 speed/speedOld/position 都是 public 字段（1.21.1 映射）。
+        // update(-position, 1) 在某些 tick 下会被下一帧插值带回去，必须直接清零三个字段，
+        // 否则玩家停在终点后腿部仍卡在半步姿态。
+        puppet.walkAnimation.speedOld = 0.0F;
+        puppet.walkAnimation.speed = 0.0F;
+        puppet.walkAnimation.position = 0.0F;
     }
 
     private void registerSkinOverride() {
