@@ -1,0 +1,262 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.best_vigilante",
+  "items": [
+    "trainmurdermystery:grenade"
+  ],
+  "title": {
+    "en_us": "Better Vigilante",
+    "zh_cn": "更好的义警",
+    "zh_tw": "更好的義警"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Better Vigilante",
+        "zh_cn": "更好的义警",
+        "zh_tw": "更好的義警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "best_vigilante_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Sheriff team",
+            "zh_cn": "警长阵营",
+            "zh_tw": "警長陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 139,
+          "text": {
+            "en_us": "A grenade will surely cool down those overheated heads!",
+            "zh_cn": "手榴弹一定能让那群脑子过热的家伙冷静下来！",
+            "zh_tw": "手榴彈一定能讓那群腦子過熱的傢伙冷靜下來！"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 149
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Better Vigilante",
+        "zh_cn": "更好的义警",
+        "zh_tw": "更好的義警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "best_vigilante_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "best_vigilante",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 79,
+          "text": {
+            "en_us": "Starts with a grenade.",
+            "zh_cn": "开局自带一颗手榴弹。",
+            "zh_tw": "開局自帶一顆手榴彈。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 89
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Better Vigilante",
+        "zh_cn": "更好的义警",
+        "zh_tw": "更好的義警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "best_vigilante_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 137,
+          "text": {
+            "en_us": "An easter-egg role that only spawns with a 0.1% chance",
+            "zh_cn": "彩蛋职业，只有0.1%的概率刷新",
+            "zh_tw": "彩蛋職業，只有0.1%的概率刷新"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 147
+        },
+        {
+          "type": "text",
+          "duration": 108,
+          "text": {
+            "en_us": "Only spawns in lobbies of 12+ players.",
+            "zh_cn": "仅在12人及以上的对局中生成。",
+            "zh_tw": "僅在12人及以上的對局中生成。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 118
+        },
+        {
+          "type": "text",
+          "duration": 178,
+          "text": {
+            "en_us": "You cannot become a Better Vigilante by any means other than a natural spawn.",
+            "zh_cn": "你无法通过除自然刷新以外的任何途径变成更好的义警。",
+            "zh_tw": "你無法通過除自然刷新以外的任何途徑變成更好的義警。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 188
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

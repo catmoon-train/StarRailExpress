@@ -1,0 +1,293 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.bomber",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Bomber",
+    "zh_cn": "炸弹客",
+    "zh_tw": "炸彈客"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Bomber",
+        "zh_cn": "炸弹客",
+        "zh_tw": "炸彈客"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "bomber_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 131,
+          "text": {
+            "en_us": "Buy bombs, pass them on, and blow up other players.",
+            "zh_cn": "一位爆炸专家，会为这趟旅程献上最灿烂的火花。",
+            "zh_tw": "一位爆炸專家，會為這趟旅程獻上最燦爛的火花。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 141
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Bomber",
+        "zh_cn": "炸弹客",
+        "zh_tw": "炸彈客"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "bomber_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "A bought bomb starts beeping after 5 seconds; hold the bomb and right-click another player to pass it on!",
+            "zh_cn": "购买的炸弹会在5秒后发出滴滴声，手持炸弹对其它玩家使用右键将炸弹传递出去！",
+            "zh_tw": "購買的炸彈會在5秒後發出滴滴聲，手持炸彈對其他玩家使用右鍵將炸彈傳遞出去！"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Bomber",
+        "zh_cn": "炸弹客",
+        "zh_tw": "炸彈客"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "bomber_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "bomber",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 160,
+          "text": {
+            "en_us": "Owns the Bomber shop; can buy Grenades, Firecrackers, and Lockpicks",
+            "zh_cn": "拥有炸弹客商店，可以购买手雷、鞭炮、开锁器",
+            "zh_tw": "擁有炸彈客商店，可以購買手雷、鞭炮、開鎖器"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 170
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Exclusive skill - All the Way Up: press the skill key to buy a bomb; bought bombs go to the 3rd hotbar slot by default, one costs 100 coin",
+            "zh_cn": "专属技能-一路升华：使用技能键购买炸弹，购买的炸弹默认放在第三格物品栏，一个100金币",
+            "zh_tw": "專屬技能-一路昇華：使用技能鍵購買炸彈，購買的炸彈默認放在第三格物品欄，一個100金幣"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Bomber",
+        "zh_cn": "炸弹客",
+        "zh_tw": "炸彈客"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "bomber_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 97,
+          "text": {
+            "en_us": "The bomb is invisible to others.",
+            "zh_cn": "炸弹对他人不可见。",
+            "zh_tw": "炸彈對他人不可見。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 107
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

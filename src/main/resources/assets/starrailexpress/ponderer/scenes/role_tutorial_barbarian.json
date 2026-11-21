@@ -1,0 +1,345 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.barbarian",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Barbarian",
+    "zh_cn": "野人",
+    "zh_tw": "野人"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Barbarian",
+        "zh_cn": "野人",
+        "zh_tw": "野人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "barbarian_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 157,
+          "text": {
+            "en_us": "Amass coins and, in desperation, turn into a beast to fight back.",
+            "zh_cn": "在绝境中化作凶兽反击。",
+            "zh_tw": "在絕境中化作凶獸反擊。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 167
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Barbarian",
+        "zh_cn": "野人",
+        "zh_tw": "野人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "barbarian_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "[Smoke Breath] (skill key): costs 100 coins, creates a 7s smoke cloud at your position. Players inside are blinded and can't use instinct see-through. 60s cd.",
+                "zh_cn": "【烟雾吐息】（技能键）：消耗 100 金币，在当前位置生成一团持续7秒的烟雾。烟雾内的玩家失明且无法开启本能透视。冷却 60 秒。",
+                "zh_tw": "【煙霧吐息】（技能鍵）：消耗 100 金幣，在當前位置生成一團持續7秒的煙霧。煙霧內的玩家失明且無法開啟本能透視。冷卻 60 秒。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "[Smoke Breath] (skill key): costs 100 coins, creates a 7s smoke cloud at your position. Players inside are blinded and can't use instinct see-through. 60s cd.",
+            "zh_cn": "【烟雾吐息】（技能键）：消耗 100 金币，在当前位置生成一团持续7秒的烟雾。烟雾内的玩家失明且无法开启本能透视。冷却 60 秒。",
+            "zh_tw": "【煙霧吐息】（技能鍵）：消耗 100 金幣，在當前位置生成一團持續7秒的煙霧。煙霧內的玩家失明且無法開啟本能透視。冷卻 60 秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Barbarian",
+        "zh_cn": "野人",
+        "zh_tw": "野人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "barbarian_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "barbarian_psycho",
+            "outline": -9810896
+          }
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "When a Killer attacks you, if you hold at least 150 coins, you block that hit and enter a 30s Berserk form.",
+                "zh_cn": "被杀手阵营玩家攻击时，若持有至少 150 金币，会抵挡这一次伤害并进入持续 30 秒的魔了形态。",
+                "zh_tw": "被殺手陣營玩家攻擊時，若持有至少 150 金幣，會抵擋這一次傷害並進入持續 30 秒的魔了形態。"
+              },
+              {
+                "en_us": "Berserk form (Rampage): enable night vision (Killer instinct, but no player see-through). Gain Speed V and an infinite-durability Savage Blade; blade kills have no cerebellum penalty. Being hit again during Rampage, or when Rampage ends, kills you immediately.",
+                "zh_cn": "魔了形态(疯狂模式)：可以启用夜视（杀手直觉，但无法透视玩家）。获得速度 V 与一把无限耐久的野人利刃；利刃击杀无小脑惩罚。疯狂模式期间再次被攻击，或疯狂模式结束时，会直接死亡。",
+                "zh_tw": "魔了形態(瘋狂模式)：可以啟用夜視（殺手直覺，但無法透視玩家）。獲得速度 V 與一把無限耐久的野人利刃；利刃擊殺無小腦懲罰。瘋狂模式期間再次被攻擊，或瘋狂模式結束時，會直接死亡。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When a Killer attacks you, if you hold at least 150 coins, you block that hit and enter a 30s Berserk form.",
+            "zh_cn": "被杀手阵营玩家攻击时，若持有至少 150 金币，会抵挡这一次伤害并进入持续 30 秒的魔了形态。",
+            "zh_tw": "被殺手陣營玩家攻擊時，若持有至少 150 金幣，會抵擋這一次傷害並進入持續 30 秒的魔了形態。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Berserk form (Rampage): enable night vision (Killer instinct, but no player see-through). Gain Speed V and an infinite-durability Savage Blade; blade kills have no cerebellum penalty. Being hit again during Rampage, or when Rampage ends, kills you immediately.",
+            "zh_cn": "魔了形态(疯狂模式)：可以启用夜视（杀手直觉，但无法透视玩家）。获得速度 V 与一把无限耐久的野人利刃；利刃击杀无小脑惩罚。疯狂模式期间再次被攻击，或疯狂模式结束时，会直接死亡。",
+            "zh_tw": "魔了形態(瘋狂模式)：可以啟用夜視（殺手直覺，但無法透視玩家）。獲得速度 V 與一把無限耐久的野人利刃；利刃擊殺無小腦懲罰。瘋狂模式期間再次被攻擊，或瘋狂模式結束時，會直接死亡。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Barbarian",
+        "zh_cn": "野人",
+        "zh_tw": "野人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "barbarian_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 81,
+          "text": {
+            "en_us": "You can't pick up guns.",
+            "zh_cn": "你无法捡枪。",
+            "zh_tw": "你無法撿槍。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 91
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

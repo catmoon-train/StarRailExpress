@@ -1,0 +1,471 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.doomed_sinner",
+  "items": [
+    "minecraft:bundle"
+  ],
+  "title": {
+    "en_us": "Doomed Sinner",
+    "zh_cn": "宿命的罪人",
+    "zh_tw": "宿命的罪人"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_graveyard"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Doomed Sinner",
+        "zh_cn": "宿命的罪人",
+        "zh_tw": "宿命的罪人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "doomed_sinner_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 99,
+          "text": {
+            "en_us": "Has an independent win condition.",
+            "zh_cn": "拥有独立胜利条件。",
+            "zh_tw": "擁有獨立勝利條件。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 109
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Die from as many distinct causes of death as possible for an independent win; never die three times from the same cause.",
+            "zh_cn": "以足够多的方式死去。",
+            "zh_tw": "以足夠多的方式死去。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Doomed Sinner",
+        "zh_cn": "宿命的罪人",
+        "zh_tw": "宿命的罪人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "doomed_sinner_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "doomed_sinner",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You cannot get the Refugee modifier; if you have it, you lose it immediately. You start with a storage bag.",
+            "zh_cn": "你无法获得难民修饰符，若拥有会立即失去。开局获得 1 个收纳袋。",
+            "zh_tw": "你無法獲得難民修飾符，若擁有會立即失去。開局獲得 1 個收納袋。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Doomed Sinner",
+        "zh_cn": "宿命的罪人",
+        "zh_tw": "宿命的罪人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "doomed_sinner_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Skill 1 [Oracle of Fate]: aim at a player within 4 blocks and press the skill key to view their last 3 kills. 40s cd.",
+                "zh_cn": "技能 1【命运的启示】：用准星对准 4 格内的玩家并按技能键，查看其最近 3 次的杀人方式，冷却 40 秒。",
+                "zh_tw": "技能 1【命運的啟示】：用準星對準 4 格內的玩家並按技能鍵，查看其最近 3 次的殺人方式，冷卻 40 秒。"
+              },
+              {
+                "en_us": "Skill 2 [Restart] (sneak + skill key): randomly pick a cause of death to die-escape — instantly return to your room, briefly invincible; this escape isn't recorded, doesn't advance progress, and doesn't trigger death checks. 75s cd.",
+                "zh_cn": "技能 2【重启】(潜行+技能键)：随机挑选一种死因进行死亡脱离——立即回到房间并短暂无敌，此次脱离不计入死亡记录、不推进胜利进度、也不会触发死亡判定，冷却 75 秒。",
+                "zh_tw": "技能 2【重啟】(潛行+技能鍵)：隨機挑選一種死因進行死亡脫離——立即回到房間並短暫無敵，此次脫離不計入死亡記錄、不推進勝利進度、也不會觸發死亡判定，冷卻 75 秒。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skill 1 [Oracle of Fate]: aim at a player within 4 blocks and press the skill key to view their last 3 kills. 40s cd.",
+            "zh_cn": "技能 1【命运的启示】：用准星对准 4 格内的玩家并按技能键，查看其最近 3 次的杀人方式，冷却 40 秒。",
+            "zh_tw": "技能 1【命運的啟示】：用準星對準 4 格內的玩家並按技能鍵，查看其最近 3 次的殺人方式，冷卻 40 秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skill 2 [Restart] (sneak + skill key): randomly pick a cause of death to die-escape — instantly return to your room, briefly invincible; this escape isn't recorded, doesn't advance progress, and doesn't trigger death checks. 75s cd.",
+            "zh_cn": "技能 2【重启】(潜行+技能键)：随机挑选一种死因进行死亡脱离——立即回到房间并短暂无敌，此次脱离不计入死亡记录、不推进胜利进度、也不会触发死亡判定，冷却 75 秒。",
+            "zh_tw": "技能 2【重啟】(潛行+技能鍵)：隨機挑選一種死因進行死亡脫離——立即回到房間並短暫無敵，此次脫離不計入死亡記錄、不推進勝利進度、也不會觸發死亡判定，冷卻 75 秒。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "title": {
+        "en_us": "Doomed Sinner",
+        "zh_cn": "宿命的罪人",
+        "zh_tw": "宿命的罪人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "doomed_sinner_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "doomed_sinner_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "doomed_sinner_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "delay": 14
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Each (non-final) death revives you in a random room with a random player's skin; the corpse you left vanishes after 15 seconds.",
+            "zh_cn": "每次（非彻底）死亡后，你都会在随机房间复活，并变成随机玩家的皮肤；死亡留下的尸体在 15 秒后消失。",
+            "zh_tw": "每次（非徹底）死亡後，你都會在隨機房間復活，並變成隨機玩家的皮膚；死亡留下的屍體在 15 秒後消失。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Doomed Sinner",
+        "zh_cn": "宿命的罪人",
+        "zh_tw": "宿命的罪人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "doomed_sinner_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You must die by [different] causes of death to accumulate progress. Required distinct causes scale with players: 5 for 12-16 players, 8 at 32 players, linear between.",
+            "zh_cn": "你需要以【不同】的死亡原因死去来累积胜利进度。需要的不同死因数量随人数变化：12-16 人为 5 种，32 人为 8 种，中间线性递增。",
+            "zh_tw": "你需要以【不同】的死亡原因死去來累積勝利進度。需要的不同死因數量隨人數變化：12-16 人為 5 種，32 人為 8 種，中間線性遞增。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Each time you die from a new cause, you randomly gain one of: fake knife, fake gun, fake bat, fake crowbar, fake lockpick.",
+            "zh_cn": "每次以新的死因死亡时，你会随机获得假刀、假枪、假棒球棍、假撬棍、假开锁器中的 1 个。",
+            "zh_tw": "每次以新的死因死亡時，你會隨機獲得假刀、假槍、假棒球棍、假撬棍、假開鎖器中的 1 個。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 151,
+          "text": {
+            "en_us": "If you die 3 times from the [same] cause, you die permanently.",
+            "zh_cn": "若你以【同一种】死因死去达到 3 次，则彻底死亡，不再复活。",
+            "zh_tw": "若你以【同一種】死因死去達到 3 次，則徹底死亡，不再復活。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 161
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,298 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.maid_sakuya",
+  "items": [
+    "trainmurdermystery:revolver"
+  ],
+  "title": {
+    "en_us": "Sakuya",
+    "zh_cn": "女仆长咲夜",
+    "zh_tw": "女僕長咲夜"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Sakuya",
+        "zh_cn": "女仆长咲夜",
+        "zh_tw": "女僕長咲夜"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "maid_sakuya_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Sheriff team",
+            "zh_cn": "警长阵营",
+            "zh_tw": "警長陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "The maid's heart is the doll in her palm!",
+            "zh_cn": "女仆之心乃掌中人偶！",
+            "zh_tw": "女僕之心乃掌中人偶！"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 123
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Sakuya",
+        "zh_cn": "女仆长咲夜",
+        "zh_tw": "女僕長咲夜"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "maid_sakuya_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Press the skill key to activate: time stops for 5s. If you kill someone during time stop, you also enter time stop.",
+                "zh_cn": "按下技能键触发，使用后时停5s。当你在时停时击杀他人后，你也会进入时停状态。",
+                "zh_tw": "按下技能鍵觸發，使用後時停5s。當你在時停時擊殺他人後，你也會進入時停狀態。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Press the skill key to activate: time stops for 5s. If you kill someone during time stop, you also enter time stop.",
+            "zh_cn": "按下技能键触发，使用后时停5s。当你在时停时击杀他人后，你也会进入时停状态。",
+            "zh_tw": "按下技能鍵觸發，使用後時停5s。當你在時停時擊殺他人後，你也會進入時停狀態。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Sakuya",
+        "zh_cn": "女仆长咲夜",
+        "zh_tw": "女僕長咲夜"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "maid_sakuya_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "maid_sakuya",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 189,
+          "text": {
+            "en_us": "You can buy a pricey Flask of the Four Nights; drinking it grants Speed 10 for 20s.",
+            "zh_cn": "可以花高价购买十四夜，饮用后获得速度10，持续20s。",
+            "zh_tw": "可以花高價購買十四夜，飲用後獲得速度10，持續20s。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 199
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Sakuya",
+        "zh_cn": "女仆长咲夜",
+        "zh_tw": "女僕長咲夜"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "maid_sakuya_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 101,
+          "text": {
+            "en_us": "Spell Card: Mystic Art \"The World\"",
+            "zh_cn": "符卡：幻世「The World」",
+            "zh_tw": "符卡：幻世「The World」"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 111
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

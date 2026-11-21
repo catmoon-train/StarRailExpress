@@ -1,0 +1,408 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.patroller",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Patroller",
+    "zh_cn": "巡警",
+    "zh_tw": "巡警"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_room"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Patroller",
+        "zh_cn": "巡警",
+        "zh_tw": "巡警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "patroller_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Sheriff team",
+            "zh_cn": "警长阵营",
+            "zh_tw": "警長陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When you witness a murder with your own eyes, you'll uphold the last justice of this journey.",
+            "zh_cn": "当你亲眼目睹了一场凶杀案时，你将维护这趟旅程中最后的正义。",
+            "zh_tw": "當你親眼目睹了一場兇殺案時，你將維護這趟旅程中最後的正義。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Patroller",
+        "zh_cn": "巡警",
+        "zh_tw": "巡警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "patroller_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Patrol Pistol: has its own cooldown and can coexist with a Revolver.",
+                "zh_cn": "巡警手枪：拥有独立的CD，可与左轮手枪同时存在。",
+                "zh_tw": "巡警手槍：擁有獨立的CD，可與左輪手槍同時存在。"
+              },
+              {
+                "en_us": "The Patrol Pistol's cooldown is 1/5 of a normal Revolver's.",
+                "zh_cn": "巡警手枪的CD为普通左轮的1/5。",
+                "zh_tw": "巡警手槍的CD為普通左輪的1/5。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 162,
+          "text": {
+            "en_us": "Patrol Pistol: has its own cooldown and can coexist with a Revolver.",
+            "zh_cn": "巡警手枪：拥有独立的CD，可与左轮手枪同时存在。",
+            "zh_tw": "巡警手槍：擁有獨立的CD，可與左輪手槍同時存在。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 172
+        },
+        {
+          "type": "text",
+          "duration": 146,
+          "text": {
+            "en_us": "The Patrol Pistol's cooldown is 1/5 of a normal Revolver's.",
+            "zh_cn": "巡警手枪的CD为普通左轮的1/5。",
+            "zh_tw": "巡警手槍的CD為普通左輪的1/5。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 156
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Patroller",
+        "zh_cn": "巡警",
+        "zh_tw": "巡警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "patroller_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "patroller",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 85,
+          "text": {
+            "en_us": "The shop sells Revolvers.",
+            "zh_cn": "商店可购买左轮手枪。",
+            "zh_tw": "商店可購買左輪手槍。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 95
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Patroller",
+        "zh_cn": "巡警",
+        "zh_tw": "巡警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "patroller_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "patroller_target",
+            "outline": -13669377
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "When someone dies within 30 blocks of your view, you gain a Patrol Pistol and an Attendant Key.",
+                "zh_cn": "当你的视野30格内有人死亡时，你获得一把巡警手枪和一把乘务员钥匙。",
+                "zh_tw": "當你的視野30格內有人死亡時，你獲得一把巡警手槍和一把乘務員鑰匙。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When someone dies within 30 blocks of your view, you gain a Patrol Pistol and an Attendant Key.",
+            "zh_cn": "当你的视野30格内有人死亡时，你获得一把巡警手枪和一把乘务员钥匙。",
+            "zh_tw": "當你的視野30格內有人死亡時，你獲得一把巡警手槍和一把乘務員鑰匙。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Patroller",
+        "zh_cn": "巡警",
+        "zh_tw": "巡警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "patroller_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 117,
+          "text": {
+            "en_us": "Attendant Key: opens any room door; 5 uses.",
+            "zh_cn": "乘务员钥匙：能够打开任意一扇房间门，可使用5次。",
+            "zh_tw": "乘務員鑰匙：能夠打開任意一扇房間門，可使用5次。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 127
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

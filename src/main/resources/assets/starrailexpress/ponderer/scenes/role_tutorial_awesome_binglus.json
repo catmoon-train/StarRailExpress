@@ -1,0 +1,482 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.awesome_binglus",
+  "items": [
+    "noellesroles:reporter_terminal"
+  ],
+  "title": {
+    "en_us": "Reporter",
+    "zh_cn": "记者",
+    "zh_tw": "記者"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Reporter",
+        "zh_cn": "记者",
+        "zh_tw": "記者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "awesome_binglus_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You have tons of sticky notes and can stick them on others — mark as many people as you can.",
+            "zh_cn": "发现并标记可疑目标。",
+            "zh_tw": "發現並標記可疑目標。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Reporter",
+        "zh_cn": "记者",
+        "zh_tw": "記者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "awesome_binglus_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "awesome_binglus",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 74,
+          "text": {
+            "en_us": "Starts with a Note.",
+            "zh_cn": "开局自带便签。",
+            "zh_tw": "開局自帶便簽。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 84
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Reporter",
+        "zh_cn": "记者",
+        "zh_tw": "記者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "awesome_binglus_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "awesome_binglus",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You can see-through the position of notes and spend 50 coin to stick a note on someone (hold the note / giant note and right-click another player).",
+            "zh_cn": "你可以透视便签的位置并可以花费50金币将便签贴在别人身上(手持便签/巨大便签右键其它玩家)。",
+            "zh_tw": "你可以透視便簽的位置並可以花費50金幣將便簽貼在別人身上(手持便簽/巨大便簽右鍵其他玩家)。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 126,
+          "text": {
+            "en_us": "The shop sells various notes and camera helmets.",
+            "zh_cn": "商店可购买各种便签与摄像头盔。",
+            "zh_tw": "商店可購買便簽和巨大便簽。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 136
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "panel",
+      "title": {
+        "en_us": "Reporter",
+        "zh_cn": "记者",
+        "zh_tw": "記者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "awesome_binglus_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.label.notes",
+            "lines": [
+              {
+                "en_us": "Camera Helmet: press Q to drop; pairs with the Reporter Terminal",
+                "zh_cn": "摄像头盔：可按Q键丢出，搭配记者终端使用",
+                "zh_tw": "摄像头盔：可按Q键丢出，搭配记者终端使用"
+              },
+              {
+                "en_us": "Reporter Terminal: right-click to view the perspective of a player wearing a camera helmet",
+                "zh_cn": "记者终端：右键可以查看穿戴着摄像头盔玩家的视角",
+                "zh_tw": "记者终端：右键可以查看穿戴着摄像头盔玩家的视角"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 155,
+          "text": {
+            "en_us": "Camera Helmet: press Q to drop; pairs with the Reporter Terminal",
+            "zh_cn": "摄像头盔：可按Q键丢出，搭配记者终端使用",
+            "zh_tw": "摄像头盔：可按Q键丢出，搭配记者终端使用"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 165
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Reporter Terminal: right-click to view the perspective of a player wearing a camera helmet",
+            "zh_cn": "记者终端：右键可以查看穿戴着摄像头盔玩家的视角",
+            "zh_tw": "记者终端：右键可以查看穿戴着摄像头盔玩家的视角"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Reporter",
+        "zh_cn": "记者",
+        "zh_tw": "記者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "awesome_binglus_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "awesome_binglus_target",
+            "outline": -6553688
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "You can see whether a player within 5 blocks has had someone die near them in the last 30s (the deeper the glow, the longer ago the death)",
+                "zh_cn": "你能看到附近5格内的玩家在最近30s内是否周围有人死亡（发光颜色越深，距离时间越久）",
+                "zh_tw": "你能看到附近5格內的玩家在最近30s內是否周圍有人死亡（發光顏色越深，距離時間越久）"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You can see whether a player within 5 blocks has had someone die near them in the last 30s (the deeper the glow, the longer ago the death)",
+            "zh_cn": "你能看到附近5格内的玩家在最近30s内是否周围有人死亡（发光颜色越深，距离时间越久）",
+            "zh_tw": "你能看到附近5格內的玩家在最近30s內是否周圍有人死亡（發光顏色越深，距離時間越久）"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Reporter",
+        "zh_cn": "记者",
+        "zh_tw": "記者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "awesome_binglus_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 158,
+          "text": {
+            "en_us": "Giant Note: five times the size of a note; can be stuck on others.",
+            "zh_cn": "巨大便签：尺寸是便签的五倍，可以贴在别人身上。",
+            "zh_tw": "巨大便簽：尺寸是便簽的五倍，可以貼在別人身上。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 168
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

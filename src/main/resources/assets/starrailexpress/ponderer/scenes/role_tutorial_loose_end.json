@@ -1,0 +1,494 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.loose_end",
+  "items": [
+    "trainmurdermystery:crowbar",
+    "trainmurdermystery:derringer",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Loose End",
+    "zh_cn": "亡命徒",
+    "zh_tw": "亡命徒"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_water"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Loose End",
+        "zh_cn": "亡命徒",
+        "zh_tw": "亡命徒"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_water",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "loose_end_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 106,
+          "text": {
+            "en_us": "Has its own independent win condition",
+            "zh_cn": "拥有独立胜利条件",
+            "zh_tw": "擁有獨立勝利條件"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 116
+        },
+        {
+          "type": "text",
+          "duration": 164,
+          "text": {
+            "en_us": "Settle every last trouble before you get settled yourself. Good luck.",
+            "zh_cn": "在被解决之前解决所有麻烦。祝你好运",
+            "zh_tw": "在被解決之前解決所有麻煩。祝你好運"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 174
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Loose End",
+        "zh_cn": "亡命徒",
+        "zh_tw": "亡命徒"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_water",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "loose_end_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "loose_end",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 157,
+          "text": {
+            "en_us": "You start with 1 Loose End Knife, 1 Loose End Gun, and 1 Crowbar.",
+            "zh_cn": "你初始获得1把亡命徒之刀、1把亡命徒之枪、1个撬棍。",
+            "zh_tw": "你初始獲得1把亡命徒之刀、1把亡命徒之槍、1個撬棍。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 167
+        },
+        {
+          "type": "text",
+          "duration": 153,
+          "text": {
+            "en_us": "You have permanent Speed, Water Breathing, and Dolphin's Grace.",
+            "zh_cn": "你拥有常态速度效果、水下呼吸效果、海豚的恩惠效果。",
+            "zh_tw": "你擁有常態速度效果、水下呼吸效果、海豚的恩惠效果。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 163
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Loose End Knife: fully charge a right-click for a short dash (dash deals no damage); damage equals a fully charged knife stab.",
+            "zh_cn": "亡命徒之刀：蓄满右键后短距冲刺（冲刺无伤害），伤害与普通刀蓄力刺杀相同",
+            "zh_tw": "亡命徒之刀：蓄滿右鍵後短距衝刺（衝刺無傷害），傷害與普通刀蓄力刺殺相同"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Loose End",
+        "zh_cn": "亡命徒",
+        "zh_tw": "亡命徒"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_water",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "loose_end_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              4.0
+            ],
+            "yaw": 180.0,
+            "linkId": "loose_end_target",
+            "outline": -6356992
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "You have Jester see-through.",
+                "zh_cn": "你拥有小丑透视。",
+                "zh_tw": "你擁有小丑透視。"
+              },
+              {
+                "en_us": "A Loose End transformed via the Refugee modifier turns off all lights on the map on spawn and gains Glowing for 5 minutes.",
+                "zh_cn": "通过难民修饰符变成的亡命徒在出生时会关闭场上的所有灯光，并获得5分钟发光。",
+                "zh_tw": "通過難民修飾符變成的亡命徒在出生時會關閉場上的所有燈光，並獲得5分鐘發光。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 90,
+          "text": {
+            "en_us": "You have Jester see-through.",
+            "zh_cn": "你拥有小丑透视。",
+            "zh_tw": "你擁有小丑透視。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 100
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "A Loose End transformed via the Refugee modifier turns off all lights on the map on spawn and gains Glowing for 5 minutes.",
+            "zh_cn": "通过难民修饰符变成的亡命徒在出生时会关闭场上的所有灯光，并获得5分钟发光。",
+            "zh_tw": "通過難民修飾符變成的亡命徒在出生時會關閉場上的所有燈光，並獲得5分鐘發光。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vitals",
+      "title": {
+        "en_us": "Loose End",
+        "zh_cn": "亡命徒",
+        "zh_tw": "亡命徒"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_water",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "loose_end_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "attachKeyFrame": true,
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.4,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
+              }
+            ],
+            "lines": [
+              {
+                "en_us": "On spawn you gain shield based on current player count (one layer per 6 players, up to 3 layers).",
+                "zh_cn": "出生时会根据当前玩家数量给予自身护盾(每6人获得一层护盾，最多3层护盾)。",
+                "zh_tw": "出生時會根據當前玩家數量給予自身護盾(每6人獲得一層護盾，最多3層護盾)。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "On spawn you gain shield based on current player count (one layer per 6 players, up to 3 layers).",
+            "zh_cn": "出生时会根据当前玩家数量给予自身护盾(每6人获得一层护盾，最多3层护盾)。",
+            "zh_tw": "出生時會根據當前玩家數量給予自身護盾(每6人獲得一層護盾，最多3層護盾)。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Loose End",
+        "zh_cn": "亡命徒",
+        "zh_tw": "亡命徒"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_water",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "loose_end_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 146,
+          "text": {
+            "en_us": "Loose End Gun: after firing, nearby players get Slowness V.",
+            "zh_cn": "亡命徒之枪：射击后使周围玩家获得缓慢5效果",
+            "zh_tw": "亡命徒之槍：射擊後使周圍玩家獲得緩慢5效果"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 156
+        },
+        {
+          "type": "text",
+          "duration": 101,
+          "text": {
+            "en_us": "Kill everyone with your weapons!!!",
+            "zh_cn": "用你的武器杀掉所有人！！！",
+            "zh_tw": "用你的武器殺掉所有人！！！"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 111
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

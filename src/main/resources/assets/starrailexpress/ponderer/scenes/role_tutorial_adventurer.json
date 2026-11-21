@@ -1,0 +1,451 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.adventurer",
+  "items": [
+    "noellesroles:grosell_travelog"
+  ],
+  "title": {
+    "en_us": "Adventurer",
+    "zh_cn": "冒险家",
+    "zh_tw": "冒險家"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_room"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Adventurer",
+        "zh_cn": "冒险家",
+        "zh_tw": "冒險家"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "adventurer_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 157,
+          "text": {
+            "en_us": "Explore dangerous areas, mark the map, and complete your journey.",
+            "zh_cn": "探索危险区域，标记地图，完成你的旅途。",
+            "zh_tw": "探索危險區域，標記地圖，完成你的旅途。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 167
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Adventurer",
+        "zh_cn": "冒险家",
+        "zh_tw": "冒險家"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "adventurer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "adventurer",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 126,
+          "text": {
+            "en_us": "Only on mechanism maps. Has 2x Civilian stamina.",
+            "zh_cn": "仅机关地图刷新。拥有 2 倍于平民的体力。",
+            "zh_tw": "僅機關地圖刷新。擁有 2 倍於平民的體力。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 136
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Adventurer",
+        "zh_cn": "冒险家",
+        "zh_tw": "冒險家"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "adventurer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Press the skill key to place a waypoint; it vanishes after 3 minutes. 120s cd.",
+                "zh_cn": "按技能键可以在地图上标点，标点 3 分钟后消失，冷却 120 秒。",
+                "zh_tw": "按技能鍵可以在地圖上標點，標點 3 分鐘後消失，冷卻 120 秒。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 180,
+          "text": {
+            "en_us": "Press the skill key to place a waypoint; it vanishes after 3 minutes. 120s cd.",
+            "zh_cn": "按技能键可以在地图上标点，标点 3 分钟后消失，冷却 120 秒。",
+            "zh_tw": "按技能鍵可以在地圖上標點，標點 3 分鐘後消失，冷卻 120 秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 190
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "domain",
+      "title": {
+        "en_us": "Adventurer",
+        "zh_cn": "冒险家",
+        "zh_tw": "冒險家"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "adventurer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_domain",
+          "attachKeyFrame": true,
+          "parameters": {
+            "domain": "adventurer_travelogue",
+            "pos": [
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 160,
+          "text": {
+            "en_us": "Banished players are auto-released after 60 seconds in the journal.",
+            "zh_cn": "放逐对象在游记中60秒后会被自动释放出来。",
+            "zh_tw": "放逐對象在遊記中60秒後會被自動釋放出來。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 170
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You start with a Travel Journal (invisible to others); charging at a target banishes them into the journal.",
+            "zh_cn": "开局自带一本游记(游记对他人不可见)，对着目标蓄力会将目标放逐到游记里。",
+            "zh_tw": "開局自帶一本遊記(遊記對他人不可見)，對著目標蓄力會將目標放逐到遊記裏。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "While banished, charge again and right-click the journal to release them; they return to where they were.",
+            "zh_cn": "放逐期间再次蓄力右键游记可将目标放出来，放逐对象会回到放逐前的位置。",
+            "zh_tw": "放逐期間再次蓄力右鍵遊記可將目標放出來，放逐對象會回到放逐前的位置。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Adventurer",
+        "zh_cn": "冒险家",
+        "zh_tw": "冒險家"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "adventurer_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 121,
+          "text": {
+            "en_us": "Can jump into manholes and pass through mist.",
+            "zh_cn": "可以跳入井盖，可以穿过迷雾。",
+            "zh_tw": "可以跳入井蓋，可以穿過迷霧。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 131
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The Adventurer is immune to environmental damage: suffocation, dripstone spikes, burning, rolling boulders, being pushed into incinerators, freezing, dehydration, starvation, drowning, identity loss, bites from ancient creatures.",
+            "zh_cn": "冒险家免疫环境伤害：窒息、滴水石锥穿刺、烤糊、滚石碾压、推入焚化炉、冻僵、渴死、饿死、淹死、迷失自我、被远古生物咬死。",
+            "zh_tw": "冒險家免疫環境傷害：窒息、滴水石錐穿刺、烤糊、滾石碾壓、推入焚化爐、凍僵、渴死、餓死、淹死、迷失自我、被遠古生物咬死。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 122,
+          "text": {
+            "en_us": "Waypoints vanish automatically after the game.",
+            "zh_cn": "游戏结束后标点自动消失。",
+            "zh_tw": "遊戲結束後標點自動消失。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 132
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

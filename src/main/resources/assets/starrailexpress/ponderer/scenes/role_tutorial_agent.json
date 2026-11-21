@@ -1,0 +1,269 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.agent",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Agent",
+    "zh_cn": "探员",
+    "zh_tw": "探員"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Agent",
+        "zh_cn": "探员",
+        "zh_tw": "探員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "agent_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Spend 150 coins to inspect a player's inventory. Sneaking lets you sense nearby footsteps!",
+            "zh_cn": "探查他们的秘密！",
+            "zh_tw": "探查他們的秘密！"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "panel",
+      "title": {
+        "en_us": "Agent",
+        "zh_cn": "探员",
+        "zh_tw": "探員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "agent_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.label.notes",
+            "lines": [
+              {
+                "en_us": "Aim at a player and press the skill key to view their inventory interface.",
+                "zh_cn": "指针对准一名玩家并按下技能键，可以查看他的物品栏界面。",
+                "zh_tw": "指針對準一名玩家並按下技能鍵，可以查看他的物品欄介面。"
+              },
+              {
+                "en_us": "If the player moves, the interface closes; 60s cooldown.",
+                "zh_cn": "如果该玩家移动则会关闭界面，冷却60s。",
+                "zh_tw": "如果該玩家移動則會關閉介面，冷卻60s。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 173,
+          "text": {
+            "en_us": "Aim at a player and press the skill key to view their inventory interface.",
+            "zh_cn": "指针对准一名玩家并按下技能键，可以查看他的物品栏界面。",
+            "zh_tw": "指針對準一名玩家並按下技能鍵，可以查看他的物品欄介面。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 183
+        },
+        {
+          "type": "text",
+          "duration": 140,
+          "text": {
+            "en_us": "If the player moves, the interface closes; 60s cooldown.",
+            "zh_cn": "如果该玩家移动则会关闭界面，冷却60s。",
+            "zh_tw": "如果該玩家移動則會關閉介面，冷卻60s。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 150
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Agent",
+        "zh_cn": "探员",
+        "zh_tw": "探員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "agent_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 126,
+          "text": {
+            "en_us": "Staying crouched lets you sense nearby movement.",
+            "zh_cn": "持续蹲下可以察觉周围的动静。",
+            "zh_tw": "持續蹲下可以察覺周圍的動靜。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 136
+        },
+        {
+          "type": "text",
+          "duration": 185,
+          "text": {
+            "en_us": "After the Conspirator guesses you, you learn the Conspirator's name and position.",
+            "zh_cn": "当你被阴谋家猜测后，你将得知阴谋家的名字与位置。",
+            "zh_tw": "當你被陰謀家猜測後，你將得知陰謀家的名字與位置。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 195
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

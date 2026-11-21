@@ -1,0 +1,442 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.ninja",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Ninja",
+    "zh_cn": "忍者",
+    "zh_tw": "忍者"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Ninja",
+        "zh_cn": "忍者",
+        "zh_tw": "忍者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ninja_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 148,
+          "text": {
+            "en_us": "You will make them slip away from your side without a sound!",
+            "zh_cn": "你会让他们悄无声息地离开你的身边！",
+            "zh_tw": "你會讓他們悄無聲息地離開你的身邊！"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 158
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Ninja",
+        "zh_cn": "忍者",
+        "zh_tw": "忍者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ninja_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 86,
+          "text": {
+            "en_us": "You start with a Lockpick.",
+            "zh_cn": "你初始拥有一把开锁器。",
+            "zh_tw": "你初始擁有一把開鎖器。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 96
+        },
+        {
+          "type": "text",
+          "duration": 131,
+          "text": {
+            "en_us": "Kunai is a melee weapon with no use sound; one-use.",
+            "zh_cn": "苦无为近战武器，无使用声音，一次性道具。",
+            "zh_tw": "苦無為近戰武器，無使用聲音，一次性道具。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 141
+        },
+        {
+          "type": "text",
+          "duration": 139,
+          "text": {
+            "en_us": "Shuriken is a ranged weapon with no use sound; one-use.",
+            "zh_cn": "手里剑为远程武器，无使用声音，一次性道具。",
+            "zh_tw": "手裏劍為遠程武器，無使用聲音，一次性道具。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 149
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Ninja",
+        "zh_cn": "忍者",
+        "zh_tw": "忍者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ninja_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "The Ninja's Lights Out has a shorter cooldown and shorter duration.",
+                "zh_cn": "忍者的关灯拥有更短的冷却，更短的时长。",
+                "zh_tw": "忍者的關燈擁有更短的冷卻，更短的時長。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 160,
+          "text": {
+            "en_us": "The Ninja's Lights Out has a shorter cooldown and shorter duration.",
+            "zh_cn": "忍者的关灯拥有更短的冷却，更短的时长。",
+            "zh_tw": "忍者的關燈擁有更短的冷卻，更短的時長。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 170
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Ninja",
+        "zh_cn": "忍者",
+        "zh_tw": "忍者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ninja_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "ninja",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 122,
+          "text": {
+            "en_us": "The shop sells Kunai, Shuriken, and Lights Out",
+            "zh_cn": "商店里面可以购买苦无、手里剑、关灯",
+            "zh_tw": "商店裏面可以購買苦無、手裏劍、關燈"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 132
+        },
+        {
+          "type": "text",
+          "duration": 119,
+          "text": {
+            "en_us": "Killing in darkness grants an extra 100 coin",
+            "zh_cn": "在黑暗环境下杀人会额外获得100金币",
+            "zh_tw": "在黑暗環境下殺人會額外獲得100金幣"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 129
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vitals",
+      "title": {
+        "en_us": "Ninja",
+        "zh_cn": "忍者",
+        "zh_tw": "忍者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ninja_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "attachKeyFrame": true,
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.4,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
+              }
+            ],
+            "lines": [
+              {
+                "en_us": "After raising the block skill, gain 2.5s of shield that blocks one hit",
+                "zh_cn": "开启格挡技能后可以获得2.5s的护盾，可抵挡一次伤害",
+                "zh_tw": "開啟格擋技能後可以獲得2.5s的護盾，可抵擋一次傷害"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 166,
+          "text": {
+            "en_us": "After raising the block skill, gain 2.5s of shield that blocks one hit",
+            "zh_cn": "开启格挡技能后可以获得2.5s的护盾，可抵挡一次伤害",
+            "zh_tw": "開啟格擋技能後可以獲得2.5s的護盾，可抵擋一次傷害"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 176
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

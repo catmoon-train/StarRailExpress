@@ -1,0 +1,648 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.mercenary",
+  "items": [
+    "trainmurdermystery:revolver"
+  ],
+  "title": {
+    "en_us": "Mercenary",
+    "zh_cn": "雇佣兵",
+    "zh_tw": "雇傭兵"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Mercenary",
+        "zh_cn": "雇佣兵",
+        "zh_tw": "雇傭兵"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mercenary_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Complete your contracts, eliminate threats when needed, and pick a side at the critical moment.",
+            "zh_cn": "完成雇佣任务，必要时清除威胁，并在关键时刻选择站队。",
+            "zh_tw": "完成雇傭任務，必要時清除威脅，並在關鍵時刻選擇站隊。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Mercenary",
+        "zh_cn": "雇佣兵",
+        "zh_tw": "雇傭兵"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mercenary_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "mercenary",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Starts with a Revolver; without a contract, you glow continuously and have 2 layers of shield.",
+            "zh_cn": "开局自带左轮手枪，无雇佣任务时会持续发光，并获得2层护盾。",
+            "zh_tw": "開局自帶左輪手槍，無雇傭任務時會持續發光，並獲得2層護盾。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Mercenary",
+        "zh_cn": "雇佣兵",
+        "zh_tw": "雇傭兵"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mercenary_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "mercenary",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The shop sells an Unsealed Contract, Temporary Shield, Derringer, Knife, and Lockpick.",
+            "zh_cn": "商店可购买未签订契约、临时护盾、德林加手枪、刀和开锁器。",
+            "zh_tw": "商店可購買未簽訂契約、臨時護盾、德林加手槍、刀和開鎖器。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Unsealed Contract: the Mercenary can buy it and throw it to others; others can spend 175 coin to designate a wanted target.",
+            "zh_cn": "未签订的契约：雇佣兵购买后可以丢给其他人，其他人可以花费175金币指定一个通缉目标。",
+            "zh_tw": "未簽訂的契約：雇傭兵購買後可以丟給其他人，其他人可以花費175金幣指定一個通緝目標。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Mercenary",
+        "zh_cn": "雇佣兵",
+        "zh_tw": "雇傭兵"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mercenary_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mercenary_target",
+            "outline": -5210016
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Once a contract begins, you immediately lose the glow and base shield; after completing the contract you recover and the shield refills.",
+                "zh_cn": "雇佣任务开始后立刻失去发光与基础护盾，完成任务后恢复并补充护盾值。",
+                "zh_tw": "雇傭任務開始後立刻失去發光與基礎護盾，完成任務後恢復並補充護盾值。"
+              },
+              {
+                "en_us": "You cannot be see-through by Killer instinct and do not appear in the guessable roles of Conspirator pages or the Record Notebook.",
+                "zh_cn": "你无法被杀手直觉透视，且不会出现在阴谋书页与记录笔记的可猜职业中。",
+                "zh_tw": "你無法被殺手直覺透視，且不會出現在陰謀書頁與記錄筆記的可猜職業中。"
+              },
+              {
+                "en_us": "After sealing, others throw the contract back to the Mercenary; right-clicking the sealed contract instantly grants the bounty and see-through to the wanted target. The wanted target receives a notice.",
+                "zh_cn": "其他人签订契约后丢给雇佣兵，雇佣兵右键使用已签订的契约会立刻获得雇佣金并透视通缉目标。被通缉的目标会收到提示。",
+                "zh_tw": "其他人簽訂契約後丟給雇傭兵，雇傭兵右鍵使用已簽訂的契約會立刻獲得雇傭金並透視通緝目標。被通緝的目標會收到提示。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Once a contract begins, you immediately lose the glow and base shield; after completing the contract you recover and the shield refills.",
+            "zh_cn": "雇佣任务开始后立刻失去发光与基础护盾，完成任务后恢复并补充护盾值。",
+            "zh_tw": "雇傭任務開始後立刻失去發光與基礎護盾，完成任務後恢復並補充護盾值。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You cannot be see-through by Killer instinct and do not appear in the guessable roles of Conspirator pages or the Record Notebook.",
+            "zh_cn": "你无法被杀手直觉透视，且不会出现在阴谋书页与记录笔记的可猜职业中。",
+            "zh_tw": "你無法被殺手直覺透視，且不會出現在陰謀書頁與記錄筆記的可猜職業中。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "After sealing, others throw the contract back to the Mercenary; right-clicking the sealed contract instantly grants the bounty and see-through to the wanted target. The wanted target receives a notice.",
+            "zh_cn": "其他人签订契约后丢给雇佣兵，雇佣兵右键使用已签订的契约会立刻获得雇佣金并透视通缉目标。被通缉的目标会收到提示。",
+            "zh_tw": "其他人簽訂契約後丟給雇傭兵，雇傭兵右鍵使用已簽訂的契約會立刻獲得雇傭金並透視通緝目標。被通緝的目標會收到提示。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vitals",
+      "title": {
+        "en_us": "Mercenary",
+        "zh_cn": "雇佣兵",
+        "zh_tw": "雇傭兵"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mercenary_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "attachKeyFrame": true,
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.4,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
+              }
+            ],
+            "lines": [
+              {
+                "en_us": "You can only kill wanted targets or players who break your shield.",
+                "zh_cn": "你只能击杀通缉目标或打破你护盾的玩家。",
+                "zh_tw": "你只能擊殺通緝目標或打破你護盾的玩家。"
+              },
+              {
+                "en_us": "Temporary Shield: only buyable while on a contract; on purchase you immediately gain one layer of shield that disappears when the contract ends.",
+                "zh_cn": "临时护盾：只能在执行雇佣任务时购买，购买后立刻获得一层护盾，任务结束时护盾立即消失。",
+                "zh_tw": "臨時護盾：只能在執行雇傭任務時購買，購買後立刻獲得一層護盾，任務結束時護盾立即消失。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 158,
+          "text": {
+            "en_us": "You can only kill wanted targets or players who break your shield.",
+            "zh_cn": "你只能击杀通缉目标或打破你护盾的玩家。",
+            "zh_tw": "你只能擊殺通緝目標或打破你護盾的玩家。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 168
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Temporary Shield: only buyable while on a contract; on purchase you immediately gain one layer of shield that disappears when the contract ends.",
+            "zh_cn": "临时护盾：只能在执行雇佣任务时购买，购买后立刻获得一层护盾，任务结束时护盾立即消失。",
+            "zh_tw": "臨時護盾：只能在執行雇傭任務時購買，購買後立刻獲得一層護盾，任務結束時護盾立即消失。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "bond",
+      "title": {
+        "en_us": "Mercenary",
+        "zh_cn": "雇佣兵",
+        "zh_tw": "雇傭兵"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mercenary_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mercenary_ally",
+            "outline": -5210016
+          }
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "attachKeyFrame": true,
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "After you kill a cumulative (total players / 10 + 1) contract targets, you can win alongside the Passenger or Killer team.",
+                "zh_cn": "当你累计击杀（总人数/10+1）名雇佣目标后，可跟随乘客或杀手阵营一同获胜。",
+                "zh_tw": "當你累計擊殺（總人數/10+1）名雇傭目標後，可跟隨乘客或殺手陣營一同獲勝。"
+              }
+            ],
+            "color": -5210016
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "After you kill a cumulative (total players / 10 + 1) contract targets, you can win alongside the Passenger or Killer team.",
+            "zh_cn": "当你累计击杀（总人数/10+1）名雇佣目标后，可跟随乘客或杀手阵营一同获胜。",
+            "zh_tw": "當你累計擊殺（總人數/10+1）名雇傭目標後，可跟隨乘客或殺手陣營一同獲勝。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Mercenary",
+        "zh_cn": "雇佣兵",
+        "zh_tw": "雇傭兵"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mercenary_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 126,
+          "text": {
+            "en_us": "A special neutral role (not an independent win).",
+            "zh_cn": "特殊中立职业(非独立胜利)。",
+            "zh_tw": "特殊中立職業(非獨立勝利)。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 136
+        },
+        {
+          "type": "text",
+          "duration": 108,
+          "text": {
+            "en_us": "Only appears in lobbies of 12+ players",
+            "zh_cn": "仅在12人及以上对局中出现",
+            "zh_tw": "僅在12人及以上對局中出現"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 118
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

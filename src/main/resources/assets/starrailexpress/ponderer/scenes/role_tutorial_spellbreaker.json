@@ -1,0 +1,282 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.spellbreaker",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Spellbreaker",
+    "zh_cn": "破法者",
+    "zh_tw": "破法者"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Spellbreaker",
+        "zh_cn": "破法者",
+        "zh_tw": "破法者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "spellbreaker_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Seal the passengers' skills and action windows, hold key areas, and hunt down your targets",
+            "zh_cn": "封禁乘客的技能与行动窗口，掌控关键区域并猎杀目标",
+            "zh_tw": "封禁乘客的技能與行動窗口，掌控關鍵區域並獵殺目標"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Spellbreaker",
+        "zh_cn": "破法者",
+        "zh_tw": "破法者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "spellbreaker_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Press G to unleash an anti-magic field: non-Killers within 50 blocks cannot use skills or open their inventory for 30s and gain a Wonderland filter.",
+                "zh_cn": "按G释放破法力场：50格内非杀手玩家30秒内无法使用技能或打开背包，并获得仙境滤镜。",
+                "zh_tw": "按G釋放破法力場：50格內非殺手玩家30秒內無法使用技能或打開背包，並獲得仙境濾鏡。"
+              },
+              {
+                "en_us": "Anti-Magic Potion: use on a player to make their next skill attempt fail and lock skills for 30s (45s duration).",
+                "zh_cn": "破法药剂：对玩家使用后使其下一次技能尝试失败，并进入30秒技能封禁,45s有效。",
+                "zh_tw": "破法藥劑：對玩家使用後使其下一次技能嘗試失敗，並進入30秒技能封禁,45s有效。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Press G to unleash an anti-magic field: non-Killers within 50 blocks cannot use skills or open their inventory for 30s and gain a Wonderland filter.",
+            "zh_cn": "按G释放破法力场：50格内非杀手玩家30秒内无法使用技能或打开背包，并获得仙境滤镜。",
+            "zh_tw": "按G釋放破法力場：50格內非殺手玩家30秒內無法使用技能或打開背包，並獲得仙境濾鏡。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Anti-Magic Potion: use on a player to make their next skill attempt fail and lock skills for 30s (45s duration).",
+            "zh_cn": "破法药剂：对玩家使用后使其下一次技能尝试失败，并进入30秒技能封禁,45s有效。",
+            "zh_tw": "破法藥劑：對玩家使用後使其下一次技能嘗試失敗，並進入30秒技能封禁,45s有效。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Spellbreaker",
+        "zh_cn": "破法者",
+        "zh_tw": "破法者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "spellbreaker_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 144,
+          "text": {
+            "en_us": "Under this filter, players in water are fully blacked out.",
+            "zh_cn": "玩家处于此滤镜下在水中将全部黑屏。",
+            "zh_tw": "玩家處於此濾鏡下在水中將全部黑屏。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 154
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Silence Totem: throw a hidden totem; for 30s non-Killers within 6 blocks keep Slowness I and Blindness. Only one totem at a time.",
+            "zh_cn": "沉默图腾：投掷隐形图腾，30秒内使6格内非杀手玩家持续缓慢I与失明。同一时间只能存在一个图腾。",
+            "zh_tw": "沉默圖騰：投擲隱形圖騰，30秒內使6格內非殺手玩家持續緩慢I與失明。同一時間只能存在一個圖騰。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

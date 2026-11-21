@@ -1,0 +1,351 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.broadcaster",
+  "items": [
+    "noellesroles:radio"
+  ],
+  "title": {
+    "en_us": "Broadcaster",
+    "zh_cn": "广播员",
+    "zh_tw": "廣播員"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Broadcaster",
+        "zh_cn": "广播员",
+        "zh_tw": "廣播員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "broadcaster_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Broadcast a message to all players, costing 50 coins. Your death will be known by everyone.",
+            "zh_cn": "为他人留下重要讯息。",
+            "zh_tw": "為他人留下重要訊息。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Broadcaster",
+        "zh_cn": "广播员",
+        "zh_tw": "廣播員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "broadcaster_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "broadcaster",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Starts with 200 coin; can spend 50 coin for a server-wide broadcast; starts with a walkie-talkie.",
+            "zh_cn": "你开局拥有200金币，可以花费50金币进行一次全服广播，开局自带一个对讲机。",
+            "zh_tw": "你開局擁有200金幣，可以花費50金幣進行一次全服廣播，開局自帶一個對講機。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Walkie-Talkie: right-click to join the voice channel; press Q to throw it to others; after joining the channel you can talk remotely with others.",
+            "zh_cn": "对讲机：右键可进入对讲机语音频道，可以按Q键丢给其他人，连入对讲机语音频道后可与其他人进行远程对话。",
+            "zh_tw": "對講機：右鍵可進入對講機語音頻道，可以按Q鍵丟給其他人，連入對講機語音頻道後可與其他人進行遠程對話。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "panel",
+      "title": {
+        "en_us": "Broadcaster",
+        "zh_cn": "广播员",
+        "zh_tw": "廣播員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "broadcaster_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.label.notes",
+            "lines": [
+              {
+                "en_us": "You can see the remaining game time.",
+                "zh_cn": "你可以查看剩余游戏时间。",
+                "zh_tw": "你可以查看剩餘遊戲時間。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 104,
+          "text": {
+            "en_us": "You can see the remaining game time.",
+            "zh_cn": "你可以查看剩余游戏时间。",
+            "zh_tw": "你可以查看剩餘遊戲時間。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 114
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Broadcaster",
+        "zh_cn": "广播员",
+        "zh_tw": "廣播員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "broadcaster_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You can edit the broadcast message at any time; the message is saved until it is successfully sent.",
+            "zh_cn": "你可以随时编辑广播消息，广播消息将会被留存，直到被成功发送。",
+            "zh_tw": "你可以隨時編輯廣播消息，廣播消息將會被留存，直到被成功發送。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 137,
+          "text": {
+            "en_us": "When you die, any saved message is sent automatically.",
+            "zh_cn": "当你死亡的时候，如果有留存的消息，它将被自动发出。",
+            "zh_tw": "當你死亡的時候，如果有留存的消息，它將被自動發出。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 147
+        },
+        {
+          "type": "text",
+          "duration": 97,
+          "text": {
+            "en_us": "All players learn of your death.",
+            "zh_cn": "所有玩家会得知你的死讯。",
+            "zh_tw": "所有玩家會得知你的死訊。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 107
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

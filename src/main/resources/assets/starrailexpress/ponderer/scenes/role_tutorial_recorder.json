@@ -1,0 +1,420 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.recorder",
+  "items": [
+    "noellesroles:written_note"
+  ],
+  "title": {
+    "en_us": "Recorder",
+    "zh_cn": "记录员",
+    "zh_tw": "記錄員"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Recorder",
+        "zh_cn": "记录员",
+        "zh_tw": "記錄員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "recorder_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 106,
+          "text": {
+            "en_us": "Has its own independent win condition",
+            "zh_cn": "拥有独立胜利条件",
+            "zh_tw": "擁有獨立勝利條件"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 116
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Use record notes to guess other players' roles. If you guess enough correctly, you win independently!",
+            "zh_cn": "使用记录笔记猜测其他玩家的角色。",
+            "zh_tw": "使用記錄筆記猜測其他玩家的角色。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "panel",
+      "title": {
+        "en_us": "Recorder",
+        "zh_cn": "记录员",
+        "zh_tw": "記錄員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "recorder_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.label.notes",
+            "lines": [
+              {
+                "en_us": "Starts with a Record Notebook to guess players' identities.",
+                "zh_cn": "开局拥有一本记录笔记用于猜测玩家身份。",
+                "zh_tw": "開局擁有一本記錄筆記用於猜測玩家身份。"
+              },
+              {
+                "en_us": "The notebook records all roles and player info and is invisible to others.",
+                "zh_cn": "笔记本会记录所有的职业与玩家的信息且笔记本对他人不可见。",
+                "zh_tw": "筆記本會記錄所有的職業與玩家的資訊且筆記本對他人不可見。"
+              },
+              {
+                "en_us": "You should quickly note neutral roles that can change your own role.",
+                "zh_cn": "建议尽快记录下能改变自身职业的中立角色身份。",
+                "zh_tw": "建議儘快記錄下能改變自身職業的中立角色身份。"
+              },
+              {
+                "en_us": "Die after guessing wrong a certain number of times.",
+                "zh_cn": "记录错一定次数后则自己死亡。",
+                "zh_tw": "記錄錯一定次數後則自己死亡。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 146,
+          "text": {
+            "en_us": "Starts with a Record Notebook to guess players' identities.",
+            "zh_cn": "开局拥有一本记录笔记用于猜测玩家身份。",
+            "zh_tw": "開局擁有一本記錄筆記用於猜測玩家身份。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 156
+        },
+        {
+          "type": "text",
+          "duration": 173,
+          "text": {
+            "en_us": "The notebook records all roles and player info and is invisible to others.",
+            "zh_cn": "笔记本会记录所有的职业与玩家的信息且笔记本对他人不可见。",
+            "zh_tw": "筆記本會記錄所有的職業與玩家的資訊且筆記本對他人不可見。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 183
+        },
+        {
+          "type": "text",
+          "duration": 162,
+          "text": {
+            "en_us": "You should quickly note neutral roles that can change your own role.",
+            "zh_cn": "建议尽快记录下能改变自身职业的中立角色身份。",
+            "zh_tw": "建議儘快記錄下能改變自身職業的中立角色身份。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 172
+        },
+        {
+          "type": "text",
+          "duration": 131,
+          "text": {
+            "en_us": "Die after guessing wrong a certain number of times.",
+            "zh_cn": "记录错一定次数后则自己死亡。",
+            "zh_tw": "記錄錯一定次數後則自己死亡。"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 141
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Recorder",
+        "zh_cn": "记录员",
+        "zh_tw": "記錄員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "recorder_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "recorder_target",
+            "outline": -10510688
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "You have Recorder see-through, limited to players within 20 blocks.",
+                "zh_cn": "你拥有记录员透视，只能透视20格内的玩家。",
+                "zh_tw": "你擁有記錄員透視，只能透視20格內的玩家。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 160,
+          "text": {
+            "en_us": "You have Recorder see-through, limited to players within 20 blocks.",
+            "zh_cn": "你拥有记录员透视，只能透视20格内的玩家。",
+            "zh_tw": "你擁有記錄員透視，只能透視20格內的玩家。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 170
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Recorder",
+        "zh_cn": "记录员",
+        "zh_tw": "記錄員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "recorder_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 110,
+          "text": {
+            "en_us": "Only enabled in lobbies of 10+ players.",
+            "zh_cn": "仅在10人及以上的对局中会启用。",
+            "zh_tw": "僅在10人及以上的對局中會啟用。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 120
+        },
+        {
+          "type": "text",
+          "duration": 157,
+          "text": {
+            "en_us": "Win after guessing the identities of a certain number of players.",
+            "zh_cn": "猜测出一定数量玩家的身份后取得胜利。",
+            "zh_tw": "猜測出一定數量玩家的身份後取得勝利。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 167
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

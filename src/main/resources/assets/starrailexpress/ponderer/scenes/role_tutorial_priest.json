@@ -1,0 +1,319 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.priest",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Priest",
+    "zh_cn": "神父",
+    "zh_tw": "神父"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Priest",
+        "zh_cn": "神父",
+        "zh_tw": "神父"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "priest_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 158,
+          "text": {
+            "en_us": "Recite the fourteen lines, accelerate time, until Heaven descends.",
+            "zh_cn": "咏诵十四句，让时间加速，直至天堂降临。",
+            "zh_tw": "詠誦十四句，讓時間加速，直至天堂降臨。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 168
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Priest",
+        "zh_cn": "神父",
+        "zh_tw": "神父"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "priest_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Does not spawn randomly; only becomes this from a Clockmaker holding the 【Divine Mission】 modifier.",
+            "zh_cn": "无法随机刷新，仅由持有「神的使命」的钟表匠转变而来。",
+            "zh_tw": "無法隨機刷新，僅由持有「神的使命」的鐘錶匠轉變而來。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "panel",
+      "title": {
+        "en_us": "Priest",
+        "zh_cn": "神父",
+        "zh_tw": "神父"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "priest_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.label.notes",
+            "lines": [
+              {
+                "en_us": "Type out the chant line by line in the interface to begin a 25-second chant.",
+                "zh_cn": "在界面中逐句打出咏诵台词后开始25秒咏诵。",
+                "zh_tw": "在介面中逐句打出詠誦臺詞後開始25秒詠誦。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 176,
+          "text": {
+            "en_us": "Type out the chant line by line in the interface to begin a 25-second chant.",
+            "zh_cn": "在界面中逐句打出咏诵台词后开始25秒咏诵。",
+            "zh_tw": "在介面中逐句打出詠誦臺詞後開始25秒詠誦。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 186
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Priest",
+        "zh_cn": "神父",
+        "zh_tw": "神父"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "priest_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When the lobby is down to only that Clockmaker and one Civilian, the Clockmaker becomes a Priest.",
+            "zh_cn": "当对局只剩该钟表匠与一名平民时，钟表匠会化为神父。",
+            "zh_tw": "當對局只剩該鐘錶匠與一名平民時，鐘錶匠會化為神父。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "After transforming, you can pass through doors and blocks, have no collision box, and running continuously accelerates up to 500% movement speed.",
+            "zh_cn": "转变后可穿透门与方块，无碰撞体积；奔跑会持续加速，最高提升至500%的移速。",
+            "zh_tw": "轉變後可穿透門與方塊，無碰撞體積；奔跑會持續加速，最高提升至500%的移速。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "If no one kills the Priest during the chant, world time and match time accelerate until game time reaches zero.",
+            "zh_cn": "咏诵期间若无人击杀神父，则世界时间与对局时间将开始加速，直至游戏时间归零。",
+            "zh_tw": "詠誦期間若無人擊殺神父，則世界時間與對局時間將開始加速，直至遊戲時間歸零。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

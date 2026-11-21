@@ -1,0 +1,370 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.shikieiki",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Shikieiki",
+    "zh_cn": "阎魔姬",
+    "zh_tw": "閻魔姬"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Shikieiki",
+        "zh_cn": "阎魔姬",
+        "zh_tw": "閻魔姬"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "shikieiki_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Sheriff team",
+            "zh_cn": "警长阵营",
+            "zh_tw": "警長陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 108,
+          "text": {
+            "en_us": "Has the ability to judge good and evil",
+            "zh_cn": "你懂得该如何明辨是非",
+            "zh_tw": "你懂得該如何明辨是非"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 118
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Shikieiki",
+        "zh_cn": "阎魔姬",
+        "zh_tw": "閻魔姬"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "shikieiki_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Starts with a Derringer; this pistol can only kill players you see-through, and has cerebellum penalty.",
+            "zh_cn": "初始拥有一把德林加手枪，此手枪只可击杀被自己透视的玩家，有小脑惩罚。",
+            "zh_tw": "初始擁有一把德林加手槍，此手槍只可擊殺被自己透視的玩家，有小腦懲罰。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "screen",
+      "title": {
+        "en_us": "Shikieiki",
+        "zh_cn": "阎魔姬",
+        "zh_tw": "閻魔姬"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "shikieiki_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_screen",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.screen.select_player",
+            "hint": "ponder.starrailexpress.screen.pick_hint",
+            "columns": 6
+          }
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Shikieiki",
+        "zh_cn": "阎魔姬",
+        "zh_tw": "閻魔姬"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "shikieiki_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "shikieiki",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Cannot pick up Revolvers and Patrol Pistols, but can buy a one-use Pistol from the vending machine; has cerebellum penalty.",
+            "zh_cn": "无法捡起左轮手枪和巡警手枪，但你可以在售货机可购买一次性手枪，有小脑惩罚。",
+            "zh_tw": "無法撿起左輪手槍和巡警手槍，但你可以在售貨機可購買一次性手槍，有小腦懲罰。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Shikieiki",
+        "zh_cn": "阎魔姬",
+        "zh_tw": "閻魔姬"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "shikieiki_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "shikieiki_target",
+            "outline": -11055243
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "You can see-through players within 6 blocks holding a knife, bow, crossbow, gun, or bat.",
+                "zh_cn": "你可以透视6格范围内持刀、弓、弩、枪、球棍的玩家。",
+                "zh_tw": "你可以透視6格範圍內持刀、弓、弩、槍、球棍的玩家。"
+              },
+              {
+                "en_us": "Click a living player's avatar in the inventory to judge whether they have killed within 45s. If they have, see-through them for 60s, during which they cannot kill you. Judging has a 45s cooldown.",
+                "zh_cn": "点击背包界面存活玩家头像，可判断其45s内是否杀过人。若其杀人，可透视其60s，此时你无法被它杀死。判断冷却45s。",
+                "zh_tw": "點擊背包介面存活玩家頭像，可判斷其45s內是否殺過人。若其殺人，可透視其60s，此時你無法被它殺死。判斷冷卻45s。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You can see-through players within 6 blocks holding a knife, bow, crossbow, gun, or bat.",
+            "zh_cn": "你可以透视6格范围内持刀、弓、弩、枪、球棍的玩家。",
+            "zh_tw": "你可以透視6格範圍內持刀、弓、弩、槍、球棍的玩家。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Click a living player's avatar in the inventory to judge whether they have killed within 45s. If they have, see-through them for 60s, during which they cannot kill you. Judging has a 45s cooldown.",
+            "zh_cn": "点击背包界面存活玩家头像，可判断其45s内是否杀过人。若其杀人，可透视其60s，此时你无法被它杀死。判断冷却45s。",
+            "zh_tw": "點擊背包介面存活玩家頭像，可判斷其45s內是否殺過人。若其殺人，可透視其60s，此時你無法被它殺死。判斷冷卻45s。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

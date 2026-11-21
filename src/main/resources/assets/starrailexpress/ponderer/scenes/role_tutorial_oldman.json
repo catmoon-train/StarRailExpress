@@ -1,0 +1,353 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.oldman",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Old Man",
+    "zh_cn": "老人",
+    "zh_tw": "老人"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Old Man",
+        "zh_cn": "老人",
+        "zh_tw": "老人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "oldman_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "An old steed in the stable still dreams of a thousand-mile gallop; a veteran in his twilight still harbors unyielding spirit.",
+            "zh_cn": "老骥伏枥，志在千里；烈士暮年，壮心不已。",
+            "zh_tw": "老驥伏櫪，志在千里；烈士暮年，壯心不已。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Old Man",
+        "zh_cn": "老人",
+        "zh_tw": "老人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "oldman_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Right-click the Carrot on a Stick to spawn a saddled pig at your position (only once).",
+            "zh_cn": "右键胡萝卜钓竿会在你的位置生成一只带鞍的猪（仅可生成一次）。",
+            "zh_tw": "右鍵胡蘿蔔釣竿會在你的位置生成一只帶鞍的豬（僅可生成一次）。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 176,
+          "text": {
+            "en_us": "Sit in the wheelchair and press the skill key to stow it into the inventory.",
+            "zh_cn": "坐在轮椅上按技能键可以将轮椅回收至物品栏。",
+            "zh_tw": "坐在輪椅上按技能鍵可以將輪椅回收至物品欄。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 186
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Old Man",
+        "zh_cn": "老人",
+        "zh_tw": "老人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "oldman_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "oldman",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 173,
+          "text": {
+            "en_us": "The shop sells a Wheelchair with 90s durability; right-click to deploy it.",
+            "zh_cn": "你可以在商店中购买轮椅，轮椅耐久为90s，右键轮椅即可放出。",
+            "zh_tw": "你可以在商店中購買輪椅，輪椅耐久為90s，右鍵輪椅即可放出。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 183
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Buying a wheelchair has a 20% chance of triggering an easter egg, granting an unbreakable Carrot on a Stick instead (once per match).",
+            "zh_cn": "购买轮椅时有20%概率触发彩蛋，改为获得不可破坏的胡萝卜钓竿（每局最多触发一次）。",
+            "zh_tw": "購買輪椅時有20%概率觸發彩蛋，改為獲得不可破壞的胡蘿蔔釣竿（每局最多觸發一次）。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Old Man",
+        "zh_cn": "老人",
+        "zh_tw": "老人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "oldman_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 169,
+          "text": {
+            "en_us": "You have trouble walking, but you do not need to complete running tasks.",
+            "zh_cn": "你腿脚不便，但你不需要完成跑步任务。",
+            "zh_tw": "你腿腳不便，但你不需要完成跑步任務。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 179
+        },
+        {
+          "type": "text",
+          "duration": 164,
+          "text": {
+            "en_us": "The Carrot on a Stick can be dropped; it drops when the Old Man dies.",
+            "zh_cn": "胡萝卜钓竿可以丢弃，老人死亡时会掉落。",
+            "zh_tw": "胡蘿蔔釣竿可以丟棄，老人死亡時會掉落。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 174
+        },
+        {
+          "type": "text",
+          "duration": 115,
+          "text": {
+            "en_us": "The wheelchair can ram other players away.",
+            "zh_cn": "轮椅可以把其它玩家撞飞。",
+            "zh_tw": "輪椅可以把其他玩家撞飛。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 125
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

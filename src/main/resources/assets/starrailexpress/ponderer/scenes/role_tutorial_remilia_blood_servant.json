@@ -1,0 +1,452 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.remilia_blood_servant",
+  "items": [
+    "trainmurdermystery:revolver",
+    "trainmurdermystery:grenade"
+  ],
+  "title": {
+    "en_us": "Remilia's Servant",
+    "zh_cn": "大小姐的仆从",
+    "zh_tw": "大小姐的僕從"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Remilia's Servant",
+        "zh_cn": "大小姐的仆从",
+        "zh_tw": "大小姐的僕從"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "remilia_blood_servant_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 101,
+          "text": {
+            "en_us": "Victory alongside the Killer team.",
+            "zh_cn": "与杀手一同获胜。",
+            "zh_tw": "與殺手一同獲勝。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 111
+        },
+        {
+          "type": "text",
+          "duration": 92,
+          "text": {
+            "en_us": "Help Remilia achieve victory!",
+            "zh_cn": "帮助吸血鬼大小姐获得胜利！",
+            "zh_tw": "幫助吸血鬼大小姐獲得勝利！"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 102
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Remilia's Servant",
+        "zh_cn": "大小姐的仆从",
+        "zh_tw": "大小姐的僕從"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "remilia_blood_servant_main"
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "attachKeyFrame": true,
+          "pos": [
+            1.6,
+            1.55,
+            1.6
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:revolver",
+          "linkId": "remilia_blood_servant_item"
+        },
+        {
+          "type": "text",
+          "duration": 185,
+          "text": {
+            "en_us": "You fear water: in water or rain you move slowly and cannot use weapons or items.",
+            "zh_cn": "惧怕水，处于水或雨中时行动缓慢且无法使用武器、使用道具。",
+            "zh_tw": "懼怕水，處於水或雨中時行動緩慢且無法使用武器、使用道具。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 195
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Remilia's Servant",
+        "zh_cn": "大小姐的仆从",
+        "zh_tw": "大小姐的僕從"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "remilia_blood_servant_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "remilia_blood_servant",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 108,
+          "text": {
+            "en_us": "You can only buy knife and lights out.",
+            "zh_cn": "仅能购买刀和关灯。",
+            "zh_tw": "僅能購買刀和關燈。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 118
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Remilia's Servant",
+        "zh_cn": "大小姐的仆从",
+        "zh_tw": "大小姐的僕從"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "remilia_blood_servant_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "remilia_blood_servant_target",
+            "outline": -9346439
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Killer see-through can only distinguish Remilia from other players.",
+                "zh_cn": "杀手透视只能区分吸血鬼大小姐和其他玩家。",
+                "zh_tw": "殺手透視只能區分吸血鬼大小姐和其他玩家。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 160,
+          "text": {
+            "en_us": "Killer see-through can only distinguish Remilia from other players.",
+            "zh_cn": "杀手透视只能区分吸血鬼大小姐和其他玩家。",
+            "zh_tw": "殺手透視只能區分吸血鬼大小姐和其他玩家。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 170
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Remilia's Servant",
+        "zh_cn": "大小姐的仆从",
+        "zh_tw": "大小姐的僕從"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "remilia_blood_servant_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 77,
+          "text": {
+            "en_us": "Converted by Remilia.",
+            "zh_cn": "被吸血鬼大小姐转换而成。",
+            "zh_tw": "被吸血鬼大小姐轉換而成。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 87
+        },
+        {
+          "type": "text",
+          "duration": 83,
+          "text": {
+            "en_us": "You cannot kill Remilia.",
+            "zh_cn": "你不能杀死吸血鬼大小姐。",
+            "zh_tw": "你不能殺死吸血鬼大小姐。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 93
+        },
+        {
+          "type": "text",
+          "duration": 146,
+          "text": {
+            "en_us": "You fear sunlight and light, moving slowly in bright areas.",
+            "zh_cn": "惧怕阳光和灯光，在光比较亮时行动异常缓慢。",
+            "zh_tw": "懼怕陽光和燈光，在光比較亮時行動異常緩慢。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 156
+        },
+        {
+          "type": "text",
+          "duration": 101,
+          "text": {
+            "en_us": "You count as a Killer while alive.",
+            "zh_cn": "存活时视为杀手存活。",
+            "zh_tw": "存活時視為殺手存活。"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 111
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -8,7 +8,6 @@ import net.createmod.ponder.foundation.ui.PonderUI;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import java.util.List;
 
@@ -23,19 +22,18 @@ public class PonderStateOverlayElement implements PonderOverlayElement {
     }
 
     private static final int BAR_WIDTH = 110;
-    private static final String KEY_PREFIX = "ponder.starrailexpress.";
 
-    private final String title;
+    private final PonderLocalizedText title;
     private final List<Bar> bars;
     private final Float progressBefore;
     private final Float progressAfter;
-    private final List<String> lines;
+    private final List<PonderLocalizedText> lines;
     private final int accent;
     private boolean visible = true;
 
-    public PonderStateOverlayElement(String title, List<Bar> bars, Float progressBefore,
-                                     Float progressAfter, List<String> lines, int accent) {
-        this.title = title == null ? "" : title;
+    public PonderStateOverlayElement(PonderLocalizedText title, List<Bar> bars, Float progressBefore,
+                                     Float progressAfter, List<PonderLocalizedText> lines, int accent) {
+        this.title = title == null ? PonderLocalizedText.of("") : title;
         this.bars = List.copyOf(bars == null ? List.of() : bars);
         this.progressBefore = progressBefore;
         this.progressAfter = progressAfter;
@@ -48,12 +46,6 @@ public class PonderStateOverlayElement implements PonderOverlayElement {
         return this;
     }
 
-    /** 以 {@code ponder.starrailexpress.} 开头的文本按翻译键解析，其余按原文显示。 */
-    private static Component display(String value) {
-        String text = value == null ? "" : value;
-        return text.startsWith(KEY_PREFIX) ? Component.translatable(text) : Component.literal(text);
-    }
-
     @Override public boolean isVisible() { return visible; }
     @Override public void setVisible(boolean visible) { this.visible = visible; }
 
@@ -61,9 +53,11 @@ public class PonderStateOverlayElement implements PonderOverlayElement {
     public void render(PonderScene scene, PonderUI screen, GuiGraphics graphics, float partialTicks) {
         if (!visible) return;
         Font font = Minecraft.getInstance().font;
-        int width = Math.max(150, font.width(title) + 24);
-        for (Bar bar : bars) width = Math.max(width, font.width(bar.label()) + BAR_WIDTH + 34);
-        for (String line : lines) width = Math.max(width, font.width(line) + 24);
+        int width = Math.max(150, font.width(title.plain()) + 24);
+        for (Bar bar : bars) {
+            width = Math.max(width, font.width(PonderLocalizedText.of(bar.label()).plain()) + BAR_WIDTH + 34);
+        }
+        for (PonderLocalizedText line : lines) width = Math.max(width, font.width(line.plain()) + 24);
         width = Math.min(width, Math.max(150, screen.width / 2 - 24));
 
         int x = 16;
@@ -77,12 +71,12 @@ public class PonderStateOverlayElement implements PonderOverlayElement {
         int textX = x + 10;
         int textY = y + 7;
         if (!title.isEmpty()) {
-            graphics.drawString(font, display(title), textX, textY, accent);
+            graphics.drawString(font, title.resolve(), textX, textY, accent);
             textY += font.lineHeight + 5;
         }
 
         for (Bar bar : bars) {
-            graphics.drawString(font, display(bar.label()), textX, textY, 0xFFDDDDDD);
+            graphics.drawString(font, PonderLocalizedText.of(bar.label()).resolve(), textX, textY, 0xFFDDDDDD);
             textY += font.lineHeight;
             int barX = textX + 2;
             graphics.fill(barX, textY, barX + BAR_WIDTH, textY + 8, 0xFF202028);
@@ -111,8 +105,8 @@ public class PonderStateOverlayElement implements PonderOverlayElement {
             textY += 13;
         }
 
-        for (String line : lines) {
-            graphics.drawString(font, display(line), textX, textY, 0xFFEEEEEE);
+        for (PonderLocalizedText line : lines) {
+            graphics.drawString(font, line.resolve(), textX, textY, 0xFFEEEEEE);
             textY += font.lineHeight + 3;
         }
     }

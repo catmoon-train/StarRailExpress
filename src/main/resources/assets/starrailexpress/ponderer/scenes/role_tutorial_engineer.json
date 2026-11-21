@@ -1,0 +1,381 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.engineer",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Engineer",
+    "zh_cn": "工程师",
+    "zh_tw": "工程師"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Engineer",
+        "zh_cn": "工程师",
+        "zh_tw": "工程師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "engineer_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Use repair tools, alarm traps, and locks to protect passengers and stop killers from breaking in!",
+            "zh_cn": "保护你的房门！",
+            "zh_tw": "保護你的房門！"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Engineer",
+        "zh_cn": "工程师",
+        "zh_tw": "工程師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "engineer_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Exclusive item - Reinforce: can reinforce a door (blocks one crowbar hit); invisible while held.",
+            "zh_cn": "专属道具-加固道具:可以加固门（防一次撬棍）手持时不可见。",
+            "zh_tw": "專屬道具-加固道具:可以加固門（防一次撬棍）手持時不可見。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Exclusive item - Alarm Trap (triggers a sound when a door is crowbarred; a door with an alarm trap locks); invisible while held",
+            "zh_cn": "专属道具-警报陷阱(被撬棍破门会发出声音,按上警报陷阱的门会上锁)，手持时不可见",
+            "zh_tw": "專屬道具-警報陷阱(被撬棍破門會發出聲音,按上警報陷阱的門會上鎖)，手持時不可見"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Exclusive item - Lock: when a door is picked with a Lockpick / Attendant Key, the picker must manually pick it (a lockpicking minigame); each failed attempt has a 30% chance of breaking the Lockpick / Attendant Key (does not block crowbars)",
+            "zh_cn": "专属道具-锁，当门被开锁器/乘务员钥匙撬锁时，撬锁人需手动进行撬锁(撬锁小游戏)，每次撬锁失败有30%的概率损坏撬锁器/乘务员钥匙(不防撬棍)",
+            "zh_tw": "專屬道具-鎖，當門被開鎖器/乘務員鑰匙撬鎖時，撬鎖人需手動進行撬鎖(撬鎖小遊戲)，每次撬鎖失敗有30%的概率損壞撬鎖器/乘務員鑰匙(不防撬棍)"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The Engineer holding a repair tool and sneaking + right-clicking a door removes the items on it",
+            "zh_cn": "工程师手持维修工具潜行右键门可取下门上的物品",
+            "zh_tw": "工程師手持維修工具潛行右鍵門可取下門上的物品"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Engineer",
+        "zh_cn": "工程师",
+        "zh_tw": "工程師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "engineer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "engineer",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 128,
+          "text": {
+            "en_us": "Owns the Engineer shop; earns coin by doing tasks",
+            "zh_cn": "拥有工程师商店，做任务获得金币",
+            "zh_tw": "擁有工程師商店，做任務獲得金幣"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 138
+        },
+        {
+          "type": "text",
+          "duration": 81,
+          "text": {
+            "en_us": "Can buy Attendant Keys.",
+            "zh_cn": "可购买乘务员钥匙。",
+            "zh_tw": "可購買乘務員鑰匙。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 91
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "bond",
+      "title": {
+        "en_us": "Engineer",
+        "zh_cn": "工程师",
+        "zh_tw": "工程師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "engineer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "engineer_ally",
+            "outline": -19641
+          }
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "attachKeyFrame": true,
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Spawns bound with the Locksmith (Civilian)",
+                "zh_cn": "与锁匠(平民)绑定生成",
+                "zh_tw": "與鎖匠(平民)綁定生成"
+              }
+            ],
+            "color": -19641
+          }
+        },
+        {
+          "type": "text",
+          "duration": 115,
+          "text": {
+            "en_us": "Spawns bound with the Locksmith (Civilian)",
+            "zh_cn": "与锁匠(平民)绑定生成",
+            "zh_tw": "與鎖匠(平民)綁定生成"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 125
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,357 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.noisemaker",
+  "items": [
+    "noellesroles:radio"
+  ],
+  "title": {
+    "en_us": "Noisemaker",
+    "zh_cn": "大嗓门",
+    "zh_tw": "大嗓門"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_graveyard"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Noisemaker",
+        "zh_cn": "大嗓门",
+        "zh_tw": "大嗓門"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "noisemaker_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You have a larger voice broadcast radius. On death, your position is revealed to all players.",
+            "zh_cn": "你拥有更大的声音传播范围，死亡时向所有玩家暴露你的位置。",
+            "zh_tw": "你擁有更大的聲音傳播範圍，死亡時向所有玩家暴露你的位置。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Noisemaker",
+        "zh_cn": "大嗓门",
+        "zh_tw": "大嗓門"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "noisemaker_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "noisemaker",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 187,
+          "text": {
+            "en_us": "Starts with a Walkie-Talkie; right-click to join the Broadcaster's walkie channel.",
+            "zh_cn": "初始拥有对讲机，可右键进入广播员的对讲机频道。",
+            "zh_tw": "初始擁有對講機，可右鍵進入廣播員的對講機頻道。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 197
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Noisemaker",
+        "zh_cn": "大嗓门",
+        "zh_tw": "大嗓門"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "noisemaker_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Using the skill quadruples your speaking range and ignores any voice-changing effects.",
+                "zh_cn": "使用技能会使自己的说话范围增加4倍并无视任何变声效果。",
+                "zh_tw": "使用技能會使自己的說話範圍增加4倍並無視任何變聲效果。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Using the skill quadruples your speaking range and ignores any voice-changing effects.",
+            "zh_cn": "使用技能会使自己的说话范围增加4倍并无视任何变声效果。",
+            "zh_tw": "使用技能會使自己的說話範圍增加4倍並無視任何變聲效果。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Noisemaker",
+        "zh_cn": "大嗓门",
+        "zh_tw": "大嗓門"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "noisemaker_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "noisemaker_target",
+            "outline": -3604736
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "When you speak, your voice's travel distance is greatly increased; after death your corpse glows and makes a huge noise.",
+                "zh_cn": "你说话时语音的传播距离大幅增加，死亡后尸体会发光并发出巨大的响声。",
+                "zh_tw": "你說話時語音的傳播距離大幅增加，死亡後屍體會發光併發出巨大的響聲。"
+              },
+              {
+                "en_us": "When triggered, the skill knocks back and stuns the player directly in front of you and makes everyone within 15 blocks (except the Noisemaker) glow.",
+                "zh_cn": "触发技能时，会击退并眩晕正前方的玩家并使周围15格范围内的人（不包括大嗓门）发光。",
+                "zh_tw": "觸發技能時，會擊退並眩暈正前方的玩家並使周圍15格範圍內的人（不包括大嗓門）發光。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When you speak, your voice's travel distance is greatly increased; after death your corpse glows and makes a huge noise.",
+            "zh_cn": "你说话时语音的传播距离大幅增加，死亡后尸体会发光并发出巨大的响声。",
+            "zh_tw": "你說話時語音的傳播距離大幅增加，死亡後屍體會發光併發出巨大的響聲。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When triggered, the skill knocks back and stuns the player directly in front of you and makes everyone within 15 blocks (except the Noisemaker) glow.",
+            "zh_cn": "触发技能时，会击退并眩晕正前方的玩家并使周围15格范围内的人（不包括大嗓门）发光。",
+            "zh_tw": "觸發技能時，會擊退並眩暈正前方的玩家並使周圍15格範圍內的人（不包括大嗓門）發光。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

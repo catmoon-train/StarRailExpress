@@ -1,0 +1,468 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.phantom_spirit",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Phantom Spirit",
+    "zh_cn": "幻灵",
+    "zh_tw": "幻靈"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Phantom Spirit",
+        "zh_cn": "幻灵",
+        "zh_tw": "幻靈"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "phantom_spirit_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 104,
+          "text": {
+            "en_us": "Victory alongside the Passenger team",
+            "zh_cn": "与平民一同获胜",
+            "zh_tw": "與平民一同獲勝"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 114
+        },
+        {
+          "type": "text",
+          "duration": 119,
+          "text": {
+            "en_us": "Survive to the end alongside the passengers.",
+            "zh_cn": "与乘客一同活到最后。",
+            "zh_tw": "與乘客一同活到最後。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 129
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Phantom Spirit",
+        "zh_cn": "幻灵",
+        "zh_tw": "幻靈"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "phantom_spirit_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Skill · Possess (60s cd): aim at a player and press the skill key to ride their head for 20s. During possession you can still use inventory items; the host gets Speed I. Can't possess invisible targets; if the host turns invisible, you dismount instantly.",
+                "zh_cn": "技能·附身（冷却60秒）：对准玩家按下技能键，附身到其头上20秒。附身期间仍可使用物品栏道具；被附身的玩家获得速度I。无法附身隐身目标，若宿主隐身则会立刻取消乘骑。",
+                "zh_tw": "技能·附身（冷卻60秒）：對準玩家按下技能鍵，附身到其頭上20秒。附身期間仍可使用物品欄道具；被附身的玩家獲得速度I。無法附身隱身目標，若宿主隱身則會立刻取消乘騎。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skill · Possess (60s cd): aim at a player and press the skill key to ride their head for 20s. During possession you can still use inventory items; the host gets Speed I. Can't possess invisible targets; if the host turns invisible, you dismount instantly.",
+            "zh_cn": "技能·附身（冷却60秒）：对准玩家按下技能键，附身到其头上20秒。附身期间仍可使用物品栏道具；被附身的玩家获得速度I。无法附身隐身目标，若宿主隐身则会立刻取消乘骑。",
+            "zh_tw": "技能·附身（冷卻60秒）：對準玩家按下技能鍵，附身到其頭上20秒。附身期間仍可使用物品欄道具；被附身的玩家獲得速度I。無法附身隱身目標，若宿主隱身則會立刻取消乘騎。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Phantom Spirit",
+        "zh_cn": "幻灵",
+        "zh_tw": "幻靈"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "phantom_spirit_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "phantom_spirit_target",
+            "outline": -10828592
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Killers can't see through an unmounted Phantom, but can see one riding someone.",
+                "zh_cn": "杀手无法透视未骑乘的幻灵，但可以透视骑在别人头上的幻灵。",
+                "zh_tw": "殺手無法透視未騎乘的幻靈，但可以透視騎在別人頭上的幻靈。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 182,
+          "text": {
+            "en_us": "Killers can't see through an unmounted Phantom, but can see one riding someone.",
+            "zh_cn": "杀手无法透视未骑乘的幻灵，但可以透视骑在别人头上的幻灵。",
+            "zh_tw": "殺手無法透視未騎乘的幻靈，但可以透視騎在別人頭上的幻靈。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 192
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "bond",
+      "title": {
+        "en_us": "Phantom Spirit",
+        "zh_cn": "幻灵",
+        "zh_tw": "幻靈"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "phantom_spirit_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "phantom_spirit_ally",
+            "outline": -10828592
+          }
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "attachKeyFrame": true,
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "During possession, press the skill key again to see-through all players within 10 blocks for 2s.",
+                "zh_cn": "附身期间可再按一次技能键，使你和宿主透视周围10格内所有玩家2秒。",
+                "zh_tw": "附身期間可再按一次技能鍵，使你和宿主透視周圍10格內所有玩家2秒。"
+              },
+              {
+                "en_us": "When the possessed player is killed, you die in their place.",
+                "zh_cn": "当被附身的玩家被击杀时，幻灵代替其死亡。",
+                "zh_tw": "當被附身的玩家被擊殺時，幻靈代替其死亡。"
+              }
+            ],
+            "color": -10828592
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "During possession, press the skill key again to see-through all players within 10 blocks for 2s.",
+            "zh_cn": "附身期间可再按一次技能键，使你和宿主透视周围10格内所有玩家2秒。",
+            "zh_tw": "附身期間可再按一次技能鍵，使你和宿主透視周圍10格內所有玩家2秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 148,
+          "text": {
+            "en_us": "When the possessed player is killed, you die in their place.",
+            "zh_cn": "当被附身的玩家被击杀时，幻灵代替其死亡。",
+            "zh_tw": "當被附身的玩家被擊殺時，幻靈代替其死亡。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 158
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Phantom Spirit",
+        "zh_cn": "幻灵",
+        "zh_tw": "幻靈"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "phantom_spirit_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You look like a Poppet, always have no collision and float 1.2 blocks above the ground. Space lets you hop up steps, then sink back. Fixed third-person. You can only communicate (text/voice) when near other players.",
+            "zh_cn": "外形是悦灵，始终获得无碰撞，并悬浮在地面上方1.2格。可用空格跳跃上台阶，跳起后会沉回悬浮高度。固定第三人称视角。靠近其他玩家时才能与玩家交流（文字/语音）。",
+            "zh_tw": "外形是悅靈，始終獲得無碰撞，並懸浮在地面上方1.2格。可用空格跳躍上臺階，跳起後會沉回懸浮高度。固定第三人稱視角。靠近其他玩家時才能與玩家交流（文字/語音）。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 169,
+          "text": {
+            "en_us": "Killing a good player / being killed by one triggers cerebellum penalty.",
+            "zh_cn": "击杀好人或被好人击杀会触发小脑惩罚。",
+            "zh_tw": "擊殺好人或被好人擊殺會觸發小腦懲罰。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 179
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,340 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.silver_wing",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Silver Wing",
+    "zh_cn": "银翼",
+    "zh_tw": "銀翼"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Silver Wing",
+        "zh_cn": "银翼",
+        "zh_tw": "銀翼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "silver_wing_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 101,
+          "text": {
+            "en_us": "Victory alongside the Killer team.",
+            "zh_cn": "与杀手一同获胜。",
+            "zh_tw": "與殺手一同獲勝。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 111
+        },
+        {
+          "type": "text",
+          "duration": 184,
+          "text": {
+            "en_us": "Side with the Killer team and disrupt passengers with EMPs and Mechanical Birds.",
+            "zh_cn": "用电磁脉冲与机械小鸟扰乱乘客。",
+            "zh_tw": "用電磁脈衝與機械小鳥擾亂乘客。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 194
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Silver Wing",
+        "zh_cn": "银翼",
+        "zh_tw": "銀翼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "silver_wing_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skill (50s cd): gain an EMP bomb (max 1 held). Right-click to throw it forward; the hit player can't use items for 4s and gets Slowness III for 4s. After using, if the skill isn't on cooldown, it enters a 15s cooldown.",
+            "zh_cn": "技能（冷却50秒）：获得一枚电磁脉冲炸弹，最多同时持有一枚。右键向前掷出，被命中的玩家4秒内无法使用物品，并获得缓慢III 4秒。使用炸弹后，若技能当前没有冷却，则进入15秒冷却。",
+            "zh_tw": "技能（冷卻50秒）：獲得一枚電磁脈衝炸彈，最多同時持有一枚。右鍵向前擲出，被命中的玩家4秒內無法使用物品，並獲得緩慢III 4秒。使用炸彈後，若技能當前沒有冷卻，則進入15秒冷卻。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Silver Wing",
+        "zh_cn": "银翼",
+        "zh_tw": "銀翼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "silver_wing_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "It explodes on touching a player or enemy (2.5-block radius): deals damage and knockback, blinds 3s, blocks items 3s, blocks skills 8s, -30% Sanity, and 75% chance to break a shield stack and deduct 25 coins.",
+                "zh_cn": "碰到玩家或敌人后主动爆炸（半径2.5格）：造成伤害并击退、致盲3秒、无法使用物品3秒、8秒内无法使用技能、理智扣除30%、75%概率破坏一层护盾并扣除25金币。",
+                "zh_tw": "碰到玩家或敵人後主動爆炸（半徑2.5格）：造成傷害並擊退、致盲3秒、無法使用物品3秒、8秒內無法使用技能、理智扣除30%、75%概率破壞一層護盾並扣除25金幣。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "It explodes on touching a player or enemy (2.5-block radius): deals damage and knockback, blinds 3s, blocks items 3s, blocks skills 8s, -30% Sanity, and 75% chance to break a shield stack and deduct 25 coins.",
+            "zh_cn": "碰到玩家或敌人后主动爆炸（半径2.5格）：造成伤害并击退、致盲3秒、无法使用物品3秒、8秒内无法使用技能、理智扣除30%、75%概率破坏一层护盾并扣除25金币。",
+            "zh_tw": "碰到玩家或敵人後主動爆炸（半徑2.5格）：造成傷害並擊退、致盲3秒、無法使用物品3秒、8秒內無法使用技能、理智扣除30%、75%概率破壞一層護盾並扣除25金幣。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Silver Wing",
+        "zh_cn": "银翼",
+        "zh_tw": "銀翼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "silver_wing_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "silver_wing",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 115,
+          "text": {
+            "en_us": "While alive, gain 5 coins every 5 seconds.",
+            "zh_cn": "存活时每5秒获得5金币。",
+            "zh_tw": "存活時每5秒獲得5金幣。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 125
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Shop: mechanical bird. On use it flies under your control for 25s; sneak and dash forward, exploding after 3s. Targets near the bird get continuous Blindness.",
+            "zh_cn": "商店：机械小鸟。使用后由你控制飞行，存活25秒；蹲下向前冲刺，3秒后爆炸。小鸟附近的目标获得持续失明效果。",
+            "zh_tw": "商店：機械小鳥。使用後由你控制飛行，存活25秒；蹲下向前衝刺，3秒後爆炸。小鳥附近的目標獲得持續失明效果。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

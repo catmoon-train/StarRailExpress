@@ -1,0 +1,588 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.wizard",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Wizard",
+    "zh_cn": "巫师",
+    "zh_tw": "巫師"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Wizard",
+        "zh_cn": "巫师",
+        "zh_tw": "巫師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "wizard_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 126,
+          "text": {
+            "en_us": "Wield magic essence to wipe out every Passenger!",
+            "zh_cn": "以魔素之力，清除所有乘客！",
+            "zh_tw": "以魔素之力，清除所有乘客！"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 136
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Wizard",
+        "zh_cn": "巫师",
+        "zh_tw": "巫師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "wizard_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Starts with a [Staff] and [Potion], and 120 mana. Wizards don't show coins and always have 0.",
+            "zh_cn": "开局携带【法杖】与【魔药】，初始拥有 120 魔素。巫师不显示金币，且金币数始终为 0",
+            "zh_tw": "開局攜帶【法杖】與【魔藥】，初始擁有 120 魔素。巫師不顯示金幣，且金幣數始終為 0"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Wizard",
+        "zh_cn": "巫师",
+        "zh_tw": "巫師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "wizard_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Normal coin income (passive, task shares, kill rewards, gifts) converts into equal [mana].",
+                "zh_cn": "杀手被动收入、任务分成、击杀奖励、他人给予的金币奖励等常规金币收入会转化为等量的【魔素】。",
+                "zh_tw": "殺手被動收入、任務分成、擊殺獎勵、他人給予的金幣獎勵等常規金幣收入會轉化為等量的【魔素】。"
+              },
+              {
+                "en_us": "Staff: right-click to charge and fire a magic fire arrow that pierces multiple players. Fire arrows stack on a target; after 3 stacks from the same wizard, the target dies after 3 seconds.",
+                "zh_cn": "法杖：右键蓄力释放魔法火焰箭，可穿透多名玩家。火焰箭会在目标身上累积，被同一名巫师累积 3 次后，目标将在 3 秒后死亡",
+                "zh_tw": "法杖：右鍵蓄力釋放魔法火焰箭，可穿透多名玩家。火焰箭會在目標身上累積，被同一名巫師累積 3 次後，目標將在 3 秒後死亡"
+              },
+              {
+                "en_us": "The staff has no cooldown until it kills a player; after a kill it enters the same cooldown as a knife. Left-click knocks players back.",
+                "zh_cn": "法杖在杀死玩家前无冷却，杀死玩家后进入与刀相同的冷却，左键击退目标。",
+                "zh_tw": "法杖在殺死玩家前無冷卻，殺死玩家後進入與刀相同的冷卻，左鍵擊退目標。"
+              },
+              {
+                "en_us": "Press the [skill-switch] key to switch spells, the skill key to cast the current spell; the shop also offers quick-cast entries for all spells (priced at 0 coins, actually costing mana), clickable without switching the wheel:",
+                "zh_cn": "按【切换技能】键切换法术，按技能键释放当前法术；商店中也提供全部法术的快捷施放条目（标价 0 金币，实际消耗法力），无需切换轮盘即可点击释放：",
+                "zh_tw": "按【切換技能】鍵切換法術，按技能鍵釋放當前法術；商店中也提供全部法術的快捷施放條目（標價 0 金幣，實際消耗法力），無需切換輪盤即可點擊釋放："
+              },
+              {
+                "en_us": "· Stoneskin: can't cast below 200 mana; once per match, not on yourself, consumes all mana and gives the target a 120s timed shield; on success the staff enters knife cooldown.",
+                "zh_cn": "· 盔甲护身：低于 200 魔素时不能释放；一局只能用一次，不能给自己，消耗全部魔素并给目标 120 秒限时护盾，成功后法杖进入与刀相同的冷却。",
+                "zh_tw": "· 盔甲護身：低於 200 魔素時不能釋放；一局只能用一次，不能給自己，消耗全部魔素並給目標 120 秒限時護盾，成功後法杖進入與刀相同的冷卻。"
+              },
+              {
+                "en_us": "· Frost Shock: can't cast below 200 mana; consumes half current mana and freezes everyone nearby except you from moving or turning their view.",
+                "zh_cn": "· 冰霜震慑：低于 200 魔素时不能释放；释放后消耗当前一半魔素，使附近除你之外的所有玩家无法移动与转动视角。",
+                "zh_tw": "· 冰霜震懾：低於 200 魔素時不能釋放；釋放後消耗當前一半魔素，使附近除你之外的所有玩家無法移動與轉動視角。"
+              },
+              {
+                "en_us": "· Shrouding Darkness: only during lights out, costs 150 mana, extends Darkness by 6s for everyone except the Killer team.",
+                "zh_cn": "· 笼罩暗影：仅能在关灯期间释放，消耗 150 魔素，使所有杀手阵营外玩家的黑暗效果延长 6 秒。",
+                "zh_tw": "· 籠罩暗影：僅能在關燈期間釋放，消耗 150 魔素，使所有殺手陣營外玩家的黑暗效果延長 6 秒。"
+              },
+              {
+                "en_us": "· Explosion!: requires at least 400 mana; on cast deducts 85% of current mana and replaces the staff's next attack with a wall-piercing 9th-tier fireball (area damage, max 3 kills).",
+                "zh_cn": "· Explosion!：至少需要 400 魔素才能释放，释放技能时直接扣除当前 85% 魔素，使法杖的下一次攻击替换为可穿墙的九环火球术（范围伤害，单次至多击杀 3 人）。",
+                "zh_tw": "· Explosion!：至少需要 400 魔素才能釋放，釋放技能時直接扣除當前 85% 魔素，使法杖的下一次攻擊替換為可穿牆的九環火球術（範圍傷害，單次至多擊殺 3 人）。"
+              },
+              {
+                "en_us": "· Flash Step: costs 80 mana (15s cd), blinks up to 8 blocks along your aim, landing early into walls.",
+                "zh_cn": "· 闪影步：消耗 80 魔素（冷却 15 秒），向视线方向瞬移至多 8 格，遇墙提前落点",
+                "zh_tw": "· 閃影步：消耗 80 魔素（冷卻 15 秒），向視線方向瞬移至多 8 格，遇牆提前落點"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Normal coin income (passive, task shares, kill rewards, gifts) converts into equal [mana].",
+            "zh_cn": "杀手被动收入、任务分成、击杀奖励、他人给予的金币奖励等常规金币收入会转化为等量的【魔素】。",
+            "zh_tw": "殺手被動收入、任務分成、擊殺獎勵、他人給予的金幣獎勵等常規金幣收入會轉化為等量的【魔素】。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Staff: right-click to charge and fire a magic fire arrow that pierces multiple players. Fire arrows stack on a target; after 3 stacks from the same wizard, the target dies after 3 seconds.",
+            "zh_cn": "法杖：右键蓄力释放魔法火焰箭，可穿透多名玩家。火焰箭会在目标身上累积，被同一名巫师累积 3 次后，目标将在 3 秒后死亡",
+            "zh_tw": "法杖：右鍵蓄力釋放魔法火焰箭，可穿透多名玩家。火焰箭會在目標身上累積，被同一名巫師累積 3 次後，目標將在 3 秒後死亡"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The staff has no cooldown until it kills a player; after a kill it enters the same cooldown as a knife. Left-click knocks players back.",
+            "zh_cn": "法杖在杀死玩家前无冷却，杀死玩家后进入与刀相同的冷却，左键击退目标。",
+            "zh_tw": "法杖在殺死玩家前無冷卻，殺死玩家後進入與刀相同的冷卻，左鍵擊退目標。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Press the [skill-switch] key to switch spells, the skill key to cast the current spell; the shop also offers quick-cast entries for all spells (priced at 0 coins, actually costing mana), clickable without switching the wheel:",
+            "zh_cn": "按【切换技能】键切换法术，按技能键释放当前法术；商店中也提供全部法术的快捷施放条目（标价 0 金币，实际消耗法力），无需切换轮盘即可点击释放：",
+            "zh_tw": "按【切換技能】鍵切換法術，按技能鍵釋放當前法術；商店中也提供全部法術的快捷施放條目（標價 0 金幣，實際消耗法力），無需切換輪盤即可點擊釋放："
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "· Stoneskin: can't cast below 200 mana; once per match, not on yourself, consumes all mana and gives the target a 120s timed shield; on success the staff enters knife cooldown.",
+            "zh_cn": "· 盔甲护身：低于 200 魔素时不能释放；一局只能用一次，不能给自己，消耗全部魔素并给目标 120 秒限时护盾，成功后法杖进入与刀相同的冷却。",
+            "zh_tw": "· 盔甲護身：低於 200 魔素時不能釋放；一局只能用一次，不能給自己，消耗全部魔素並給目標 120 秒限時護盾，成功後法杖進入與刀相同的冷卻。"
+          },
+          "point": [
+            3.0,
+            3.6,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "· Frost Shock: can't cast below 200 mana; consumes half current mana and freezes everyone nearby except you from moving or turning their view.",
+            "zh_cn": "· 冰霜震慑：低于 200 魔素时不能释放；释放后消耗当前一半魔素，使附近除你之外的所有玩家无法移动与转动视角。",
+            "zh_tw": "· 冰霜震懾：低於 200 魔素時不能釋放；釋放後消耗當前一半魔素，使附近除你之外的所有玩家無法移動與轉動視角。"
+          },
+          "point": [
+            3.0,
+            4.05,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "· Shrouding Darkness: only during lights out, costs 150 mana, extends Darkness by 6s for everyone except the Killer team.",
+            "zh_cn": "· 笼罩暗影：仅能在关灯期间释放，消耗 150 魔素，使所有杀手阵营外玩家的黑暗效果延长 6 秒。",
+            "zh_tw": "· 籠罩暗影：僅能在關燈期間釋放，消耗 150 魔素，使所有殺手陣營外玩家的黑暗效果延長 6 秒。"
+          },
+          "point": [
+            3.0,
+            4.5,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "· Explosion!: requires at least 400 mana; on cast deducts 85% of current mana and replaces the staff's next attack with a wall-piercing 9th-tier fireball (area damage, max 3 kills).",
+            "zh_cn": "· Explosion!：至少需要 400 魔素才能释放，释放技能时直接扣除当前 85% 魔素，使法杖的下一次攻击替换为可穿墙的九环火球术（范围伤害，单次至多击杀 3 人）。",
+            "zh_tw": "· Explosion!：至少需要 400 魔素才能釋放，釋放技能時直接扣除當前 85% 魔素，使法杖的下一次攻擊替換為可穿牆的九環火球術（範圍傷害，單次至多擊殺 3 人）。"
+          },
+          "point": [
+            3.0,
+            4.95,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "· Flash Step: costs 80 mana (15s cd), blinks up to 8 blocks along your aim, landing early into walls.",
+            "zh_cn": "· 闪影步：消耗 80 魔素（冷却 15 秒），向视线方向瞬移至多 8 格，遇墙提前落点",
+            "zh_tw": "· 閃影步：消耗 80 魔素（冷卻 15 秒），向視線方向瞬移至多 8 格，遇牆提前落點"
+          },
+          "point": [
+            3.0,
+            5.4,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "screen",
+      "title": {
+        "en_us": "Wizard",
+        "zh_cn": "巫师",
+        "zh_tw": "巫師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "wizard_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_screen",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.screen.select_player",
+            "hint": "ponder.starrailexpress.screen.pick_hint",
+            "columns": 6
+          }
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vitals",
+      "title": {
+        "en_us": "Wizard",
+        "zh_cn": "巫师",
+        "zh_tw": "巫師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "wizard_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "attachKeyFrame": true,
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.4,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
+              }
+            ],
+            "lines": [
+              {
+                "en_us": "Potion: on use enters a 160s vanilla item cooldown, gains 150 mana and 1 timed shield stack.",
+                "zh_cn": "魔药：使用后进入 160 秒原版物品冷却，获得 150 魔素并获得 1 层限时护盾",
+                "zh_tw": "魔藥：使用後進入 160 秒原版物品冷卻，獲得 150 魔素並獲得 1 層限時護盾"
+              },
+              {
+                "en_us": "If the shield breaks, 150 mana is docked. If no kill happens while the shield lasts, when the shield ends/breaks 150 mana is docked and half of current mana is additionally deducted.",
+                "zh_cn": "若护盾被打破，则倒扣150魔素。若护盾持续期间未击杀任何玩家，则在护盾消失/被打破时倒扣 150 魔素并额外扣除当前一半魔素。",
+                "zh_tw": "若護盾被打破，則倒扣150魔素。若護盾持續期間未擊殺任何玩家，則在護盾消失/被打破時倒扣 150 魔素並額外扣除當前一半魔素。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Potion: on use enters a 160s vanilla item cooldown, gains 150 mana and 1 timed shield stack.",
+            "zh_cn": "魔药：使用后进入 160 秒原版物品冷却，获得 150 魔素并获得 1 层限时护盾",
+            "zh_tw": "魔藥：使用後進入 160 秒原版物品冷卻，獲得 150 魔素並獲得 1 層限時護盾"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "If the shield breaks, 150 mana is docked. If no kill happens while the shield lasts, when the shield ends/breaks 150 mana is docked and half of current mana is additionally deducted.",
+            "zh_cn": "若护盾被打破，则倒扣150魔素。若护盾持续期间未击杀任何玩家，则在护盾消失/被打破时倒扣 150 魔素并额外扣除当前一半魔素。",
+            "zh_tw": "若護盾被打破，則倒扣150魔素。若護盾持續期間未擊殺任何玩家，則在護盾消失/被打破時倒扣 150 魔素並額外扣除當前一半魔素。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

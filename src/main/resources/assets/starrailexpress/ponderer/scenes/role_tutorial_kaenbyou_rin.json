@@ -1,0 +1,245 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.kaenbyou_rin",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Kaenbyou rin",
+    "zh_cn": "猫车",
+    "zh_tw": "貓車"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_graveyard"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Kaenbyou rin",
+        "zh_cn": "猫车",
+        "zh_tw": "貓車"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kaenbyou_rin_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 144,
+          "text": {
+            "en_us": "A train dwelling in the flames, fond of collecting corpses",
+            "zh_cn": "栖息在火焰中的火车，喜欢收集尸体",
+            "zh_tw": "棲息在火焰中的火車，喜歡收集屍體"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 154
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Kaenbyou rin",
+        "zh_cn": "猫车",
+        "zh_tw": "貓車"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kaenbyou_rin_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "kaenbyou_rin",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Corpse remains can be used to buy items in the shop (base prices assume 9 starting players; the multiplier is starting players ÷ 9 with a minimum of 1x, so prices rise as the lobby grows): Crowbar 1, Revolver 1.5, Shisiye 2.5, Knife 4, Defense Vial 4, Bat 7.",
+            "zh_cn": "可以在商店中使用尸体残骸购买物品（以9名玩家为价格基准，倍率为开局人数÷9且至少1倍，价格随开局人数提升）：撬棍、左轮、十四夜、刀、防御药剂、球棒，基础价格分别为1、1.5、2.5、4、4、7个尸体残骸。",
+            "zh_tw": "可以在商店中使用屍體殘骸購買物品（以9名玩家為價格基準，倍率為開局人數÷9且至少1倍，價格隨開局人數提升）：撬棍、左輪、十四夜、刀、防禦藥劑、球棒，基礎價格分別為1、1.5、2.5、4、4、7個屍體殘骸。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "title": {
+        "en_us": "Kaenbyou rin",
+        "zh_cn": "猫车",
+        "zh_tw": "貓車"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kaenbyou_rin_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kaenbyou_rin_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "kaenbyou_rin_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "delay": 14
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Aim at a corpse and right-click to collect it into corpse remains: a Killer team corpse gives 2, a Neutral team corpse gives 3, a good team corpse gives 1.",
+            "zh_cn": "对准尸体，右键其可收集尸体并获得尸体残骸：杀手阵营的尸体获得2个，中立阵营的尸体获得3个，好人阵营的尸体获得1个。",
+            "zh_tw": "對準屍體，右鍵其可收集屍體並獲得屍體殘骸：殺手陣營的屍體獲得2個，中立陣營的屍體獲得3個，好人陣營的屍體獲得1個。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

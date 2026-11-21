@@ -1,0 +1,405 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.yakumo_yukari",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Yakumo yukari",
+    "zh_cn": "境界的妖怪",
+    "zh_tw": "境界的妖怪"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Yakumo yukari",
+        "zh_cn": "境界的妖怪",
+        "zh_tw": "境界的妖怪"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "yakumo_yukari_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 112,
+          "text": {
+            "en_us": "Has the ability to manipulate boundaries",
+            "zh_cn": "拥有操纵界线程度的能力",
+            "zh_tw": "擁有操縱界線程度的能力"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 122
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Yakumo yukari",
+        "zh_cn": "境界的妖怪",
+        "zh_tw": "境界的妖怪"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "yakumo_yukari_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Toggle the portal on/off with the skill.",
+                "zh_cn": "开启技能启用/关闭传送门。",
+                "zh_tw": "開啟技能啟用/關閉傳送門。"
+              },
+              {
+                "en_us": "Each player has a cooldown for using the portal.",
+                "zh_cn": "每个玩家穿越传送门存在冷却。",
+                "zh_tw": "每個玩家穿越傳送門存在冷卻。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 112,
+          "text": {
+            "en_us": "Toggle the portal on/off with the skill.",
+            "zh_cn": "开启技能启用/关闭传送门。",
+            "zh_tw": "開啟技能啟用/關閉傳送門。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 122
+        },
+        {
+          "type": "text",
+          "duration": 126,
+          "text": {
+            "en_us": "Each player has a cooldown for using the portal.",
+            "zh_cn": "每个玩家穿越传送门存在冷却。",
+            "zh_tw": "每個玩家穿越傳送門存在冷卻。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 136
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Yakumo yukari",
+        "zh_cn": "境界的妖怪",
+        "zh_tw": "境界的妖怪"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "yakumo_yukari_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "yakumo_yukari_target",
+            "outline": -9617280
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "The portal lasts 30s. You must close the current portal before setting a new anchor.",
+                "zh_cn": "传送门可存在30s。需要关闭当前传送门后方可继续标记锚点。",
+                "zh_tw": "傳送門可存在30s。需要關閉當前傳送門後方可繼續標記錨點。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The portal lasts 30s. You must close the current portal before setting a new anchor.",
+            "zh_cn": "传送门可存在30s。需要关闭当前传送门后方可继续标记锚点。",
+            "zh_tw": "傳送門可存在30s。需要關閉當前傳送門後方可繼續標記錨點。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Yakumo yukari",
+        "zh_cn": "境界的妖怪",
+        "zh_tw": "境界的妖怪"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "yakumo_yukari_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 81,
+          "text": {
+            "en_us": "Can set portal anchors.",
+            "zh_cn": "可以设定传送门锚点。",
+            "zh_tw": "可以設定傳送門錨點。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 91
+        },
+        {
+          "type": "text",
+          "duration": 153,
+          "text": {
+            "en_us": "Any player can pass through the portal to reach the other side.",
+            "zh_cn": "任何玩家均可通过传送门抵达传送门另一侧。",
+            "zh_tw": "任何玩家均可通過傳送門抵達傳送門另一側。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 163
+        },
+        {
+          "type": "text",
+          "duration": 185,
+          "text": {
+            "en_us": "Players who pass through are immune to sourced-less environmental damage for 30s.",
+            "zh_cn": "通过传送门的玩家在30s内免疫无源头环境伤害。",
+            "zh_tw": "通過傳送門的玩家在30s內免疫無源頭環境傷害。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 195
+        },
+        {
+          "type": "text",
+          "duration": 167,
+          "text": {
+            "en_us": "The portal is visible only to the Killer team and independent neutrals.",
+            "zh_cn": "传送门仅杀手阵营和独立中立阵营可见。",
+            "zh_tw": "傳送門僅殺手陣營和獨立中立陣營可見。"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 177
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,483 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.embalmer",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Embalmer",
+    "zh_cn": "嬉命人",
+    "zh_tw": "嬉命人"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_graveyard"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Embalmer",
+        "zh_cn": "嬉命人",
+        "zh_tw": "嬉命人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "embalmer_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 101,
+          "text": {
+            "en_us": "Victory alongside the Killer team.",
+            "zh_cn": "与杀手一同获胜。",
+            "zh_tw": "與殺手一同獲勝。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 111
+        },
+        {
+          "type": "text",
+          "duration": 130,
+          "text": {
+            "en_us": "Use disguise to create chaos among the Passengers!",
+            "zh_cn": "为他们制造点混乱！",
+            "zh_tw": "為他們製造點混亂！"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 140
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Embalmer",
+        "zh_cn": "嬉命人",
+        "zh_tw": "嬉命人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "embalmer_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 76,
+          "text": {
+            "en_us": "Has Killer instinct.",
+            "zh_cn": "拥有杀手本能。",
+            "zh_tw": "擁有殺手本能。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 86
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Embalmer",
+        "zh_cn": "嬉命人",
+        "zh_tw": "嬉命人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "embalmer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Press the skill key to randomly swap the skins of all players on the field and apply a random voice effect to everyone, lasting 30s (150s cd, starts at 150s).",
+                "zh_cn": "【技能一·变身派对】按技能键发动，随机交换场上所有玩家的皮肤并为所有玩家施加随机变声效果，持续30秒（冷却150秒，开局拥有150秒冷却）。",
+                "zh_tw": "【技能一·變身派對】按技能鍵發動，隨機交換場上所有玩家的皮膚並為所有玩家施加隨機變聲效果，持續30秒（冷卻150秒，開局擁有150秒冷卻）。"
+              },
+              {
+                "en_us": "Shop: lockpick.",
+                "zh_cn": "【技能二·调色盘】按技能键发动，以自身为圆心8格半径球形范围内所有玩家与玩家尸体各染上一层随机颜色，持续3分钟（冷却60秒）。",
+                "zh_tw": "【技能二·調色盤】按技能鍵發動，以自身為圓心8格半徑球形範圍內所有玩家與玩家屍體各染上一層隨機顏色，持續3分鐘（冷卻60秒）。"
+              },
+              {
+                "en_us": "按技能切换键可在两个技能之间切换。",
+                "zh_cn": "按技能切换键可在两个技能之间切换。",
+                "zh_tw": "按技能切換鍵可在兩個技能之間切換。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Press the skill key to randomly swap the skins of all players on the field and apply a random voice effect to everyone, lasting 30s (150s cd, starts at 150s).",
+            "zh_cn": "【技能一·变身派对】按技能键发动，随机交换场上所有玩家的皮肤并为所有玩家施加随机变声效果，持续30秒（冷却150秒，开局拥有150秒冷却）。",
+            "zh_tw": "【技能一·變身派對】按技能鍵發動，隨機交換場上所有玩家的皮膚並為所有玩家施加隨機變聲效果，持續30秒（冷卻150秒，開局擁有150秒冷卻）。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 153,
+          "text": {
+            "en_us": "Shop: lockpick.",
+            "zh_cn": "【技能二·调色盘】按技能键发动，以自身为圆心8格半径球形范围内所有玩家与玩家尸体各染上一层随机颜色，持续3分钟（冷却60秒）。",
+            "zh_tw": "【技能二·調色盤】按技能鍵發動，以自身為圓心8格半徑球形範圍內所有玩家與玩家屍體各染上一層隨機顏色，持續3分鐘（冷卻60秒）。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 163
+        },
+        {
+          "type": "text",
+          "duration": 70,
+          "text": {
+            "en_us": "按技能切换键可在两个技能之间切换。",
+            "zh_cn": "按技能切换键可在两个技能之间切换。",
+            "zh_tw": "按技能切換鍵可在兩個技能之間切換。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "screen",
+      "title": {
+        "en_us": "Embalmer",
+        "zh_cn": "嬉命人",
+        "zh_tw": "嬉命人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "embalmer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_screen",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.screen.select_player",
+            "hint": "ponder.starrailexpress.screen.pick_hint",
+            "columns": 6
+          }
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Embalmer",
+        "zh_cn": "嬉命人",
+        "zh_tw": "嬉命人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "embalmer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "embalmer",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 56,
+          "text": {
+            "en_us": "商店可购买开锁器。",
+            "zh_cn": "商店可购买开锁器。",
+            "zh_tw": "商店可購買開鎖器。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 66
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "panel",
+      "title": {
+        "en_us": "Embalmer",
+        "zh_cn": "嬉命人",
+        "zh_tw": "嬉命人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "embalmer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.label.notes",
+            "lines": [
+              {
+                "en_us": "【语音互换】打开背包界面，依次点击两名玩家的头像，即可交换这两名玩家的声带，持续120秒（冷却60秒）。",
+                "zh_cn": "【语音互换】打开背包界面，依次点击两名玩家的头像，即可交换这两名玩家的声带，持续120秒（冷却60秒）。",
+                "zh_tw": "【語音互換】打開背包介面，依次點擊兩名玩家的頭像，即可交換這兩名玩家的聲帶，持續120秒（冷卻60秒）。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 133,
+          "text": {
+            "en_us": "【语音互换】打开背包界面，依次点击两名玩家的头像，即可交换这两名玩家的声带，持续120秒（冷却60秒）。",
+            "zh_cn": "【语音互换】打开背包界面，依次点击两名玩家的头像，即可交换这两名玩家的声带，持续120秒（冷却60秒）。",
+            "zh_tw": "【語音互換】打開背包介面，依次點擊兩名玩家的頭像，即可交換這兩名玩家的聲帶，持續120秒（冷卻60秒）。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 143
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

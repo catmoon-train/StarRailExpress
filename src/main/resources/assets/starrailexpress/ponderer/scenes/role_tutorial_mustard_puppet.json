@@ -1,0 +1,319 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.mustard_puppet",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Puppet",
+    "zh_cn": "傀儡",
+    "zh_tw": "傀儡"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Puppet",
+        "zh_cn": "傀儡",
+        "zh_tw": "傀儡"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mustard_puppet_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 94,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營。你由芥末使用傀儡核心復活為鐵傀儡，仍由你本人操控。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 104
+        },
+        {
+          "type": "text",
+          "duration": 124,
+          "text": {
+            "en_us": "Help Mustard win. If Mustard dies, you die too.",
+            "zh_cn": "协助芥末获胜。",
+            "zh_tw": "協助芥末獲勝。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 134
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Puppet",
+        "zh_cn": "傀儡",
+        "zh_tw": "傀儡"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mustard_puppet_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Mustard can recall you to its side. For 30 seconds after that skill, the nearest living puppet takes the first hit Mustard receives, unchanged. You die when Mustard dies.",
+                "zh_cn": "芥末的技能会把你传送至其身边；技能使用后30秒内，距离芥末最近的存活傀儡会原样承担其受到的第一次伤害。芥末死亡时，你也会一同死亡。",
+                "zh_tw": "芥末的技能会把你传送至其身边；技能使用后30秒内，距离芥末最近的存活傀儡会原样承担其受到的第一次伤害。芥末死亡时，你也会一同死亡。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Mustard can recall you to its side. For 30 seconds after that skill, the nearest living puppet takes the first hit Mustard receives, unchanged. You die when Mustard dies.",
+            "zh_cn": "芥末的技能会把你传送至其身边；技能使用后30秒内，距离芥末最近的存活傀儡会原样承担其受到的第一次伤害。芥末死亡时，你也会一同死亡。",
+            "zh_tw": "芥末的技能会把你传送至其身边；技能使用后30秒内，距离芥末最近的存活傀儡会原样承担其受到的第一次伤害。芥末死亡时，你也会一同死亡。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vitals",
+      "title": {
+        "en_us": "Puppet",
+        "zh_cn": "傀儡",
+        "zh_tw": "傀儡"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mustard_puppet_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "attachKeyFrame": true,
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.4,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
+              }
+            ],
+            "lines": [
+              {
+                "en_us": "Attacks deal 5 virtual-health damage, plus 5 per core upgrade with no upgrade limit. Upgraded attacks also stun for 1 second.",
+                "zh_cn": "攻击造成5点虚拟血量伤害，每次被核心升级增加5点，升级没有上限；升级后的攻击还会令目标僵直1秒。",
+                "zh_tw": "芥末的技能會把你傳送至其身邊；技能使用後 30 秒內，距離芥末最近的存活傀儡會原樣承擔其受到的第一次傷害。芥末死亡時，你也會死亡。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Attacks deal 5 virtual-health damage, plus 5 per core upgrade with no upgrade limit. Upgraded attacks also stun for 1 second.",
+            "zh_cn": "攻击造成5点虚拟血量伤害，每次被核心升级增加5点，升级没有上限；升级后的攻击还会令目标僵直1秒。",
+            "zh_tw": "芥末的技能會把你傳送至其身邊；技能使用後 30 秒內，距離芥末最近的存活傀儡會原樣承擔其受到的第一次傷害。芥末死亡時，你也會死亡。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Puppet",
+        "zh_cn": "傀儡",
+        "zh_tw": "傀儡"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mustard_puppet_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 164,
+          "text": {
+            "en_us": "Mustard revived you as an Iron Golem puppet, still controlled by you.",
+            "zh_cn": "由芥末使用傀儡核心复活而来。",
+            "zh_tw": "每次攻擊造成 5 點虛擬血量傷害，每次被核心升級增加 5 點，升級無上限；升級後的攻擊還會令目標僵直 1 秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 174
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

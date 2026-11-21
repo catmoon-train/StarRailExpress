@@ -1,0 +1,613 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.doctor",
+  "items": [
+    "noellesroles:defibrillator"
+  ],
+  "title": {
+    "en_us": "Doctor",
+    "zh_cn": "医生",
+    "zh_tw": "醫生"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Doctor",
+        "zh_cn": "医生",
+        "zh_tw": "醫生"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "doctor_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You arrive alongside the Poisoner, guarding everyone's safety with your medical tools",
+            "zh_cn": "你会与毒师一同踏上此地，用自己的医疗器械守护所有人的安全",
+            "zh_tw": "你會與毒師一同踏上此地，用自己的醫療器械守護所有人的安全"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Doctor",
+        "zh_cn": "医生",
+        "zh_tw": "醫生"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "doctor_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "doctor",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 149,
+          "text": {
+            "en_us": "Starts with a one-use Pacemaker (invisible to other players).",
+            "zh_cn": "开局自带一个一次性的心脏起搏器（无法被其他玩家看到）。",
+            "zh_tw": "開局自帶一個一次性的心臟起搏器（無法被其他玩家看到）。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 159
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Doctor",
+        "zh_cn": "医生",
+        "zh_tw": "醫生"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "doctor_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "doctor",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Can spend 50 to buy a Poison Test Reagent to check whether a target is poisoned / infected.",
+            "zh_cn": "可花费50购买一个验毒试剂，验毒试剂可以查看目标是否中毒/感染。",
+            "zh_tw": "可花費50購買一個驗毒試劑，驗毒試劑可以查看目標是否中毒/感染。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Doctor",
+        "zh_cn": "医生",
+        "zh_tw": "醫生"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "doctor_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "doctor_target",
+            "outline": -14774017
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "While a Doctor is alive, players who die in under 45 seconds cannot use Killer instinct for 45 seconds after death and have restricted vision!",
+                "zh_cn": "当场上的医生存活时，小于45秒死亡的玩家在死后45秒内无法使用杀手直觉且视野受限！。",
+                "zh_tw": "當場上的醫生存活時，小於45秒死亡的玩家在死後45秒內無法使用殺手直覺且視野受限！。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "While a Doctor is alive, players who die in under 45 seconds cannot use Killer instinct for 45 seconds after death and have restricted vision!",
+            "zh_cn": "当场上的医生存活时，小于45秒死亡的玩家在死后45秒内无法使用杀手直觉且视野受限！。",
+            "zh_tw": "當場上的醫生存活時，小於45秒死亡的玩家在死後45秒內無法使用殺手直覺且視野受限！。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vitals",
+      "title": {
+        "en_us": "Doctor",
+        "zh_cn": "医生",
+        "zh_tw": "醫生"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "doctor_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "attachKeyFrame": true,
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.4,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
+              }
+            ],
+            "lines": [
+              {
+                "en_us": "Antidote Syringe: use on others to cure poison / infection; the Doctor's syringe has a shorter cooldown; on death the syringe passes to another Civilian-team player; when a Plaguebearer is on the map, the syringe has a shorter cooldown.",
+                "zh_cn": "解药针管：对他人使用，可以治疗中毒/感染的人，医生使用解药针管会进入更短的冷却，死后针管会传递给另一位平民阵营的玩家，场上存在疫使时，针管拥有更短的冷却。",
+                "zh_tw": "解藥針管：對他人使用，可以治療中毒/感染的人，醫生使用解藥針管會進入更短的冷卻，死後針管會傳遞給另一位平民陣營的玩家，場上存在疫使時，針管擁有更短的冷卻。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Antidote Syringe: use on others to cure poison / infection; the Doctor's syringe has a shorter cooldown; on death the syringe passes to another Civilian-team player; when a Plaguebearer is on the map, the syringe has a shorter cooldown.",
+            "zh_cn": "解药针管：对他人使用，可以治疗中毒/感染的人，医生使用解药针管会进入更短的冷却，死后针管会传递给另一位平民阵营的玩家，场上存在疫使时，针管拥有更短的冷却。",
+            "zh_tw": "解藥針管：對他人使用，可以治療中毒/感染的人，醫生使用解藥針管會進入更短的冷卻，死後針管會傳遞給另一位平民陣營的玩家，場上存在疫使時，針管擁有更短的冷卻。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "bond",
+      "title": {
+        "en_us": "Doctor",
+        "zh_cn": "医生",
+        "zh_tw": "醫生"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "doctor_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "doctor_ally",
+            "outline": -14774017
+          }
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "attachKeyFrame": true,
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Spawns bound with the Poisoner / Plaguebearer.",
+                "zh_cn": "与毒师/疫使绑定生成。",
+                "zh_tw": "與毒師/疫使綁定生成。"
+              }
+            ],
+            "color": -14774017
+          }
+        },
+        {
+          "type": "text",
+          "duration": 122,
+          "text": {
+            "en_us": "Spawns bound with the Poisoner / Plaguebearer.",
+            "zh_cn": "与毒师/疫使绑定生成。",
+            "zh_tw": "與毒師/疫使綁定生成。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 132
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Doctor",
+        "zh_cn": "医生",
+        "zh_tw": "醫生"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "doctor_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You can sense nearby poisoned people (a text alert appears when someone nearby is poisoned).",
+            "zh_cn": "你能够察觉到附近中毒的人(附近有人中毒时会给予医生文字提示)。",
+            "zh_tw": "你能夠察覺到附近中毒的人(附近有人中毒時會給予醫生文字提示)。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 175,
+          "text": {
+            "en_us": "While the Doctor is alive, the Plaguebearer cannot help the Killer team win",
+            "zh_cn": "医生在场时，疫使无法帮助杀手阵营胜利",
+            "zh_tw": "醫生在場時，疫使無法幫助殺手陣營勝利"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 185
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Pacemaker: use on a living player; the target gets a notice. If the target dies within 120s, they revive after 30s.",
+            "zh_cn": "心脏起搏器：对存活的玩家使用，被使用的玩家会收到通知。若被使用心脏起搏器的玩家在120s内死亡，则他会在30s后复活。",
+            "zh_tw": "心臟起搏器：對存活的玩家使用，被使用的玩家會收到通知。若被使用心臟起搏器的玩家在120s內死亡，則他會在30s後復活。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 158,
+          "text": {
+            "en_us": "Pill: eating it cures poison / infection; can be thrown to others.",
+            "zh_cn": "药丸：食用后可以解毒/治愈感染，可以丢给其他人。",
+            "zh_tw": "藥丸：食用後可以解毒/治癒感染，可以丟給其他人。"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 168
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Purification Grenade: thrown to cure poison / infection for all players within a 3-block radius.",
+            "zh_cn": "净化弹：丢出后使3格半径内的所有玩家解毒/治愈感染。",
+            "zh_tw": "淨化彈：丟出後使3格半徑內的所有玩家解毒/治癒感染。"
+          },
+          "point": [
+            3.0,
+            3.6,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

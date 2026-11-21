@@ -1,0 +1,333 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.prankster",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Prankster",
+    "zh_cn": "捣蛋鬼",
+    "zh_tw": "搗蛋鬼"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Prankster",
+        "zh_cn": "捣蛋鬼",
+        "zh_tw": "搗蛋鬼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "prankster_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 94,
+          "text": {
+            "en_us": "Wins together with the Killers",
+            "zh_cn": "与杀手一同获胜",
+            "zh_tw": "與殺手一同獲勝"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 104
+        },
+        {
+          "type": "text",
+          "duration": 148,
+          "text": {
+            "en_us": "Use your exclusive shop to disrupt players from other teams!",
+            "zh_cn": "利用你的道具干扰其他阵营的玩家！",
+            "zh_tw": "利用你的道具干擾其他陣營的玩家！"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 158
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Prankster",
+        "zh_cn": "捣蛋鬼",
+        "zh_tw": "搗蛋鬼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "prankster_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Exclusive item - Blank Round: right-click a target to put the gun in their hand on a 30s cooldown; invisible while held.",
+            "zh_cn": "专属道具-空包弹:右键目标，使目标手上的枪进入30s的冷却，手持时不可见。",
+            "zh_tw": "專屬道具-空包彈:右鍵目標，使目標手上的槍進入30s的冷卻，手持時不可見。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Exclusive item - Smoke Bomb: right-click to toss, creating a cloud of smoke that blinds those who enter it. If it hits a player directly, it clears their Sanity (smoke lasts 10s); invisible while held.",
+            "zh_cn": "专属道具-烟雾弹:右键丢置，形成一片烟雾，进入雾中的玩家陷入失明。如若砸中玩家则清空对方的san值(烟雾持续10s)，手持时不可见。",
+            "zh_tw": "專屬道具-煙霧彈:右鍵丟置，形成一片煙霧，進入霧中的玩家陷入失明。如若砸中玩家則清空對方的san值(煙霧持續10s)，手持時不可見。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 128,
+          "text": {
+            "en_us": "Item - Lockpick: same effect as the Killer side's",
+            "zh_cn": "道具-开锁器:跟杀手方同样效果",
+            "zh_tw": "道具-開鎖器:跟殺手方同樣效果"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 138
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Prankster",
+        "zh_cn": "捣蛋鬼",
+        "zh_tw": "搗蛋鬼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "prankster_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "prankster",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 144,
+          "text": {
+            "en_us": "Owns the Prankster shop; passively earns 50 coin every 10s",
+            "zh_cn": "拥有捣蛋鬼商店，被动每10s获取50金币",
+            "zh_tw": "擁有搗蛋鬼商店，被動每10s獲取50金幣"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 154
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Prankster",
+        "zh_cn": "捣蛋鬼",
+        "zh_tw": "搗蛋鬼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "prankster_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 139,
+          "text": {
+            "en_us": "Sabotage - Lights Out: same effect as the Killer side's",
+            "zh_cn": "破坏-关灯:跟杀手方同样效果",
+            "zh_tw": "破壞-關燈:跟殺手方同樣效果"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 149
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

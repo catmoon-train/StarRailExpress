@@ -1,0 +1,591 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.psychologist",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Psychologist",
+    "zh_cn": "心理学家",
+    "zh_tw": "心理學家"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Psychologist",
+        "zh_cn": "心理学家",
+        "zh_tw": "心理學家"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "psychologist_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 124,
+          "text": {
+            "en_us": "Restore others' Sanity and hand out your mints!",
+            "zh_cn": "你可以恢复别人的san值并分发你的薄荷糖！",
+            "zh_tw": "你可以恢復別人的san值並分發你的薄荷糖！"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 134
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Psychologist",
+        "zh_cn": "心理学家",
+        "zh_tw": "心理學家"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "psychologist_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Vitamins: right-click a target to randomly apply one of 6 buffs and tell the target which:",
+            "zh_cn": "维生素：右键对目标使用，随机施加以下6种增益效果中的一种，并提示目标具体效果：",
+            "zh_tw": "維生素：右鍵對目標使用，隨機施加以下6種增益效果中的一種，並提示目標具體效果："
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Psychologist",
+        "zh_cn": "心理学家",
+        "zh_tw": "心理學家"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "psychologist_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "The skill also cures one random negative modifier on the target (curable: Paranoia, Manic, Hemophobia, Coward, Rage, Cowardice)",
+                "zh_cn": "技能还会治愈目标身上的一条随机负面修饰符（可治愈：偏执、狂躁症、晕血症、胆小鬼、暴怒、怯懦）",
+                "zh_tw": "技能還會治癒目標身上的一條隨機負面修飾符（可治癒：偏執、狂躁症、暈血症、膽小鬼、暴怒、怯懦）"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The skill also cures one random negative modifier on the target (curable: Paranoia, Manic, Hemophobia, Coward, Rage, Cowardice)",
+            "zh_cn": "技能还会治愈目标身上的一条随机负面修饰符（可治愈：偏执、狂躁症、晕血症、胆小鬼、暴怒、怯懦）",
+            "zh_tw": "技能還會治癒目標身上的一條隨機負面修飾符（可治癒：偏執、狂躁症、暈血症、膽小鬼、暴怒、怯懦）"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Psychologist",
+        "zh_cn": "心理学家",
+        "zh_tw": "心理學家"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "psychologist_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "psychologist",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 148,
+          "text": {
+            "en_us": "The shop sells: Mint Candy (75 coin) and Vitamins (125 coin)",
+            "zh_cn": "商店可购买：薄荷糖（75金币）与维生素（125金币）",
+            "zh_tw": "商店可購買：薄荷糖（75金幣）與維生素（125金幣）"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 158
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "mood",
+      "title": {
+        "en_us": "Psychologist",
+        "zh_cn": "心理学家",
+        "zh_tw": "心理學家"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "psychologist_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_mood",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.sanity",
+            "before": 0.35,
+            "after": 0.85,
+            "lines": [
+              {
+                "en_us": "With Sanity at 70+, use the skill on a player who must stay still; after ten seconds you refill their Sanity.",
+                "zh_cn": "san值满70的情况下，使用技能对准一个人，对方需要静止不动，超过十秒可以把对方san值回复满",
+                "zh_tw": "san值滿70的情況下，使用技能對準一個人，對方需要靜止不動，超過十秒可以把對方san值回復滿"
+              },
+              {
+                "en_us": "Passive aura: while alive, continuously grants players within 4 blocks 5 seconds of Low-Sanity Resistance II and Sanity-Drain Slowdown I",
+                "zh_cn": "被动光环：存活时为周围4格内的玩家持续提供5秒的低san抗性II与san值消耗减缓I",
+                "zh_tw": "被動光環：存活時為周圍4格內的玩家持續提供5秒的低san抗性II與san值消耗減緩I"
+              },
+              {
+                "en_us": "Mint Candy: eating restores 35% Sanity; press Q to throw it",
+                "zh_cn": "薄荷糖：食用后恢复35% san值，可以按Q键丢出",
+                "zh_tw": "薄荷糖：食用後恢復35% san值，可以按Q鍵丟出"
+              },
+              {
+                "en_us": "1. Slower Sanity drain",
+                "zh_cn": "1. san值消耗减缓",
+                "zh_tw": "1. san值消耗減緩"
+              },
+              {
+                "en_us": "2. Immune to Sanity drain",
+                "zh_cn": "2. san值消耗免疫",
+                "zh_tw": "2. san值消耗免疫"
+              },
+              {
+                "en_us": "3. Sanity regen",
+                "zh_cn": "3. san值恢复",
+                "zh_tw": "3. san值恢復"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "With Sanity at 70+, use the skill on a player who must stay still; after ten seconds you refill their Sanity.",
+            "zh_cn": "san值满70的情况下，使用技能对准一个人，对方需要静止不动，超过十秒可以把对方san值回复满",
+            "zh_tw": "san值滿70的情況下，使用技能對準一個人，對方需要靜止不動，超過十秒可以把對方san值回復滿"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Passive aura: while alive, continuously grants players within 4 blocks 5 seconds of Low-Sanity Resistance II and Sanity-Drain Slowdown I",
+            "zh_cn": "被动光环：存活时为周围4格内的玩家持续提供5秒的低san抗性II与san值消耗减缓I",
+            "zh_tw": "被動光環：存活時為周圍4格內的玩家持續提供5秒的低san抗性II與san值消耗減緩I"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 146,
+          "text": {
+            "en_us": "Mint Candy: eating restores 35% Sanity; press Q to throw it",
+            "zh_cn": "薄荷糖：食用后恢复35% san值，可以按Q键丢出",
+            "zh_tw": "薄荷糖：食用後恢復35% san值，可以按Q鍵丟出"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 156
+        },
+        {
+          "type": "text",
+          "duration": 79,
+          "text": {
+            "en_us": "1. Slower Sanity drain",
+            "zh_cn": "1. san值消耗减缓",
+            "zh_tw": "1. san值消耗減緩"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 89
+        },
+        {
+          "type": "text",
+          "duration": 85,
+          "text": {
+            "en_us": "2. Immune to Sanity drain",
+            "zh_cn": "2. san值消耗免疫",
+            "zh_tw": "2. san值消耗免疫"
+          },
+          "point": [
+            3.0,
+            3.6,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 95
+        },
+        {
+          "type": "text",
+          "duration": 67,
+          "text": {
+            "en_us": "3. Sanity regen",
+            "zh_cn": "3. san值恢复",
+            "zh_tw": "3. san值恢復"
+          },
+          "point": [
+            3.0,
+            4.05,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 77
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Psychologist",
+        "zh_cn": "心理学家",
+        "zh_tw": "心理學家"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "psychologist_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 74,
+          "text": {
+            "en_us": "4. Infinite stamina",
+            "zh_cn": "4. 无限体力",
+            "zh_tw": "4. 無限體力"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 84
+        },
+        {
+          "type": "text",
+          "duration": 76,
+          "text": {
+            "en_us": "5. Increased stamina",
+            "zh_cn": "5. 体力提升",
+            "zh_tw": "5. 體力提升"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 86
+        },
+        {
+          "type": "text",
+          "duration": 81,
+          "text": {
+            "en_us": "6. Faster stamina regen",
+            "zh_cn": "6. 体力恢复效率提升",
+            "zh_tw": "6. 體力恢復效率提升"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 91
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

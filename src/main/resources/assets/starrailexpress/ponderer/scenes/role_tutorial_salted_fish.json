@@ -1,0 +1,262 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.salted_fish",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Salted Fish",
+    "zh_cn": "咸鱼",
+    "zh_tw": "鹹魚"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Salted Fish",
+        "zh_cn": "咸鱼",
+        "zh_tw": "鹹魚"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "salted_fish_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 104,
+          "text": {
+            "en_us": "Lying flat is also a way of working.",
+            "zh_cn": "躺平也算一种工作方式。",
+            "zh_tw": "躺平也算一種工作方式。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 114
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Salted Fish",
+        "zh_cn": "咸鱼",
+        "zh_tw": "鹹魚"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "salted_fish_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Press the skill key to lie facing the sun; you can't move, turn, use items or open inventory.",
+                "zh_cn": "按技能键会面朝太阳躺下，期间无法移动、转向、使用物品或打开背包。",
+                "zh_tw": "按技能鍵會面朝太陽躺下，期間無法移動、轉向、使用物品或打開背包。"
+              },
+              {
+                "en_us": "The 40s cooldown only starts after the duration ends.",
+                "zh_cn": "持续时间结束后才开始 40 秒冷却。",
+                "zh_tw": "持續時間結束後才開始 40 秒冷卻。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Press the skill key to lie facing the sun; you can't move, turn, use items or open inventory.",
+            "zh_cn": "按技能键会面朝太阳躺下，期间无法移动、转向、使用物品或打开背包。",
+            "zh_tw": "按技能鍵會面朝太陽躺下，期間無法移動、轉向、使用物品或打開背包。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 135,
+          "text": {
+            "en_us": "The 40s cooldown only starts after the duration ends.",
+            "zh_cn": "持续时间结束后才开始 40 秒冷却。",
+            "zh_tw": "持續時間結束後才開始 40 秒冷卻。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 145
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Salted Fish",
+        "zh_cn": "咸鱼",
+        "zh_tw": "鹹魚"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "salted_fish_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 133,
+          "text": {
+            "en_us": "Lasts up to 80s; every 20s you pop up and flip over.",
+            "zh_cn": "最多持续 80 秒；每隔 20 秒会蹦起来翻到另一面继续躺下。",
+            "zh_tw": "最多持續 80 秒；每隔 20 秒會蹦起來翻到另一面繼續躺下。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 143
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

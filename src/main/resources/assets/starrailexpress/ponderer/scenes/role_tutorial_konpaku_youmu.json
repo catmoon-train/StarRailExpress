@@ -1,0 +1,327 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.konpaku_youmu",
+  "items": [
+    "noellesroles:youmu_sword"
+  ],
+  "title": {
+    "en_us": "Konpaku youmu",
+    "zh_cn": "半灵幽魂",
+    "zh_tw": "半靈幽魂"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Konpaku youmu",
+        "zh_cn": "半灵幽魂",
+        "zh_tw": "半靈幽魂"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "konpaku_youmu_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Sheriff team",
+            "zh_cn": "警长阵营",
+            "zh_tw": "警長陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 104,
+          "text": {
+            "en_us": "Has the ability to use swordsmanship",
+            "zh_cn": "在隐秘区域中施展剑术",
+            "zh_tw": "在隱秘區域中施展劍術"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 114
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Konpaku youmu",
+        "zh_cn": "半灵幽魂",
+        "zh_tw": "半靈幽魂"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "konpaku_youmu_main"
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "attachKeyFrame": true,
+          "pos": [
+            1.6,
+            1.55,
+            1.6
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:youmu_sword",
+          "linkId": "konpaku_youmu_item"
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "In ghost form you can only see players in invisible state, and cannot be seen by the Killer team. In this state you cannot use items or open your inventory, but you can be killed.",
+            "zh_cn": "处于幽灵状态时，你只能看到处于隐身状态的玩家，同时你无法被杀手阵营看到。此时你无法使用物品，也无法打开物品栏，但能被杀死。",
+            "zh_tw": "處於幽靈狀態時，你只能看到處於隱身狀態的玩家，同時你無法被殺手陣營看到。此時你無法使用物品，也無法打開物品欄，但能被殺死。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 122,
+          "text": {
+            "en_us": "When holding a sword, you appear to wield two.",
+            "zh_cn": "当你手持剑时，将会显示双刀。",
+            "zh_tw": "當你手持劍時，將會顯示雙刀。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 132
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Konpaku youmu",
+        "zh_cn": "半灵幽魂",
+        "zh_tw": "半靈幽魂"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "konpaku_youmu_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Invisibility lasts 30s and can be turned off manually. 60s cooldown.",
+                "zh_cn": "隐身状态持续30s，可以手动关闭。冷却60s。",
+                "zh_tw": "隱身狀態持續30s，可以手動關閉。冷卻60s。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 162,
+          "text": {
+            "en_us": "Invisibility lasts 30s and can be turned off manually. 60s cooldown.",
+            "zh_cn": "隐身状态持续30s，可以手动关闭。冷却60s。",
+            "zh_tw": "隱身狀態持續30s，可以手動關閉。冷卻60s。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 172
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Konpaku youmu",
+        "zh_cn": "半灵幽魂",
+        "zh_tw": "半靈幽魂"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "konpaku_youmu_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 86,
+          "text": {
+            "en_us": "You can toggle ghost form.",
+            "zh_cn": "你可以切换幽灵状态。",
+            "zh_tw": "你可以切換幽靈狀態。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 96
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

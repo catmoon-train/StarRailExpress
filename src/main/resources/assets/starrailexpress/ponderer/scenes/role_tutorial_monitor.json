@@ -1,0 +1,353 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.monitor",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Monitor",
+    "zh_cn": "监察员",
+    "zh_tw": "監察員"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Monitor",
+        "zh_cn": "监察员",
+        "zh_tw": "監察員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "monitor_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 121,
+          "text": {
+            "en_us": "Mark a player and see-through their position.",
+            "zh_cn": "观察他的行动。",
+            "zh_tw": "觀察他的行動。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 131
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Monitor",
+        "zh_cn": "监察员",
+        "zh_tw": "監察員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "monitor_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Passive — you sense whether any player has died in the game; 60s cooldown.",
+                "zh_cn": "被动-你能察觉到游戏中是否有玩家阵亡，冷却60s。",
+                "zh_tw": "被動-你能察覺到遊戲中是否有玩家陣亡，冷卻60s。"
+              },
+              {
+                "en_us": "The shop shows the passive's cooldown.",
+                "zh_cn": "商店可查看被动的冷却时间。",
+                "zh_tw": "商店可查看被動的冷卻時間。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 173,
+          "text": {
+            "en_us": "Passive — you sense whether any player has died in the game; 60s cooldown.",
+            "zh_cn": "被动-你能察觉到游戏中是否有玩家阵亡，冷却60s。",
+            "zh_tw": "被動-你能察覺到遊戲中是否有玩家陣亡，冷卻60s。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 183
+        },
+        {
+          "type": "text",
+          "duration": 108,
+          "text": {
+            "en_us": "The shop shows the passive's cooldown.",
+            "zh_cn": "商店可查看被动的冷却时间。",
+            "zh_tw": "商店可查看被動的冷卻時間。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 118
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Monitor",
+        "zh_cn": "监察员",
+        "zh_tw": "監察員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "monitor_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "monitor",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 184,
+          "text": {
+            "en_us": "Can buy a Flare; right-click to throw, lighting the landing point for 10 seconds",
+            "zh_cn": "你可以购买照明弹，右键投掷，照亮落点处的位置，持续10秒",
+            "zh_tw": "你可以購買照明彈，右鍵投擲，照亮落點處的位置，持續10秒"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 194
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Monitor",
+        "zh_cn": "监察员",
+        "zh_tw": "監察員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "monitor_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "monitor_target",
+            "outline": -14628457
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Use the skill key to mark a player and see-through their position.",
+                "zh_cn": "你可以使用技能键标记一名玩家并透视其位置。",
+                "zh_tw": "你可以使用技能鍵標記一名玩家並透視其位置。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 158,
+          "text": {
+            "en_us": "Use the skill key to mark a player and see-through their position.",
+            "zh_cn": "你可以使用技能键标记一名玩家并透视其位置。",
+            "zh_tw": "你可以使用技能鍵標記一名玩家並透視其位置。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 168
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

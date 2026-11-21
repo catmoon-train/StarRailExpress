@@ -1,0 +1,453 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.voice_changer",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Voice Changer",
+    "zh_cn": "变声怪杰",
+    "zh_tw": "變聲怪傑"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Voice Changer",
+        "zh_cn": "变声怪杰",
+        "zh_tw": "變聲怪傑"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "voice_changer_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 94,
+          "text": {
+            "en_us": "Wins together with the Killers",
+            "zh_cn": "与杀手一同获胜",
+            "zh_tw": "與殺手一同獲勝"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 104
+        },
+        {
+          "type": "text",
+          "duration": 101,
+          "text": {
+            "en_us": "Turn everyone's voice to your use!",
+            "zh_cn": "让所有人的声音都为你所用！",
+            "zh_tw": "讓所有人的聲音都為你所用！"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 111
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Voice Changer",
+        "zh_cn": "变声怪杰",
+        "zh_tw": "變聲怪傑"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "voice_changer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Crouch + skill key: mark the player under your crosshair (the target gets no notice; can mark multiple; 20-second cooldown per mark).",
+                "zh_cn": "蹲下+技能键：标记准星玩家（对方不会收到任何提示，可同时标记多人，每次标记冷却20秒）。",
+                "zh_tw": "蹲下+技能鍵：標記準星玩家（對方不會收到任何提示，可同時標記多人，每次標記冷卻20秒）。"
+              },
+              {
+                "en_us": "Skill key: apply the currently selected voice-changing effect to all marked players (lasts 60 seconds; 60-second cooldown).",
+                "zh_cn": "技能键：对全部被标记玩家施加当前选择的变声效果（持续60秒，冷却60秒）。",
+                "zh_tw": "技能鍵：對全部被標記玩家施加當前選擇的變聲效果（持續60秒，冷卻60秒）。"
+              },
+              {
+                "en_us": "Skill-switch key: switch voice-changing type; crouch + skill-switch key: switch voice-changing level (max level 5).",
+                "zh_cn": "技能切换键：切换变声种类；蹲下+技能切换键：切换变声等级（最高5级）。",
+                "zh_tw": "技能切換鍵：切換變聲種類；蹲下+技能切換鍵：切換變聲等級（最高5級）。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Crouch + skill key: mark the player under your crosshair (the target gets no notice; can mark multiple; 20-second cooldown per mark).",
+            "zh_cn": "蹲下+技能键：标记准星玩家（对方不会收到任何提示，可同时标记多人，每次标记冷却20秒）。",
+            "zh_tw": "蹲下+技能鍵：標記準星玩家（對方不會收到任何提示，可同時標記多人，每次標記冷卻20秒）。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skill key: apply the currently selected voice-changing effect to all marked players (lasts 60 seconds; 60-second cooldown).",
+            "zh_cn": "技能键：对全部被标记玩家施加当前选择的变声效果（持续60秒，冷却60秒）。",
+            "zh_tw": "技能鍵：對全部被標記玩家施加當前選擇的變聲效果（持續60秒，冷卻60秒）。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skill-switch key: switch voice-changing type; crouch + skill-switch key: switch voice-changing level (max level 5).",
+            "zh_cn": "技能切换键：切换变声种类；蹲下+技能切换键：切换变声等级（最高5级）。",
+            "zh_tw": "技能切換鍵：切換變聲種類；蹲下+技能切換鍵：切換變聲等級（最高5級）。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Voice Changer",
+        "zh_cn": "变声怪杰",
+        "zh_tw": "變聲怪傑"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "voice_changer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "voice_changer",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 108,
+          "text": {
+            "en_us": "The shop sells Lockpicks for 100 coin.",
+            "zh_cn": "商店可花费100金币购买开锁器。",
+            "zh_tw": "商店可花費100金幣購買開鎖器。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 118
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Voice Changer",
+        "zh_cn": "变声怪杰",
+        "zh_tw": "變聲怪傑"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "voice_changer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "voice_changer_target",
+            "outline": -7077677
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Has instinct see-through, but all players show as your own color.",
+                "zh_cn": "拥有本能透视，但看所有玩家都显示为自己的颜色。",
+                "zh_tw": "擁有本能透視，但看所有玩家都顯示為自己的顏色。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 157,
+          "text": {
+            "en_us": "Has instinct see-through, but all players show as your own color.",
+            "zh_cn": "拥有本能透视，但看所有玩家都显示为自己的颜色。",
+            "zh_tw": "擁有本能透視，但看所有玩家都顯示為自己的顏色。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 167
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Voice Changer",
+        "zh_cn": "变声怪杰",
+        "zh_tw": "變聲怪傑"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "voice_changer_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Players afflicted with a voice effect get a broadcast notice telling them which effect was applied.",
+            "zh_cn": "被施加语音效果的玩家会收到广播通知，得知自己被施加了什么效果。",
+            "zh_tw": "被施加語音效果的玩家會收到廣播通知，得知自己被施加了什麼效果。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

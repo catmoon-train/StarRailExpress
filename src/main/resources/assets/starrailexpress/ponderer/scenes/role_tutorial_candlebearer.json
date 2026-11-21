@@ -1,0 +1,680 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.candlebearer",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Candle Bearer",
+    "zh_cn": "秉烛人",
+    "zh_tw": "秉燭人"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_graveyard"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Candle Bearer",
+        "zh_cn": "秉烛人",
+        "zh_tw": "秉燭人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "candlebearer_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 106,
+          "text": {
+            "en_us": "Has its own independent win condition",
+            "zh_cn": "拥有独立胜利条件",
+            "zh_tw": "擁有獨立勝利條件"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 116
+        },
+        {
+          "type": "text",
+          "duration": 153,
+          "text": {
+            "en_us": "Bear a candle for the living and the dead, and lead souls home.",
+            "zh_cn": "为生者与死者秉烛，将灵魂带回故乡。",
+            "zh_tw": "為生者與死者秉燭，將靈魂帶回故鄉。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 163
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Candle Bearer",
+        "zh_cn": "秉烛人",
+        "zh_tw": "秉燭人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "candlebearer_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 97,
+          "text": {
+            "en_us": "You start with 1 stealth charge.",
+            "zh_cn": "开局你自带1次隐身机会。",
+            "zh_tw": "開局你自帶1次隱身機會。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 107
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Candle Bearer",
+        "zh_cn": "秉烛人",
+        "zh_tw": "秉燭人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "candlebearer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Press the skill key to spend 1 stealth charge for 18 seconds of invisibility.",
+                "zh_cn": "按技能键可消耗1次隐身机会，进入18秒隐身。",
+                "zh_tw": "按技能鍵可消耗1次隱身機會，進入18秒隱身。"
+              },
+              {
+                "en_us": "Each lighting of a living person has a 1.5-second cooldown before you can light again",
+                "zh_cn": "每次为活人秉烛需要等待1.5秒冷却后才能再次秉烛",
+                "zh_tw": "每次為活人秉燭需要等待1.5秒冷卻後才能再次秉燭"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 178,
+          "text": {
+            "en_us": "Press the skill key to spend 1 stealth charge for 18 seconds of invisibility.",
+            "zh_cn": "按技能键可消耗1次隐身机会，进入18秒隐身。",
+            "zh_tw": "按技能鍵可消耗1次隱身機會，進入18秒隱身。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 188
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Each lighting of a living person has a 1.5-second cooldown before you can light again",
+            "zh_cn": "每次为活人秉烛需要等待1.5秒冷却后才能再次秉烛",
+            "zh_tw": "每次為活人秉燭需要等待1.5秒冷卻後才能再次秉燭"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Candle Bearer",
+        "zh_cn": "秉烛人",
+        "zh_tw": "秉燭人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "candlebearer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "candlebearer",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The shop sells a stealth charge for coin (click to +1) and candles for 50 coin (so you don't lose yours).",
+            "zh_cn": "商店可花费金币购买一次隐身机会（点击购买使隐身机会+1），可花费50金币购买蜡烛(防止你弄丢蜡烛)。",
+            "zh_tw": "商店可花費金幣購買一次隱身機會（點擊購買使隱身機會+1），可花費50金幣購買蠟燭(防止你弄丟蠟燭)。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "title": {
+        "en_us": "Candle Bearer",
+        "zh_cn": "秉烛人",
+        "zh_tw": "秉燭人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "candlebearer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "candlebearer_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "candlebearer_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "delay": 14
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When a lit person dies and you successfully light their corresponding corpse, you gain progress and 1 stealth charge (store up to 5).",
+            "zh_cn": "当被秉烛的人死后，为被秉烛者对应尸体成功秉烛，可累计进度并获得1次隐身机会（最多储存5次）。",
+            "zh_tw": "當被秉燭的人死後，為被秉燭者對應屍體成功秉燭，可累計進度並獲得1次隱身機會（最多儲存5次）。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Win target: light (lobby size / 5) + 1 corpses (rounded down), with a minimum target of 4.",
+            "zh_cn": "获胜目标为：秉烛的尸体数达到(对局人数/5)+1(向下取整) ，且最低获胜目标为4。",
+            "zh_tw": "獲勝目標為：秉燭的屍體數達到(對局人數/5)+1(向下取整) ，且最低獲勝目標為4。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Candle Bearer",
+        "zh_cn": "秉烛人",
+        "zh_tw": "秉燭人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "candlebearer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "candlebearer_target",
+            "outline": -11656
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "You cannot be detected by Killer see-through, and can see-through players / corpses within 40 blocks",
+                "zh_cn": "你无法被杀手透视察觉，且能够透视40格内的玩家/尸体",
+                "zh_tw": "你無法被殺手透視察覺，且能夠透視40格內的玩家/屍體"
+              },
+              {
+                "en_us": "With instinct on, your see-through shows: lit people and their corpses in yellow, unlit targets in gray, and lit corpses in blue",
+                "zh_cn": "开启直觉后，你的透视内容如下；已秉烛的人和他的尸体显示为黄色，未被秉烛的目标显示为灰色，被秉烛过的尸体显示为蓝色",
+                "zh_tw": "開啟直覺後，你的透視內容如下；已秉燭的人和他的屍體顯示為黃色，未被秉燭的目標顯示為灰色，被秉燭過的屍體顯示為藍色"
+              },
+              {
+                "en_us": "Hold a candle to light a living person; the lit person and their corpse glow 6 seconds after being lit.",
+                "zh_cn": "手持蜡烛可为活人秉烛，被秉烛者与其尸体会在秉烛的6秒后发光。",
+                "zh_tw": "手持蠟燭可為活人秉燭，被秉燭者與其屍體會在秉燭的6秒後發光。"
+              },
+              {
+                "en_us": "With instinct on, lit people and their corresponding corpses show yellow; other targets show gray.",
+                "zh_cn": "开启直觉后，已秉烛者与其对应的尸体会显示为黄色，其他目标显示为灰色。",
+                "zh_tw": "開啟直覺後，已秉燭者與其對應的屍體會顯示為黃色，其他目標顯示為灰色。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You cannot be detected by Killer see-through, and can see-through players / corpses within 40 blocks",
+            "zh_cn": "你无法被杀手透视察觉，且能够透视40格内的玩家/尸体",
+            "zh_tw": "你無法被殺手透視察覺，且能夠透視40格內的玩家/屍體"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "With instinct on, your see-through shows: lit people and their corpses in yellow, unlit targets in gray, and lit corpses in blue",
+            "zh_cn": "开启直觉后，你的透视内容如下；已秉烛的人和他的尸体显示为黄色，未被秉烛的目标显示为灰色，被秉烛过的尸体显示为蓝色",
+            "zh_tw": "開啟直覺後，你的透視內容如下；已秉燭的人和他的屍體顯示為黃色，未被秉燭的目標顯示為灰色，被秉燭過的屍體顯示為藍色"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Hold a candle to light a living person; the lit person and their corpse glow 6 seconds after being lit.",
+            "zh_cn": "手持蜡烛可为活人秉烛，被秉烛者与其尸体会在秉烛的6秒后发光。",
+            "zh_tw": "手持蠟燭可為活人秉燭，被秉燭者與其屍體會在秉燭的6秒後發光。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "With instinct on, lit people and their corresponding corpses show yellow; other targets show gray.",
+            "zh_cn": "开启直觉后，已秉烛者与其对应的尸体会显示为黄色，其他目标显示为灰色。",
+            "zh_tw": "開啟直覺後，已秉燭者與其對應的屍體會顯示為黃色，其他目標顯示為灰色。"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Candle Bearer",
+        "zh_cn": "秉烛人",
+        "zh_tw": "秉燭人"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "candlebearer_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 110,
+          "text": {
+            "en_us": "Only appears in lobbies of 12+ players.",
+            "zh_cn": "仅在12人及以上的对局中出现。",
+            "zh_tw": "僅在12人及以上的對局中出現。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 120
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Each successful candle lighting plays a candle sound effect server-wide after 4 seconds",
+            "zh_cn": "每成功秉烛一次都会在4秒后全场播放秉烛音效",
+            "zh_tw": "每成功秉燭一次都會在4秒後全場播放秉燭音效"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

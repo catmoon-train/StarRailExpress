@@ -1,0 +1,343 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.creeper",
+  "items": [
+    "trainmurdermystery:lockpick"
+  ],
+  "title": {
+    "en_us": "Rainbow Creeper",
+    "zh_cn": "彩虹苦力怕",
+    "zh_tw": "彩虹苦力怕"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Rainbow Creeper",
+        "zh_cn": "彩虹苦力怕",
+        "zh_tw": "彩虹苦力怕"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "creeper_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 81,
+          "text": {
+            "en_us": "Hiss hiss hiss... Boom!",
+            "zh_cn": "嘶嘶嘶...Boom！",
+            "zh_tw": "嘶嘶嘶...Boom！"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 91
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Rainbow Creeper",
+        "zh_cn": "彩虹苦力怕",
+        "zh_tw": "彩虹苦力怕"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "creeper_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Press the skill key to spend 300 coin and ignite yourself; after 6s you explode, killing yourself and players within 5 blocks.",
+                "zh_cn": "按下技能键花费300金币引燃自身，6s后爆炸，将自己和范围5格内的玩家炸死。",
+                "zh_tw": "按下技能鍵花費300金幣引燃自身，6s後爆炸，將自己和範圍5格內的玩家炸死。"
+              },
+              {
+                "en_us": "After igniting, press the skill key again to spend 75 coin and detonate immediately, expanding the blast by 1 block.",
+                "zh_cn": "引燃后再次按下技能键可花费75金币立刻引爆，爆炸范围扩大1格。",
+                "zh_tw": "引燃後再次按下技能鍵可花費75金幣立刻引爆，爆炸範圍擴大1格。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Press the skill key to spend 300 coin and ignite yourself; after 6s you explode, killing yourself and players within 5 blocks.",
+            "zh_cn": "按下技能键花费300金币引燃自身，6s后爆炸，将自己和范围5格内的玩家炸死。",
+            "zh_tw": "按下技能鍵花費300金幣引燃自身，6s後爆炸，將自己和範圍5格內的玩家炸死。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "After igniting, press the skill key again to spend 75 coin and detonate immediately, expanding the blast by 1 block.",
+            "zh_cn": "引燃后再次按下技能键可花费75金币立刻引爆，爆炸范围扩大1格。",
+            "zh_tw": "引燃後再次按下技能鍵可花費75金幣立刻引爆，爆炸範圍擴大1格。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Rainbow Creeper",
+        "zh_cn": "彩虹苦力怕",
+        "zh_tw": "彩虹苦力怕"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "creeper_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "creeper",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 157,
+          "text": {
+            "en_us": "Infinite stamina; can only buy a lockpick and a knife (130 coin).",
+            "zh_cn": "无限体力，只能购买撬锁器和刀（130金币）。",
+            "zh_tw": "無限體力，只能購買撬鎖器和刀（130金幣）。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 167
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Rainbow Creeper",
+        "zh_cn": "彩虹苦力怕",
+        "zh_tw": "彩虹苦力怕"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "creeper_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 115,
+          "text": {
+            "en_us": "An easter-egg role with a low spawn chance",
+            "zh_cn": "彩蛋职业，较小概率刷新",
+            "zh_tw": "彩蛋職業，較小概率刷新"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 125
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When killed by a Revolver, you explode with a 5-block radius; if this blast hits more than 5 players, a second blast occurs 1 second later",
+            "zh_cn": "当你被左轮手枪击杀时，将产生一次半径5格的爆炸，若此爆炸命中了超过5名玩家，则会在1秒后再产生一次爆炸",
+            "zh_tw": "當你被左輪手槍擊殺時，將產生一次半徑5格的爆炸，若此爆炸命中了超過5名玩家，則會在1秒後再產生一次爆炸"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

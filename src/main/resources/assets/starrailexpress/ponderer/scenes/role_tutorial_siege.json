@@ -1,0 +1,257 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.siege",
+  "items": [
+    "noellesroles:wall_break_grenade",
+    "noellesroles:slime_grenade"
+  ],
+  "title": {
+    "en_us": "Sieger",
+    "zh_cn": "攻城手",
+    "zh_tw": "攻城手"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_room"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Sieger",
+        "zh_cn": "攻城手",
+        "zh_tw": "攻城手"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "siege_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 119,
+          "text": {
+            "en_us": "Break through walls and clear the whole car.",
+            "zh_cn": "破墙开路，肃清全车。",
+            "zh_tw": "破牆開路，肅清全車。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 129
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Sieger",
+        "zh_cn": "攻城手",
+        "zh_tw": "攻城手"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "siege_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "siege",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 180,
+          "text": {
+            "en_us": "On top of the vanilla Killer shop, can buy Wall-Breaking Bombs and Slime Bombs",
+            "zh_cn": "可在原版杀手商店的基础上，额外购买破墙弹、粘液弹",
+            "zh_tw": "可在原版殺手商店的基礎上，額外購買破牆彈、粘液彈"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 190
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Sieger",
+        "zh_cn": "攻城手",
+        "zh_tw": "攻城手"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "siege_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 90,
+          "text": {
+            "en_us": "Only spawns on specific maps",
+            "zh_cn": "仅在特定地图中刷新",
+            "zh_tw": "僅在特定地圖中刷新"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 100
+        },
+        {
+          "type": "text",
+          "duration": 187,
+          "text": {
+            "en_us": "Wall-Breaking Bomb: temporarily removes blocks in range (restored after 5 seconds)",
+            "zh_cn": "破墙弹：可临时拆除范围内的方块（5秒后自动恢复）",
+            "zh_tw": "破牆彈：可臨時拆除範圍內的方塊（5秒後自動恢復）"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 197
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Slime Bomb: forms a slime zone at the landing point; players inside keep getting Slowness",
+            "zh_cn": "粘液弹：在落点处形成粘液区域，范围内的玩家会持续获得缓慢效果",
+            "zh_tw": "粘液彈：在落點處形成粘液區域，範圍內的玩家會持續獲得緩慢效果"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

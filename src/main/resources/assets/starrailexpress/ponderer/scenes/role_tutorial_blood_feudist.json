@@ -1,0 +1,517 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.blood_feudist",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Vendettist",
+    "zh_cn": "仇杀客",
+    "zh_tw": "仇殺客"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Vendettist",
+        "zh_cn": "仇杀客",
+        "zh_tw": "仇殺客"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "blood_feudist_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 151,
+          "text": {
+            "en_us": "Slaying your own kind twists your world view little by little!",
+            "zh_cn": "同类相杀令你的世界观逐渐扭曲！",
+            "zh_tw": "同類相殺令你的世界觀逐漸扭曲！"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 161
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Vendettist",
+        "zh_cn": "仇杀客",
+        "zh_tw": "仇殺客"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "blood_feudist_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "blood_feudist",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 171,
+          "text": {
+            "en_us": "Every time someone dies from a wrongful Civilian kill, you earn 100 coin.",
+            "zh_cn": "每有人因误杀平民而亡，你都会获得100金币。",
+            "zh_tw": "每有人因誤殺平民而亡，你都會獲得100金幣。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 181
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "3 wrongful kills: instantly gain 150 coin",
+            "zh_cn": "3人误杀：立刻获得150金币",
+            "zh_tw": "3人誤殺：立刻獲得150金幣"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 123
+        },
+        {
+          "type": "text",
+          "duration": 144,
+          "text": {
+            "en_us": "The shop only sells Crowbars, Lockpicks, and Rampage mode.",
+            "zh_cn": "商店只能购买撬棍、开锁器和疯狂模式。",
+            "zh_tw": "商店只能購買撬棍、開鎖器和瘋狂模式。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 154
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "mood",
+      "title": {
+        "en_us": "Vendettist",
+        "zh_cn": "仇杀客",
+        "zh_tw": "仇殺客"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "blood_feudist_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_mood",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.sanity",
+            "before": 0.35,
+            "after": 0.85,
+            "lines": [
+              {
+                "en_us": "Has infinite stamina and a fake mood.",
+                "zh_cn": "拥有无限体力和假心情。",
+                "zh_tw": "擁有無限體力和假心情。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 106,
+          "text": {
+            "en_us": "Has infinite stamina and a fake mood.",
+            "zh_cn": "拥有无限体力和假心情。",
+            "zh_tw": "擁有無限體力和假心情。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 116
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Vendettist",
+        "zh_cn": "仇杀客",
+        "zh_tw": "仇殺客"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "blood_feudist_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "blood_feudist_psycho",
+            "outline": -5103070
+          }
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "The potion effects gained from the Vendettist's evolution must be toggled on/off manually with the skill key.",
+                "zh_cn": "仇杀客进化获得的药水效果需要手动按技能键开启/关闭。",
+                "zh_tw": "仇殺客進化獲得的藥水效果需要手動按技能鍵開啟/關閉。"
+              },
+              {
+                "en_us": "The Vendettist's Rampage-mode shop has a shorter purchase cooldown.",
+                "zh_cn": "仇杀客的疯狂模式购买CD更短。",
+                "zh_tw": "仇殺客的瘋狂模式購買CD更短。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The potion effects gained from the Vendettist's evolution must be toggled on/off manually with the skill key.",
+            "zh_cn": "仇杀客进化获得的药水效果需要手动按技能键开启/关闭。",
+            "zh_tw": "仇殺客進化獲得的藥水效果需要手動按技能鍵開啟/關閉。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 160,
+          "text": {
+            "en_us": "The Vendettist's Rampage-mode shop has a shorter purchase cooldown.",
+            "zh_cn": "仇杀客的疯狂模式购买CD更短。",
+            "zh_tw": "仇殺客的瘋狂模式購買CD更短。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 170
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Vendettist",
+        "zh_cn": "仇杀客",
+        "zh_tw": "仇殺客"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "blood_feudist_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 110,
+          "text": {
+            "en_us": "Only appears in lobbies of 12+ players.",
+            "zh_cn": "仅能在12人及以上对局中出现。",
+            "zh_tw": "僅能在12人及以上對局中出現。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 120
+        },
+        {
+          "type": "text",
+          "duration": 101,
+          "text": {
+            "en_us": "1 wrongful kill: permanent Speed I",
+            "zh_cn": "1人误杀：永久速度1",
+            "zh_tw": "1人誤殺：永久速度1"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 111
+        },
+        {
+          "type": "text",
+          "duration": 104,
+          "text": {
+            "en_us": "2 wrongful kills: permanent Haste II",
+            "zh_cn": "2人误杀：永久急迫2",
+            "zh_tw": "2人誤殺：永久急迫2"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 114
+        },
+        {
+          "type": "text",
+          "duration": 104,
+          "text": {
+            "en_us": "4 wrongful kills: permanent Speed II",
+            "zh_cn": "4人误杀：永久速度2",
+            "zh_tw": "4人誤殺：永久速度2"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 114
+        },
+        {
+          "type": "text",
+          "duration": 126,
+          "text": {
+            "en_us": "5 wrongful kills: immune to all negative effects",
+            "zh_cn": "5人误杀：免疫所有负面效果",
+            "zh_tw": "5人誤殺：免疫所有負面效果"
+          },
+          "point": [
+            3.0,
+            3.6,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 136
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

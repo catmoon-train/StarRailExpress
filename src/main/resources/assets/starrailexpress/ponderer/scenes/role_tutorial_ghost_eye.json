@@ -1,0 +1,320 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.ghost_eye",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Ghost Eye Yang Jian",
+    "zh_cn": "鬼眼·杨间",
+    "zh_tw": "鬼眼·楊間"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Ghost Eye Yang Jian",
+        "zh_cn": "鬼眼·杨间",
+        "zh_tw": "鬼眼·楊間"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ghost_eye_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Sheriff team",
+            "zh_cn": "警长阵营",
+            "zh_tw": "警長陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The Ghost Eye periodically scans nearby players, revealing them as white outlines; deploying the Domain blocks Killer see-through and blinds enemies.",
+            "zh_cn": "一双眼睛究竟能看到什么呢？",
+            "zh_tw": "一雙眼睛究竟能看到什麼呢？"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Ghost Eye Yang Jian",
+        "zh_cn": "鬼眼·杨间",
+        "zh_tw": "鬼眼·楊間"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ghost_eye_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Active · Uncanny Domain (70s cd): unfold a 12-block, 6s domain at your feet. Inside, all movement slows (Slowness II); Killers can't use see-through; everyone but you is blinded and darkened.",
+                "zh_cn": "主动·诡域(冷却70秒)：在脚下展开半径12格、持续6秒的领域。领域内所有人移速降低(缓慢II)；领域内的杀手无法开启透视；除你之外的所有人陷入失明与黑暗。",
+                "zh_tw": "主動·詭域(冷卻70秒)：在腳下展開半徑12格、持續6秒的領域。領域內所有人移速降低(緩慢II)；領域內的殺手無法開啟透視；除你之外的所有人陷入失明與黑暗。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Active · Uncanny Domain (70s cd): unfold a 12-block, 6s domain at your feet. Inside, all movement slows (Slowness II); Killers can't use see-through; everyone but you is blinded and darkened.",
+            "zh_cn": "主动·诡域(冷却70秒)：在脚下展开半径12格、持续6秒的领域。领域内所有人移速降低(缓慢II)；领域内的杀手无法开启透视；除你之外的所有人陷入失明与黑暗。",
+            "zh_tw": "主動·詭域(冷卻70秒)：在腳下展開半徑12格、持續6秒的領域。領域內所有人移速降低(緩慢II)；領域內的殺手無法開啟透視；除你之外的所有人陷入失明與黑暗。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Ghost Eye Yang Jian",
+        "zh_cn": "鬼眼·杨间",
+        "zh_tw": "鬼眼·楊間"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ghost_eye_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ghost_eye_target",
+            "outline": -8076088
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Passive · Ghost Eye: every 16s auto-scans 20 blocks around, briefly (2s) showing all outlines in white instinct.",
+                "zh_cn": "被动·鬼眼：每隔16秒自动扫描周身20格范围，短暂(2秒)以白色直觉显示范围内所有玩家的轮廓。",
+                "zh_tw": "被動·鬼眼：每隔16秒自動掃描周身20格範圍，短暫(2秒)以白色直覺顯示範圍內所有玩家的輪廓。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Passive · Ghost Eye: every 16s auto-scans 20 blocks around, briefly (2s) showing all outlines in white instinct.",
+            "zh_cn": "被动·鬼眼：每隔16秒自动扫描周身20格范围，短暂(2秒)以白色直觉显示范围内所有玩家的轮廓。",
+            "zh_tw": "被動·鬼眼：每隔16秒自動掃描周身20格範圍，短暫(2秒)以白色直覺顯示範圍內所有玩家的輪廓。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Ghost Eye Yang Jian",
+        "zh_cn": "鬼眼·杨间",
+        "zh_tw": "鬼眼·楊間"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ghost_eye_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Complete two tasks for a revolver; if you die before getting it, a revolver drops where you fell.",
+            "zh_cn": "完成两个任务后获得左轮手枪；在获得左轮手枪之前阵亡，会在死亡位置掉落一把左轮手枪。",
+            "zh_tw": "完成兩個任務後獲得左輪手槍；在獲得左輪手槍之前陣亡，會在死亡位置掉落一把左輪手槍。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

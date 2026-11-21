@@ -1,0 +1,372 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.scout_captain",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Scout Captain",
+    "zh_cn": "童子军队长",
+    "zh_tw": "童子軍隊長"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_room"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Scout Captain",
+        "zh_cn": "童子军队长",
+        "zh_tw": "童子軍隊長"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "scout_captain_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Sheriff team",
+            "zh_cn": "警长阵营",
+            "zh_tw": "警長陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 158,
+          "text": {
+            "en_us": "Lead passengers up to high ground and guard them with your pistol.",
+            "zh_cn": "带领乘客爬上高处，用你的手枪守住大家。",
+            "zh_tw": "帶領乘客爬上高處，用你的手槍守住大家。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 168
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Scout Captain",
+        "zh_cn": "童子军队长",
+        "zh_tw": "童子軍隊長"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "scout_captain_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Climbs like the Scout: bare-hand right-click a wall, movement keys cost stamina, holding an item lets go",
+            "zh_cn": "和童子军一样可以攀爬：空手右键紧贴的墙壁开始攀爬，按移动键改变方向时消耗体力，手上拿着物品会自动松手",
+            "zh_tw": "和童子軍一樣可以攀爬：空手右鍵緊貼的牆壁開始攀爬，按移動鍵改變方向時消耗體力，手上拿著物品會自動鬆手"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Scout Captain",
+        "zh_cn": "童子军队长",
+        "zh_tw": "童子軍隊長"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "scout_captain_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Skill: switch between standing/crawling poses",
+                "zh_cn": "技能：可切换成切换站立 / 匍匐姿态",
+                "zh_tw": "技能：可切換成切換站立 / 匍匐姿態"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 121,
+          "text": {
+            "en_us": "Skill: switch between standing/crawling poses",
+            "zh_cn": "技能：可切换成切换站立 / 匍匐姿态",
+            "zh_tw": "技能：可切換成切換站立 / 匍匐姿態"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 131
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Scout Captain",
+        "zh_cn": "童子军队长",
+        "zh_tw": "童子軍隊長"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "scout_captain_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 67,
+          "text": {
+            "en_us": "Easter egg role",
+            "zh_cn": "彩蛋职业",
+            "zh_tw": "彩蛋職業"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 77
+        },
+        {
+          "type": "text",
+          "duration": 90,
+          "text": {
+            "en_us": "Only on climbing (PEAK) maps",
+            "zh_cn": "仅在爬山（PEAK）地图刷新",
+            "zh_tw": "僅在爬山（PEAK）地圖刷新"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 100
+        },
+        {
+          "type": "text",
+          "duration": 88,
+          "text": {
+            "en_us": "Stamina cap 3x a Civilian's",
+            "zh_cn": "体力上限为平民的 3 倍",
+            "zh_tw": "體力上限為平民的 3 倍"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 98
+        },
+        {
+          "type": "text",
+          "duration": 115,
+          "text": {
+            "en_us": "Eating restores extra stamina: 50 per food",
+            "zh_cn": "吃东西额外恢复体力：每吃完一份食物恢复 50 点体力",
+            "zh_tw": "吃東西額外恢復體力：每吃完一份食物恢復 50 點體力"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 125
+        },
+        {
+          "type": "text",
+          "duration": 112,
+          "text": {
+            "en_us": "Complete 2 tasks for a standard revolver",
+            "zh_cn": "完成 2 个任务后会获得制式左轮",
+            "zh_tw": "完成 2 個任務後會獲得制式左輪"
+          },
+          "point": [
+            3.0,
+            3.6,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 122
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

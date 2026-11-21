@@ -1,0 +1,443 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.cuckoo",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Cuckoo",
+    "zh_cn": "布谷鸟",
+    "zh_tw": "布穀鳥"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Cuckoo",
+        "zh_cn": "布谷鸟",
+        "zh_tw": "布穀鳥"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "cuckoo_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 97,
+          "text": {
+            "en_us": "Has an independent win condition",
+            "zh_cn": "拥有独立胜利条件",
+            "zh_tw": "擁有獨立勝利條件"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 107
+        },
+        {
+          "type": "text",
+          "duration": 110,
+          "text": {
+            "en_us": "Lay your eggs in a hidden, safe corner!",
+            "zh_cn": "在隐秘且安全的角落留下自己的蛋!",
+            "zh_tw": "在隱秘且安全的角落留下自己的蛋!"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 120
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Cuckoo",
+        "zh_cn": "布谷鸟",
+        "zh_tw": "布穀鳥"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "cuckoo_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Press the skill key to lay an egg (20s cooldown; may lay up to 2 more than the win target).",
+                "zh_cn": "按下技能键下蛋（20秒冷却，最多可下超过胜利目标2个的蛋）。",
+                "zh_tw": "按下技能鍵下蛋（20秒冷卻，最多可下超過勝利目標2個的蛋）。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Press the skill key to lay an egg (20s cooldown; may lay up to 2 more than the win target).",
+            "zh_cn": "按下技能键下蛋（20秒冷却，最多可下超过胜利目标2个的蛋）。",
+            "zh_tw": "按下技能鍵下蛋（20秒冷卻，最多可下超過勝利目標2個的蛋）。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Cuckoo",
+        "zh_cn": "布谷鸟",
+        "zh_tw": "布穀鳥"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "cuckoo_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "cuckoo",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 122,
+          "text": {
+            "en_us": "Can buy lockpicks at a high price in the shop.",
+            "zh_cn": "商店中可以以较高的价格购买撬锁器。",
+            "zh_tw": "商店中可以以較高的價格購買撬鎖器。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 132
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Cuckoo",
+        "zh_cn": "布谷鸟",
+        "zh_tw": "布穀鳥"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "cuckoo_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "cuckoo_target",
+            "outline": -3626436
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "You can turn on instinct, but cannot see through players, only the eggs you lay.",
+                "zh_cn": "可以开启直觉，但是无法透视玩家，仅能够透视自己下的蛋。",
+                "zh_tw": "可以開啟直覺，但是無法透視玩家，僅能夠透視自己下的蛋。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 184,
+          "text": {
+            "en_us": "You can turn on instinct, but cannot see through players, only the eggs you lay.",
+            "zh_cn": "可以开启直觉，但是无法透视玩家，仅能够透视自己下的蛋。",
+            "zh_tw": "可以開啟直覺，但是無法透視玩家，僅能夠透視自己下的蛋。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 194
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Cuckoo",
+        "zh_cn": "布谷鸟",
+        "zh_tw": "布穀鳥"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "cuckoo_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 157,
+          "text": {
+            "en_us": "No egg may be laid within 10 blocks of another (3 on the Y axis).",
+            "zh_cn": "蛋的10格半径范围内（y轴方向为3格）无法再次下蛋。",
+            "zh_tw": "蛋的10格半徑範圍內（y軸方向為3格）無法再次下蛋。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 167
+        },
+        {
+          "type": "text",
+          "duration": 182,
+          "text": {
+            "en_us": "Other players can destroy an egg by sneaking and looking at it within 3 blocks.",
+            "zh_cn": "其它玩家可以通过在布谷鸟蛋的三格范围内蹲下看向布谷鸟蛋来破坏它的蛋。",
+            "zh_tw": "其他玩家可以通過在布穀鳥蛋的三格範圍內蹲下看向布穀鳥蛋來破壞它的蛋。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 192
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "If, when the game ends, the number of eggs on the field is at least total players*3/8-1 (min 4), the Cuckoo wins. (Regardless of whether the Cuckoo lives; priority above Arsonist and Nian Beast, below other independent Neutrals.)",
+            "zh_cn": "如果游戏结束时，场上蛋的数量大于等于总人数的3/8-1（最低为4），则布谷鸟胜利。（无论布谷鸟是否存活，优先级大于纵火犯和年兽胜利小于其它独立胜利中立）",
+            "zh_tw": "如果遊戲結束時，場上蛋的數量大於等於總人數的3/8-1（最低為4），則布穀鳥勝利。（無論布穀鳥是否存活，優先順序大於縱火犯和年獸勝利小於其他獨立勝利中立）"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,570 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.shadow_falcon",
+  "items": [
+    "noellesroles:jetpack"
+  ],
+  "title": {
+    "en_us": "Shadow Falcon",
+    "zh_cn": "影隼",
+    "zh_tw": "影隼"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_room"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Shadow Falcon",
+        "zh_cn": "影隼",
+        "zh_tw": "影隼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "shadow_falcon_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 101,
+          "text": {
+            "en_us": "Win together with the Killer team!",
+            "zh_cn": "黑翼将遮蔽天空！",
+            "zh_tw": "黑翼將遮蔽天空！"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 111
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Shadow Falcon",
+        "zh_cn": "影隼",
+        "zh_tw": "影隼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "shadow_falcon_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "shadow_falcon",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 175,
+          "text": {
+            "en_us": "You start with a jetpack; using it costs no durability and you push harder.",
+            "zh_cn": "你初始获得一个喷气背包，你使用喷气背包不会消耗耐久且推进能力更强。",
+            "zh_tw": "你初始獲得一個噴氣背包，你使用噴氣背包不會消耗耐久且推進能力更強。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 185
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Shadow Falcon",
+        "zh_cn": "影隼",
+        "zh_tw": "影隼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "shadow_falcon_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Sneak + skill key to remove the jetpack and elytra",
+                "zh_cn": "蹲下按技能键可脱下喷气背包和鞘翅",
+                "zh_tw": "蹲下按技能鍵可脫下噴氣背包和鞘翅"
+              },
+              {
+                "en_us": "Active skill - Predation:",
+                "zh_cn": "主动技能-掠食：",
+                "zh_tw": "主動技能-掠食："
+              },
+              {
+                "en_us": "60s starting cooldown; on use you gain creative flight (double-tap space to take off). While airborne during the skill you have 1 temporary shield (it vanishes on landing and does not refill on takeoff); the shield disappears when the skill ends.",
+                "zh_cn": "开局60秒冷却，使用后开启创造飞行能力(双击空格起飞)，技能期间浮空时拥有1层临时护盾(着陆后立刻消失，且重新起飞时不会补充护盾)，临时护盾会在技能结束后立刻消失。",
+                "zh_tw": "開局60秒冷卻，使用後開啟創造飛行能力(雙擊空格起飛)，技能期間浮空時擁有1層臨時護盾(著陸後立刻消失，且重新起飛時不會補充護盾)，臨時護盾會在技能結束後立刻消失。"
+              },
+              {
+                "en_us": "240s cooldown after the skill ends.",
+                "zh_cn": "技能结束后进入240秒冷却。",
+                "zh_tw": "技能結束後進入240秒冷卻。"
+              },
+              {
+                "en_us": "Passive - Feedback:",
+                "zh_cn": "被动-反哺：",
+                "zh_tw": "被動-反哺："
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 130,
+          "text": {
+            "en_us": "Sneak + skill key to remove the jetpack and elytra",
+            "zh_cn": "蹲下按技能键可脱下喷气背包和鞘翅",
+            "zh_tw": "蹲下按技能鍵可脫下噴氣背包和鞘翅"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 140
+        },
+        {
+          "type": "text",
+          "duration": 85,
+          "text": {
+            "en_us": "Active skill - Predation:",
+            "zh_cn": "主动技能-掠食：",
+            "zh_tw": "主動技能-掠食："
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 95
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "60s starting cooldown; on use you gain creative flight (double-tap space to take off). While airborne during the skill you have 1 temporary shield (it vanishes on landing and does not refill on takeoff); the shield disappears when the skill ends.",
+            "zh_cn": "开局60秒冷却，使用后开启创造飞行能力(双击空格起飞)，技能期间浮空时拥有1层临时护盾(着陆后立刻消失，且重新起飞时不会补充护盾)，临时护盾会在技能结束后立刻消失。",
+            "zh_tw": "開局60秒冷卻，使用後開啟創造飛行能力(雙擊空格起飛)，技能期間浮空時擁有1層臨時護盾(著陸後立刻消失，且重新起飛時不會補充護盾)，臨時護盾會在技能結束後立刻消失。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 103,
+          "text": {
+            "en_us": "240s cooldown after the skill ends.",
+            "zh_cn": "技能结束后进入240秒冷却。",
+            "zh_tw": "技能結束後進入240秒冷卻。"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 113
+        },
+        {
+          "type": "text",
+          "duration": 74,
+          "text": {
+            "en_us": "Passive - Feedback:",
+            "zh_cn": "被动-反哺：",
+            "zh_tw": "被動-反哺："
+          },
+          "point": [
+            3.0,
+            3.6,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 84
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Shadow Falcon",
+        "zh_cn": "影隼",
+        "zh_tw": "影隼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "shadow_falcon_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "shadow_falcon",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Shop: knife, throwing knife, grenade, crowbar, lockpick, Jump Boost 2, elytra (comes with 10 fireworks).",
+            "zh_cn": "商店可购买刀、飞刀、手榴弹、撬棍、撬锁器、跳跃提升2、鞘翅(购买时附赠10个烟花火箭)。",
+            "zh_tw": "商店可購買刀、飛刀、手榴彈、撬棍、撬鎖器、跳躍提升2、鞘翅(購買時附贈10個煙花火箭)。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "bond",
+      "title": {
+        "en_us": "Shadow Falcon",
+        "zh_cn": "影隼",
+        "zh_tw": "影隼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "shadow_falcon_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "shadow_falcon_ally",
+            "outline": -13676721
+          }
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "attachKeyFrame": true,
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Spawns bound to the Pilot (Passenger team).",
+                "zh_cn": "与飞行员(平民阵营)绑定生成。",
+                "zh_tw": "與飛行員(平民陣營)綁定生成。"
+              }
+            ],
+            "color": -13676721
+          }
+        },
+        {
+          "type": "text",
+          "duration": 117,
+          "text": {
+            "en_us": "Spawns bound to the Pilot (Passenger team).",
+            "zh_cn": "与飞行员(平民阵营)绑定生成。",
+            "zh_tw": "與飛行員(平民陣營)綁定生成。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 127
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Shadow Falcon",
+        "zh_cn": "影隼",
+        "zh_tw": "影隼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "shadow_falcon_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 70,
+          "text": {
+            "en_us": "Only on air maps.",
+            "zh_cn": "仅在空中地图刷新。",
+            "zh_tw": "僅在空中地圖刷新。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "text",
+          "duration": 144,
+          "text": {
+            "en_us": "When Shadow Falcon dies, all living Killers get a jetpack.",
+            "zh_cn": "影隼死亡时，所有存活的杀手将获得一个喷气背包。",
+            "zh_tw": "影隼死亡時，所有存活的殺手將獲得一個噴氣背包。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 154
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

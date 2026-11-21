@@ -1,0 +1,195 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.abnormal",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "异常",
+    "zh_cn": "异常",
+    "zh_tw": "異常"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "异常",
+        "zh_cn": "异常",
+        "zh_tw": "異常"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "abnormal_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 67,
+          "text": {
+            "en_us": "Neutral faction",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 77
+        },
+        {
+          "type": "text",
+          "duration": 58,
+          "text": {
+            "en_us": "你察觉到身体的异样。",
+            "zh_cn": "你察觉到身体的异样。",
+            "zh_tw": "你察覺到身體的異樣。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 68
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "异常",
+        "zh_cn": "异常",
+        "zh_tw": "異常"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "abnormal_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 85,
+          "text": {
+            "en_us": "Does not spawn naturally.",
+            "zh_cn": "不会自然刷新。",
+            "zh_tw": "不會自然刷新。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 95
+        },
+        {
+          "type": "text",
+          "duration": 79,
+          "text": {
+            "en_us": "You have no abilities.",
+            "zh_cn": "没有任何能力。",
+            "zh_tw": "沒有任何能力。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 89
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You only appear inside the command block event, temporarily replacing your role during the minute before you become a killer.",
+            "zh_cn": "只会在命令方块事件里，成为杀手前的一分钟内暂时替换你的职业。",
+            "zh_tw": "只會在命令方塊事件裏，成為殺手前的一分鐘內暫時替換你的職業。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

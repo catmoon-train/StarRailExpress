@@ -1,0 +1,400 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.thief",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Thief",
+    "zh_cn": "小偷",
+    "zh_tw": "小偷"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_room"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Thief",
+        "zh_cn": "小偷",
+        "zh_tw": "小偷"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "thief_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 106,
+          "text": {
+            "en_us": "Has its own independent win condition",
+            "zh_cn": "拥有独立胜利条件",
+            "zh_tw": "擁有獨立勝利條件"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 116
+        },
+        {
+          "type": "text",
+          "duration": 121,
+          "text": {
+            "en_us": "Your craving for money outmatches everyone's!",
+            "zh_cn": "你对金钱的渴望大过所有人！",
+            "zh_tw": "你對金錢的渴望大過所有人！"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 131
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Thief",
+        "zh_cn": "小偷",
+        "zh_tw": "小偷"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "thief_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Each item steal takes a random item from the target's inventory (cannot steal letters, food, drinks, or Civilian-team pistols).",
+            "zh_cn": "小偷每次偷物品会偷取目标玩家物品栏内的随机物品(无法偷信件，食物，饮料和平民阵营的手枪)。",
+            "zh_tw": "小偷每次偷物品會偷取目標玩家物品欄內的隨機物品(無法偷信件，食物，飲料和平民陣營的手槍)。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 162,
+          "text": {
+            "en_us": "Win condition: hold the Gold Ingot and return to your room to sleep.",
+            "zh_cn": "胜利条件：小偷手持金锭并回到房间睡觉。",
+            "zh_tw": "勝利條件：小偷手持金錠並回到房間睡覺。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 172
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Thief",
+        "zh_cn": "小偷",
+        "zh_tw": "小偷"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "thief_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Press the skill-switch key (default Y) to switch modes: Steal Coin, Steal Item, Sell Item; press the skill key while aimed at a player to use (skill cooldown 30s; failed steals do not trigger cooldown; selling has no cooldown)",
+                "zh_cn": "你可以按下技能切换键（默认Y键）切换模式：偷钱、偷物品、卖物品，对玩家按下技能键释放技能（技能冷却为30s，偷取失败不会使技能进入冷却，卖物品无冷却）",
+                "zh_tw": "你可以按下技能切換鍵（默認Y鍵）切換模式：偷錢、偷物品、賣物品，對玩家按下技能鍵釋放技能（技能冷卻為30s，偷取失敗不會使技能進入冷卻，賣物品無冷卻）"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Press the skill-switch key (default Y) to switch modes: Steal Coin, Steal Item, Sell Item; press the skill key while aimed at a player to use (skill cooldown 30s; failed steals do not trigger cooldown; selling has no cooldown)",
+            "zh_cn": "你可以按下技能切换键（默认Y键）切换模式：偷钱、偷物品、卖物品，对玩家按下技能键释放技能（技能冷却为30s，偷取失败不会使技能进入冷却，卖物品无冷却）",
+            "zh_tw": "你可以按下技能切換鍵（默認Y鍵）切換模式：偷錢、偷物品、賣物品，對玩家按下技能鍵釋放技能（技能冷卻為30s，偷取失敗不會使技能進入冷卻，賣物品無冷卻）"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Thief",
+        "zh_cn": "小偷",
+        "zh_tw": "小偷"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "thief_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "thief",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When the Thief's coin reaches a threshold (total players at game start × 55 coin), the money automatically converts into Gold Ingots.",
+            "zh_cn": "当小偷的金币数达到一定数量时(游戏开始时的总人数*55金币)，会自动将钱转化为金锭。",
+            "zh_tw": "當小偷的金幣數達到一定數量時(遊戲開始時的總人數*55金幣)，會自動將錢轉化為金錠。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Each coin steal takes 40% of the target's coin (minimum 100 coin); if the target has fewer than 100 coin, you cannot steal; the robbed player loses the corresponding coin.",
+            "zh_cn": "小偷每次偷钱能够偷取目标40%的金币(最低100金币)，如果目标金币数量不足100金币则无法偷取，被偷取金币的玩家会减少相应的金币。",
+            "zh_tw": "小偷每次偷錢能夠偷取目標40%的金幣(最低100金幣)，如果目標金幣數量不足100金幣則無法偷取，被偷取金幣的玩家會減少相應的金幣。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 142,
+          "text": {
+            "en_us": "The Thief's sell mode sells the item in hand for 50 coin.",
+            "zh_cn": "小偷的卖物品模式可以将手上的物品卖掉并获得50金币。",
+            "zh_tw": "小偷的賣物品模式可以將手上的物品賣掉並獲得50金幣。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 152
+        },
+        {
+          "type": "text",
+          "duration": 119,
+          "text": {
+            "en_us": "Each player the Thief kills grants 200 coin.",
+            "zh_cn": "小偷每杀一名玩家会给予小偷200金币。",
+            "zh_tw": "小偷每殺一名玩家會給予小偷200金幣。"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 129
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

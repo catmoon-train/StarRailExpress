@@ -1,0 +1,403 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.dummy_bird",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Dummy Bird",
+    "zh_cn": "呆呆鸟",
+    "zh_tw": "呆呆鳥"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_room"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Dummy Bird",
+        "zh_cn": "呆呆鸟",
+        "zh_tw": "呆呆鳥"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dummy_bird_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 99,
+          "text": {
+            "en_us": "Has an independent win condition.",
+            "zh_cn": "拥有独立胜利条件。",
+            "zh_tw": "擁有獨立勝利條件。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 109
+        },
+        {
+          "type": "text",
+          "duration": 112,
+          "text": {
+            "en_us": "Get yourself voted out during a meeting.",
+            "zh_cn": "在会议投票中让自己被投票出局。",
+            "zh_tw": "在會議投票中讓自己被投票出局。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 122
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Dummy Bird",
+        "zh_cn": "呆呆鸟",
+        "zh_tw": "呆呆鳥"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dummy_bird_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 117,
+          "text": {
+            "en_us": "Starts with a fake knife and fake revolver.",
+            "zh_cn": "开局携带假刀与假左轮手枪。",
+            "zh_tw": "開局攜帶假刀與假左輪手槍。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 127
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Dummy Bird",
+        "zh_cn": "呆呆鸟",
+        "zh_tw": "呆呆鳥"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dummy_bird_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dummy_bird_target",
+            "outline": -65536
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Killer instinct can't see through you.",
+                "zh_cn": "杀手直觉无法透视到你。",
+                "zh_tw": "殺手直覺無法透視到你。"
+              },
+              {
+                "en_us": "Has instinct see-through but can't see players.",
+                "zh_cn": "拥有本能透视，但无法透视玩家。",
+                "zh_tw": "擁有本能透視，但無法透視玩家。"
+              },
+              {
+                "en_us": "Won't be seen by Killer see-through.",
+                "zh_cn": "不会被杀手透视看到。",
+                "zh_tw": "不會被殺手透視看到。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 108,
+          "text": {
+            "en_us": "Killer instinct can't see through you.",
+            "zh_cn": "杀手直觉无法透视到你。",
+            "zh_tw": "殺手直覺無法透視到你。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 118
+        },
+        {
+          "type": "text",
+          "duration": 124,
+          "text": {
+            "en_us": "Has instinct see-through but can't see players.",
+            "zh_cn": "拥有本能透视，但无法透视玩家。",
+            "zh_tw": "擁有本能透視，但無法透視玩家。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 134
+        },
+        {
+          "type": "text",
+          "duration": 104,
+          "text": {
+            "en_us": "Won't be seen by Killer see-through.",
+            "zh_cn": "不会被杀手透视看到。",
+            "zh_tw": "不會被殺手透視看到。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 114
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Dummy Bird",
+        "zh_cn": "呆呆鸟",
+        "zh_tw": "呆呆鳥"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dummy_bird_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 97,
+          "text": {
+            "en_us": "Only on maps with meeting votes.",
+            "zh_cn": "仅刷新在启用会议投票的地图中。",
+            "zh_tw": "僅刷新在啟用會議投票的地圖中。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 107
+        },
+        {
+          "type": "text",
+          "duration": 151,
+          "text": {
+            "en_us": "In meeting votes, every vote for the Dummy Bird counts as 1.5.",
+            "zh_cn": "会议投票中投给呆呆鸟的每一票实际按1.5票计算。",
+            "zh_tw": "會議投票中投給呆呆鳥的每一票實際按1.5票計算。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 161
+        },
+        {
+          "type": "text",
+          "duration": 140,
+          "text": {
+            "en_us": "Being voted out in a meeting grants independent victory.",
+            "zh_cn": "在会议投票中被投票出局即可获得独立胜利。",
+            "zh_tw": "在會議投票中被投票出局即可獲得獨立勝利。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 150
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

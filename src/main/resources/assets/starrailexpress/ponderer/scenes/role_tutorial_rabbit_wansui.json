@@ -1,0 +1,422 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.rabbit_wansui",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Rabbit wansui",
+    "zh_cn": "兔兔万岁",
+    "zh_tw": "兔兔萬歲"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_carriage"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Rabbit wansui",
+        "zh_cn": "兔兔万岁",
+        "zh_tw": "兔兔萬歲"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "rabbit_wansui_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 106,
+          "text": {
+            "en_us": "Has its own independent win condition",
+            "zh_cn": "拥有独立胜利条件",
+            "zh_tw": "擁有獨立勝利條件"
+          },
+          "point": [
+            4.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 116
+        },
+        {
+          "type": "text",
+          "duration": 182,
+          "text": {
+            "en_us": "Every passenger on the train — all of them! All of them! — turn into rabbits!!!",
+            "zh_cn": "把列车上的乘客，全部！全部！变成兔兔！！！",
+            "zh_tw": "把列車上的乘客，全部！全部！變成兔兔！！！"
+          },
+          "point": [
+            4.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 192
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Rabbit wansui",
+        "zh_cn": "兔兔万岁",
+        "zh_tw": "兔兔萬歲"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "rabbit_wansui_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              4.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "You can use the skill to become a Rabbit at any time.",
+                "zh_cn": "你可以随时使用技能变成兔兔。",
+                "zh_tw": "你可以隨時使用技能變成兔兔。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 135,
+          "text": {
+            "en_us": "You can use the skill to become a Rabbit at any time.",
+            "zh_cn": "你可以随时使用技能变成兔兔。",
+            "zh_tw": "你可以隨時使用技能變成兔兔。"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 145
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Rabbit wansui",
+        "zh_cn": "兔兔万岁",
+        "zh_tw": "兔兔萬歲"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "rabbit_wansui_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "rabbit_wansui",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 173,
+          "text": {
+            "en_us": "Use the skill to spend 25 coin and turn players on the train into Rabbits!",
+            "zh_cn": "使用技能花费25金币将列车上的玩家变为兔兔！",
+            "zh_tw": "使用技能花費25金幣將列車上的玩家變為兔兔！"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 183
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "title": {
+        "en_us": "Rabbit wansui",
+        "zh_cn": "兔兔万岁",
+        "zh_tw": "兔兔萬歲"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "rabbit_wansui_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "rabbit_wansui_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "rabbit_wansui_victim",
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "delay": 14
+          }
+        },
+        {
+          "type": "text",
+          "duration": 148,
+          "text": {
+            "en_us": "After you die, players turned into Rabbits revert to normal.",
+            "zh_cn": "你死后变为兔兔的玩家将会恢复原状。",
+            "zh_tw": "你死後變為兔兔的玩家將會恢復原狀。"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 158
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Rabbit wansui",
+        "zh_cn": "兔兔万岁",
+        "zh_tw": "兔兔萬歲"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "rabbit_wansui_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 121,
+          "text": {
+            "en_us": "You win when all players have become Rabbits.",
+            "zh_cn": "当所有玩家均变成兔兔时你获胜。",
+            "zh_tw": "當所有玩家均變成兔兔時你獲勝。"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 131
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "After being turned into a Rabbit, a player cannot act for 5s and cannot speak for 30s.",
+            "zh_cn": "玩家被变为兔兔后将会在5s内无法行动，30s内无法说话。",
+            "zh_tw": "玩家被變為兔兔後將會在5s內無法行動，30s內無法說話。"
+          },
+          "point": [
+            4.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

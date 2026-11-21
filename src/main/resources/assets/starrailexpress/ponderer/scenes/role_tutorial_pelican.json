@@ -1,0 +1,695 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.pelican",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Pelican",
+    "zh_cn": "鹈鹕",
+    "zh_tw": "鵜鶘"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_room"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Pelican",
+        "zh_cn": "鹈鹕",
+        "zh_tw": "鵜鶘"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pelican_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 97,
+          "text": {
+            "en_us": "Has an independent win condition",
+            "zh_cn": "拥有独立胜利条件",
+            "zh_tw": "擁有獨立勝利條件"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 107
+        },
+        {
+          "type": "text",
+          "duration": 90,
+          "text": {
+            "en_us": "Eat to your heart's content!",
+            "zh_cn": "大吃特吃！",
+            "zh_tw": "大吃特吃！"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 100
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Pelican",
+        "zh_cn": "鹈鹕",
+        "zh_tw": "鵜鶘"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pelican_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Win condition: swallow 70%-1 of starting players (each player counted once) or be the only one left.",
+            "zh_cn": "胜利条件：吞噬过开局玩家数70%-1的玩家（每位玩家只算一次吞噬）或场上只剩下鹈鹕。",
+            "zh_tw": "勝利條件：吞噬過開局玩家數70%-1的玩家（每位玩家只算一次吞噬）或場上只剩下鵜鶘。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Pelican",
+        "zh_cn": "鹈鹕",
+        "zh_tw": "鵜鶘"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pelican_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Skill: press the skill key to swallow living players within 2.15 blocks ahead.",
+                "zh_cn": "技能：按技能键吞噬前方2.15格内的存活玩家进肚子里。",
+                "zh_tw": "技能：按技能鍵吞噬前方2.15格內的存活玩家進肚子裏。"
+              },
+              {
+                "en_us": "Sneak + skill key: spit out the last swallowed player.",
+                "zh_cn": "蹲下+技能键：吐出最后吞噬的玩家。",
+                "zh_tw": "蹲下+技能鍵：吐出最後吞噬的玩家。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 180,
+          "text": {
+            "en_us": "Skill: press the skill key to swallow living players within 2.15 blocks ahead.",
+            "zh_cn": "技能：按技能键吞噬前方2.15格内的存活玩家进肚子里。",
+            "zh_tw": "技能：按技能鍵吞噬前方2.15格內的存活玩家進肚子裏。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 190
+        },
+        {
+          "type": "text",
+          "duration": 137,
+          "text": {
+            "en_us": "Sneak + skill key: spit out the last swallowed player.",
+            "zh_cn": "蹲下+技能键：吐出最后吞噬的玩家。",
+            "zh_tw": "蹲下+技能鍵：吐出最後吞噬的玩家。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 147
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "title": {
+        "en_us": "Pelican",
+        "zh_cn": "鹈鹕",
+        "zh_tw": "鵜鶘"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pelican_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pelican_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "pelican_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "delay": 14
+          }
+        },
+        {
+          "type": "text",
+          "duration": 135,
+          "text": {
+            "en_us": "The Pelican spits out all swallowed players on death.",
+            "zh_cn": "鹈鹕死后会吐出所有被吞噬的玩家。",
+            "zh_tw": "鵜鶘死後會吐出所有被吞噬的玩家。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 145
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Pelican",
+        "zh_cn": "鹈鹕",
+        "zh_tw": "鵜鶘"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pelican_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pelican_target",
+            "outline": -9467356
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Has Pelican see-through within 25 blocks; swallowed players show an orange outline.",
+                "zh_cn": "拥有鹈鹕透视，能够透视25格内的玩家，透视被吞噬过的玩家为橙色边框。",
+                "zh_tw": "擁有鵜鶘透視，能夠透視25格內的玩家，透視被吞噬過的玩家為橙色邊框。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 189,
+          "text": {
+            "en_us": "Has Pelican see-through within 25 blocks; swallowed players show an orange outline.",
+            "zh_cn": "拥有鹈鹕透视，能够透视25格内的玩家，透视被吞噬过的玩家为橙色边框。",
+            "zh_tw": "擁有鵜鶘透視，能夠透視25格內的玩家，透視被吞噬過的玩家為橙色邊框。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 199
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Pelican",
+        "zh_cn": "鹈鹕",
+        "zh_tw": "鵜鶘"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pelican_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pelican_psycho",
+            "outline": -9467356
+          }
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "While the Pelican lives, the game doesn't end (doesn't affect Plague Time).",
+                "zh_cn": "鹈鹕存活时游戏不会结束(不会影响疫使时刻)。",
+                "zh_tw": "鵜鶘存活時遊戲不會結束(不會影響疫使時刻)。"
+              },
+              {
+                "en_us": "When the Loose Moment begins, the Pelican spits out everyone.",
+                "zh_cn": "亡命时刻开始时，鹈鹕会吐出肚子里的所有玩家。",
+                "zh_tw": "亡命時刻開始時，鵜鶘會吐出肚子裏的所有玩家。"
+              },
+              {
+                "en_us": "- If swallowed during Rampage, Rampage ends immediately",
+                "zh_cn": "如果狂暴模式期间被吞入，则立刻结束狂暴模式",
+                "zh_tw": "如果狂暴模式期間被吞入，則立刻結束狂暴模式"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 175,
+          "text": {
+            "en_us": "While the Pelican lives, the game doesn't end (doesn't affect Plague Time).",
+            "zh_cn": "鹈鹕存活时游戏不会结束(不会影响疫使时刻)。",
+            "zh_tw": "鵜鶘存活時遊戲不會結束(不會影響疫使時刻)。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 185
+        },
+        {
+          "type": "text",
+          "duration": 149,
+          "text": {
+            "en_us": "When the Loose Moment begins, the Pelican spits out everyone.",
+            "zh_cn": "亡命时刻开始时，鹈鹕会吐出肚子里的所有玩家。",
+            "zh_tw": "亡命時刻開始時，鵜鶘會吐出肚子裏的所有玩家。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 159
+        },
+        {
+          "type": "text",
+          "duration": 139,
+          "text": {
+            "en_us": "- If swallowed during Rampage, Rampage ends immediately",
+            "zh_cn": "如果狂暴模式期间被吞入，则立刻结束狂暴模式",
+            "zh_tw": "如果狂暴模式期間被吞入，則立刻結束狂暴模式"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 149
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Pelican",
+        "zh_cn": "鹈鹕",
+        "zh_tw": "鵜鶘"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pelican_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 166,
+          "text": {
+            "en_us": "Only in matches of 12+ players and mutually exclusive with some roles.",
+            "zh_cn": "仅在12人及以上的对局中出现且与部分职业互斥生成。",
+            "zh_tw": "僅在12人及以上的對局中出現且與部分職業互斥生成。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 176
+        },
+        {
+          "type": "text",
+          "duration": 189,
+          "text": {
+            "en_us": "Swallowed players can only voice-chat with the Pelican and other swallowed players.",
+            "zh_cn": "被吞噬的玩家只能与鹈鹕和肚子里的其他玩家语音交流。",
+            "zh_tw": "被吞噬的玩家只能與鵜鶘和肚子裏的其他玩家語音交流。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 199
+        },
+        {
+          "type": "text",
+          "duration": 108,
+          "text": {
+            "en_us": "Swallowed players don't count as dead.",
+            "zh_cn": "被吞噬的玩家不算作死亡。",
+            "zh_tw": "被吞噬的玩家不算作死亡。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 118
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Meeting-map special: when the Pelican is voted out, players in its belly die instantly.",
+            "zh_cn": "会议地图特殊适配: 当鹈鹕被票出时，鹈鹕肚子里的玩家将立即死亡",
+            "zh_tw": "會議地圖特殊適配: 當鵜鶘被票出時，鵜鶘肚子裏的玩家將立即死亡"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

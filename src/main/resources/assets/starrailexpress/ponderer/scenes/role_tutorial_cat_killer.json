@@ -1,0 +1,322 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.cat_killer",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Catgirl Killer",
+    "zh_cn": "猫娘杀手",
+    "zh_tw": "貓娘殺手"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Catgirl Killer",
+        "zh_cn": "猫娘杀手",
+        "zh_tw": "貓娘殺手"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "cat_killer_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 79,
+          "text": {
+            "en_us": "Nya~ NekoNeko Punchu!~",
+            "zh_cn": "喵~ NekoNeko Punchu!~",
+            "zh_tw": "喵~ NekoNeko Punchu!~"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 89
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Catgirl Killer",
+        "zh_cn": "猫娘杀手",
+        "zh_tw": "貓娘殺手"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "cat_killer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "cat_killer",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 119,
+          "text": {
+            "en_us": "Cannot buy Killer items except the lockpick.",
+            "zh_cn": "无法购买除了开锁器以外的杀手物品。",
+            "zh_tw": "無法購買除了開鎖器以外的殺手物品。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 129
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Catgirl Killer",
+        "zh_cn": "猫娘杀手",
+        "zh_tw": "貓娘殺手"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "cat_killer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "cat_killer_psycho",
+            "skin": "starrailexpress:textures/entity/custom_psycho/cat_killer.png",
+            "outline": -44916
+          }
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "After reviving it immediately enters Rampage, then dies when Rampage ends.",
+                "zh_cn": "复活后立马开启狂暴状态，但狂暴状态结束后会死亡。",
+                "zh_tw": "復活後立馬開啟狂暴狀態，但狂暴狀態結束後會死亡。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 173,
+          "text": {
+            "en_us": "After reviving it immediately enters Rampage, then dies when Rampage ends.",
+            "zh_cn": "复活后立马开启狂暴状态，但狂暴状态结束后会死亡。",
+            "zh_tw": "復活後立馬開啟狂暴狀態，但狂暴狀態結束後會死亡。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 183
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Catgirl Killer",
+        "zh_cn": "猫娘杀手",
+        "zh_tw": "貓娘殺手"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "cat_killer_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 68,
+          "text": {
+            "en_us": "Easter egg role.",
+            "zh_cn": "彩蛋职业。",
+            "zh_tw": "彩蛋職業。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 78
+        },
+        {
+          "type": "text",
+          "duration": 121,
+          "text": {
+            "en_us": "Can only be summoned by the Catgirl Summoner.",
+            "zh_cn": "只能被猫娘召唤师召唤。",
+            "zh_tw": "只能被貓娘召喚師召喚。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 131
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

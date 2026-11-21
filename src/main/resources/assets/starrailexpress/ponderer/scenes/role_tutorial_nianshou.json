@@ -1,0 +1,455 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.nianshou",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Nian Beast",
+    "zh_cn": "年兽",
+    "zh_tw": "年獸"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Nian Beast",
+        "zh_cn": "年兽",
+        "zh_tw": "年獸"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "nianshou_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 106,
+          "text": {
+            "en_us": "Has its own independent win condition",
+            "zh_cn": "拥有独立胜利条件",
+            "zh_tw": "擁有獨立勝利條件"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 116
+        },
+        {
+          "type": "text",
+          "duration": 184,
+          "text": {
+            "en_us": "You follow the scent of the New Year; avoid firecrackers and survive to the end!",
+            "zh_cn": "你循着年味而来，远离鞭炮并努力活到最后！",
+            "zh_tw": "你循著年味而來，遠離鞭炮並努力活到最後！"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 194
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Nian Beast",
+        "zh_cn": "年兽",
+        "zh_tw": "年獸"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "nianshou_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Passive - New Year's Eve: while you are alive, everyone gets 4 Firecrackers; if (2/3 of total players) firecrackers are around the Nian Beast (5-block radius), it dies.",
+                "zh_cn": "被动-除岁：当你存在于场上时，所有人获得4个鞭炮，如果年兽周围(5格半径)有(2/3总人数)个鞭炮则年兽死亡。",
+                "zh_tw": "被動-除歲：當你存在於場上時，所有人獲得4個鞭炮，如果年獸周圍(5格半徑)有(2/3總人數)個鞭炮則年獸死亡。"
+              },
+              {
+                "en_us": "Active - Scatter Wealth: every 2 tasks completed grants a Red Packet; use the skill on someone to send it, and after 15s they get a notice and 100 coin.",
+                "zh_cn": "主动-散财：你每完成2个任务会获得1个红包，对他人使用技能发放红包可使对方在15s后收到提示并获得100金币。",
+                "zh_tw": "主動-散財：你每完成2個任務會獲得1個紅包，對他人使用技能發放紅包可使對方在15s後收到提示並獲得100金幣。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Passive - New Year's Eve: while you are alive, everyone gets 4 Firecrackers; if (2/3 of total players) firecrackers are around the Nian Beast (5-block radius), it dies.",
+            "zh_cn": "被动-除岁：当你存在于场上时，所有人获得4个鞭炮，如果年兽周围(5格半径)有(2/3总人数)个鞭炮则年兽死亡。",
+            "zh_tw": "被動-除歲：當你存在於場上時，所有人獲得4個鞭炮，如果年獸周圍(5格半徑)有(2/3總人數)個鞭炮則年獸死亡。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Active - Scatter Wealth: every 2 tasks completed grants a Red Packet; use the skill on someone to send it, and after 15s they get a notice and 100 coin.",
+            "zh_cn": "主动-散财：你每完成2个任务会获得1个红包，对他人使用技能发放红包可使对方在15s后收到提示并获得100金币。",
+            "zh_tw": "主動-散財：你每完成2個任務會獲得1個紅包，對他人使用技能發放紅包可使對方在15s後收到提示並獲得100金幣。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Nian Beast",
+        "zh_cn": "年兽",
+        "zh_tw": "年獸"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "nianshou_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "nianshou",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Passive - Ghostly: when in darkness, gain a Shield Potion (once per match), Speed II, and Night Vision; the shop sells Lights Out",
+            "zh_cn": "被动-神出鬼没：当你处于黑暗环境中时可获得一个护盾试剂(一局仅触发一次)、速度二、夜视，可以在商店中购买关灯",
+            "zh_tw": "被動-神出鬼沒：當你處於黑暗環境中時可獲得一個護盾試劑(一局僅觸發一次)、速度二、夜視，可以在商店中購買關燈"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "panel",
+      "title": {
+        "en_us": "Nian Beast",
+        "zh_cn": "年兽",
+        "zh_tw": "年獸"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "nianshou_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.label.notes",
+            "lines": [
+              {
+                "en_us": "Win condition: if at settlement all Killers are dead and the Nian Beast survives (except when the Gambler / Recorder wins), the Nian Beast wins.",
+                "zh_cn": "胜利条件：若游戏结算时杀手全部阵亡且年兽存活(赌徒/记录员获胜除外)，则年兽胜利。",
+                "zh_tw": "勝利條件：若遊戲結算時殺手全部陣亡且年獸存活(賭徒/記錄員獲勝除外)，則年獸勝利。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Win condition: if at settlement all Killers are dead and the Nian Beast survives (except when the Gambler / Recorder wins), the Nian Beast wins.",
+            "zh_cn": "胜利条件：若游戏结算时杀手全部阵亡且年兽存活(赌徒/记录员获胜除外)，则年兽胜利。",
+            "zh_tw": "勝利條件：若遊戲結算時殺手全部陣亡且年獸存活(賭徒/記錄員獲勝除外)，則年獸勝利。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "mood",
+      "title": {
+        "en_us": "Nian Beast",
+        "zh_cn": "年兽",
+        "zh_tw": "年獸"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "nianshou_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_mood",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.sanity",
+            "before": 0.35,
+            "after": 0.85,
+            "lines": [
+              {
+                "en_us": "You must do tasks to maintain Sanity, have 1.5x stamina, and show as a good player in Killer see-through.",
+                "zh_cn": "你需要做任务维持san值，拥有1.5倍的体力，在杀手透视中为好人。",
+                "zh_tw": "你需要做任務維持san值，擁有1.5倍的體力，在殺手透視中為好人。"
+              },
+              {
+                "en_us": "Passive - Gong Xi Fa Cai: at 5 minutes remaining, all living players get 100 coin and full Sanity.",
+                "zh_cn": "被动-恭喜发财：当游戏剩余5分钟时，全场存活的玩家获得100金币并回满san值。",
+                "zh_tw": "被動-恭喜發財：當遊戲剩餘5分鐘時，全場存活的玩家獲得100金幣並回滿san值。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You must do tasks to maintain Sanity, have 1.5x stamina, and show as a good player in Killer see-through.",
+            "zh_cn": "你需要做任务维持san值，拥有1.5倍的体力，在杀手透视中为好人。",
+            "zh_tw": "你需要做任務維持san值，擁有1.5倍的體力，在殺手透視中為好人。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Passive - Gong Xi Fa Cai: at 5 minutes remaining, all living players get 100 coin and full Sanity.",
+            "zh_cn": "被动-恭喜发财：当游戏剩余5分钟时，全场存活的玩家获得100金币并回满san值。",
+            "zh_tw": "被動-恭喜發財：當遊戲剩餘5分鐘時，全場存活的玩家獲得100金幣並回滿san值。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

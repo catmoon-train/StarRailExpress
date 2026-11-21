@@ -1,0 +1,339 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.white_eyes",
+  "items": [
+    "noellesroles:eye_needle",
+    "trainmurdermystery:lockpick"
+  ],
+  "title": {
+    "en_us": "白瞳",
+    "zh_cn": "白瞳",
+    "zh_tw": "白瞳"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "白瞳",
+        "zh_cn": "白瞳",
+        "zh_tw": "白瞳"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "white_eyes_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Killer faction",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "Only produced by the command block event.",
+            "zh_cn": "仅由命令方块事件产生。",
+            "zh_tw": "僅由命令方塊事件產生。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 123
+        },
+        {
+          "type": "text",
+          "duration": 56,
+          "text": {
+            "en_us": "你看到我了，对吧。",
+            "zh_cn": "你看到我了，对吧。",
+            "zh_tw": "你看到我了，對吧。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 66
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "白瞳",
+        "zh_cn": "白瞳",
+        "zh_tw": "白瞳"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "white_eyes_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Skill \"white flash\": blinds for 3.5 seconds everyone within 14 blocks who is looking at you and makes them glow. You are blinded for 1 second as well, cooldown 30 seconds.",
+                "zh_cn": "技能白闪：灼瞎 14 格内正在看你的人 3.5 秒，并让他们发光。你自己也会失明 1 秒，冷却 30 秒。",
+                "zh_tw": "技能白閃：灼瞎 14 格內正在看你的人 3.5 秒，並讓他們發光。你自己也會失明 1 秒，冷卻 30 秒。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skill \"white flash\": blinds for 3.5 seconds everyone within 14 blocks who is looking at you and makes them glow. You are blinded for 1 second as well, cooldown 30 seconds.",
+            "zh_cn": "技能白闪：灼瞎 14 格内正在看你的人 3.5 秒，并让他们发光。你自己也会失明 1 秒，冷却 30 秒。",
+            "zh_tw": "技能白閃：灼瞎 14 格內正在看你的人 3.5 秒，並讓他們發光。你自己也會失明 1 秒，冷卻 30 秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "白瞳",
+        "zh_cn": "白瞳",
+        "zh_tw": "白瞳"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "white_eyes_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "white_eyes_target",
+            "outline": -1644811
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Every 12 seconds your eyes glow on their own for 2 seconds.",
+                "zh_cn": "每过 12 秒眼睛会自己发光 2 秒。",
+                "zh_tw": "每過 12 秒眼睛會自己發光 2 秒。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 146,
+          "text": {
+            "en_us": "Every 12 seconds your eyes glow on their own for 2 seconds.",
+            "zh_cn": "每过 12 秒眼睛会自己发光 2 秒。",
+            "zh_tw": "每過 12 秒眼睛會自己發光 2 秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 156
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "白瞳",
+        "zh_cn": "白瞳",
+        "zh_tw": "白瞳"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "white_eyes_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 139,
+          "text": {
+            "en_us": "The pupil needle can only kill players who are blinded.",
+            "zh_cn": "瞳针只能刺杀处于失明状态的玩家。",
+            "zh_tw": "瞳針只能刺殺處於失明狀態的玩家。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 149
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

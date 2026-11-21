@@ -1,0 +1,625 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.arsonist",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Arsonist",
+    "zh_cn": "纵火犯",
+    "zh_tw": "縱火犯"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_graveyard"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Arsonist",
+        "zh_cn": "纵火犯",
+        "zh_tw": "縱火犯"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "arsonist_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 106,
+          "text": {
+            "en_us": "Has its own independent win condition",
+            "zh_cn": "拥有独立胜利条件",
+            "zh_tw": "擁有獨立勝利條件"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 116
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Douse 80% of other living players and ignite; eliminate everyone else during Arson Moment to win",
+            "zh_cn": "烧光他们！",
+            "zh_tw": "燒光他們！"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Arsonist",
+        "zh_cn": "纵火犯",
+        "zh_tw": "縱火犯"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "arsonist_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You start with a Jerry Can and a Lighter, and other players can see both items in your hands",
+            "zh_cn": "开局持有汽油桶和打火机，其他人也能看见你手中的这两件道具",
+            "zh_tw": "開局持有汽油桶和打火機，其他人也能看見你手中的這兩件道具"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Right-click a player with the Jerry Can to douse them in gasoline; it has a short cooldown after each use",
+            "zh_cn": "手持汽油桶右键玩家可以给对方浇上汽油，每次使用后需要等待一段时间冷却",
+            "zh_tw": "手持汽油桶右鍵玩家可以給對方澆上汽油，每次使用後需要等待一段時間冷卻"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "If too few players are doused, the first right-click warns you; right-click again within 3 seconds and the failed ignition kills you",
+            "zh_cn": "浇油人数不足时右键打火机会先收到一次警告，3秒内再次右键就会点火失败烧死自己",
+            "zh_tw": "澆油人數不足時右鍵打火機會先收到一次警告，3秒內再次右鍵就會點火失敗燒死自己"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "During Arson Moment you wear a Rampage skin, gain Speed I and infinite stamina, and receive a Flamethrower; you can freely switch held items, but cannot drop them",
+            "zh_cn": "纵火犯时刻内你会换上疯魔皮肤，获得速度1和无限体力，并拿到一把喷火枪；期间可以自由切换手持物品，但无法丢弃物品",
+            "zh_tw": "縱火犯時刻內你會換上瘋魔皮膚，獲得速度1和無限體力，並拿到一把噴火槍；期間可以自由切換手持物品，但無法丟棄物品"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Hold right-click with the Flamethrower to spray a 5-block cone in front of you; walls block the flames",
+            "zh_cn": "喷火枪长按右键可向前方5格锥形范围内喷火，火焰会被墙体遮挡",
+            "zh_tw": "噴火槍長按右鍵可向前方5格錐形範圍內噴火，火焰會被牆體遮擋"
+          },
+          "point": [
+            3.0,
+            3.6,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The Large Oil Can is single-use: right-click to throw it, then steer with WASD and your view, Space to rise and Sneak to descend; on landing or impact it douses other living players within 4.5 blocks, and the throw has a 60-second cooldown",
+            "zh_cn": "大油罐是一次性道具，右键投掷后可用WASD和视角操控，空格上升、潜行下降，落地或碰撞后给周围4.5格内的其他存活玩家浇上汽油，投掷后需等待60秒冷却",
+            "zh_tw": "大油罐是一次性道具，右鍵投擲後可用WASD和視角操控，空格上升、潛行下降，落地或碰撞後給周圍4.5格內的其他存活玩家澆上汽油，投擲後需等待60秒冷卻"
+          },
+          "point": [
+            3.0,
+            4.05,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Arsonist",
+        "zh_cn": "纵火犯",
+        "zh_tw": "縱火犯"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "arsonist_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "The Lighter has no cooldown; once 80% of the other living players are doused, right-click it to ignite",
+                "zh_cn": "打火机没有冷却，当其他存活玩家中有80%的人已被浇上汽油时，右键打火机即可点火",
+                "zh_tw": "打火機沒有冷卻，當其他存活玩家中有80%的人已被澆上汽油時，右鍵打火機即可點火"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The Lighter has no cooldown; once 80% of the other living players are doused, right-click it to ignite",
+            "zh_cn": "打火机没有冷却，当其他存活玩家中有80%的人已被浇上汽油时，右键打火机即可点火",
+            "zh_tw": "打火機沒有冷卻，當其他存活玩家中有80%的人已被澆上汽油時，右鍵打火機即可點火"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Arsonist",
+        "zh_cn": "纵火犯",
+        "zh_tw": "縱火犯"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "arsonist_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "arsonist",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Completing tasks, or dousing a player who is not already doused, both earn coins; dousing the same player again earns nothing",
+            "zh_cn": "完成任务，或成功给一名还未被浇油的玩家浇油，都会获得金币；重复浇油同一名玩家不会再次获得金币",
+            "zh_tw": "完成任務，或成功給一名還未被澆油的玩家澆油，都會獲得金幣；重複澆油同一名玩家不會再次獲得金幣"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 171,
+          "text": {
+            "en_us": "You can buy Lockpicks, Crowbars, Large Oil Cans and Fire Guns in the shop",
+            "zh_cn": "商店可购买开锁器、撬棍、大油罐和火枪",
+            "zh_tw": "商店可購買開鎖器、撬棍、大油罐和火槍"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 181
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The Fire Gun douses the player it hits; every shot costs extra coins and enters a 30-second cooldown whether it hits or misses",
+            "zh_cn": "火枪命中玩家会给对方浇油；每开一枪都需要额外花费金币，不论是否命中都会进入30秒冷却",
+            "zh_tw": "火槍命中玩家會給對方澆油；每開一槍都需要額外花費金幣，不論是否命中都會進入30秒冷卻"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "title": {
+        "en_us": "Arsonist",
+        "zh_cn": "纵火犯",
+        "zh_tw": "縱火犯"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "arsonist_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "arsonist_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "arsonist_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "delay": 14
+          }
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "Players you burn to death leave no corpse",
+            "zh_cn": "被你烧死的玩家不会留下尸体",
+            "zh_tw": "被你燒死的玩家不會留下屍體"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 123
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Arsonist",
+        "zh_cn": "纵火犯",
+        "zh_tw": "縱火犯"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "arsonist_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "arsonist_target",
+            "outline": -65536
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Has Arsonist see-through, but only within 40 blocks; doused players in range show orange, all others show gray",
+                "zh_cn": "拥有纵火犯透视，但只能透视40格内的玩家；范围内已被浇油的玩家显示为橙色，其余玩家显示为灰色",
+                "zh_tw": "擁有縱火犯透視，但只能透視40格內的玩家；範圍內已被澆油的玩家顯示為橙色，其餘玩家顯示為灰色"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Has Arsonist see-through, but only within 40 blocks; doused players in range show orange, all others show gray",
+            "zh_cn": "拥有纵火犯透视，但只能透视40格内的玩家；范围内已被浇油的玩家显示为橙色，其余玩家显示为灰色",
+            "zh_tw": "擁有縱火犯透視，但只能透視40格內的玩家；範圍內已被澆油的玩家顯示為橙色，其餘玩家顯示為灰色"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

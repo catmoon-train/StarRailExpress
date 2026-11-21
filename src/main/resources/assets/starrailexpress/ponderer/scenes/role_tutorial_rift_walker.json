@@ -1,0 +1,207 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.rift_walker",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Rift Walker",
+    "zh_cn": "裂隙行者",
+    "zh_tw": "裂隙行者"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Rift Walker",
+        "zh_cn": "裂隙行者",
+        "zh_tw": "裂隙行者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "rift_walker_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 146,
+          "text": {
+            "en_us": "Walk in through the crack and come back out the other side.",
+            "zh_cn": "从裂缝走进去，再从另一侧回来。",
+            "zh_tw": "從裂縫走進去，再從另一側回來。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 156
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Rift Walker",
+        "zh_cn": "裂隙行者",
+        "zh_tw": "裂隙行者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "rift_walker_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Skill [Enter the Rift]: costs 125 coins, 2s windup; if killed during windup, no effect.",
+                "zh_cn": "技能【进入裂隙】：消耗 125 金币，释放后有 2 秒前摇；前摇期间被杀死则技能不会生效。",
+                "zh_tw": "技能【進入裂隙】：消耗 125 金幣，釋放後有 2 秒前搖；前搖期間被殺死則技能不會生效。"
+              },
+              {
+                "en_us": "After the windup, enter the rift for 15s: gain Isolation, invisibility, invincibility and Speed IV, and the world begins to crack. 90s cd.",
+                "zh_cn": "前摇结束后进入裂隙 15 秒：获得隔离、隐身、无敌与速度 IV，世界开始崩裂。冷却 90 秒。",
+                "zh_tw": "前搖結束後進入裂隙 15 秒：獲得隔離、隱身、無敵與速度 IV，世界開始崩裂。冷卻 90 秒。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skill [Enter the Rift]: costs 125 coins, 2s windup; if killed during windup, no effect.",
+            "zh_cn": "技能【进入裂隙】：消耗 125 金币，释放后有 2 秒前摇；前摇期间被杀死则技能不会生效。",
+            "zh_tw": "技能【進入裂隙】：消耗 125 金幣，釋放後有 2 秒前搖；前搖期間被殺死則技能不會生效。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "After the windup, enter the rift for 15s: gain Isolation, invisibility, invincibility and Speed IV, and the world begins to crack. 90s cd.",
+            "zh_cn": "前摇结束后进入裂隙 15 秒：获得隔离、隐身、无敌与速度 IV，世界开始崩裂。冷却 90 秒。",
+            "zh_tw": "前搖結束後進入裂隙 15 秒：獲得隔離、隱身、無敵與速度 IV，世界開始崩裂。冷卻 90 秒。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

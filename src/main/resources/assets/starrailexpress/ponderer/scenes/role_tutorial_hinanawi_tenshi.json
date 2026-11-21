@@ -1,0 +1,317 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.hinanawi_tenshi",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Hinanawi tenshi",
+    "zh_cn": "有顶山大小姐",
+    "zh_tw": "有頂山大小姐"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Hinanawi tenshi",
+        "zh_cn": "有顶山大小姐",
+        "zh_tw": "有頂山大小姐"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "hinanawi_tenshi_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Sheriff team",
+            "zh_cn": "警长阵营",
+            "zh_tw": "警長陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 122,
+          "text": {
+            "en_us": "A 100% accurate, hyper-local weather forecast!",
+            "zh_cn": "命中率100%的超局部天气预报！",
+            "zh_tw": "命中率100%的超局部天氣預報！"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 132
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Hinanawi tenshi",
+        "zh_cn": "有顶山大小姐",
+        "zh_tw": "有頂山大小姐"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "hinanawi_tenshi_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 146,
+          "text": {
+            "en_us": "You have a higher chance of getting the Night Owl modifier.",
+            "zh_cn": "你拥有更大概率获得夜猫子修饰符",
+            "zh_tw": "你擁有更大概率獲得夜貓子修飾符"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 156
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Hinanawi tenshi",
+        "zh_cn": "有顶山大小姐",
+        "zh_tw": "有頂山大小姐"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "hinanawi_tenshi_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "You wield the Sword of Scarlet Weather. It works like a bat, but after attacking it enters the same cooldown as a gun.",
+                "zh_cn": "你拥有一把绯想之剑。绯想之剑使用方法同球棒。攻击后进入与枪械相同的冷却。",
+                "zh_tw": "你擁有一把緋想之劍。緋想之劍使用方法同球棒。攻擊後進入與槍械相同的冷卻。"
+              },
+              {
+                "en_us": "You have a keen sense for omens; when a player dies nearby, you can sense the \"scent of death.\" Sensing it starts a 30s cooldown.",
+                "zh_cn": "你对于气息有敏锐的感知力，当周围有玩家死亡时，你能够感知到“死亡的味道”。每次感知到后将进入30s的冷却时间。",
+                "zh_tw": "你對於氣息有敏銳的感知力，當周圍有玩家死亡時，你能夠感知到“死亡的味道”。每次感知到後將進入30s的冷卻時間。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You wield the Sword of Scarlet Weather. It works like a bat, but after attacking it enters the same cooldown as a gun.",
+            "zh_cn": "你拥有一把绯想之剑。绯想之剑使用方法同球棒。攻击后进入与枪械相同的冷却。",
+            "zh_tw": "你擁有一把緋想之劍。緋想之劍使用方法同球棒。攻擊後進入與槍械相同的冷卻。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You have a keen sense for omens; when a player dies nearby, you can sense the \"scent of death.\" Sensing it starts a 30s cooldown.",
+            "zh_cn": "你对于气息有敏锐的感知力，当周围有玩家死亡时，你能够感知到“死亡的味道”。每次感知到后将进入30s的冷却时间。",
+            "zh_tw": "你對於氣息有敏銳的感知力，當周圍有玩家死亡時，你能夠感知到“死亡的味道”。每次感知到後將進入30s的冷卻時間。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Hinanawi tenshi",
+        "zh_cn": "有顶山大小姐",
+        "zh_tw": "有頂山大小姐"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "hinanawi_tenshi_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 85,
+          "text": {
+            "en_us": "You are immune to poison.",
+            "zh_cn": "你不会中毒",
+            "zh_tw": "你不會中毒"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 95
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

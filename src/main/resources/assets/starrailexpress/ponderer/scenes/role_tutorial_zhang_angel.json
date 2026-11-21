@@ -1,0 +1,252 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.zhang_angel",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Zhang Angel",
+    "zh_cn": "张天使",
+    "zh_tw": "張天使"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Zhang Angel",
+        "zh_cn": "张天使",
+        "zh_tw": "張天使"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "zhang_angel_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 104,
+          "text": {
+            "en_us": "Victory alongside the Passenger team",
+            "zh_cn": "与平民一同获胜",
+            "zh_tw": "與平民一同獲勝"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 114
+        },
+        {
+          "type": "text",
+          "duration": 119,
+          "text": {
+            "en_us": "Survive to the end alongside the passengers.",
+            "zh_cn": "用闪电的力量保护他们。",
+            "zh_tw": "用閃電的力量保護他們。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 129
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Zhang Angel",
+        "zh_cn": "张天使",
+        "zh_tw": "張天使"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "zhang_angel_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Passive: every 10s drain electricity, making nearby lights flicker. After 10 drains you can call lightning.",
+                "zh_cn": "被动：每10秒吞电一次，使周围灯光闪烁。积攒10次后可释放召雷。",
+                "zh_tw": "被動：每10秒吞電一次，使周圍燈光閃爍。積攢10次後可釋放召雷。"
+              },
+              {
+                "en_us": "Passive: in darkness (light level <=5 or lights out) you turn invisible, gain Speed I, and are immune to darkness death.",
+                "zh_cn": "被动：处于黑暗（亮度≤5或关灯）时隐身并获得速度I，且免疫黑暗死亡。",
+                "zh_tw": "被動：處於黑暗（亮度≤5或關燈）時隱身並獲得速度I，且免疫黑暗死亡。"
+              },
+              {
+                "en_us": "Skill · Call Lightning: aim at a player and press the skill key, spending 10 drains and 100 coins to strike them. They randomly get one of: Slowness II (2 min), Blindness + Blind Sight (30s), Deafness (30s), Limp (30s).",
+                "zh_cn": "技能·召雷：对准玩家按下技能键，消耗10次吞电与100金币，召唤闪电击中目标。目标随机获得以下一种残疾：缓慢II（2分钟）、失明+盲视（30秒）、耳聋（30秒）、腿瘸（30秒）。",
+                "zh_tw": "技能·召雷：對準玩家按下技能鍵，消耗10次吞電與100金幣，召喚閃電擊中目標。目標隨機獲得以下一種殘疾：緩慢II（2分鐘）、失明+盲視（30秒）、耳聾（30秒）、腿瘸（30秒）。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Passive: every 10s drain electricity, making nearby lights flicker. After 10 drains you can call lightning.",
+            "zh_cn": "被动：每10秒吞电一次，使周围灯光闪烁。积攒10次后可释放召雷。",
+            "zh_tw": "被動：每10秒吞電一次，使周圍燈光閃爍。積攢10次後可釋放召雷。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Passive: in darkness (light level <=5 or lights out) you turn invisible, gain Speed I, and are immune to darkness death.",
+            "zh_cn": "被动：处于黑暗（亮度≤5或关灯）时隐身并获得速度I，且免疫黑暗死亡。",
+            "zh_tw": "被動：處於黑暗（亮度≤5或關燈）時隱身並獲得速度I，且免疫黑暗死亡。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skill · Call Lightning: aim at a player and press the skill key, spending 10 drains and 100 coins to strike them. They randomly get one of: Slowness II (2 min), Blindness + Blind Sight (30s), Deafness (30s), Limp (30s).",
+            "zh_cn": "技能·召雷：对准玩家按下技能键，消耗10次吞电与100金币，召唤闪电击中目标。目标随机获得以下一种残疾：缓慢II（2分钟）、失明+盲视（30秒）、耳聋（30秒）、腿瘸（30秒）。",
+            "zh_tw": "技能·召雷：對準玩家按下技能鍵，消耗10次吞電與100金幣，召喚閃電擊中目標。目標隨機獲得以下一種殘疾：緩慢II（2分鐘）、失明+盲視（30秒）、耳聾（30秒）、腿瘸（30秒）。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

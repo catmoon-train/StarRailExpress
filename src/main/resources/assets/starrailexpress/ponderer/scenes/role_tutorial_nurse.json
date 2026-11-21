@@ -1,0 +1,499 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.nurse",
+  "items": [
+    "noellesroles:recovery_pill",
+    "noellesroles:recovery_reagent"
+  ],
+  "title": {
+    "en_us": "Nurse",
+    "zh_cn": "护士",
+    "zh_tw": "護士"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_graveyard"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Nurse",
+        "zh_cn": "护士",
+        "zh_tw": "護士"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "nurse_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 126,
+          "text": {
+            "en_us": "Heal the wounded and help the civilians survive!",
+            "zh_cn": "治疗伤员，帮助平民们活下去！",
+            "zh_tw": "治療傷患，幫助平民們活下去！"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 136
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Nurse",
+        "zh_cn": "护士",
+        "zh_tw": "護士"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "nurse_main"
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "attachKeyFrame": true,
+          "pos": [
+            1.6,
+            1.55,
+            1.6
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:recovery_pill",
+          "linkId": "nurse_item"
+        },
+        {
+          "type": "text",
+          "duration": 95,
+          "text": {
+            "en_us": "Starts with one Recovery Potion",
+            "zh_cn": "开局自带一个康复试剂",
+            "zh_tw": "開局自帶一個康復試劑"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 105
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Nurse",
+        "zh_cn": "护士",
+        "zh_tw": "護士"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "nurse_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "nurse",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "In the shop you can buy Recovery Pills for 50 coin and Recovery Potions for 150 coin",
+            "zh_cn": "商店中可花费50金币购买康复药丸，150金币购买康复试剂",
+            "zh_tw": "商店中可花費50金幣購買康復藥丸，150金幣購買康復試劑"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vitals",
+      "title": {
+        "en_us": "Nurse",
+        "zh_cn": "护士",
+        "zh_tw": "護士"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "nurse_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "attachKeyFrame": true,
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.4,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
+              }
+            ],
+            "lines": [
+              {
+                "en_us": "You always see other players' virtual health bars and virtual shield bars",
+                "zh_cn": "你始终能够看到其它玩家的虚拟血量条和虚拟护盾条",
+                "zh_tw": "你始終能夠看到其他玩家的虛擬血量條和虛擬護盾條"
+              },
+              {
+                "en_us": "You can see-through players within 30 blocks whose virtual health bar is not full (not 20)",
+                "zh_cn": "你能够透视30格范围内虚拟血量条不为满(不为20)的玩家",
+                "zh_tw": "你能夠透視30格範圍內虛擬血量條不為滿(不為20)的玩家"
+              },
+              {
+                "en_us": "If a player died because their virtual health hit zero, you can see-through their corpse for up to 30 seconds",
+                "zh_cn": "若玩家是因虚拟血量条归零而死的，你可以透视他的尸体至多30秒",
+                "zh_tw": "若玩家是因虛擬血量條歸零而死的，你可以透視他的屍體至多30秒"
+              },
+              {
+                "en_us": "Recovery Pill: eating it refills your own virtual health bar; press Q to throw it",
+                "zh_cn": "康复药丸：食用后将自己的虚拟血量条补满，可以按Q键丢出",
+                "zh_tw": "康復藥丸：食用後將自己的虛擬血量條補滿，可以按Q鍵丟出"
+              },
+              {
+                "en_us": "Recovery Potion: thrown, players within a 4-block radius of the landing point gain virtual health regen for 30 seconds",
+                "zh_cn": "康复试剂：丢出后使落地半径4格内的玩家获得虚拟血量恢复效果，持续30秒",
+                "zh_tw": "康復試劑：丟出後使落地半徑4格內的玩家獲得虛擬血量恢復效果，持續30秒"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 171,
+          "text": {
+            "en_us": "You always see other players' virtual health bars and virtual shield bars",
+            "zh_cn": "你始终能够看到其它玩家的虚拟血量条和虚拟护盾条",
+            "zh_tw": "你始終能夠看到其他玩家的虛擬血量條和虛擬護盾條"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 181
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You can see-through players within 30 blocks whose virtual health bar is not full (not 20)",
+            "zh_cn": "你能够透视30格范围内虚拟血量条不为满(不为20)的玩家",
+            "zh_tw": "你能夠透視30格範圍內虛擬血量條不為滿(不為20)的玩家"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "If a player died because their virtual health hit zero, you can see-through their corpse for up to 30 seconds",
+            "zh_cn": "若玩家是因虚拟血量条归零而死的，你可以透视他的尸体至多30秒",
+            "zh_tw": "若玩家是因虛擬血量條歸零而死的，你可以透視他的屍體至多30秒"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 185,
+          "text": {
+            "en_us": "Recovery Pill: eating it refills your own virtual health bar; press Q to throw it",
+            "zh_cn": "康复药丸：食用后将自己的虚拟血量条补满，可以按Q键丢出",
+            "zh_tw": "康復藥丸：食用後將自己的虛擬血量條補滿，可以按Q鍵丟出"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 195
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Recovery Potion: thrown, players within a 4-block radius of the landing point gain virtual health regen for 30 seconds",
+            "zh_cn": "康复试剂：丢出后使落地半径4格内的玩家获得虚拟血量恢复效果，持续30秒",
+            "zh_tw": "康復試劑：丟出後使落地半徑4格內的玩家獲得虛擬血量恢復效果，持續30秒"
+          },
+          "point": [
+            3.0,
+            3.6,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "bond",
+      "title": {
+        "en_us": "Nurse",
+        "zh_cn": "护士",
+        "zh_tw": "護士"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "nurse_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "nurse_ally",
+            "outline": -1537104
+          }
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "attachKeyFrame": true,
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Spawns bound with the Explosive Maniac",
+                "zh_cn": "与爆炸狂绑定生成",
+                "zh_tw": "與爆炸狂綁定生成"
+              }
+            ],
+            "color": -1537104
+          }
+        },
+        {
+          "type": "text",
+          "duration": 108,
+          "text": {
+            "en_us": "Spawns bound with the Explosive Maniac",
+            "zh_cn": "与爆炸狂绑定生成",
+            "zh_tw": "與爆炸狂綁定生成"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 118
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

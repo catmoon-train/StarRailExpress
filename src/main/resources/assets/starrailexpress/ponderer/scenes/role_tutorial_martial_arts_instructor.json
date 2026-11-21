@@ -1,0 +1,511 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.martial_arts_instructor",
+  "items": [
+    "trainmurdermystery:nunchuck"
+  ],
+  "title": {
+    "en_us": "Martial Arts Instructor",
+    "zh_cn": "武术教官",
+    "zh_tw": "武術教官"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Martial Arts Instructor",
+        "zh_cn": "武术教官",
+        "zh_tw": "武術教官"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "martial_arts_instructor_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Sheriff team",
+            "zh_cn": "警长阵营",
+            "zh_tw": "警長陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 171,
+          "text": {
+            "en_us": "As a martial artist, you'll protect passengers with your trusty nunchaku!",
+            "zh_cn": "习武的你将用随身携带的双节棍保护乘客的安全！",
+            "zh_tw": "習武的你將用隨身攜帶的雙節棍保護乘客的安全！"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 181
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Martial Arts Instructor",
+        "zh_cn": "武术教官",
+        "zh_tw": "武術教官"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "martial_arts_instructor_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "martial_arts_instructor",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 164,
+          "text": {
+            "en_us": "Starts with Nunchaku, has 2.5x stamina, and cannot pick up Revolvers.",
+            "zh_cn": "开局自带双节棍，拥有2.5倍体力，无法捡起左轮手枪。",
+            "zh_tw": "開局自帶雙節棍，擁有2.5倍體力，無法撿起左輪手槍。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 174
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Left-click knocks the nearest player within 5 blocks to the left; right-click knocks them to the right.",
+            "zh_cn": "左键将5格内离你最近的玩家向左击退，右键将5格内离你最近的玩家向右击退。",
+            "zh_tw": "左鍵將5格內離你最近的玩家向左擊退，右鍵將5格內離你最近的玩家向右擊退。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Crouch + left-click pulls a player to in front of you; crouch + right-click pushes them away.",
+            "zh_cn": "蹲下左键将玩家拉到你面前，蹲下右键将玩家推开。",
+            "zh_tw": "蹲下左鍵將玩家拉到你面前，蹲下右鍵將玩家推開。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Martial Arts Instructor",
+        "zh_cn": "武术教官",
+        "zh_tw": "武術教官"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "martial_arts_instructor_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "After each player kill, the nunchaku enters a 5s cooldown.",
+                "zh_cn": "每次击杀玩家之后，双节棍会进入5s冷却。",
+                "zh_tw": "每次擊殺玩家之後，雙節棍會進入5s冷卻。"
+              },
+              {
+                "en_us": "Using the nunchaku 3 times in a row puts it on a 5s cooldown even without a kill.",
+                "zh_cn": "连续使用3次双节棍即使不造成击杀也会使双节棍进入5s冷却。",
+                "zh_tw": "連續使用3次雙節棍即使不造成擊殺也會使雙節棍進入5s冷卻。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 144,
+          "text": {
+            "en_us": "After each player kill, the nunchaku enters a 5s cooldown.",
+            "zh_cn": "每次击杀玩家之后，双节棍会进入5s冷却。",
+            "zh_tw": "每次擊殺玩家之後，雙節棍會進入5s冷卻。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 154
+        },
+        {
+          "type": "text",
+          "duration": 185,
+          "text": {
+            "en_us": "Using the nunchaku 3 times in a row puts it on a 5s cooldown even without a kill.",
+            "zh_cn": "连续使用3次双节棍即使不造成击杀也会使双节棍进入5s冷却。",
+            "zh_tw": "連續使用3次雙節棍即使不造成擊殺也會使雙節棍進入5s冷卻。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 195
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "title": {
+        "en_us": "Martial Arts Instructor",
+        "zh_cn": "武术教官",
+        "zh_tw": "武術教官"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "martial_arts_instructor_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "martial_arts_instructor_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "martial_arts_instructor_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "delay": 14
+          }
+        },
+        {
+          "type": "text",
+          "duration": 137,
+          "text": {
+            "en_us": "The Martial Arts Instructor drops a Revolver on death.",
+            "zh_cn": "武术教官死后掉落左轮手枪。",
+            "zh_tw": "武術教官死後掉落左輪手槍。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 147
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Martial Arts Instructor",
+        "zh_cn": "武术教官",
+        "zh_tw": "武術教官"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "martial_arts_instructor_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "The same move cannot be reused within 7s.",
+            "zh_cn": "同一个招式在7s内无法再次使用。",
+            "zh_tw": "同一個招式在7s內無法再次使用。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 123
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "If this attack knocks the victim into a block, a follow-up attack kills the target outright.",
+            "zh_cn": "如果此次攻击使受击者被击退到方块上，再次攻击则会使目标直接死亡。",
+            "zh_tw": "如果此次攻擊使受擊者被擊退到方塊上，再次攻擊則會使目標直接死亡。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 166,
+          "text": {
+            "en_us": "If the same target takes 3 nunchaku hits within 7s, they die outright.",
+            "zh_cn": "如果在7s内,同个目标连续受到3次棍击，则目标直接死亡。",
+            "zh_tw": "如果在7s內,同個目標連續受到3次棍擊，則目標直接死亡。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 176
+        },
+        {
+          "type": "text",
+          "duration": 144,
+          "text": {
+            "en_us": "Nunchaku hits give the target Slowness II for 1.5 seconds.",
+            "zh_cn": "双节棍命中目标会使目标获得1.5秒的缓慢2效果。",
+            "zh_tw": "雙節棍命中目標會使目標獲得1.5秒的緩慢2效果。"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 154
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

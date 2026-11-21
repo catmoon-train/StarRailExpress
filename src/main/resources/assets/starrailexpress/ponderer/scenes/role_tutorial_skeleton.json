@@ -1,0 +1,442 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.skeleton",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Skeleton",
+    "zh_cn": "骷髅",
+    "zh_tw": "骷髏"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Skeleton",
+        "zh_cn": "骷髅",
+        "zh_tw": "骷髏"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "skeleton_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Walk on as a skeleton: climb walls and run nimbly, traverse the mountains, aid the Killer team, or survive alone.",
+            "zh_cn": "以一具骸骨的姿态继续行走。",
+            "zh_tw": "以一具骸骨的姿態繼續行走。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Skeleton",
+        "zh_cn": "骷髅",
+        "zh_tw": "骷髏"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "skeleton_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 106,
+          "text": {
+            "en_us": "Default: can't speak but has Speed 1.",
+            "zh_cn": "常态效果：你无法说话但拥有速度1效果。",
+            "zh_tw": "常態效果：你無法說話但擁有速度1效果。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 116
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "panel",
+      "title": {
+        "en_us": "Skeleton",
+        "zh_cn": "骷髅",
+        "zh_tw": "骷髏"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "skeleton_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.label.notes",
+            "lines": [
+              {
+                "en_us": "The Recorder can't record you.",
+                "zh_cn": "骷髅无法被记录员记录。",
+                "zh_tw": "骷髏無法被記錄員記錄。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 94,
+          "text": {
+            "en_us": "The Recorder can't record you.",
+            "zh_cn": "骷髅无法被记录员记录。",
+            "zh_tw": "骷髏無法被記錄員記錄。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 104
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "bond",
+      "title": {
+        "en_us": "Skeleton",
+        "zh_cn": "骷髅",
+        "zh_tw": "骷髏"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "skeleton_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "skeleton_ally",
+            "outline": -3685441
+          }
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "attachKeyFrame": true,
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Wins with its summoner",
+                "zh_cn": "跟随召唤者获胜",
+                "zh_tw": "跟隨召喚者獲勝"
+              }
+            ],
+            "color": -3685441
+          }
+        },
+        {
+          "type": "text",
+          "duration": 79,
+          "text": {
+            "en_us": "Wins with its summoner",
+            "zh_cn": "跟随召唤者获胜",
+            "zh_tw": "跟隨召喚者獲勝"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 89
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Skeleton",
+        "zh_cn": "骷髅",
+        "zh_tw": "骷髏"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "skeleton_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 74,
+          "text": {
+            "en_us": "PEAK-exclusive role",
+            "zh_cn": "PEAK 专属职业",
+            "zh_tw": "PEAK 專屬職業"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 84
+        },
+        {
+          "type": "text",
+          "duration": 140,
+          "text": {
+            "en_us": "Can only result from a Bone Book reviving a dead player.",
+            "zh_cn": "只能由「骸骨之书」把死亡的玩家复活而来。",
+            "zh_tw": "只能由「骸骨之書」把死亡的玩家復活而來。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 150
+        },
+        {
+          "type": "text",
+          "duration": 139,
+          "text": {
+            "en_us": "Can climb walls (must be empty-handed, like the Scout).",
+            "zh_cn": "你可以爬墙（抓墙时必须空手，与童子军一致）。",
+            "zh_tw": "你可以爬牆（抓牆時必須空手，與童子軍一致）。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 149
+        },
+        {
+          "type": "text",
+          "duration": 119,
+          "text": {
+            "en_us": "Fragile bones: falls over 6 blocks kill you.",
+            "zh_cn": "骨头很脆：下落高度超过 6 格会直接摔死。",
+            "zh_tw": "骨頭很脆：下落高度超過 6 格會直接摔死。"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 129
+        },
+        {
+          "type": "text",
+          "duration": 119,
+          "text": {
+            "en_us": "Bare-hand left-click deals 1 virtual damage.",
+            "zh_cn": "空手左键可以攻击玩家，每次造成 1 点虚拟伤害。",
+            "zh_tw": "空手左鍵可以攻擊玩家，每次造成 1 點虛擬傷害。"
+          },
+          "point": [
+            3.0,
+            3.6,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 129
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

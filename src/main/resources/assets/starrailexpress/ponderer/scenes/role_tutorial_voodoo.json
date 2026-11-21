@@ -1,0 +1,364 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.voodoo",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Voodoo",
+    "zh_cn": "巫毒师",
+    "zh_tw": "巫毒師"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Voodoo",
+        "zh_cn": "巫毒师",
+        "zh_tw": "巫毒師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "voodoo_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 110,
+          "text": {
+            "en_us": "Choose one player to die alongside you.",
+            "zh_cn": "选择一名玩家与你一同赴死。",
+            "zh_tw": "選擇一名玩家與你一同赴死。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 120
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "screen",
+      "title": {
+        "en_us": "Voodoo",
+        "zh_cn": "巫毒师",
+        "zh_tw": "巫毒師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "voodoo_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_screen",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.screen.select_player",
+            "hint": "ponder.starrailexpress.screen.pick_hint",
+            "columns": 6
+          }
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vitals",
+      "title": {
+        "en_us": "Voodoo",
+        "zh_cn": "巫毒师",
+        "zh_tw": "巫毒師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "voodoo_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "attachKeyFrame": true,
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.4,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
+              }
+            ],
+            "lines": [
+              {
+                "en_us": "!!!Your own shield blocks the Voodoo trigger",
+                "zh_cn": "!!!你自身的护盾会阻止巫毒触发",
+                "zh_tw": "!!!你自身的護盾會阻止巫毒觸發"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 119,
+          "text": {
+            "en_us": "!!!Your own shield blocks the Voodoo trigger",
+            "zh_cn": "!!!你自身的护盾会阻止巫毒触发",
+            "zh_tw": "!!!你自身的護盾會阻止巫毒觸發"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 129
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "bond",
+      "title": {
+        "en_us": "Voodoo",
+        "zh_cn": "巫毒师",
+        "zh_tw": "巫毒師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "voodoo_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "voodoo_ally",
+            "outline": -8359171
+          }
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "attachKeyFrame": true,
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "You can bind one person; when you are killed (except by terrain damage), your bound person dies with you. This death is forced and unaffected by anything, including shields and invincibility.",
+                "zh_cn": "可绑定一个人，当你被杀死的时候(除了地形伤害以外)，你绑定的人也会一起死亡。该死亡为强制死亡，不受任何条件影响，包括护盾、无敌状态。",
+                "zh_tw": "可綁定一個人，當你被殺死的時候(除了地形傷害以外)，你綁定的人也會一起死亡。該死亡為強制死亡，不受任何條件影響，包括護盾、無敵狀態。"
+              }
+            ],
+            "color": -8359171
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You can bind one person; when you are killed (except by terrain damage), your bound person dies with you. This death is forced and unaffected by anything, including shields and invincibility.",
+            "zh_cn": "可绑定一个人，当你被杀死的时候(除了地形伤害以外)，你绑定的人也会一起死亡。该死亡为强制死亡，不受任何条件影响，包括护盾、无敌状态。",
+            "zh_tw": "可綁定一個人，當你被殺死的時候(除了地形傷害以外)，你綁定的人也會一起死亡。該死亡為強制死亡，不受任何條件影響，包括護盾、無敵狀態。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Voodoo",
+        "zh_cn": "巫毒师",
+        "zh_tw": "巫毒師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "voodoo_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 182,
+          "text": {
+            "en_us": "!!!Killing the Voodoo as a Passenger team member triggers no cerebellum penalty",
+            "zh_cn": "!!!平民阵营击杀巫毒师不会触发小脑惩罚",
+            "zh_tw": "!!!平民陣營擊殺巫毒師不會觸發小腦懲罰"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 192
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

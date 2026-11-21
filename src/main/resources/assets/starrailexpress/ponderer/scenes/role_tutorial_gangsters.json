@@ -1,0 +1,454 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.gangsters",
+  "items": [
+    "noellesroles:c4",
+    "noellesroles:c4_detonator"
+  ],
+  "title": {
+    "en_us": "Gangster",
+    "zh_cn": "悍匪",
+    "zh_tw": "悍匪"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Gangster",
+        "zh_cn": "悍匪",
+        "zh_tw": "悍匪"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "gangsters_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 76,
+          "text": {
+            "en_us": "Bring chaos to them!",
+            "zh_cn": "为他们带去骚乱！",
+            "zh_tw": "為他們帶去騷亂！"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 86
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Gangster",
+        "zh_cn": "悍匪",
+        "zh_tw": "悍匪"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "gangsters_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "gangsters",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 124,
+          "text": {
+            "en_us": "Starting items: 1 C4 charge and 1 C4 detonator.",
+            "zh_cn": "初始物品：1个C4炸药和1个C4引爆器。",
+            "zh_tw": "初始物品：1個C4炸藥和1個C4引爆器。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 134
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Gangster",
+        "zh_cn": "悍匪",
+        "zh_tw": "悍匪"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "gangsters_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "gangsters",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 180,
+          "text": {
+            "en_us": "Shop: knife, sawed-off shotgun, C4 (280 coins), crowbar, lockpick, lights out.",
+            "zh_cn": "商店可购买：刀、短管霰弹枪、C4炸药（280金币）、撬棍、开锁器、关灯。",
+            "zh_tw": "商店可購買：刀、短管霰彈槍、C4炸藥（280金幣）、撬棍、開鎖器、關燈。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 190
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "bond",
+      "title": {
+        "en_us": "Gangster",
+        "zh_cn": "悍匪",
+        "zh_tw": "悍匪"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "gangsters_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "gangsters_ally",
+            "outline": -12829636
+          }
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "attachKeyFrame": true,
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Spawns bound to the Fitter.",
+                "zh_cn": "与钳工绑定生成。",
+                "zh_tw": "與鉗工綁定生成。"
+              },
+              {
+                "en_us": "When a player with C4 stuck dies, the C4 drops and keeps its remaining fuse.",
+                "zh_cn": "被绑定C4的玩家死亡时，C4会掉落在地上并按剩余时间继续引爆",
+                "zh_tw": "被綁定C4的玩家死亡時，C4會掉落在地上並按剩餘時間繼續引爆"
+              }
+            ],
+            "color": -12829636
+          }
+        },
+        {
+          "type": "text",
+          "duration": 88,
+          "text": {
+            "en_us": "Spawns bound to the Fitter.",
+            "zh_cn": "与钳工绑定生成。",
+            "zh_tw": "與鉗工綁定生成。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 98
+        },
+        {
+          "type": "text",
+          "duration": 176,
+          "text": {
+            "en_us": "When a player with C4 stuck dies, the C4 drops and keeps its remaining fuse.",
+            "zh_cn": "被绑定C4的玩家死亡时，C4会掉落在地上并按剩余时间继续引爆",
+            "zh_tw": "被綁定C4的玩家死亡時，C4會掉落在地上並按剩餘時間繼續引爆"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 186
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Gangster",
+        "zh_cn": "悍匪",
+        "zh_tw": "悍匪"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "gangsters_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "C4 can be thrown; if it hits a player it sticks to them, otherwise it sticks to the landing block.",
+            "zh_cn": "C4可以被投掷丢出，若丢出时命中了玩家，则炸药包会附着在玩家身上，否则附着在落地处",
+            "zh_tw": "C4可以被投擲丟出，若丟出時命中了玩家，則炸藥包會附著在玩家身上，否則附著在落地處"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "C4 stuck to a player arms and explodes automatically; C4 on the ground/wall must be detonated manually with the C4 detonator (can chain-detonate multiple).",
+            "zh_cn": "附着在玩家身上的C4会被自动触发并开始引爆，附着在地面或墙面上的C4需用C4引爆器手动引爆(可依次引爆多个C4)",
+            "zh_tw": "附著在玩家身上的C4會被自動觸發並開始引爆，附著在地面或牆面上的C4需用C4引爆器手動引爆(可依次引爆多個C4)"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "After arming, C4 beeps and can be defused by others with pliers; players other than the Fitter have a 20% chance of detonating C4 while defusing it.",
+            "zh_cn": "C4引爆后会发出滴滴声，期间可被其它玩家用钳子拆除，除钳工以外的玩家使用拆弹钳拆C4时有20%的几率直接引爆C4",
+            "zh_tw": "C4引爆後會發出滴滴聲，期間可被其他玩家用鉗子拆除，除鉗工以外的玩家使用拆彈鉗拆C4時有20%的幾率直接引爆C4"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 180,
+          "text": {
+            "en_us": "C4 kills all players within 7 blocks; it can pierce 1 block of wall but not 2.",
+            "zh_cn": "C4会炸死7格范围内的所有玩家，可以穿透1格墙体，但不能穿透2格厚墙体",
+            "zh_tw": "C4會炸死7格範圍內的所有玩家，可以穿透1格牆體，但不能穿透2格厚牆體"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 190
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

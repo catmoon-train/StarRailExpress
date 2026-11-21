@@ -1,0 +1,602 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.imitator",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Imitator",
+    "zh_cn": "模仿者",
+    "zh_tw": "模仿者"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_graveyard"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Imitator",
+        "zh_cn": "模仿者",
+        "zh_tw": "模仿者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "imitator_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 164,
+          "text": {
+            "en_us": "A fickle Killer knows how to turn others' abilities to their own use!",
+            "zh_cn": "一名善变的杀手会懂得将他人的能力化为己用！",
+            "zh_tw": "一名善變的殺手會懂得將他人的能力化為己用！"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 174
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Imitator",
+        "zh_cn": "模仿者",
+        "zh_tw": "模仿者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "imitator_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Press the skill key at a living player to copy their skill (temporary skill, max 3 uses, copied ability cooldown 60s)",
+                "zh_cn": "对活人按技能键复制技能（临时技能最多使用3次，复制能力冷却60秒）",
+                "zh_tw": "對活人按技能鍵複製技能（臨時技能最多使用3次，複製能力冷卻60秒）"
+              },
+              {
+                "en_us": "Press the skill-switch key (default Y) to switch skill slots",
+                "zh_cn": "按下技能切换键（默认Y键）切换技能槽位",
+                "zh_tw": "按下技能切換鍵（默認Y鍵）切換技能槽位"
+              },
+              {
+                "en_us": "Can only copy skills from: Star / Recaller / Veteran / Broadcaster / Telegrapher / Athlete / Fighter / Ghost / Noisemaker / Singer / Glitch Robot / Clockmaker / Alchemist / Pilot / Painter / Builder / Accountant / Doctor",
+                "zh_cn": "只能复制以下角色的技能: 明星/召回者/退伍军人/广播员/电报员/运动员/斗士/小透明/大嗓门/歌手/故障机器人/钟表匠/药剂师/飞行员/画家/建筑师/会计/医生",
+                "zh_tw": "只能複製以下角色的技能: 明星/召回者/退伍軍人/廣播員/電報員/運動員/鬥士/小透明/大嗓門/歌手/故障機器人/鐘錶匠/藥劑師/飛行員/畫家/建築師/會計/醫生"
+              },
+              {
+                "en_us": "Apart from copied skills, all skill cooldowns are 90 seconds",
+                "zh_cn": "除复制技能外，所有技能冷却统一为90秒",
+                "zh_tw": "除複製技能外，所有技能冷卻統一為90秒"
+              },
+              {
+                "en_us": "Some skills are modified:",
+                "zh_cn": "部分技能有所更改，具体如下：",
+                "zh_tw": "部分技能有所更改，具體如下："
+              },
+              {
+                "en_us": "Singer skill: roots players within 4 blocks for 2 seconds",
+                "zh_cn": "歌手技能：使四格内的玩家定身2秒",
+                "zh_tw": "歌手技能：使四格內的玩家定身2秒"
+              },
+              {
+                "en_us": "Glitch Robot skill: spawns a Slowness potion cloud at your feet",
+                "zh_cn": "故障机器人技能:在脚下生成一团缓慢效果的药水云",
+                "zh_tw": "故障機器人技能:在腳下生成一團緩慢效果的藥水雲"
+              },
+              {
+                "en_us": "Alchemist skill: brews a dose of arsenic",
+                "zh_cn": "药剂师技能:调制一份鹤顶红",
+                "zh_tw": "藥劑師技能:調製一份鶴頂紅"
+              },
+              {
+                "en_us": "Accountant skill: gain 100 coins",
+                "zh_cn": "会计技能：获得100金币",
+                "zh_tw": "會計技能：獲得100金幣"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Press the skill key at a living player to copy their skill (temporary skill, max 3 uses, copied ability cooldown 60s)",
+            "zh_cn": "对活人按技能键复制技能（临时技能最多使用3次，复制能力冷却60秒）",
+            "zh_tw": "對活人按技能鍵複製技能（臨時技能最多使用3次，複製能力冷卻60秒）"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 148,
+          "text": {
+            "en_us": "Press the skill-switch key (default Y) to switch skill slots",
+            "zh_cn": "按下技能切换键（默认Y键）切换技能槽位",
+            "zh_tw": "按下技能切換鍵（默認Y鍵）切換技能槽位"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 158
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Can only copy skills from: Star / Recaller / Veteran / Broadcaster / Telegrapher / Athlete / Fighter / Ghost / Noisemaker / Singer / Glitch Robot / Clockmaker / Alchemist / Pilot / Painter / Builder / Accountant / Doctor",
+            "zh_cn": "只能复制以下角色的技能: 明星/召回者/退伍军人/广播员/电报员/运动员/斗士/小透明/大嗓门/歌手/故障机器人/钟表匠/药剂师/飞行员/画家/建筑师/会计/医生",
+            "zh_tw": "只能複製以下角色的技能: 明星/召回者/退伍軍人/廣播員/電報員/運動員/鬥士/小透明/大嗓門/歌手/故障機器人/鐘錶匠/藥劑師/飛行員/畫家/建築師/會計/醫生"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 148,
+          "text": {
+            "en_us": "Apart from copied skills, all skill cooldowns are 90 seconds",
+            "zh_cn": "除复制技能外，所有技能冷却统一为90秒",
+            "zh_tw": "除複製技能外，所有技能冷卻統一為90秒"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 158
+        },
+        {
+          "type": "text",
+          "duration": 85,
+          "text": {
+            "en_us": "Some skills are modified:",
+            "zh_cn": "部分技能有所更改，具体如下：",
+            "zh_tw": "部分技能有所更改，具體如下："
+          },
+          "point": [
+            3.0,
+            3.6,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 95
+        },
+        {
+          "type": "text",
+          "duration": 142,
+          "text": {
+            "en_us": "Singer skill: roots players within 4 blocks for 2 seconds",
+            "zh_cn": "歌手技能：使四格内的玩家定身2秒",
+            "zh_tw": "歌手技能：使四格內的玩家定身2秒"
+          },
+          "point": [
+            3.0,
+            4.05,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 152
+        },
+        {
+          "type": "text",
+          "duration": 153,
+          "text": {
+            "en_us": "Glitch Robot skill: spawns a Slowness potion cloud at your feet",
+            "zh_cn": "故障机器人技能:在脚下生成一团缓慢效果的药水云",
+            "zh_tw": "故障機器人技能:在腳下生成一團緩慢效果的藥水雲"
+          },
+          "point": [
+            3.0,
+            4.5,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 163
+        },
+        {
+          "type": "text",
+          "duration": 112,
+          "text": {
+            "en_us": "Alchemist skill: brews a dose of arsenic",
+            "zh_cn": "药剂师技能:调制一份鹤顶红",
+            "zh_tw": "藥劑師技能:調製一份鶴頂紅"
+          },
+          "point": [
+            3.0,
+            4.95,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 122
+        },
+        {
+          "type": "text",
+          "duration": 97,
+          "text": {
+            "en_us": "Accountant skill: gain 100 coins",
+            "zh_cn": "会计技能：获得100金币",
+            "zh_tw": "會計技能：獲得100金幣"
+          },
+          "point": [
+            3.0,
+            5.4,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 107
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "title": {
+        "en_us": "Imitator",
+        "zh_cn": "模仿者",
+        "zh_tw": "模仿者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "imitator_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "imitator_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "imitator_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "delay": 14
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Newly copied temporary skills overwrite old ones; when all 3 slots are full, devouring another corpse overwrites the earliest slot",
+            "zh_cn": "新复制的临时技能会覆盖掉旧的临时技能,三个槽位占满的情况下，再次吞噬可吞噬尸体，会导致最早复制的槽位被覆盖",
+            "zh_tw": "新複製的臨時技能會覆蓋掉舊的臨時技能,三個槽位占滿的情況下，再次吞噬可吞噬屍體，會導致最早複製的槽位被覆蓋"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Imitator",
+        "zh_cn": "模仿者",
+        "zh_tw": "模仿者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "imitator_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "imitator_target",
+            "outline": -10223616
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Right-click to devour a corpse and gain a permanent skill; devoured corpses glow",
+                "zh_cn": "右键吞噬尸体并获得永久技能，被吞噬的尸体会发光",
+                "zh_tw": "右鍵吞噬屍體並獲得永久技能，被吞噬的屍體會發光"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 184,
+          "text": {
+            "en_us": "Right-click to devour a corpse and gain a permanent skill; devoured corpses glow",
+            "zh_cn": "右键吞噬尸体并获得永久技能，被吞噬的尸体会发光",
+            "zh_tw": "右鍵吞噬屍體並獲得永久技能，被吞噬的屍體會發光"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 194
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Imitator",
+        "zh_cn": "模仿者",
+        "zh_tw": "模仿者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "imitator_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 67,
+          "text": {
+            "en_us": "At most 3 slots",
+            "zh_cn": "最多3个槽位",
+            "zh_tw": "最多3個槽位"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 77
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

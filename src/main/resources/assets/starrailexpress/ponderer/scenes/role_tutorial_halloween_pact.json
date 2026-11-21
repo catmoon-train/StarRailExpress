@@ -1,0 +1,375 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.halloween_pact",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "魂契亡灵",
+    "zh_cn": "魂契亡灵",
+    "zh_tw": "魂契亡靈"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "魂契亡灵",
+        "zh_cn": "魂契亡灵",
+        "zh_tw": "魂契亡靈"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "halloween_pact_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 67,
+          "text": {
+            "en_us": "Special neutral",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 77
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Win alongside the faction of the nearest non-attached living player at your revival.",
+            "zh_cn": "跟随复活时最近的非依附存活玩家阵营获胜。",
+            "zh_tw": "跟隨復活時最近的非依附存活玩家陣營獲勝。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "魂契亡灵",
+        "zh_cn": "魂契亡灵",
+        "zh_tw": "魂契亡靈"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "halloween_pact_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The soul pact grants you one revival. You can't use your original role's skills, pick up, or use items; only empty-hand melee: within 3 blocks you attempt a kill every 2 seconds, still subject to shields and death-immunity. You always glow and emit soul particles; your victory follows the faction of the nearest non-attached living player at revival (including neutral/custom factions), and you won't revive again.",
+            "zh_cn": "拥有特殊获胜条件",
+            "zh_tw": "擁有特殊獲勝條件"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "魂契亡灵",
+        "zh_cn": "魂契亡灵",
+        "zh_tw": "魂契亡靈"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "halloween_pact_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "不能攻击、使用原职业技能、拾取或使用物品。",
+                "zh_cn": "不能攻击、使用原职业技能、拾取或使用物品。",
+                "zh_tw": "不能攻擊、使用原職業技能、拾取或使用物品。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 77,
+          "text": {
+            "en_us": "不能攻击、使用原职业技能、拾取或使用物品。",
+            "zh_cn": "不能攻击、使用原职业技能、拾取或使用物品。",
+            "zh_tw": "不能攻擊、使用原職業技能、拾取或使用物品。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 87
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "bond",
+      "title": {
+        "en_us": "魂契亡灵",
+        "zh_cn": "魂契亡灵",
+        "zh_tw": "魂契亡靈"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "halloween_pact_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "halloween_pact_ally",
+            "outline": -65536
+          }
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "attachKeyFrame": true,
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "你始终发光并散发灵魂粒子；胜利跟随复活时最近的非依附存活玩家阵营（包括中立/自定义阵营），不会再次复活。",
+                "zh_cn": "你始终发光并散发灵魂粒子；胜利跟随复活时最近的非依附存活玩家阵营（包括中立/自定义阵营），不会再次复活。",
+                "zh_tw": "你始終發光並散發靈魂粒子；勝利跟隨復活時最近的非依附存活玩家陣營（包括中立/自定義陣營），不會再次復活。"
+              }
+            ],
+            "color": -65536
+          }
+        },
+        {
+          "type": "text",
+          "duration": 133,
+          "text": {
+            "en_us": "你始终发光并散发灵魂粒子；胜利跟随复活时最近的非依附存活玩家阵营（包括中立/自定义阵营），不会再次复活。",
+            "zh_cn": "你始终发光并散发灵魂粒子；胜利跟随复活时最近的非依附存活玩家阵营（包括中立/自定义阵营），不会再次复活。",
+            "zh_tw": "你始終發光並散發靈魂粒子；勝利跟隨復活時最近的非依附存活玩家陣營（包括中立/自定義陣營），不會再次復活。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 143
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "魂契亡灵",
+        "zh_cn": "魂契亡灵",
+        "zh_tw": "魂契亡靈"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "halloween_pact_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 77,
+          "text": {
+            "en_us": "魂契给予你一次复生，整局仅一人可交付魂契。",
+            "zh_cn": "魂契给予你一次复生，整局仅一人可交付魂契。",
+            "zh_tw": "魂契給予你一次複生，整局僅一人可交付魂契。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 87
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

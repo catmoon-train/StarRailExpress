@@ -1,0 +1,313 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.sheriff",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Sheriff",
+    "zh_cn": "警卫",
+    "zh_tw": "警衛"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Sheriff",
+        "zh_cn": "警卫",
+        "zh_tw": "警衛"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "sheriff_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Sheriff team",
+            "zh_cn": "警长阵营",
+            "zh_tw": "警長陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 122,
+          "text": {
+            "en_us": "Use your gun to complete tasks and earn coins.",
+            "zh_cn": "保护列车上的乘客。",
+            "zh_tw": "保護列車上的乘客。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 132
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Sheriff",
+        "zh_cn": "警卫",
+        "zh_tw": "警衛"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "sheriff_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Handcuffs: right-click another player to cuff them; a cuffed player is slowed and cannot left-click interact.",
+            "zh_cn": "手铐：对其他玩家右键使用，被拷住的玩家行动受限且无法进行左键交互。",
+            "zh_tw": "手銬：對其他玩家右鍵使用，被拷住的玩家行動受限且無法進行左鍵交互。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Sheriff",
+        "zh_cn": "警卫",
+        "zh_tw": "警衛"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "sheriff_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "sheriff",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 101,
+          "text": {
+            "en_us": "You can buy Handcuffs in the shop.",
+            "zh_cn": "可在商店中购买手铐",
+            "zh_tw": "可在商店中購買手銬"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 111
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Sheriff",
+        "zh_cn": "警卫",
+        "zh_tw": "警衛"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "sheriff_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 155,
+          "text": {
+            "en_us": "After completing two tasks you earn a Revolver (once per match).",
+            "zh_cn": "完成两个任务后可获得一把左轮手枪(单局仅触发一次)。",
+            "zh_tw": "完成兩個任務後可獲得一把左輪手槍(單局僅觸發一次)。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 165
+        },
+        {
+          "type": "text",
+          "duration": 139,
+          "text": {
+            "en_us": "If you kill a Civilian, you die from the wrongful kill.",
+            "zh_cn": "如果杀死平民,你会因误杀平民而亡。",
+            "zh_tw": "如果殺死平民,你會因誤殺平民而亡。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 149
+        },
+        {
+          "type": "text",
+          "duration": 140,
+          "text": {
+            "en_us": "A cuffed player can break free by holding the sneak key.",
+            "zh_cn": "被手铐拷住的玩家可通过按住潜行键来挣脱控制。",
+            "zh_tw": "被手銬拷住的玩家可通過按住潛行鍵來掙脫控制。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 150
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

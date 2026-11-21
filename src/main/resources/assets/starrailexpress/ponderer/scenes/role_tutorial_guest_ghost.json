@@ -1,0 +1,590 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.guest_ghost",
+  "items": [
+    "trainmurdermystery:revolver"
+  ],
+  "title": {
+    "en_us": "Wraith Guest",
+    "zh_cn": "诡客",
+    "zh_tw": "詭客"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_room"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Wraith Guest",
+        "zh_cn": "诡客",
+        "zh_tw": "詭客"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "guest_ghost_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Sheriff team",
+            "zh_cn": "警长阵营",
+            "zh_tw": "警長陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 169,
+          "text": {
+            "en_us": "Save allies with Purifying Rain; break Sack Ghost realms with Soul Seal.",
+            "zh_cn": "用净雨救人，用镇魂印破境，阻止布袋鬼。",
+            "zh_tw": "用淨雨救人，用鎮魂印破境，阻止布袋鬼。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 179
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Wraith Guest",
+        "zh_cn": "诡客",
+        "zh_tw": "詭客"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "guest_ghost_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "guest_ghost",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 108,
+          "text": {
+            "en_us": "Purifying Rain (right-click the relic)",
+            "zh_cn": "开局拥有100金币、一把左轮手枪和一件可重复使用的镇魂法器。",
+            "zh_tw": "開局擁有100金幣、一把左輪手槍和一件可重複使用的鎮魂法器。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 118
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Good players within 10 blocks, including yourself, regain 20 SAN, lose Parasite and realm death marks, and resist the Sack Ghost's SAN drain for 6 seconds. Free, with a 45-second cooldown. Does not close the Inner World.",
+            "zh_cn": "净雨（法器右键）",
+            "zh_tw": "淨雨（法器右鍵）"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Immediately closes all Sack Ghost realms within 20 blocks in the same dimension and cancels their pending death marks. On success, charges the current user 175 coins once, regardless of how many realms are closed; 60-second cooldown. If there is no target, coins are insufficient, or the cast fails, it costs nothing and starts no cooldown.",
+            "zh_cn": "镇魂印（法器潜行+右键）",
+            "zh_tw": "鎮魂印（法器潛行+右鍵）"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Wraith Guest",
+        "zh_cn": "诡客",
+        "zh_tw": "詭客"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "guest_ghost_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Inheritance and Private Reveal",
+                "zh_cn": "立即关闭同维度20格内所有布袋鬼的领域，并取消这些领域待结算的死亡标记。成功时只向当前使用者收取一次175金币，无论关闭了多少个领域；冷却60秒。若没有目标、金币不足或释放失败，则不扣费也不进入冷却。",
+                "zh_tw": "立即關閉同維度20格內所有布袋鬼的領域，並取消這些領域待結算的死亡標記。成功時只向當前使用者收取一次175金幣，無論關閉了多少個領域；冷卻60秒。若沒有目標、金幣不足或釋放失敗，則不扣費也不進入冷卻。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Inheritance and Private Reveal",
+            "zh_cn": "立即关闭同维度20格内所有布袋鬼的领域，并取消这些领域待结算的死亡标记。成功时只向当前使用者收取一次175金币，无论关闭了多少个领域；冷却60秒。若没有目标、金币不足或释放失败，则不扣费也不进入冷却。",
+            "zh_tw": "立即關閉同維度20格內所有布袋鬼的領域，並取消這些領域待結算的死亡標記。成功時只向當前使用者收取一次175金幣，無論關閉了多少個領域；冷卻60秒。若沒有目標、金幣不足或釋放失敗，則不扣費也不進入冷卻。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "domain",
+      "title": {
+        "en_us": "Wraith Guest",
+        "zh_cn": "诡客",
+        "zh_tw": "詭客"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "guest_ghost_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 173,
+          "text": {
+            "en_us": "Soul Seal (sneak + right-click the relic)",
+            "zh_cn": "为10格内的好人（含你自己）恢复20点SAN，清除寄生与领域死亡标记，并在6秒内抵抗布袋鬼的SAN削减。免费使用，冷却45秒，此道具不会关闭里世界。",
+            "zh_tw": "為10格內的好人（含你自己）恢復20點SAN，清除寄生與領域死亡標記，並在6秒內抵抗布袋鬼的SAN削減。免費使用，冷卻45秒，此道具不會關閉裏世界。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 183
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Wraith Guest",
+        "zh_cn": "诡客",
+        "zh_tw": "詭客"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "guest_ghost_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "guest_ghost_target",
+            "outline": -5245566
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "The relic drops as a real item when its holder dies, and can only be picked up and used by civilians.",
+                "zh_cn": "法器传承与私有透视",
+                "zh_tw": "法器傳承與私有透視"
+              },
+              {
+                "en_us": "法器的两个技能冷却都跟随法器本身，回溯时也不会复制出法器。合格持有者把法器放在背包或副手时，就能独自看到20格内正在开启领域的布袋鬼的红色轮廓；未开启领域或超出范围者不会显形，这一透视不会分享给其他玩家。",
+                "zh_cn": "法器的两个技能冷却都跟随法器本身，回溯时也不会复制出法器。合格持有者把法器放在背包或副手时，就能独自看到20格内正在开启领域的布袋鬼的红色轮廓；未开启领域或超出范围者不会显形，这一透视不会分享给其他玩家。",
+                "zh_tw": "法器的兩個技能冷卻都跟隨法器本身，回溯時也不會複製出法器。合格持有者把法器放在背包或副手時，就能獨自看到20格內正在開啟領域的布袋鬼的紅色輪廓；未開啟領域或超出範圍者不會顯形，這一透視不會分享給其他玩家。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The relic drops as a real item when its holder dies, and can only be picked up and used by civilians.",
+            "zh_cn": "法器传承与私有透视",
+            "zh_tw": "法器傳承與私有透視"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "法器的两个技能冷却都跟随法器本身，回溯时也不会复制出法器。合格持有者把法器放在背包或副手时，就能独自看到20格内正在开启领域的布袋鬼的红色轮廓；未开启领域或超出范围者不会显形，这一透视不会分享给其他玩家。",
+            "zh_cn": "法器的两个技能冷却都跟随法器本身，回溯时也不会复制出法器。合格持有者把法器放在背包或副手时，就能独自看到20格内正在开启领域的布袋鬼的红色轮廓；未开启领域或超出范围者不会显形，这一透视不会分享给其他玩家。",
+            "zh_tw": "法器的兩個技能冷卻都跟隨法器本身，回溯時也不會複製出法器。合格持有者把法器放在背包或副手時，就能獨自看到20格內正在開啟領域的布袋鬼的紅色輪廓；未開啟領域或超出範圍者不會顯形，這一透視不會分享給其他玩家。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "bond",
+      "title": {
+        "en_us": "Wraith Guest",
+        "zh_cn": "诡客",
+        "zh_tw": "詭客"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "guest_ghost_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "guest_ghost_ally",
+            "outline": -5245566
+          }
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "attachKeyFrame": true,
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Spawns only on specific maps, paired with the Sack Ghost. Starts with 100 coins, a Revolver, and one reusable Spirit Ward Relic.",
+                "zh_cn": "仅在特定地图刷新，与布袋鬼绑定生成。",
+                "zh_tw": "僅在特定地圖刷新，與布袋鬼綁定生成。"
+              }
+            ],
+            "color": -5245566
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Spawns only on specific maps, paired with the Sack Ghost. Starts with 100 coins, a Revolver, and one reusable Spirit Ward Relic.",
+            "zh_cn": "仅在特定地图刷新，与布袋鬼绑定生成。",
+            "zh_tw": "僅在特定地圖刷新，與布袋鬼綁定生成。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Wraith Guest",
+        "zh_cn": "诡客",
+        "zh_tw": "詭客"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "guest_ghost_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Both skills' cooldowns are tied to the relic itself, and rewinding cannot duplicate the relic. An eligible carrier who keeps the relic in their inventory or offhand can privately see the red outlines of Sack Ghosts within 20 blocks while their realms are active. Ghosts with no active realm, or those out of range, stay hidden, and this vision is never shared with others.",
+            "zh_cn": "法器在死亡时会掉落，并且仅能被平民拾取和使用。",
+            "zh_tw": "法器在死亡時會掉落，並且僅能被平民拾取和使用。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,463 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.houraisan_kaguya",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Houraisan kaguya",
+    "zh_cn": "辉夜姬",
+    "zh_tw": "輝夜姬"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Houraisan kaguya",
+        "zh_cn": "辉夜姬",
+        "zh_tw": "輝夜姬"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "houraisan_kaguya_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "Princess of the Moon, mistress of Eientei",
+            "zh_cn": "月之公主，永远亭的主人",
+            "zh_tw": "月之公主，永遠亭的主人"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 123
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Houraisan kaguya",
+        "zh_cn": "辉夜姬",
+        "zh_tw": "輝夜姬"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "houraisan_kaguya_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "houraisan_kaguya",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 94,
+          "text": {
+            "en_us": "Each death grants you 50 coin.",
+            "zh_cn": "每次死亡你将获得50金币。",
+            "zh_tw": "每次死亡你將獲得50金幣。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 104
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "title": {
+        "en_us": "Houraisan kaguya",
+        "zh_cn": "辉夜姬",
+        "zh_tw": "輝夜姬"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "houraisan_kaguya_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "houraisan_kaguya_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "houraisan_kaguya_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "delay": 14
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "After being killed by a non-Killer team, you revive in place after 30s; you only truly die if killed by the Killer team, by environmental damage, or when your other half is killed.",
+            "zh_cn": "被非杀手阵营杀死后30s会原地复活，只有被杀手阵营杀死或环境伤害或另一半被杀死才会彻底死亡。",
+            "zh_tw": "被非殺手陣營殺死後30s會原地復活，只有被殺手陣營殺死或環境傷害或另一半被殺死才會徹底死亡。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "bond",
+      "title": {
+        "en_us": "Houraisan kaguya",
+        "zh_cn": "辉夜姬",
+        "zh_tw": "輝夜姬"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "houraisan_kaguya_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "houraisan_kaguya_ally",
+            "outline": -9475739
+          }
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "attachKeyFrame": true,
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Spawns bound with Huziwara no mokou, and bound to her via the Lovers modifier.",
+                "zh_cn": "与不灭凤凰绑定生成。且与不灭凤凰绑定恋人修饰符。",
+                "zh_tw": "與不滅鳳凰綁定生成。且與不滅鳳凰綁定戀人修飾符。"
+              }
+            ],
+            "color": -9475739
+          }
+        },
+        {
+          "type": "text",
+          "duration": 180,
+          "text": {
+            "en_us": "Spawns bound with Huziwara no mokou, and bound to her via the Lovers modifier.",
+            "zh_cn": "与不灭凤凰绑定生成。且与不灭凤凰绑定恋人修饰符。",
+            "zh_tw": "與不滅鳳凰綁定生成。且與不滅鳳凰綁定戀人修飾符。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 190
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Houraisan kaguya",
+        "zh_cn": "辉夜姬",
+        "zh_tw": "輝夜姬"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "houraisan_kaguya_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 153,
+          "text": {
+            "en_us": "A Killer-side neutral, but you cannot win alongside the Killers",
+            "zh_cn": "属于杀手方中立，但你无法和杀手一同获胜",
+            "zh_tw": "屬於殺手方中立，但你無法和殺手一同獲勝"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 163
+        },
+        {
+          "type": "text",
+          "duration": 94,
+          "text": {
+            "en_us": "Win under the Lovers condition",
+            "zh_cn": "以恋人的条件获胜",
+            "zh_tw": "以戀人的條件獲勝"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 104
+        },
+        {
+          "type": "text",
+          "duration": 131,
+          "text": {
+            "en_us": "When fewer than 5 players remain, you die normally.",
+            "zh_cn": "当场上剩余人数小于5人时会正常死亡。",
+            "zh_tw": "當場上剩餘人數小於5人時會正常死亡。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 141
+        },
+        {
+          "type": "text",
+          "duration": 101,
+          "text": {
+            "en_us": "When your lover dies, you die too.",
+            "zh_cn": "你的恋人死亡时，你也会死亡。",
+            "zh_tw": "你的戀人死亡時，你也會死亡。"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 111
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Win condition: survive to the end together with Huziwara no mokou (same as the Lovers win condition).",
+            "zh_cn": "获胜条件：与不灭凤凰共同活到最后（同恋人获胜条件）。",
+            "zh_tw": "獲勝條件：與不滅鳳凰共同活到最後（同戀人獲勝條件）。"
+          },
+          "point": [
+            3.0,
+            3.6,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

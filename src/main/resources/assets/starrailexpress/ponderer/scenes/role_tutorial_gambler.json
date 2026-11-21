@@ -1,0 +1,457 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.gambler",
+  "items": [
+    "noellesroles:once_revolver"
+  ],
+  "title": {
+    "en_us": "Gambler",
+    "zh_cn": "赌徒",
+    "zh_tw": "賭徒"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_room"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Gambler",
+        "zh_cn": "赌徒",
+        "zh_tw": "賭徒"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "gambler_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 106,
+          "text": {
+            "en_us": "Has its own independent win condition",
+            "zh_cn": "拥有独立胜利条件",
+            "zh_tw": "擁有獨立勝利條件"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 116
+        },
+        {
+          "type": "text",
+          "duration": 86,
+          "text": {
+            "en_us": "Win through your own luck.",
+            "zh_cn": "凭借自己的运气取得胜利。",
+            "zh_tw": "憑藉自己的運氣取得勝利。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 96
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Gambler",
+        "zh_cn": "赌徒",
+        "zh_tw": "賭徒"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "gambler_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Draws a new role every 120s; choose with the skill key.",
+                "zh_cn": "每120s抽取一个职业，使用技能键进行选择。",
+                "zh_tw": "每120s抽取一個職業，使用技能鍵進行選擇。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 139,
+          "text": {
+            "en_us": "Draws a new role every 120s; choose with the skill key.",
+            "zh_cn": "每120s抽取一个职业，使用技能键进行选择。",
+            "zh_tw": "每120s抽取一個職業，使用技能鍵進行選擇。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 149
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "title": {
+        "en_us": "Gambler",
+        "zh_cn": "赌徒",
+        "zh_tw": "賭徒"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "gambler_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "gambler_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "gambler_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "delay": 14
+          }
+        },
+        {
+          "type": "text",
+          "duration": 167,
+          "text": {
+            "en_us": "After being killed by someone: 33% chance to become a Killer-team role,",
+            "zh_cn": "被别人杀死后有33%概率变成杀手阵营职业,",
+            "zh_tw": "被別人殺死後有33%概率變成殺手陣營職業,"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 177
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Gambler",
+        "zh_cn": "赌徒",
+        "zh_tw": "賭徒"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "gambler_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "Draws a new role for every task completed",
+            "zh_cn": "每完成一个任务抽取一个新职业",
+            "zh_tw": "每完成一個任務抽取一個新職業"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 123
+        },
+        {
+          "type": "text",
+          "duration": 76,
+          "text": {
+            "en_us": "Can pick up pistols.",
+            "zh_cn": "可以拾取手枪。",
+            "zh_tw": "可以拾取手槍。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 86
+        },
+        {
+          "type": "text",
+          "duration": 169,
+          "text": {
+            "en_us": "Can crouch and use a pistol on yourself to suicide into the chosen role.",
+            "zh_cn": "可使用手枪蹲下自杀变为选择的职业。",
+            "zh_tw": "可使用手槍蹲下自殺變為選擇的職業。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 179
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "33% chance to become a Sheriff-team role,",
+            "zh_cn": "33%概率变成警长阵营职业,",
+            "zh_tw": "33%概率變成警長陣營職業,"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 123
+        },
+        {
+          "type": "text",
+          "duration": 72,
+          "text": {
+            "en_us": "33% chance to die,",
+            "zh_cn": "33%概率死亡,",
+            "zh_tw": "33%概率死亡,"
+          },
+          "point": [
+            3.0,
+            3.6,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 82
+        },
+        {
+          "type": "text",
+          "duration": 94,
+          "text": {
+            "en_us": "1% chance to win independently",
+            "zh_cn": "1%概率独立获胜",
+            "zh_tw": "1%概率獨立獲勝"
+          },
+          "point": [
+            3.0,
+            4.05,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 104
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When the Gambler suicides with a revolver or is killed by others (unless they immediately die from the bet), they return to their room",
+            "zh_cn": "赌徒使用左轮自杀或被他人击杀(如果不是赌中直接死亡的话)时会回到自己的房间",
+            "zh_tw": "賭徒使用左輪自殺或被他人擊殺(如果不是賭中直接死亡的話)時會回到自己的房間"
+          },
+          "point": [
+            3.0,
+            4.5,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

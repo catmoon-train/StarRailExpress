@@ -1,0 +1,655 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.monokuma",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Monokuma",
+    "zh_cn": "黑白",
+    "zh_tw": "黑白"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Monokuma",
+        "zh_cn": "黑白",
+        "zh_tw": "黑白"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "monokuma_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 148,
+          "text": {
+            "en_us": "Hope blooming in despair, or despair spreading through hope?",
+            "zh_cn": "绝望中绽放的希望，还是希望中蔓延的绝望？",
+            "zh_tw": "絕望中綻放的希望，還是希望中蔓延的絕望？"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 158
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Monokuma",
+        "zh_cn": "黑白",
+        "zh_tw": "黑白"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "monokuma_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 126,
+          "text": {
+            "en_us": "You hold a special Revolver (50% chance to hit).",
+            "zh_cn": "你持有一把特制左轮（50%概率命中）。",
+            "zh_tw": "你持有一把特製左輪（50%概率命中）。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 136
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Monokuma",
+        "zh_cn": "黑白",
+        "zh_tw": "黑白"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "monokuma_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Yin-Yang Sword: right-click to charge 1 second then release a 3.2-block AOE kill (up to 2 people at once); Q triggers a dash.",
+                "zh_cn": "阴阳剑右键蓄力1秒后释放3.2格范围AOE击杀（一次最多2人），Q键触发冲刺。",
+                "zh_tw": "陰陽劍右鍵蓄力1秒後釋放3.2格範圍AOE擊殺（一次最多2人），Q鍵觸發衝刺。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Yin-Yang Sword: right-click to charge 1 second then release a 3.2-block AOE kill (up to 2 people at once); Q triggers a dash.",
+            "zh_cn": "阴阳剑右键蓄力1秒后释放3.2格范围AOE击杀（一次最多2人），Q键触发冲刺。",
+            "zh_tw": "陰陽劍右鍵蓄力1秒後釋放3.2格範圍AOE擊殺（一次最多2人），Q鍵觸發衝刺。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Monokuma",
+        "zh_cn": "黑白",
+        "zh_tw": "黑白"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "monokuma_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "monokuma",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 171,
+          "text": {
+            "en_us": "Players inside the aura gain 8 coin and infinite stamina every 5 seconds.",
+            "zh_cn": "光环内玩家每5秒获得8金币、无限体力。",
+            "zh_tw": "光環內玩家每5秒獲得8金幣、無限體力。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 181
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vitals",
+      "title": {
+        "en_us": "Monokuma",
+        "zh_cn": "黑白",
+        "zh_tw": "黑白"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "monokuma_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "attachKeyFrame": true,
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.4,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
+              }
+            ],
+            "lines": [
+              {
+                "en_us": "Gain 1 layer of shield, Yin-Yang Sword; all players' movement speed drops 20%.",
+                "zh_cn": "获得1层护盾、阴阳剑，全服玩家移速降低20%。",
+                "zh_tw": "獲得1層護盾、陰陽劍，全服玩家移速降低20%。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 180,
+          "text": {
+            "en_us": "Gain 1 layer of shield, Yin-Yang Sword; all players' movement speed drops 20%.",
+            "zh_cn": "获得1层护盾、阴阳剑，全服玩家移速降低20%。",
+            "zh_tw": "獲得1層護盾、陰陽劍，全服玩家移速降低20%。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 190
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Monokuma",
+        "zh_cn": "黑白",
+        "zh_tw": "黑白"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "monokuma_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "monokuma_psycho",
+            "outline": -65536
+          }
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "You disguise as a Vigilante; you appear as a Vigilante to others.",
+                "zh_cn": "你伪装为义警，对外显示为义警身份。",
+                "zh_tw": "你偽裝為義警，對外顯示為義警身份。"
+              },
+              {
+                "en_us": "When hit by any attack, you enter [Rampage Prelude] (35 seconds):",
+                "zh_cn": "当你被任何攻击命中时，进入[狂暴前奏]阶段（35秒）：",
+                "zh_tw": "當你被任何攻擊命中時，進入[狂暴前奏]階段（35秒）："
+              },
+              {
+                "en_us": "During this, after killing total players / 7, the frenzy ends and you transform into [Monokuma].",
+                "zh_cn": "在此期间击杀总玩家数量/7后疯魔结束变身为[黑白熊]。",
+                "zh_tw": "在此期間擊殺總玩家數量/7後瘋魔結束變身為[黑白熊]。"
+              },
+              {
+                "en_us": "[Monokuma] form: nearly invulnerable, but cannot pick up items; 4-block aura effect.",
+                "zh_cn": "[黑白熊]形态：几乎无敌，但无法拾取物品，周围4格光环效果。",
+                "zh_tw": "[黑白熊]形態：幾乎無敵，但無法拾取物品，周圍4格光環效果。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 157,
+          "text": {
+            "en_us": "You disguise as a Vigilante; you appear as a Vigilante to others.",
+            "zh_cn": "你伪装为义警，对外显示为义警身份。",
+            "zh_tw": "你偽裝為義警，對外顯示為義警身份。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 167
+        },
+        {
+          "type": "text",
+          "duration": 157,
+          "text": {
+            "en_us": "When hit by any attack, you enter [Rampage Prelude] (35 seconds):",
+            "zh_cn": "当你被任何攻击命中时，进入[狂暴前奏]阶段（35秒）：",
+            "zh_tw": "當你被任何攻擊命中時，進入[狂暴前奏]階段（35秒）："
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 167
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "During this, after killing total players / 7, the frenzy ends and you transform into [Monokuma].",
+            "zh_cn": "在此期间击杀总玩家数量/7后疯魔结束变身为[黑白熊]。",
+            "zh_tw": "在此期間擊殺總玩家數量/7後瘋魔結束變身為[黑白熊]。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "[Monokuma] form: nearly invulnerable, but cannot pick up items; 4-block aura effect.",
+            "zh_cn": "[黑白熊]形态：几乎无敌，但无法拾取物品，周围4格光环效果。",
+            "zh_tw": "[黑白熊]形態：幾乎無敵，但無法拾取物品，周圍4格光環效果。"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Monokuma",
+        "zh_cn": "黑白",
+        "zh_tw": "黑白"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "monokuma_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 72,
+          "text": {
+            "en_us": "Wins by attachment",
+            "zh_cn": "依附获胜",
+            "zh_tw": "依附獲勝"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 82
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Only appears in lobbies of 10+ players and only by transforming via the Monokuma modifier.",
+            "zh_cn": "仅在10人及以上的对局中出现，仅能通过黑白修饰符转变而成。",
+            "zh_tw": "僅在10人及以上的對局中出現，僅能通過黑白修飾符轉變而成。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Invulnerable only means you don't die from normal attacks; forced deaths like the void and Voodoo cannot be blocked.",
+            "zh_cn": "无敌仅代表不会因为普通攻击死亡，但虚空、巫毒等强制死亡无法抵挡。",
+            "zh_tw": "無敵僅代表不會因為普通攻擊死亡，但虛空、巫毒等強制死亡無法抵擋。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 160,
+          "text": {
+            "en_us": "Invulnerability lifts after the good team or the bad team dies off.",
+            "zh_cn": "无敌会在好人阵营或坏人阵营全部死亡后解除。",
+            "zh_tw": "無敵會在好人陣營或壞人陣營全部死亡後解除。"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 170
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

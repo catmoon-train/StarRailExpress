@@ -1,0 +1,353 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.pendulum",
+  "items": [
+    "trainmurdermystery:lockpick",
+    "noellesroles:minute_needle",
+    "noellesroles:clock_hammer"
+  ],
+  "title": {
+    "en_us": "钟摆",
+    "zh_cn": "钟摆",
+    "zh_tw": "鐘擺"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "钟摆",
+        "zh_cn": "钟摆",
+        "zh_tw": "鐘擺"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pendulum_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 135,
+          "text": {
+            "en_us": "Killer team. Only created by the Command Block event.",
+            "zh_cn": "杀手阵营，仅由命令方块事件产生。",
+            "zh_tw": "殺手陣營，僅由命令方塊事件產生。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 145
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "滴答~滴答~",
+            "zh_cn": "滴答~滴答~",
+            "zh_tw": "滴答~滴答~"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 65
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "钟摆",
+        "zh_cn": "钟摆",
+        "zh_tw": "鐘擺"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pendulum_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Clock Lock: Invulnerable for 24 seconds. Each hit roots you for 1 second. On expiry or reactivation, rewind your position by the actual elapsed duration minus 3 seconds per hit, with a minimum rewind of zero. 90-second cooldown.",
+                "zh_cn": "定钟：24秒内无敌，每次受击禁锢自身1秒。结束或再次释放时，回到本次实际持续时间减去每次受击3秒之前的位置，回溯最少为0秒。冷却90秒。",
+                "zh_tw": "定鐘：24秒內無敵，每次受擊禁錮自身1秒。結束或再次釋放時，回到本次實際持續時間減去每次受擊3秒之前的位置，回溯最少為0秒。冷卻90秒。"
+              },
+              {
+                "en_us": "Starts with a Second Needle, which only kills visible players within 3.5 blocks during the 6 seconds after their return. 5-second cooldown.",
+                "zh_cn": "初始携带秒针，只能击杀3.5格内视线中被摆回后6秒内的玩家，冷却5秒。",
+                "zh_tw": "初始攜帶秒針，只能擊殺3.5格內視線中被擺回後6秒內的玩家，冷卻5秒。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Clock Lock: Invulnerable for 24 seconds. Each hit roots you for 1 second. On expiry or reactivation, rewind your position by the actual elapsed duration minus 3 seconds per hit, with a minimum rewind of zero. 90-second cooldown.",
+            "zh_cn": "定钟：24秒内无敌，每次受击禁锢自身1秒。结束或再次释放时，回到本次实际持续时间减去每次受击3秒之前的位置，回溯最少为0秒。冷却90秒。",
+            "zh_tw": "定鐘：24秒內無敵，每次受擊禁錮自身1秒。結束或再次釋放時，回到本次實際持續時間減去每次受擊3秒之前的位置，回溯最少為0秒。冷卻90秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Starts with a Second Needle, which only kills visible players within 3.5 blocks during the 6 seconds after their return. 5-second cooldown.",
+            "zh_cn": "初始携带秒针，只能击杀3.5格内视线中被摆回后6秒内的玩家，冷却5秒。",
+            "zh_tw": "初始攜帶秒針，只能擊殺3.5格內視線中被擺回後6秒內的玩家，冷卻5秒。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "钟摆",
+        "zh_cn": "钟摆",
+        "zh_tw": "鐘擺"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pendulum_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "pendulum",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Shop: Lockpick 230 coins; Minute Needle 80 coins, charge for 1 second and throw to kill a recently returned player or otherwise root them for 2 seconds; Clock Hammer 150 coins, permanently extends Clock Lock by 5 seconds this round, stacking with further uses.",
+            "zh_cn": "商店：开锁器230金币；分针80金币，蓄力1秒后投出，命中被摆回后6秒内的玩家将其击杀，否则禁锢2秒；钟锤150金币，使用后本局定钟持续时间永久增加5秒，可叠加。",
+            "zh_tw": "商店：開鎖器230金幣；分針80金幣，蓄力1秒後投出，命中被擺回後6秒內的玩家將其擊殺，否則禁錮2秒；鐘錘150金幣，使用後本局定鐘持續時間永久增加5秒，可疊加。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "钟摆",
+        "zh_cn": "钟摆",
+        "zh_tw": "鐘擺"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pendulum_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pendulum_target",
+            "outline": -2971066
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Pendulum Mark: Mark a visible player within 10 blocks. After 4 seconds, return them to the marked position if still within 28 blocks of it and root them for 8 seconds. Stores 3 charges, recovering one every 20 seconds.",
+                "zh_cn": "定摆：标记视线内10格内的玩家，4秒后若目标仍在原点28格内，将其摆回原点并禁锢8秒。每20秒恢复一次，可储存3次。",
+                "zh_tw": "定擺：標記視線內10格內的玩家，4秒後若目標仍在原點28格內，將其擺回原點並禁錮8秒。每20秒恢復一次，可儲存3次。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Pendulum Mark: Mark a visible player within 10 blocks. After 4 seconds, return them to the marked position if still within 28 blocks of it and root them for 8 seconds. Stores 3 charges, recovering one every 20 seconds.",
+            "zh_cn": "定摆：标记视线内10格内的玩家，4秒后若目标仍在原点28格内，将其摆回原点并禁锢8秒。每20秒恢复一次，可储存3次。",
+            "zh_tw": "定擺：標記視線內10格內的玩家，4秒後若目標仍在原點28格內，將其擺回原點並禁錮8秒。每20秒恢復一次，可儲存3次。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

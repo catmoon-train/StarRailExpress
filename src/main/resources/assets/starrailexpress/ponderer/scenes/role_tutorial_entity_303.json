@@ -1,0 +1,389 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.entity_303",
+  "items": [
+    "noellesroles:peel_blade",
+    "trainmurdermystery:lockpick"
+  ],
+  "title": {
+    "en_us": "实体303",
+    "zh_cn": "实体303",
+    "zh_tw": "實體303"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "实体303",
+        "zh_cn": "实体303",
+        "zh_tw": "實體303"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "entity_303_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Killer faction",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "Only produced by the command block event.",
+            "zh_cn": "仅由命令方块事件产生。",
+            "zh_tw": "僅由命令方塊事件產生。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 123
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "撕开他们的脸。",
+            "zh_cn": "撕开他们的脸。",
+            "zh_tw": "撕開他們的臉。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 65
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "实体303",
+        "zh_cn": "实体303",
+        "zh_tw": "實體303"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "entity_303_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Skill \"steal face\": copies the appearance and inventory of a player in your line of sight for 18 seconds, cooldown 40 seconds; your own inventory is restored when the steal ends, and the target's inventory is unaffected.",
+                "zh_cn": "技能窃形：复制视线中玩家的外观和物品栏 18 秒，冷却 40 秒；结束窃皮后恢复自己的物品栏，此技能不会影响目标玩家的物品栏。",
+                "zh_tw": "技能竊形：複製視線中玩家的外觀和物品欄 18 秒，冷卻 40 秒；結束竊皮後恢復自己的物品欄，此技能不會影響目標玩家的物品欄。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skill \"steal face\": copies the appearance and inventory of a player in your line of sight for 18 seconds, cooldown 40 seconds; your own inventory is restored when the steal ends, and the target's inventory is unaffected.",
+            "zh_cn": "技能窃形：复制视线中玩家的外观和物品栏 18 秒，冷却 40 秒；结束窃皮后恢复自己的物品栏，此技能不会影响目标玩家的物品栏。",
+            "zh_tw": "技能竊形：複製視線中玩家的外觀和物品欄 18 秒，冷卻 40 秒；結束竊皮後恢復自己的物品欄，此技能不會影響目標玩家的物品欄。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "实体303",
+        "zh_cn": "实体303",
+        "zh_tw": "實體303"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "entity_303_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "entity_303_psycho",
+            "outline": -8909812
+          }
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "You can deal damage while disguised. If you die during the steal, the current stolen target dies as well.",
+                "zh_cn": "伪装期间可以造成伤害。若窃皮期间自己死亡，则当前被偷脸的目标也会死亡。",
+                "zh_tw": "偽裝期間可以造成傷害。若竊皮期間自己死亡，則當前被偷臉的目標也會死亡。"
+              },
+              {
+                "en_us": "The stolen player sees through you when they look at you within 12 blocks; your disguise then shatters, you start glowing, and you cannot steal again for 12 seconds.",
+                "zh_cn": "被偷脸者本人在 12 格内看着你时会被识破，此时你的伪装碎裂、并获得发光效果，且 12 秒内不能再次窃形。",
+                "zh_tw": "被偷臉者本人在 12 格內看著你時會被識破，此時你的偽裝碎裂、並獲得發光效果，且 12 秒內不能再次竊形。"
+              },
+              {
+                "en_us": "Skinning blade: tears off a known face at close range and can be used while disguised, cooldown 20 seconds; killing a player makes you glow and prevents another steal for 15 seconds.",
+                "zh_cn": "剥皮刃可近距离撕开已知的脸，在伪装期间也可使用，冷却 20 秒；击杀玩家后会使自己发光，且 15 秒内不能再次窃形。",
+                "zh_tw": "剝皮刃可近距離撕開已知的臉，在偽裝期間也可使用，冷卻 20 秒；擊殺玩家後會使自己發光，且 15 秒內不能再次竊形。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You can deal damage while disguised. If you die during the steal, the current stolen target dies as well.",
+            "zh_cn": "伪装期间可以造成伤害。若窃皮期间自己死亡，则当前被偷脸的目标也会死亡。",
+            "zh_tw": "偽裝期間可以造成傷害。若竊皮期間自己死亡，則當前被偷臉的目標也會死亡。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The stolen player sees through you when they look at you within 12 blocks; your disguise then shatters, you start glowing, and you cannot steal again for 12 seconds.",
+            "zh_cn": "被偷脸者本人在 12 格内看着你时会被识破，此时你的伪装碎裂、并获得发光效果，且 12 秒内不能再次窃形。",
+            "zh_tw": "被偷臉者本人在 12 格內看著你時會被識破，此時你的偽裝碎裂、並獲得發光效果，且 12 秒內不能再次竊形。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skinning blade: tears off a known face at close range and can be used while disguised, cooldown 20 seconds; killing a player makes you glow and prevents another steal for 15 seconds.",
+            "zh_cn": "剥皮刃可近距离撕开已知的脸，在伪装期间也可使用，冷却 20 秒；击杀玩家后会使自己发光，且 15 秒内不能再次窃形。",
+            "zh_tw": "剝皮刃可近距離撕開已知的臉，在偽裝期間也可使用，冷卻 20 秒；擊殺玩家後會使自己發光，且 15 秒內不能再次竊形。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "实体303",
+        "zh_cn": "实体303",
+        "zh_tw": "實體303"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "entity_303_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 139,
+          "text": {
+            "en_us": "You can only damage players whose face you have stolen.",
+            "zh_cn": "你只能伤害偷过脸的人。",
+            "zh_tw": "你只能傷害偷過臉的人。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 149
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

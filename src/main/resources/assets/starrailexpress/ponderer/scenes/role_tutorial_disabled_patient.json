@@ -1,0 +1,238 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.disabled_patient",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Disabled Patient",
+    "zh_cn": "残疾患者",
+    "zh_tw": "殘疾患者"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Disabled Patient",
+        "zh_cn": "残疾患者",
+        "zh_tw": "殘疾患者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "disabled_patient_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 124,
+          "text": {
+            "en_us": "Broken body and all — still survive to the end.",
+            "zh_cn": "残躯尚在，亦要活到终点。",
+            "zh_tw": "殘軀尚在，亦要活到終點。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 134
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Disabled Patient",
+        "zh_cn": "残疾患者",
+        "zh_tw": "殘疾患者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "disabled_patient_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "disabled_patient",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Every 70s, gain a random permanent negative potion effect and 100 coins. The same effect never repeats; once all are gained, you keep earning coins.",
+            "zh_cn": "每 70 秒随机获得一种永久负面药水效果，并获得 100 金币。同一效果不会重复获得；全部获得后仍会继续获得金币。",
+            "zh_tw": "每 70 秒隨機獲得一種永久負面藥水效果，並獲得 100 金幣。同一效果不會重複獲得；全部獲得後仍會繼續獲得金幣。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Shop: one-time pistol 300 coins, weak shield potion 250 coins, cheap lockpick 200 coins.",
+            "zh_cn": "商店：一次性手枪 300 金币、弱效护盾试剂 250 金币、劣质开锁器 200 金币。",
+            "zh_tw": "商店：一次性手槍 300 金幣、弱效護盾試劑 250 金幣、劣質開鎖器 200 金幣。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Disabled Patient",
+        "zh_cn": "残疾患者",
+        "zh_tw": "殘疾患者"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "disabled_patient_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Possible effects: Blindness, Darkness, Slowness 1, Nearsightedness 3, Limp, Blind Sight (lower weight), Clumsiness 4, Motor Impairment, Loss of Appetite, Human Cognitive Bias, Mental Deafness, Low Intellect, Mind Loss, Illiteracy, Hearing, Hoarse, Mute, Coward, Rage, Cowardice.",
+            "zh_cn": "可能获得：失明、黑暗、缓慢1、近视3、瘸腿、盲视（较低权重）、手疾4、运动障碍、食欲不振、人类认知偏差、心灵失聪、智力下降、失心症、文盲、耳聪、沙哑、禁言、胆小鬼、暴怒、怯懦。",
+            "zh_tw": "可能獲得：失明、黑暗、緩慢1、近視3、瘸腿、盲視（較低權重）、手疾4、運動障礙、食欲不振、人類認知偏差、心靈失聰、智力下降、失心症、文盲、耳聰、沙啞、禁言、膽小鬼、暴怒、怯懦。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,475 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.halloween_event",
+  "items": [
+    "trainmurdermystery:note"
+  ],
+  "title": {
+    "en_us": "Halloween Event",
+    "zh_cn": "万圣节事件",
+    "zh_tw": "萬聖節事件"
+  },
+  "structures": [
+    "starrailexpress:event_halloween_porch"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "village",
+      "title": {
+        "en_us": "Halloween Event",
+        "zh_cn": "万圣节事件",
+        "zh_tw": "萬聖節事件"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:event_halloween_porch",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_ambience",
+          "attachKeyFrame": true,
+          "parameters": {
+            "color": 13136170,
+            "alpha": 0.4,
+            "mode": "sky"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              4.0
+            ],
+            "yaw": 180.0,
+            "linkId": "halloween_event_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "halloween_event",
+            "columns": 4,
+            "items": [
+              {
+                "item": "minecraft:pumpkin",
+                "price": 0,
+                "currency": "money"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 63,
+          "text": {
+            "en_us": "Event neutral",
+            "zh_cn": "中立事件",
+            "zh_tw": "中立事件"
+          },
+          "point": [
+            3.0,
+            1.8,
+            4.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 73
+        },
+        {
+          "type": "text",
+          "duration": 146,
+          "text": {
+            "en_us": "This role isn't assigned to players and takes no role slot.",
+            "zh_cn": "该职业不会分配给玩家，也不占职业名额。",
+            "zh_tw": "該職業不會分配給玩家，也不占職業名額。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            4.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 156
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Only active on Murder maps with the Halloween config enabled (halloweenEventEnabled); normal maps are unaffected.",
+            "zh_cn": "仅在启用了万圣节的地图中生效。",
+            "zh_tw": "僅在啟用了萬聖節的地圖中生效。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            4.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "knock",
+      "title": {
+        "en_us": "Halloween Event",
+        "zh_cn": "万圣节事件",
+        "zh_tw": "萬聖節事件"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:event_halloween_porch",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_ambience",
+          "attachKeyFrame": true,
+          "parameters": {
+            "color": 13136170,
+            "alpha": 0.4,
+            "mode": "sky"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              4.0
+            ],
+            "yaw": 180.0,
+            "linkId": "halloween_event_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "A unique Halloween Reaper spawns at the map's fixed coordinate: right-click to open a shop trading items for pumpkins and coins, and deliver a Soul Contract near the Reaper to register the server-wide unique revival. Sneak with empty hands and right-click a small door to knock; each player has an independent cooldown: 60% chance for 1–2 pumpkins, 30% to spawn an undead, 10% for a candy bag; there is also a 20% chance a temporary candy Reaper appears. In Halloween rounds, the backpack shop of players who sell knives can additionally buy an 8-durability Blood Saw for 200 coins. Every 3 real tasks completed grants a 20% chance to earn a Soul Contract; after delivery, dying revives you as an unattackable Soul-Bound Wraith who wins with the faction of the nearest living player at revival. Each real task completed by a living player grants 1–2 Halloween pumpkins (candy and candy bags each have a separate 10% chance); pumpkin rewards are boosted by 30%, then halved again for the civilian faction. The Fright Gun, Bone Sword and Blood Saw are usable; gunshots, door knocks or kills near the Reaper spawn orange-gold event undead. The Pumpkin Spirit only spawns on Halloween maps and wins alone by collecting enough pumpkins.",
+            "zh_cn": "地图固定坐标生成唯一的万圣残月：右键打开商店用南瓜与金币兑换道具，靠近残月可交付魂契并登记复活资格。",
+            "zh_tw": "地圖固定座標生成唯一的萬聖殘月：右鍵打開商店用南瓜與金幣兌換道具，靠近殘月可交付魂契並登記復活資格。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            4.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 164,
+          "text": {
+            "en_us": "潜行并空手右键小门可敲门，每名玩家拥有独立冷却：60%概率获得1–2个南瓜、30%生成亡灵、10%获得糖果袋；另有20%概率出现发糖残月。",
+            "zh_cn": "潜行并空手右键小门可敲门，每名玩家拥有独立冷却：60%概率获得1–2个南瓜、30%生成亡灵、10%获得糖果袋；另有20%概率出现发糖残月。",
+            "zh_tw": "潛行並空手右鍵小門可敲門，每名玩家擁有獨立冷卻：60%概率獲得1–2個南瓜、30%生成亡靈、10%獲得糖果袋；另有20%概率出現發糖殘月。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            4.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 174
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "contract",
+      "title": {
+        "en_us": "Halloween Event",
+        "zh_cn": "万圣节事件",
+        "zh_tw": "萬聖節事件"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:event_halloween_porch",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_ambience",
+          "attachKeyFrame": true,
+          "parameters": {
+            "color": 13136170,
+            "alpha": 0.4,
+            "mode": "sky"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              4.0
+            ],
+            "yaw": 180.0,
+            "linkId": "halloween_event_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "halloween_event_other",
+            "outline": -65536
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 103,
+          "text": {
+            "en_us": "万圣节事件中持有刀具的职业商店可额外以200金币购买8耐久的献血锯子。",
+            "zh_cn": "万圣节事件中持有刀具的职业商店可额外以200金币购买8耐久的献血锯子。",
+            "zh_tw": "萬聖節事件中持有刀具的職業商店可額外以200金幣購買8耐久的獻血鋸子。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            4.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 113
+        },
+        {
+          "type": "text",
+          "duration": 110,
+          "text": {
+            "en_us": "每完成3个真实任务有20%概率获得魂契，交付后死亡可复活为不能攻击的魂契亡灵。",
+            "zh_cn": "每完成3个真实任务有20%概率获得魂契，交付后死亡可复活为不能攻击的魂契亡灵。",
+            "zh_tw": "每完成3個真實任務有20%概率獲得魂契，交付後死亡可復活為不能攻擊的魂契亡靈。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            4.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 120
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "combat",
+      "title": {
+        "en_us": "Halloween Event",
+        "zh_cn": "万圣节事件",
+        "zh_tw": "萬聖節事件"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:event_halloween_porch",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_ambience",
+          "attachKeyFrame": true,
+          "parameters": {
+            "color": 13136170,
+            "alpha": 0.4,
+            "mode": "sky"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              4.0
+            ],
+            "yaw": 180.0,
+            "linkId": "halloween_event_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "万圣节亡灵"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "存活玩家每次真实完成任务基础获得1–2个活动南瓜（糖果与糖果袋另各有10%概率）。",
+            "zh_cn": "存活玩家每次真实完成任务基础获得1–2个活动南瓜（糖果与糖果袋另各有10%概率）。",
+            "zh_tw": "存活玩家每次真實完成任務基礎獲得1–2個活動南瓜（糖果與糖果袋另各有10%概率）。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            4.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 123
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "pumpkin",
+      "title": {
+        "en_us": "Halloween Event",
+        "zh_cn": "万圣节事件",
+        "zh_tw": "萬聖節事件"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:event_halloween_porch",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_ambience",
+          "attachKeyFrame": true,
+          "parameters": {
+            "color": 13136170,
+            "alpha": 0.4,
+            "mode": "sky"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              4.0
+            ],
+            "yaw": 180.0,
+            "linkId": "halloween_event_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 92,
+          "text": {
+            "en_us": "枪击、敲门或靠近万圣残月击杀玩家会生成橙金色的万圣节亡灵。",
+            "zh_cn": "枪击、敲门或靠近万圣残月击杀玩家会生成橙金色的万圣节亡灵。",
+            "zh_tw": "槍擊、敲門或靠近萬聖殘月擊殺玩家會生成橙金色的萬聖節亡靈。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            4.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 102
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

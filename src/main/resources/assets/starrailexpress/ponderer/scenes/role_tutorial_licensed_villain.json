@@ -1,0 +1,386 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.licensed_villain",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Dirty Cop",
+    "zh_cn": "黑警",
+    "zh_tw": "黑警"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Dirty Cop",
+        "zh_cn": "黑警",
+        "zh_tw": "黑警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "licensed_villain_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 106,
+          "text": {
+            "en_us": "Has its own independent win condition",
+            "zh_cn": "拥有独立胜利条件",
+            "zh_tw": "擁有獨立勝利條件"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 116
+        },
+        {
+          "type": "text",
+          "duration": 106,
+          "text": {
+            "en_us": "Bring justice to what you deem unjust",
+            "zh_cn": "为你认为不公的事情带去正义",
+            "zh_tw": "為你認為不公的事情帶去正義"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 116
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Dirty Cop",
+        "zh_cn": "黑警",
+        "zh_tw": "黑警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "licensed_villain_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "licensed_villain",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 119,
+          "text": {
+            "en_us": "Shop: Service Revolver, Handcuffs, Lockpick.",
+            "zh_cn": "商店：制式左轮、手铐、开锁器。",
+            "zh_tw": "商店：制式左輪、手銬、開鎖器。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 129
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Dirty Cop",
+        "zh_cn": "黑警",
+        "zh_tw": "黑警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "licensed_villain_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "licensed_villain_psycho",
+            "outline": -65536
+          }
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "Has Dirty Cop see-through (everyone shows as your color; when Dirty Cop Time triggers, see-through targets show red).",
+                "zh_cn": "拥有黑警透视（看所有人为自己的颜色，触发黑警时刻时，透视目标玩家为红色）。",
+                "zh_tw": "擁有黑警透視（看所有人為自己的顏色，觸發黑警時刻時，透視目標玩家為紅色）。"
+              },
+              {
+                "en_us": "When survivors drop below 40% of the starting count, Dirty Cop Time triggers: gain a Derringer; you must kill the largest team on the map (Killer / Civilian / Neutral) to win independently (target players show red in see-through). If you kill anyone outside the target team, you die of remorse.",
+                "zh_cn": "当存活人数不足开局人数的40%时触发黑警时刻：获得一把德林加手枪，须击杀当前场上人数最多的阵营（杀手/平民/中立）以独立获胜(目标玩家会在透视中显示为红色)。此时若击杀目标阵营以外的玩家则会因悔恨自尽而死。",
+                "zh_tw": "當存活人數不足開局人數的40%時觸發黑警時刻：獲得一把德林加手槍，須擊殺當前場上人數最多的陣營（殺手/平民/中立）以獨立獲勝(目標玩家會在透視中顯示為紅色)。此時若擊殺目標陣營以外的玩家則會因悔恨自盡而死。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Has Dirty Cop see-through (everyone shows as your color; when Dirty Cop Time triggers, see-through targets show red).",
+            "zh_cn": "拥有黑警透视（看所有人为自己的颜色，触发黑警时刻时，透视目标玩家为红色）。",
+            "zh_tw": "擁有黑警透視（看所有人為自己的顏色，觸發黑警時刻時，透視目標玩家為紅色）。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When survivors drop below 40% of the starting count, Dirty Cop Time triggers: gain a Derringer; you must kill the largest team on the map (Killer / Civilian / Neutral) to win independently (target players show red in see-through). If you kill anyone outside the target team, you die of remorse.",
+            "zh_cn": "当存活人数不足开局人数的40%时触发黑警时刻：获得一把德林加手枪，须击杀当前场上人数最多的阵营（杀手/平民/中立）以独立获胜(目标玩家会在透视中显示为红色)。此时若击杀目标阵营以外的玩家则会因悔恨自尽而死。",
+            "zh_tw": "當存活人數不足開局人數的40%時觸發黑警時刻：獲得一把德林加手槍，須擊殺當前場上人數最多的陣營（殺手/平民/中立）以獨立獲勝(目標玩家會在透視中顯示為紅色)。此時若擊殺目標陣營以外的玩家則會因悔恨自盡而死。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Dirty Cop",
+        "zh_cn": "黑警",
+        "zh_tw": "黑警"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "licensed_villain_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 119,
+          "text": {
+            "en_us": "Complete 2 tasks to gain a Service Revolver.",
+            "zh_cn": "完成2个任务获得一把制式左轮。",
+            "zh_tw": "完成2個任務獲得一把制式左輪。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 129
+        },
+        {
+          "type": "text",
+          "duration": 112,
+          "text": {
+            "en_us": "Can remove Handcuffs (like the Sheriff).",
+            "zh_cn": "可以取下手铐（同警长）。",
+            "zh_tw": "可以取下手銬（同警長）。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 122
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Note: Killer-side neutrals count as Killer team for the Dirty Cop, and good-side neutrals count as Passenger team",
+            "zh_cn": "注：杀手方中立玩家会被黑警计入杀手阵营，好人方中立玩家会被计入平民阵营",
+            "zh_tw": "注：殺手方中立玩家會被黑警計入殺手陣營，好人方中立玩家會被計入平民陣營"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

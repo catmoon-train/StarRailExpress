@@ -1,0 +1,360 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.candle_shade",
+  "items": [
+    "noellesroles:lamp_oil",
+    "noellesroles:candle_snip",
+    "trainmurdermystery:lockpick"
+  ],
+  "title": {
+    "en_us": "烛影",
+    "zh_cn": "烛影",
+    "zh_tw": "燭影"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "烛影",
+        "zh_cn": "烛影",
+        "zh_tw": "燭影"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "candle_shade_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Killer faction",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "Only produced by the command block event.",
+            "zh_cn": "仅由命令方块事件产生。",
+            "zh_tw": "僅由命令方塊事件產生。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 123
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "烛火摇曳的灯笼。",
+            "zh_cn": "烛火摇曳的灯笼。",
+            "zh_tw": "燭火搖曳的燈籠。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 65
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "烛影",
+        "zh_cn": "烛影",
+        "zh_tw": "燭影"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "candle_shade_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Skill \"light up\": lights up every unobstructed living player within 14 blocks in front of you for 8 seconds. When the target looks at you within 10 blocks they blow out their own candle and you are blinded for 1 second. Cooldown 18 seconds.",
+                "zh_cn": "技能点灯：点亮前方14格内所有无遮挡的存活玩家8秒。对方在10格内看着你时会吹灭自己的烛火，你会获得1秒失明。冷却18秒。",
+                "zh_tw": "技能點燈：點亮前方14格內所有無遮擋的存活玩家8秒。對方在10格內看著你時會吹滅自己的燭火，你會獲得1秒失明。冷卻18秒。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skill \"light up\": lights up every unobstructed living player within 14 blocks in front of you for 8 seconds. When the target looks at you within 10 blocks they blow out their own candle and you are blinded for 1 second. Cooldown 18 seconds.",
+            "zh_cn": "技能点灯：点亮前方14格内所有无遮挡的存活玩家8秒。对方在10格内看着你时会吹灭自己的烛火，你会获得1秒失明。冷却18秒。",
+            "zh_tw": "技能點燈：點亮前方14格內所有無遮擋的存活玩家8秒。對方在10格內看著你時會吹滅自己的燭火，你會獲得1秒失明。冷卻18秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "烛影",
+        "zh_cn": "烛影",
+        "zh_tw": "燭影"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "candle_shade_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "candle_shade_target",
+            "outline": -27096
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Candle oil: extends the remaining candle glow by 4 seconds.",
+                "zh_cn": "灯油：使所有剩余烛火延长4秒发光效果。",
+                "zh_tw": "燈油：使所有剩餘燭火延長4秒發光效果。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 146,
+          "text": {
+            "en_us": "Candle oil: extends the remaining candle glow by 4 seconds.",
+            "zh_cn": "灯油：使所有剩余烛火延长4秒发光效果。",
+            "zh_tw": "燈油：使所有剩餘燭火延長4秒發光效果。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 156
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "烛影",
+        "zh_cn": "烛影",
+        "zh_tw": "燭影"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "candle_shade_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 189,
+          "text": {
+            "en_us": "After hitting a player: you become cloaked for 10 seconds and gain a brief Speed V.",
+            "zh_cn": "命中玩家后：自身隐身10秒，并获得短暂的速度Ⅴ。",
+            "zh_tw": "命中玩家後：自身隱身10秒，並獲得短暫的速度Ⅴ。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 199
+        },
+        {
+          "type": "text",
+          "duration": 182,
+          "text": {
+            "en_us": "Candle shears: can only kill players who are lit up and are not looking at you.",
+            "zh_cn": "烛剪：只能击杀被点亮且没看着你的玩家。",
+            "zh_tw": "燭剪：只能擊殺被點亮且沒看著你的玩家。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 192
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

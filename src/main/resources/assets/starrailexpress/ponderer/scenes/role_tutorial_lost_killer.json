@@ -1,0 +1,510 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.lost_killer",
+  "items": [
+    "trainmurdermystery:revolver"
+  ],
+  "title": {
+    "en_us": "Lost Killer",
+    "zh_cn": "迷失杀手",
+    "zh_tw": "迷失殺手"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Lost Killer",
+        "zh_cn": "迷失杀手",
+        "zh_tw": "迷失殺手"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "lost_killer_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 72,
+          "text": {
+            "en_us": "Find your partner!",
+            "zh_cn": "找到你的同伴!",
+            "zh_tw": "找到你的同伴!"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 82
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Lost Killer",
+        "zh_cn": "迷失杀手",
+        "zh_tw": "迷失殺手"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "lost_killer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "lost_killer",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 131,
+          "text": {
+            "en_us": "Starts with a Revolver and the default Killer shop.",
+            "zh_cn": "开局自带一把左轮手枪，拥有默认的杀手商店。",
+            "zh_tw": "開局自帶一把左輪手槍，擁有默認的殺手商店。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 141
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Lost Killer",
+        "zh_cn": "迷失杀手",
+        "zh_tw": "迷失殺手"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "lost_killer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Other Killers do not see the Lost Killer as a fellow Killer in the skill page",
+                "zh_cn": "其它杀手通过技能页面看迷失杀手不是杀手同伙",
+                "zh_tw": "其他殺手通過技能頁面看迷失殺手不是殺手同夥"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 178,
+          "text": {
+            "en_us": "Other Killers do not see the Lost Killer as a fellow Killer in the skill page",
+            "zh_cn": "其它杀手通过技能页面看迷失杀手不是杀手同伙",
+            "zh_tw": "其他殺手通過技能頁面看迷失殺手不是殺手同夥"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 188
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Lost Killer",
+        "zh_cn": "迷失杀手",
+        "zh_tw": "迷失殺手"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "lost_killer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "lost_killer_target",
+            "outline": -4973011
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Other Killers see the Lost Killer's outline as green via see-through",
+                "zh_cn": "其它杀手通过透视看迷失杀手的框是绿框",
+                "zh_tw": "其他殺手通過透視看迷失殺手的框是綠框"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 162,
+          "text": {
+            "en_us": "Other Killers see the Lost Killer's outline as green via see-through",
+            "zh_cn": "其它杀手通过透视看迷失杀手的框是绿框",
+            "zh_tw": "其他殺手通過透視看迷失殺手的框是綠框"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 172
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "bond",
+      "title": {
+        "en_us": "Lost Killer",
+        "zh_cn": "迷失杀手",
+        "zh_tw": "迷失殺手"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "lost_killer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "lost_killer_ally",
+            "outline": -4973011
+          }
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "attachKeyFrame": true,
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "You cannot see game time, have no Killer instinct, and cannot see who your teammates are.",
+                "zh_cn": "你看不到游戏时间，没有杀手本能，看不到队友是谁。",
+                "zh_tw": "你看不到遊戲時間，沒有殺手本能，看不到隊友是誰。"
+              }
+            ],
+            "color": -4973011
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You cannot see game time, have no Killer instinct, and cannot see who your teammates are.",
+            "zh_cn": "你看不到游戏时间，没有杀手本能，看不到队友是谁。",
+            "zh_tw": "你看不到遊戲時間，沒有殺手本能，看不到隊友是誰。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Lost Killer",
+        "zh_cn": "迷失杀手",
+        "zh_tw": "迷失殺手"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "lost_killer_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 110,
+          "text": {
+            "en_us": "Like the Lost Duck in Goose Goose Duck.",
+            "zh_cn": "类似于鹅鸭杀的走失小鸭",
+            "zh_tw": "類似於鵝鴨殺的走失小鴨"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 120
+        },
+        {
+          "type": "text",
+          "duration": 119,
+          "text": {
+            "en_us": "Spawns mutually exclusive with the Magician.",
+            "zh_cn": "与魔术师互斥生成。",
+            "zh_tw": "與魔術師互斥生成。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 129
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "On spawn you do not take up a Killer slot",
+            "zh_cn": "生成时你不会占用杀手的位置",
+            "zh_tw": "生成時你不會佔用殺手的位置"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 123
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

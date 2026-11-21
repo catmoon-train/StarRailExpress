@@ -1,0 +1,452 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.programmer",
+  "items": [
+    "noellesroles:terminal"
+  ],
+  "title": {
+    "en_us": "Programmer",
+    "zh_cn": "程序员",
+    "zh_tw": "程式員"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_room"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Programmer",
+        "zh_cn": "程序员",
+        "zh_tw": "程式員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "programmer_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 160,
+          "text": {
+            "en_us": "Use the terminal you wrote to rewrite this murder from the shadows!",
+            "zh_cn": "用你写下的终端，在暗处改写这场谋杀！",
+            "zh_tw": "用你寫下的終端，在暗處改寫這場謀殺！"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 170
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Programmer",
+        "zh_cn": "程序员",
+        "zh_tw": "程式員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "programmer_main"
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "attachKeyFrame": true,
+          "pos": [
+            1.6,
+            1.55,
+            1.6
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:terminal",
+          "linkId": "programmer_item"
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You can right-handedly (bare hands) right-click a cuffed player and remove their handcuffs",
+            "zh_cn": "你可以空手右键被手铐铐住的玩家，并取下他身上的手铐",
+            "zh_tw": "你可以空手右鍵被手銬銬住的玩家，並取下他身上的手銬"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Programmer",
+        "zh_cn": "程序员",
+        "zh_tw": "程式員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "programmer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "programmer",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 81,
+          "text": {
+            "en_us": "Shop sells a [Terminal]",
+            "zh_cn": "商店可购买【终端】",
+            "zh_tw": "商店可購買【終端】"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 91
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "panel",
+      "title": {
+        "en_us": "Programmer",
+        "zh_cn": "程序员",
+        "zh_tw": "程式員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "programmer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.label.notes",
+            "lines": [
+              {
+                "en_us": "Hold the terminal and right-click to open it; type commands manually and press Enter (leading/trailing spaces ignored)",
+                "zh_cn": "手持终端右键打开终端界面；指令需要自己手动输入，按回车执行（首尾多余空格会被自动忽略）",
+                "zh_tw": "手持終端右鍵打開終端介面；指令需要自己手動輸入，按回車執行（首尾多餘空格會被自動忽略）"
+              },
+              {
+                "en_us": "The terminal can spawn items (revolver, knives, lockpicks, handcuffs...), clear your status effects, cut lights out, disable monitors",
+                "zh_cn": "终端能通过输入指令生成各种物品（左轮、刀具、开锁器、手铐……）、清除自身药效、切断全场照明、让监控失灵",
+                "zh_tw": "終端能通過輸入指令生成各種物品（左輪、刀具、開鎖器、手銬……）、清除自身藥效、切斷全場照明、讓監控失靈"
+              },
+              {
+                "en_us": "Anyone can use the terminal, but only the programmer can type /help to see the command list; others must memorize it",
+                "zh_cn": "无论谁拿到终端都能够使用，但只有程序员能在终端里输入 /help 查看指令清单，其他人得自己记",
+                "zh_tw": "無論誰拿到終端都能夠使用，但只有程式員能在終端裏輸入 /help 查看指令清單，其他人得自己記"
+              },
+              {
+                "en_us": "Correct commands consume the terminal and start a 2min cooldown; wrong ones also consume it but only 10s",
+                "zh_cn": "指令正确则消耗终端并进入2分钟冷却；输错也会消耗终端，但冷却只有10秒",
+                "zh_tw": "指令正確則消耗終端並進入2分鐘冷卻；輸錯也會消耗終端，但冷卻只有10秒"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Hold the terminal and right-click to open it; type commands manually and press Enter (leading/trailing spaces ignored)",
+            "zh_cn": "手持终端右键打开终端界面；指令需要自己手动输入，按回车执行（首尾多余空格会被自动忽略）",
+            "zh_tw": "手持終端右鍵打開終端介面；指令需要自己手動輸入，按回車執行（首尾多餘空格會被自動忽略）"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The terminal can spawn items (revolver, knives, lockpicks, handcuffs...), clear your status effects, cut lights out, disable monitors",
+            "zh_cn": "终端能通过输入指令生成各种物品（左轮、刀具、开锁器、手铐……）、清除自身药效、切断全场照明、让监控失灵",
+            "zh_tw": "終端能通過輸入指令生成各種物品（左輪、刀具、開鎖器、手銬……）、清除自身藥效、切斷全場照明、讓監控失靈"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Anyone can use the terminal, but only the programmer can type /help to see the command list; others must memorize it",
+            "zh_cn": "无论谁拿到终端都能够使用，但只有程序员能在终端里输入 /help 查看指令清单，其他人得自己记",
+            "zh_tw": "無論誰拿到終端都能夠使用，但只有程式員能在終端裏輸入 /help 查看指令清單，其他人得自己記"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Correct commands consume the terminal and start a 2min cooldown; wrong ones also consume it but only 10s",
+            "zh_cn": "指令正确则消耗终端并进入2分钟冷却；输错也会消耗终端，但冷却只有10秒",
+            "zh_tw": "指令正確則消耗終端並進入2分鐘冷卻；輸錯也會消耗終端，但冷卻只有10秒"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Programmer",
+        "zh_cn": "程序员",
+        "zh_tw": "程式員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "programmer_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 67,
+          "text": {
+            "en_us": "Easter egg role",
+            "zh_cn": "彩蛋职业",
+            "zh_tw": "彩蛋職業"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 77
+        },
+        {
+          "type": "text",
+          "duration": 166,
+          "text": {
+            "en_us": "It can send you to your room, to a random living player, even kill you",
+            "zh_cn": "也能把你送回房间、送到随机一名存活玩家身上，甚至可以杀死自己",
+            "zh_tw": "也能把你送回房間、送到隨機一名存活玩家身上，甚至可以殺死自己"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 176
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

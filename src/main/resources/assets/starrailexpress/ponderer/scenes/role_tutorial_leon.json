@@ -1,0 +1,406 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.leon",
+  "items": [
+    "trainmurdermystery:revolver"
+  ],
+  "title": {
+    "en_us": "Leon",
+    "zh_cn": "里昂",
+    "zh_tw": "里昂"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Leon",
+        "zh_cn": "里昂",
+        "zh_tw": "里昂"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "leon_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Sheriff team",
+            "zh_cn": "警长阵营",
+            "zh_tw": "警長陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "As part of the Sheriff team, wipe out every Killer and survive to the end with the good guys.",
+            "zh_cn": "用坚强的身躯，肃清所有杀手",
+            "zh_tw": "用堅強的身軀，肅清所有殺手"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Leon",
+        "zh_cn": "里昂",
+        "zh_tw": "里昂"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "leon_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "leon",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 81,
+          "text": {
+            "en_us": "Starts with a Revolver.",
+            "zh_cn": "开局拥有一把左轮手枪。",
+            "zh_tw": "開局擁有一把左輪手槍。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 91
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Leon",
+        "zh_cn": "里昂",
+        "zh_tw": "里昂"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "leon_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Passive · Survivor: when only 6 players remain, gain a Blue Herb: right-click to use instantly and refresh the combat kick.",
+                "zh_cn": "被动·幸存之人：当场上仅剩 6 位玩家时，获得蓝色草药：右键立即使用，可刷新格斗体术。",
+                "zh_tw": "被動·倖存之人：當場上僅剩 6 位玩家時，獲得藍色草藥：右鍵立即使用，可刷新格鬥體術。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Passive · Survivor: when only 6 players remain, gain a Blue Herb: right-click to use instantly and refresh the combat kick.",
+            "zh_cn": "被动·幸存之人：当场上仅剩 6 位玩家时，获得蓝色草药：右键立即使用，可刷新格斗体术。",
+            "zh_tw": "被動·倖存之人：當場上僅剩 6 位玩家時，獲得藍色草藥：右鍵立即使用，可刷新格鬥體術。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vitals",
+      "title": {
+        "en_us": "Leon",
+        "zh_cn": "里昂",
+        "zh_tw": "里昂"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "leon_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "attachKeyFrame": true,
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.4,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
+              }
+            ],
+            "lines": [
+              {
+                "en_us": "When only 3 players remain, gain a Red Herb: hold right-click to shield yourself (does not stack).",
+                "zh_cn": "当场上仅剩 3 位玩家时，获得红色草药：长按右键使用，为自己套上一层护盾（不可叠加）。",
+                "zh_tw": "當場上僅剩 3 位玩家時，獲得紅色草藥：長按右鍵使用，為自己套上一層護盾（不可疊加）。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When only 3 players remain, gain a Red Herb: hold right-click to shield yourself (does not stack).",
+            "zh_cn": "当场上仅剩 3 位玩家时，获得红色草药：长按右键使用，为自己套上一层护盾（不可叠加）。",
+            "zh_tw": "當場上僅剩 3 位玩家時，獲得紅色草藥：長按右鍵使用，為自己套上一層護盾（不可疊加）。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Leon",
+        "zh_cn": "里昂",
+        "zh_tw": "里昂"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "leon_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Combat Kick (press G): delivers a fierce kick to the player in front of you, knocking them back far and slowing them for 2.5 seconds.",
+            "zh_cn": "格斗体术（按 G 触发）：向面前的玩家猛踹一脚，造成较远击退并使其减速 2.5 秒。",
+            "zh_tw": "格鬥體術（按 G 觸發）：向面前的玩家猛踹一腳，造成較遠擊退並使其減速 2.5 秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You cannot be afflicted by any modifier such as Expedition. Herbs do not drop with the pistol on death.",
+            "zh_cn": "你不会被远征队等任何修饰符附加。死亡后草药不会随手枪一起掉落。",
+            "zh_tw": "你不會被遠征隊等任何修飾符附加。死亡後草藥不會隨手槍一起掉落。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

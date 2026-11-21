@@ -1,0 +1,553 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.accountant",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Accountant",
+    "zh_cn": "会计",
+    "zh_tw": "會計"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Accountant",
+        "zh_cn": "会计",
+        "zh_tw": "會計"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "accountant_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 178,
+          "text": {
+            "en_us": "Use your masterful financial skills to help the passengers uncover the truth!",
+            "zh_cn": "利用你精湛的财务技能，帮助乘客找出真相！",
+            "zh_tw": "利用你精湛的財務技能，幫助乘客找出真相！"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 188
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Accountant",
+        "zh_cn": "会计",
+        "zh_tw": "會計"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "accountant_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Press the skill-switch key (default Y) to toggle mode: Income and Expense.",
+                "zh_cn": "按下技能切换键（默认Y键）切换模式：收入与支出。",
+                "zh_tw": "按下技能切換鍵（默認Y鍵）切換模式：收入與支出。"
+              },
+              {
+                "en_us": "Income: press the skill key while aiming at a player to see that player's most recent income source.",
+                "zh_cn": "收入：对玩家按下技能键可以查看该玩家最近一次的收入来源。",
+                "zh_tw": "收入：對玩家按下技能鍵可以查看該玩家最近一次的收入來源。"
+              },
+              {
+                "en_us": "Income sources are one of: passive income, quest income, player kill income, pickpocketing, stealing, plundering, skill income, passbook income, other income, no income",
+                "zh_cn": "收入来源分为以下几种: 被动收入、任务收入、击杀玩家收入、扒窃、偷窃、掠夺、技能收入、存折收入、其它收入、无收入",
+                "zh_tw": "收入來源分為以下幾種: 被動收入、任務收入、擊殺玩家收入、扒竊、偷竊、掠奪、技能收入、存摺收入、其他收入、無收入"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 173,
+          "text": {
+            "en_us": "Press the skill-switch key (default Y) to toggle mode: Income and Expense.",
+            "zh_cn": "按下技能切换键（默认Y键）切换模式：收入与支出。",
+            "zh_tw": "按下技能切換鍵（默認Y鍵）切換模式：收入與支出。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 183
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Income: press the skill key while aiming at a player to see that player's most recent income source.",
+            "zh_cn": "收入：对玩家按下技能键可以查看该玩家最近一次的收入来源。",
+            "zh_tw": "收入：對玩家按下技能鍵可以查看該玩家最近一次的收入來源。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Income sources are one of: passive income, quest income, player kill income, pickpocketing, stealing, plundering, skill income, passbook income, other income, no income",
+            "zh_cn": "收入来源分为以下几种: 被动收入、任务收入、击杀玩家收入、扒窃、偷窃、掠夺、技能收入、存折收入、其它收入、无收入",
+            "zh_tw": "收入來源分為以下幾種: 被動收入、任務收入、擊殺玩家收入、扒竊、偷竊、掠奪、技能收入、存摺收入、其他收入、無收入"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Accountant",
+        "zh_cn": "会计",
+        "zh_tw": "會計"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "accountant_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "accountant",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 88,
+          "text": {
+            "en_us": "Every 60s you gain 25 coins",
+            "zh_cn": "你每60s会获得25金币",
+            "zh_tw": "你每60s會獲得25金幣"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 98
+        },
+        {
+          "type": "text",
+          "duration": 164,
+          "text": {
+            "en_us": "Press the skill key directly to spend 175 coins and trigger the skill",
+            "zh_cn": "直接按技能键花费175金币发动技能",
+            "zh_tw": "直接按技能鍵花費175金幣發動技能"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 174
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Spending channels are one of: bought xxx in the shop, shopped at a vending machine, skill cost, stolen by a thief, passbook deposit, other spending, no spending",
+            "zh_cn": "支出渠道会显示为以下几种：在商店中购买了xxx、在售货机进行购物、技能支出、被小偷偷取、存折支出、其它支出、无支出",
+            "zh_tw": "支出管道會顯示為以下幾種：在商店中購買了xxx、在售貨機進行購物、技能支出、被小偷偷取、存摺支出、其他支出、無支出"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 162,
+          "text": {
+            "en_us": "The Accountant shop sells a passbook for 100 coins (once per match).",
+            "zh_cn": "会计商店可花费100金币购买存折(仅能购买一次)。",
+            "zh_tw": "會計商店可花費100金幣購買存摺(僅能購買一次)。"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 172
+        },
+        {
+          "type": "text",
+          "duration": 94,
+          "text": {
+            "en_us": "Shop purchases are shown first",
+            "zh_cn": "商店购买行为会优先显示",
+            "zh_tw": "商店購買行為會優先顯示"
+          },
+          "point": [
+            3.0,
+            3.6,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 104
+        },
+        {
+          "type": "text",
+          "duration": 171,
+          "text": {
+            "en_us": "Right-click the passbook to deposit your coins into it (up to 300 coins).",
+            "zh_cn": "右键存折会消耗身上的金币(最多存取300金币)，并将金币保存在存折中。",
+            "zh_tw": "右鍵存摺會消耗身上的金幣(最多存取300金幣)，並將金幣保存在存摺中。"
+          },
+          "point": [
+            3.0,
+            4.05,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 181
+        },
+        {
+          "type": "text",
+          "duration": 182,
+          "text": {
+            "en_us": "Right-click the passbook again to take the coins back and consume the passbook.",
+            "zh_cn": "再次右键存折会获得存折中的金币并消耗存折。",
+            "zh_tw": "再次右鍵存摺會獲得存摺中的金幣並消耗存摺。"
+          },
+          "point": [
+            3.0,
+            4.5,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 192
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Accountant",
+        "zh_cn": "会计",
+        "zh_tw": "會計"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "accountant_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "accountant_target",
+            "outline": -13726889
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "Expense: mark a player, and 30s later you learn that player's coin spending channel.",
+                "zh_cn": "支出：可以标记一名玩家，你会在30s后得知该玩家的金币支出渠道。",
+                "zh_tw": "支出：可以標記一名玩家，你會在30s後得知該玩家的金幣支出管道。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Expense: mark a player, and 30s later you learn that player's coin spending channel.",
+            "zh_cn": "支出：可以标记一名玩家，你会在30s后得知该玩家的金币支出渠道。",
+            "zh_tw": "支出：可以標記一名玩家，你會在30s後得知該玩家的金幣支出管道。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Accountant",
+        "zh_cn": "会计",
+        "zh_tw": "會計"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "accountant_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 187,
+          "text": {
+            "en_us": "If that player has pickpocketed, stolen or plundered, that behavior is shown first",
+            "zh_cn": "若该玩家有过扒窃(扒手扒窃)、偷窃（小偷偷钱）、掠夺（强盗掠夺）行为，则优先显示该行为",
+            "zh_tw": "若該玩家有過扒竊(扒手扒竊)、偷竊（小偷偷錢）、掠奪（強盜掠奪）行為，則優先顯示該行為"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 197
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

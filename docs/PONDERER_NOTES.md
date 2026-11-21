@@ -603,6 +603,81 @@ InvalidInjectionException: non-static callback method ... targets a static metho
 | `linkId` | string | 必填，指向 `role_player` / `role_walk` 建的模型 |
 | `pos` | `[x,y,z]` | 落点 |
 
+### `starrailexpress:role_items`
+
+摆出该职业的**真实初始物品**：物品直接读 `RoleInitialItems.getInitialItemsForRole(role)`，
+与游戏内开局发放的一致，因此不必在场景 JSON 里逐条手写物品 id。
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `role` | string | 职业 id；**支持只写路径**（如 `jester`），先按完整 id 查、查不到再按路径查 |
+| `origin` | `[x,y,z]` | 第一个物品的位置，默认 `[2,1.4,3]` |
+| `spacing` | number | 间距，默认 0.8 |
+| `max` | int | 最多摆几个，默认 4 |
+| `linkId` | string | 生成的实体 linkId 前缀 |
+
+`role_shop` 的 `role` 字段同样支持只写路径（命名空间在不同来源里并不统一）。
+
+### `starrailexpress:role_death`
+
+死亡动画：**玩家模型倒下 → 消失 → 在同一位置生成尸体**。
+游戏里被击杀的玩家会在原地留下 `trainmurdermystery:player_body`，思索沙盒没有这个过程，
+所以显式演出：先摆出趴下的姿态（`Pose.SWIMMING`，即游戏的死亡姿态），
+等一小段时间后让模型消失，再在原坐标生成尸体实体。
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `linkId` | string | 要倒下的玩家模型 |
+| `pos` | `[x,y,z]` | 尸体生成位置；省略时取模型当前位置 |
+| `name` | string | 尸体名。含 `.` 且不含空格时按**翻译键**处理，否则按字面文本 |
+| `entity` | string | 尸体实体 id，默认 `trainmurdermystery:player_body` |
+| `delay` | int | 倒下到消失之间的 tick，默认 14 |
+| `yaw` | number | 尸体朝向 |
+
+> **CustomName 必须是 JSON 文本组件**：`Entity.load` 用 `Component.Serializer.fromJson`
+> 解析 `CustomName`，直接写 `'酒保'` 会在加载时抛 `JsonSyntaxException`，
+> 整个场景被判为 unavailable。正确写法：`{CustomName:'{"text":"酒保"}',CustomNameVisible:1b}`
+> 或翻译键 `{CustomName:'{"translate":"announcement.star.role.bartender"}',CustomNameVisible:1b}`。
+
+### `starrailexpress:role_screen`
+
+模拟「背包界面里的选人列表」：神权冷笑、巫毒师、变形者等职业的技能是在背包里挑一个玩家来施放，
+游戏内对应 `RoleScreenHelper` 挂在背包上的一排玩家头像。离屏沙盒构造不出真实背包，
+因此按同一版式自绘一份。
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `title` | string / 三语对象 | 面板标题 |
+| `hint` | string / 三语对象 | 面板下方提示 |
+| `players` | string[] | 列表里的玩家名，默认 `Steve / Alex / Notch / Dinnerbone / jeb_ / Herobrine` |
+| `columns` | int | 每行个数，默认 6 |
+| `color` | int | 标题颜色 |
+
+头像用默认玩家皮肤填充：思索是离屏场景，没有真实在线玩家，
+用固定的用户名与默认皮肤才能保证每次播放画面一致。
+
+### `starrailexpress:role_ambience`
+
+环境染色：给整块画面叠一层颜色，用来近似「紫天 / 橙天 / 夜雾」这类整局世界状态。
+离屏沙盒没有服务端的天空、雾与全局光照入口，只能近似。
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `color` | int | RGB |
+| `alpha` | number | 0~1，默认 0.45 |
+| `mode` | string | `sky`（天顶渐变）/ `fog`（整体染色），默认 `fog` |
+
+颜色优先级按 `docs/halloween-ambience.md`：命令方块紫 > 万圣节橙，
+黑暗 / 失明的黑雾再压过橙色。
+
+### 覆盖层的三语文本
+
+`role_skill` / `role_panel` / `role_bond` / `role_render` / `role_disguise` / `role_mood` /
+`role_vitals` / `role_timer` / `role_effects` / `role_currency` / `role_screen` 的
+`lines` 与 `title` 接受 `{en_us, zh_cn, zh_tw}` 对象，也仍然接受单语言字符串。
+解析顺序与场景 `text` 步骤一致：当前语言 → `en_us` → 首个可用值，
+实现见 `PonderLocalizedText`。
+
 ### 参考实现：召回者（2026-11-20）
 
 - 场景：`assets/starrailexpress/ponderer/scenes/role_tutorial_recaller.json`
@@ -636,4 +711,12 @@ indicate_success [2,0,4] + idle 80 + rotate_camera_y
 粒子与音效直接取自源码：`ParticleTypes.PORTAL` 环绕 16 点 + 中心 10 点（`y + 0.9`），
 音效 `SoundEvents.ENDERMAN_TELEPORT`（`minecraft:entity.enderman.teleport`，`source: players`）。
 `role_teleport` 故意做成瞬移：游戏内 `teleportTo` 就是瞬移，做插值反而不符合实际表现。
+
+## 18. 全覆盖实现（2026-11-21）
+
+- 272 个职业 / 事件场景全部生成，索引 `content/role_tutorials.json` 登记 272 条。
+- 生成与自检脚本见 `tools/gen_ponder_scenes.py` 与 `tools/verify_ponder_scenes.py`。
+- 详细记录见 `docs/职业思索系统全覆盖实现记录.md`。
+- **清单里的场景路径必须是 `<命名空间>:<路径>`**（Ponderer `docs/PONDERER_LIB.md` 的格式），
+  写成 `<命名空间>/<路径>` 会被 `ResourceLocation.parse` 解析不出来，场景根本不会加载。
 

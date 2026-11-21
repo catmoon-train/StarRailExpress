@@ -1,0 +1,277 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.missionary",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Missionary",
+    "zh_cn": "传教士",
+    "zh_tw": "傳教士"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_room"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Missionary",
+        "zh_cn": "传教士",
+        "zh_tw": "傳教士"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "missionary_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 115,
+          "text": {
+            "en_us": "Preach to grow your influence in meetings.",
+            "zh_cn": "通过传教增加他在会议中的影响力。",
+            "zh_tw": "通過傳教增加他在會議中的影響力。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 125
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Missionary",
+        "zh_cn": "传教士",
+        "zh_tw": "傳教士"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "missionary_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Click a player's avatar in your inventory to proselytize them, boosting their meeting vote weight (60s starting cd, 80s skill cd).",
+                "zh_cn": "在背包中点击玩家头像可以传教，增加其会议的投票权重（开局60秒冷却，技能冷却80秒）。",
+                "zh_tw": "在背包中點擊玩家頭像可以傳教，增加其會議的投票權重（開局60秒冷卻，技能冷卻80秒）。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Click a player's avatar in your inventory to proselytize them, boosting their meeting vote weight (60s starting cd, 80s skill cd).",
+            "zh_cn": "在背包中点击玩家头像可以传教，增加其会议的投票权重（开局60秒冷却，技能冷却80秒）。",
+            "zh_tw": "在背包中點擊玩家頭像可以傳教，增加其會議的投票權重（開局60秒冷卻，技能冷卻80秒）。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Missionary",
+        "zh_cn": "传教士",
+        "zh_tw": "傳教士"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "missionary_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 97,
+          "text": {
+            "en_us": "Only on maps with meeting votes.",
+            "zh_cn": "仅刷新在启用会议投票的地图中。",
+            "zh_tw": "僅刷新在啟用會議投票的地圖中。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 107
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Proselytized players count as +1 vote (>24 alive: +2), stacking on their base weight.",
+            "zh_cn": "被传教的玩家在投票时视为+1票（存活玩家>24人时视为+2票），叠加在原有的投票权重之上。",
+            "zh_tw": "被傳教的玩家在投票時視為+1票（存活玩家>24人時視為+2票），疊加在原有的投票權重之上。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 140,
+          "text": {
+            "en_us": "Switching the target removes the bonus from the old one.",
+            "zh_cn": "切换传教目标时，旧目标的额外投票加成会被移除。",
+            "zh_tw": "切換傳教目標時，舊目標的額外投票加成會被移除。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 150
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,478 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.central_control",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Control Operator",
+    "zh_cn": "中控员",
+    "zh_tw": "中控員"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Control Operator",
+        "zh_cn": "中控员",
+        "zh_tw": "中控員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "central_control_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 184,
+          "text": {
+            "en_us": "Retrofit the train's security cameras and hold every carriage with their lenses.",
+            "zh_cn": "用监控守护每一节车厢。",
+            "zh_tw": "用監控守護每一節車廂。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 194
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Control Operator",
+        "zh_cn": "中控员",
+        "zh_tw": "中控員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "central_control_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Press the skill-switch key to cycle through the three skills below; each one has its own cooldown.",
+                "zh_cn": "按技能切换键可以在这三个技能之间循环切换，每个技能拥有独立冷却。",
+                "zh_tw": "按技能切換鍵可以在這三個技能之間迴圈切換，每個技能擁有獨立冷卻。"
+              },
+              {
+                "en_us": "[Dynamic Module] Press the skill key to fit it to cameras inside the 15-block cone in front of you. Once fitted, drag the mouse on the camera feed to look around (up to ±90° horizontally and vertically). Cooldown 20s.",
+                "zh_cn": "【动态模块】按技能键为视野 15 格锥形范围内的摄像头安装。装好后在对应摄像头的监控画面正常拖动鼠标即可转动视角，冷却 20 秒。",
+                "zh_tw": "【動態模組】按技能鍵為視野 15 格錐形範圍內的攝像頭安裝。裝好後在對應攝像頭的監控畫面正常拖動滑鼠即可轉動視角，冷卻 20 秒。"
+              },
+              {
+                "en_us": "[Laser Module] Costs 200 coins and can only be installed once per round. While viewing that camera, press the skill key to fire a laser along the crosshair. A hit player has their frenzy interrupted; otherwise they lose control for 5 seconds. Cooldown 120s.",
+                "zh_cn": "【激光模块】按技能键花费 200 金币为视野 15 格锥形范围内的摄像头安装，一局仅能安装一次。在对应摄像头的监控页面按下 技能键 ，可以朝画面准星方向射出激光：命中处于疯狂模式的玩家会使该玩家的疯狂模式立即结束，命中普通玩家则使其失控 5 秒，激光射击冷却为 120 秒。",
+                "zh_tw": "【鐳射模組】按技能鍵花費 200 金幣為視野 15 格錐形範圍內的攝像頭安裝，一局僅能安裝一次。在對應攝像頭的監控頁面按下 技能鍵 ，可以朝畫面準星方向射出鐳射：命中處於瘋狂模式的玩家會使該玩家的瘋狂模式立即結束，命中普通玩家則使其失控 5 秒，鐳射射擊冷卻為 120 秒。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Press the skill-switch key to cycle through the three skills below; each one has its own cooldown.",
+            "zh_cn": "按技能切换键可以在这三个技能之间循环切换，每个技能拥有独立冷却。",
+            "zh_tw": "按技能切換鍵可以在這三個技能之間迴圈切換，每個技能擁有獨立冷卻。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "[Dynamic Module] Press the skill key to fit it to cameras inside the 15-block cone in front of you. Once fitted, drag the mouse on the camera feed to look around (up to ±90° horizontally and vertically). Cooldown 20s.",
+            "zh_cn": "【动态模块】按技能键为视野 15 格锥形范围内的摄像头安装。装好后在对应摄像头的监控画面正常拖动鼠标即可转动视角，冷却 20 秒。",
+            "zh_tw": "【動態模組】按技能鍵為視野 15 格錐形範圍內的攝像頭安裝。裝好後在對應攝像頭的監控畫面正常拖動滑鼠即可轉動視角，冷卻 20 秒。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "[Laser Module] Costs 200 coins and can only be installed once per round. While viewing that camera, press the skill key to fire a laser along the crosshair. A hit player has their frenzy interrupted; otherwise they lose control for 5 seconds. Cooldown 120s.",
+            "zh_cn": "【激光模块】按技能键花费 200 金币为视野 15 格锥形范围内的摄像头安装，一局仅能安装一次。在对应摄像头的监控页面按下 技能键 ，可以朝画面准星方向射出激光：命中处于疯狂模式的玩家会使该玩家的疯狂模式立即结束，命中普通玩家则使其失控 5 秒，激光射击冷却为 120 秒。",
+            "zh_tw": "【鐳射模組】按技能鍵花費 200 金幣為視野 15 格錐形範圍內的攝像頭安裝，一局僅能安裝一次。在對應攝像頭的監控頁面按下 技能鍵 ，可以朝畫面準星方向射出鐳射：命中處於瘋狂模式的玩家會使該玩家的瘋狂模式立即結束，命中普通玩家則使其失控 5 秒，鐳射射擊冷卻為 120 秒。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Control Operator",
+        "zh_cn": "中控员",
+        "zh_tw": "中控員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "central_control_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "central_control",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Spend 100 coins in the shop for a Remote Monitoring Terminal, then right-click a monitor console to open its bound camera feed.",
+            "zh_cn": "商店可购买远程监控终端，右键监控台绑定。",
+            "zh_tw": "商店可購買遠程監控終端，右鍵監控臺綁定。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Control Operator",
+        "zh_cn": "中控员",
+        "zh_tw": "中控員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "central_control_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "central_control_target",
+            "outline": -12532522
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "You can see every security camera and monitor console on the map from the start of the round (highlighted in cyan).",
+                "zh_cn": "你可以透视到所有监控摄像头的位置(任务点透视)。",
+                "zh_tw": "你可以透視到所有監控攝像頭的位置(任務點透視)。"
+              },
+              {
+                "en_us": "[Infrared Scanner] Costs 150 coins. The feed gains night vision, and only while you are actually watching this camera's feed does the infrared light illuminate the watched cone: players inside it who are not hidden get highlighted, so you can pin them down through the lens. The cone follows wherever you aim the camera; leave the feed or switch cameras and this camera's infrared goes dark immediately. Cooldown 90s.",
+                "zh_cn": "【红外线扫描仪】按技能键花费 150 金币为视野 15 格锥形范围内的摄像头安装。该摄像头画面自带夜视效果；当你正在观看这台摄像头的监控画面时，会使监控范围内的所有玩家发光，此范围会跟随你的镜头移动。冷却 90 秒。",
+                "zh_tw": "【紅外線掃描器】按技能鍵花費 150 金幣為視野 15 格錐形範圍內的攝像頭安裝。該攝像頭畫面自帶夜視效果；當你正在觀看這臺攝像頭的監控畫面時，會使監控範圍內的所有玩家發光，此範圍會跟隨你的鏡頭移動。冷卻 90 秒。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You can see every security camera and monitor console on the map from the start of the round (highlighted in cyan).",
+            "zh_cn": "你可以透视到所有监控摄像头的位置(任务点透视)。",
+            "zh_tw": "你可以透視到所有監控攝像頭的位置(任務點透視)。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "[Infrared Scanner] Costs 150 coins. The feed gains night vision, and only while you are actually watching this camera's feed does the infrared light illuminate the watched cone: players inside it who are not hidden get highlighted, so you can pin them down through the lens. The cone follows wherever you aim the camera; leave the feed or switch cameras and this camera's infrared goes dark immediately. Cooldown 90s.",
+            "zh_cn": "【红外线扫描仪】按技能键花费 150 金币为视野 15 格锥形范围内的摄像头安装。该摄像头画面自带夜视效果；当你正在观看这台摄像头的监控画面时，会使监控范围内的所有玩家发光，此范围会跟随你的镜头移动。冷却 90 秒。",
+            "zh_tw": "【紅外線掃描器】按技能鍵花費 150 金幣為視野 15 格錐形範圍內的攝像頭安裝。該攝像頭畫面自帶夜視效果；當你正在觀看這臺攝像頭的監控畫面時，會使監控範圍內的所有玩家發光，此範圍會跟隨你的鏡頭移動。冷卻 90 秒。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Control Operator",
+        "zh_cn": "中控员",
+        "zh_tw": "中控員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "central_control_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "While the cameras are offline you cannot install any module, and every installed module stops working.",
+            "zh_cn": "监控失灵期间无法为监控安装任何模块，已安装的监控模块也会全部失效。",
+            "zh_tw": "監控失靈期間無法為監控安裝任何模組，已安裝的監控模組也會全部失效。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Multiple modules can be stacked on the same camera, and all of them are cleared when a round starts or ends.",
+            "zh_cn": "同一台摄像头可以叠加安装多个模块。",
+            "zh_tw": "同一臺攝像頭可以疊加安裝多個模組。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

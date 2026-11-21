@@ -1,0 +1,496 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.poisoner",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Poisoner",
+    "zh_cn": "毒师",
+    "zh_tw": "毒師"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Poisoner",
+        "zh_cn": "毒师",
+        "zh_tw": "毒師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "poisoner_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 85,
+          "text": {
+            "en_us": "Poison everyone to death.",
+            "zh_cn": "毒杀所有人。",
+            "zh_tw": "毒殺所有人。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 95
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Poisoner",
+        "zh_cn": "毒师",
+        "zh_tw": "毒師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "poisoner_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 182,
+          "text": {
+            "en_us": "Venom Reagent: right-click to coat a toilet; poisons the next person to use it.",
+            "zh_cn": "毒液试剂：右键涂在马桶上，使下一个上厕所的人中毒。",
+            "zh_tw": "毒液試劑：右鍵塗在馬桶上，使下一個上廁所的人中毒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 192
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Gas Canister: right-click to throw; generates gas in a small area at the landing point; players who stay in the gas for 8 seconds enter a 60-second poison state; the gas clears after 60 seconds",
+            "zh_cn": "毒气罐：右键投掷，在落地处的一块狭小区域内生成毒气，在毒气中停留8秒的玩家会进入60秒中毒状态，60秒后毒气消散",
+            "zh_tw": "毒氣罐：右鍵投擲，在落地處的一塊狹小區域內生成毒氣，在毒氣中停留8秒的玩家會進入60秒中毒狀態，60秒後毒氣消散"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Poisoner",
+        "zh_cn": "毒师",
+        "zh_tw": "毒師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "poisoner_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "poisoner",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The Poison Needle is a ranged weapon (range 15 blocks, 0.25s charge); right-click to aim; after hitting a player, they die of poisoning 30 seconds later; the shop refills its durability.",
+            "zh_cn": "毒针是远程武器(范围：15格，蓄力0.25秒)，右键瞄准目标命中玩家后，玩家会在30秒后中毒身亡，商店可以补充耐久。",
+            "zh_tw": "毒針是遠程武器(範圍：15格，蓄力0.25秒)，右鍵瞄準目標命中玩家後，玩家會在30秒後中毒身亡，商店可以補充耐久。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Can buy a Catalyst: right-click to make all poisoned players die instantly (including the Jester's Fake Poison).",
+            "zh_cn": "可购买一个催化剂，右键使用催化剂会使所有中毒的玩家立即死亡(包括小丑的假毒)。",
+            "zh_tw": "可購買一個催化劑，右鍵使用催化劑會使所有中毒的玩家立即死亡(包括小丑的假毒)。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Fake Pill: the pills in your shop are poisoned; whoever eats one is poisoned; can be thrown to others.",
+            "zh_cn": "假药丸：你商店中的药丸是有毒的，会使吃了的人中毒，可以丢给其他人。",
+            "zh_tw": "假藥丸：你商店中的藥丸是有毒的，會使吃了的人中毒，可以丟給其他人。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Poisoner",
+        "zh_cn": "毒师",
+        "zh_tw": "毒師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "poisoner_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "poisoner_target",
+            "outline": -65536
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "You are immune to poison and can see-through poisoned players; can buy Poison Needles and buy Poison and Scorpions at a lower price.",
+                "zh_cn": "你免疫中毒且可以透视中毒的玩家，能够购买毒针，并以更低的价格购买毒药和蝎子。",
+                "zh_tw": "你免疫中毒且可以透視中毒的玩家，能夠購買毒針，並以更低的價格購買毒藥和蠍子。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You are immune to poison and can see-through poisoned players; can buy Poison Needles and buy Poison and Scorpions at a lower price.",
+            "zh_cn": "你免疫中毒且可以透视中毒的玩家，能够购买毒针，并以更低的价格购买毒药和蝎子。",
+            "zh_tw": "你免疫中毒且可以透視中毒的玩家，能夠購買毒針，並以更低的價格購買毒藥和蠍子。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Poisoner",
+        "zh_cn": "毒师",
+        "zh_tw": "毒師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "poisoner_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 182,
+          "text": {
+            "en_us": "When you appear on the Killer side, exactly one good-side player is the Doctor.",
+            "zh_cn": "当你出现在杀手方时，好人方一定有一人的身份为医生。",
+            "zh_tw": "當你出現在殺手方時，好人方一定有一人的身份為醫生。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 192
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Poison: place on a food or drink plate; the next player to take food / drink is poisoned after eating.",
+            "zh_cn": "毒药：可放在食物盘和饮料盘中，使下一位拿取食物/饮料的玩家在食用过后中毒。",
+            "zh_tw": "毒藥：可放在食物盤和飲料盤中，使下一位拿取食物/飲料的玩家在食用過後中毒。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Scorpion: place in a bed; poisons the player who sleeps there; the scorpion's poison spreads to nearby beds.",
+            "zh_cn": "蝎子：可放在床铺中，使睡在床上的玩家中毒，蝎子的毒会向周围床铺扩散。",
+            "zh_tw": "蠍子：可放在床鋪中，使睡在床上的玩家中毒，蠍子的毒會向周圍床鋪擴散。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 167,
+          "text": {
+            "en_us": "Chlorine Grenade: thrown to poison all players within a 3-block radius.",
+            "zh_cn": "氯气弹：丢出后使3格半径内的所有玩家中毒。",
+            "zh_tw": "氯氣彈：丟出後使3格半徑內的所有玩家中毒。"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 177
+        },
+        {
+          "type": "text",
+          "duration": 185,
+          "text": {
+            "en_us": "Staying in the gas accelerates the toxin trigger on you, up to 30 seconds earlier",
+            "zh_cn": "持续处于毒气中的玩家会使身上的毒素提前触发，最多提前至30秒",
+            "zh_tw": "持續處於毒氣中的玩家會使身上的毒素提前觸發，最多提前至30秒"
+          },
+          "point": [
+            3.0,
+            3.6,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 195
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,649 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.mortician_bodymaker",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Undertaker",
+    "zh_cn": "葬仪",
+    "zh_tw": "葬儀"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_graveyard"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Undertaker",
+        "zh_cn": "葬仪",
+        "zh_tw": "葬儀"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mortician_bodymaker_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 99,
+          "text": {
+            "en_us": "Victory alongside the Killer team",
+            "zh_cn": "与杀手一同获胜",
+            "zh_tw": "與殺手一同獲勝"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 109
+        },
+        {
+          "type": "text",
+          "duration": 112,
+          "text": {
+            "en_us": "Handle corpses to serve the Killer team.",
+            "zh_cn": "处理尸体并清洗现场。",
+            "zh_tw": "處理屍體並清洗現場。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 122
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Undertaker",
+        "zh_cn": "葬仪",
+        "zh_tw": "葬儀"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mortician_bodymaker_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 167,
+          "text": {
+            "en_us": "Blood Vial: when a player dies, right-click to spill blood around them.",
+            "zh_cn": "血瓶：当场上有玩家死亡时，右键血瓶可以在玩家周围泼洒血液",
+            "zh_tw": "血瓶：當場上有玩家死亡時，右鍵血瓶可以在玩家周圍潑灑血液"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 177
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Undertaker",
+        "zh_cn": "葬仪",
+        "zh_tw": "葬儀"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mortician_bodymaker_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Skills (switch with the skill-switch key (default Y), shared cooldown):",
+                "zh_cn": "技能（按下技能切换键（默认Y键）切换模式，技能冷却共通）：",
+                "zh_tw": "技能（按下技能切換鍵（默認Y鍵）切換模式，技能冷卻共通）："
+              },
+              {
+                "en_us": "Drag: press the skill key at a corpse to drag it; press again to drop it, 45s cooldown",
+                "zh_cn": "曳柩：对尸体按下技能键，可以拖动尸体，再次按下放下尸体并进入45秒冷却",
+                "zh_tw": "曳柩：對屍體按下技能鍵，可以拖動屍體，再次按下放下屍體並進入45秒冷卻"
+              },
+              {
+                "en_us": "Death Knell: reduces stamina of players within 5 blocks by 60%, 60s cooldown",
+                "zh_cn": "丧钟：5格半径内玩家的体力减少60%，进入60秒冷却",
+                "zh_tw": "喪鐘：5格半徑內玩家的體力減少60%，進入60秒冷卻"
+              },
+              {
+                "en_us": "Wash: clears blood within 4 blocks, 45s cooldown",
+                "zh_cn": "清洗：消除4格半径内的血迹，进入45秒冷却",
+                "zh_tw": "清洗：消除4格半徑內的血跡，進入45秒冷卻"
+              },
+              {
+                "en_us": "Passive - Ferry: when a Killer / Killer-side Neutral / Magician dies, the death is broadcast to all Killers / Killer-side Neutrals / Magicians.",
+                "zh_cn": "被动-引渡：杀手/杀手方中立/魔术师死亡时会向所有杀手/杀手方中立/魔术师广播死讯",
+                "zh_tw": "被動-引渡：殺手/殺手方中立/魔術師死亡時會向所有殺手/殺手方中立/魔術師廣播死訊"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 167,
+          "text": {
+            "en_us": "Skills (switch with the skill-switch key (default Y), shared cooldown):",
+            "zh_cn": "技能（按下技能切换键（默认Y键）切换模式，技能冷却共通）：",
+            "zh_tw": "技能（按下技能切換鍵（默認Y鍵）切換模式，技能冷卻共通）："
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 177
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Drag: press the skill key at a corpse to drag it; press again to drop it, 45s cooldown",
+            "zh_cn": "曳柩：对尸体按下技能键，可以拖动尸体，再次按下放下尸体并进入45秒冷却",
+            "zh_tw": "曳柩：對屍體按下技能鍵，可以拖動屍體，再次按下放下屍體並進入45秒冷卻"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 176,
+          "text": {
+            "en_us": "Death Knell: reduces stamina of players within 5 blocks by 60%, 60s cooldown",
+            "zh_cn": "丧钟：5格半径内玩家的体力减少60%，进入60秒冷却",
+            "zh_tw": "喪鐘：5格半徑內玩家的體力減少60%，進入60秒冷卻"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 186
+        },
+        {
+          "type": "text",
+          "duration": 126,
+          "text": {
+            "en_us": "Wash: clears blood within 4 blocks, 45s cooldown",
+            "zh_cn": "清洗：消除4格半径内的血迹，进入45秒冷却",
+            "zh_tw": "清洗：消除4格半徑內的血跡，進入45秒冷卻"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 136
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Passive - Ferry: when a Killer / Killer-side Neutral / Magician dies, the death is broadcast to all Killers / Killer-side Neutrals / Magicians.",
+            "zh_cn": "被动-引渡：杀手/杀手方中立/魔术师死亡时会向所有杀手/杀手方中立/魔术师广播死讯",
+            "zh_tw": "被動-引渡：殺手/殺手方中立/魔術師死亡時會向所有殺手/殺手方中立/魔術師廣播死訊"
+          },
+          "point": [
+            3.0,
+            3.6,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "screen",
+      "title": {
+        "en_us": "Undertaker",
+        "zh_cn": "葬仪",
+        "zh_tw": "葬儀"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mortician_bodymaker_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_screen",
+          "attachKeyFrame": true,
+          "parameters": {
+            "title": "ponder.starrailexpress.screen.select_player",
+            "hint": "ponder.starrailexpress.screen.pick_hint",
+            "columns": 6
+          }
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Undertaker",
+        "zh_cn": "葬仪",
+        "zh_tw": "葬儀"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mortician_bodymaker_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "mortician_bodymaker",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 178,
+          "text": {
+            "en_us": "Shop: attendant key (100 coins), body bag (150 coins), blood vial (75 coins).",
+            "zh_cn": "商店可购买：乘务员钥匙(100金币)、裹尸袋(150金币)、血瓶(75金币)",
+            "zh_tw": "商店可購買：乘務員鑰匙(100金幣)、裹屍袋(150金幣)、血瓶(75金幣)"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 188
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "title": {
+        "en_us": "Undertaker",
+        "zh_cn": "葬仪",
+        "zh_tw": "葬儀"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mortician_bodymaker_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mortician_bodymaker_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "mortician_bodymaker_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "delay": 14
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Corpse Maker: open inventory, click an avatar to create a fake corpse of that player at your position, 120s cooldown",
+            "zh_cn": "尸匠：拥有造尸能力，打开背包点击头像在自己的位置制造一个对应玩家的假尸体，冷却120秒",
+            "zh_tw": "屍匠：擁有造屍能力，打開背包點擊頭像在自己的位置製造一個對應玩家的假屍體，冷卻120秒"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Fake corpses are spotted by the Coroner and can be eaten by Vultures/Puppeteers; Amnesiac/Necromancer/Catgirl Summoner/Candle Bearer/Wayfarer cannot interact with them.",
+            "zh_cn": "假尸体可以被验尸官查出，可以被秃鹫/傀儡师食用，失忆患者/死灵法师/猫娘召唤师/秉烛人/红尘客无法与假尸体交互",
+            "zh_tw": "假屍體可以被驗屍官查出，可以被禿鷲/傀儡師食用，失憶患者/死靈法師/貓娘召喚師/秉燭人/紅塵客無法與假屍體交互"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Undertaker",
+        "zh_cn": "葬仪",
+        "zh_tw": "葬儀"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mortician_bodymaker_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mortician_bodymaker_target",
+            "outline": -4939556
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "You have Undertaker see-through and can see all corpses.",
+                "zh_cn": "你拥有葬仪透视，可以透视场上的尸体",
+                "zh_tw": "你擁有葬儀透視，可以透視場上的屍體"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 140,
+          "text": {
+            "en_us": "You have Undertaker see-through and can see all corpses.",
+            "zh_cn": "你拥有葬仪透视，可以透视场上的尸体",
+            "zh_tw": "你擁有葬儀透視，可以透視場上的屍體"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 150
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

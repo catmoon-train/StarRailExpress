@@ -1,0 +1,447 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.conductor",
+  "items": [
+    "noellesroles:master_key"
+  ],
+  "title": {
+    "en_us": "Conductor",
+    "zh_cn": "船长",
+    "zh_tw": "船長"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_room"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Conductor",
+        "zh_cn": "船长",
+        "zh_tw": "船長"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "conductor_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 131,
+          "text": {
+            "en_us": "Use the master key to open every door on the train!",
+            "zh_cn": "使用万能钥匙打开列车上的所有门！",
+            "zh_tw": "使用萬能鑰匙打開列車上的所有門！"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 141
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Conductor",
+        "zh_cn": "船长",
+        "zh_tw": "船長"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "conductor_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "conductor",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 115,
+          "text": {
+            "en_us": "Starts with a Skeleton Key and a Spyglass.",
+            "zh_cn": "初始获得一把万能钥匙和一个望远镜。",
+            "zh_tw": "初始獲得一把萬能鑰匙和一個望遠鏡。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 125
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The Conductor's Screwdriver only removes items reinforced onto doors (hold the screwdriver, crouch + right-click a door to remove items)",
+            "zh_cn": "船长的螺丝刀只能用来取下加固在门上的道具（拿着螺丝刀蹲下右键门取下道具）",
+            "zh_tw": "船長的螺絲刀只能用來取下加固在門上的道具（拿著螺絲刀蹲下右鍵門取下道具）"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Conductor",
+        "zh_cn": "船长",
+        "zh_tw": "船長"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "conductor_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Skill 【Door Dispatch】: aim at a door, spend 125 coin, and after 5 seconds choose another room door on the map to teleport to a safe spot beside it. 90-second cooldown.",
+                "zh_cn": "技能【舱门调度】：对准一扇门使用，花费 125 金币，5 秒后选择当前地图的其他房间门，传送到目标门旁的安全位置。冷却 90 秒。",
+                "zh_tw": "技能【艙門調度】：對準一扇門使用，花費 125 金幣，5 秒後選擇當前地圖的其他房間門，傳送到目標門旁的安全位置。冷卻 90 秒。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skill 【Door Dispatch】: aim at a door, spend 125 coin, and after 5 seconds choose another room door on the map to teleport to a safe spot beside it. 90-second cooldown.",
+            "zh_cn": "技能【舱门调度】：对准一扇门使用，花费 125 金币，5 秒后选择当前地图的其他房间门，传送到目标门旁的安全位置。冷却 90 秒。",
+            "zh_tw": "技能【艙門調度】：對準一扇門使用，花費 125 金幣，5 秒後選擇當前地圖的其他房間門，傳送到目標門旁的安全位置。冷卻 90 秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Conductor",
+        "zh_cn": "船长",
+        "zh_tw": "船長"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "conductor_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "conductor",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 122,
+          "text": {
+            "en_us": "The shop sells Skeleton Keys and Screwdrivers.",
+            "zh_cn": "商店中可购买万能钥匙和螺丝刀。",
+            "zh_tw": "商店中可購買萬能鑰匙和螺絲刀。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 132
+        },
+        {
+          "type": "text",
+          "duration": 173,
+          "text": {
+            "en_us": "If interrupted during the wind-up or door selection, the coin is refunded.",
+            "zh_cn": "前摇或选门时被打断会返还金币。",
+            "zh_tw": "前搖或選門時被打斷會返還金幣。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 183
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Conductor",
+        "zh_cn": "船长",
+        "zh_tw": "船長"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "conductor_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 131,
+          "text": {
+            "en_us": "The Spyglass lets you see players' names from afar.",
+            "zh_cn": "望远镜可以从远处观察到玩家的名字。",
+            "zh_tw": "望遠鏡可以從遠處觀察到玩家的名字。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 141
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The Skeleton Key opens all doors unlimited times; it is blocked by the Engineer's Lock, and failed lockpicking does not consume it.",
+            "zh_cn": "万能钥匙可以无限制的打开所有门，会被工程师的锁阻挡，撬锁失败不会消耗万能钥匙。",
+            "zh_tw": "萬能鑰匙可以無限制的打開所有門，會被工程師的鎖阻擋，撬鎖失敗不會消耗萬能鑰匙。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 121,
+          "text": {
+            "en_us": "Drops the Skeleton Key and Spyglass on death.",
+            "zh_cn": "死亡时身上的万能钥匙和望远镜会掉落。",
+            "zh_tw": "死亡時身上的萬能鑰匙和望遠鏡會掉落。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 131
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

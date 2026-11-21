@@ -1,0 +1,677 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.kotiya_sanae",
+  "items": [
+    "noellesroles:reimu_gohei",
+    "noellesroles:danmuku"
+  ],
+  "title": {
+    "en_us": "Kotiya sanae",
+    "zh_cn": "风祝巫女",
+    "zh_tw": "風祝巫女"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Kotiya sanae",
+        "zh_cn": "风祝巫女",
+        "zh_tw": "風祝巫女"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kotiya_sanae_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Passenger team",
+            "zh_cn": "平民阵营",
+            "zh_tw": "平民陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 94,
+          "text": {
+            "en_us": "A human who prays for miracles",
+            "zh_cn": "祭祀奇迹的人类",
+            "zh_tw": "祭祀奇跡的人類"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 104
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Kotiya sanae",
+        "zh_cn": "风祝巫女",
+        "zh_tw": "風祝巫女"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kotiya_sanae_main"
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "attachKeyFrame": true,
+          "pos": [
+            1.6,
+            1.55,
+            1.6
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:reimu_gohei",
+          "linkId": "kotiya_sanae_item"
+        },
+        {
+          "type": "text",
+          "duration": 115,
+          "text": {
+            "en_us": "- Haze: everyone cannot use items for 10s.",
+            "zh_cn": "- 雾霾：所有人无法使用物品 10s。",
+            "zh_tw": "- 霧霾：所有人無法使用物品 10s。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 125
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Kotiya sanae",
+        "zh_cn": "风祝巫女",
+        "zh_tw": "風祝巫女"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kotiya_sanae_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Can spend 175 coin and use the skill key to pray for weather",
+                "zh_cn": "可以消耗175金币使用技能键祈祷天气",
+                "zh_tw": "可以消耗175金幣使用技能鍵祈禱天氣"
+              },
+              {
+                "en_us": "Randomly casts one of the following:",
+                "zh_cn": "随机释放接下来的一种天气：",
+                "zh_tw": "隨機釋放接下來的一種天氣："
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 148,
+          "text": {
+            "en_us": "Can spend 175 coin and use the skill key to pray for weather",
+            "zh_cn": "可以消耗175金币使用技能键祈祷天气",
+            "zh_tw": "可以消耗175金幣使用技能鍵祈禱天氣"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 158
+        },
+        {
+          "type": "text",
+          "duration": 104,
+          "text": {
+            "en_us": "Randomly casts one of the following:",
+            "zh_cn": "随机释放接下来的一种天气：",
+            "zh_tw": "隨機釋放接下來的一種天氣："
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 114
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Kotiya sanae",
+        "zh_cn": "风祝巫女",
+        "zh_tw": "風祝巫女"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kotiya_sanae_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "kotiya_sanae",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 99,
+          "text": {
+            "en_us": "The shop sells Ofuda and Danmaku.",
+            "zh_cn": "商店可以购买御币和弹幕。",
+            "zh_tw": "商店可以購買禦幣和彈幕。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 109
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Kotiya sanae",
+        "zh_cn": "风祝巫女",
+        "zh_tw": "風祝巫女"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kotiya_sanae_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kotiya_sanae_target",
+            "outline": -8148585
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "- Sandstorm: everyone loses see-through for 10s.",
+                "zh_cn": "- 沙尘：所有人失去透视 10s。",
+                "zh_tw": "- 沙塵：所有人失去透視 10s。"
+              },
+              {
+                "en_us": "- Thunderflash: everyone glows for 10s.",
+                "zh_cn": "- 雷闪：所有人发光 10s。",
+                "zh_tw": "- 雷閃：所有人發光 10s。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 126,
+          "text": {
+            "en_us": "- Sandstorm: everyone loses see-through for 10s.",
+            "zh_cn": "- 沙尘：所有人失去透视 10s。",
+            "zh_tw": "- 沙塵：所有人失去透視 10s。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 136
+        },
+        {
+          "type": "text",
+          "duration": 110,
+          "text": {
+            "en_us": "- Thunderflash: everyone glows for 10s.",
+            "zh_cn": "- 雷闪：所有人发光 10s。",
+            "zh_tw": "- 雷閃：所有人發光 10s。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 120
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "mood",
+      "title": {
+        "en_us": "Kotiya sanae",
+        "zh_cn": "风祝巫女",
+        "zh_tw": "風祝巫女"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kotiya_sanae_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_mood",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.sanity",
+            "before": 0.35,
+            "after": 0.85,
+            "lines": [
+              {
+                "en_us": "- Clear Skies: everyone gets 10s of infinite stamina and Sanity regen; if lights are out, they immediately turn on.",
+                "zh_cn": "- 放晴：所有人获得10s的无限体力和san值恢复。若此时场上为关灯状态则立马结束关灯。",
+                "zh_tw": "- 放晴：所有人獲得10s的無限體力和san值恢復。若此時場上為關燈狀態則立馬結束關燈。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "- Clear Skies: everyone gets 10s of infinite stamina and Sanity regen; if lights are out, they immediately turn on.",
+            "zh_cn": "- 放晴：所有人获得10s的无限体力和san值恢复。若此时场上为关灯状态则立马结束关灯。",
+            "zh_tw": "- 放晴：所有人獲得10s的無限體力和san值恢復。若此時場上為關燈狀態則立馬結束關燈。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vitals",
+      "title": {
+        "en_us": "Kotiya sanae",
+        "zh_cn": "风祝巫女",
+        "zh_tw": "風祝巫女"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kotiya_sanae_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "attachKeyFrame": true,
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.4,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
+              }
+            ],
+            "lines": [
+              {
+                "en_us": "- Downpour: everyone gets 10s of temporary shield.",
+                "zh_cn": "- 骤雨：所有人获得10s临时护盾。",
+                "zh_tw": "- 驟雨：所有人獲得10s臨時護盾。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 130,
+          "text": {
+            "en_us": "- Downpour: everyone gets 10s of temporary shield.",
+            "zh_cn": "- 骤雨：所有人获得10s临时护盾。",
+            "zh_tw": "- 驟雨：所有人獲得10s臨時護盾。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 140
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Kotiya sanae",
+        "zh_cn": "风祝巫女",
+        "zh_tw": "風祝巫女"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kotiya_sanae_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 108,
+          "text": {
+            "en_us": "- Gales: everyone gets 10s of Speed II",
+            "zh_cn": "- 狂风：所有人获得10s速度2",
+            "zh_tw": "- 狂風：所有人獲得10s速度2"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 118
+        },
+        {
+          "type": "text",
+          "duration": 119,
+          "text": {
+            "en_us": "- Snowfall: everyone gets 10s of Slowness II",
+            "zh_cn": "- 飞雪：所有人获得10s 缓慢2",
+            "zh_tw": "- 飛雪：所有人獲得10s 緩慢2"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 129
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

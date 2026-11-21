@@ -1,0 +1,555 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.furandoru",
+  "items": [
+    "trainmurdermystery:crowbar"
+  ],
+  "title": {
+    "en_us": "Furandoru",
+    "zh_cn": "恶魔之妹",
+    "zh_tw": "惡魔之妹"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Furandoru",
+        "zh_cn": "恶魔之妹",
+        "zh_tw": "惡魔之妹"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "furandoru_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "Neutral team",
+            "zh_cn": "中立阵营",
+            "zh_tw": "中立陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "text",
+          "duration": 99,
+          "text": {
+            "en_us": "Has an independent win condition.",
+            "zh_cn": "拥有独立胜利条件。",
+            "zh_tw": "擁有獨立勝利條件。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 109
+        },
+        {
+          "type": "text",
+          "duration": 79,
+          "text": {
+            "en_us": "The finale's destroyer",
+            "zh_cn": "终幕的破坏者",
+            "zh_tw": "終幕的破壞者"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 89
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Furandoru",
+        "zh_cn": "恶魔之妹",
+        "zh_tw": "惡魔之妹"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "furandoru_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "furandoru",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Ability: the power to obliterate everything. You start with a crowbar with a 10-second cooldown.",
+            "zh_cn": "能力：将一切悉数破坏程度的能力。开局自带撬棍，撬棍使用冷却时间为10秒。",
+            "zh_tw": "能力：將一切悉數破壞程度的能力。開局自帶撬棍，撬棍使用冷卻時間為10秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Furandoru",
+        "zh_cn": "恶魔之妹",
+        "zh_tw": "惡魔之妹"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "furandoru_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Passive skills:",
+                "zh_cn": "被动技能：",
+                "zh_tw": "被動技能："
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 67,
+          "text": {
+            "en_us": "Passive skills:",
+            "zh_cn": "被动技能：",
+            "zh_tw": "被動技能："
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 77
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Furandoru",
+        "zh_cn": "恶魔之妹",
+        "zh_tw": "惡魔之妹"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "furandoru_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "furandoru",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 169,
+          "text": {
+            "en_us": "Buyable: knife, fake gun, body bag, derringer, lights out, wind bullets.",
+            "zh_cn": "可购买物品：刀、假枪、裹尸袋、德林加手枪、关灯、风弹。",
+            "zh_tw": "可購買物品：刀、假槍、裹屍袋、德林加手槍、關燈、風彈。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 179
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "Furandoru",
+        "zh_cn": "恶魔之妹",
+        "zh_tw": "惡魔之妹"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "furandoru_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "furandoru_target",
+            "outline": -5138046
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "2. Finale effect: during the finale, you glow for 60 seconds and hand wind bullets to all players. Each player gets (their coins / 75) wind bullets (min 1, max 16). At this point Killer kills no longer add time until Furandoru and Ghost die.",
+                "zh_cn": "2. 终幕效果：终幕环节期间，你将发光60秒，同时向所有玩家发放风弹。玩家拥有的风弹数量为玩家自身金币数量/75（最低1个，最多16个）。此时狼人杀人将不再增长时间，直到芙兰和小透明死去。",
+                "zh_tw": "2. 終幕效果：終幕環節期間，你將發光60秒，同時向所有玩家發放風彈。玩家擁有的風彈數量為玩家自身金幣數量/75（最低1個，最多16個）。此時狼人殺人將不再增長時間，直到芙蘭和小透明死去。"
+              },
+              {
+                "en_us": "3. Concealment: for a set time you cannot be detected by normal Killer instinct.",
+                "zh_cn": "3. 隐匿：在一定游戏时间内，你无法被普通杀手直觉探测到。",
+                "zh_tw": "3. 隱匿：在一定遊戲時間內，你無法被普通殺手直覺探測到。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "2. Finale effect: during the finale, you glow for 60 seconds and hand wind bullets to all players. Each player gets (their coins / 75) wind bullets (min 1, max 16). At this point Killer kills no longer add time until Furandoru and Ghost die.",
+            "zh_cn": "2. 终幕效果：终幕环节期间，你将发光60秒，同时向所有玩家发放风弹。玩家拥有的风弹数量为玩家自身金币数量/75（最低1个，最多16个）。此时狼人杀人将不再增长时间，直到芙兰和小透明死去。",
+            "zh_tw": "2. 終幕效果：終幕環節期間，你將發光60秒，同時向所有玩家發放風彈。玩家擁有的風彈數量為玩家自身金幣數量/75（最低1個，最多16個）。此時狼人殺人將不再增長時間，直到芙蘭和小透明死去。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 184,
+          "text": {
+            "en_us": "3. Concealment: for a set time you cannot be detected by normal Killer instinct.",
+            "zh_cn": "3. 隐匿：在一定游戏时间内，你无法被普通杀手直觉探测到。",
+            "zh_tw": "3. 隱匿：在一定遊戲時間內，你無法被普通殺手直覺探測到。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 194
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Furandoru",
+        "zh_cn": "恶魔之妹",
+        "zh_tw": "惡魔之妹"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "furandoru_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "- Win condition: become the sole surviving player, or survive until the countdown ends.",
+            "zh_cn": "- 胜利条件：成为最后存活的唯一玩家，或存活至倒计时结束。",
+            "zh_tw": "- 勝利條件：成為最後存活的唯一玩家，或存活至倒計時結束。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 70,
+          "text": {
+            "en_us": "1. Finale Trigger",
+            "zh_cn": "1. 终幕触发",
+            "zh_tw": "1. 終幕觸發"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "(1): when only you and one other team (not Neutral) remain, the time shortens to 120 seconds and the finale begins.",
+            "zh_cn": "（一）：当场上仅剩你与另一个阵营（不含中立）时，剩余时间缩短为120秒，并进入终幕环节。",
+            "zh_tw": "（一）：當場上僅剩你與另一個陣營（不含中立）時，剩餘時間縮短為120秒，並進入終幕環節。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "(2): if fewer than 90 seconds remain and the finale hasn't triggered, it triggers immediately.",
+            "zh_cn": "（二）：若剩余时间不足90秒且尚未触发终幕环节，则立即触发终幕环节。",
+            "zh_tw": "（二）：若剩餘時間不足90秒且尚未觸發終幕環節，則立即觸發終幕環節。"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

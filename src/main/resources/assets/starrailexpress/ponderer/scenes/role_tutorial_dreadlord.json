@@ -1,0 +1,386 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.dreadlord",
+  "items": [
+    "noellesroles:reaper_scythe",
+    "trainmurdermystery:lockpick",
+    "trainmurdermystery:blackout"
+  ],
+  "title": {
+    "en_us": "恐惧魔王",
+    "zh_cn": "恐惧魔王",
+    "zh_tw": "恐懼魔王"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_carriage"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "恐惧魔王",
+        "zh_cn": "恐惧魔王",
+        "zh_tw": "恐懼魔王"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dreadlord_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 106,
+          "text": {
+            "en_us": "Spawned only by command-block events.",
+            "zh_cn": "仅由命令方块事件产生。",
+            "zh_tw": "僅由命令方塊事件產生。"
+          },
+          "point": [
+            4.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 116
+        },
+        {
+          "type": "text",
+          "duration": 61,
+          "text": {
+            "en_us": "揪出他们内心深处的恐慌。",
+            "zh_cn": "揪出他们内心深处的恐慌。",
+            "zh_tw": "揪出他們內心深處的恐慌。"
+          },
+          "point": [
+            4.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 71
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "恐惧魔王",
+        "zh_cn": "恐惧魔王",
+        "zh_tw": "恐懼魔王"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dreadlord_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dreadlord_target",
+            "outline": -14153680
+          }
+        },
+        {
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.vision",
+            "lines": [
+              {
+                "en_us": "You can see the souls of the dead and hear nearby dead speak.",
+                "zh_cn": "你能看见死者的魂魄并能听见周围死者说话。",
+                "zh_tw": "你能看見死者的魂魄並能聽見周圍死者說話。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 149,
+          "text": {
+            "en_us": "You can see the souls of the dead and hear nearby dead speak.",
+            "zh_cn": "你能看见死者的魂魄并能听见周围死者说话。",
+            "zh_tw": "你能看見死者的魂魄並能聽見周圍死者說話。"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 159
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "恐惧魔王",
+        "zh_cn": "恐惧魔王",
+        "zh_tw": "恐懼魔王"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_carriage",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dreadlord_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dreadlord_psycho",
+            "outline": -14153680
+          }
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "While disguised, keep staring at the same player within 16 blocks for 3 seconds to trigger: for the next 10s, everyone who looks at another player feels that player is staring back; all players' skins and names fall into chaos and steadily lose sanity. Each time you make another player newly enter Fear, you gain 10 coins; refreshing an existing Fear's duration grants no extra reward.",
+                "zh_cn": "伪装状态下，在 16 格内持续注视同一名玩家 3 秒即可发动：在之后的 10 秒内，每个人看向其他玩家时都会觉得对方正在注视自己，所有玩家的皮肤与名称将陷入混乱，并持续降低理智。每使一名其他玩家新进入恐惧效果，获得 10 金币；刷新已有恐惧的持续时间不重复奖励。",
+                "zh_tw": "偽裝狀態下，在 16 格內持續注視同一名玩家 3 秒即可發動：在之後的 10 秒內，每個人看向其他玩家時都會覺得對方正在注視自己，所有玩家的皮膚與名稱將陷入混亂，並持續降低理智。每使一名其他玩家新進入恐懼效果，獲得 10 金幣；刷新已有恐懼的持續時間不重複獎勵。"
+              },
+              {
+                "en_us": "Entering Kill Form costs 100 coins; frenzy lasts 22.5s with a 90s cooldown. Your model grows to 1.5x and you become immune to all damage except forced death and the train crush.",
+                "zh_cn": "进入杀戮形态需花费 100 金币，狂暴持续 22.5 秒，冷却 90 秒。此时模型变为 1.5 倍，免疫除强制死亡与列车碾压以外的伤害。",
+                "zh_tw": "進入殺戮形態需花費 100 金幣，狂暴持續 22.5 秒，冷卻 90 秒。此時模型變為 1.5 倍，免疫除強制死亡與列車碾壓以外的傷害。"
+              },
+              {
+                "en_us": "Slip into Darkness: usable during both disguise and frenzy as your second skill; become a ground-hugging darkness, invincible and sped up, lasting up to 10s, auto-cancelling on expiry, press again to cancel early, 30s cooldown (counted from activation; starting frenzy does not refresh it). Approaching a player freezes them in place for 1s.",
+                "zh_cn": "遁入黑暗：伪装期间和狂暴期间均可使用二技能，化成贴地黑暗，期间无敌并获得加速，最多持续 10 秒，到期自动解除，再按一次可提前解除，冷却 30 秒（开启时起算，开启狂暴不会刷新）。接近玩家会使对方无法移动 1 秒。",
+                "zh_tw": "遁入黑暗：偽裝期間和狂暴期間均可使用二技能，化成貼地黑暗，期間無敵並獲得加速，最多持續 10 秒，到期自動解除，再按一次可提前解除，冷卻 30 秒（開啟時起算，開啟狂暴不會刷新）。接近玩家會使對方無法移動 1 秒。"
+              },
+              {
+                "en_us": "While disguised, getting hit staggers you for 3s; while in frenzy, getting hit locks you from attacking, moving, or using items for 8s. Slipping into Darkness does not trigger hit stagger.",
+                "zh_cn": "伪装状态下受击时僵直 3 秒；狂暴状态下受击后 8 秒无法攻击、移动或使用物品。遁入黑暗期间不触发受击僵直。",
+                "zh_tw": "偽裝狀態下受擊時僵直 3 秒；狂暴狀態下受擊後 8 秒無法攻擊、移動或使用物品。遁入黑暗期間不觸發受擊僵直。"
+              },
+              {
+                "en_us": "The scythe is usable only in frenzy; right-click to charge then swing forward, executing anyone on the arc 0.25s later, 8.5s cooldown.",
+                "zh_cn": "镰刀仅狂暴可用，右键蓄力后向前挥出，0.25 秒后处决弧线上的人，冷却 8.5 秒。",
+                "zh_tw": "鐮刀僅狂暴可用，右鍵蓄力後向前揮出，0.25 秒後處決弧線上的人，冷卻 8.5 秒。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "While disguised, keep staring at the same player within 16 blocks for 3 seconds to trigger: for the next 10s, everyone who looks at another player feels that player is staring back; all players' skins and names fall into chaos and steadily lose sanity. Each time you make another player newly enter Fear, you gain 10 coins; refreshing an existing Fear's duration grants no extra reward.",
+            "zh_cn": "伪装状态下，在 16 格内持续注视同一名玩家 3 秒即可发动：在之后的 10 秒内，每个人看向其他玩家时都会觉得对方正在注视自己，所有玩家的皮肤与名称将陷入混乱，并持续降低理智。每使一名其他玩家新进入恐惧效果，获得 10 金币；刷新已有恐惧的持续时间不重复奖励。",
+            "zh_tw": "偽裝狀態下，在 16 格內持續注視同一名玩家 3 秒即可發動：在之後的 10 秒內，每個人看向其他玩家時都會覺得對方正在注視自己，所有玩家的皮膚與名稱將陷入混亂，並持續降低理智。每使一名其他玩家新進入恐懼效果，獲得 10 金幣；刷新已有恐懼的持續時間不重複獎勵。"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Entering Kill Form costs 100 coins; frenzy lasts 22.5s with a 90s cooldown. Your model grows to 1.5x and you become immune to all damage except forced death and the train crush.",
+            "zh_cn": "进入杀戮形态需花费 100 金币，狂暴持续 22.5 秒，冷却 90 秒。此时模型变为 1.5 倍，免疫除强制死亡与列车碾压以外的伤害。",
+            "zh_tw": "進入殺戮形態需花費 100 金幣，狂暴持續 22.5 秒，冷卻 90 秒。此時模型變為 1.5 倍，免疫除強制死亡與列車碾壓以外的傷害。"
+          },
+          "point": [
+            4.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Slip into Darkness: usable during both disguise and frenzy as your second skill; become a ground-hugging darkness, invincible and sped up, lasting up to 10s, auto-cancelling on expiry, press again to cancel early, 30s cooldown (counted from activation; starting frenzy does not refresh it). Approaching a player freezes them in place for 1s.",
+            "zh_cn": "遁入黑暗：伪装期间和狂暴期间均可使用二技能，化成贴地黑暗，期间无敌并获得加速，最多持续 10 秒，到期自动解除，再按一次可提前解除，冷却 30 秒（开启时起算，开启狂暴不会刷新）。接近玩家会使对方无法移动 1 秒。",
+            "zh_tw": "遁入黑暗：偽裝期間和狂暴期間均可使用二技能，化成貼地黑暗，期間無敵並獲得加速，最多持續 10 秒，到期自動解除，再按一次可提前解除，冷卻 30 秒（開啟時起算，開啟狂暴不會刷新）。接近玩家會使對方無法移動 1 秒。"
+          },
+          "point": [
+            4.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "While disguised, getting hit staggers you for 3s; while in frenzy, getting hit locks you from attacking, moving, or using items for 8s. Slipping into Darkness does not trigger hit stagger.",
+            "zh_cn": "伪装状态下受击时僵直 3 秒；狂暴状态下受击后 8 秒无法攻击、移动或使用物品。遁入黑暗期间不触发受击僵直。",
+            "zh_tw": "偽裝狀態下受擊時僵直 3 秒；狂暴狀態下受擊後 8 秒無法攻擊、移動或使用物品。遁入黑暗期間不觸發受擊僵直。"
+          },
+          "point": [
+            4.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The scythe is usable only in frenzy; right-click to charge then swing forward, executing anyone on the arc 0.25s later, 8.5s cooldown.",
+            "zh_cn": "镰刀仅狂暴可用，右键蓄力后向前挥出，0.25 秒后处决弧线上的人，冷却 8.5 秒。",
+            "zh_tw": "鐮刀僅狂暴可用，右鍵蓄力後向前揮出，0.25 秒後處決弧線上的人，冷卻 8.5 秒。"
+          },
+          "point": [
+            4.0,
+            3.6,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

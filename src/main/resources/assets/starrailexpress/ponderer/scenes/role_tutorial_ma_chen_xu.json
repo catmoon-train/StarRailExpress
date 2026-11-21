@@ -1,0 +1,467 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.ma_chen_xu",
+  "items": [
+    "trainmurdermystery:note",
+    "trainmurdermystery:bat",
+    "trainmurdermystery:knife"
+  ],
+  "title": {
+    "en_us": "Sack Ghost",
+    "zh_cn": "布袋鬼",
+    "zh_tw": "布袋鬼"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_room"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Sack Ghost",
+        "zh_cn": "布袋鬼",
+        "zh_tw": "布袋鬼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ma_chen_xu_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "Killer team",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
+        },
+        {
+          "type": "text",
+          "duration": 171,
+          "text": {
+            "en_us": "Terrain dominator, Sanity destroyer — your very existence is a nightmare.",
+            "zh_cn": "你的存在就是一场噩梦。",
+            "zh_tw": "你的存在就是一場噩夢。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 181
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Sack Ghost",
+        "zh_cn": "布袋鬼",
+        "zh_tw": "布袋鬼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ma_chen_xu_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Start with one Death Escape charge, holding at most one; it recovers 150 seconds after use.",
+            "zh_cn": "开局拥有一次替死，最多储存一次，消耗后150秒恢复。",
+            "zh_tw": "開局擁有一次替死，最多儲存一次，消耗後150秒恢復。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 166,
+          "text": {
+            "en_us": "You cannot attack, cast ghost arts, or open the Inner World during it.",
+            "zh_cn": "15格内非杀手方有人携带枪械时会发出预警，手持枪械时额外显示“危”。",
+            "zh_tw": "15格內非殺手方有人攜帶槍械時會發出預警，手持槍械時額外顯示「危」。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 176
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Detection works in every direction and through walls, revealing neither names nor distances.",
+            "zh_cn": "离体时只检测本体附近，区分携枪与手持枪械。",
+            "zh_tw": "離體時只偵測本體附近，區分攜槍與手持槍械。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Draw cooldown: max(20,50-N) seconds, with N fixed at the starting participant count for the entire round.",
+            "zh_cn": "开局仍只有鬼遮眼和推走各一件，不额外赠送隐身。",
+            "zh_tw": "開局仍只有鬼遮眼和推走各一件，不額外贈送隱身。"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "They are bound to your role, cannot be transferred or stored, and are destroyed on drop.",
+            "zh_cn": "除隐身始终不消耗外，常态下右键成功施术后有50%概率消耗一件，里世界内使用已持有诡物不消耗。",
+            "zh_tw": "除隱身始終不消耗外，常態下右鍵成功施術後有50%機率消耗一件，裏世界內使用已持有詭物不消耗。"
+          },
+          "point": [
+            3.0,
+            3.6,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Sack Ghost",
+        "zh_cn": "布袋鬼",
+        "zh_tw": "布袋鬼"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_room",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ma_chen_xu_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "While away from your body, only its surroundings are checked, distinguishing carried and held guns.",
+                "zh_cn": "布袋抽取（技能键G）",
+                "zh_tw": "布袋抽取（技能鍵G）"
+              },
+              {
+                "en_us": "Draw one random unlocked ghost-art item; Shroud can only be drawn once per player per round, while other items may repeat and the Inner World cannot be drawn.",
+                "zh_cn": "抽取冷却为max(20,50-N)秒，N整局固定为开局参战人数。",
+                "zh_tw": "抽取冷卻為max(20,50-N)秒，N整局固定為開局參戰人數。"
+              },
+              {
+                "en_us": "Shroud is never consumed; other successful right-click casts have a 50% chance to consume one outside the Inner World, while using held items inside it consumes none.",
+                "zh_cn": "失败不消耗、不进入冷却。",
+                "zh_tw": "失敗不消耗、不進入冷卻。"
+              },
+              {
+                "en_us": "Failure consumes nothing and starts no cooldown.",
+                "zh_cn": "各类诡术独立计时，同种诡物共用该种冷却；除隐身外，成功施放后该种冷却25秒。",
+                "zh_tw": "各類詭術獨立計時，同種詭物共用該種冷卻；除隱身外，成功施放後該種冷卻25秒。"
+              },
+              {
+                "en_us": "Shove (stage 1): drain 26 SAN from enemies within 7 blocks of you and push them outward up to 9 blocks, stopping at walls.",
+                "zh_cn": "正常移动和施放诡术不会现身，主动攻击会解除隐身，不提供无敌或加速。",
+                "zh_tw": "正常移動和施放詭術不會現身，主動攻擊會解除隱身，不提供無敵或加速。"
+              },
+              {
+                "en_us": "Shroud (stage 1): become invisible for 15 seconds; right-click again to end it early.",
+                "zh_cn": "隐身物品始终不消耗，结束或提前解除后进入30秒独立冷却。",
+                "zh_tw": "隱身物品始終不消耗，結束或提前解除後進入30秒獨立冷卻。"
+              },
+              {
+                "en_us": "Effigy Straw Doll (stage 2): release a doll lasting 30 seconds.",
+                "zh_cn": "8秒内再次右键可主动返回，超时不自动回归。",
+                "zh_tw": "8秒內再次右鍵可主動返回，逾時不自動回歸。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "While away from your body, only its surroundings are checked, distinguishing carried and held guns.",
+            "zh_cn": "布袋抽取（技能键G）",
+            "zh_tw": "布袋抽取（技能鍵G）"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Draw one random unlocked ghost-art item; Shroud can only be drawn once per player per round, while other items may repeat and the Inner World cannot be drawn.",
+            "zh_cn": "抽取冷却为max(20,50-N)秒，N整局固定为开局参战人数。",
+            "zh_tw": "抽取冷卻為max(20,50-N)秒，N整局固定為開局參戰人數。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Shroud is never consumed; other successful right-click casts have a 50% chance to consume one outside the Inner World, while using held items inside it consumes none.",
+            "zh_cn": "失败不消耗、不进入冷却。",
+            "zh_tw": "失敗不消耗、不進入冷卻。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 126,
+          "text": {
+            "en_us": "Failure consumes nothing and starts no cooldown.",
+            "zh_cn": "各类诡术独立计时，同种诡物共用该种冷却；除隐身外，成功施放后该种冷却25秒。",
+            "zh_tw": "各類詭術獨立計時，同種詭物共用該種冷卻；除隱身外，成功施放後該種冷卻25秒。"
+          },
+          "point": [
+            3.0,
+            3.15,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 136
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Shove (stage 1): drain 26 SAN from enemies within 7 blocks of you and push them outward up to 9 blocks, stopping at walls.",
+            "zh_cn": "正常移动和施放诡术不会现身，主动攻击会解除隐身，不提供无敌或加速。",
+            "zh_tw": "正常移動和施放詭術不會現身，主動攻擊會解除隱身，不提供無敵或加速。"
+          },
+          "point": [
+            3.0,
+            3.6,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Shroud (stage 1): become invisible for 15 seconds; right-click again to end it early.",
+            "zh_cn": "隐身物品始终不消耗，结束或提前解除后进入30秒独立冷却。",
+            "zh_tw": "隱身物品始終不消耗，結束或提前解除後進入30秒獨立冷卻。"
+          },
+          "point": [
+            3.0,
+            4.05,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 153,
+          "text": {
+            "en_us": "Effigy Straw Doll (stage 2): release a doll lasting 30 seconds.",
+            "zh_cn": "8秒内再次右键可主动返回，超时不自动回归。",
+            "zh_tw": "8秒內再次右鍵可主動返回，逾時不自動回歸。"
+          },
+          "point": [
+            3.0,
+            4.5,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 163
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}

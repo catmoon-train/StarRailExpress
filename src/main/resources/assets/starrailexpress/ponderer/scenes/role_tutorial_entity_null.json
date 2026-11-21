@@ -1,0 +1,437 @@
+{
+  "formatVersion": 1,
+  "id": "starrailexpress:role_tutorial.entity_null",
+  "items": [
+    "noellesroles:void_step",
+    "trainmurdermystery:lockpick",
+    "noellesroles:null_item_eraser"
+  ],
+  "title": {
+    "en_us": "Null",
+    "zh_cn": "Null",
+    "zh_tw": "Null"
+  },
+  "structures": [
+    "starrailexpress:role_tutorial_common"
+  ],
+  "tags": [],
+  "customTags": {},
+  "scenes": [
+    {
+      "id": "faction",
+      "title": {
+        "en_us": "Null",
+        "zh_cn": "Null",
+        "zh_tw": "Null"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "entity_null_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 65,
+          "text": {
+            "en_us": "Killer faction",
+            "zh_cn": "杀手阵营",
+            "zh_tw": "殺手陣營"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 75
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "Only produced by the command block event.",
+            "zh_cn": "仅由命令方块事件产生。",
+            "zh_tw": "僅由命令方塊事件產生。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 123
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "将眼前的人抹除。",
+            "zh_cn": "将眼前的人抹除。",
+            "zh_tw": "將眼前的人抹除。"
+          },
+          "point": [
+            3.0,
+            2.7,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 65
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "title": {
+        "en_us": "Null",
+        "zh_cn": "Null",
+        "zh_tw": "Null"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "entity_null_main"
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "attachKeyFrame": true,
+          "pos": [
+            1.6,
+            1.55,
+            1.6
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:void_step",
+          "linkId": "entity_null_item"
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You cannot pick up items; you move slower in areas with light level 12 or above and gain a speed boost during blackouts.",
+            "zh_cn": "无法捡起物品；在光照 12 以上的环境下行动变慢，停电时获得加速效果。",
+            "zh_tw": "無法撿起物品；在光照 12 以上的環境下行動變慢，停電時獲得加速效果。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Void step: shifts you 7 blocks forward, blinding you for 2 seconds and preventing item use for 3 seconds.",
+            "zh_cn": "虚空步：向前错位 7 格，失明 2 秒且 3 秒内不能使用物品。",
+            "zh_tw": "虛空步：向前錯位 7 格，失明 2 秒且 3 秒內不能使用物品。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "skill",
+      "title": {
+        "en_us": "Null",
+        "zh_cn": "Null",
+        "zh_tw": "Null"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "entity_null_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "attachKeyFrame": true,
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60
+          }
+        },
+        {
+          "type": "starrailexpress:role_skill",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Erase: aim at a player and release; there is a 1.25 second wind-up (1 second during a blackout), the target gains Slowness IV, and the target must be within 14 blocks in your line of sight when it ends; cooldown 45 seconds, at most 2 charges, recovering 1 charge every 60 seconds. On success one random item of yours is deleted; with no items you suffer a backlash.",
+                "zh_cn": "抹除：瞄准玩家释放，期间有 1.25 秒前摇（停电时 1 秒），目标获得缓慢 IV，结束时目标须在视线 14 格内；冷却 45 秒，最多 2 次，每 60 秒恢复 1 次。成功则随机删除自己一件物品，无物品则受到反噬。",
+                "zh_tw": "抹除：瞄準玩家釋放，期間有 1.25 秒前搖（停電時 1 秒），目標獲得緩慢 IV，結束時目標須在視線 14 格內；冷卻 45 秒，最多 2 次，每 60 秒恢復 1 次。成功則隨機刪除自己一件物品，無物品則受到反噬。"
+              },
+              {
+                "en_us": "Self erase: after selecting it with the skill switch key, release it within 0.5 seconds of being hit by a player. Once per match, the blast deletes players and dropped items within 4 blocks and kills you (it cannot be released when your death is forced).",
+                "zh_cn": "抹除自身：切换技能选中后，在被玩家命中后的 0.5 秒内释放。每局一次，自爆删除半径 4 格内的玩家和掉落物，并使自己死亡(强制死亡时无法释放技能)。",
+                "zh_tw": "抹除自身：切換技能選中後，在被玩家命中後的 0.5 秒內釋放。每局一次，自爆刪除半徑 4 格內的玩家和掉落物，並使自己死亡(強制死亡時無法釋放技能)。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Erase: aim at a player and release; there is a 1.25 second wind-up (1 second during a blackout), the target gains Slowness IV, and the target must be within 14 blocks in your line of sight when it ends; cooldown 45 seconds, at most 2 charges, recovering 1 charge every 60 seconds. On success one random item of yours is deleted; with no items you suffer a backlash.",
+            "zh_cn": "抹除：瞄准玩家释放，期间有 1.25 秒前摇（停电时 1 秒），目标获得缓慢 IV，结束时目标须在视线 14 格内；冷却 45 秒，最多 2 次，每 60 秒恢复 1 次。成功则随机删除自己一件物品，无物品则受到反噬。",
+            "zh_tw": "抹除：瞄準玩家釋放，期間有 1.25 秒前搖（停電時 1 秒），目標獲得緩慢 IV，結束時目標須在視線 14 格內；冷卻 45 秒，最多 2 次，每 60 秒恢復 1 次。成功則隨機刪除自己一件物品，無物品則受到反噬。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Self erase: after selecting it with the skill switch key, release it within 0.5 seconds of being hit by a player. Once per match, the blast deletes players and dropped items within 4 blocks and kills you (it cannot be released when your death is forced).",
+            "zh_cn": "抹除自身：切换技能选中后，在被玩家命中后的 0.5 秒内释放。每局一次，自爆删除半径 4 格内的玩家和掉落物，并使自己死亡(强制死亡时无法释放技能)。",
+            "zh_tw": "抹除自身：切換技能選中後，在被玩家命中後的 0.5 秒內釋放。每局一次，自爆刪除半徑 4 格內的玩家和掉落物，並使自己死亡(強制死亡時無法釋放技能)。"
+          },
+          "point": [
+            3.0,
+            2.25,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": {
+        "en_us": "Null",
+        "zh_cn": "Null",
+        "zh_tw": "Null"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "entity_null_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "entity_null",
+            "columns": 4
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Item eraser: 100 coins in the shop, purchase cooldown 120 seconds. A single right-click deletes the nearest pile of dropped items within 8 blocks, and is not consumed when there is no target.",
+            "zh_cn": "物品消除器：商店 100 金币，购买冷却 120 秒。一次性右键删除 8 格内最近的一叠掉落物，无目标时不消耗。",
+            "zh_tw": "物品消除器：商店 100 金幣，購買冷卻 120 秒。一次性右鍵刪除 8 格內最近的一疊掉落物，無目標時不消耗。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "title": {
+        "en_us": "Null",
+        "zh_cn": "Null",
+        "zh_tw": "Null"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "entity_null_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 166,
+          "text": {
+            "en_us": "Blackout: turns off lights and cameras within 20 blocks for 6 seconds.",
+            "zh_cn": "涂黑：关闭周围 20 格灯光及监控 6 秒。",
+            "zh_tw": "塗黑：關閉周圍 20 格燈光及監控 6 秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 176
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    }
+  ]
+}
