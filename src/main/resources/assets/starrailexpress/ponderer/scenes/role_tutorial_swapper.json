@@ -124,25 +124,86 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Triggering the skill has a 2.5s delay during which the Swapper cannot move.",
-                "zh_cn": "发动技能时会有2.5s延迟，期间交换者无法移动。",
-                "zh_tw": "發動技能時會有2.5s延遲，期間交換者無法移動。"
-              }
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "swapper_swap_target",
+            "outline": 16753920
+          }
+        },
+        {
+          "type": "starrailexpress:role_screen",
+          "parameters": {
+            "title": {
+              "en_us": "Choose a player",
+              "zh_cn": "选择玩家",
+              "zh_tw": "選擇玩家"
+            },
+            "hint": {
+              "en_us": "Pick two players in the inventory",
+              "zh_cn": "背包中选择两名玩家",
+              "zh_tw": "背包中選擇兩名玩家"
+            },
+            "columns": 6
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_teleport",
+          "parameters": {
+            "linkId": "swapper_main",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
             ]
           },
           "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_teleport",
+          "parameters": {
+            "linkId": "swapper_swap_target",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 164,
+          "text": {
+            "en_us": "Open your inventory to pick a player and swap two people's positions.",
+            "zh_cn": "打开背包可以选择玩家然后交换两个人的位置。",
+            "zh_tw": "打開背包可以選擇玩家然後交換兩個人的位置。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 174
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -150,16 +211,6 @@
             "keyBind": "ability"
           },
           "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 200,
-          "color": "blue"
         },
         {
           "type": "starrailexpress:role_timer",
@@ -179,24 +230,16 @@
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "swapper_line_item_0",
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "2.5s delay, cannot move",
+                "zh_cn": "延迟 2.5 秒 · 期间无法移动",
+                "zh_tw": "延遲 2.5 秒 · 期間無法移動"
+              }
+            ]
+          },
           "attachKeyFrame": true
         },
         {
@@ -209,7 +252,7 @@
           },
           "point": [
             3.0,
-            1.8,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,
@@ -220,25 +263,11 @@
           "duration": 185
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "swapper_skill_target_1",
-            "outline": -65281
-          }
-        },
-        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -248,23 +277,6 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "swapper_main",
-            "to": [
-              5.0,
-              1.0,
-              1.2
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 20
-        },
-        {
           "type": "starrailexpress:role_teleport",
           "parameters": {
             "linkId": "swapper_main",
@@ -279,7 +291,7 @@
         {
           "type": "starrailexpress:role_teleport",
           "parameters": {
-            "linkId": "swapper_skill_target_1",
+            "linkId": "swapper_swap_target",
             "pos": [
               3.0,
               1.0,
@@ -287,18 +299,6 @@
             ]
           },
           "attachKeyFrame": true
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            1,
-            3
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 30
         },
         {
           "type": "text",
@@ -310,7 +310,7 @@
           },
           "point": [
             3.0,
-            2.08,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,
@@ -319,6 +319,65 @@
         {
           "type": "idle",
           "duration": 186
+        },
+        {
+          "type": "text",
+          "duration": 122,
+          "text": {
+            "en_us": "The Swapper cannot swap someone while falling.",
+            "zh_cn": "交换者无法在下落过程中交换别人。",
+            "zh_tw": "交換者無法在下落過程中交換別人。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 132
+        },
+        {
+          "type": "starrailexpress:role_broadcast",
+          "parameters": {
+            "title": "message.swapper.swapped",
+            "lines": [
+              "message.swapper.swapped"
+            ],
+            "duration": 80
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 106,
+          "text": {
+            "en_us": "The swapped player receives a notice.",
+            "zh_cn": "被交换的玩家会收到提示。",
+            "zh_tw": "被交換的玩家會收到提示。"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 116
         },
         {
           "type": "rotate_camera_y",

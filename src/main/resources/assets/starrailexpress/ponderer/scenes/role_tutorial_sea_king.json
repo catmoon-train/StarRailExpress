@@ -245,20 +245,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Skill: press the skill key to give players in water within a 20-block radius 5 seconds of Weaving and Glowing.",
-                "zh_cn": "技能：按下技能键，使半径20格球形范围内处于水中的玩家获得5秒束缚和发光效果。",
-                "zh_tw": "技能：按下技能鍵，使半徑20格球形範圍內處於水中的玩家獲得5秒束縛和發光效果。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -268,16 +254,101 @@
               4.0
             ],
             "yaw": 180.0,
-            "linkId": "sea_king_skill_target_0",
-            "outline": -16730920
+            "linkId": "sea_king_water_target",
+            "outline": 16753920
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.0,
+            1.55,
+            2.1
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "minecraft:trident",
+          "linkId": "sea_king_trident",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 148,
+          "text": {
+            "en_us": "Starts with a Loyalty III Trident; cannot pick up Revolvers.",
+            "zh_cn": "开局拥有一把忠诚3的三叉戟，无法捡起左轮手枪。",
+            "zh_tw": "開局擁有一把忠誠3的三叉戟，無法撿起左輪手槍。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 158
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The trident can only be retrieved when it hits a player; it disappears on hitting a block.",
+            "zh_cn": "三叉戟只有在命中玩家的时候才能回收，命中到方块上会消失。",
+            "zh_tw": "三叉戟只有在命中玩家的時候才能回收，命中到方塊上會消失。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 164,
+          "text": {
+            "en_us": "Has Water Breathing and automatically gains Dolphin's Grace in water.",
+            "zh_cn": "自带水下呼吸效果，进入水中会自动获得海豚的恩惠。",
+            "zh_tw": "自帶水下呼吸效果，進入水中會自動獲得海豚的恩惠。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 174
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -287,51 +358,31 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "starrailexpress:role_timer",
+          "type": "starrailexpress:role_outline",
           "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "Skill: press the skill key to give players in water within a 20-block radius 5 seconds of Weaving and Glowing.",
-                "zh_cn": "技能：按下技能键，使半径20格球形范围内处于水中的玩家获得5秒束缚和发光效果。",
-                "zh_tw": "技能：按下技能鍵，使半徑20格球形範圍內處於水中的玩家獲得5秒束縛和發光效果。"
-              }
-            ]
+            "linkId": "sea_king_water_target",
+            "color": 5636095
           },
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 40
+          "type": "play_sound",
+          "sound": "minecraft:item.trident.return",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "minecraft:trident",
-          "linkId": "sea_king_line_item_0",
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Water targets bound and glowing for 5s",
+                "zh_cn": "水中目标：束缚 · 发光 · 5 秒",
+                "zh_tw": "水中目標：束縛 · 發光 · 5 秒"
+              }
+            ]
+          },
           "attachKeyFrame": true
         },
         {
@@ -344,7 +395,7 @@
           },
           "point": [
             3.0,
-            1.8,
+            2.64,
             3.0
           ],
           "placeNearTarget": true,
@@ -353,6 +404,71 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "sea_king_water_target",
+            "pos": [
+              3.0,
+              1.0,
+              4.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_teleport",
+          "parameters": {
+            "linkId": "sea_king_water_target",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 171,
+          "text": {
+            "en_us": "The shop sells an extra trident for 150 coin; a trident hit kills players",
+            "zh_cn": "商店可以花150金币额外购买一把三叉戟，三叉戟命中玩家会使其死亡",
+            "zh_tw": "商店可以花150金幣額外購買一把三叉戟，三叉戟命中玩家會使其死亡"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 181
+        },
+        {
+          "type": "text",
+          "duration": 133,
+          "text": {
+            "en_us": "The Sea King's trident drops as a Revolver on death.",
+            "zh_cn": "海王死后三叉戟会掉落为左轮手枪。",
+            "zh_tw": "海王死後三叉戟會掉落為左輪手槍。"
+          },
+          "point": [
+            3.0,
+            3.2,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 143
         },
         {
           "type": "rotate_camera_y",

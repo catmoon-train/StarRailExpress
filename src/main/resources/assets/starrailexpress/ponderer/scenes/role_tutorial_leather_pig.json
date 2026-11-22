@@ -124,39 +124,132 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_scale",
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
+            "linkId": "leather_pig_main",
+            "scale": 0.8
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "leather_pig_pig_a",
+            "outline": -24918
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              6.6,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "leather_pig_pig_b",
+            "outline": -24918
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
             "lines": [
               {
-                "en_us": "Active · Rampage (skill key G): spend 150 coins for 30s of Rampage, highlighting all players within 40 blocks, gaining Speed III, and playing a mysterious chase sound.",
-                "zh_cn": "主动·疯魔模式（技能键 G）：消耗 150 金币进入疯魔模式 30 秒并高亮周围 40 格内所有玩家，疯魔期间获得速度 III，并播放神秘追杀音效。",
-                "zh_tw": "主動·瘋魔模式（技能鍵 G）：消耗 150 金幣進入瘋魔模式 30 秒並高亮周圍 40 格內所有玩家，瘋魔期間獲得速度 III，並播放神秘追殺音效。"
-              },
-              {
-                "en_us": "45s cooldown.",
-                "zh_cn": "冷却 45 秒。",
-                "zh_tw": "冷卻 45 秒。"
+                "en_us": "Passive: your model is a pig.",
+                "zh_cn": "被动：你的模型变成一头猪。",
+                "zh_tw": "被動：你的模型變成一頭豬。"
               }
             ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "create_item_entity",
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "leather_pig_pig_a",
+            "color": 16753920
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "leather_pig_pig_b",
+            "color": 16753920
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:cloud",
           "pos": [
-            2.2,
-            1.5,
+            3.0,
+            1.4,
             3.0
           ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
           ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "leather_pig_line_item_0",
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:entity.warden.heartbeat",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
+            "lines": [
+              {
+                "en_us": "Active · Rampage (skill key G): spend 150 coins for 30s of Rampage, highlighting all players within 40 blocks, gaining Speed III, and playing a mysterious chase sound.",
+                "zh_cn": "主动·疯魔模式（技能键 G）：消耗 150 金币进入疯魔模式 30 秒并高亮周围 40 格内所有玩家，疯魔期间获得速度 III，并播放神秘追杀音效。",
+                "zh_tw": "主動·瘋魔模式（技能鍵 G）：消耗 150 金幣進入瘋魔模式 30 秒並高亮周圍 40 格內所有玩家，瘋魔期間獲得速度 III，並播放神秘追殺音效。"
+              }
+            ]
+          },
           "attachKeyFrame": true
         },
         {
@@ -180,87 +273,6 @@
           "duration": 102
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "leather_pig_skill_target_1",
-            "outline": -24918
-          }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "Active · Rampage (skill key G): spend 150 coins for 30s of Rampage, highlighting all players within 40 blocks, gaining Speed III, and playing a mysterious chase sound.",
-                "zh_cn": "主动·疯魔模式（技能键 G）：消耗 150 金币进入疯魔模式 30 秒并高亮周围 40 格内所有玩家，疯魔期间获得速度 III，并播放神秘追杀音效。",
-                "zh_tw": "主動·瘋魔模式（技能鍵 G）：消耗 150 金幣進入瘋魔模式 30 秒並高亮周圍 40 格內所有玩家，瘋魔期間獲得速度 III，並播放神秘追殺音效。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:cloud",
-          "pos": [
-            3.0,
-            1.9,
-            3.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 60,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -279,62 +291,6 @@
         {
           "type": "idle",
           "duration": 200
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:cloud",
-          "pos": [
-            3.0,
-            1.9,
-            3.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 60,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 63,
-          "text": {
-            "en_us": "45s cooldown.",
-            "zh_cn": "冷却 45 秒。",
-            "zh_tw": "冷卻 45 秒。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 73
         },
         {
           "type": "rotate_camera_y",

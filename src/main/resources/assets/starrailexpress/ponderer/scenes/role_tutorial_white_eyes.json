@@ -151,25 +151,25 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Skill \"white flash\": blinds for 3.5 seconds everyone within 14 blocks who is looking at you and makes them glow. You are blinded for 1 second as well, cooldown 30 seconds.",
-                "zh_cn": "技能白闪：灼瞎 14 格内正在看你的人 3.5 秒，并让他们发光。你自己也会失明 1 秒，冷却 30 秒。",
-                "zh_tw": "技能白閃：灼瞎 14 格內正在看你的人 3.5 秒，並讓他們發光。你自己也會失明 1 秒，冷卻 30 秒。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "white_eyes_white_eyes_target",
+            "outline": -1644811
+          }
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -179,22 +179,52 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "white_eyes_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_timer",
+          "type": "starrailexpress:role_outline",
           "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
+            "linkId": "white_eyes_white_eyes_target",
+            "color": 4294967142
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:block.beacon.activate",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "white_eyes_main",
+            "item": "noellesroles:eye_needle"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:eye_needle",
+          "duration": 70,
+          "point": [
+            4.2,
+            2.0,
+            3.0
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
             "lines": [
               {
                 "en_us": "Skill \"white flash\": blinds for 3.5 seconds everyone within 14 blocks who is looking at you and makes them glow. You are blinded for 1 second as well, cooldown 30 seconds.",
@@ -203,27 +233,6 @@
               }
             ]
           },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:eye_needle",
-          "linkId": "white_eyes_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -245,6 +254,54 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 146,
+          "text": {
+            "en_us": "Every 12 seconds your eyes glow on their own for 2 seconds.",
+            "zh_cn": "每过 12 秒眼睛会自己发光 2 秒。",
+            "zh_tw": "每過 12 秒眼睛會自己發光 2 秒。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 156
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 139,
+          "text": {
+            "en_us": "The pupil needle can only kill players who are blinded.",
+            "zh_cn": "瞳针只能刺杀处于失明状态的玩家。",
+            "zh_tw": "瞳針只能刺殺處於失明狀態的玩家。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 149
         },
         {
           "type": "rotate_camera_y",

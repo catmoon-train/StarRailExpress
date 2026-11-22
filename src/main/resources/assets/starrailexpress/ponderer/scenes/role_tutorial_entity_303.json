@@ -151,9 +151,71 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "entity_303_face_target",
+            "outline": -8909812
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "entity_303_face_target",
+            "color": 8421504
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "entity_303_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "entity_303_stolen_face",
+            "skin": "noellesroles:textures/entity/custom_psycho/white_psycho.png",
+            "heldItem": "noellesroles:sp_knife"
+          }
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
             "lines": [
               {
                 "en_us": "Skill \"steal face\": copies the appearance and inventory of a player in your line of sight for 18 seconds, cooldown 40 seconds; your own inventory is restored when the steal ends, and the target's inventory is unaffected.",
@@ -165,81 +227,8 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "entity_303_skill_target_0",
-            "outline": -8909812
-          }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_vitals",
-          "parameters": {
-            "bars": [
-              {
-                "label": "ponder.starrailexpress.label.vitals",
-                "before": 0.35,
-                "after": 1.0,
-                "color": -65536
-              },
-              {
-                "label": "ponder.starrailexpress.label.shield",
-                "before": 0.0,
-                "after": 0.7,
-                "color": -16776961
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
           "type": "idle",
-          "duration": 35
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:peel_blade",
-          "linkId": "entity_303_line_item_0",
-          "attachKeyFrame": true
+          "duration": 25
         },
         {
           "type": "text",
@@ -252,6 +241,228 @@
           "point": [
             3.0,
             1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "entity_303_face_target",
+            "color": 8421504
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "entity_303_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "entity_303_stolen_face",
+            "skin": "noellesroles:textures/entity/custom_psycho/white_psycho.png",
+            "heldItem": "noellesroles:sp_knife"
+          }
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "The stolen player sees through you when they look at you within 12 blocks; your disguise then shatters, you start glowing, and you cannot steal again for 12 seconds.",
+                "zh_cn": "被偷脸者本人在 12 格内看着你时会被识破，此时你的伪装碎裂、并获得发光效果，且 12 秒内不能再次窃形。",
+                "zh_tw": "被偷臉者本人在 12 格內看著你時會被識破，此時你的偽裝碎裂、並獲得發光效果，且 12 秒內不能再次竊形。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "entity_303_stolen_face",
+            "color": -65536
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Disguise broken, glowing, locked 12s",
+                "zh_cn": "伪装碎裂 · 发光 · 窃形锁定 12 秒",
+                "zh_tw": "偽裝碎裂 · 發光 · 竊形鎖定 12 秒"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The stolen player sees through you when they look at you within 12 blocks; your disguise then shatters, you start glowing, and you cannot steal again for 12 seconds.",
+            "zh_cn": "被偷脸者本人在 12 格内看着你时会被识破，此时你的伪装碎裂、并获得发光效果，且 12 秒内不能再次窃形。",
+            "zh_tw": "被偷臉者本人在 12 格內看著你時會被識破，此時你的偽裝碎裂、並獲得發光效果，且 12 秒內不能再次竊形。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "entity_303_face_target",
+            "color": 8421504
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "entity_303_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "entity_303_stolen_face",
+            "skin": "noellesroles:textures/entity/custom_psycho/white_psycho.png",
+            "heldItem": "noellesroles:sp_knife"
+          }
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Skinning blade: tears off a known face at close range and can be used while disguised, cooldown 20 seconds; killing a player makes you glow and prevents another steal for 15 seconds.",
+                "zh_cn": "剥皮刃可近距离撕开已知的脸，在伪装期间也可使用，冷却 20 秒；击杀玩家后会使自己发光，且 15 秒内不能再次窃形。",
+                "zh_tw": "剝皮刃可近距離撕開已知的臉，在偽裝期間也可使用，冷卻 20 秒；擊殺玩家後會使自己發光，且 15 秒內不能再次竊形。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "entity_303_stolen_face",
+            "item": "noellesroles:peel_blade"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "entity_303_face_target",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "entity_303_stolen_face",
+            "color": 16777062
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skinning blade: tears off a known face at close range and can be used while disguised, cooldown 20 seconds; killing a player makes you glow and prevents another steal for 15 seconds.",
+            "zh_cn": "剥皮刃可近距离撕开已知的脸，在伪装期间也可使用，冷却 20 秒；击杀玩家后会使自己发光，且 15 秒内不能再次窃形。",
+            "zh_tw": "剝皮刃可近距離撕開已知的臉，在偽裝期間也可使用，冷卻 20 秒；擊殺玩家後會使自己發光，且 15 秒內不能再次竊形。"
+          },
+          "point": [
+            3.0,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,

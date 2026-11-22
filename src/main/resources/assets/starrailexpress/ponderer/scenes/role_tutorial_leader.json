@@ -124,30 +124,25 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Skill (once globally): within 200s, cast on a non-Killer/non-good-Neutral Neutral (except Loose End, Leader, Fake Steve, and bee-family except Bee Queen) to make them your follower.",
-                "zh_cn": "技能（全局仅一次）：在 200 秒内对一名非杀手/好人方中立的中立职业释放(亡命徒、领袖、伪人、除蜂后外的蜜蜂家族职业除外)，使其成为你的追随者。",
-                "zh_tw": "技能（全局僅一次）：在 200 秒內對一名非殺手/好人方中立的中立職業釋放(亡命徒、領袖、偽人、除蜂後外的蜜蜂家族職業除外)，使其成為你的追隨者。"
-              },
-              {
-                "en_us": "You win when your follower wins (whether you live or not); if you don't cast within 200s, you die from \"hesitation\" (safe time doesn't count toward it).",
-                "zh_cn": "追随者获胜时你随之获胜（无论你是否存活）；若 200 秒内未释放技能，将因「犹豫」而死（安全时间不计入犹豫时间）。",
-                "zh_tw": "追隨者獲勝時你隨之獲勝（無論你是否存活）；若 200 秒內未釋放技能，將因「猶豫」而死（安全時間不計入猶豫時間）。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "leader_leader_follower",
+            "outline": 3355647
+          }
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -157,60 +152,91 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
+          "type": "starrailexpress:role_bond",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Victory alongside your follower",
+                "zh_cn": "与追随者一同获胜",
+                "zh_tw": "與追隨者一同獲勝"
+              }
+            ],
+            "color": 3355647
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "leader_leader_follower",
+            "color": 3355647
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "leader_leader_follower",
+            "to": [
+              3.8,
+              1.0,
+              3.0
+            ],
+            "duration": 45
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_timer",
           "parameters": {
             "progress": [
-              0.0,
-              1.0
+              1.0,
+              0.0
             ],
             "lines": [
               {
-                "en_us": "Skill (once globally): within 200s, cast on a non-Killer/non-good-Neutral Neutral (except Loose End, Leader, Fake Steve, and bee-family except Bee Queen) to make them your follower.",
-                "zh_cn": "技能（全局仅一次）：在 200 秒内对一名非杀手/好人方中立的中立职业释放(亡命徒、领袖、伪人、除蜂后外的蜜蜂家族职业除外)，使其成为你的追随者。",
-                "zh_tw": "技能（全局僅一次）：在 200 秒內對一名非殺手/好人方中立的中立職業釋放(亡命徒、領袖、偽人、除蜂後外的蜜蜂家族職業除外)，使其成為你的追隨者。"
+                "en_us": "Can turn on instinct see-through and night vision (see-through only while on): without a follower, non-Killer/non-good-Neutral Neutrals show yellow (no range limit), others show Leader color only within 10 blocks; with a follower, the follower shows blue (no range limit), others within 10 blocks show Leader color, and the special neutral outlines disappear.",
+                "zh_cn": "可开启本能透视与夜视（仅开启时透视）：无追随者时，非杀手/好人方中立的中立职业为黄色（无距离限制），其它玩家仅10格内为领袖色；拥有追随者时，追随者为蓝色（无距离限制），其它玩家仅10格内为领袖色，且不再显示非杀手/好人方中立的特殊框",
+                "zh_tw": "可開啟本能透視與夜視（僅開啟時透視）：無追隨者時，非殺手/好人方中立的中立職業為黃色（無距離限制），其他玩家僅10格內為領袖色；擁有追隨者時，追隨者為藍色（無距離限制），其他玩家僅10格內為領袖色，且不再顯示非殺手/好人方中立的特殊框"
               }
             ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "leader_line_item_0",
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "leader_main",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "corpse": false
+          },
           "attachKeyFrame": true
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "leader_main"
+          }
+        },
+        {
           "type": "text",
-          "duration": 190,
+          "duration": 95,
           "text": {
-            "en_us": "Skill (once globally): within 200s, cast on a non-Killer/non-good-Neutral Neutral (except Loose End, Leader, Fake Steve, and bee-family except Bee Queen) to make them your follower.",
-            "zh_cn": "技能（全局仅一次）：在 200 秒内对一名非杀手/好人方中立的中立职业释放(亡命徒、领袖、伪人、除蜂后外的蜜蜂家族职业除外)，使其成为你的追随者。",
-            "zh_tw": "技能（全局僅一次）：在 200 秒內對一名非殺手/好人方中立的中立職業釋放(亡命徒、領袖、偽人、除蜂後外的蜜蜂家族職業除外)，使其成為你的追隨者。"
+            "en_us": "Victory alongside your follower",
+            "zh_cn": "与追随者一同获胜",
+            "zh_tw": "與追隨者一同獲勝"
           },
           "point": [
             3.0,
@@ -222,43 +248,15 @@
         },
         {
           "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "idle",
-          "duration": 40
+          "duration": 105
         },
         {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "You win when your follower wins (whether you live or not); if you don't cast within 200s, you die from \"hesitation\" (safe time doesn't count toward it).",
-            "zh_cn": "追随者获胜时你随之获胜（无论你是否存活）；若 200 秒内未释放技能，将因「犹豫」而死（安全时间不计入犹豫时间）。",
-            "zh_tw": "追隨者獲勝時你隨之獲勝（無論你是否存活）；若 200 秒內未釋放技能，將因「猶豫」而死（安全時間不計入猶豫時間）。"
+            "en_us": "Can turn on instinct see-through and night vision (see-through only while on): without a follower, non-Killer/non-good-Neutral Neutrals show yellow (no range limit), others show Leader color only within 10 blocks; with a follower, the follower shows blue (no range limit), others within 10 blocks show Leader color, and the special neutral outlines disappear.",
+            "zh_cn": "可开启本能透视与夜视（仅开启时透视）：无追随者时，非杀手/好人方中立的中立职业为黄色（无距离限制），其它玩家仅10格内为领袖色；拥有追随者时，追随者为蓝色（无距离限制），其它玩家仅10格内为领袖色，且不再显示非杀手/好人方中立的特殊框",
+            "zh_tw": "可開啟本能透視與夜視（僅開啟時透視）：無追隨者時，非殺手/好人方中立的中立職業為黃色（無距離限制），其他玩家僅10格內為領袖色；擁有追隨者時，追隨者為藍色（無距離限制），其他玩家僅10格內為領袖色，且不再顯示非殺手/好人方中立的特殊框"
           },
           "point": [
             3.0,
@@ -273,66 +271,20 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "leader_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
           "type": "indicate_success",
           "blockPos": [
-            5,
+            3,
             0,
-            2
+            3
           ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
         },
         {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "Pelican: your follower's successful skill has 40% chance of no cooldown; when game time <2 min, everyone glows to game end",
-            "zh_cn": "鹈鹕：“追随者”鹈鹕成功释放技能有40%概率技能不进入冷却，且当游戏时间小于2分钟时，所有人获得发光效果，持续至游戏结束",
-            "zh_tw": "鵜鶘：“追隨者”鵜鶘成功釋放技能有40%概率技能不進入冷卻，且當遊戲時間小於2分鐘時，所有人獲得發光效果，持續至遊戲結束"
+            "en_us": "Near a non-Killer/non-good-Neutral Neutral you can see their role (disabled with a follower).",
+            "zh_cn": "靠近非杀手/好人方中立的中立职业时可看到其职业，拥有追随者时失效。",
+            "zh_tw": "靠近非殺手/好人方中立的中立職業時可看到其職業，擁有追隨者時失效。"
           },
           "point": [
             3.0,
@@ -347,66 +299,12 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "leader_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "Initiate: when you recruit any Initiate into a follower, all other Initiates also become your followers; you get a knife; recruited Initiates no longer die from failed trials, and if an Initiate changes role you die from a \"failed trial\"",
-            "zh_cn": "初学者：当领袖对场上任意一个初学者释放技能将他变成“追随者”时，则场上其它的初学者也会自动变成领袖的追随者，领袖获得一把刀，此时成为“追随者”的初学者不再会因为考核失败而死，若初学者转变了身份，则领袖会以“考核失败”而死",
-            "zh_tw": "初學者：當領袖對場上任意一個初學者釋放技能將他變成“追隨者”時，則場上其他的初學者也會自動變成領袖的追隨者，領袖獲得一把刀，此時成為“追隨者”的初學者不再會因為考核失敗而死，若初學者轉變了身份，則領袖會以“考核失敗”而死"
+            "en_us": "Skill (once globally): within 200s, cast on a non-Killer/non-good-Neutral Neutral (except Loose End, Leader, Fake Steve, and bee-family except Bee Queen) to make them your follower.",
+            "zh_cn": "技能（全局仅一次）：在 200 秒内对一名非杀手/好人方中立的中立职业释放(亡命徒、领袖、伪人、除蜂后外的蜜蜂家族职业除外)，使其成为你的追随者。",
+            "zh_tw": "技能（全局僅一次）：在 200 秒內對一名非殺手/好人方中立的中立職業釋放(亡命徒、領袖、偽人、除蜂後外的蜜蜂家族職業除外)，使其成為你的追隨者。"
           },
           "point": [
             3.0,
@@ -421,117 +319,189 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "leader_skill_target_4",
-            "outline": 4294902015
-          }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "leader_skill_item_4"
-        },
-        {
-          "type": "show_controls",
-          "action": "right",
-          "item": "trainmurdermystery:note",
-          "duration": 70,
-          "point": [
-            2.2,
-            2.2,
-            3.0
-          ],
-          "direction": "down"
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "leader_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 35
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "leader_death_target_4",
-            "outline": 4294902015
-          }
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "leader_death_target_4",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
-          },
-          "attachKeyFrame": true
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
         },
         {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "Bee Queen: after you cast on the Bee Queen, all bee-family skill poison-death times halve; the follower instantly gets 200 coins; you get a knife",
-            "zh_cn": "蜂后：领袖对蜂后释放技能后，场上所有蜜蜂家族职业释放技能的中毒致死时间减半，“追随者”蜂后立即获得200金币，领袖获得一把刀。",
-            "zh_tw": "蜂後：領袖對蜂後釋放技能後，場上所有蜜蜂家族職業釋放技能的中毒致死時間減半，“追隨者”蜂後立即獲得200金幣，領袖獲得一把刀。"
+            "en_us": "You win when your follower wins (whether you live or not); if you don't cast within 200s, you die from \"hesitation\" (safe time doesn't count toward it).",
+            "zh_cn": "追随者获胜时你随之获胜（无论你是否存活）；若 200 秒内未释放技能，将因「犹豫」而死（安全时间不计入犹豫时间）。",
+            "zh_tw": "追隨者獲勝時你隨之獲勝（無論你是否存活）；若 200 秒內未釋放技能，將因「猶豫」而死（安全時間不計入猶豫時間）。"
           },
           "point": [
             3.0,
             2.92,
             3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 140,
+          "text": {
+            "en_us": "Different followers grant bonus effects to you and them:",
+            "zh_cn": "不同职业的追随者会为你与追随者带来额外效果，具体如下。",
+            "zh_tw": "不同職業的追隨者會為你與追隨者帶來額外效果，具體如下。"
+          },
+          "point": [
+            3.0,
+            3.2,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 150
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Dummy Bird: your vote becomes 2.5x, you get a knife, the Dummy Bird follower gets a shield",
+            "zh_cn": "呆呆鸟：此时领袖的投票权重变为原来的2.5倍，领袖会获得一把刀，“追随者”呆呆鸟会获得一层护盾",
+            "zh_tw": "呆呆鳥：此時領袖的投票權重變為原來的2.5倍，領袖會獲得一把刀，“追隨者”呆呆鳥會獲得一層護盾"
+          },
+          "point": [
+            3.0,
+            3.48,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 164,
+          "text": {
+            "en_us": "Amon: when your Amon follower dies, if you live, you die in his place",
+            "zh_cn": "阿蒙：当“追随者”阿蒙死亡时，若此时领袖还存活，则领袖代替阿蒙死亡",
+            "zh_tw": "阿蒙：當“追隨者”阿蒙死亡時，若此時領袖還存活，則領袖代替阿蒙死亡"
+          },
+          "point": [
+            3.15,
+            1.8,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 174
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Candle Bearer: your follower instantly gains 1 invisibility and permanent Speed 1 until game end; you get a knife",
+            "zh_cn": "秉烛人：“追随者”秉烛人立刻获得1个隐身次数并获得永久的速度1直到游戏结束，领袖会获得一把刀",
+            "zh_tw": "秉燭人：“追隨者”秉燭人立刻獲得1個隱身次數並獲得永久的速度1直到遊戲結束，領袖會獲得一把刀"
+          },
+          "point": [
+            3.15,
+            2.08,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 176,
+          "text": {
+            "en_us": "Cuckoo: your follower gets a crowbar and the next cuckoo egg turns invisible",
+            "zh_cn": "布谷鸟：“追随者”布谷鸟获得一把撬棍，并使下一个布谷鸟蛋隐形",
+            "zh_tw": "布穀鳥：“追隨者”布穀鳥獲得一把撬棍，並使下一個布穀鳥蛋隱形"
+          },
+          "point": [
+            3.15,
+            2.36,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 186
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Gambler: your follower's independent-win chance rises from 1% to 2%, and on death they become a Killer/Sheriff for sure; you get a one-time pistol; if the follower stops being a Gambler, you die from a revolver",
+            "zh_cn": "赌徒：“追随者”赌徒独立胜利的概率由1%变成2%，且赌徒死亡后必定变成杀手/警长中的一个，领袖获得一把一次性手枪，若“追随者”赌徒的身份不再是赌徒时，则领袖也死亡，领袖的死因是左轮手枪",
+            "zh_tw": "賭徒：“追隨者”賭徒獨立勝利的概率由1%變成2%，且賭徒死亡後必定變成殺手/警長中的一個，領袖獲得一把一次性手槍，若“追隨者”賭徒的身份不再是賭徒時，則領袖也死亡，領袖的死因是左輪手槍"
+          },
+          "point": [
+            3.15,
+            2.64,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Raven: your follower instantly gets 1 charge and permanent Speed 1 to game end, plus a one-time pistol during the hunt; you get a fake knife and fake gun",
+            "zh_cn": "渡鸦：“追随者”渡鸦立即获得1层充能，获得永久速度1直至游戏结束，狩猎期间额外获得一把一次性手枪，领袖获得假刀和假枪。",
+            "zh_tw": "渡鴉：“追隨者”渡鴉立即獲得1層充能，獲得永久速度1直至遊戲結束，狩獵期間額外獲得一把一次性手槍，領袖獲得假刀和假槍。"
+          },
+          "point": [
+            3.15,
+            2.92,
+            2.85
           ],
           "placeNearTarget": true,
           "attachKeyFrame": true

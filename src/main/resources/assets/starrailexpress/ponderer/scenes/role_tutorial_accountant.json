@@ -122,77 +122,57 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Press the skill-switch key (default Y) to toggle mode: Income and Expense.",
-                "zh_cn": "按下技能切换键（默认Y键）切换模式：收入与支出。",
-                "zh_tw": "按下技能切換鍵（默認Y鍵）切換模式：收入與支出。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "accountant_audit_target",
+            "outline": 8421504
+          }
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
             "duration": 60,
-            "keyBind": "next_ability",
-            "text": "ponder.starrailexpress.ponder.press_next_ability"
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:passbook",
-          "linkId": "accountant_line_item_0",
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              0.2,
+              0.8
+            ],
+            "lines": [
+              {
+                "en_us": "Every 60s you gain 25 coins",
+                "zh_cn": "你每60s会获得25金币",
+                "zh_tw": "你每60s會獲得25金幣"
+              }
+            ]
+          },
           "attachKeyFrame": true
         },
         {
-          "type": "play_sound",
-          "sound": "minecraft:item.book.page_turn",
-          "soundVolume": 1.0,
-          "pitch": 1.0,
-          "source": "players"
-        },
-        {
           "type": "text",
-          "duration": 173,
+          "duration": 88,
           "text": {
-            "en_us": "Press the skill-switch key (default Y) to toggle mode: Income and Expense.",
-            "zh_cn": "按下技能切换键（默认Y键）切换模式：收入与支出。",
-            "zh_tw": "按下技能切換鍵（默認Y鍵）切換模式：收入與支出。"
+            "en_us": "Every 60s you gain 25 coins",
+            "zh_cn": "你每60s会获得25金币",
+            "zh_tw": "你每60s會獲得25金幣"
           },
           "point": [
             3.0,
@@ -204,83 +184,79 @@
         },
         {
           "type": "idle",
-          "duration": 183
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "accountant_skill_target_1",
-            "outline": -13726889
-          }
+          "duration": 98
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
             "duration": 60,
-            "keyBind": "ability"
+            "keyBind": "next_ability",
+            "text": "ponder.starrailexpress.ponder.press_next_ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_walk",
+          "type": "play_sound",
+          "sound": "minecraft:item.book.page_turn",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_outline",
           "parameters": {
-            "linkId": "accountant_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
+            "linkId": "accountant_audit_target",
+            "color": 4283826175
           },
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Press the skill-switch key (default Y) to toggle mode: Income and Expense.",
+                "zh_cn": "按下技能切换键（默认Y键）切换模式：收入与支出。",
+                "zh_tw": "按下技能切換鍵（默認Y鍵）切換模式：收入與支出。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              0.2,
+              0.8
+            ],
+            "lines": [
+              {
+                "en_us": "Press the skill-switch key (default Y) to toggle mode: Income and Expense.",
+                "zh_cn": "按下技能切换键（默认Y键）切换模式：收入与支出。",
+                "zh_tw": "按下技能切換鍵（默認Y鍵）切換模式：收入與支出。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "text",
-          "duration": 190,
+          "duration": 173,
           "text": {
-            "en_us": "Income: press the skill key while aiming at a player to see that player's most recent income source.",
-            "zh_cn": "收入：对玩家按下技能键可以查看该玩家最近一次的收入来源。",
-            "zh_tw": "收入：對玩家按下技能鍵可以查看該玩家最近一次的收入來源。"
+            "en_us": "Press the skill-switch key (default Y) to toggle mode: Income and Expense.",
+            "zh_cn": "按下技能切换键（默认Y键）切换模式：收入与支出。",
+            "zh_tw": "按下技能切換鍵（默認Y鍵）切換模式：收入與支出。"
           },
           "point": [
             3.0,
@@ -292,28 +268,14 @@
         },
         {
           "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "accountant_skill_target_2",
-            "outline": -13726889
-          }
+          "duration": 183
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -323,54 +285,29 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_walk",
+          "type": "starrailexpress:role_currency",
           "parameters": {
-            "linkId": "accountant_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
+            "progress": [
+              0.2,
+              0.8
             ],
-            "duration": 45
+            "lines": [
+              {
+                "en_us": "Press the skill key directly to spend 175 coins and trigger the skill",
+                "zh_cn": "直接按技能键花费175金币发动技能",
+                "zh_tw": "直接按技能鍵花費175金幣發動技能"
+              }
+            ]
           },
           "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 15
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "accountant_skill_target_2",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 30
         },
         {
           "type": "text",
-          "duration": 190,
+          "duration": 164,
           "text": {
-            "en_us": "Income sources are one of: passive income, quest income, player kill income, pickpocketing, stealing, plundering, skill income, passbook income, other income, no income",
-            "zh_cn": "收入来源分为以下几种: 被动收入、任务收入、击杀玩家收入、扒窃、偷窃、掠夺、技能收入、存折收入、其它收入、无收入",
-            "zh_tw": "收入來源分為以下幾種: 被動收入、任務收入、擊殺玩家收入、扒竊、偷竊、掠奪、技能收入、存摺收入、其他收入、無收入"
+            "en_us": "Press the skill key directly to spend 175 coins and trigger the skill",
+            "zh_cn": "直接按技能键花费175金币发动技能",
+            "zh_tw": "直接按技能鍵花費175金幣發動技能"
           },
           "point": [
             3.0,
@@ -382,7 +319,743 @@
         },
         {
           "type": "idle",
+          "duration": 174
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:block.bell.use",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": {
+              "en_us": "Income source",
+              "zh_cn": "收入来源",
+              "zh_tw": "收入來源"
+            },
+            "lines": [
+              {
+                "en_us": "Income: press the skill key while aiming at a player to see that player's most recent income source.",
+                "zh_cn": "收入：对玩家按下技能键可以查看该玩家最近一次的收入来源。",
+                "zh_tw": "收入：對玩家按下技能鍵可以查看該玩家最近一次的收入來源。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              0.2,
+              0.8
+            ],
+            "lines": [
+              {
+                "en_us": "Income: press the skill key while aiming at a player to see that player's most recent income source.",
+                "zh_cn": "收入：对玩家按下技能键可以查看该玩家最近一次的收入来源。",
+                "zh_tw": "收入：對玩家按下技能鍵可以查看該玩家最近一次的收入來源。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Income: press the skill key while aiming at a player to see that player's most recent income source.",
+            "zh_cn": "收入：对玩家按下技能键可以查看该玩家最近一次的收入来源。",
+            "zh_tw": "收入：對玩家按下技能鍵可以查看該玩家最近一次的收入來源。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:block.bell.use",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": {
+              "en_us": "Income source",
+              "zh_cn": "收入来源",
+              "zh_tw": "收入來源"
+            },
+            "lines": [
+              {
+                "en_us": "Income sources are one of: passive income, quest income, player kill income, pickpocketing, stealing, plundering, skill income, passbook income, other income, no income",
+                "zh_cn": "收入来源分为以下几种: 被动收入、任务收入、击杀玩家收入、扒窃、偷窃、掠夺、技能收入、存折收入、其它收入、无收入",
+                "zh_tw": "收入來源分為以下幾種: 被動收入、任務收入、擊殺玩家收入、扒竊、偷竊、掠奪、技能收入、存摺收入、其他收入、無收入"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              0.2,
+              0.8
+            ],
+            "lines": [
+              {
+                "en_us": "Income sources are one of: passive income, quest income, player kill income, pickpocketing, stealing, plundering, skill income, passbook income, other income, no income",
+                "zh_cn": "收入来源分为以下几种: 被动收入、任务收入、击杀玩家收入、扒窃、偷窃、掠夺、技能收入、存折收入、其它收入、无收入",
+                "zh_tw": "收入來源分為以下幾種: 被動收入、任務收入、擊殺玩家收入、扒竊、偷竊、掠奪、技能收入、存摺收入、其他收入、無收入"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Income sources are one of: passive income, quest income, player kill income, pickpocketing, stealing, plundering, skill income, passbook income, other income, no income",
+            "zh_cn": "收入来源分为以下几种: 被动收入、任务收入、击杀玩家收入、扒窃、偷窃、掠夺、技能收入、存折收入、其它收入、无收入",
+            "zh_tw": "收入來源分為以下幾種: 被動收入、任務收入、擊殺玩家收入、扒竊、偷竊、掠奪、技能收入、存摺收入、其他收入、無收入"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:item.book.page_turn",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "accountant_audit_target",
+            "color": 4283826175
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Expense: mark a player, and 30s later you learn that player's coin spending channel.",
+                "zh_cn": "支出：可以标记一名玩家，你会在30s后得知该玩家的金币支出渠道。",
+                "zh_tw": "支出：可以標記一名玩家，你會在30s後得知該玩家的金幣支出管道。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              0.2,
+              0.8
+            ],
+            "lines": [
+              {
+                "en_us": "Expense: mark a player, and 30s later you learn that player's coin spending channel.",
+                "zh_cn": "支出：可以标记一名玩家，你会在30s后得知该玩家的金币支出渠道。",
+                "zh_tw": "支出：可以標記一名玩家，你會在30s後得知該玩家的金幣支出管道。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Expense: mark a player, and 30s later you learn that player's coin spending channel.",
+            "zh_cn": "支出：可以标记一名玩家，你会在30s后得知该玩家的金币支出渠道。",
+            "zh_tw": "支出：可以標記一名玩家，你會在30s後得知該玩家的金幣支出管道。"
+          },
+          "point": [
+            3.0,
+            3.2,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:item.book.page_turn",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "accountant_audit_target",
+            "color": 4283826175
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Spending channels are one of: bought xxx in the shop, shopped at a vending machine, skill cost, stolen by a thief, passbook deposit, other spending, no spending",
+                "zh_cn": "支出渠道会显示为以下几种：在商店中购买了xxx、在售货机进行购物、技能支出、被小偷偷取、存折支出、其它支出、无支出",
+                "zh_tw": "支出管道會顯示為以下幾種：在商店中購買了xxx、在售貨機進行購物、技能支出、被小偷偷取、存摺支出、其他支出、無支出"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              0.2,
+              0.8
+            ],
+            "lines": [
+              {
+                "en_us": "Spending channels are one of: bought xxx in the shop, shopped at a vending machine, skill cost, stolen by a thief, passbook deposit, other spending, no spending",
+                "zh_cn": "支出渠道会显示为以下几种：在商店中购买了xxx、在售货机进行购物、技能支出、被小偷偷取、存折支出、其它支出、无支出",
+                "zh_tw": "支出管道會顯示為以下幾種：在商店中購買了xxx、在售貨機進行購物、技能支出、被小偷偷取、存摺支出、其他支出、無支出"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Spending channels are one of: bought xxx in the shop, shopped at a vending machine, skill cost, stolen by a thief, passbook deposit, other spending, no spending",
+            "zh_cn": "支出渠道会显示为以下几种：在商店中购买了xxx、在售货机进行购物、技能支出、被小偷偷取、存折支出、其它支出、无支出",
+            "zh_tw": "支出管道會顯示為以下幾種：在商店中購買了xxx、在售貨機進行購物、技能支出、被小偷偷取、存摺支出、其他支出、無支出"
+          },
+          "point": [
+            3.0,
+            3.48,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.55,
+            2.1
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:passbook",
+          "linkId": "accountant_passbook",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:passbook",
+          "duration": 70,
+          "point": [
+            1.7,
+            1.9,
+            1.8
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              0.2,
+              0.8
+            ],
+            "lines": [
+              {
+                "en_us": "The Accountant shop sells a passbook for 100 coins (once per match).",
+                "zh_cn": "会计商店可花费100金币购买存折(仅能购买一次)。",
+                "zh_tw": "會計商店可花費100金幣購買存摺(僅能購買一次)。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 162,
+          "text": {
+            "en_us": "The Accountant shop sells a passbook for 100 coins (once per match).",
+            "zh_cn": "会计商店可花费100金币购买存折(仅能购买一次)。",
+            "zh_tw": "會計商店可花費100金幣購買存摺(僅能購買一次)。"
+          },
+          "point": [
+            3.15,
+            1.8,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 172
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.55,
+            2.1
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:passbook",
+          "linkId": "accountant_passbook",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:passbook",
+          "duration": 70,
+          "point": [
+            1.7,
+            1.9,
+            1.8
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              0.2,
+              0.8
+            ],
+            "lines": [
+              {
+                "en_us": "Right-click the passbook to deposit your coins into it (up to 300 coins).",
+                "zh_cn": "右键存折会消耗身上的金币(最多存取300金币)，并将金币保存在存折中。",
+                "zh_tw": "右鍵存摺會消耗身上的金幣(最多存取300金幣)，並將金幣保存在存摺中。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 171,
+          "text": {
+            "en_us": "Right-click the passbook to deposit your coins into it (up to 300 coins).",
+            "zh_cn": "右键存折会消耗身上的金币(最多存取300金币)，并将金币保存在存折中。",
+            "zh_tw": "右鍵存摺會消耗身上的金幣(最多存取300金幣)，並將金幣保存在存摺中。"
+          },
+          "point": [
+            3.15,
+            2.08,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 181
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.55,
+            2.1
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:passbook",
+          "linkId": "accountant_passbook",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:passbook",
+          "duration": 70,
+          "point": [
+            1.7,
+            1.9,
+            1.8
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              0.2,
+              0.8
+            ],
+            "lines": [
+              {
+                "en_us": "Right-click the passbook again to take the coins back and consume the passbook.",
+                "zh_cn": "再次右键存折会获得存折中的金币并消耗存折。",
+                "zh_tw": "再次右鍵存摺會獲得存摺中的金幣並消耗存摺。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 182,
+          "text": {
+            "en_us": "Right-click the passbook again to take the coins back and consume the passbook.",
+            "zh_cn": "再次右键存折会获得存折中的金币并消耗存折。",
+            "zh_tw": "再次右鍵存摺會獲得存摺中的金幣並消耗存摺。"
+          },
+          "point": [
+            3.15,
+            2.36,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 192
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.55,
+            2.1
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:passbook",
+          "linkId": "accountant_passbook",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:passbook",
+          "duration": 70,
+          "point": [
+            1.7,
+            1.9,
+            1.8
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              0.2,
+              0.8
+            ],
+            "lines": [
+              {
+                "en_us": "The passbook can be thrown to other players.",
+                "zh_cn": "存折可以丢出给其它人。",
+                "zh_tw": "存摺可以丟出給其他人。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 119,
+          "text": {
+            "en_us": "The passbook can be thrown to other players.",
+            "zh_cn": "存折可以丢出给其它人。",
+            "zh_tw": "存摺可以丟出給其他人。"
+          },
+          "point": [
+            3.15,
+            2.64,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 129
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.55,
+            2.1
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:passbook",
+          "linkId": "accountant_passbook",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:passbook",
+          "duration": 70,
+          "point": [
+            1.7,
+            1.9,
+            1.8
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "accountant_main",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              0.2,
+              0.8
+            ],
+            "lines": [
+              {
+                "en_us": "When the Accountant dies, the passbook is passed to a nearby passenger.",
+                "zh_cn": "会计死亡时，存折会传递给附近的好人。",
+                "zh_tw": "會計死亡時，存摺會傳遞給附近的好人。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 167,
+          "text": {
+            "en_us": "When the Accountant dies, the passbook is passed to a nearby passenger.",
+            "zh_cn": "会计死亡时，存折会传递给附近的好人。",
+            "zh_tw": "會計死亡時，存摺會傳遞給附近的好人。"
+          },
+          "point": [
+            3.15,
+            2.92,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 177
         },
         {
           "type": "rotate_camera_y",

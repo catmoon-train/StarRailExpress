@@ -261,25 +261,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Right-click parry: 0.4s base windup, 1.2s active window; can block unlimited hits, each successful block costs 1 durability (katana durability never below 1; at 1 you can't parry).",
-                "zh_cn": "只有成功击杀玩家后才会进入 10 秒物品冷却",
-                "zh_tw": "只有成功擊殺玩家後才會進入 10 秒物品冷卻"
-              },
-              {
-                "en_us": "Blockable causes match the Riot Shield: revolver, knife, derringer, bat, bow, arrow, trident, grenade, sawed-off shotgun, throwing axe, throwing knife, shuriken, explosive crossbow, iron axe, diamond sword, heavy hammer, katana",
-                "zh_cn": "招式命中后 3 秒内衔接格挡则无格挡前摇，若未衔接格挡，则格挡结束后进入 5 秒格挡冷却",
-                "zh_tw": "招式命中後 3 秒內銜接格擋則無格擋前搖，若未銜接格擋，則格擋結束後進入 5 秒格擋冷卻"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -289,16 +270,33 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "swordsman_skill_target_0",
-            "outline": -3782584
+            "linkId": "swordsman_duel",
+            "outline": 16753920
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.0,
+            1.55,
+            2.1
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:katana",
+          "linkId": "swordsman_katana",
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -308,69 +306,12 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "swordsman_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "swordsman_line_item_0",
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
-          "duration": 190,
+          "duration": 76,
           "text": {
-            "en_us": "After hitting a player, the next move is remembered; if all three land without killing, it chains back to the first.",
-            "zh_cn": "招式在命中玩家后会保留下一招式的释放",
-            "zh_tw": "招式在命中玩家後會保留下一招式的釋放"
+            "en_us": "Starts with a katana",
+            "zh_cn": "开局自带一把武士刀",
+            "zh_tw": "開局自帶一把武士刀"
           },
           "point": [
             3.0,
@@ -382,58 +323,29 @@
         },
         {
           "type": "idle",
-          "duration": 200
+          "duration": 86
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_key",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
+            "point": [
+              3.0,
+              3.0,
+              3.0
             ],
-            "yaw": 180.0,
-            "linkId": "swordsman_skill_target_1",
-            "outline": -3782584
-          }
-        },
-        {
-          "type": "idle",
-          "duration": 15
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "swordsman_skill_target_1",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 30
-        },
-        {
           "type": "text",
-          "duration": 190,
+          "duration": 128,
           "text": {
-            "en_us": "Right-click parry: 0.4s base windup, 1.2s active window; can block unlimited hits, each successful block costs 1 durability (katana durability never below 1; at 1 you can't parry).",
-            "zh_cn": "只有成功击杀玩家后才会进入 10 秒物品冷却",
-            "zh_tw": "只有成功擊殺玩家後才會進入 10 秒物品冷卻"
+            "en_us": "Shop sells [Restore Virtual Health] and [Reforge]",
+            "zh_cn": "商店可购买「回复虚拟血量」与「锻刀」",
+            "zh_tw": "商店可購買「回復虛擬血量」與「鍛刀」"
           },
           "point": [
             3.0,
@@ -445,46 +357,29 @@
         },
         {
           "type": "idle",
-          "duration": 200
+          "duration": 138
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "starrailexpress:role_timer",
+          "type": "starrailexpress:role_key",
           "parameters": {
-            "progress": [
-              0.0,
-              1.0
+            "point": [
+              3.0,
+              3.0,
+              3.0
             ],
-            "lines": [
-              {
-                "en_us": "Blockable causes match the Riot Shield: revolver, knife, derringer, bat, bow, arrow, trident, grenade, sawed-off shotgun, throwing axe, throwing knife, shuriken, explosive crossbow, iron axe, diamond sword, heavy hammer, katana",
-                "zh_cn": "招式命中后 3 秒内衔接格挡则无格挡前摇，若未衔接格挡，则格挡结束后进入 5 秒格挡冷却",
-                "zh_tw": "招式命中後 3 秒內銜接格擋則無格擋前搖，若未銜接格擋，則格擋結束後進入 5 秒格擋冷卻"
-              }
-            ]
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 40
-        },
-        {
           "type": "text",
-          "duration": 190,
+          "duration": 55,
           "text": {
-            "en_us": "Blockable causes match the Riot Shield: revolver, knife, derringer, bat, bow, arrow, trident, grenade, sawed-off shotgun, throwing axe, throwing knife, shuriken, explosive crossbow, iron axe, diamond sword, heavy hammer, katana",
-            "zh_cn": "招式命中后 3 秒内衔接格挡则无格挡前摇，若未衔接格挡，则格挡结束后进入 5 秒格挡冷却",
-            "zh_tw": "招式命中後 3 秒內銜接格擋則無格擋前搖，若未銜接格擋，則格擋結束後進入 5 秒格擋冷卻"
+            "en_us": "[Katana]",
+            "zh_cn": "【武士刀】",
+            "zh_tw": "【武士刀】"
           },
           "point": [
             3.0,
@@ -496,14 +391,14 @@
         },
         {
           "type": "idle",
-          "duration": 200
+          "duration": 65
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -513,52 +408,47 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_walk",
+          "type": "starrailexpress:role_hold",
           "parameters": {
             "linkId": "swordsman_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
+            "item": "noellesroles:katana"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "swordsman_main",
+            "to": [
+              4.2,
+              1.0,
+              2.0
+            ],
+            "duration": 34
+          },
+          "attachKeyFrame": true
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
+          "type": "starrailexpress:role_vitals",
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 1.0,
+                "after": 0.5,
+                "color": 16753920
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "text",
-          "duration": 149,
+          "duration": 190,
           "text": {
-            "en_us": "Lasts 15s: katana virtual damage x2, gain Speed 2 and Haste 2",
-            "zh_cn": "按下技能键后扣除 50% 的虚拟血量（基于虚拟血量上限，不会把虚拟血量扣到 1 以下，虚拟血量为 1 时无法释放技能）",
-            "zh_tw": "按下技能鍵後扣除 50% 的虛擬血量（基於虛擬血量上限，不會把虛擬血量扣到 1 以下，虛擬血量為 1 時無法釋放技能）"
+            "en_us": "After left-click hitting a player, chain the three-hit combo: horizontal slash -> thrust -> overhead; it advances only on hitting players, dealing 6/7/7 virtual damage.",
+            "zh_cn": "左键在命中玩家后，能依次释放以下三连招：横扫 → 突刺 → 劈砍，命中玩家后才会推进到下一招式，每招造成 6/7/7 点虚拟血量伤害",
+            "zh_tw": "左鍵在命中玩家後，能依次釋放以下三連招：橫掃 → 突刺 → 劈砍，命中玩家後才會推進到下一招式，每招造成 6/7/7 點虛擬血量傷害"
           },
           "point": [
             3.0,
@@ -570,28 +460,14 @@
         },
         {
           "type": "idle",
-          "duration": 159
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "swordsman_skill_target_4",
-            "outline": -3782584
-          }
+          "duration": 200
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -601,24 +477,24 @@
           "attachKeyFrame": true
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 35
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "swordsman_duel",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "text",
-          "duration": 124,
+          "duration": 190,
           "text": {
-            "en_us": "This shield does not vanish when the skill ends",
-            "zh_cn": "释放技能时会为自己补充 20 点虚拟护盾：若虚拟护盾不足 20 点则补到 20 点",
-            "zh_tw": "釋放技能時會為自己補充 20 點虛擬護盾：若虛擬護盾不足 20 點則補到 20 點"
+            "en_us": "Right-click parry: 0.4s base windup, 1.2s active window; can block unlimited hits, each successful block costs 1 durability (katana durability never below 1; at 1 you can't parry).",
+            "zh_cn": "只有成功击杀玩家后才会进入 10 秒物品冷却",
+            "zh_tw": "只有成功擊殺玩家後才會進入 10 秒物品冷卻"
           },
           "point": [
             3.0,
@@ -630,7 +506,320 @@
         },
         {
           "type": "idle",
-          "duration": 134
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Parry for 1.2s, costs durability",
+                "zh_cn": "格挡 1.2 秒 · 消耗耐久",
+                "zh_tw": "格擋 1.2 秒 · 消耗耐久"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Parry chained within 3s of a hit has no windup; otherwise a 5s parry cooldown follows.",
+            "zh_cn": "右键格挡：基础前摇 0.4 秒、有效时间 1.2 秒，期间可连续格挡任意次数的伤害且每次成功格挡会消耗 1 点耐久（武士刀耐久不会低于 1，耐久为 1 时无法格挡）",
+            "zh_tw": "右鍵格擋：基礎前搖 0.4 秒、有效時間 1.2 秒，期間可連續格擋任意次數的傷害且每次成功格擋會消耗 1 點耐久（武士刀耐久不會低於 1，耐久為 1 時無法格擋）"
+          },
+          "point": [
+            3.0,
+            3.2,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Parry for 1.2s, costs durability",
+                "zh_cn": "格挡 1.2 秒 · 消耗耐久",
+                "zh_tw": "格擋 1.2 秒 · 消耗耐久"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Blockable causes match the Riot Shield: revolver, knife, derringer, bat, bow, arrow, trident, grenade, sawed-off shotgun, throwing axe, throwing knife, shuriken, explosive crossbow, iron axe, diamond sword, heavy hammer, katana",
+            "zh_cn": "招式命中后 3 秒内衔接格挡则无格挡前摇，若未衔接格挡，则格挡结束后进入 5 秒格挡冷却",
+            "zh_tw": "招式命中後 3 秒內銜接格擋則無格擋前搖，若未銜接格擋，則格擋結束後進入 5 秒格擋冷卻"
+          },
+          "point": [
+            3.0,
+            3.48,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Parry for 1.2s, costs durability",
+                "zh_cn": "格挡 1.2 秒 · 消耗耐久",
+                "zh_tw": "格擋 1.2 秒 · 消耗耐久"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "swordsman_duel",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 95,
+          "text": {
+            "en_us": "[Blood Quench]",
+            "zh_cn": "格挡不限死因：格挡有效期内任何死因都能挡下，但挡不住强制死亡。",
+            "zh_tw": "格擋不限死因：格擋有效期內任何死因都能擋下，但擋不住強制死亡。"
+          },
+          "point": [
+            3.15,
+            1.8,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 105
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:entity.blaze.ambient",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Press the skill key to drain 50% virtual health (based on max, never below 1; can't cast at 1)",
+                "zh_cn": "【淬血】",
+                "zh_tw": "【淬血】"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Press the skill key to drain 50% virtual health (based on max, never below 1; can't cast at 1)",
+            "zh_cn": "【淬血】",
+            "zh_tw": "【淬血】"
+          },
+          "point": [
+            3.15,
+            2.08,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 149,
+          "text": {
+            "en_us": "Lasts 15s: katana virtual damage x2, gain Speed 2 and Haste 2",
+            "zh_cn": "按下技能键后扣除 50% 的虚拟血量（基于虚拟血量上限，不会把虚拟血量扣到 1 以下，虚拟血量为 1 时无法释放技能）",
+            "zh_tw": "按下技能鍵後扣除 50% 的虛擬血量（基於虛擬血量上限，不會把虛擬血量扣到 1 以下，虛擬血量為 1 時無法釋放技能）"
+          },
+          "point": [
+            3.15,
+            2.36,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 159
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Casting also grants 20 virtual shield: topped up to 20 if below, higher shields are kept as-is",
+            "zh_cn": "持续 15 秒，期间：武士刀造成的虚拟血量伤害 ×2、自身获得速度 2 与急迫 2",
+            "zh_tw": "持續 15 秒，期間：武士刀造成的虛擬血量傷害 ×2、自身獲得速度 2 與急迫 2"
+          },
+          "point": [
+            3.15,
+            2.64,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 83,
+          "text": {
+            "en_us": "[Shop]",
+            "zh_cn": "当玩家受到虚拟血量伤害时，会优先扣除虚拟护盾的值",
+            "zh_tw": "當玩家受到虛擬血量傷害時，會優先扣除虛擬護盾的值"
+          },
+          "point": [
+            3.15,
+            2.92,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 93
         },
         {
           "type": "rotate_camera_y",

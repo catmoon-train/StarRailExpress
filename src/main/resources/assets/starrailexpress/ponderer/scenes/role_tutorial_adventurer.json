@@ -208,25 +208,89 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Press the skill key to place a waypoint; it vanishes after 3 minutes. 120s cd.",
-                "zh_cn": "按技能键可以在地图上标点，标点 3 分钟后消失，冷却 120 秒。",
-                "zh_tw": "按技能鍵可以在地圖上標點，標點 3 分鐘後消失，冷卻 120 秒。"
-              }
-            ]
-          },
+          "type": "create_item_entity",
+          "pos": [
+            2.0,
+            1.55,
+            2.2
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:grosell_travelog",
+          "linkId": "adventurer_travelog",
           "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "adventurer_exiled",
+            "outline": 8421504
+          }
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "adventurer_main",
+            "to": [
+              3.0,
+              1.0,
+              1.0
+            ],
+            "duration": 32
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 121,
+          "text": {
+            "en_us": "Can jump into manholes and pass through mist.",
+            "zh_cn": "可以跳入井盖，可以穿过迷雾。",
+            "zh_tw": "可以跳入井蓋，可以穿過迷霧。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 131
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -242,8 +306,35 @@
             0,
             3
           ],
+          "blockPos2": [
+            3,
+            0,
+            3
+          ],
           "duration": 220,
-          "color": "blue"
+          "color": "green"
+        },
+        {
+          "type": "starrailexpress:role_telegraph",
+          "parameters": {
+            "title": {
+              "en_us": "Waypoint",
+              "zh_cn": "临时标点",
+              "zh_tw": "臨時標點"
+            },
+            "hint": {
+              "en_us": "Team waypoint - gone after 3 minutes",
+              "zh_cn": "全队可见 · 3 分钟后消失",
+              "zh_tw": "全隊可見 · 3 分鐘後消失"
+            },
+            "message": {
+              "en_us": "Waypoint recorded",
+              "zh_cn": "标点已记录",
+              "zh_tw": "標點已記錄"
+            },
+            "remaining": 3
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_timer",
@@ -263,27 +354,6 @@
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:grosell_travelog",
-          "linkId": "adventurer_line_item_0",
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
           "duration": 180,
           "text": {
@@ -293,7 +363,7 @@
           },
           "point": [
             3.0,
-            1.8,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,
@@ -302,6 +372,295 @@
         {
           "type": "idle",
           "duration": 190
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "blockPos2": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "green"
+        },
+        {
+          "type": "starrailexpress:role_telegraph",
+          "parameters": {
+            "title": {
+              "en_us": "Waypoint",
+              "zh_cn": "临时标点",
+              "zh_tw": "臨時標點"
+            },
+            "hint": {
+              "en_us": "Team waypoint - gone after 3 minutes",
+              "zh_cn": "全队可见 · 3 分钟后消失",
+              "zh_tw": "全隊可見 · 3 分鐘後消失"
+            },
+            "message": {
+              "en_us": "Waypoint recorded",
+              "zh_cn": "标点已记录",
+              "zh_tw": "標點已記錄"
+            },
+            "remaining": 3
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Waypoints vanish automatically after the game.",
+                "zh_cn": "游戏结束后标点自动消失。",
+                "zh_tw": "遊戲結束後標點自動消失。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 122,
+          "text": {
+            "en_us": "Waypoints vanish automatically after the game.",
+            "zh_cn": "游戏结束后标点自动消失。",
+            "zh_tw": "遊戲結束後標點自動消失。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 132
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "adventurer_main",
+            "item": "noellesroles:grosell_travelog"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:grosell_travelog",
+          "duration": 70,
+          "point": [
+            1.7,
+            1.9,
+            1.9
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_teleport",
+          "parameters": {
+            "linkId": "adventurer_exiled",
+            "pos": [
+              5.0,
+              6.0,
+              2.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You start with a Travel Journal (invisible to others); charging at a target banishes them into the journal.",
+            "zh_cn": "开局自带一本游记(游记对他人不可见)，对着目标蓄力会将目标放逐到游记里。",
+            "zh_tw": "開局自帶一本遊記(遊記對他人不可見)，對著目標蓄力會將目標放逐到遊記裏。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "adventurer_main",
+            "item": "noellesroles:grosell_travelog"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:grosell_travelog",
+          "duration": 70,
+          "point": [
+            1.7,
+            1.9,
+            1.9
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_teleport",
+          "parameters": {
+            "linkId": "adventurer_exiled",
+            "pos": [
+              5.0,
+              6.0,
+              2.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "While banished, charge again and right-click the journal to release them; they return to where they were.",
+            "zh_cn": "放逐期间再次蓄力右键游记可将目标放出来，放逐对象会回到放逐前的位置。",
+            "zh_tw": "放逐期間再次蓄力右鍵遊記可將目標放出來，放逐對象會回到放逐前的位置。"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "adventurer_main",
+            "item": "noellesroles:grosell_travelog"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:grosell_travelog",
+          "duration": 70,
+          "point": [
+            1.7,
+            1.9,
+            1.9
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_teleport",
+          "parameters": {
+            "linkId": "adventurer_exiled",
+            "pos": [
+              5.0,
+              6.0,
+              2.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 160,
+          "text": {
+            "en_us": "Banished players are auto-released after 60 seconds in the journal.",
+            "zh_cn": "放逐对象在游记中60秒后会被自动释放出来。",
+            "zh_tw": "放逐對象在遊記中60秒後會被自動釋放出來。"
+          },
+          "point": [
+            3.0,
+            3.2,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 170
         },
         {
           "type": "rotate_camera_y",

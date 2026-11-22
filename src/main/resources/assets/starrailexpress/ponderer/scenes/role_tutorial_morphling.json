@@ -124,30 +124,25 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Use the skill to change your skin — lasts 35 seconds — 20-second cooldown.",
-                "zh_cn": "使用技能可改变皮肤--持续时间35秒-CD20秒。",
-                "zh_tw": "使用技能可改變皮膚--持續時間35秒-CD20秒。"
-              },
-              {
-                "en_us": "Press the skill key (G) to send a dummy holding a dagger that dashes forward along its initial facing; the dummy has no attack power and, if hit on the way, dissipates and spawns a flashbang in place. 90-second cooldown.",
-                "zh_cn": "按技能键（G）在面前派出一个手持匕首的假人沿初始朝向向前突进；假人无攻击能力，若途中被攻击则会消散并在原地生成一颗闪光弹。冷却 90 秒。",
-                "zh_tw": "按技能鍵（G）在面前派出一個手持匕首的假人沿初始朝向向前突進；假人無攻擊能力，若途中被攻擊則會消散並在原地生成一顆閃光彈。冷卻 90 秒。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "morphling_decoy",
+            "outline": 8421504
+          }
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -157,51 +152,11 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "starrailexpress:role_timer",
+          "type": "starrailexpress:role_outline",
           "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "Use the skill to change your skin — lasts 35 seconds — 20-second cooldown.",
-                "zh_cn": "使用技能可改变皮肤--持续时间35秒-CD20秒。",
-                "zh_tw": "使用技能可改變皮膚--持續時間35秒-CD20秒。"
-              }
-            ]
+            "linkId": "morphling_main",
+            "color": 11163135
           },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "morphling_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -229,7 +184,7 @@
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -239,25 +194,11 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "idle",
-          "duration": 40
-        },
-        {
           "type": "create_item_entity",
           "pos": [
-            2.2,
-            1.5,
-            3.0
+            2.0,
+            1.55,
+            2.1
           ],
           "motion": [
             0.0,
@@ -265,8 +206,63 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:flash_grenade",
-          "linkId": "morphling_line_item_1",
+          "item": "noellesroles:hallucination_bottle",
+          "linkId": "morphling_bottle",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Can buy an Illusion Bottle that creates a cloud of fog, blinding nearby players and forcing their view to turn; invisible while held.",
+            "zh_cn": "可购买迷幻瓶,制造出一阵迷雾，使周围人失明并强制改变视角。手持时不可见。",
+            "zh_tw": "可購買迷幻瓶,製造出一陣迷霧，使周圍人失明並強制改變視角。手持時不可見。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "morphling_decoy",
+            "to": [
+              5.0,
+              1.0,
+              4.0
+            ],
+            "duration": 36
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "morphling_decoy",
+            "visible": false
+          },
           "attachKeyFrame": true
         },
         {
@@ -279,7 +275,7 @@
           },
           "point": [
             3.0,
-            2.08,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,

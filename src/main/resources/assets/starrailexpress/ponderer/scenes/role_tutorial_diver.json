@@ -233,25 +233,217 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_ambience",
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
+            "color": 5220568,
+            "alpha": 0.5,
+            "mode": "water"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
             "lines": [
               {
-                "en_us": "The Diver can press the skill key to take off their gear",
-                "zh_cn": "潜水员可以按下技能键脱掉身上的装备",
-                "zh_tw": "潛水夫可以按下技能鍵脫掉身上的裝備"
+                "en_us": "Infinite stamina",
+                "zh_cn": "无限体力",
+                "zh_tw": "無限體力"
               }
             ]
           },
           "attachKeyFrame": true
         },
         {
+          "type": "idle",
+          "duration": 26
+        },
+        {
+          "type": "text",
+          "duration": 68,
+          "text": {
+            "en_us": "Infinite stamina",
+            "zh_cn": "无限体力",
+            "zh_tw": "無限體力"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 78
+        },
+        {
+          "type": "starrailexpress:role_ambience",
+          "parameters": {
+            "color": 5220568,
+            "alpha": 0.5,
+            "mode": "water"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Has Water Breathing",
+                "zh_cn": "自带水下呼吸效果",
+                "zh_tw": "自帶水下呼吸效果"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 26
+        },
+        {
+          "type": "text",
+          "duration": 74,
+          "text": {
+            "en_us": "Has Water Breathing",
+            "zh_cn": "自带水下呼吸效果",
+            "zh_tw": "自帶水下呼吸效果"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 84
+        },
+        {
+          "type": "starrailexpress:role_ambience",
+          "parameters": {
+            "color": 5220568,
+            "alpha": 0.5,
+            "mode": "water"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Diving Helmet: grants Water Breathing and Dolphin's Grace I; Q-throwable to others",
+                "zh_cn": "潜水头盔：提供水下呼吸和海豚的恩惠1，可以Q键丢出给其他玩家",
+                "zh_tw": "潛水頭盔：提供水下呼吸和海豚的恩惠1，可以Q鍵丟出給其他玩家"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": {
+              "en_us": "Diving equipment",
+              "zh_cn": "潜水装备",
+              "zh_tw": "潛水裝備"
+            },
+            "lines": [
+              {
+                "en_us": "Diving Helmet: grants Water Breathing and Dolphin's Grace I; Q-throwable to others",
+                "zh_cn": "潜水头盔：提供水下呼吸和海豚的恩惠1，可以Q键丢出给其他玩家",
+                "zh_tw": "潛水頭盔：提供水下呼吸和海豚的恩惠1，可以Q鍵丟出給其他玩家"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 26
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 187,
+          "text": {
+            "en_us": "Diving Helmet: grants Water Breathing and Dolphin's Grace I; Q-throwable to others",
+            "zh_cn": "潜水头盔：提供水下呼吸和海豚的恩惠1，可以Q键丢出给其他玩家",
+            "zh_tw": "潛水頭盔：提供水下呼吸和海豚的恩惠1，可以Q鍵丟出給其他玩家"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 197
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": {
+              "en_us": "Diving equipment",
+              "zh_cn": "潜水装备",
+              "zh_tw": "潛水裝備"
+            },
+            "lines": [
+              {
+                "en_us": "Diving Boots: come with Depth Strider III",
+                "zh_cn": "潜水靴：自带深海探索者3",
+                "zh_tw": "潛水靴：自帶深海探索者3"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 26
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "Diving Boots: come with Depth Strider III",
+            "zh_cn": "潜水靴：自带深海探索者3",
+            "zh_tw": "潛水靴：自帶深海探索者3"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 123
+        },
+        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -261,50 +453,18 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_walk",
+          "type": "starrailexpress:role_hold",
           "parameters": {
             "linkId": "diver_main",
-            "to": [
-              2.1,
-              1.0,
-              4.0
-            ],
-            "duration": 40
+            "item": "noellesroles:diving_helmet"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            4
-          ],
-          "blockPos2": [
-            3,
-            0,
-            4
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            4
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
           "type": "create_item_entity",
           "pos": [
-            2.2,
-            1.5,
+            2.0,
+            1.55,
             3.0
           ],
           "motion": [
@@ -313,9 +473,43 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "diver_line_item_0",
+          "item": "noellesroles:diving_helmet",
+          "linkId": "diver_helmet_drop",
           "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            4.0,
+            1.55,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:diving_boots",
+          "linkId": "diver_boots_drop",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Remove helmet and boots",
+                "zh_cn": "移除头盔与靴子",
+                "zh_tw": "移除頭盔與靴子"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 26
         },
         {
           "type": "text",
@@ -327,7 +521,7 @@
           },
           "point": [
             3.0,
-            1.8,
+            2.92,
             3.0
           ],
           "placeNearTarget": true,

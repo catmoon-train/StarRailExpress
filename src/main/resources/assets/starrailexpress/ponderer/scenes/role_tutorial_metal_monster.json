@@ -270,21 +270,29 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Press the skill key again while rolled up to return to normal, resetting your speed and state and starting a 30-second cooldown.",
-                "zh_cn": "钢卷形态中再次按下技能键即可变回原样，重置速度与状态，并进入30秒冷却。",
-                "zh_tw": "鋼卷形態中再次按下技能鍵即可變回原樣，重置速度與狀態，並進入30秒冷卻。"
-              },
-              {
-                "en_us": "120-second cooldown, and it starts on a 120-second cooldown at the beginning of the round.",
-                "zh_cn": "技能冷却120秒，开局冷却120秒。",
-                "zh_tw": "冷卻120秒，開局就需要等待120秒。"
-              }
-            ]
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "metal_monster_rammed",
+            "outline": 16753920
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "metal_monster_rammed",
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
           },
           "attachKeyFrame": true
         },
@@ -293,7 +301,7 @@
           "parameters": {
             "point": [
               4.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -301,35 +309,6 @@
             "keyBind": "next_ability",
             "text": "ponder.starrailexpress.ponder.press_next_ability"
           },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            4,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            3.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "metal_monster_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -353,25 +332,11 @@
           "duration": 156
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              6.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "metal_monster_skill_target_1",
-            "outline": -6905686
-          }
-        },
-        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               4.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -381,36 +346,29 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_vitals",
+          "type": "starrailexpress:role_scale",
           "parameters": {
-            "bars": [
-              {
-                "label": "ponder.starrailexpress.label.vitals",
-                "before": 0.35,
-                "after": 1.0,
-                "color": -65536
-              },
-              {
-                "label": "ponder.starrailexpress.label.shield",
-                "before": 0.0,
-                "after": 0.7,
-                "color": -16776961
-              }
-            ]
+            "linkId": "metal_monster_main",
+            "scale": 0.55
           },
           "attachKeyFrame": true
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            6,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 35
+          "type": "starrailexpress:role_knockback",
+          "parameters": {
+            "linkId": "metal_monster_rammed",
+            "from": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "to": [
+              6.0,
+              1.0,
+              2.0
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -437,7 +395,7 @@
           "parameters": {
             "point": [
               4.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -447,18 +405,29 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            4,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
+          "type": "starrailexpress:role_scale",
+          "parameters": {
+            "linkId": "metal_monster_main",
+            "scale": 0.55
+          },
+          "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 40
+          "type": "starrailexpress:role_knockback",
+          "parameters": {
+            "linkId": "metal_monster_rammed",
+            "from": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "to": [
+              6.0,
+              1.0,
+              2.0
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -485,7 +454,7 @@
           "parameters": {
             "point": [
               4.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -495,18 +464,80 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            4,
-            0,
-            3
+          "type": "starrailexpress:role_scale",
+          "parameters": {
+            "linkId": "metal_monster_main",
+            "scale": 0.55
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_knockback",
+          "parameters": {
+            "linkId": "metal_monster_rammed",
+            "from": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "to": [
+              6.0,
+              1.0,
+              2.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Lethal Boost: for the next 2.5 seconds your impacts can cut a player's virtual health to zero and kill them, with the death reason steel coil crush.",
+            "zh_cn": "致命强化：接下来的2.5秒内，钢卷撞击可以把玩家的虚拟血量削到0并致死，死因是钢卷碾压。",
+            "zh_tw": "致命強化：接下來的2.5秒內，鋼卷撞擊可以把玩家的虛擬血量削到0並致死，死因是鋼卷碾壓。"
+          },
+          "point": [
+            4.0,
+            2.64,
+            3.0
           ],
-          "duration": 220,
-          "color": "blue"
+          "placeNearTarget": true,
+          "attachKeyFrame": true
         },
         {
           "type": "idle",
-          "duration": 40
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              4.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
+            "lines": [
+              {
+                "en_us": "120-second cooldown, and it starts on a 120-second cooldown at the beginning of the round.",
+                "zh_cn": "技能冷却120秒，开局冷却120秒。",
+                "zh_tw": "冷卻120秒，開局就需要等待120秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -518,7 +549,7 @@
           },
           "point": [
             4.0,
-            2.64,
+            2.92,
             3.0
           ],
           "placeNearTarget": true,

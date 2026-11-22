@@ -152,15 +152,91 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "zhang_angel_zhang_target",
+            "outline": -5584641
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:electric_spark",
+          "pos": [
+            5.0,
+            2.0,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 14,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:entity.lightning_bolt.thunder",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "zhang_angel_zhang_target",
+            "color": 16776960
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
             "lines": [
               {
                 "en_us": "Passive: every 10s drain electricity, making nearby lights flicker. After 10 drains you can call lightning.",
                 "zh_cn": "被动：每10秒吞电一次，使周围灯光闪烁。积攒10次后可释放召雷。",
                 "zh_tw": "被動：每10秒吞電一次，使周圍燈光閃爍。積攢10次後可釋放召雷。"
-              },
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
               {
                 "en_us": "Skill · Call Lightning: aim at a player and press the skill key, spending 10 drains and 100 coins to strike them. They randomly get one of: Slowness II (2 min), Blindness + Blind Sight (30s), Deafness (30s), Limp (30s).",
                 "zh_cn": "技能·召雷：对准玩家按下技能键，消耗10次吞电与100金币，召唤闪电击中目标。目标随机获得以下一种残疾：缓慢II（2分钟）、失明+盲视（30秒）、耳聋（30秒）、腿瘸（30秒）。",
@@ -171,87 +247,14 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
           "type": "starrailexpress:role_timer",
           "parameters": {
             "progress": [
-              0.0,
-              1.0
+              1.0,
+              0.0
             ],
-            "lines": [
-              {
-                "en_us": "Passive: every 10s drain electricity, making nearby lights flicker. After 10 drains you can call lightning.",
-                "zh_cn": "被动：每10秒吞电一次，使周围灯光闪烁。积攒10次后可释放召雷。",
-                "zh_tw": "被動：每10秒吞電一次，使周圍燈光閃爍。積攢10次後可釋放召雷。"
-              }
-            ]
+            "lines": []
           },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:electric_spark",
-          "pos": [
-            3.0,
-            1.9,
-            3.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 60,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "zhang_angel_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -275,117 +278,6 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "zhang_angel_death_target_1",
-            "outline": -5584641
-          }
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "zhang_angel_death_target_1",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Passive: in darkness (light level <=5 or lights out) you turn invisible, gain Speed I, and are immune to darkness death.",
-            "zh_cn": "被动：处于黑暗（亮度≤5或关灯）时隐身并获得速度I，且免疫黑暗死亡。",
-            "zh_tw": "被動：處於黑暗（亮度≤5或關燈）時隱身並獲得速度I，且免疫黑暗死亡。"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "zhang_angel_skill_target_2",
-            "outline": -5584641
-          }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:electric_spark",
-          "pos": [
-            3.0,
-            1.9,
-            3.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 60,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -395,7 +287,7 @@
           },
           "point": [
             3.0,
-            2.36,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,

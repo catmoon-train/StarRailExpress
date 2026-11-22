@@ -224,14 +224,17 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_currency",
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
+            "progress": [
+              1.0,
+              0.6
+            ],
             "lines": [
               {
-                "en_us": "If they decline, coins are refunded. 45s cd.",
-                "zh_cn": "对方不接受则返还金币。冷却 45 秒。",
-                "zh_tw": "對方不接受則返還金幣。冷卻 45 秒。"
+                "en_us": "You can't kill. Using guns, knives, bats etc. on a player money-imprisons them for 5s and makes them glow (10s cd); after being attacked you gain 20s invisibility.",
+                "zh_cn": "你无法杀人。使用枪械、刀、球棒等武器攻击玩家会使目标被金钱禁锢 5 秒并发光，该效果有 10 秒冷却；你被攻击后获得 20 秒隐身。",
+                "zh_tw": "你無法殺人。使用槍械、刀、球棒等武器攻擊玩家會使目標被金錢禁錮 5 秒併發光，該效果有 10 秒冷卻；你被攻擊後獲得 20 秒隱身。"
               }
             ]
           },
@@ -247,47 +250,30 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "lin_family_skill_target_0",
-            "outline": -3894233
+            "linkId": "lin_family_lin_target",
+            "outline": 16753920
           }
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "starrailexpress:role_timer",
+          "type": "starrailexpress:role_key",
           "parameters": {
-            "progress": [
-              0.0,
-              1.0
+            "point": [
+              3.0,
+              3.0,
+              3.0
             ],
-            "lines": [
-              {
-                "en_us": "If they decline, coins are refunded. 45s cd.",
-                "zh_cn": "对方不接受则返还金币。冷却 45 秒。",
-                "zh_tw": "對方不接受則返還金幣。冷卻 45 秒。"
-              }
-            ]
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 40
-        },
-        {
           "type": "create_item_entity",
           "pos": [
-            2.2,
-            1.5,
-            3.0
+            5.0,
+            1.6,
+            2.0
           ],
           "motion": [
             0.0,
@@ -296,16 +282,90 @@
           ],
           "count": 1,
           "item": "trainmurdermystery:note",
-          "linkId": "lin_family_line_item_0",
+          "linkId": "lin_family_lin_gift",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:note",
+          "duration": 70,
+          "point": [
+            4.2,
+            2.0,
+            3.0
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "lin_family_main",
+            "pose": "crouching"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.25,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": "ponder.starrailexpress.label.items",
+            "lines": [
+              {
+                "en_us": "Skill 1 [Generous Gift] (skill key): spend coins to gift a currently see-through player. Killers randomly get a 3-durability knife (150 coins) or a 50% dud one-time pistol (300 coins); good players may spend 200 coins for a 50% dud one-time pistol that looks like a revolver.",
+                "zh_cn": "技能 1【慷慨解囊】(技能键)：对当前被透视的玩家花费金币送礼。杀手随机获得 3 耐久刀（150金币）或 50% 哑火的一次性手枪（300金币）；好人可花费 200 金币获得看起来像左轮的 50% 哑火一次性手枪。",
+                "zh_tw": "技能 1【慷慨解囊】(技能鍵)：對當前被透視的玩家花費金幣送禮。殺手隨機獲得 3 耐久刀（150金幣）或 50% 啞火的一次性手槍（300金幣）；好人可花費 200 金幣獲得看起來像左輪的 50% 啞火一次性手槍。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
+            "lines": [
+              {
+                "en_us": "Skill 2 [Full Collector] (sneak + skill key): spend 400 coins to buy a random role item. 90s cd.",
+                "zh_cn": "技能 2【全收集之癖】(潜行+技能键)：花费 400 金币购买一件随机职业物品，冷却 90 秒。",
+                "zh_tw": "技能 2【全收集之癖】(潛行+技能鍵)：花費 400 金幣購買一件隨機職業物品，冷卻 90 秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "lin_family_main",
+            "visible": false
+          },
           "attachKeyFrame": true
         },
         {
           "type": "text",
-          "duration": 119,
+          "duration": 190,
           "text": {
-            "en_us": "If they decline, coins are refunded. 45s cd.",
-            "zh_cn": "对方不接受则返还金币。冷却 45 秒。",
-            "zh_tw": "對方不接受則返還金幣。冷卻 45 秒。"
+            "en_us": "You can't kill. Using guns, knives, bats etc. on a player money-imprisons them for 5s and makes them glow (10s cd); after being attacked you gain 20s invisibility.",
+            "zh_cn": "你无法杀人。使用枪械、刀、球棒等武器攻击玩家会使目标被金钱禁锢 5 秒并发光，该效果有 10 秒冷却；你被攻击后获得 20 秒隐身。",
+            "zh_tw": "你無法殺人。使用槍械、刀、球棒等武器攻擊玩家會使目標被金錢禁錮 5 秒併發光，該效果有 10 秒冷卻；你被攻擊後獲得 20 秒隱身。"
           },
           "point": [
             3.0,
@@ -317,7 +377,55 @@
         },
         {
           "type": "idle",
-          "duration": 129
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skill 1 [Generous Gift] (skill key): spend coins to gift a currently see-through player. Killers randomly get a 3-durability knife (150 coins) or a 50% dud one-time pistol (300 coins); good players may spend 200 coins for a 50% dud one-time pistol that looks like a revolver.",
+            "zh_cn": "技能 1【慷慨解囊】(技能键)：对当前被透视的玩家花费金币送礼。杀手随机获得 3 耐久刀（150金币）或 50% 哑火的一次性手枪（300金币）；好人可花费 200 金币获得看起来像左轮的 50% 哑火一次性手枪。",
+            "zh_tw": "技能 1【慷慨解囊】(技能鍵)：對當前被透視的玩家花費金幣送禮。殺手隨機獲得 3 耐久刀（150金幣）或 50% 啞火的一次性手槍（300金幣）；好人可花費 200 金幣獲得看起來像左輪的 50% 啞火一次性手槍。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skill 2 [Full Collector] (sneak + skill key): spend 400 coins to buy a random role item. 90s cd.",
+            "zh_cn": "技能 2【全收集之癖】(潜行+技能键)：花费 400 金币购买一件随机职业物品，冷却 90 秒。",
+            "zh_tw": "技能 2【全收集之癖】(潛行+技能鍵)：花費 400 金幣購買一件隨機職業物品，冷卻 90 秒。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
         },
         {
           "type": "rotate_camera_y",

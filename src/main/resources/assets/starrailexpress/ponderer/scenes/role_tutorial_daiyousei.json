@@ -196,9 +196,134 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "daiyousei_task_target",
+            "outline": -5515097
+          }
+        },
+        {
+          "type": "starrailexpress:role_mood",
+          "parameters": {
+            "before": 0.35,
+            "after": 1.0,
+            "lines": [
+              {
+                "en_us": "You are unaffected by mood.",
+                "zh_cn": "你不受心情影响。",
+                "zh_tw": "你不受心情影響。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 26
+        },
+        {
+          "type": "text",
+          "duration": 88,
+          "text": {
+            "en_us": "You are unaffected by mood.",
+            "zh_cn": "你不受心情影响。",
+            "zh_tw": "你不受心情影響。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 98
+        },
+        {
+          "type": "starrailexpress:role_ambience",
+          "parameters": {
+            "color": 11057312,
+            "alpha": 0.45,
+            "mode": "fog"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "daiyousei_main",
+            "to": [
+              4.0,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 26
+        },
+        {
+          "type": "text",
+          "duration": 117,
+          "text": {
+            "en_us": "You have the ability to swim through mists.",
+            "zh_cn": "你拥有在雾中畅游程度的能力。",
+            "zh_tw": "你擁有在霧中暢遊程度的能力。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 127
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "daiyousei_task_target",
+            "color": 16753920
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": {
+              "en_us": "Task refreshed",
+              "zh_cn": "任务已刷新",
+              "zh_tw": "任務已刷新"
+            },
             "lines": [
               {
                 "en_us": "You can use the skill key to make a player skip a task.",
@@ -210,89 +335,8 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "daiyousei_skill_target_0",
-            "outline": -5515097
-          }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "daiyousei_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
           "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "daiyousei_line_item_0",
-          "attachKeyFrame": true
+          "duration": 26
         },
         {
           "type": "text",
@@ -304,7 +348,7 @@
           },
           "point": [
             3.0,
-            1.8,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,

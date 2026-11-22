@@ -258,25 +258,11 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Skill: switch between standing/crawling poses",
-                "zh_cn": "技能：可切换成多种站立 / 匍匐姿态",
-                "zh_tw": "技能：可切換成多種站立 / 匍匐姿態"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -286,28 +272,290 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_hold",
+          "type": "starrailexpress:role_vitals",
           "parameters": {
-            "linkId": "scout_main",
-            "item": "trainmurdermystery:note"
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 1.0,
+                "after": 0.3,
+                "color": 16753920
+              }
+            ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "show_controls",
-          "action": "right",
-          "item": "trainmurdermystery:note",
-          "duration": 65,
+          "type": "text",
+          "duration": 81,
+          "text": {
+            "en_us": "Stamina 2x a Civilian's",
+            "zh_cn": "体力为平民的 2 倍",
+            "zh_tw": "體力為平民的 2 倍"
+          },
           "point": [
-            2.2,
-            2.2,
+            3.0,
+            1.8,
             3.0
           ],
-          "direction": "down"
+          "placeNearTarget": true,
+          "attachKeyFrame": true
         },
         {
           "type": "idle",
-          "duration": 30
+          "duration": 91
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "set_block",
+          "block": "minecraft:stone",
+          "blockPos": [
+            4,
+            1,
+            3
+          ],
+          "blockPos2": [
+            4,
+            4,
+            3
+          ]
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:item.armor.equip_generic",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "scout_main",
+            "color": 8421504
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 155,
+          "text": {
+            "en_us": "Bare-hand right-click a close, collidable wall to start climbing",
+            "zh_cn": "空手右键一面紧贴的、有碰撞箱的墙即可开始攀爬",
+            "zh_tw": "空手右鍵一面緊貼的、有碰撞箱的牆即可開始攀爬"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 165
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "set_block",
+          "block": "minecraft:stone",
+          "blockPos": [
+            4,
+            1,
+            3
+          ],
+          "blockPos2": [
+            4,
+            4,
+            3
+          ]
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:item.armor.equip_generic",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "scout_main",
+            "color": 8421504
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 1.0,
+                "after": 0.3,
+                "color": 16753920
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 175,
+          "text": {
+            "en_us": "Climbing drains stamina: up costs most, sideways middle, hanging/down least",
+            "zh_cn": "攀爬时持续消耗体力：向上最费、左右居中、悬挂与下降最省",
+            "zh_tw": "攀爬時持續消耗體力：向上最費、左右居中、懸掛與下降最省"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 185
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "set_block",
+          "block": "minecraft:stone",
+          "blockPos": [
+            4,
+            1,
+            3
+          ],
+          "blockPos2": [
+            4,
+            4,
+            3
+          ]
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:item.armor.equip_generic",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "scout_main",
+            "color": 8421504
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 1.0,
+                "after": 0.3,
+                "color": 16753920
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Stamina out, sneak, jump, or leaving the wall ends the climb; holding an item also lets go",
+            "zh_cn": "体力耗尽、按潜行键松手、按跳跃键松手、或不再紧贴墙面都会结束攀爬；手上拿着物品时也会自动松手",
+            "zh_tw": "體力耗盡、按潛行鍵鬆手、按跳躍鍵鬆手、或不再緊貼牆面都會結束攀爬；手上拿著物品時也會自動鬆手"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "scout_main",
+            "pose": "crouching"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Stand / prone stance switch",
+                "zh_cn": "站立 / 匍匐姿态切换",
+                "zh_tw": "站立 / 匍匐姿態切換"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -319,7 +567,7 @@
           },
           "point": [
             3.0,
-            1.8,
+            2.92,
             3.0
           ],
           "placeNearTarget": true,

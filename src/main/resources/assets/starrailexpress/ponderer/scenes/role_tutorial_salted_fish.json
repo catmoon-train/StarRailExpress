@@ -124,25 +124,11 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "The 40s cooldown only starts after the duration ends.",
-                "zh_cn": "持续时间结束后才开始 40 秒冷却。",
-                "zh_tw": "持續時間結束後才開始 40 秒冷卻。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -152,51 +138,24 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 200,
-          "color": "blue"
-        },
-        {
-          "type": "starrailexpress:role_timer",
+          "type": "starrailexpress:role_pose",
           "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "Press the skill key to lie facing the sun; you can't move, turn, use items or open inventory.",
-                "zh_cn": "按技能键会面朝太阳躺下，期间无法移动、转向、使用物品或打开背包。",
-                "zh_tw": "按技能鍵會面朝太陽躺下，期間無法移動、轉向、使用物品或打開背包。"
-              }
-            ]
+            "linkId": "salted_fish_main",
+            "pose": "sleeping"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "salted_fish_line_item_0",
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Lie facing the sun, locked in place",
+                "zh_cn": "面朝太阳 · 期间无法移动转向",
+                "zh_tw": "面朝太陽 · 期間無法移動轉向"
+              }
+            ]
+          },
           "attachKeyFrame": true
         },
         {
@@ -220,18 +179,107 @@
           "duration": 200
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "salted_fish_main",
+            "pose": "sleeping"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Flip over every 20 seconds",
+                "zh_cn": "每 20 秒蹦起翻面",
+                "zh_tw": "每 20 秒蹦起翻面"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Lasts up to 80s; every 20s you pop up and flip over.",
+                "zh_cn": "最多持续 80 秒；每隔 20 秒会蹦起来翻到另一面继续躺下。",
+                "zh_tw": "最多持續 80 秒；每隔 20 秒會蹦起來翻到另一面繼續躺下。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 133,
+          "text": {
+            "en_us": "Lasts up to 80s; every 20s you pop up and flip over.",
+            "zh_cn": "最多持续 80 秒；每隔 20 秒会蹦起来翻到另一面继续躺下。",
+            "zh_tw": "最多持續 80 秒；每隔 20 秒會蹦起來翻到另一面繼續躺下。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
           ],
-          "duration": 220,
-          "color": "blue"
+          "placeNearTarget": true,
+          "attachKeyFrame": true
         },
         {
           "type": "idle",
-          "duration": 40
+          "duration": 143
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
+            "lines": [
+              {
+                "en_us": "The 40s cooldown only starts after the duration ends.",
+                "zh_cn": "持续时间结束后才开始 40 秒冷却。",
+                "zh_tw": "持續時間結束後才開始 40 秒冷卻。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -243,7 +291,7 @@
           },
           "point": [
             3.0,
-            2.08,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,

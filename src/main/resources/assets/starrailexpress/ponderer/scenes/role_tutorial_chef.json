@@ -124,52 +124,25 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "All players may repeatedly take food and drinks from these plates; each player has a 30-second cooldown between takes.",
-                "zh_cn": "所有玩家都可以从这些盘子里反复拿取食物和饮料，每名玩家每次拿取之间有30秒冷却。",
-                "zh_tw": "所有玩家都可以從這些盤子裏反復拿取食物和飲料，每名玩家每次拿取之間有30秒冷卻。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
             "duration": 60,
-            "keyBind": "next_ability",
-            "text": "ponder.starrailexpress.ponder.press_next_ability"
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
           "type": "create_item_entity",
           "pos": [
-            2.2,
-            1.5,
-            3.0
+            2.0,
+            1.55,
+            2.1
           ],
           "motion": [
             0.0,
@@ -177,17 +150,30 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "chef_line_item_0",
+          "item": "noellesroles:cooked_food",
+          "linkId": "chef_tray_item_0",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:cooked_food",
+          "duration": 70,
+          "point": [
+            1.6,
+            1.9,
+            1.7
+          ],
+          "direction": "down",
           "attachKeyFrame": true
         },
         {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "The Chef presses the skill-switch key to toggle between 【Food Plate】 and 【Drink Plate】.",
-            "zh_cn": "厨师按下技能切换键可以在「食物盘」与「饮料盘」之间切换。",
-            "zh_tw": "廚師按下技能切換鍵可以在「食物盤」與「飲料盤」之間切換。"
+            "en_us": "Each task completed grants the Chef one ingredient; every two ingredients plus one food from a food plate can be cooked into a dish in the pot (the dish can be thrown).",
+            "zh_cn": "厨师每完成一个任务会获得一份食材，每两份食材和一份食物盘中的食物可以在锅中烹饪成一道美食（美食可被丢出）。",
+            "zh_tw": "廚師每完成一個任務會獲得一份食材，每兩份食材和一份食物盤中的食物可以在鍋中烹飪成一道美食（美食可被丟出）。"
           },
           "point": [
             3.0,
@@ -206,62 +192,36 @@
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
             "duration": 60,
-            "keyBind": "ability"
+            "keyBind": "next_ability",
+            "text": "ponder.starrailexpress.ponder.press_next_ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_walk",
+          "type": "starrailexpress:role_effects",
           "parameters": {
-            "linkId": "chef_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
+            "lines": [
+              {
+                "en_us": "Food tray / drink tray",
+                "zh_cn": "食物盘 / 饮料盘",
+                "zh_tw": "食物盤 / 飲料盤"
+              }
+            ]
           },
           "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
         },
         {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "The Chef uses the skill to place a food/drink plate at their feet (max 2 per match; plates persist until match end).",
-            "zh_cn": "厨师释放技能会在自己脚底放置一个食物盘/饮料盘（一局只能放2个，盘子会一直存在到当局游戏结束）。",
-            "zh_tw": "廚師釋放技能會在自己腳底放置一個食物盤/飲料盤（一局只能放2個，盤子會一直存在到當局遊戲結束）。"
+            "en_us": "The Chef presses the skill-switch key to toggle between 【Food Plate】 and 【Drink Plate】.",
+            "zh_cn": "厨师按下技能切换键可以在「食物盘」与「饮料盘」之间切换。",
+            "zh_tw": "廚師按下技能切換鍵可以在「食物盤」與「飲料盤」之間切換。"
           },
           "point": [
             3.0,
@@ -276,6 +236,148 @@
           "duration": 200
         },
         {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.6,
+            1.55,
+            2.1
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:a_bottle_of_water",
+          "linkId": "chef_tray_item_2",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:a_bottle_of_water",
+          "duration": 70,
+          "point": [
+            1.6,
+            1.9,
+            1.7
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The Chef uses the skill to place a food/drink plate at their feet (max 2 per match; plates persist until match end).",
+            "zh_cn": "厨师释放技能会在自己脚底放置一个食物盘/饮料盘（一局只能放2个，盘子会一直存在到当局游戏结束）。",
+            "zh_tw": "廚師釋放技能會在自己腳底放置一個食物盤/飲料盤（一局只能放2個，盤子會一直存在到當局遊戲結束）。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.6,
+            1.55,
+            2.1
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:a_bottle_of_water",
+          "linkId": "chef_tray_item_3",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:a_bottle_of_water",
+          "duration": 70,
+          "point": [
+            1.6,
+            1.9,
+            1.7
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "A food plate only holds 【cooked food】 and 【a pack of snacks】; a drink plate only holds 【a glass of water】; only the Chef can place items on them.",
+            "zh_cn": "食物盘只能放入「烹饪后的食物」和「一包零食」，饮料盘只能放入「一杯水」，且只有厨师可以放入。",
+            "zh_tw": "食物盤只能放入「烹飪後的食物」和「一包零食」，飲料盤只能放入「一杯水」，且只有廚師可以放入。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -285,19 +387,21 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "chef_skill_target_2",
-            "outline": -1704192
+            "linkId": "chef_guest"
           }
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "chef_guest",
+            "to": [
+              2.0,
+              1.0,
+              3.0
+            ],
+            "duration": 30
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_timer",
@@ -317,10 +421,6 @@
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 40
-        },
-        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -330,7 +430,7 @@
           },
           "point": [
             3.0,
-            2.36,
+            2.92,
             3.0
           ],
           "placeNearTarget": true,
@@ -339,6 +439,70 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.6,
+            1.55,
+            2.1
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:a_bottle_of_water",
+          "linkId": "chef_tray_item_5",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:a_bottle_of_water",
+          "duration": 70,
+          "point": [
+            1.6,
+            1.9,
+            1.7
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 146,
+          "text": {
+            "en_us": "The Chef's food/drink plates cannot be poisoned or shielded",
+            "zh_cn": "厨师放置的食物盘/饮料盘无法被下毒也无法使用护盾试剂",
+            "zh_tw": "廚師放置的食物盤/飲料盤無法被下毒也無法使用護盾試劑"
+          },
+          "point": [
+            3.0,
+            3.2,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 156
         },
         {
           "type": "rotate_camera_y",

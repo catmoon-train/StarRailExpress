@@ -343,19 +343,17 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_currency",
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
+            "progress": [
+              0.0,
+              1.0
+            ],
             "lines": [
               {
-                "en_us": "Draw one random unlocked ghost-art item; Shroud can only be drawn once per player per round, while other items may repeat and the Inner World cannot be drawn.",
-                "zh_cn": "抽取冷却为max(20,50-N)秒，N整局固定为开局参战人数。",
-                "zh_tw": "抽取冷卻為max(20,50-N)秒，N整局固定為開局參戰人數。"
-              },
-              {
-                "en_us": "Shroud is never consumed; other successful right-click casts have a 50% chance to consume one outside the Inner World, while using held items inside it consumes none.",
-                "zh_cn": "失败不消耗、不进入冷却。",
-                "zh_tw": "失敗不消耗、不進入冷卻。"
+                "en_us": "Ghost arts and fear do not affect teammates.",
+                "zh_cn": "诡物与恐惧不会影响队友。",
+                "zh_tw": "詭物與恐懼不會影響隊友。"
               }
             ]
           },
@@ -366,7 +364,7 @@
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -376,50 +374,10 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "ma_chen_xu_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
           "type": "create_item_entity",
           "pos": [
-            2.2,
-            1.5,
+            3.9,
+            1.55,
             3.0
           ],
           "motion": [
@@ -429,16 +387,143 @@
           ],
           "count": 1,
           "item": "trainmurdermystery:note",
-          "linkId": "ma_chen_xu_line_item_0",
+          "linkId": "ma_chen_xu_sack_art",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:item.bundle.insert",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": "ponder.starrailexpress.label.items",
+            "lines": [
+              {
+                "en_us": "Stage 1 can draw Ghost Blind, Shove, and Shroud; stage 2 unlocks Effigy Straw Doll and Echo; stage 3 unlocks Baleful Wail, Parasite, and the Inner World; stage 4 unlocks Soul Seize.",
+                "zh_cn": "阶段1可抽到鬼遮眼、推走和隐身；阶段2解锁替身草人与回响；阶段3解锁怨声、寄生与里世界；阶段4解锁夺魄。",
+                "zh_tw": "階段1可抽到鬼遮眼、推走和隱身；階段2解鎖替身草人與迴響；階段3解鎖怨聲、寄生與裏世界；階段4解鎖奪魄。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ma_chen_xu_sack_target",
+            "outline": 16753920
+          }
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "ma_chen_xu_sack_target",
+            "color": 8421504
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_knockback",
+          "parameters": {
+            "linkId": "ma_chen_xu_sack_target",
+            "from": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "to": [
+              7.0,
+              1.0,
+              2.0
+            ],
+            "duration": 16,
+            "arc": 0.3
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "ma_chen_xu_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
+            "lines": [
+              {
+                "en_us": "Press G to draw, even inside the Inner World; sneak + G also draws while already inside it.",
+                "zh_cn": "随机获得一件已解锁的诡物，隐身每局只能抽到一次，其余诡物可以重复抽取，但不会抽到里世界。",
+                "zh_tw": "隨機獲得一件已解鎖的詭物，隱身每局只能抽到一次，其餘詭物可以重複抽取，但不會抽到裏世界。"
+              },
+              {
+                "en_us": "Draw cooldown: max(20,50-N) seconds, with N fixed at the starting participant count for the entire round.",
+                "zh_cn": "开局仍只有鬼遮眼和推走各一件，不额外赠送隐身。",
+                "zh_tw": "開局仍只有鬼遮眼和推走各一件，不額外贈送隱身。"
+              },
+              {
+                "en_us": "Still start with only one Ghost Blind and one Shove, not an extra Shroud.",
+                "zh_cn": "诡物最多携带4件，重复获得也会占用名额。",
+                "zh_tw": "詭物最多攜帶4件，重複獲得也會佔用名額。"
+              },
+              {
+                "en_us": "Carry at most 4 items, with duplicates counting toward the limit.",
+                "zh_cn": "诡物与你的身份绑定，无法转交或存放，丢弃即销毁。",
+                "zh_tw": "詭物與你的身份綁定，無法轉交或存放，丟棄即銷毀。"
+              },
+              {
+                "en_us": "They are bound to your role, cannot be transferred or stored, and are destroyed on drop.",
+                "zh_cn": "除隐身始终不消耗外，常态下右键成功施术后有50%概率消耗一件，里世界内使用已持有诡物不消耗。",
+                "zh_tw": "除隱身始終不消耗外，常態下右鍵成功施術後有50%機率消耗一件，裏世界內使用已持有詭物不消耗。"
+              },
+              {
+                "en_us": "Failure consumes nothing and starts no cooldown.",
+                "zh_cn": "各类诡术独立计时，同种诡物共用该种冷却；除隐身外，成功施放后该种冷却25秒。",
+                "zh_tw": "各類詭術獨立計時，同種詭物共用該種冷卻；除隱身外，成功施放後該種冷卻25秒。"
+              },
+              {
+                "en_us": "Each art type has its own cooldown, shared only by items of that type; except for Shroud, successful casts start a 25-second cooldown for that type.",
+                "zh_cn": "八种诡物",
+                "zh_tw": "八種詭物"
+              },
+              {
+                "en_us": "The SAN drain values below are the actual amounts outside the Inner World; multiply them by another 1.25 inside it.",
+                "zh_cn": "鬼遮眼（阶段1）：指定12格内落点，使落点半径5格内敌人损失41.6SAN，蒙眼并禁止攻击和使用物品3秒，仍可移动和使用职业技能。",
+                "zh_tw": "鬼遮眼（階段1）：指定12格內落點，使落點半徑5格內敵人損失41.6SAN，蒙眼並禁止攻擊和使用物品3秒，仍可移動和使用職業技能。"
+              },
+              {
+                "en_us": "Ghost Blind (stage 1): aim at a point within 12 blocks.",
+                "zh_cn": "推走（阶段1）：使自身半径7格内敌人损失26SAN，向外击退最多9格，遇墙停止。",
+                "zh_tw": "推走（階段1）：使自身半徑7格內敵人損失26SAN，向外擊退最多9格，遇牆停止。"
+              }
+            ]
+          },
           "attachKeyFrame": true
         },
         {
           "type": "text",
-          "duration": 190,
+          "duration": 119,
           "text": {
-            "en_us": "While away from your body, only its surroundings are checked, distinguishing carried and held guns.",
-            "zh_cn": "布袋抽取（技能键G）",
-            "zh_tw": "布袋抽取（技能鍵G）"
+            "en_us": "Ghost arts and fear do not affect teammates.",
+            "zh_cn": "诡物与恐惧不会影响队友。",
+            "zh_tw": "詭物與恐懼不會影響隊友。"
           },
           "point": [
             3.0,
@@ -450,42 +535,15 @@
         },
         {
           "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
+          "duration": 129
         },
         {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "Draw one random unlocked ghost-art item; Shroud can only be drawn once per player per round, while other items may repeat and the Inner World cannot be drawn.",
-            "zh_cn": "抽取冷却为max(20,50-N)秒，N整局固定为开局参战人数。",
-            "zh_tw": "抽取冷卻為max(20,50-N)秒，N整局固定為開局參戰人數。"
+            "en_us": "Stage 1 can draw Ghost Blind, Shove, and Shroud; stage 2 unlocks Effigy Straw Doll and Echo; stage 3 unlocks Baleful Wail, Parasite, and the Inner World; stage 4 unlocks Soul Seize.",
+            "zh_cn": "阶段1可抽到鬼遮眼、推走和隐身；阶段2解锁替身草人与回响；阶段3解锁怨声、寄生与里世界；阶段4解锁夺魄。",
+            "zh_tw": "階段1可抽到鬼遮眼、推走和隱身；階段2解鎖替身草人與迴響；階段3解鎖怨聲、寄生與裏世界；階段4解鎖奪魄。"
           },
           "point": [
             3.0,
@@ -500,39 +558,20 @@
           "duration": 200
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
           "type": "indicate_success",
           "blockPos": [
-            5,
+            3,
             0,
-            2
+            3
           ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
         },
         {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "Shroud is never consumed; other successful right-click casts have a 50% chance to consume one outside the Inner World, while using held items inside it consumes none.",
-            "zh_cn": "失败不消耗、不进入冷却。",
-            "zh_tw": "失敗不消耗、不進入冷卻。"
+            "en_us": "While away from your body, only its surroundings are checked, distinguishing carried and held guns.",
+            "zh_cn": "布袋抽取（技能键G）",
+            "zh_tw": "布袋抽取（技能鍵G）"
           },
           "point": [
             3.0,
@@ -547,57 +586,12 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "Failure consumes nothing and starts no cooldown.",
-                "zh_cn": "各类诡术独立计时，同种诡物共用该种冷却；除隐身外，成功施放后该种冷却25秒。",
-                "zh_tw": "各類詭術獨立計時，同種詭物共用該種冷卻；除隱身外，成功施放後該種冷卻25秒。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 40
-        },
-        {
           "type": "text",
-          "duration": 126,
+          "duration": 190,
           "text": {
-            "en_us": "Failure consumes nothing and starts no cooldown.",
-            "zh_cn": "各类诡术独立计时，同种诡物共用该种冷却；除隐身外，成功施放后该种冷却25秒。",
-            "zh_tw": "各類詭術獨立計時，同種詭物共用該種冷卻；除隱身外，成功施放後該種冷卻25秒。"
+            "en_us": "Press G to draw, even inside the Inner World; sneak + G also draws while already inside it.",
+            "zh_cn": "随机获得一件已解锁的诡物，隐身每局只能抽到一次，其余诡物可以重复抽取，但不会抽到里世界。",
+            "zh_tw": "隨機獲得一件已解鎖的詭物，隱身每局只能抽到一次，其餘詭物可以重複抽取，但不會抽到裏世界。"
           },
           "point": [
             3.0,
@@ -609,69 +603,23 @@
         },
         {
           "type": "idle",
-          "duration": 136
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "ma_chen_xu_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
+          "duration": 200
         },
         {
           "type": "indicate_success",
           "blockPos": [
-            5,
+            3,
             0,
-            2
+            3
           ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
         },
         {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "Shove (stage 1): drain 26 SAN from enemies within 7 blocks of you and push them outward up to 9 blocks, stopping at walls.",
-            "zh_cn": "正常移动和施放诡术不会现身，主动攻击会解除隐身，不提供无敌或加速。",
-            "zh_tw": "正常移動和施放詭術不會現身，主動攻擊會解除隱身，不提供無敵或加速。"
+            "en_us": "Draw cooldown: max(20,50-N) seconds, with N fixed at the starting participant count for the entire round.",
+            "zh_cn": "开局仍只有鬼遮眼和推走各一件，不额外赠送隐身。",
+            "zh_tw": "開局仍只有鬼遮眼和推走各一件，不額外贈送隱身。"
           },
           "point": [
             3.0,
@@ -686,26 +634,12 @@
           "duration": 200
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "idle",
-          "duration": 40
-        },
-        {
           "type": "text",
-          "duration": 190,
+          "duration": 171,
           "text": {
-            "en_us": "Shroud (stage 1): become invisible for 15 seconds; right-click again to end it early.",
-            "zh_cn": "隐身物品始终不消耗，结束或提前解除后进入30秒独立冷却。",
-            "zh_tw": "隱身物品始終不消耗，結束或提前解除後進入30秒獨立冷卻。"
+            "en_us": "Still start with only one Ghost Blind and one Shove, not an extra Shroud.",
+            "zh_cn": "诡物最多携带4件，重复获得也会占用名额。",
+            "zh_tw": "詭物最多攜帶4件，重複獲得也會佔用名額。"
           },
           "point": [
             3.0,
@@ -717,43 +651,23 @@
         },
         {
           "type": "idle",
-          "duration": 200
+          "duration": 181
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
+          "type": "indicate_success",
           "blockPos": [
             3,
             0,
             3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "idle",
-          "duration": 40
+          ]
         },
         {
           "type": "text",
-          "duration": 153,
+          "duration": 157,
           "text": {
-            "en_us": "Effigy Straw Doll (stage 2): release a doll lasting 30 seconds.",
-            "zh_cn": "8秒内再次右键可主动返回，超时不自动回归。",
-            "zh_tw": "8秒內再次右鍵可主動返回，逾時不自動回歸。"
+            "en_us": "Carry at most 4 items, with duplicates counting toward the limit.",
+            "zh_cn": "诡物与你的身份绑定，无法转交或存放，丢弃即销毁。",
+            "zh_tw": "詭物與你的身份綁定，無法轉交或存放，丟棄即銷毀。"
           },
           "point": [
             3.0,
@@ -765,7 +679,123 @@
         },
         {
           "type": "idle",
-          "duration": 163
+          "duration": 167
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "They are bound to your role, cannot be transferred or stored, and are destroyed on drop.",
+            "zh_cn": "除隐身始终不消耗外，常态下右键成功施术后有50%概率消耗一件，里世界内使用已持有诡物不消耗。",
+            "zh_tw": "除隱身始終不消耗外，常態下右鍵成功施術後有50%機率消耗一件，裏世界內使用已持有詭物不消耗。"
+          },
+          "point": [
+            3.15,
+            1.8,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 126,
+          "text": {
+            "en_us": "Failure consumes nothing and starts no cooldown.",
+            "zh_cn": "各类诡术独立计时，同种诡物共用该种冷却；除隐身外，成功施放后该种冷却25秒。",
+            "zh_tw": "各類詭術獨立計時，同種詭物共用該種冷卻；除隱身外，成功施放後該種冷卻25秒。"
+          },
+          "point": [
+            3.15,
+            2.08,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 136
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Each art type has its own cooldown, shared only by items of that type; except for Shroud, successful casts start a 25-second cooldown for that type.",
+            "zh_cn": "八种诡物",
+            "zh_tw": "八種詭物"
+          },
+          "point": [
+            3.15,
+            2.36,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The SAN drain values below are the actual amounts outside the Inner World; multiply them by another 1.25 inside it.",
+            "zh_cn": "鬼遮眼（阶段1）：指定12格内落点，使落点半径5格内敌人损失41.6SAN，蒙眼并禁止攻击和使用物品3秒，仍可移动和使用职业技能。",
+            "zh_tw": "鬼遮眼（階段1）：指定12格內落點，使落點半徑5格內敵人損失41.6SAN，蒙眼並禁止攻擊和使用物品3秒，仍可移動和使用職業技能。"
+          },
+          "point": [
+            3.15,
+            2.64,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 139,
+          "text": {
+            "en_us": "Ghost Blind (stage 1): aim at a point within 12 blocks.",
+            "zh_cn": "推走（阶段1）：使自身半径7格内敌人损失26SAN，向外击退最多9格，遇墙停止。",
+            "zh_tw": "推走（階段1）：使自身半徑7格內敵人損失26SAN，向外擊退最多9格，遇牆停止。"
+          },
+          "point": [
+            3.15,
+            2.92,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 149
         },
         {
           "type": "rotate_camera_y",

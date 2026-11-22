@@ -196,66 +196,43 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "You wield the Sword of Scarlet Weather. It works like a bat, but after attacking it enters the same cooldown as a gun.",
-                "zh_cn": "你拥有一把绯想之剑。绯想之剑使用方法同球棒。攻击后进入与枪械相同的冷却。",
-                "zh_tw": "你擁有一把緋想之劍。緋想之劍使用方法同球棒。攻擊後進入與槍械相同的冷卻。"
-              },
-              {
-                "en_us": "You have a keen sense for omens; when a player dies nearby, you can sense the \"scent of death.\" Sensing it starts a 30s cooldown.",
-                "zh_cn": "你对于气息有敏锐的感知力，当周围有玩家死亡时，你能够感知到“死亡的味道”。每次感知到后将进入30s的冷却时间。",
-                "zh_tw": "你對於氣息有敏銳的感知力，當周圍有玩家死亡時，你能夠感知到“死亡的味道”。每次感知到後將進入30s的冷卻時間。"
-              }
-            ]
-          },
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "hinanawi_tenshi_death_sense",
+            "outline": -10898950
+          }
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:scarlet_perception_sword",
+          "duration": 80,
+          "point": [
+            5.7,
+            2.3,
+            2.0
+          ],
+          "direction": "down",
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:scarlet_perception_sword",
-          "linkId": "hinanawi_tenshi_line_item_0",
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "hinanawi_tenshi_main",
+            "to": [
+              4.2,
+              1.0,
+              2.0
+            ],
+            "duration": 36
+          },
           "attachKeyFrame": true
         },
         {
@@ -279,87 +256,54 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "hinanawi_tenshi_skill_target_1",
-            "outline": -10898950
-          }
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "hinanawi_tenshi_line_item_1",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "hinanawi_tenshi_death_target_1",
-            "outline": -10898950
-          }
-        },
-        {
           "type": "starrailexpress:role_death",
           "parameters": {
-            "linkId": "hinanawi_tenshi_death_target_1",
+            "linkId": "hinanawi_tenshi_death_sense",
             "pos": [
               5.0,
               1.0,
               2.0
             ],
             "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "parameters": {
+            "title": {
+              "en_us": "Scent of death",
+              "zh_cn": "死亡的味道",
+              "zh_tw": "死亡的味道"
+            },
+            "lines": [
+              {
+                "en_us": "You have a keen sense for omens; when a player dies nearby, you can sense the \"scent of death.\" Sensing it starts a 30s cooldown.",
+                "zh_cn": "你对于气息有敏锐的感知力，当周围有玩家死亡时，你能够感知到“死亡的味道”。每次感知到后将进入30s的冷却时间。",
+                "zh_tw": "你對於氣息有敏銳的感知力，當周圍有玩家死亡時，你能夠感知到“死亡的味道”。每次感知到後將進入30s的冷卻時間。"
+              }
+            ],
+            "progress": [
+              0.0,
+              1.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
+            "lines": [
+              {
+                "en_us": "You have a keen sense for omens; when a player dies nearby, you can sense the \"scent of death.\" Sensing it starts a 30s cooldown.",
+                "zh_cn": "你对于气息有敏锐的感知力，当周围有玩家死亡时，你能够感知到“死亡的味道”。每次感知到后将进入30s的冷却时间。",
+                "zh_tw": "你對於氣息有敏銳的感知力，當周圍有玩家死亡時，你能夠感知到“死亡的味道”。每次感知到後將進入30s的冷卻時間。"
+              }
+            ]
           },
           "attachKeyFrame": true
         },

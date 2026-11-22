@@ -122,30 +122,25 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Skill: Iron Body — press it to gain 2.5 seconds of invincibility. 2-minute cooldown.",
-                "zh_cn": "技能:钢筋铁骨，按下后获得2.5秒无敌时间。CD为2分钟。",
-                "zh_tw": "技能:鋼筋鐵骨，按下後獲得2.5秒無敵時間。CD為2分鐘。"
-              },
-              {
-                "en_us": "Can buy Knuckles: enemies hit by knuckles are knocked back and stunned, and the items on them enter cooldown.",
-                "zh_cn": "可购买拳套，被拳套命中的敌人会被击退并眩晕，并使身上的物品陷入冷却。",
-                "zh_tw": "可購買拳套，被拳套命中的敵人會被擊退並眩暈，並使身上的物品陷入冷卻。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "fighter_attacker",
+            "outline": -3318692
+          }
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -155,21 +150,29 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
+          "type": "starrailexpress:role_vitals",
+          "parameters": {
+            "bars": [
+              {
+                "label": {
+                  "en_us": "Invulnerable",
+                  "zh_cn": "无敌时间",
+                  "zh_tw": "無敵"
+                },
+                "before": 0.0,
+                "after": 1.0,
+                "color": 16753920
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_timer",
           "parameters": {
             "progress": [
-              0.0,
-              1.0
+              1.0,
+              0.0
             ],
             "lines": [
               {
@@ -179,27 +182,6 @@
               }
             ]
           },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:boxing_glove",
-          "linkId": "fighter_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -223,31 +205,54 @@
           "duration": 200
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "fighter_attacker",
+            "to": [
+              3.9,
+              1.0,
+              3.0
+            ],
+            "duration": 32
+          },
+          "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 25
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "title": {
+              "en_us": "Counter",
+              "zh_cn": "反制：缓慢4",
+              "zh_tw": "反制"
+            },
+            "bars": [
+              {
+                "label": {
+                  "en_us": "Slow IV",
+                  "zh_cn": "缓慢 IV",
+                  "zh_tw": "緩慢 IV"
+                },
+                "before": 0.0,
+                "after": 1.0,
+                "color": 8421504
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "text",

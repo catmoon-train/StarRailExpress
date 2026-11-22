@@ -152,25 +152,25 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Dimension switch: 1 second of wind-up, cooldown 20 seconds. Entering the higher dimension lasts until you leave it. The higher dimension nullifies all damage; while there your body is fixed and cannot attack or interact directly.",
-                "zh_cn": "维度切换：前摇1秒、冷却20秒。进入高维，持续到主动退出。高维免疫全部伤害，此时本体固定且不能直接攻击或交互。",
-                "zh_tw": "維度切換：前搖1秒、冷卻20秒。進入高維，持續到主動退出。高維免疫全部傷害，此時本體固定且不能直接攻擊或交互。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "error_404_assim_target",
+            "outline": -13631424
+          }
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -180,14 +180,27 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
+          "type": "starrailexpress:role_telegraph",
+          "parameters": {
+            "title": {
+              "en_us": "Assimilation progress",
+              "zh_cn": "同化进度",
+              "zh_tw": "同化進度"
+            },
+            "hint": {
+              "en_us": "Keep aiming, looking away does not reset",
+              "zh_cn": "持续瞄准 · 移开不重置",
+              "zh_tw": "持續瞄準 · 移開不重置"
+            },
+            "message": {
+              "en_us": "Target locked",
+              "zh_cn": "目标已被锁定",
+              "zh_tw": "目標已被鎖定"
+            },
+            "remaining": 15,
+            "duration": 150
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_timer",
@@ -198,9 +211,9 @@
             ],
             "lines": [
               {
-                "en_us": "Dimension switch: 1 second of wind-up, cooldown 20 seconds. Entering the higher dimension lasts until you leave it. The higher dimension nullifies all damage; while there your body is fixed and cannot attack or interact directly.",
-                "zh_cn": "维度切换：前摇1秒、冷却20秒。进入高维，持续到主动退出。高维免疫全部伤害，此时本体固定且不能直接攻击或交互。",
-                "zh_tw": "維度切換：前搖1秒、冷卻20秒。進入高維，持續到主動退出。高維免疫全部傷害，此時本體固定且不能直接攻擊或交互。"
+                "en_us": "While on the ground, after aiming at a visible player within 24 blocks for 5 seconds you can assimilate for 15 seconds; moving the crosshair away does not reset the assimilation.",
+                "zh_cn": "处于地面状态时，连续瞄准24格内、视线可见的玩家5秒后，可进行15秒同化；移开准星不会重置同化。",
+                "zh_tw": "處於地面狀態時，連續瞄準24格內、視線可見的玩家5秒後，可進行15秒同化；移開準星不會重置同化。"
               }
             ]
           },
@@ -208,24 +221,137 @@
         },
         {
           "type": "idle",
-          "duration": 40
+          "duration": 26
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "While on the ground, after aiming at a visible player within 24 blocks for 5 seconds you can assimilate for 15 seconds; moving the crosshair away does not reset the assimilation.",
+            "zh_cn": "处于地面状态时，连续瞄准24格内、视线可见的玩家5秒后，可进行15秒同化；移开准星不会重置同化。",
+            "zh_tw": "處於地面狀態時，連續瞄準24格內、視線可見的玩家5秒後，可進行15秒同化；移開準星不會重置同化。"
+          },
+          "point": [
+            3.0,
+            1.8,
             3.0
           ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:error_terminal",
-          "linkId": "error_404_line_item_0",
+          "placeNearTarget": true,
           "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "error_404_assim_target",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              6.2,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "error_404_puppet",
+            "outline": 8421504
+          }
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "When the assimilation finishes, the original player dies immediately and enters spectator, and an independent error puppet entity spawns in their place.",
+                "zh_cn": "同化完成时，原玩家立即死亡并进入旁观，原地生成一个独立的错误傀儡实体。",
+                "zh_tw": "同化完成時，原玩家立即死亡並進入旁觀，原地生成一個獨立的錯誤傀儡實體。"
+              }
+            ],
+            "color": 8421504
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 26
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When the assimilation finishes, the original player dies immediately and enters spectator, and an independent error puppet entity spawns in their place.",
+            "zh_cn": "同化完成时，原玩家立即死亡并进入旁观，原地生成一个独立的错误傀儡实体。",
+            "zh_tw": "同化完成時，原玩家立即死亡並進入旁觀，原地生成一個獨立的錯誤傀儡實體。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.2,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "next_ability",
+            "text": "ponder.starrailexpress.ponder.press_next_ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_screen",
+          "parameters": {
+            "title": {
+              "en_us": "Tactical terminal",
+              "zh_cn": "战术终端",
+              "zh_tw": "戰術終端"
+            },
+            "hint": {
+              "en_us": "Top-down view of living players",
+              "zh_cn": "俯视同维度存活玩家",
+              "zh_tw": "俯視同維度存活玩家"
+            },
+            "columns": 6
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_ambience",
+          "parameters": {
+            "color": 1118515,
+            "alpha": 0.75,
+            "mode": "void"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 26
         },
         {
           "type": "text",
@@ -237,7 +363,342 @@
           },
           "point": [
             3.0,
-            1.8,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.2,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "next_ability",
+            "text": "ponder.starrailexpress.ponder.press_next_ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_screen",
+          "parameters": {
+            "title": {
+              "en_us": "Tactical terminal",
+              "zh_cn": "战术终端",
+              "zh_tw": "戰術終端"
+            },
+            "hint": {
+              "en_us": "Top-down view of living players",
+              "zh_cn": "俯视同维度存活玩家",
+              "zh_tw": "俯視同維度存活玩家"
+            },
+            "columns": 6
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_ambience",
+          "parameters": {
+            "color": 1118515,
+            "alpha": 0.75,
+            "mode": "void"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            2,
+            -2,
+            -1
+          ],
+          "blockPos2": [
+            8,
+            4,
+            5
+          ],
+          "duration": 260,
+          "color": "red"
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "error_404_puppet",
+            "pos": [
+              6.2,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 26
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Entering the higher dimension automatically opens the tactical terminal, always in top-down view, overlooking every living player in the dimension. With a puppet selected, right-click a map position to send it in a straight line through walls, left-click a player to make it chase (it only follows, never attacks and deals no damage); you can also make it stand still or detonate it, and puppets can only deal damage through detonators.",
+            "zh_cn": "进入高维自动打开战术终端，始终保持俯视，可俯瞰同维度全部存活玩家。选中傀儡后右键地图位置令其直线穿墙移动，左键玩家令其追击（仅跟随，不攻击、不造成伤害），也可停驻或引爆；傀儡只能通过引爆器造成伤害。",
+            "zh_tw": "進入高維自動打開戰術終端，始終保持俯視，可俯瞰同維度全部存活玩家。選中傀儡後右鍵地圖位置令其直線穿牆移動，左鍵玩家令其追擊（僅跟隨，不攻擊、不造成傷害），也可停駐或引爆；傀儡只能通過引爆器造成傷害。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.2,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "next_ability",
+            "text": "ponder.starrailexpress.ponder.press_next_ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_screen",
+          "parameters": {
+            "title": {
+              "en_us": "Tactical terminal",
+              "zh_cn": "战术终端",
+              "zh_tw": "戰術終端"
+            },
+            "hint": {
+              "en_us": "Top-down view of living players",
+              "zh_cn": "俯视同维度存活玩家",
+              "zh_tw": "俯視同維度存活玩家"
+            },
+            "columns": 6
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_ambience",
+          "parameters": {
+            "color": 1118515,
+            "alpha": 0.75,
+            "mode": "void"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            2,
+            -2,
+            -1
+          ],
+          "blockPos2": [
+            8,
+            4,
+            5
+          ],
+          "duration": 260,
+          "color": "red"
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "error_404_puppet",
+            "pos": [
+              6.2,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 26
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Error puppets cannot self-detonate with the skill: only 404 can detonate them from the higher dimension terminal, each detonation costing one detonator.",
+            "zh_cn": "错误傀儡不能自己按技能自爆：只能由404在高维终端引爆，每次消耗一枚引爆器。",
+            "zh_tw": "錯誤傀儡不能自己按技能自爆：只能由404在高維終端引爆，每次消耗一枚引爆器。"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.2,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "next_ability",
+            "text": "ponder.starrailexpress.ponder.press_next_ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_screen",
+          "parameters": {
+            "title": {
+              "en_us": "Tactical terminal",
+              "zh_cn": "战术终端",
+              "zh_tw": "戰術終端"
+            },
+            "hint": {
+              "en_us": "Top-down view of living players",
+              "zh_cn": "俯视同维度存活玩家",
+              "zh_tw": "俯視同維度存活玩家"
+            },
+            "columns": 6
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_ambience",
+          "parameters": {
+            "color": 1118515,
+            "alpha": 0.75,
+            "mode": "void"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            2,
+            -2,
+            -1
+          ],
+          "blockPos2": [
+            8,
+            4,
+            5
+          ],
+          "duration": 260,
+          "color": "red"
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "error_404_puppet",
+            "pos": [
+              6.2,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 26
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "A detonation unfolds a 7x7x7 error space and destroys breakable blocks after 1 second; anyone caught inside is annihilated after staying for 1 second continuously. A 404 inside the higher dimension is immune to this effect.",
+            "zh_cn": "引爆会展开7×7×7错误空间，1秒后剥夺可破坏方块；每名笼罩者连续停留1秒后会被湮灭。处于高维中的404免疫此效果。",
+            "zh_tw": "引爆會展開7×7×7錯誤空間，1秒後剝奪可破壞方塊；每名籠罩者連續停留1秒後會被湮滅。處於高維中的404免疫此效果。"
+          },
+          "point": [
+            3.0,
+            3.2,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            2,
+            -2,
+            -1
+          ],
+          "blockPos2": [
+            8,
+            4,
+            5
+          ],
+          "duration": 260,
+          "color": "red"
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "error_404_puppet",
+            "pos": [
+              6.2,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 26
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Shop: free terminal refill, detonator 50, acceleration chip 80 (each chip shortens the assimilation by 5 seconds and is not consumed on failure).",
+            "zh_cn": "商店：免费补领终端、引爆器50、加速芯片80（每枚缩短同化5秒，失败不消耗）。",
+            "zh_tw": "商店：免費補領終端、引爆器50、加速晶片80（每枚縮短同化5秒，失敗不消耗）。"
+          },
+          "point": [
+            3.0,
+            3.48,
             3.0
           ],
           "placeNearTarget": true,

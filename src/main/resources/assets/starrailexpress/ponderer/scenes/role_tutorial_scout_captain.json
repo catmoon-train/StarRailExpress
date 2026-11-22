@@ -238,25 +238,11 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Skill: switch between standing/crawling poses",
-                "zh_cn": "技能：可切换成切换站立 / 匍匐姿态",
-                "zh_tw": "技能：可切換成切換站立 / 匍匐姿態"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -266,28 +252,211 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_hold",
+          "type": "text",
+          "duration": 88,
+          "text": {
+            "en_us": "Stamina cap 3x a Civilian's",
+            "zh_cn": "体力上限为平民的 3 倍",
+            "zh_tw": "體力上限為平民的 3 倍"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 98
+        },
+        {
+          "type": "starrailexpress:role_key",
           "parameters": {
-            "linkId": "scout_captain_main",
-            "item": "trainmurdermystery:note"
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "show_controls",
-          "action": "right",
-          "item": "trainmurdermystery:note",
-          "duration": 65,
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Climbs like the Scout: bare-hand right-click a wall, movement keys cost stamina, holding an item lets go",
+            "zh_cn": "和童子军一样可以攀爬：空手右键紧贴的墙壁开始攀爬，按移动键改变方向时消耗体力，手上拿着物品会自动松手",
+            "zh_tw": "和童子軍一樣可以攀爬：空手右鍵緊貼的牆壁開始攀爬，按移動鍵改變方向時消耗體力，手上拿著物品會自動鬆手"
+          },
           "point": [
-            2.2,
-            2.2,
+            3.0,
+            2.08,
             3.0
           ],
-          "direction": "down"
+          "placeNearTarget": true,
+          "attachKeyFrame": true
         },
         {
           "type": "idle",
-          "duration": 30
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.0,
+            1.55,
+            2.2
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "minecraft:cooked_beef",
+          "linkId": "scout_captain_food",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.4,
+                "after": 1.0,
+                "color": 16753920
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 115,
+          "text": {
+            "en_us": "Eating restores extra stamina: 50 per food",
+            "zh_cn": "吃东西额外恢复体力：每吃完一份食物恢复 50 点体力",
+            "zh_tw": "吃東西額外恢復體力：每吃完一份食物恢復 50 點體力"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 125
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.0,
+            1.55,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:standard_revolver",
+          "linkId": "scout_captain_revolver",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "scout_captain_main",
+            "item": "trainmurdermystery:standard_revolver"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 112,
+          "text": {
+            "en_us": "Complete 2 tasks for a standard revolver",
+            "zh_cn": "完成 2 个任务后会获得制式左轮",
+            "zh_tw": "完成 2 個任務後會獲得制式左輪"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 122
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "scout_captain_main",
+            "pose": "crouching"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:entity.player.small_fall",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
         },
         {
           "type": "text",
@@ -299,7 +468,7 @@
           },
           "point": [
             3.0,
-            1.8,
+            2.92,
             3.0
           ],
           "placeNearTarget": true,

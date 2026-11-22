@@ -224,30 +224,15 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Press the skill key to release the skill: it immediately consumes all stored \"day-walk time\" and fast-forwards the match time accordingly; the skill then enters a 150 second cooldown.",
-                "zh_cn": "按技能键释放技能：立即消耗当前所有“逐日时刻”，使局内时间快进对应的数值，释放完技能会进入150秒技能冷却。",
-                "zh_tw": "按技能鍵釋放技能：立即消耗當前所有“逐日時刻”，使局內時間快進對應的數值，釋放完技能會進入150秒技能冷卻。"
-              },
-              {
-                "en_us": "The skill can fast-forward the match time until only 5 seconds remain at most.",
-                "zh_cn": "技能至多将局内游戏时间加速至还剩5秒。",
-                "zh_tw": "技能至多將局內遊戲時間加速至還剩5秒。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
+          "type": "idle",
+          "duration": 12
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -257,27 +242,34 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
           "type": "starrailexpress:role_timer",
           "parameters": {
             "progress": [
-              0.0,
+              0.2,
               1.0
             ],
             "lines": [
               {
-                "en_us": "Press the skill key to release the skill: it immediately consumes all stored \"day-walk time\" and fast-forwards the match time accordingly; the skill then enters a 150 second cooldown.",
-                "zh_cn": "按技能键释放技能：立即消耗当前所有“逐日时刻”，使局内时间快进对应的数值，释放完技能会进入150秒技能冷却。",
-                "zh_tw": "按技能鍵釋放技能：立即消耗當前所有“逐日時刻”，使局內時間快進對應的數值，釋放完技能會進入150秒技能冷卻。"
+                "en_us": "Every task you complete makes the in-match timer run 0.075 seconds faster per second (up to 0.6 seconds) and stores 20 seconds of \"day-walk time\" (up to 120 seconds).",
+                "zh_cn": "每完成1个任务：会使局内计时器每秒快进0.075秒（至多快进0.6秒），并储存20秒“逐日时刻”（至多储存120秒）。",
+                "zh_tw": "每完成1個任務：會使局內計時器每秒快進0.075秒（至多快進0.6秒），並儲存20秒“逐日時刻”（至多儲存120秒）。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.35
+            ],
+            "lines": [
+              {
+                "en_us": "Every task you complete makes the in-match timer run 0.075 seconds faster per second (up to 0.6 seconds) and stores 20 seconds of \"day-walk time\" (up to 120 seconds).",
+                "zh_cn": "每完成1个任务：会使局内计时器每秒快进0.075秒（至多快进0.6秒），并储存20秒“逐日时刻”（至多储存120秒）。",
+                "zh_tw": "每完成1個任務：會使局內計時器每秒快進0.075秒（至多快進0.6秒），並儲存20秒“逐日時刻”（至多儲存120秒）。"
               }
             ]
           },
@@ -285,32 +277,15 @@
         },
         {
           "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "daywalker_line_item_0",
-          "attachKeyFrame": true
+          "duration": 25
         },
         {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "Press the skill key to release the skill: it immediately consumes all stored \"day-walk time\" and fast-forwards the match time accordingly; the skill then enters a 150 second cooldown.",
-            "zh_cn": "按技能键释放技能：立即消耗当前所有“逐日时刻”，使局内时间快进对应的数值，释放完技能会进入150秒技能冷却。",
-            "zh_tw": "按技能鍵釋放技能：立即消耗當前所有“逐日時刻”，使局內時間快進對應的數值，釋放完技能會進入150秒技能冷卻。"
+            "en_us": "Every task you complete makes the in-match timer run 0.075 seconds faster per second (up to 0.6 seconds) and stores 20 seconds of \"day-walk time\" (up to 120 seconds).",
+            "zh_cn": "每完成1个任务：会使局内计时器每秒快进0.075秒（至多快进0.6秒），并储存20秒“逐日时刻”（至多储存120秒）。",
+            "zh_tw": "每完成1個任務：會使局內計時器每秒快進0.075秒（至多快進0.6秒），並儲存20秒“逐日時刻”（至多儲存120秒）。"
           },
           "point": [
             3.0,
@@ -329,7 +304,7 @@
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -339,26 +314,50 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.2,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Press the skill key to release the skill: it immediately consumes all stored \"day-walk time\" and fast-forwards the match time accordingly; the skill then enters a 150 second cooldown.",
+                "zh_cn": "按技能键释放技能：立即消耗当前所有“逐日时刻”，使局内时间快进对应的数值，释放完技能会进入150秒技能冷却。",
+                "zh_tw": "按技能鍵釋放技能：立即消耗當前所有“逐日時刻”，使局內時間快進對應的數值，釋放完技能會進入150秒技能冷卻。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.35
+            ],
+            "lines": [
+              {
+                "en_us": "Press the skill key to release the skill: it immediately consumes all stored \"day-walk time\" and fast-forwards the match time accordingly; the skill then enters a 150 second cooldown.",
+                "zh_cn": "按技能键释放技能：立即消耗当前所有“逐日时刻”，使局内时间快进对应的数值，释放完技能会进入150秒技能冷却。",
+                "zh_tw": "按技能鍵釋放技能：立即消耗當前所有“逐日時刻”，使局內時間快進對應的數值，釋放完技能會進入150秒技能冷卻。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "idle",
-          "duration": 40
+          "duration": 25
         },
         {
           "type": "text",
-          "duration": 180,
+          "duration": 190,
           "text": {
-            "en_us": "The skill can fast-forward the match time until only 5 seconds remain at most.",
-            "zh_cn": "技能至多将局内游戏时间加速至还剩5秒。",
-            "zh_tw": "技能至多將局內遊戲時間加速至還剩5秒。"
+            "en_us": "Press the skill key to release the skill: it immediately consumes all stored \"day-walk time\" and fast-forwards the match time accordingly; the skill then enters a 150 second cooldown.",
+            "zh_cn": "按技能键释放技能：立即消耗当前所有“逐日时刻”，使局内时间快进对应的数值，释放完技能会进入150秒技能冷却。",
+            "zh_tw": "按技能鍵釋放技能：立即消耗當前所有“逐日時刻”，使局內時間快進對應的數值，釋放完技能會進入150秒技能冷卻。"
           },
           "point": [
             3.0,
@@ -370,7 +369,207 @@
         },
         {
           "type": "idle",
-          "duration": 190
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "daywalker_main",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "corpse": false,
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "daywalker_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "If the match time is 5 seconds or less and the Daywalker has not completed the required number of tasks, the Daywalker dies.",
+            "zh_cn": "若游戏时间小于等于5秒时，若逐日者未完成目标数量的任务，则逐日者死亡。",
+            "zh_tw": "若遊戲時間小於等於5秒時，若逐日者未完成目標數量的任務，則逐日者死亡。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_broadcast",
+          "parameters": {
+            "title": "hud.daywalker.broadcast",
+            "lines": [
+              {
+                "en_us": "When only one task is left to reach your victory goal, the whole match is notified and you keep glowing until the match ends.",
+                "zh_cn": "当你距离胜利目标任务数还剩1个任务时，将全场进行广播，并且使你全程发光，直至游戏结束。",
+                "zh_tw": "當你距離勝利目標任務數還剩1個任務時，將全場進行廣播，並且使你全程發光，直至遊戲結束。"
+              }
+            ],
+            "cost": 0,
+            "duration": 140
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "daywalker_main",
+            "color": 16777062
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When only one task is left to reach your victory goal, the whole match is notified and you keep glowing until the match ends.",
+            "zh_cn": "当你距离胜利目标任务数还剩1个任务时，将全场进行广播，并且使你全程发光，直至游戏结束。",
+            "zh_tw": "當你距離勝利目標任務數還剩1個任務時，將全場進行廣播，並且使你全程發光，直至遊戲結束。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "daywalker_main",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "corpse": false,
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "daywalker_main"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "After the Daywalker dies, all accelerated time is returned and the time flow returns to normal.",
+            "zh_cn": "逐日者死亡后，会返还所有加速的时间，并使时间流速恢复正常。",
+            "zh_tw": "逐日者死亡後，會返還所有加速的時間，並使時間流速恢復正常。"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": {
+              "en_us": "Refresh current task",
+              "zh_cn": "刷新当前任务",
+              "zh_tw": "刷新當前任務"
+            },
+            "lines": [
+              {
+                "en_us": "The shop sells \"skip task\" for 200 coins; buying it refreshes the current task immediately, and it cannot be bought while no task is pending.",
+                "zh_cn": "商店可花费200金币购买“跳过任务”，购买后立即刷新当前任务；未刷新任务时无法购买。",
+                "zh_tw": "商店可花費200金幣購買“跳過任務”，購買後立即刷新當前任務；未刷新任務時無法購買。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The shop sells \"skip task\" for 200 coins; buying it refreshes the current task immediately, and it cannot be bought while no task is pending.",
+            "zh_cn": "商店可花费200金币购买“跳过任务”，购买后立即刷新当前任务；未刷新任务时无法购买。",
+            "zh_tw": "商店可花費200金幣購買“跳過任務”，購買後立即刷新當前任務；未刷新任務時無法購買。"
+          },
+          "point": [
+            3.0,
+            3.2,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
         },
         {
           "type": "rotate_camera_y",

@@ -222,20 +222,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Skill: press the skill key to swallow living players within 2.15 blocks ahead.",
-                "zh_cn": "技能：按技能键吞噬前方2.15格内的存活玩家进肚子里。",
-                "zh_tw": "技能：按技能鍵吞噬前方2.15格內的存活玩家進肚子裏。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -245,8 +231,8 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "pelican_skill_target_0",
-            "outline": 4294944000
+            "linkId": "pelican_prey",
+            "outline": 16753920
           }
         },
         {
@@ -254,7 +240,7 @@
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -268,65 +254,135 @@
           "parameters": {
             "linkId": "pelican_main",
             "to": [
-              4.1,
+              4.3,
               1.0,
               2.0
             ],
-            "duration": 40
+            "duration": 30
           },
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "pelican_prey",
+            "visible": false
+          },
+          "attachKeyFrame": true
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
+          "type": "starrailexpress:role_bond",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Skill: press the skill key to swallow living players within 2.15 blocks ahead.",
+                "zh_cn": "技能：按技能键吞噬前方2.15格内的存活玩家进肚子里。",
+                "zh_tw": "技能：按技能鍵吞噬前方2.15格內的存活玩家進肚子裏。"
+              }
+            ],
+            "color": 16753920
+          },
+          "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 25
+          "type": "play_sound",
+          "sound": "minecraft:entity.player.burp",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:lockpick",
-          "linkId": "pelican_line_item_0",
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "pelican_main",
+            "pose": "crouching"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.25,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "pelican_prey",
+            "visible": true
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "pelican_prey",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "The Pelican spits out all swallowed players on death.",
+                "zh_cn": "鹈鹕死后会吐出所有被吞噬的玩家。",
+                "zh_tw": "鵜鶘死後會吐出所有被吞噬的玩家。"
+              },
+              {
+                "en_us": "Win condition: swallow 70%-1 of starting players (each player counted once) or be the only one left.",
+                "zh_cn": "胜利条件：吞噬过开局玩家数70%-1的玩家（每位玩家只算一次吞噬）或场上只剩下鹈鹕。",
+                "zh_tw": "勝利條件：吞噬過開局玩家數70%-1的玩家（每位玩家只算一次吞噬）或場上只剩下鵜鶘。"
+              },
+              {
+                "en_us": "Swallowed players can only voice-chat with the Pelican and other swallowed players.",
+                "zh_cn": "被吞噬的玩家只能与鹈鹕和肚子里的其他玩家语音交流。",
+                "zh_tw": "被吞噬的玩家只能與鵜鶘和肚子裏的其他玩家語音交流。"
+              },
+              {
+                "en_us": "Swallowed players don't count as dead.",
+                "zh_cn": "被吞噬的玩家不算作死亡。",
+                "zh_tw": "被吞噬的玩家不算作死亡。"
+              },
+              {
+                "en_us": "When the Loose Moment begins, the Pelican spits out everyone.",
+                "zh_cn": "亡命时刻开始时，鹈鹕会吐出肚子里的所有玩家。",
+                "zh_tw": "亡命時刻開始時，鵜鶘會吐出肚子裏的所有玩家。"
+              },
+              {
+                "en_us": "Meeting-map special: when the Pelican is voted out, players in its belly die instantly.",
+                "zh_cn": "会议地图特殊适配: 当鹈鹕被票出时，鹈鹕肚子里的玩家将立即死亡",
+                "zh_tw": "會議地圖特殊適配: 當鵜鶘被票出時，鵜鶘肚子裏的玩家將立即死亡"
+              }
+            ]
+          },
           "attachKeyFrame": true
         },
         {
           "type": "text",
-          "duration": 180,
+          "duration": 97,
           "text": {
-            "en_us": "Skill: press the skill key to swallow living players within 2.15 blocks ahead.",
-            "zh_cn": "技能：按技能键吞噬前方2.15格内的存活玩家进肚子里。",
-            "zh_tw": "技能：按技能鍵吞噬前方2.15格內的存活玩家進肚子裏。"
+            "en_us": "Has an independent win condition",
+            "zh_cn": "拥有独立胜利条件",
+            "zh_tw": "擁有獨立勝利條件"
           },
           "point": [
             3.0,
@@ -338,78 +394,15 @@
         },
         {
           "type": "idle",
-          "duration": 190
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "pelican_skill_target_1",
-            "outline": 4294944000
-          }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_pose",
-          "parameters": {
-            "linkId": "pelican_main",
-            "pose": "crouching"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            2,
-            0,
-            2
-          ],
-          "blockPos2": [
-            4,
-            0,
-            4
-          ],
-          "duration": 240,
-          "color": "green"
-        },
-        {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "starrailexpress:role_pose",
-          "parameters": {
-            "linkId": "pelican_main",
-            "pose": "standing"
-          },
-          "attachKeyFrame": true
+          "duration": 107
         },
         {
           "type": "text",
-          "duration": 137,
+          "duration": 189,
           "text": {
-            "en_us": "Sneak + skill key: spit out the last swallowed player.",
-            "zh_cn": "蹲下+技能键：吐出最后吞噬的玩家。",
-            "zh_tw": "蹲下+技能鍵：吐出最後吞噬的玩家。"
+            "en_us": "Has Pelican see-through within 25 blocks; swallowed players show an orange outline.",
+            "zh_cn": "拥有鹈鹕透视，能够透视25格内的玩家，透视被吞噬过的玩家为橙色边框。",
+            "zh_tw": "擁有鵜鶘透視，能夠透視25格內的玩家，透視被吞噬過的玩家為橙色邊框。"
           },
           "point": [
             3.0,
@@ -421,7 +414,199 @@
         },
         {
           "type": "idle",
+          "duration": 199
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 180,
+          "text": {
+            "en_us": "Skill: press the skill key to swallow living players within 2.15 blocks ahead.",
+            "zh_cn": "技能：按技能键吞噬前方2.15格内的存活玩家进肚子里。",
+            "zh_tw": "技能：按技能鍵吞噬前方2.15格內的存活玩家進肚子裏。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 190
+        },
+        {
+          "type": "text",
+          "duration": 137,
+          "text": {
+            "en_us": "Sneak + skill key: spit out the last swallowed player.",
+            "zh_cn": "蹲下+技能键：吐出最后吞噬的玩家。",
+            "zh_tw": "蹲下+技能鍵：吐出最後吞噬的玩家。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
           "duration": 147
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 135,
+          "text": {
+            "en_us": "The Pelican spits out all swallowed players on death.",
+            "zh_cn": "鹈鹕死后会吐出所有被吞噬的玩家。",
+            "zh_tw": "鵜鶘死後會吐出所有被吞噬的玩家。"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 145
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Win condition: swallow 70%-1 of starting players (each player counted once) or be the only one left.",
+            "zh_cn": "胜利条件：吞噬过开局玩家数70%-1的玩家（每位玩家只算一次吞噬）或场上只剩下鹈鹕。",
+            "zh_tw": "勝利條件：吞噬過開局玩家數70%-1的玩家（每位玩家只算一次吞噬）或場上只剩下鵜鶘。"
+          },
+          "point": [
+            3.0,
+            3.2,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 189,
+          "text": {
+            "en_us": "Swallowed players can only voice-chat with the Pelican and other swallowed players.",
+            "zh_cn": "被吞噬的玩家只能与鹈鹕和肚子里的其他玩家语音交流。",
+            "zh_tw": "被吞噬的玩家只能與鵜鶘和肚子裏的其他玩家語音交流。"
+          },
+          "point": [
+            3.0,
+            3.48,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 199
+        },
+        {
+          "type": "text",
+          "duration": 108,
+          "text": {
+            "en_us": "Swallowed players don't count as dead.",
+            "zh_cn": "被吞噬的玩家不算作死亡。",
+            "zh_tw": "被吞噬的玩家不算作死亡。"
+          },
+          "point": [
+            3.15,
+            1.8,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 118
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 149,
+          "text": {
+            "en_us": "When the Loose Moment begins, the Pelican spits out everyone.",
+            "zh_cn": "亡命时刻开始时，鹈鹕会吐出肚子里的所有玩家。",
+            "zh_tw": "亡命時刻開始時，鵜鶘會吐出肚子裏的所有玩家。"
+          },
+          "point": [
+            3.15,
+            2.08,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 159
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Meeting-map special: when the Pelican is voted out, players in its belly die instantly.",
+            "zh_cn": "会议地图特殊适配: 当鹈鹕被票出时，鹈鹕肚子里的玩家将立即死亡",
+            "zh_tw": "會議地圖特殊適配: 當鵜鶘被票出時，鵜鶘肚子裏的玩家將立即死亡"
+          },
+          "point": [
+            3.15,
+            2.36,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
         },
         {
           "type": "rotate_camera_y",

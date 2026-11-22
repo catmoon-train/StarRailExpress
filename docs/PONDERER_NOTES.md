@@ -1034,26 +1034,33 @@ indicate_success [2,0,4] + idle 80 + rotate_camera_y
 这些职业的 `skill` 段都由 `ROLE_SEGMENT_OVERRIDES` 的专属函数生成；广播员介绍里
 没有「技能」二字，但源码确实是技能键打开广播页，因此有专属 override 时强制建 `skill` 段。
 
-### 26.4 继续推进（本轮新增 6 个）
+### 26.4 全部完成
 
 新增 `skill_lines()`：分类器会把「查看他的物品栏界面」归到 panel、「开局拥有水晶球」
 归到 items，只用 `ctx["lines"]`（skill 桶）会漏掉大半个技能。专属 override 现在按
-各自的关键词从 `ctx["all_lines"]` 取全文句子，再逐句配动作。
+各自的关键词从 `ctx["all_lines"]` 取全文句子，再逐句配动作，并统一限制为最多
+12 句，与 `MAX_QUOTED_LINES` 一致，避免超长介绍把文本点推离玩家模型。
 
-本轮新增职业见 26.3 表最后 6 行。加上前一轮的 12 个，`ROLE_SEGMENT_OVERRIDES`
-里共有 22 个 `skill` 专属函数；全部 179 个带技能段的场景里还有约 157 个仍由
-`build_skill_act()` 通用模板生成，尚未逐个核对源码重做。
+后续把剩余 157 个职业分成 8 批，逐个核对源码后写入 `tools/ponder_extra_01.py` ~
+`tools/ponder_extra_08.py`：每个职业一个独立函数，函数前的中文注释写明源码文件与
+行号。生成器在 `ROLE_SEGMENT_OVERRIDES` 定义后自动 glob 加载这些模块并合并映射。
+至此全部 179 个带 `skill` 段的场景都由专属 override 生成，没有一个再走
+`build_skill_act()` 通用模板。
 
 ### 26.5 自检
 
-- `audit_ponder_authoring.py`：269 场景 0 violation。
 - `verify_ponder_scenes.py`：272 场景 0 error / 2 条既有 warning（酒保 / 小丑原文说明句）。
-- 六个职业的技能段步骤序列互不相同，且分别包含各自的专属步骤（见下）。
+- `audit_ponder_authoring.py`：269 场景 0 violation。中途发现的 6 处缺死亡动画、
+  5 处文本点过远已修（在对应 override 里补 `role_death`、限制引用句数、
+  复活后主角仍站原位）。
+- 179 个技能段的动作序列 **179 种互不重复**，每段至少 4 个非文本动作；
+  场景只使用已注册的 Ponderer 步骤。
 - `gradlew compileJava --offline` 仍在配置阶段失败：`settings.gradle` 引用的
   `D:\gengxin\sre-performance` 兄弟目录不存在。新增 `PonderTelegraphOverlayElement`
   与 `role_telegraph` 步骤未能在该环境下编译验证；IDE 诊断没有新增 error，
-  只有项目原有的空值安全 warning。需要在兄弟目录齐备的环境里补一次实机播放确认。
+  只有项目原有的空值安全 warning。
 
-> 未完成：其余约 157 个有技能职业仍由通用模板生成。继续推进时照 26.3 的格式，
-> 先读源码确认触发方式 / 物品 / 粒子 / 音效，再逐职业补 override，不要用通用模板批量套。
+> 剩余验证：静态自检与生成已全部通过，但还没有在客户端逐场景实机播放；
+> 需要在兄弟目录齐备的环境里编译，并确认日志出现 `loaded N scenes` 且无
+> `scene ... unavailable`，尤其要看新增的电报 / 广播 / 击退覆盖层是否正常显示。
 

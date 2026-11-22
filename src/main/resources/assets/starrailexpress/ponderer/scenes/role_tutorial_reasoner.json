@@ -150,30 +150,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Each answer starts a 35s compass cooldown; answer all correctly for independent victory.",
-                "zh_cn": "每次回答后罗盘冷却 35 秒，全部推理正确即可独立胜利。",
-                "zh_tw": "每次回答後羅盤冷卻 35 秒，全部推理正確即可獨立勝利。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
           "type": "starrailexpress:role_timer",
           "parameters": {
             "progress": [
@@ -182,23 +158,19 @@
             ],
             "lines": [
               {
-                "en_us": "Each answer starts a 35s compass cooldown; answer all correctly for independent victory.",
-                "zh_cn": "每次回答后罗盘冷却 35 秒，全部推理正确即可独立胜利。",
-                "zh_tw": "每次回答後羅盤冷卻 35 秒，全部推理正確即可獨立勝利。"
+                "en_us": "2 minutes after the game starts, gain a Compass.",
+                "zh_cn": "游戏开始 2 分钟后获得罗盘。",
+                "zh_tw": "遊戲開始 2 分鐘後獲得羅盤。"
               }
             ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 40
-        },
-        {
           "type": "create_item_entity",
           "pos": [
-            2.2,
-            1.5,
+            2.0,
+            1.55,
             3.0
           ],
           "motion": [
@@ -208,8 +180,162 @@
           ],
           "count": 1,
           "item": "noellesroles:reasoner_compass",
-          "linkId": "reasoner_line_item_0",
+          "linkId": "reasoner_compass",
           "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "reasoner_main",
+            "item": "noellesroles:reasoner_compass"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:reasoner_compass",
+          "duration": 70,
+          "point": [
+            4.3,
+            2.0,
+            3.0
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": {
+              "en_us": "Five questions",
+              "zh_cn": "五个问题",
+              "zh_tw": "五個問題"
+            },
+            "lines": [
+              {
+                "en_us": "Right-click the compass to answer five situation-based questions: number alive, a random living player's identity, a corpse's cause of death, a random non-Killer/non-Neutral's current task, number of living Killers.",
+                "zh_cn": "右键罗盘可回答五个随局势变化的问题：存活人数、随机存活玩家身份、尸体死因、随机非杀手非中立玩家当前任务、存活杀手数量。",
+                "zh_tw": "右鍵羅盤可回答五個隨局勢變化的問題：存活人數、隨機存活玩家身份、屍體死因、隨機非殺手非中立玩家當前任務、存活殺手數量。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Can turn on Killer see-through but can't see players, only gaining Night Vision.",
+                "zh_cn": "可以启用杀手透视，但无法透视人，仅获得夜视效果。",
+                "zh_tw": "可以啟用殺手透視，但無法透視人，僅獲得夜視效果。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_broadcast",
+          "parameters": {
+            "title": {
+              "en_us": "Reasoning correct",
+              "zh_cn": "推理正确",
+              "zh_tw": "推理正確"
+            },
+            "lines": [
+              {
+                "en_us": "Each answer starts a 35s compass cooldown; answer all correctly for independent victory.",
+                "zh_cn": "每次回答后罗盘冷却 35 秒，全部推理正确即可独立胜利。",
+                "zh_tw": "每次回答後羅盤冷卻 35 秒，全部推理正確即可獨立勝利。"
+              }
+            ],
+            "cost": 0,
+            "duration": 120
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 184,
+          "text": {
+            "en_us": "Can turn on Killer see-through but can't see players, only gaining Night Vision.",
+            "zh_cn": "可以启用杀手透视，但无法透视人，仅获得夜视效果。",
+            "zh_tw": "可以啟用殺手透視，但無法透視人，僅獲得夜視效果。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 194
+        },
+        {
+          "type": "text",
+          "duration": 126,
+          "text": {
+            "en_us": "2 minutes after the game starts, gain a Compass.",
+            "zh_cn": "游戏开始 2 分钟后获得罗盘。",
+            "zh_tw": "遊戲開始 2 分鐘後獲得羅盤。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 136
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Right-click the compass to answer five situation-based questions: number alive, a random living player's identity, a corpse's cause of death, a random non-Killer/non-Neutral's current task, number of living Killers.",
+            "zh_cn": "右键罗盘可回答五个随局势变化的问题：存活人数、随机存活玩家身份、尸体死因、随机非杀手非中立玩家当前任务、存活杀手数量。",
+            "zh_tw": "右鍵羅盤可回答五個隨局勢變化的問題：存活人數、隨機存活玩家身份、屍體死因、隨機非殺手非中立玩家當前任務、存活殺手數量。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
         },
         {
           "type": "text",
@@ -221,7 +347,7 @@
           },
           "point": [
             3.0,
-            1.8,
+            2.64,
             3.0
           ],
           "placeNearTarget": true,

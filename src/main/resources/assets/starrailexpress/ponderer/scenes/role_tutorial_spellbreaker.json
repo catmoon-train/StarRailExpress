@@ -124,25 +124,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Press G to unleash an anti-magic field: non-Killers within 50 blocks cannot use skills or open their inventory for 30s and gain a Wonderland filter.",
-                "zh_cn": "按G释放破法力场：50格内非杀手玩家30秒内无法使用技能或打开背包，并获得仙境滤镜。",
-                "zh_tw": "按G釋放破法力場：50格內非殺手玩家30秒內無法使用技能或打開背包，並獲得仙境濾鏡。"
-              },
-              {
-                "en_us": "Anti-Magic Potion: use on a player to make their next skill attempt fail and lock skills for 30s (45s duration).",
-                "zh_cn": "破法药剂：对玩家使用后使其下一次技能尝试失败，并进入30秒技能封禁,45s有效。",
-                "zh_tw": "破法藥劑：對玩家使用後使其下一次技能嘗試失敗，並進入30秒技能封禁,45s有效。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -152,8 +133,8 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "spellbreaker_skill_target_0",
-            "outline": -65536
+            "linkId": "spellbreaker_silenced",
+            "outline": 8421504
           }
         },
         {
@@ -161,7 +142,7 @@
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -171,14 +152,24 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
+          "type": "play_sound",
+          "sound": "minecraft:block.enchantment_table.use",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Non-killers within 50 blocks lose skills and inventory",
+                "zh_cn": "50 格内非杀手：禁技 · 禁背包 · 仙境滤镜",
+                "zh_tw": "50 格內非殺手：禁技 · 禁背包 · 仙境濾鏡"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_timer",
@@ -195,27 +186,6 @@
               }
             ]
           },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "spellbreaker_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -239,25 +209,11 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "spellbreaker_skill_target_1",
-            "outline": -65536
-          }
-        },
-        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -267,35 +223,24 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
+          "type": "show_controls",
+          "action": "right",
+          "item": "minecraft:splash_potion",
+          "duration": 70,
+          "point": [
+            1.7,
+            1.9,
+            2.0
           ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:spellbreaker_potion",
-          "linkId": "spellbreaker_line_item_1",
+          "direction": "down",
           "attachKeyFrame": true
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:block.glass.break",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
         },
         {
           "type": "text",
@@ -308,6 +253,66 @@
           "point": [
             3.0,
             2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_ambience",
+          "parameters": {
+            "color": 2236962,
+            "alpha": 0.7,
+            "mode": "fog"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
+            "lines": [
+              {
+                "en_us": "Silence Totem: throw a hidden totem; for 30s non-Killers within 6 blocks keep Slowness I and Blindness. Only one totem at a time.",
+                "zh_cn": "沉默图腾：投掷隐形图腾，30秒内使6格内非杀手玩家持续缓慢I与失明。同一时间只能存在一个图腾。",
+                "zh_tw": "沉默圖騰：投擲隱形圖騰，30秒內使6格內非殺手玩家持續緩慢I與失明。同一時間只能存在一個圖騰。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Silence Totem: throw a hidden totem; for 30s non-Killers within 6 blocks keep Slowness I and Blindness. Only one totem at a time.",
+            "zh_cn": "沉默图腾：投掷隐形图腾，30秒内使6格内非杀手玩家持续缓慢I与失明。同一时间只能存在一个图腾。",
+            "zh_tw": "沉默圖騰：投擲隱形圖騰，30秒內使6格內非殺手玩家持續緩慢I與失明。同一時間只能存在一個圖騰。"
+          },
+          "point": [
+            3.0,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,

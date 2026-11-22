@@ -124,9 +124,415 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "elf_arrow_target",
+            "outline": -9764941
+          }
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "elf_main",
+            "item": "minecraft:bow"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "poison_arrow:name",
+          "duration": 70,
+          "point": [
+            2.1,
+            2.2,
+            3.0
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.0,
+            1.55,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "poison_arrow:name",
+          "linkId": "elf_poison_arrow",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "elf_arrow_target",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "elf_main",
+            "item": "minecraft:spectral_arrow"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "elf_arrow_target",
+            "color": 16777062
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": {
+              "en_us": "Nearby player count",
+              "zh_cn": "附近玩家人数",
+              "zh_tw": "附近玩家人數"
+            },
+            "lines": [
+              {
+                "en_us": "You cannot pick up guns. You start with a Bow, and can buy a Crossbow, Poison Arrows, and Spectral Arrows in the shop.",
+                "zh_cn": "你无法捡起手枪，开局自带一把弓，可在商店中购买弩、毒箭、光灵箭。",
+                "zh_tw": "你無法撿起手槍，開局自帶一把弓，可在商店中購買弩、毒箭、光靈箭。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 24
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You cannot pick up guns. You start with a Bow, and can buy a Crossbow, Poison Arrows, and Spectral Arrows in the shop.",
+            "zh_cn": "你无法捡起手枪，开局自带一把弓，可在商店中购买弩、毒箭、光灵箭。",
+            "zh_tw": "你無法撿起手槍，開局自帶一把弓，可在商店中購買弩、毒箭、光靈箭。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "elf_main",
+            "item": "minecraft:bow"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "poison_arrow:name",
+          "duration": 70,
+          "point": [
+            2.1,
+            2.2,
+            3.0
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.0,
+            1.55,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "poison_arrow:name",
+          "linkId": "elf_poison_arrow",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "elf_arrow_target",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 24
+        },
+        {
+          "type": "text",
+          "duration": 119,
+          "text": {
+            "en_us": "Poison Arrow: whoever is hit dies instantly.",
+            "zh_cn": "毒箭：被射中的人直接死亡",
+            "zh_tw": "毒箭：被射中的人直接死亡"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 129
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "elf_main",
+            "item": "minecraft:bow"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "poison_arrow:name",
+          "duration": 70,
+          "point": [
+            2.1,
+            2.2,
+            3.0
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "elf_main",
+            "item": "minecraft:spectral_arrow"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "elf_arrow_target",
+            "color": 16777062
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": {
+              "en_us": "Nearby player count",
+              "zh_cn": "附近玩家人数",
+              "zh_tw": "附近玩家人數"
+            },
+            "lines": [
+              {
+                "en_us": "Spectral Arrow: whoever is hit starts glowing; if fired at a wall it reveals the number of players within a 6-block radius.",
+                "zh_cn": "光灵箭：被射中的人会发光，若光灵箭被射在墙面上则显示6格半径内的玩家人数。",
+                "zh_tw": "光靈箭：被射中的人會發光，若光靈箭被射在牆面上則顯示6格半徑內的玩家人數。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 24
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Spectral Arrow: whoever is hit starts glowing; if fired at a wall it reveals the number of players within a 6-block radius.",
+            "zh_cn": "光灵箭：被射中的人会发光，若光灵箭被射在墙面上则显示6格半径内的玩家人数。",
+            "zh_tw": "光靈箭：被射中的人會發光，若光靈箭被射在牆面上則顯示6格半徑內的玩家人數。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "elf_main",
+            "item": "minecraft:bow"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "poison_arrow:name",
+          "duration": 70,
+          "point": [
+            2.1,
+            2.2,
+            3.0
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.0,
+            1.55,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "poison_arrow:name",
+          "linkId": "elf_poison_arrow",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "elf_arrow_target",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 24
+        },
+        {
+          "type": "text",
+          "duration": 110,
+          "text": {
+            "en_us": "If you kill a good player, you die too.",
+            "zh_cn": "如果射杀了好人，则自己也会死亡。",
+            "zh_tw": "如果射殺了好人，則自己也會死亡。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 120
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "elf_main",
+            "item": "minecraft:bow"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "poison_arrow:name",
+          "duration": 70,
+          "point": [
+            2.1,
+            2.2,
+            3.0
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.0,
+            1.55,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "poison_arrow:name",
+          "linkId": "elf_poison_arrow",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "elf_arrow_target",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
             "lines": [
               {
                 "en_us": "After a Poison Arrow hits a player, both the Bow and Crossbow enter a 1s cooldown.",
@@ -138,48 +544,8 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
           "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "poison_arrow:name",
-          "linkId": "elf_line_item_0",
-          "attachKeyFrame": true
+          "duration": 24
         },
         {
           "type": "text",
@@ -191,7 +557,7 @@
           },
           "point": [
             3.0,
-            1.8,
+            2.92,
             3.0
           ],
           "placeNearTarget": true,

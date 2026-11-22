@@ -122,25 +122,25 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Use the skill-switch key to switch to skill 2; hold a mushroom and press the skill key to brew it into mushroom extract, 90s cd.",
-                "zh_cn": "可使用技能切换键切换到第二技能，手持蘑菇时按技能键可将蘑菇调制为对应蘑菇素，冷却 90 秒。",
-                "zh_tw": "可使用技能切換鍵切換到第二技能，手持蘑菇時按技能鍵可將蘑菇調製為對應蘑菇素，冷卻 90 秒。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mushroom_scholar_sample",
+            "outline": 8421504
+          }
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -150,60 +150,73 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_walk",
+          "type": "starrailexpress:role_panel",
           "parameters": {
-            "linkId": "mushroom_scholar_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
+            "title": {
+              "en_us": "Cultivate",
+              "zh_cn": "培育菌子",
+              "zh_tw": "培育菌子"
+            },
+            "lines": [
+              {
+                "en_us": "Starts with a mushroom sample; shop sells samples.",
+                "zh_cn": "开局拥有一份菌子样本，商店可购买菌子样本。",
+                "zh_tw": "開局擁有一份菌子樣本，商店可購買菌子樣本。"
+              }
+            ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
+          "type": "text",
+          "duration": 130,
+          "text": {
+            "en_us": "Starts with a mushroom sample; shop sells samples.",
+            "zh_cn": "开局拥有一份菌子样本，商店可购买菌子样本。",
+            "zh_tw": "開局擁有一份菌子樣本，商店可購買菌子樣本。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
           ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
+          "placeNearTarget": true,
+          "attachKeyFrame": true
         },
         {
           "type": "idle",
-          "duration": 25
+          "duration": 140
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:mushroom_sample",
-          "linkId": "mushroom_scholar_line_item_0",
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": {
+              "en_us": "Cultivate",
+              "zh_cn": "培育菌子",
+              "zh_tw": "培育菌子"
+            },
+            "lines": [
+              {
+                "en_us": "Within 3 blocks of a bed, press the skill key to open the \"cultivate mushrooms\" minigame: drag two differently colored potions onto the sample and run 3 experiments.",
+                "zh_cn": "处在床的 3 格范围内时，按技能键可打开“培育菌子”小游戏：将两种不同颜色的药水拖到研究台上的菌子样本，完成 3 次实验。",
+                "zh_tw": "處在床的 3 格範圍內時，按技能鍵可打開“培育菌子”小遊戲：將兩種不同顏色的藥水拖到研究臺上的菌子樣本，完成 3 次實驗。"
+              }
+            ]
+          },
           "attachKeyFrame": true
         },
         {
@@ -216,7 +229,7 @@
           },
           "point": [
             3.0,
-            1.8,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,
@@ -231,7 +244,160 @@
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.0,
+            1.55,
+            2.1
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:mushroom",
+          "linkId": "mushroom_scholar_mushroom",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "After an experiment, gain a non-toxic or toxic mushroom based on the process; mushrooms can be dropped with Q.",
+            "zh_cn": "实验完成后会依据调配过程获得无毒蘑菇或剧毒蘑菇，蘑菇可以被菌菇学者按Q键丢出。",
+            "zh_tw": "實驗完成後會依據調配過程獲得無毒蘑菇或劇毒蘑菇，蘑菇可以被菌菇學者按Q鍵丟出。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.0,
+            1.55,
+            2.1
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:mushroom",
+          "linkId": "mushroom_scholar_mushroom",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 148,
+          "text": {
+            "en_us": "Non-toxic mushroom: 20s negative-effect resistance on eating",
+            "zh_cn": "无毒蘑菇食用后会获得 20 秒负面效果抵抗",
+            "zh_tw": "無毒蘑菇食用後會獲得 20 秒負面效果抵抗"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 158
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.0,
+            1.55,
+            2.1
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:mushroom",
+          "linkId": "mushroom_scholar_mushroom",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 178,
+          "text": {
+            "en_us": "Toxic mushroom: 20s Glitch and Slowness I, plus 3s of no directional control.",
+            "zh_cn": "剧毒蘑菇食用后会获得 20 秒故障和缓慢 I，并在3秒内无法控制方向。",
+            "zh_tw": "劇毒蘑菇食用後會獲得 20 秒故障和緩慢 I，並在3秒內無法控制方向。"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 188
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -242,32 +408,11 @@
           "attachKeyFrame": true
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:mushroom_essence",
-          "linkId": "mushroom_scholar_line_item_1",
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "mushroom_scholar_main",
+            "item": "noellesroles:mushroom_essence"
+          },
           "attachKeyFrame": true
         },
         {
@@ -280,7 +425,49 @@
           },
           "point": [
             3.0,
-            2.08,
+            3.2,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "mushroom_scholar_main",
+            "item": "noellesroles:mushroom_essence"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Mushroom extract is throwable; on hitting a block or player, nearby players get the matching mushroom effect.",
+            "zh_cn": "蘑菇素可投掷，命中方块或玩家后使周围玩家获得对应蘑菇的效果。",
+            "zh_tw": "蘑菇素可投擲，命中方塊或玩家後使周圍玩家獲得對應蘑菇的效果。"
+          },
+          "point": [
+            3.0,
+            3.48,
             3.0
           ],
           "placeNearTarget": true,

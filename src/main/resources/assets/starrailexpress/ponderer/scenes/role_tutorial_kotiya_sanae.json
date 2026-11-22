@@ -195,9 +195,12 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_currency",
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
+            "progress": [
+              1.0,
+              0.2
+            ],
             "lines": [
               {
                 "en_us": "Can spend 175 coin and use the skill key to pray for weather",
@@ -213,7 +216,7 @@
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -223,41 +226,100 @@
           "attachKeyFrame": true
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            3.9,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:reimu_gohei",
-          "linkId": "kotiya_sanae_skill_item_0"
+          "type": "starrailexpress:role_ambience",
+          "parameters": {
+            "color": 8965375,
+            "alpha": 0.6,
+            "mode": "fog"
+          },
+          "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_currency",
+          "type": "starrailexpress:role_effects",
           "parameters": {
-            "progress": [
-              1.0,
-              0.5
-            ],
             "lines": [
               {
-                "en_us": "Can spend 175 coin and use the skill key to pray for weather",
-                "zh_cn": "可以消耗175金币使用技能键祈祷天气",
-                "zh_tw": "可以消耗175金幣使用技能鍵祈禱天氣"
+                "en_us": "- Clear Skies: everyone gets 10s of infinite stamina and Sanity regen; if lights are out, they immediately turn on.",
+                "zh_cn": "- 放晴：所有人获得10s的无限体力和san值恢复。若此时场上为关灯状态则立马结束关灯。",
+                "zh_tw": "- 放晴：所有人獲得10s的無限體力和san值恢復。若此時場上為關燈狀態則立馬結束關燈。"
+              },
+              {
+                "en_us": "- Downpour: everyone gets 10s of temporary shield.",
+                "zh_cn": "- 骤雨：所有人获得10s临时护盾。",
+                "zh_tw": "- 驟雨：所有人獲得10s臨時護盾。"
               }
             ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 35
+          "type": "starrailexpress:role_vitals",
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.3,
+                "after": 1.0,
+                "color": 5635925
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kotiya_sanae_sanae_ally",
+            "outline": 16753920
+          }
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "- Gales: everyone gets 10s of Speed II",
+                "zh_cn": "- 狂风：所有人获得10s速度2",
+                "zh_tw": "- 狂風：所有人獲得10s速度2"
+              },
+              {
+                "en_us": "- Snowfall: everyone gets 10s of Slowness II",
+                "zh_cn": "- 飞雪：所有人获得10s 缓慢2",
+                "zh_tw": "- 飛雪：所有人獲得10s 緩慢2"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": "ponder.starrailexpress.label.items",
+            "lines": [
+              {
+                "en_us": "Can spend 175 coin and use the skill key to pray for weather",
+                "zh_cn": "可以消耗175金币使用技能键祈祷天气",
+                "zh_tw": "可以消耗175金幣使用技能鍵祈禱天氣"
+              },
+              {
+                "en_us": "- Clear Skies: everyone gets 10s of infinite stamina and Sanity regen; if lights are out, they immediately turn on.",
+                "zh_cn": "- 放晴：所有人获得10s的无限体力和san值恢复。若此时场上为关灯状态则立马结束关灯。",
+                "zh_tw": "- 放晴：所有人獲得10s的無限體力和san值恢復。若此時場上為關燈狀態則立馬結束關燈。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -280,66 +342,12 @@
           "duration": 158
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "kotiya_sanae_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
           "type": "text",
-          "duration": 104,
+          "duration": 190,
           "text": {
-            "en_us": "Randomly casts one of the following:",
-            "zh_cn": "随机释放接下来的一种天气：",
-            "zh_tw": "隨機釋放接下來的一種天氣："
+            "en_us": "- Clear Skies: everyone gets 10s of infinite stamina and Sanity regen; if lights are out, they immediately turn on.",
+            "zh_cn": "- 放晴：所有人获得10s的无限体力和san值恢复。若此时场上为关灯状态则立马结束关灯。",
+            "zh_tw": "- 放晴：所有人獲得10s的無限體力和san值恢復。若此時場上為關燈狀態則立馬結束關燈。"
           },
           "point": [
             3.0,
@@ -351,7 +359,83 @@
         },
         {
           "type": "idle",
-          "duration": 114
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 130,
+          "text": {
+            "en_us": "- Downpour: everyone gets 10s of temporary shield.",
+            "zh_cn": "- 骤雨：所有人获得10s临时护盾。",
+            "zh_tw": "- 驟雨：所有人獲得10s臨時護盾。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 140
+        },
+        {
+          "type": "text",
+          "duration": 108,
+          "text": {
+            "en_us": "- Gales: everyone gets 10s of Speed II",
+            "zh_cn": "- 狂风：所有人获得10s速度2",
+            "zh_tw": "- 狂風：所有人獲得10s速度2"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 118
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 119,
+          "text": {
+            "en_us": "- Snowfall: everyone gets 10s of Slowness II",
+            "zh_cn": "- 飞雪：所有人获得10s 缓慢2",
+            "zh_tw": "- 飛雪：所有人獲得10s 緩慢2"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 129
         },
         {
           "type": "rotate_camera_y",

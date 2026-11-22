@@ -194,9 +194,67 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "kirisame_marisa_marisa_target",
+            "outline": -5465496
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "You start with Slow Falling II and Jump Boost I (only on jump maps).",
+                "zh_cn": "你自带缓降II和跳跃提升I（仅在可跳跃地图有效）。",
+                "zh_tw": "你自帶緩降II和跳躍提升I（僅在可跳躍地圖有效）。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 1.0,
+                "after": 0.35,
+                "color": 16753920
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
             "lines": [
               {
                 "en_us": "Skill - Love Sign \"Master Spark\": sets nearby players on fire for 5s and inflicts Slowness II.",
@@ -208,64 +266,10 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "kirisame_marisa_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
           "type": "create_item_entity",
           "pos": [
-            2.2,
-            1.5,
+            2.0,
+            1.55,
             3.0
           ],
           "motion": [
@@ -275,16 +279,37 @@
           ],
           "count": 1,
           "item": "noellesroles:mini_bagualu",
-          "linkId": "kirisame_marisa_line_item_0",
+          "linkId": "kirisame_marisa_marisa_item",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "kirisame_marisa_main",
+            "item": "noellesroles:mini_bagualu"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:mini_bagualu",
+          "duration": 70,
+          "point": [
+            4.2,
+            2.0,
+            3.0
+          ],
+          "direction": "down",
           "attachKeyFrame": true
         },
         {
           "type": "text",
-          "duration": 190,
+          "duration": 162,
           "text": {
-            "en_us": "Skill - Love Sign \"Master Spark\": sets nearby players on fire for 5s and inflicts Slowness II.",
-            "zh_cn": "技能-恋符「Master Spark」：让周围的人着火5s且进入缓慢II。",
-            "zh_tw": "技能-戀符「Master Spark」：讓周圍的人著火5s且進入緩慢II。"
+            "en_us": "You start with Slow Falling II and Jump Boost I (only on jump maps).",
+            "zh_cn": "你自带缓降II和跳跃提升I（仅在可跳跃地图有效）。",
+            "zh_tw": "你自帶緩降II和跳躍提升I（僅在可跳躍地圖有效）。"
           },
           "point": [
             3.0,
@@ -296,7 +321,55 @@
         },
         {
           "type": "idle",
+          "duration": 172
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skill - Love Sign \"Master Spark\": sets nearby players on fire for 5s and inflicts Slowness II.",
+            "zh_cn": "技能-恋符「Master Spark」：让周围的人着火5s且进入缓慢II。",
+            "zh_tw": "技能-戀符「Master Spark」：讓周圍的人著火5s且進入緩慢II。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 162,
+          "text": {
+            "en_us": "You can buy a Mini Hakkero to judge whether players are good or bad!",
+            "zh_cn": "你可以购买迷你八卦炉，来判断玩家的职业好坏！",
+            "zh_tw": "你可以購買迷你八卦爐，來判斷玩家的職業好壞！"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 172
         },
         {
           "type": "rotate_camera_y",

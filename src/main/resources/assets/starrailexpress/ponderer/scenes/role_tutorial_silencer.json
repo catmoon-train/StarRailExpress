@@ -255,20 +255,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Skill cooldown 130s; starts at 155s at match start",
-                "zh_cn": "技能冷却130秒，技能会在开局会进入155秒冷却",
-                "zh_tw": "技能冷卻130秒，技能會在開局會進入155秒冷卻"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -278,79 +264,25 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "silencer_skill_target_0",
-            "outline": -6281116
+            "linkId": "silencer_cursed",
+            "outline": 16753920
           }
         },
         {
-          "type": "starrailexpress:role_key",
+          "type": "starrailexpress:role_screen",
           "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
+            "title": {
+              "en_us": "Choose a player",
+              "zh_cn": "选择玩家",
+              "zh_tw": "選擇玩家"
+            },
+            "hint": {
+              "en_us": "Click the avatar on the skill page",
+              "zh_cn": "技能页面点击头像",
+              "zh_tw": "技能頁面點擊頭像"
+            },
+            "columns": 6
           },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "silencer_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "silencer_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -374,28 +306,12 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_key",
+          "type": "starrailexpress:role_outline",
           "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
+            "linkId": "silencer_cursed",
+            "color": 8421504
           },
           "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
         },
         {
           "type": "starrailexpress:role_timer",
@@ -406,17 +322,252 @@
             ],
             "lines": [
               {
-                "en_us": "Skill cooldown 130s; starts at 155s at match start",
-                "zh_cn": "技能冷却130秒，技能会在开局会进入155秒冷却",
-                "zh_tw": "技能冷卻130秒，技能會在開局會進入155秒冷卻"
+                "en_us": "Stage 1 - Mute: the muted player cannot speak and their chat messages aren't received by others, lasting 45s; the muted player is notified",
+                "zh_cn": "第一阶段——禁言阶段:被禁言的玩家无法说话且使用聊天栏发送的消息无法被其他人接收，持续45秒，被禁言的玩家会收到提示",
+                "zh_tw": "第一階段——禁言階段:被禁言的玩家無法說話且使用聊天欄發送的消息無法被其他人接收，持續45秒，被禁言的玩家會收到提示"
               }
             ]
           },
           "attachKeyFrame": true
         },
         {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Stage 1 - Mute: the muted player cannot speak and their chat messages aren't received by others, lasting 45s; the muted player is notified",
+            "zh_cn": "第一阶段——禁言阶段:被禁言的玩家无法说话且使用聊天栏发送的消息无法被其他人接收，持续45秒，被禁言的玩家会收到提示",
+            "zh_tw": "第一階段——禁言階段:被禁言的玩家無法說話且使用聊天欄發送的消息無法被其他人接收，持續45秒，被禁言的玩家會收到提示"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
           "type": "idle",
-          "duration": 40
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "silencer_cursed",
+            "color": 8421504
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Stage 2 - Plea: lasts 30s; the voice mute ends but they still can't use chat. They must find another player to right-click you to lift the curse. If no plea succeeds within 30s, enter Stage 3.",
+                "zh_cn": "第二阶段——求助阶段：持续30秒，此时目标不再拥有语音禁言效果，但是无法使用聊天栏传递信息，此时你需要找到其它玩家右键你来帮你解开诅咒。若30秒内没有成功求助，则进入惩罚阶段。",
+                "zh_tw": "第二階段——求助階段：持續30秒，此時目標不再擁有語音禁言效果，但是無法使用聊天欄傳遞資訊，此時你需要找到其他玩家右鍵你來幫你解開詛咒。若30秒內沒有成功求助，則進入懲罰階段。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Stage 2 - Plea: lasts 30s; the voice mute ends but they still can't use chat. They must find another player to right-click you to lift the curse. If no plea succeeds within 30s, enter Stage 3.",
+                "zh_cn": "第二阶段——求助阶段：持续30秒，此时目标不再拥有语音禁言效果，但是无法使用聊天栏传递信息，此时你需要找到其它玩家右键你来帮你解开诅咒。若30秒内没有成功求助，则进入惩罚阶段。",
+                "zh_tw": "第二階段——求助階段：持續30秒，此時目標不再擁有語音禁言效果，但是無法使用聊天欄傳遞資訊，此時你需要找到其他玩家右鍵你來幫你解開詛咒。若30秒內沒有成功求助，則進入懲罰階段。"
+              }
+            ],
+            "color": 16753920
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_broadcast",
+          "parameters": {
+            "title": "skill.noellesroles.silent_killer",
+            "lines": [
+              "skill.noellesroles.silencer.punish"
+            ],
+            "duration": 120
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Stage 2 - Plea: lasts 30s; the voice mute ends but they still can't use chat. They must find another player to right-click you to lift the curse. If no plea succeeds within 30s, enter Stage 3.",
+                "zh_cn": "第二阶段——求助阶段：持续30秒，此时目标不再拥有语音禁言效果，但是无法使用聊天栏传递信息，此时你需要找到其它玩家右键你来帮你解开诅咒。若30秒内没有成功求助，则进入惩罚阶段。",
+                "zh_tw": "第二階段——求助階段：持續30秒，此時目標不再擁有語音禁言效果，但是無法使用聊天欄傳遞資訊，此時你需要找到其他玩家右鍵你來幫你解開詛咒。若30秒內沒有成功求助，則進入懲罰階段。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Stage 2 - Plea: lasts 30s; the voice mute ends but they still can't use chat. They must find another player to right-click you to lift the curse. If no plea succeeds within 30s, enter Stage 3.",
+            "zh_cn": "第二阶段——求助阶段：持续30秒，此时目标不再拥有语音禁言效果，但是无法使用聊天栏传递信息，此时你需要找到其它玩家右键你来帮你解开诅咒。若30秒内没有成功求助，则进入惩罚阶段。",
+            "zh_tw": "第二階段——求助階段：持續30秒，此時目標不再擁有語音禁言效果，但是無法使用聊天欄傳遞資訊，此時你需要找到其他玩家右鍵你來幫你解開詛咒。若30秒內沒有成功求助，則進入懲罰階段。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Stage 3 - Punishment: players who fail to plea trigger a global sound, have all Sanity and stamina drained, and all Silencers gain 120 coins",
+                "zh_cn": "第三阶段——惩罚阶段：未能成功求助的玩家会全场播放音效，清空所有san值和体力值，并为所有静语者增加120金币",
+                "zh_tw": "第三階段——懲罰階段：未能成功求助的玩家會全場播放音效，清空所有san值和體力值，並為所有靜語者增加120金幣"
+              }
+            ],
+            "color": 16753920
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_broadcast",
+          "parameters": {
+            "title": "skill.noellesroles.silent_killer",
+            "lines": [
+              "skill.noellesroles.silencer.punish"
+            ],
+            "duration": 120
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Stage 3 - Punishment: players who fail to plea trigger a global sound, have all Sanity and stamina drained, and all Silencers gain 120 coins",
+                "zh_cn": "第三阶段——惩罚阶段：未能成功求助的玩家会全场播放音效，清空所有san值和体力值，并为所有静语者增加120金币",
+                "zh_tw": "第三階段——懲罰階段：未能成功求助的玩家會全場播放音效，清空所有san值和體力值，並為所有靜語者增加120金幣"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Stage 3 - Punishment: players who fail to plea trigger a global sound, have all Sanity and stamina drained, and all Silencers gain 120 coins",
+            "zh_cn": "第三阶段——惩罚阶段：未能成功求助的玩家会全场播放音效，清空所有san值和体力值，并为所有静语者增加120金币",
+            "zh_tw": "第三階段——懲罰階段：未能成功求助的玩家會全場播放音效，清空所有san值和體力值，並為所有靜語者增加120金幣"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "When 2 or fewer Civilians remain, your skill skips the plea and punishment stages",
+                "zh_cn": "当场上只剩下小于等于2名平民玩家时，你的技能不会进入求助阶段和惩罚阶段",
+                "zh_tw": "當場上只剩下小於等於2名平民玩家時，你的技能不會進入求助階段和懲罰階段"
+              }
+            ],
+            "color": 16753920
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_broadcast",
+          "parameters": {
+            "title": "skill.noellesroles.silent_killer",
+            "lines": [
+              "skill.noellesroles.silencer.punish"
+            ],
+            "duration": 120
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "When 2 or fewer Civilians remain, your skill skips the plea and punishment stages",
+                "zh_cn": "当场上只剩下小于等于2名平民玩家时，你的技能不会进入求助阶段和惩罚阶段",
+                "zh_tw": "當場上只剩下小於等於2名平民玩家時，你的技能不會進入求助階段和懲罰階段"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 185,
+          "text": {
+            "en_us": "When 2 or fewer Civilians remain, your skill skips the plea and punishment stages",
+            "zh_cn": "当场上只剩下小于等于2名平民玩家时，你的技能不会进入求助阶段和惩罚阶段",
+            "zh_tw": "當場上只剩下小於等於2名平民玩家時，你的技能不會進入求助階段和懲罰階段"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 195
         },
         {
           "type": "text",
@@ -428,7 +579,7 @@
           },
           "point": [
             3.0,
-            2.08,
+            3.2,
             3.0
           ],
           "placeNearTarget": true,

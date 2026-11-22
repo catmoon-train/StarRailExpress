@@ -152,20 +152,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Active skill: lowers the volume of nearby players to 5%",
-                "zh_cn": "主动技能: 将附近一定范围内玩家的音量调至5%",
-                "zh_tw": "主動技能: 將附近一定範圍內玩家的音量調至5%"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -175,7 +161,7 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "wind_yaose_skill_target_0",
+            "linkId": "wind_yaose_wind_target",
             "outline": -8394753
           }
         },
@@ -184,7 +170,7 @@
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -194,50 +180,39 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_walk",
+          "type": "starrailexpress:role_hide",
           "parameters": {
             "linkId": "wind_yaose_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
+            "visible": false
           },
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "wind_yaose_wind_target",
+            "color": 8421504
+          },
+          "attachKeyFrame": true
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Permanently invisible",
+                "zh_cn": "永久隐身",
+                "zh_tw": "永久隱身"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "create_item_entity",
           "pos": [
-            2.2,
-            1.5,
+            2.1,
+            1.55,
             3.0
           ],
           "motion": [
@@ -247,16 +222,48 @@
           ],
           "count": 1,
           "item": "trainmurdermystery:note",
-          "linkId": "wind_yaose_line_item_0",
+          "linkId": "wind_yaose_windball",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:note",
+          "duration": 70,
+          "point": [
+            4.2,
+            2.0,
+            3.0
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_knockback",
+          "parameters": {
+            "linkId": "wind_yaose_wind_target",
+            "from": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "to": [
+              7.0,
+              1.0,
+              2.0
+            ],
+            "duration": 14,
+            "arc": 0.3
+          },
           "attachKeyFrame": true
         },
         {
           "type": "text",
-          "duration": 139,
+          "duration": 77,
           "text": {
-            "en_us": "Active skill: lowers the volume of nearby players to 5%",
-            "zh_cn": "主动技能: 将附近一定范围内玩家的音量调至5%",
-            "zh_tw": "主動技能: 將附近一定範圍內玩家的音量調至5%"
+            "en_us": "Permanently invisible",
+            "zh_cn": "永久隐身",
+            "zh_tw": "永久隱身"
           },
           "point": [
             3.0,
@@ -268,7 +275,75 @@
         },
         {
           "type": "idle",
+          "duration": 87
+        },
+        {
+          "type": "text",
+          "duration": 88,
+          "text": {
+            "en_us": "Has Wind Sprite see-through",
+            "zh_cn": "拥有风精灵透视",
+            "zh_tw": "擁有風精靈透視"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 98
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 139,
+          "text": {
+            "en_us": "Active skill: lowers the volume of nearby players to 5%",
+            "zh_cn": "主动技能: 将附近一定范围内玩家的音量调至5%",
+            "zh_tw": "主動技能: 將附近一定範圍內玩家的音量調至5%"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
           "duration": 149
+        },
+        {
+          "type": "text",
+          "duration": 157,
+          "text": {
+            "en_us": "The shop sells Wind Charges, which knock players in an area away.",
+            "zh_cn": "商店可购买风弹，风弹可将一定范围内的玩家弹开。",
+            "zh_tw": "商店可購買風彈，風彈可將一定範圍內的玩家彈開。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 167
         },
         {
           "type": "rotate_camera_y",

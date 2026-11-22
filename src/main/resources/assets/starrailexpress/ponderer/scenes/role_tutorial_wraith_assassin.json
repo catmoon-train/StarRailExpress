@@ -196,25 +196,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Skill 2 Banshee Wail: costs 110 energy, panics players within 12 blocks for 8s, worsens vision and makes them hear a heartbeat, dropping 25 SAN (not converted to energy); you root 0.5s and burst particles on cast; 50s cd.",
-                "zh_cn": "技能2 厉鬼嚎叫：消耗 110 能量，使 12 格内的非杀手玩家恐慌 8 秒，遭受更强视野干扰并听见心跳，掉落 25 SAN（不转化能量）；施放时自身定身 0.5 秒并爆发粒子；冷却 50 秒。",
-                "zh_tw": "技能2 厲鬼嚎叫：消耗 110 能量，使 12 格內的非殺手玩家恐慌 8 秒，遭受更強視野干擾並聽見心跳，掉落 25 SAN（不轉化能量）；施放時自身定身 0.5 秒並爆發粒子；冷卻 50 秒。"
-              },
-              {
-                "en_us": "Skill 3 Manifest: costs 320 energy, appear before everyone for 15s; Wraith Rush strengthens and you can be attacked; 110s cd.",
-                "zh_cn": "技能3 冤魂显现：消耗 320 能量，显现在所有人面前 15 秒，期间冤魂突袭强化且可被任意玩家攻击；冷却 110 秒。",
-                "zh_tw": "技能3 冤魂顯現：消耗 320 能量，顯現在所有人面前 15 秒，期間冤魂突襲強化且可被任意玩家攻擊；冷卻 110 秒。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -224,7 +205,7 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "wraith_assassin_skill_target_0",
+            "linkId": "wraith_assassin_wraith_target",
             "outline": 4281110015
           }
         },
@@ -233,7 +214,7 @@
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -243,43 +224,20 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "starrailexpress:role_timer",
+          "type": "starrailexpress:role_hide",
           "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "Skill 2 Banshee Wail: costs 110 energy, panics players within 12 blocks for 8s, worsens vision and makes them hear a heartbeat, dropping 25 SAN (not converted to energy); you root 0.5s and burst particles on cast; 50s cd.",
-                "zh_cn": "技能2 厉鬼嚎叫：消耗 110 能量，使 12 格内的非杀手玩家恐慌 8 秒，遭受更强视野干扰并听见心跳，掉落 25 SAN（不转化能量）；施放时自身定身 0.5 秒并爆发粒子；冷却 50 秒。",
-                "zh_tw": "技能2 厲鬼嚎叫：消耗 110 能量，使 12 格內的非殺手玩家恐慌 8 秒，遭受更強視野干擾並聽見心跳，掉落 25 SAN（不轉化能量）；施放時自身定身 0.5 秒並爆發粒子；冷卻 50 秒。"
-              }
-            ]
+            "linkId": "wraith_assassin_main",
+            "visible": false
           },
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 40
-        },
-        {
           "type": "spawn_particles",
-          "particle": "minecraft:soul_fire_flame",
+          "particle": "minecraft:dust",
           "pos": [
-            3.0,
-            1.9,
-            3.0
+            5.0,
+            2.0,
+            2.0
           ],
           "distribution": "box",
           "spread": [
@@ -287,7 +245,7 @@
             0.6,
             0.35
           ],
-          "count": 8,
+          "count": 12,
           "duration": 60,
           "motion": [
             0,
@@ -296,29 +254,96 @@
           ]
         },
         {
-          "type": "create_item_entity",
+          "type": "spawn_particles",
+          "particle": "minecraft:soul_fire_flame",
           "pos": [
-            2.2,
-            1.5,
+            3.0,
+            2.0,
             3.0
           ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
           ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "wraith_assassin_line_item_0",
+          "count": 10,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:entity.warden.sonic_boom",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "wraith_assassin_main",
+            "to": [
+              4.2,
+              1.0,
+              2.0
+            ],
+            "duration": 30
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "wraith_assassin_wraith_target",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "You hide in a dimension of torment. While unseen, only Killer partners and players with SAN<40 can see/hear you; you can't pick up items, hold nothing visible, have no collision, and can't use items on players. The Wraith's SAN cap is 1000.",
+                "zh_cn": "你隐于痛苦的维度。未显现时，只有杀手同伴和 SAN<40 的玩家能看见/听见你；你无法拾取物品，手持物不会显示，并且没有碰撞，无法对玩家使用物品。你的能量上限为 1000。",
+                "zh_tw": "你隱於痛苦的維度。未顯現時，只有殺手同伴和 SAN<40 的玩家能看見/聽見你；你無法拾取物品，手持物不會顯示，並且沒有碰撞，無法對玩家使用物品。你的能量上限為 1000。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
+            "lines": [
+              {
+                "en_us": "Shop: buy energy with coins; buy a cheap lockpick (lockpick property, 15s cd after each unlock); buy a skill: absorb up to 20 SAN from each non-Killer within 7 blocks as energy (max 25 per tick), 30s cd after.",
+                "zh_cn": "商店：可以用金币购买能量；可以购买劣质开锁器（拥有开锁器特性，每次开锁后冷却 15 秒）；可以购买技能：吸收 7 格内每名非杀手玩家最多 20 SAN 作为能量（单次最多 25 能量），吸收后冷却 30 秒。",
+                "zh_tw": "商店：可以用金幣購買能量；可以購買劣質開鎖器（擁有開鎖器特性，每次開鎖後冷卻 15 秒）；可以購買技能：吸收 7 格內每名非殺手玩家最多 20 SAN 作為能量（單次最多 25 能量），吸收後冷卻 30 秒。"
+              }
+            ]
+          },
           "attachKeyFrame": true
         },
         {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "Skill 2 Banshee Wail: costs 110 energy, panics players within 12 blocks for 8s, worsens vision and makes them hear a heartbeat, dropping 25 SAN (not converted to energy); you root 0.5s and burst particles on cast; 50s cd.",
-            "zh_cn": "技能2 厉鬼嚎叫：消耗 110 能量，使 12 格内的非杀手玩家恐慌 8 秒，遭受更强视野干扰并听见心跳，掉落 25 SAN（不转化能量）；施放时自身定身 0.5 秒并爆发粒子；冷却 50 秒。",
-            "zh_tw": "技能2 厲鬼嚎叫：消耗 110 能量，使 12 格內的非殺手玩家恐慌 8 秒，遭受更強視野干擾並聽見心跳，掉落 25 SAN（不轉化能量）；施放時自身定身 0.5 秒並爆發粒子；冷卻 50 秒。"
+            "en_us": "You hide in a dimension of torment. While unseen, only Killer partners and players with SAN<40 can see/hear you; you can't pick up items, hold nothing visible, have no collision, and can't use items on players. The Wraith's SAN cap is 1000.",
+            "zh_cn": "你隐于痛苦的维度。未显现时，只有杀手同伴和 SAN<40 的玩家能看见/听见你；你无法拾取物品，手持物不会显示，并且没有碰撞，无法对玩家使用物品。你的能量上限为 1000。",
+            "zh_tw": "你隱於痛苦的維度。未顯現時，只有殺手同伴和 SAN<40 的玩家能看見/聽見你；你無法拾取物品，手持物不會顯示，並且沒有碰撞，無法對玩家使用物品。你的能量上限為 1000。"
           },
           "point": [
             3.0,
@@ -333,68 +358,100 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "wraith_assassin_skill_target_1",
-            "outline": 4281110015
-          }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Passive: non-Killers within 5 blocks lose 6 SAN every 10s, converted to your energy (max 25 per tick).",
+            "zh_cn": "被动：周围 5 格内非杀手玩家每 10 秒掉落 6 SAN，并转化为你的能量（单次最多 25 能量）。",
+            "zh_tw": "被動：周圍 5 格內非殺手玩家每 10 秒掉落 6 SAN，並轉化為你的能量（單次最多 25 能量）。"
           },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
           "blockPos": [
             3,
             0,
             3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Shop: buy energy with coins; buy a cheap lockpick (lockpick property, 15s cd after each unlock); buy a skill: absorb up to 20 SAN from each non-Killer within 7 blocks as energy (max 25 per tick), 30s cd after.",
+            "zh_cn": "商店：可以用金币购买能量；可以购买劣质开锁器（拥有开锁器特性，每次开锁后冷却 15 秒）；可以购买技能：吸收 7 格内每名非杀手玩家最多 20 SAN 作为能量（单次最多 25 能量），吸收后冷却 30 秒。",
+            "zh_tw": "商店：可以用金幣購買能量；可以購買劣質開鎖器（擁有開鎖器特性，每次開鎖後冷卻 15 秒）；可以購買技能：吸收 7 格內每名非殺手玩家最多 20 SAN 作為能量（單次最多 25 能量），吸收後冷卻 30 秒。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
           ],
-          "duration": 220,
-          "color": "blue"
+          "placeNearTarget": true,
+          "attachKeyFrame": true
         },
         {
           "type": "idle",
-          "duration": 40
+          "duration": 200
         },
         {
-          "type": "spawn_particles",
-          "particle": "minecraft:soul_fire_flame",
-          "pos": [
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skill 1 Wraith Rush: costs 40 energy, dash forward physically, only hitting SAN<20 players. On hit the target floats 2s (skill/movement/use sealed); when the float ends, they burst into redstone particles and die. When manifested, dash speed/range improve and you can hit everyone.",
+            "zh_cn": "技能1 冤魂突袭：消耗 40 能量，向前物理冲刺，仅命中 SAN<20 的玩家。命中后目标进入 2 秒漂浮状态，期间承受技能封印、移动封印、使用封印；漂浮结束后爆发红石粒子死亡。显现状态下冲刺速度与距离强化，且可命中所有玩家。",
+            "zh_tw": "技能1 冤魂突襲：消耗 40 能量，向前物理衝刺，僅命中 SAN<20 的玩家。命中後目標進入 2 秒漂浮狀態，期間承受技能封印、移動封印、使用封印；漂浮結束後爆發紅石粒子死亡。顯現狀態下衝刺速度與距離強化，且可命中所有玩家。"
+          },
+          "point": [
             3.0,
-            1.9,
+            2.64,
             3.0
           ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 60,
-          "motion": [
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
             0,
-            0.04,
-            0
+            3
           ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Skill 2 Banshee Wail: costs 110 energy, panics players within 12 blocks for 8s, worsens vision and makes them hear a heartbeat, dropping 25 SAN (not converted to energy); you root 0.5s and burst particles on cast; 50s cd.",
+            "zh_cn": "技能2 厉鬼嚎叫：消耗 110 能量，使 12 格内的非杀手玩家恐慌 8 秒，遭受更强视野干扰并听见心跳，掉落 25 SAN（不转化能量）；施放时自身定身 0.5 秒并爆发粒子；冷却 50 秒。",
+            "zh_tw": "技能2 厲鬼嚎叫：消耗 110 能量，使 12 格內的非殺手玩家恐慌 8 秒，遭受更強視野干擾並聽見心跳，掉落 25 SAN（不轉化能量）；施放時自身定身 0.5 秒並爆發粒子；冷卻 50 秒。"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
         },
         {
           "type": "text",
@@ -406,7 +463,7 @@
           },
           "point": [
             3.0,
-            2.08,
+            3.2,
             3.0
           ],
           "placeNearTarget": true,

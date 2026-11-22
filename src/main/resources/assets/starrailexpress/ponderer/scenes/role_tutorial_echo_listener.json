@@ -152,9 +152,73 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "echo_listener_sonic_target",
+            "outline": -11637126
+          }
+        },
+        {
+          "type": "starrailexpress:role_ambience",
+          "parameters": {
+            "color": 2236962,
+            "alpha": 0.7,
+            "mode": "blind"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You're permanently blind-seeing; you only become visible when sound reaches nearby areas, and players making sound glow to you.",
+            "zh_cn": "你全程处于盲视，只有声音传播到附近区域时才可见；发出声音的玩家会对你发光。",
+            "zh_tw": "你全程處於盲視，只有聲音傳播到附近區域時才可見；發出聲音的玩家會對你發光。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.5
+            ],
             "lines": [
               {
                 "en_us": "Use a sound wave at a player, costing 50 coins, 30s cd; the hit glows 12s, can't use skills and gets Slowness II.",
@@ -166,42 +230,32 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "echo_listener_skill_target_0",
-            "outline": -11637126
-          }
+          "type": "play_sound",
+          "sound": "minecraft:entity.warden.sonic_boom",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
         },
         {
-          "type": "starrailexpress:role_key",
+          "type": "starrailexpress:role_outline",
           "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
+            "linkId": "echo_listener_sonic_target",
+            "color": 16777096
           },
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Glowing, skill-banned, slowness II",
+                "zh_cn": "发光 · 禁技 · 缓慢 II",
+                "zh_tw": "發光 · 禁技 · 緩慢 II"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_timer",
@@ -222,24 +276,7 @@
         },
         {
           "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "echo_listener_line_item_0",
-          "attachKeyFrame": true
+          "duration": 25
         },
         {
           "type": "text",
@@ -251,7 +288,145 @@
           },
           "point": [
             3.0,
-            1.8,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.5
+            ],
+            "lines": [
+              {
+                "en_us": "Gain 5 coins every 5s, plus 50 per task.",
+                "zh_cn": "每5秒获得5金币，每完成一个任务额外获得50金币。",
+                "zh_tw": "每5秒獲得5金幣，每完成一個任務額外獲得50金幣。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:entity.warden.sonic_boom",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "echo_listener_sonic_target",
+            "color": 16777096
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 112,
+          "text": {
+            "en_us": "Gain 5 coins every 5s, plus 50 per task.",
+            "zh_cn": "每5秒获得5金币，每完成一个任务额外获得50金币。",
+            "zh_tw": "每5秒獲得5金幣，每完成一個任務額外獲得50金幣。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 122
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "echo_listener_main",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "corpse": false,
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "echo_listener_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "On death, respawn in your room after 60s; Killers earn only half base coins for killing you.",
+                "zh_cn": "死亡后会于60秒后在在房间重生；杀手击杀你时只获得一半基础金币。",
+                "zh_tw": "死亡後會於60秒後在在房間重生；殺手擊殺你時只獲得一半基礎金幣。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "On death, respawn in your room after 60s; Killers earn only half base coins for killing you.",
+            "zh_cn": "死亡后会于60秒后在在房间重生；杀手击杀你时只获得一半基础金币。",
+            "zh_tw": "死亡後會於60秒後在在房間重生；殺手擊殺你時只獲得一半基礎金幣。"
+          },
+          "point": [
+            3.0,
+            2.64,
             3.0
           ],
           "placeNearTarget": true,

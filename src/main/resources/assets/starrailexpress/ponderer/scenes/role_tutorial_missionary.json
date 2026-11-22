@@ -124,20 +124,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Click a player's avatar in your inventory to proselytize them, boosting their meeting vote weight (60s starting cd, 80s skill cd).",
-                "zh_cn": "在背包中点击玩家头像可以传教，增加其会议的投票权重（开局60秒冷却，技能冷却80秒）。",
-                "zh_tw": "在背包中點擊玩家頭像可以傳教，增加其會議的投票權重（開局60秒冷卻，技能冷卻80秒）。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -147,8 +133,8 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "missionary_skill_target_0",
-            "outline": -65536
+            "linkId": "missionary_flock",
+            "outline": 8421504
           }
         },
         {
@@ -156,7 +142,7 @@
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -166,22 +152,13 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "starrailexpress:role_timer",
+          "type": "starrailexpress:role_panel",
           "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
+            "title": {
+              "en_us": "Backpack heads",
+              "zh_cn": "背包头像",
+              "zh_tw": "背包頭像"
+            },
             "lines": [
               {
                 "en_us": "Click a player's avatar in your inventory to proselytize them, boosting their meeting vote weight (60s starting cd, 80s skill cd).",
@@ -190,27 +167,6 @@
               }
             ]
           },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "missionary_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -232,6 +188,103 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "parameters": {
+            "linkId": "missionary_flock",
+            "color": 16753920,
+            "lines": [
+              {
+                "en_us": "Proselytized players count as +1 vote (>24 alive: +2), stacking on their base weight.",
+                "zh_cn": "被传教的玩家在投票时视为+1票（存活玩家>24人时视为+2票），叠加在原有的投票权重之上。",
+                "zh_tw": "被傳教的玩家在投票時視為+1票（存活玩家>24人時視為+2票），疊加在原有的投票權重之上。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Proselytized players count as +1 vote (>24 alive: +2), stacking on their base weight.",
+            "zh_cn": "被传教的玩家在投票时视为+1票（存活玩家>24人时视为+2票），叠加在原有的投票权重之上。",
+            "zh_tw": "被傳教的玩家在投票時視為+1票（存活玩家>24人時視為+2票），疊加在原有的投票權重之上。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "parameters": {
+            "linkId": "missionary_flock",
+            "lines": [
+              {
+                "en_us": "Switching the target removes the bonus from the old one.",
+                "zh_cn": "切换传教目标时，旧目标的额外投票加成会被移除。",
+                "zh_tw": "切換傳教目標時，舊目標的額外投票加成會被移除。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 140,
+          "text": {
+            "en_us": "Switching the target removes the bonus from the old one.",
+            "zh_cn": "切换传教目标时，旧目标的额外投票加成会被移除。",
+            "zh_tw": "切換傳教目標時，舊目標的額外投票加成會被移除。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 150
         },
         {
           "type": "rotate_camera_y",

@@ -196,25 +196,25 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Press the skill key for 10s of Levitation II. 60s cooldown.",
-                "zh_cn": "按下技能键获得10s漂浮II效果。冷却60s。",
-                "zh_tw": "按下技能鍵獲得10s漂浮II效果。冷卻60s。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "hoan_meirin_punch_target",
+            "outline": -815996
+          }
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -224,21 +224,34 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "title": {
+              "en_us": "Levitation II",
+              "zh_cn": "漂浮 II",
+              "zh_tw": "漂浮 II"
+            },
+            "bars": [
+              {
+                "label": {
+                  "en_us": "Levitation",
+                  "zh_cn": "漂浮",
+                  "zh_tw": "漂浮"
+                },
+                "before": 0.0,
+                "after": 1.0,
+                "color": 16753920
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_timer",
           "parameters": {
             "progress": [
-              0.0,
-              1.0
+              1.0,
+              0.0
             ],
             "lines": [
               {
@@ -248,27 +261,6 @@
               }
             ]
           },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "hoan_meirin_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -296,7 +288,64 @@
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "title": {
+              "en_us": "Cancel",
+              "zh_cn": "关闭漂浮",
+              "zh_tw": "關閉漂浮"
+            },
+            "bars": [
+              {
+                "label": {
+                  "en_us": "Levitation",
+                  "zh_cn": "漂浮",
+                  "zh_tw": "漂浮"
+                },
+                "before": 1.0,
+                "after": 0.0,
+                "color": 8421504
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 160,
+          "text": {
+            "en_us": "Hitting the same person 5 times kills them. Has cerebellum penalty.",
+            "zh_cn": "揍同一人5次会使其死亡。有小脑惩罚。",
+            "zh_tw": "揍同一人5次會使其死亡。有小腦懲罰。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 170
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -310,52 +359,49 @@
           "parameters": {
             "linkId": "hoan_meirin_main",
             "to": [
-              4.1,
+              4.2,
               1.0,
               2.0
             ],
-            "duration": 40
+            "duration": 32
           },
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
+          "type": "starrailexpress:role_teleport",
+          "parameters": {
+            "linkId": "hoan_meirin_punch_target",
+            "pos": [
+              6.8,
+              1.0,
+              2.0
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "hoan_meirin_punch_target",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "text",
-          "duration": 128,
+          "duration": 108,
           "text": {
-            "en_us": "During this, press the skill key again to end it.",
-            "zh_cn": "期间可再次按下技能键关闭技能。",
-            "zh_tw": "期間可再次按下技能鍵關閉技能。"
+            "en_us": "You start with one layer of Qi Shield.",
+            "zh_cn": "你默认拥有一层气盾。",
+            "zh_tw": "你默認擁有一層氣盾。"
           },
           "point": [
             3.0,
-            2.08,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,
@@ -363,34 +409,117 @@
         },
         {
           "type": "idle",
-          "duration": 138
+          "duration": 118
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "parameters": {
+            "bars": [
+              {
+                "label": {
+                  "en_us": "Air shield",
+                  "zh_cn": "气盾",
+                  "zh_tw": "氣盾"
+                },
+                "before": 0.0,
+                "after": 1.0,
+                "color": -16776961
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Shields you gain from the Bartender are Qi Shields; when a Qi Shield breaks, it knocks back nearby people",
+            "zh_cn": "你通过酒保获得的盾为气盾，气盾被打破后会击退周围人",
+            "zh_tw": "你通過酒保獲得的盾為氣盾，氣盾被打破後會擊退周圍人"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
+            "lines": [
+              {
+                "en_us": "Passive - Fear of Loneliness: if no one is within 5 blocks of you, you die after 60s.",
+                "zh_cn": "被动-惧怕孤独：如果你周围5格内没人，你将在60s后死去。",
+                "zh_tw": "被動-懼怕孤獨：如果你周圍5格內沒人，你將在60s後死去。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "hoan_meirin_main",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "corpse": false
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
             "pos": [
-              5.0,
+              3.0,
               1.0,
-              2.0
+              3.0
             ],
             "yaw": 180.0,
-            "linkId": "hoan_meirin_death_target_2",
-            "outline": -815996
+            "linkId": "hoan_meirin_main"
           }
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "hoan_meirin_death_target_2",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -402,7 +531,7 @@
           },
           "point": [
             3.0,
-            2.36,
+            2.92,
             3.0
           ],
           "placeNearTarget": true,

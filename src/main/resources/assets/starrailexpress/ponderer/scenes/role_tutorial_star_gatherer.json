@@ -346,52 +346,39 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Star gravity: usable only twice per match; after channelling for 5 seconds it pulls all metal items out of the hotbars of non-passenger players within a 16 block radius (each pull discards surplus duplicates).",
-                "zh_cn": "星之引力:一局仅能释放2次，吟唱 5 秒后吸走半径 16 格内所有非平民阵营玩家快捷栏里的金属物品(每次吸取会直接丢弃多余的重复物品)",
-                "zh_tw": "星之引力:一局僅能釋放2次，吟唱 5 秒後吸走半徑 16 格內所有非平民陣營玩家快捷欄裏的金屬物品(每次吸取會直接丟棄多餘的重複物品)"
-              }
-            ]
-          },
-          "attachKeyFrame": true
+            "pos": [
+              3.0,
+              1.0,
+              4.0
+            ],
+            "yaw": 180.0,
+            "linkId": "star_gatherer_star_target",
+            "outline": 16753920
+          }
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
             "duration": 60,
-            "keyBind": "next_ability",
-            "text": "ponder.starrailexpress.ponder.press_next_ability"
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
           "type": "create_item_entity",
           "pos": [
-            2.2,
-            1.5,
-            3.0
+            2.0,
+            1.55,
+            2.1
           ],
           "motion": [
             0.0,
@@ -400,7 +387,246 @@
           ],
           "count": 1,
           "item": "noellesroles:star_scepter",
-          "linkId": "star_gatherer_line_item_0",
+          "linkId": "star_gatherer_scepter",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:portal",
+          "pos": [
+            3.0,
+            2.0,
+            4.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 10,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "star_gatherer_star_target",
+            "pos": [
+              3.0,
+              1.0,
+              4.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Passive \"star halo\": grants tidal energy and domain sanctuary to every player within a 6 block radius; the sanctuary is removed immediately when you die.",
+            "zh_cn": "被动「星之光环」：让半径 6 格内的所有玩家获得潮涌能量与领域庇护效果；自己阵亡时庇护效果立即解除。",
+            "zh_tw": "被動「星之光環」：讓半徑 6 格內的所有玩家獲得潮湧能量與領域庇護效果；自己陣亡時庇護效果立即解除。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.0,
+            1.55,
+            2.1
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:star_scepter",
+          "linkId": "star_gatherer_scepter",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:portal",
+          "pos": [
+            3.0,
+            2.0,
+            4.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 10,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "star_gatherer_star_target",
+            "pos": [
+              3.0,
+              1.0,
+              4.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Starts with the Star Scepter: aim at a target within 35 blocks and after 2 seconds a wall-piercing homing star is released at them, with the cause of death \"star\".",
+            "zh_cn": "开局自带星之权杖：瞄准 35 格内目标，2 秒后释放一颗能穿墙的追踪星星并砸向他，死因为「星星」。",
+            "zh_tw": "開局自帶星之權杖：瞄準 35 格內目標，2 秒後釋放一顆能穿牆的追蹤星星並砸向他，死因為「星星」。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.0,
+            1.55,
+            2.1
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:star_scepter",
+          "linkId": "star_gatherer_scepter",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:portal",
+          "pos": [
+            3.0,
+            2.0,
+            4.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 10,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "star_gatherer_star_target",
+            "pos": [
+              3.0,
+              1.0,
+              4.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 158,
+          "text": {
+            "en_us": "After the Star Gatherer dies the Star Scepter drops as a revolver.",
+            "zh_cn": "摘星者阵亡后星之权杖会掉落为左轮手枪。",
+            "zh_tw": "摘星者陣亡後星之權杖會掉落為左輪手槍。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 168
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "next_ability",
+            "text": "ponder.starrailexpress.ponder.press_next_ability"
+          },
           "attachKeyFrame": true
         },
         {
@@ -413,7 +639,7 @@
           },
           "point": [
             3.0,
-            1.8,
+            2.64,
             3.0
           ],
           "placeNearTarget": true,
@@ -424,25 +650,11 @@
           "duration": 138
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              4.0
-            ],
-            "yaw": 180.0,
-            "linkId": "star_gatherer_skill_target_1",
-            "outline": -6516
-          }
-        },
-        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -452,14 +664,99 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
+          "type": "starrailexpress:role_domain",
+          "parameters": {
+            "title": {
+              "en_us": "Aura enhanced",
+              "zh_cn": "庇护强化",
+              "zh_tw": "庇護強化"
+            },
+            "hint": {
+              "en_us": "Aura out to 10 blocks for 30s",
+              "zh_cn": "光环扩至 10 格 · 30 秒",
+              "zh_tw": "光環擴至 10 格 · 30 秒"
+            },
+            "remaining": 30
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:end_rod",
+          "pos": [
+            3.0,
+            2.0,
+            3.0
           ],
-          "duration": 220,
-          "color": "blue"
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 12,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 189,
+          "text": {
+            "en_us": "Sanctuary boost: the halo's protection expands to a 10 block radius for 30 seconds.",
+            "zh_cn": "庇护强化: 光环庇护效果扩展至半径 10 格持续 30 秒",
+            "zh_tw": "庇護強化: 光環庇護效果擴展至半徑 10 格持續 30 秒"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 199
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:electric_spark",
+          "pos": [
+            3.0,
+            2.0,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 14,
+          "duration": 70,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
         },
         {
           "type": "starrailexpress:role_timer",
@@ -479,32 +776,6 @@
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:end_rod",
-          "pos": [
-            3.0,
-            1.9,
-            3.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 60,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -514,7 +785,7 @@
           },
           "point": [
             3.0,
-            2.08,
+            3.2,
             3.0
           ],
           "placeNearTarget": true,
@@ -523,6 +794,20 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_player",
@@ -534,85 +819,9 @@
               4.0
             ],
             "yaw": 180.0,
-            "linkId": "star_gatherer_skill_target_2",
-            "outline": -6516
+            "linkId": "star_gatherer_alms_receiver",
+            "heldItem": "minecraft:trident"
           }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "star_gatherer_main",
-            "to": [
-              2.1,
-              1.0,
-              4.0
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            4
-          ],
-          "blockPos2": [
-            3,
-            0,
-            4
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:end_rod",
-          "pos": [
-            3.0,
-            1.9,
-            4.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 6,
-          "duration": 50,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            4
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
         },
         {
           "type": "text",
@@ -624,7 +833,7 @@
           },
           "point": [
             3.0,
-            2.36,
+            3.48,
             3.0
           ],
           "placeNearTarget": true,

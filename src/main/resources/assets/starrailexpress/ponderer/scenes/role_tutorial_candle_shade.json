@@ -152,20 +152,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Skill \"light up\": lights up every unobstructed living player within 14 blocks in front of you for 8 seconds. When the target looks at you within 10 blocks they blow out their own candle and you are blinded for 1 second. Cooldown 18 seconds.",
-                "zh_cn": "技能点灯：点亮前方14格内所有无遮挡的存活玩家8秒。对方在10格内看着你时会吹灭自己的烛火，你会获得1秒失明。冷却18秒。",
-                "zh_tw": "技能點燈：點亮前方14格內所有無遮擋的存活玩家8秒。對方在10格內看著你時會吹滅自己的燭火，你會獲得1秒失明。冷卻18秒。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -175,16 +161,43 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "candle_shade_skill_target_0",
-            "outline": -27096
+            "linkId": "candle_shade_lit",
+            "outline": 4294955640
           }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              6.2,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "candle_shade_shade_victim",
+            "outline": 8421504
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "candle_shade_shade_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -194,52 +207,32 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "candle_shade_lit",
+            "color": 4294955640
+          },
+          "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_timer",
+          "type": "starrailexpress:role_effects",
           "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
             "lines": [
               {
-                "en_us": "Skill \"light up\": lights up every unobstructed living player within 14 blocks in front of you for 8 seconds. When the target looks at you within 10 blocks they blow out their own candle and you are blinded for 1 second. Cooldown 18 seconds.",
-                "zh_cn": "技能点灯：点亮前方14格内所有无遮挡的存活玩家8秒。对方在10格内看着你时会吹灭自己的烛火，你会获得1秒失明。冷却18秒。",
-                "zh_tw": "技能點燈：點亮前方14格內所有無遮擋的存活玩家8秒。對方在10格內看著你時會吹滅自己的燭火，你會獲得1秒失明。冷卻18秒。"
+                "en_us": "Target glows for 8 seconds",
+                "zh_cn": "目标发光 8 秒",
+                "zh_tw": "目標發光 8 秒"
               }
             ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:lamp_oil",
-          "linkId": "candle_shade_line_item_0",
-          "attachKeyFrame": true
+          "type": "play_sound",
+          "sound": "minecraft:item.firecharge.use",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
         },
         {
           "type": "text",
@@ -260,6 +253,161 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 189,
+          "text": {
+            "en_us": "After hitting a player: you become cloaked for 10 seconds and gain a brief Speed V.",
+            "zh_cn": "命中玩家后：自身隐身10秒，并获得短暂的速度Ⅴ。",
+            "zh_tw": "命中玩家後：自身隱身10秒，並獲得短暫的速度Ⅴ。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 199
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "candle_shade_main",
+            "item": "noellesroles:lamp_oil"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Candle oil: extends the remaining candle glow by 4 seconds.",
+                "zh_cn": "灯油：使所有剩余烛火延长4秒发光效果。",
+                "zh_tw": "燈油：使所有剩餘燭火延長4秒發光效果。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 146,
+          "text": {
+            "en_us": "Candle oil: extends the remaining candle glow by 4 seconds.",
+            "zh_cn": "灯油：使所有剩余烛火延长4秒发光效果。",
+            "zh_tw": "燈油：使所有剩餘燭火延長4秒發光效果。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 156
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "candle_shade_lit",
+            "color": 4294955640
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Target glows for 8 seconds",
+                "zh_cn": "目标发光 8 秒",
+                "zh_tw": "目標發光 8 秒"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:item.firecharge.use",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "text",
+          "duration": 182,
+          "text": {
+            "en_us": "Candle shears: can only kill players who are lit up and are not looking at you.",
+            "zh_cn": "烛剪：只能击杀被点亮且没看着你的玩家。",
+            "zh_tw": "燭剪：只能擊殺被點亮且沒看著你的玩家。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 192
         },
         {
           "type": "rotate_camera_y",

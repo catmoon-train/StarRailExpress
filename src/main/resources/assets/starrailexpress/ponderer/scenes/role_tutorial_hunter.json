@@ -124,20 +124,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "The bow enters a 5-second cooldown after killing a player",
-                "zh_cn": "弓在击杀玩家后进入5秒冷却",
-                "zh_tw": "弓在擊殺玩家後進入5秒冷卻"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -147,18 +133,79 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "hunter_skill_target_0",
+            "linkId": "hunter_hunter_target",
             "outline": -6270419
           }
         },
         {
-          "type": "idle",
-          "duration": 15
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "hunter_main",
+            "item": "minecraft:bow"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "minecraft:bow",
+          "duration": 70,
+          "point": [
+            4.2,
+            2.0,
+            3.0
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "hunter_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            5.0,
+            1.6,
+            2.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "minecraft:tipped_arrow",
+          "linkId": "hunter_arrow",
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_death",
           "parameters": {
-            "linkId": "hunter_skill_target_0",
+            "linkId": "hunter_hunter_target",
             "pos": [
               5.0,
               1.0,
@@ -169,41 +216,29 @@
           "attachKeyFrame": true
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 30
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "hunter_line_item_0",
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Starts with a Bow; the shop sells Poison Arrows",
+                "zh_cn": "开局自带一把弓，商店中可购买毒箭",
+                "zh_tw": "開局自帶一把弓，商店中可購買毒箭"
+              }
+            ]
+          },
           "attachKeyFrame": true
         },
         {
           "type": "text",
-          "duration": 142,
+          "duration": 124,
           "text": {
-            "en_us": "The bow enters a 5-second cooldown after killing a player",
-            "zh_cn": "弓在击杀玩家后进入5秒冷却",
-            "zh_tw": "弓在擊殺玩家後進入5秒冷卻"
+            "en_us": "Starts with a Bow; the shop sells Poison Arrows",
+            "zh_cn": "开局自带一把弓，商店中可购买毒箭",
+            "zh_tw": "開局自帶一把弓，商店中可購買毒箭"
           },
           "point": [
             3.0,
@@ -215,7 +250,75 @@
         },
         {
           "type": "idle",
+          "duration": 134
+        },
+        {
+          "type": "text",
+          "duration": 142,
+          "text": {
+            "en_us": "The bow enters a 5-second cooldown after killing a player",
+            "zh_cn": "弓在击杀玩家后进入5秒冷却",
+            "zh_tw": "弓在擊殺玩家後進入5秒冷卻"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
           "duration": 152
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 115,
+          "text": {
+            "en_us": "Every 3 kills grants an extra Poison Arrow",
+            "zh_cn": "每击杀3个玩家会额外获得一根毒箭",
+            "zh_tw": "每擊殺3個玩家會額外獲得一根毒箭"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 125
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "On death, gives every other Killer-team member (including Killer-side neutrals and the Magician) a random horse",
+            "zh_cn": "死亡时会给予其它杀手阵营(含杀手方中立、魔术师)每人一匹随机的马",
+            "zh_tw": "死亡時會給予其他殺手陣營(含殺手方中立、魔術師)每人一匹隨機的馬"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
         },
         {
           "type": "rotate_camera_y",

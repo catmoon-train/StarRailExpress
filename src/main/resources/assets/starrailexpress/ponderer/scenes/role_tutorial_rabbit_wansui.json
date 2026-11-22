@@ -152,14 +152,78 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "rabbit_wansui_bunny",
+            "outline": 4294966781
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              4.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
             "lines": [
               {
-                "en_us": "You can use the skill to become a Rabbit at any time.",
-                "zh_cn": "你可以随时使用技能变成兔兔。",
-                "zh_tw": "你可以隨時使用技能變成兔兔。"
+                "en_us": "You win when all players have become Rabbits.",
+                "zh_cn": "当所有玩家均变成兔兔时你获胜。",
+                "zh_tw": "當所有玩家均變成兔兔時你獲勝。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_scale",
+          "parameters": {
+            "linkId": "rabbit_wansui_bunny",
+            "scale": 0.6
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "rabbit_wansui_bunny",
+            "pose": "crouching"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
+            "lines": [
+              {
+                "en_us": "After being turned into a Rabbit, a player cannot act for 5s and cannot speak for 30s.",
+                "zh_cn": "玩家被变为兔兔后将会在5s内无法行动，30s内无法说话。",
+                "zh_tw": "玩家被變為兔兔後將會在5s內無法行動，30s內無法說話。"
               }
             ]
           },
@@ -170,7 +234,7 @@
           "parameters": {
             "point": [
               4.0,
-              2.9,
+              3.25,
               3.0
             ],
             "direction": "down",
@@ -180,61 +244,141 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_walk",
+          "type": "starrailexpress:role_scale",
           "parameters": {
             "linkId": "rabbit_wansui_main",
-            "to": [
-              5.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
+            "scale": 0.6
           },
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            6,
-            0,
-            2
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "rabbit_wansui_main",
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_broadcast",
+          "parameters": {
+            "title": {
+              "en_us": "All rabbits",
+              "zh_cn": "全员兔兔",
+              "zh_tw": "全員兔兔"
+            },
+            "lines": [
+              {
+                "en_us": "After you die, players turned into Rabbits revert to normal.",
+                "zh_cn": "你死后变为兔兔的玩家将会恢复原状。",
+                "zh_tw": "你死後變為兔兔的玩家將會恢復原狀。"
+              }
+            ],
+            "cost": 0,
+            "duration": 130
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 173,
+          "text": {
+            "en_us": "Use the skill to spend 25 coin and turn players on the train into Rabbits!",
+            "zh_cn": "使用技能花费25金币将列车上的玩家变为兔兔！",
+            "zh_tw": "使用技能花費25金幣將列車上的玩家變為兔兔！"
+          },
+          "point": [
+            4.0,
+            1.8,
+            3.0
           ],
-          "blockPos2": [
-            6,
-            0,
-            2
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 183
+        },
+        {
+          "type": "text",
+          "duration": 121,
+          "text": {
+            "en_us": "You win when all players have become Rabbits.",
+            "zh_cn": "当所有玩家均变成兔兔时你获胜。",
+            "zh_tw": "當所有玩家均變成兔兔時你獲勝。"
+          },
+          "point": [
+            4.0,
+            2.08,
+            3.0
           ],
-          "duration": 200,
-          "color": "green"
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 131
         },
         {
           "type": "indicate_success",
           "blockPos": [
-            6,
+            4,
             0,
-            2
+            3
           ]
         },
         {
-          "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            3.2,
-            1.5,
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "After being turned into a Rabbit, a player cannot act for 5s and cannot speak for 30s.",
+            "zh_cn": "玩家被变为兔兔后将会在5s内无法行动，30s内无法说话。",
+            "zh_tw": "玩家被變為兔兔後將會在5s內無法行動，30s內無法說話。"
+          },
+          "point": [
+            4.0,
+            2.36,
             3.0
           ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "rabbit_wansui_line_item_0",
+          "placeNearTarget": true,
           "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 148,
+          "text": {
+            "en_us": "After you die, players turned into Rabbits revert to normal.",
+            "zh_cn": "你死后变为兔兔的玩家将会恢复原状。",
+            "zh_tw": "你死後變為兔兔的玩家將會恢復原狀。"
+          },
+          "point": [
+            4.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 158
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            4,
+            0,
+            3
+          ]
         },
         {
           "type": "text",
@@ -246,7 +390,7 @@
           },
           "point": [
             4.0,
-            1.8,
+            2.92,
             3.0
           ],
           "placeNearTarget": true,

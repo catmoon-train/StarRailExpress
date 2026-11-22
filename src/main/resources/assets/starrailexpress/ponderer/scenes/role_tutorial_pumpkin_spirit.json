@@ -224,21 +224,10 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_scale",
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "你可以攻击3格内可见的存活玩家，为他戴上持续15秒的南瓜头并使你获得1个南瓜；每个目标冷却15秒，安全期无效。",
-                "zh_cn": "你可以攻击3格内可见的存活玩家，为他戴上持续15秒的南瓜头并使你获得1个南瓜；每个目标冷却15秒，安全期无效。",
-                "zh_tw": "你可以攻擊3格內可見的存活玩家，為他戴上持續15秒的南瓜頭並使你獲得1個南瓜；每個目標冷卻15秒，安全期無效。"
-              },
-              {
-                "en_us": "按技能键变成蝙蝠并飞行15秒，冷却30秒。",
-                "zh_cn": "按技能键变成蝙蝠并飞行15秒，冷却30秒。",
-                "zh_tw": "按技能鍵變成蝙蝠並飛行15秒，冷卻30秒。"
-              }
-            ]
+            "linkId": "pumpkin_spirit_main",
+            "scale": 0.2
           },
           "attachKeyFrame": true
         },
@@ -252,22 +241,117 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "pumpkin_spirit_skill_target_0",
-            "outline": -65536
+            "linkId": "pumpkin_spirit_victim",
+            "outline": 16753920
           }
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "pumpkin_spirit_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_timer",
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.6,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "pumpkin_spirit_main",
+            "pose": "crouching"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            5.0,
+            1.6,
+            2.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:halloween_pumpkin_helmet",
+          "linkId": "pumpkin_spirit_head",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "pumpkin_spirit_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "pumpkin_spirit_main",
+            "visible": true
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            4.0,
+            1.55,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:halloween_candy",
+          "linkId": "pumpkin_spirit_candy",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_broadcast",
+          "parameters": {
+            "title": {
+              "en_us": "Pumpkin count",
+              "zh_cn": "南瓜计数",
+              "zh_tw": "南瓜計數"
+            },
+            "lines": [
+              {
+                "en_us": "Use the role skill key to become a real flying bat for 15 seconds, with a 30-second cooldown. Timers freeze while paused. Your exclusive shop sells only candy for 50 coins each. Another player eating candy you actually dropped grants you two pumpkins; eating it yourself grants none.",
+                "zh_cn": "累计获得开局人数×5个南瓜即独立获胜",
+                "zh_tw": "累計獲得開局人數×5個南瓜即獨立獲勝"
+              }
+            ],
+            "cost": 0,
+            "duration": 120
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
           "parameters": {
             "progress": [
               0.0,
@@ -278,39 +362,43 @@
                 "en_us": "你可以攻击3格内可见的存活玩家，为他戴上持续15秒的南瓜头并使你获得1个南瓜；每个目标冷却15秒，安全期无效。",
                 "zh_cn": "你可以攻击3格内可见的存活玩家，为他戴上持续15秒的南瓜头并使你获得1个南瓜；每个目标冷却15秒，安全期无效。",
                 "zh_tw": "你可以攻擊3格內可見的存活玩家，為他戴上持續15秒的南瓜頭並使你獲得1個南瓜；每個目標冷卻15秒，安全期無效。"
+              },
+              {
+                "en_us": "按技能键变成蝙蝠并飞行15秒，冷却30秒。",
+                "zh_cn": "按技能键变成蝙蝠并飞行15秒，冷却30秒。",
+                "zh_tw": "按技能鍵變成蝙蝠並飛行15秒，冷卻30秒。"
+              },
+              {
+                "en_us": "商店可购买糖果，丢出去的糖果被别人吃掉时会使你获得2个南瓜，自己吃不给南瓜。",
+                "zh_cn": "商店可购买糖果，丢出去的糖果被别人吃掉时会使你获得2个南瓜，自己吃不给南瓜。",
+                "zh_tw": "商店可購買糖果，丟出去的糖果被別人吃掉時會使你獲得2個南瓜，自己吃不給南瓜。"
+              },
+              {
+                "en_us": "死亡后，玩家每次敲门有50%概率在会使你在敲门者身边复活，并为其佩戴上15秒的南瓜头。",
+                "zh_cn": "死亡后，玩家每次敲门有50%概率在会使你在敲门者身边复活，并为其佩戴上15秒的南瓜头。",
+                "zh_tw": "死亡後，玩家每次敲門有50%概率在會使你在敲門者身邊復活，並為其佩戴上15秒的南瓜頭。"
+              },
+              {
+                "en_us": "平民击杀你会被戴20秒南瓜头并获得缓慢 I 20秒。",
+                "zh_cn": "平民击杀你会被戴20秒南瓜头并获得缓慢 I 20秒。",
+                "zh_tw": "平民擊殺你會被戴20秒南瓜頭並獲得緩慢 I 20秒。"
+              },
+              {
+                "en_us": "场上有存活亡命徒时，你将立即死亡、期间无法敲门复活或获胜。",
+                "zh_cn": "场上有存活亡命徒时，你将立即死亡、期间无法敲门复活或获胜。",
+                "zh_tw": "場上有存活亡命徒時，你將立即死亡、期間無法敲門復活或獲勝。"
               }
             ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "pumpkin_spirit_line_item_0",
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
-          "duration": 139,
+          "duration": 190,
           "text": {
-            "en_us": "你可以攻击3格内可见的存活玩家，为他戴上持续15秒的南瓜头并使你获得1个南瓜；每个目标冷却15秒，安全期无效。",
-            "zh_cn": "你可以攻击3格内可见的存活玩家，为他戴上持续15秒的南瓜头并使你获得1个南瓜；每个目标冷却15秒，安全期无效。",
-            "zh_tw": "你可以攻擊3格內可見的存活玩家，為他戴上持續15秒的南瓜頭並使你獲得1個南瓜；每個目標冷卻15秒，安全期無效。"
+            "en_us": "Use the role skill key to become a real flying bat for 15 seconds, with a 30-second cooldown. Timers freeze while paused. Your exclusive shop sells only candy for 50 coins each. Another player eating candy you actually dropped grants you two pumpkins; eating it yourself grants none.",
+            "zh_cn": "累计获得开局人数×5个南瓜即独立获胜",
+            "zh_tw": "累計獲得開局人數×5個南瓜即獨立獲勝"
           },
           "point": [
             3.0,
@@ -322,43 +410,15 @@
         },
         {
           "type": "idle",
-          "duration": 149
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "idle",
-          "duration": 40
+          "duration": 200
         },
         {
           "type": "text",
-          "duration": 77,
+          "duration": 190,
           "text": {
-            "en_us": "按技能键变成蝙蝠并飞行15秒，冷却30秒。",
-            "zh_cn": "按技能键变成蝙蝠并飞行15秒，冷却30秒。",
-            "zh_tw": "按技能鍵變成蝙蝠並飛行15秒，冷卻30秒。"
+            "en_us": "After death, every valid door knock independently has a 50% chance to revive you safely beside the knocker and give them a pumpkin head for 15 seconds. Killers receive no kill coins for killing you. A civilian who kills you wears a pumpkin head and receives Slowness I for 20 seconds.",
+            "zh_cn": "已领取的南瓜再次丢弃并重捡不会重复计数。",
+            "zh_tw": "已領取的南瓜再次丟棄並重撿不會重複計數。"
           },
           "point": [
             3.0,
@@ -370,7 +430,199 @@
         },
         {
           "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "A living Desperado immediately suppresses and kills you, preventing door revival and victory. When they die, change roles, or disconnect, you automatically revive at a safe location.",
+            "zh_cn": "每累计10个南瓜获得1个糖果袋。",
+            "zh_tw": "每累計10個南瓜獲得1個糖果袋。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 110,
+          "text": {
+            "en_us": "8格内其他玩家完成任务会使你获得1个南瓜，其他玩家最终死亡会使你获得2个南瓜。",
+            "zh_cn": "8格内其他玩家完成任务会使你获得1个南瓜，其他玩家最终死亡会使你获得2个南瓜。",
+            "zh_tw": "8格內其他玩家完成任務會使你獲得1個南瓜，其他玩家最終死亡會使你獲得2個南瓜。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 120
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 139,
+          "text": {
+            "en_us": "你可以攻击3格内可见的存活玩家，为他戴上持续15秒的南瓜头并使你获得1个南瓜；每个目标冷却15秒，安全期无效。",
+            "zh_cn": "你可以攻击3格内可见的存活玩家，为他戴上持续15秒的南瓜头并使你获得1个南瓜；每个目标冷却15秒，安全期无效。",
+            "zh_tw": "你可以攻擊3格內可見的存活玩家，為他戴上持續15秒的南瓜頭並使你獲得1個南瓜；每個目標冷卻15秒，安全期無效。"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 149
+        },
+        {
+          "type": "text",
+          "duration": 77,
+          "text": {
+            "en_us": "按技能键变成蝙蝠并飞行15秒，冷却30秒。",
+            "zh_cn": "按技能键变成蝙蝠并飞行15秒，冷却30秒。",
+            "zh_tw": "按技能鍵變成蝙蝠並飛行15秒，冷卻30秒。"
+          },
+          "point": [
+            3.0,
+            3.2,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
           "duration": 87
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 108,
+          "text": {
+            "en_us": "商店可购买糖果，丢出去的糖果被别人吃掉时会使你获得2个南瓜，自己吃不给南瓜。",
+            "zh_cn": "商店可购买糖果，丢出去的糖果被别人吃掉时会使你获得2个南瓜，自己吃不给南瓜。",
+            "zh_tw": "商店可購買糖果，丟出去的糖果被別人吃掉時會使你獲得2個南瓜，自己吃不給南瓜。"
+          },
+          "point": [
+            3.0,
+            3.48,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 118
+        },
+        {
+          "type": "text",
+          "duration": 117,
+          "text": {
+            "en_us": "死亡后，玩家每次敲门有50%概率在会使你在敲门者身边复活，并为其佩戴上15秒的南瓜头。",
+            "zh_cn": "死亡后，玩家每次敲门有50%概率在会使你在敲门者身边复活，并为其佩戴上15秒的南瓜头。",
+            "zh_tw": "死亡後，玩家每次敲門有50%概率在會使你在敲門者身邊復活，並為其佩戴上15秒的南瓜頭。"
+          },
+          "point": [
+            3.15,
+            1.8,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 127
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 86,
+          "text": {
+            "en_us": "平民击杀你会被戴20秒南瓜头并获得缓慢 I 20秒。",
+            "zh_cn": "平民击杀你会被戴20秒南瓜头并获得缓慢 I 20秒。",
+            "zh_tw": "平民擊殺你會被戴20秒南瓜頭並獲得緩慢 I 20秒。"
+          },
+          "point": [
+            3.15,
+            2.08,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 96
+        },
+        {
+          "type": "text",
+          "duration": 92,
+          "text": {
+            "en_us": "场上有存活亡命徒时，你将立即死亡、期间无法敲门复活或获胜。",
+            "zh_cn": "场上有存活亡命徒时，你将立即死亡、期间无法敲门复活或获胜。",
+            "zh_tw": "場上有存活亡命徒時，你將立即死亡、期間無法敲門復活或獲勝。"
+          },
+          "point": [
+            3.15,
+            2.36,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 102
         },
         {
           "type": "rotate_camera_y",

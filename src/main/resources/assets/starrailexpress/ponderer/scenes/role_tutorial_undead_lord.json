@@ -124,25 +124,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Death Talisman (200 coins, 90s cooldown): instantly summons 2 temporary Wraiths for 45s, costs no souls.",
-                "zh_cn": "瘟疫之雾（120 金币）：脚下释放持续 15 秒的毒雾，5 格内玩家每秒增加 8% 感染并反胃。",
-                "zh_tw": "瘟疫之霧（120 金幣）：腳下釋放持續 15 秒的毒霧，5 格內玩家每秒增加 8% 感染並反胃。"
-              },
-              {
-                "en_us": "Infection Amplifier (100 coins): for 60s, Wraith infection doubles and Wraiths gain Swiftness.",
-                "zh_cn": "亡者召唤符（200 金币，冷却 90 秒）：立即召唤 2 个临时亡灵，持续 45 秒，不消耗灵魂。",
-                "zh_tw": "亡者召喚符（200 金幣，冷卻 90 秒）：立即召喚 2 個臨時亡靈，持續 45 秒，不消耗靈魂。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -152,7 +133,7 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "undead_lord_skill_target_0",
+            "linkId": "undead_lord_undead_target",
             "outline": -7077677
           }
         },
@@ -161,7 +142,7 @@
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -171,43 +152,29 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "starrailexpress:role_timer",
+          "type": "starrailexpress:role_currency",
           "parameters": {
             "progress": [
-              0.0,
+              0.3,
               1.0
             ],
             "lines": [
               {
-                "en_us": "Death Talisman (200 coins, 90s cooldown): instantly summons 2 temporary Wraiths for 45s, costs no souls.",
-                "zh_cn": "瘟疫之雾（120 金币）：脚下释放持续 15 秒的毒雾，5 格内玩家每秒增加 8% 感染并反胃。",
-                "zh_tw": "瘟疫之霧（120 金幣）：腳下釋放持續 15 秒的毒霧，5 格內玩家每秒增加 8% 感染並反胃。"
+                "en_us": "[Souls] Start with 2 souls, cap 6; you gain +1 soul per player you personally kill (once per kill). Failed attacks, corpse interactions, and infection injections do not grant souls.",
+                "zh_cn": "【灵魂】开局获得 2 魂，上限 6；本人成功击杀玩家 +1 魂（一次击杀记一次）。攻击失败、尸体交互与感染注入均不产生灵魂。",
+                "zh_tw": "【靈魂】開局獲得 2 魂，上限 6；本人成功擊殺玩家 +1 魂（一次擊殺記一次）。攻擊失敗、屍體交互與感染注入均不產生靈魂。"
               }
             ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 40
-        },
-        {
           "type": "spawn_particles",
           "particle": "minecraft:witch",
           "pos": [
-            3.0,
+            5.0,
             1.9,
-            3.0
+            2.0
           ],
           "distribution": "box",
           "spread": [
@@ -215,7 +182,7 @@
             0.6,
             0.35
           ],
-          "count": 8,
+          "count": 12,
           "duration": 60,
           "motion": [
             0,
@@ -224,10 +191,36 @@
           ]
         },
         {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "undead_lord_undead_target",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 1.0,
+                "after": 0.0,
+                "color": 16753920
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "create_item_entity",
           "pos": [
-            2.2,
-            1.5,
+            2.0,
+            1.55,
             3.0
           ],
           "motion": [
@@ -237,16 +230,33 @@
           ],
           "count": 1,
           "item": "noellesroles:bone_staff",
-          "linkId": "undead_lord_line_item_0",
+          "linkId": "undead_lord_staff",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
+            "lines": [
+              {
+                "en_us": "[Raise the Dead] Right-click a real corpse within 3 blocks, spend 1 soul to consume it and raise a Wraith, 20s cooldown. Undertaker fakes, already-raised, or pending-revive corpses cannot be used. Wraith lifetime 90s.",
+                "zh_cn": "【亡者复苏】右键 3 格内可见的真实尸体，消耗 1 魂将其销尸并复苏为亡灵，冷却 20 秒。葬仪伪造、已复活或正在复活的尸体不可用。亡灵寿命为 90 秒。",
+                "zh_tw": "【亡者復蘇】右鍵 3 格內可見的真實屍體，消耗 1 魂將其銷屍並復蘇為亡靈，冷卻 20 秒。葬儀偽造、已復活或正在復活的屍體不可用。亡靈壽命為 90 秒。"
+              }
+            ]
+          },
           "attachKeyFrame": true
         },
         {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "Death Talisman (200 coins, 90s cooldown): instantly summons 2 temporary Wraiths for 45s, costs no souls.",
-            "zh_cn": "瘟疫之雾（120 金币）：脚下释放持续 15 秒的毒雾，5 格内玩家每秒增加 8% 感染并反胃。",
-            "zh_tw": "瘟疫之霧（120 金幣）：腳下釋放持續 15 秒的毒霧，5 格內玩家每秒增加 8% 感染並反胃。"
+            "en_us": "[Souls] Start with 2 souls, cap 6; you gain +1 soul per player you personally kill (once per kill). Failed attacks, corpse interactions, and infection injections do not grant souls.",
+            "zh_cn": "【灵魂】开局获得 2 魂，上限 6；本人成功击杀玩家 +1 魂（一次击杀记一次）。攻击失败、尸体交互与感染注入均不产生灵魂。",
+            "zh_tw": "【靈魂】開局獲得 2 魂，上限 6；本人成功擊殺玩家 +1 魂（一次擊殺記一次）。攻擊失敗、屍體交互與感染注入均不產生靈魂。"
           },
           "point": [
             3.0,
@@ -261,48 +271,12 @@
           "duration": 200
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:witch",
-          "pos": [
-            3.0,
-            1.9,
-            3.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 60,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "Infection Amplifier (100 coins): for 60s, Wraith infection doubles and Wraiths gain Swiftness.",
-            "zh_cn": "亡者召唤符（200 金币，冷却 90 秒）：立即召唤 2 个临时亡灵，持续 45 秒，不消耗灵魂。",
-            "zh_tw": "亡者召喚符（200 金幣，冷卻 90 秒）：立即召喚 2 個臨時亡靈，持續 45 秒，不消耗靈魂。"
+            "en_us": "[Raise the Dead] Right-click a real corpse within 3 blocks, spend 1 soul to consume it and raise a Wraith, 20s cooldown. Undertaker fakes, already-raised, or pending-revive corpses cannot be used. Wraith lifetime 90s.",
+            "zh_cn": "【亡者复苏】右键 3 格内可见的真实尸体，消耗 1 魂将其销尸并复苏为亡灵，冷却 20 秒。葬仪伪造、已复活或正在复活的尸体不可用。亡灵寿命为 90 秒。",
+            "zh_tw": "【亡者復蘇】右鍵 3 格內可見的真實屍體，消耗 1 魂將其銷屍並復蘇為亡靈，冷卻 20 秒。葬儀偽造、已復活或正在復活的屍體不可用。亡靈壽命為 90 秒。"
           },
           "point": [
             3.0,
@@ -315,6 +289,246 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "[Command the Dead] G: aim at a visible living non-teammate within 24 blocks; all your Wraiths chase that target for 8s, 20s cooldown. No cooldown if you have no Wraith or no valid target.",
+            "zh_cn": "【亡魂号令】G：瞄准 24 格内可见的存活非队友玩家，命令你全部亡灵追击目标 8 秒，冷却 20 秒；没有亡灵或没有合法目标时不进入冷却。",
+            "zh_tw": "【亡魂號令】G：瞄準 24 格內可見的存活非隊友玩家，命令你全部亡靈追擊目標 8 秒，冷卻 20 秒；沒有亡靈或沒有合法目標時不進入冷卻。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "[Netherfire Summon] Shift+G: spend 1 soul to summon 1 Wraith (60s lifetime) at your side, no corpse needed, 30s cooldown. A failed summon costs no soul or cooldown.",
+            "zh_cn": "【冥火招魂】Shift+G：消耗 1 魂，在身边召唤 1 只寿命 60 秒的亡灵，无需尸体，冷却 30 秒；召唤失败不消耗灵魂与冷却。",
+            "zh_tw": "【冥火招魂】Shift+G：消耗 1 魂，在身邊召喚 1 只壽命 60 秒的亡靈，無需屍體，冷卻 30 秒；召喚失敗不消耗靈魂與冷卻。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "[Wraith Cap] Usually at most 4 Wraiths at once (talisman and Netherfire summons count too); corpses-raised and infection-converted Wraiths last 90s. Values are configurable.",
+            "zh_cn": "【亡灵上限】通常最多同时拥有 4 只亡灵（召唤符与冥火招魂也计入）；尸体复苏与感染转化的亡灵寿命为 90 秒。",
+            "zh_tw": "【亡靈上限】通常最多同時擁有 4 只亡靈（召喚符與冥火招魂也計入）；屍體復蘇與感染轉化的亡靈壽命為 90 秒。"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "[Infection] Bone Staff, Wraith attacks, and Plague Mist all add infection. A Wraith injects 16.56% infection per 1.5s hit (doubles to 33.12% with Infection Amplifier) and the target gets 2s Slow on impact; a Bone Staff left-click injects 30% infection. At 100% infection, after 3s the target dies and is instantly converted into a new Wraith (no corpse left); if the Wraith cap is reached, the target just dies and leaves a corpse. Infection drops 2% per second; the Killer team is immune to infection death. Each successful infection injection (Bone Staff or Wraith hit) grants you 25 coins immediately.",
+            "zh_cn": "【感染】骨杖、亡灵攻击与瘟疫之雾均会增加玩家的感染值。亡灵每 1.5 秒命中会为玩家注入 16.56% 感染值（佩戴感染增幅器期间翻倍至 33.12%），命中瞬间目标额外获得 2 秒缓慢；骨杖左键命中注入 30% 感染值。感染达到 100% 后 3 秒，目标死亡并立即转化为新的亡灵（不留尸体）；若已达亡灵上限则直接死亡并留下尸体。",
+            "zh_tw": "【感染】骨杖、亡靈攻擊與瘟疫之霧均會增加玩家的感染值。亡靈每 1.5 秒命中會為玩家注入 16.56% 感染值（佩戴感染增幅器期間翻倍至 33.12%），命中瞬間目標額外獲得 2 秒緩慢；骨杖左鍵命中注入 30% 感染值。感染達到 100% 後 3 秒，目標死亡並立即轉化為新的亡靈（不留屍體）；若已達亡靈上限則直接死亡並留下屍體。"
+          },
+          "point": [
+            3.0,
+            3.2,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "[Shop] Bone Staff (130 coins): left-click injects 30% infection, 5 durability; when depleted it recharges over 40s and auto-restores.",
+            "zh_cn": "感染值每秒自然降低 2%，杀手阵营免疫感染致死。每次成功注入感染（骨杖或亡灵攻击命中），你都会立即获得 25 金币。",
+            "zh_tw": "感染值每秒自然降低 2%，殺手陣營免疫感染致死。每次成功注入感染（骨杖或亡靈攻擊命中），你都會立即獲得 25 金幣。"
+          },
+          "point": [
+            3.0,
+            3.48,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Plague Mist (120 coins): releases a toxic cloud at your feet for 15s; players within 5 blocks gain 8% infection per second and Nausea.",
+            "zh_cn": "【商店】骨杖（130 金币）：左键攻击注入 30% 感染值，5 点耐久，耐久耗尽后进入 40 秒充能自动恢复。",
+            "zh_tw": "【商店】骨杖（130 金幣）：左鍵攻擊注入 30% 感染值，5 點耐久，耐久耗盡後進入 40 秒充能自動恢復。"
+          },
+          "point": [
+            3.15,
+            1.8,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Death Talisman (200 coins, 90s cooldown): instantly summons 2 temporary Wraiths for 45s, costs no souls.",
+            "zh_cn": "瘟疫之雾（120 金币）：脚下释放持续 15 秒的毒雾，5 格内玩家每秒增加 8% 感染并反胃。",
+            "zh_tw": "瘟疫之霧（120 金幣）：腳下釋放持續 15 秒的毒霧，5 格內玩家每秒增加 8% 感染並反胃。"
+          },
+          "point": [
+            3.15,
+            2.08,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Infection Amplifier (100 coins): for 60s, Wraith infection doubles and Wraiths gain Swiftness.",
+            "zh_cn": "亡者召唤符（200 金币，冷却 90 秒）：立即召唤 2 个临时亡灵，持续 45 秒，不消耗灵魂。",
+            "zh_tw": "亡者召喚符（200 金幣，冷卻 90 秒）：立即召喚 2 個臨時亡靈，持續 45 秒，不消耗靈魂。"
+          },
+          "point": [
+            3.15,
+            2.36,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 124,
+          "text": {
+            "en_us": "(Shop also sells generic crowbar and lockpick.)",
+            "zh_cn": "感染增幅器（100 金币）：60 秒内亡灵感染翻倍且亡灵获得迅捷。",
+            "zh_tw": "感染增幅器（100 金幣）：60 秒內亡靈感染翻倍且亡靈獲得迅捷。"
+          },
+          "point": [
+            3.15,
+            2.64,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 134
+        },
+        {
+          "type": "text",
+          "duration": 180,
+          "text": {
+            "en_us": "亡灵每 1.5 秒造成 1 次击退并注入感染。持续时间为 90 秒，剩余 30 秒时亡灵减速 10%，剩余 10 秒时亡灵将开始闪烁，随后化为紫色烟雾消散。",
+            "zh_cn": "亡灵每 1.5 秒造成 1 次击退并注入感染。持续时间为 90 秒，剩余 30 秒时亡灵减速 10%，剩余 10 秒时亡灵将开始闪烁，随后化为紫色烟雾消散。",
+            "zh_tw": "亡靈每 1.5 秒造成 1 次擊退並注入感染。持續時間為 90 秒，剩餘 30 秒時亡靈減速 10%，剩餘 10 秒時亡靈將開始閃爍，隨後化為紫色煙霧消散。"
+          },
+          "point": [
+            3.15,
+            2.92,
+            2.85
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 190
         },
         {
           "type": "rotate_camera_y",

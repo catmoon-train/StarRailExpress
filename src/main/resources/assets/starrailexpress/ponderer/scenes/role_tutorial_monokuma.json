@@ -196,20 +196,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Yin-Yang Sword: right-click to charge 1 second then release a 3.2-block AOE kill (up to 2 people at once); Q triggers a dash.",
-                "zh_cn": "阴阳剑右键蓄力1秒后释放3.2格范围AOE击杀（一次最多2人），Q键触发冲刺。",
-                "zh_tw": "陰陽劍右鍵蓄力1秒後釋放3.2格範圍AOE擊殺（一次最多2人），Q鍵觸發衝刺。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -219,8 +205,8 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "monokuma_skill_target_0",
-            "outline": -65536
+            "linkId": "monokuma_bear_foe",
+            "outline": 16753920
           }
         },
         {
@@ -228,7 +214,7 @@
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -238,53 +224,53 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_walk",
+          "type": "starrailexpress:role_scale",
           "parameters": {
             "linkId": "monokuma_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 45
+            "scale": 1.5
           },
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 15
+          "type": "text",
+          "duration": 157,
+          "text": {
+            "en_us": "When hit by any attack, you enter [Rampage Prelude] (35 seconds):",
+            "zh_cn": "当你被任何攻击命中时，进入[狂暴前奏]阶段（35秒）：",
+            "zh_tw": "當你被任何攻擊命中時，進入[狂暴前奏]階段（35秒）："
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_death",
+          "type": "idle",
+          "duration": 167
+        },
+        {
+          "type": "starrailexpress:role_key",
           "parameters": {
-            "linkId": "monokuma_skill_target_0",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
+            "point": [
+              3.0,
+              3.0,
+              3.0
             ],
-            "name": "ponder.starrailexpress.label.victim"
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 30
         },
         {
           "type": "create_item_entity",
           "pos": [
-            2.2,
-            1.5,
-            3.0
+            2.0,
+            1.55,
+            2.1
           ],
           "motion": [
             0.0,
@@ -292,8 +278,85 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:yinyang_sword",
-          "linkId": "monokuma_line_item_0",
+          "item": "noellesroles:yin_yang_sword",
+          "linkId": "monokuma_sword",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:yin_yang_sword",
+          "duration": 70,
+          "point": [
+            1.7,
+            1.9,
+            1.8
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 180,
+          "text": {
+            "en_us": "Gain 1 layer of shield, Yin-Yang Sword; all players' movement speed drops 20%.",
+            "zh_cn": "获得1层护盾、阴阳剑，全服玩家移速降低20%。",
+            "zh_tw": "獲得1層護盾、陰陽劍，全服玩家移速降低20%。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 190
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.0,
+            1.55,
+            2.1
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:yin_yang_sword",
+          "linkId": "monokuma_sword",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:yin_yang_sword",
+          "duration": 70,
+          "point": [
+            1.7,
+            1.9,
+            1.8
+          ],
+          "direction": "down",
           "attachKeyFrame": true
         },
         {
@@ -306,7 +369,183 @@
           },
           "point": [
             3.0,
-            1.8,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "monokuma_bear_foe",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "During this, after killing total players / 7, the frenzy ends and you transform into [Monokuma].",
+            "zh_cn": "在此期间击杀总玩家数量/7后疯魔结束变身为[黑白熊]。",
+            "zh_tw": "在此期間擊殺總玩家數量/7後瘋魔結束變身為[黑白熊]。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "monokuma_bear_foe",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "[Monokuma] form: nearly invulnerable, but cannot pick up items; 4-block aura effect.",
+            "zh_cn": "被黑白击杀的玩家会变成小黑白熊，小黑白熊不具有无敌和金币光环。",
+            "zh_tw": "[黑白熊]形態：幾乎無敵，但無法拾取物品，周圍4格光環效果。"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_scale",
+          "parameters": {
+            "linkId": "monokuma_main",
+            "scale": 1.5
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Invulnerable only means you don't die from normal attacks; forced deaths like the void and Voodoo cannot be blocked.",
+            "zh_cn": "[黑白熊]形态：几乎无敌，但无法拾取物品，周围4格光环效果。",
+            "zh_tw": "無敵僅代表不會因為普通攻擊死亡，但虛空、巫毒等強制死亡無法抵擋。"
+          },
+          "point": [
+            3.0,
+            3.2,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_scale",
+          "parameters": {
+            "linkId": "monokuma_main",
+            "scale": 1.5
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "At game end, win by attaching to the team of the nearest living player within 6 blocks.",
+            "zh_cn": "黑白熊光环内的玩家每5秒获得8金币、无限体力。",
+            "zh_tw": "遊戲結束時依附最近6格記憶體活玩家的陣營獲勝。"
+          },
+          "point": [
+            3.0,
+            3.48,
             3.0
           ],
           "placeNearTarget": true,

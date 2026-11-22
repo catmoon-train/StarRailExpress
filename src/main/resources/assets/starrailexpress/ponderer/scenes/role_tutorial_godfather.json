@@ -223,20 +223,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Skill: press the skill key at another player to recruit them into the family (as Mafioso, Family Soldier, Family Nanny, or Family Shield) (110s cooldown).",
-                "zh_cn": "技能：对其它玩家按技能键招募玩家成为家族成员(可招募为家族教徒、家族侍卫、家族保姆或家族保护伞)（110秒冷却）。",
-                "zh_tw": "技能：對其他玩家按技能鍵招募玩家成為家族成員(可招募為家族教徒、家族侍衛、家族保姆或家族保護傘)（110秒冷卻）。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -246,8 +232,8 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "godfather_skill_target_0",
-            "outline": 4287317267
+            "linkId": "godfather_recruit",
+            "outline": 9132587
           }
         },
         {
@@ -255,7 +241,7 @@
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -265,22 +251,103 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "godfather_main",
+            "to": [
+              4.0,
+              1.0,
+              2.0
+            ],
+            "duration": 38
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "godfather_recruit",
+            "color": 9132587
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "parameters": {
+            "title": {
+              "en_us": "Family",
+              "zh_cn": "家族成员",
+              "zh_tw": "家族成員"
+            },
+            "lines": [
+              {
+                "en_us": "Killing a player grants 50 coins.",
+                "zh_cn": "你击杀玩家会获得50金币。",
+                "zh_tw": "你擊殺玩家會獲得50金幣。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_timer",
           "parameters": {
             "progress": [
-              0.0,
-              1.0
+              1.0,
+              0.0
             ],
+            "lines": [
+              {
+                "en_us": "Killing a player grants 50 coins.",
+                "zh_cn": "你击杀玩家会获得50金币。",
+                "zh_tw": "你擊殺玩家會獲得50金幣。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 99,
+          "text": {
+            "en_us": "Killing a player grants 50 coins.",
+            "zh_cn": "你击杀玩家会获得50金币。",
+            "zh_tw": "你擊殺玩家會獲得50金幣。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 109
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": {
+              "en_us": "4 members",
+              "zh_cn": "4人上限",
+              "zh_tw": "4人上限"
+            },
             "lines": [
               {
                 "en_us": "Skill: press the skill key at another player to recruit them into the family (as Mafioso, Family Soldier, Family Nanny, or Family Shield) (110s cooldown).",
@@ -289,27 +356,6 @@
               }
             ]
           },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:lockpick",
-          "linkId": "godfather_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -322,7 +368,71 @@
           },
           "point": [
             3.0,
-            1.8,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "godfather_recruit",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              0.4,
+              0.8
+            ],
+            "lines": [
+              {
+                "en_us": "Recruitment cap is 4; dead family members don't refund recruitment (max 4 per match); special roles cannot be recruited.",
+                "zh_cn": "招募上限为4人，家族成员死后不会归还招募次数(即一局最多只能招募4次)，无法招募特殊职业的玩家作为家族成员。",
+                "zh_tw": "招募上限為4人，家族成員死後不會歸還招募次數(即一局最多只能招募4次)，無法招募特殊職業的玩家作為家族成員。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Recruitment cap is 4; dead family members don't refund recruitment (max 4 per match); special roles cannot be recruited.",
+            "zh_cn": "招募上限为4人，家族成员死后不会归还招募次数(即一局最多只能招募4次)，无法招募特殊职业的玩家作为家族成员。",
+            "zh_tw": "招募上限為4人，家族成員死後不會歸還招募次數(即一局最多只能招募4次)，無法招募特殊職業的玩家作為家族成員。"
+          },
+          "point": [
+            3.0,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,

@@ -267,25 +267,25 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Passive skills:",
-                "zh_cn": "被动技能：",
-                "zh_tw": "被動技能："
-              }
-            ]
-          },
-          "attachKeyFrame": true
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "furandoru_last_target",
+            "outline": -5138046
+          }
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -295,69 +295,47 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_walk",
+          "type": "starrailexpress:role_timer",
           "parameters": {
-            "linkId": "furandoru_main",
-            "to": [
-              4.1,
+            "progress": [
               1.0,
-              2.0
+              0.0
             ],
-            "duration": 40
+            "lines": [
+              {
+                "en_us": "(1): when only you and one other team (not Neutral) remain, the time shortens to 120 seconds and the finale begins.",
+                "zh_cn": "（一）：当场上仅剩你与另一个阵营（不含中立）时，剩余时间缩短为120秒，并进入终幕环节。",
+                "zh_tw": "（一）：當場上僅剩你與另一個陣營（不含中立）時，剩餘時間縮短為120秒，並進入終幕環節。"
+              }
+            ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:crowbar",
-          "linkId": "furandoru_line_item_0",
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": {
+              "en_us": "Final act",
+              "zh_cn": "终幕",
+              "zh_tw": "終幕"
+            },
+            "lines": [
+              {
+                "en_us": "(1): when only you and one other team (not Neutral) remain, the time shortens to 120 seconds and the finale begins.",
+                "zh_cn": "（一）：当场上仅剩你与另一个阵营（不含中立）时，剩余时间缩短为120秒，并进入终幕环节。",
+                "zh_tw": "（一）：當場上僅剩你與另一個陣營（不含中立）時，剩餘時間縮短為120秒，並進入終幕環節。"
+              }
+            ]
+          },
           "attachKeyFrame": true
         },
         {
           "type": "text",
-          "duration": 67,
+          "duration": 190,
           "text": {
-            "en_us": "Passive skills:",
-            "zh_cn": "被动技能：",
-            "zh_tw": "被動技能："
+            "en_us": "(1): when only you and one other team (not Neutral) remain, the time shortens to 120 seconds and the finale begins.",
+            "zh_cn": "（一）：当场上仅剩你与另一个阵营（不含中立）时，剩余时间缩短为120秒，并进入终幕环节。",
+            "zh_tw": "（一）：當場上僅剩你與另一個陣營（不含中立）時，剩餘時間縮短為120秒，並進入終幕環節。"
           },
           "point": [
             3.0,
@@ -369,7 +347,192 @@
         },
         {
           "type": "idle",
-          "duration": 77
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "furandoru_main",
+            "color": 16753920
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            5.7,
+            1.55,
+            2.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "minecraft:wind_charge",
+          "linkId": "furandoru_wind",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "furandoru_last_target",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "(2): if fewer than 90 seconds remain and the finale hasn't triggered, it triggers immediately.",
+            "zh_cn": "（二）：若剩余时间不足90秒且尚未触发终幕环节，则立即触发终幕环节。",
+            "zh_tw": "（二）：若剩餘時間不足90秒且尚未觸發終幕環節，則立即觸發終幕環節。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "furandoru_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "parameters": {
+            "title": {
+              "en_us": "Hidden",
+              "zh_cn": "隐匿",
+              "zh_tw": "隱匿"
+            },
+            "progress": [
+              0.0,
+              1.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "2. Finale effect: during the finale, you glow for 60 seconds and hand wind bullets to all players. Each player gets (their coins / 75) wind bullets (min 1, max 16). At this point Killer kills no longer add time until Furandoru and Ghost die.",
+            "zh_cn": "2. 终幕效果：终幕环节期间，你将发光60秒，同时向所有玩家发放风弹。玩家拥有的风弹数量为玩家自身金币数量/75（最低1个，最多16个）。此时狼人杀人将不再增长时间，直到芙兰和小透明死去。",
+            "zh_tw": "2. 終幕效果：終幕環節期間，你將發光60秒，同時向所有玩家發放風彈。玩家擁有的風彈數量為玩家自身金幣數量/75（最低1個，最多16個）。此時狼人殺人將不再增長時間，直到芙蘭和小透明死去。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "furandoru_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "parameters": {
+            "title": {
+              "en_us": "Hidden",
+              "zh_cn": "隐匿",
+              "zh_tw": "隱匿"
+            },
+            "progress": [
+              0.0,
+              1.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 184,
+          "text": {
+            "en_us": "3. Concealment: for a set time you cannot be detected by normal Killer instinct.",
+            "zh_cn": "3. 隐匿：在一定游戏时间内，你无法被普通杀手直觉探测到。",
+            "zh_tw": "3. 隱匿：在一定遊戲時間內，你無法被普通殺手直覺探測到。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 194
         },
         {
           "type": "rotate_camera_y",

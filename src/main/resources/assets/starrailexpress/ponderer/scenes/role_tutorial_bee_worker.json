@@ -196,20 +196,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Use the skill key to poison a player, but you die immediately.",
-                "zh_cn": "使用技能键可以使玩家中毒，但会立即死亡。",
-                "zh_tw": "使用技能鍵可以使玩家中毒，但會立即死亡。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -219,8 +205,8 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "bee_worker_skill_target_0",
-            "outline": -3584
+            "linkId": "bee_worker_victim",
+            "outline": 16753920
           }
         },
         {
@@ -228,7 +214,7 @@
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -238,84 +224,29 @@
           "attachKeyFrame": true
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "bee_worker_skill_item_0"
-        },
-        {
-          "type": "show_controls",
-          "action": "right",
-          "item": "trainmurdermystery:note",
-          "duration": 70,
-          "point": [
-            2.2,
-            2.2,
-            3.0
-          ],
-          "direction": "down"
-        },
-        {
-          "type": "starrailexpress:role_walk",
+          "type": "starrailexpress:role_timer",
           "parameters": {
-            "linkId": "bee_worker_main",
-            "to": [
-              4.1,
+            "progress": [
               1.0,
-              2.0
+              0.0
             ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 35
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "bee_worker_death_target_0",
-            "outline": -3584
-          }
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "bee_worker_death_target_0",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
+            "lines": [
+              {
+                "en_us": "Can only be summoned by the Bee Queen. Lives only 120 seconds after revival.",
+                "zh_cn": "只能由蜂后召唤。复活后仅存活120秒。",
+                "zh_tw": "只能由蜂後召喚。復活後僅存活120秒。"
+              }
+            ]
           },
           "attachKeyFrame": true
         },
         {
           "type": "text",
-          "duration": 151,
+          "duration": 176,
           "text": {
-            "en_us": "Use the skill key to poison a player, but you die immediately.",
-            "zh_cn": "使用技能键可以使玩家中毒，但会立即死亡。",
-            "zh_tw": "使用技能鍵可以使玩家中毒，但會立即死亡。"
+            "en_us": "Can only be summoned by the Bee Queen. Lives only 120 seconds after revival.",
+            "zh_cn": "只能由蜂后召唤。复活后仅存活120秒。",
+            "zh_tw": "只能由蜂後召喚。復活後僅存活120秒。"
           },
           "point": [
             3.0,
@@ -327,28 +258,14 @@
         },
         {
           "type": "idle",
-          "duration": 161
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "bee_worker_skill_target_1",
-            "outline": -3584
-          }
+          "duration": 186
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -356,34 +273,6 @@
             "keyBind": "ability"
           },
           "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "bee_worker_skill_item_1"
-        },
-        {
-          "type": "show_controls",
-          "action": "right",
-          "item": "trainmurdermystery:note",
-          "duration": 70,
-          "point": [
-            2.2,
-            2.2,
-            3.0
-          ],
-          "direction": "down"
         },
         {
           "type": "starrailexpress:role_walk",
@@ -394,48 +283,64 @@
               1.0,
               2.0
             ],
-            "duration": 40
+            "duration": 32
           },
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 35
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "bee_worker_victim",
+            "color": 16753920
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Poison target - self dies",
+                "zh_cn": "使玩家中毒 · 自身立即死亡",
+                "zh_tw": "使玩家中毒 · 自身立即死亡"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "bee_worker_main",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "corpse": false
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
             "pos": [
-              5.0,
+              3.0,
               1.0,
-              2.0
+              3.0
             ],
             "yaw": 180.0,
-            "linkId": "bee_worker_death_target_1",
-            "outline": -3584
+            "linkId": "bee_worker_main"
           }
         },
         {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "bee_worker_death_target_1",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
-          "duration": 144,
+          "duration": 151,
           "text": {
-            "en_us": "Using the skill on a poisoned player kills them instantly.",
-            "zh_cn": "对中毒的人释放技能将立即让其死亡。",
-            "zh_tw": "對中毒的人釋放技能將立即讓其死亡。"
+            "en_us": "Use the skill key to poison a player, but you die immediately.",
+            "zh_cn": "使用技能键可以使玩家中毒，但会立即死亡。",
+            "zh_tw": "使用技能鍵可以使玩家中毒，但會立即死亡。"
           },
           "point": [
             3.0,
@@ -447,7 +352,241 @@
         },
         {
           "type": "idle",
+          "duration": 161
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "bee_worker_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 32
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "bee_worker_victim",
+            "color": 16753920
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Poison target - self dies",
+                "zh_cn": "使玩家中毒 · 自身立即死亡",
+                "zh_tw": "使玩家中毒 · 自身立即死亡"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "bee_worker_main",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "bee_worker_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 124,
+          "text": {
+            "en_us": "A poisoned player dies if not cured within 20s.",
+            "zh_cn": "中毒的人如果在20s内无法解毒将会死亡。",
+            "zh_tw": "中毒的人如果在20s內無法解毒將會死亡。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 134
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "bee_worker_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 32
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "bee_worker_victim",
+            "color": 16753920
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Poison target - self dies",
+                "zh_cn": "使玩家中毒 · 自身立即死亡",
+                "zh_tw": "使玩家中毒 · 自身立即死亡"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "bee_worker_main",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "bee_worker_main"
+          }
+        },
+        {
+          "type": "text",
+          "duration": 144,
+          "text": {
+            "en_us": "Using the skill on a poisoned player kills them instantly.",
+            "zh_cn": "对中毒的人释放技能将立即让其死亡。",
+            "zh_tw": "對中毒的人釋放技能將立即讓其死亡。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
           "duration": 154
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "bee_worker_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 157,
+          "text": {
+            "en_us": "When the whole Bee Family dies, you revert to your original role.",
+            "zh_cn": "蜜蜂家族全部死亡后你将恢复为原本的职业。",
+            "zh_tw": "蜜蜂家族全部死亡後你將恢復為原本的職業。"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 167
         },
         {
           "type": "rotate_camera_y",

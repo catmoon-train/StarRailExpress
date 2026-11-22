@@ -124,25 +124,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Passive — you sense whether any player has died in the game; 60s cooldown.",
-                "zh_cn": "被动-你能察觉到游戏中是否有玩家阵亡，冷却60s。",
-                "zh_tw": "被動-你能察覺到遊戲中是否有玩家陣亡，冷卻60s。"
-              },
-              {
-                "en_us": "The shop shows the passive's cooldown.",
-                "zh_cn": "商店可查看被动的冷却时间。",
-                "zh_tw": "商店可查看被動的冷卻時間。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -152,92 +133,39 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "monitor_skill_target_0",
-            "outline": -14628457
+            "linkId": "monitor_marked",
+            "outline": 8421504
           }
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "starrailexpress:role_timer",
+          "type": "starrailexpress:role_key",
           "parameters": {
-            "progress": [
-              0.0,
-              1.0
+            "point": [
+              3.0,
+              3.0,
+              3.0
             ],
-            "lines": [
-              {
-                "en_us": "Passive — you sense whether any player has died in the game; 60s cooldown.",
-                "zh_cn": "被动-你能察觉到游戏中是否有玩家阵亡，冷却60s。",
-                "zh_tw": "被動-你能察覺到遊戲中是否有玩家陣亡，冷卻60s。"
-              }
-            ]
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "monitor_line_item_0",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
+          "type": "starrailexpress:role_outline",
           "parameters": {
-            "linkId": "monitor_main",
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "name": "ponder.starrailexpress.label.victim",
-            "corpse": false
+            "linkId": "monitor_marked",
+            "color": 16733695
           },
           "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "monitor_main"
-          }
         },
         {
           "type": "text",
-          "duration": 173,
+          "duration": 158,
           "text": {
-            "en_us": "Passive — you sense whether any player has died in the game; 60s cooldown.",
-            "zh_cn": "被动-你能察觉到游戏中是否有玩家阵亡，冷却60s。",
-            "zh_tw": "被動-你能察覺到遊戲中是否有玩家陣亡，冷卻60s。"
+            "en_us": "Use the skill key to mark a player and see-through their position.",
+            "zh_cn": "你可以使用技能键标记一名玩家并透视其位置。",
+            "zh_tw": "你可以使用技能鍵標記一名玩家並透視其位置。"
           },
           "point": [
             3.0,
@@ -249,42 +177,59 @@
         },
         {
           "type": "idle",
-          "duration": 183
+          "duration": 168
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.0,
+            1.55,
+            2.1
           ],
-          "blockPos2": [
-            5,
-            0,
-            2
+          "motion": [
+            0.0,
+            0.0,
+            0.0
           ],
-          "duration": 200,
-          "color": "green"
+          "count": 1,
+          "item": "minecraft:torch",
+          "linkId": "monitor_flare",
+          "attachKeyFrame": true
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
+          "type": "show_controls",
+          "action": "right",
+          "item": "minecraft:torch",
+          "duration": 70,
+          "point": [
+            1.7,
+            1.9,
+            1.8
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
-          "duration": 108,
+          "duration": 184,
           "text": {
-            "en_us": "The shop shows the passive's cooldown.",
-            "zh_cn": "商店可查看被动的冷却时间。",
-            "zh_tw": "商店可查看被動的冷卻時間。"
+            "en_us": "Can buy a Flare; right-click to throw, lighting the landing point for 10 seconds",
+            "zh_cn": "你可以购买照明弹，右键投掷，照亮落点处的位置，持续10秒",
+            "zh_tw": "你可以購買照明彈，右鍵投擲，照亮落點處的位置，持續10秒"
           },
           "point": [
             3.0,
@@ -296,7 +241,7 @@
         },
         {
           "type": "idle",
-          "duration": 118
+          "duration": 194
         },
         {
           "type": "rotate_camera_y",

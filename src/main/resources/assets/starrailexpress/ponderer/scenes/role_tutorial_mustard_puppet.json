@@ -124,16 +124,29 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Mustard can recall you to its side. For 30 seconds after that skill, the nearest living puppet takes the first hit Mustard receives, unchanged. You die when Mustard dies.",
-                "zh_cn": "芥末的技能会把你传送至其身边；技能使用后30秒内，距离芥末最近的存活傀儡会原样承担其受到的第一次伤害。芥末死亡时，你也会一同死亡。",
-                "zh_tw": "芥末的技能会把你传送至其身边；技能使用后30秒内，距离芥末最近的存活傀儡会原样承担其受到的第一次伤害。芥末死亡时，你也会一同死亡。"
-              }
-            ]
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mustard_puppet_puppet_victim",
+            "outline": 8421504
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "mustard_puppet_puppet_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
           },
           "attachKeyFrame": true
         },
@@ -142,7 +155,7 @@
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -152,79 +165,98 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
+          "type": "text",
+          "duration": 164,
+          "text": {
+            "en_us": "Mustard revived you as an Iron Golem puppet, still controlled by you.",
+            "zh_cn": "由芥末使用傀儡核心复活而来。",
+            "zh_tw": "每次攻擊造成 5 點虛擬血量傷害，每次被核心升級增加 5 點，升級無上限；升級後的攻擊還會令目標僵直 1 秒。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
           ],
-          "duration": 220,
-          "color": "blue"
+          "placeNearTarget": true,
+          "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_timer",
+          "type": "idle",
+          "duration": 174
+        },
+        {
+          "type": "starrailexpress:role_key",
           "parameters": {
-            "progress": [
-              0.0,
-              1.0
+            "point": [
+              3.0,
+              3.0,
+              3.0
             ],
-            "lines": [
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "parameters": {
+            "bars": [
               {
-                "en_us": "Mustard can recall you to its side. For 30 seconds after that skill, the nearest living puppet takes the first hit Mustard receives, unchanged. You die when Mustard dies.",
-                "zh_cn": "芥末的技能会把你传送至其身边；技能使用后30秒内，距离芥末最近的存活傀儡会原样承担其受到的第一次伤害。芥末死亡时，你也会一同死亡。",
-                "zh_tw": "芥末的技能会把你传送至其身边；技能使用后30秒内，距离芥末最近的存活傀儡会原样承担其受到的第一次伤害。芥末死亡时，你也会一同死亡。"
+                "label": "virtual",
+                "before": 1.0,
+                "after": 0.5,
+                "color": 16733525
               }
             ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Attacks deal 5 virtual-health damage, plus 5 per core upgrade with no upgrade limit. Upgraded attacks also stun for 1 second.",
+            "zh_cn": "攻击造成5点虚拟血量伤害，每次被核心升级增加5点，升级没有上限；升级后的攻击还会令目标僵直1秒。",
+            "zh_tw": "芥末的技能會把你傳送至其身邊；技能使用後 30 秒內，距離芥末最近的存活傀儡會原樣承擔其受到的第一次傷害。芥末死亡時，你也會死亡。"
+          },
+          "point": [
+            3.0,
+            2.08,
             3.0
           ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "mustard_puppet_line_item_0",
+          "placeNearTarget": true,
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_death",
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
           "parameters": {
-            "linkId": "mustard_puppet_main",
-            "pos": [
+            "point": [
               3.0,
-              1.0,
+              3.0,
               3.0
             ],
-            "name": "ponder.starrailexpress.label.victim",
-            "corpse": false
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_teleport",
           "parameters": {
+            "linkId": "mustard_puppet_main",
             "pos": [
-              3.0,
+              4.0,
               1.0,
               3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "mustard_puppet_main"
-          }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -236,7 +268,7 @@
           },
           "point": [
             3.0,
-            1.8,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,

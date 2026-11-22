@@ -124,9 +124,106 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_key",
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:block.bell.use",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "You can see the remaining game time.",
+                "zh_cn": "你能看到剩余游戏时间。",
+                "zh_tw": "你能看到剩餘遊戲時間。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "watchman_main",
+            "color": 16766720
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.0,
+            1.55,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "watchman_gong",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.8,
+            1.55,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "watchman_bang",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:note",
+          "duration": 70,
+          "point": [
+            4.2,
+            2.0,
+            3.0
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": {
+              "en_us": "Time left",
+              "zh_cn": "剩余时间",
+              "zh_tw": "剩餘時間"
+            },
             "lines": [
               {
                 "en_us": "Active - Toll the Bell: press the skill key to toll a bell, letting players within 15 blocks briefly see the game time for 15 seconds. 90s cooldown.",
@@ -143,88 +240,12 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "watchman_skill_target_0",
-            "outline": -10456888
-          }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "Active - Toll the Bell: press the skill key to toll a bell, letting players within 15 blocks briefly see the game time for 15 seconds. 90s cooldown.",
-                "zh_cn": "主动技能-敲钟：按下技能键敲钟，使15格内的玩家短暂透视游戏时间15秒，冷却90秒。",
-                "zh_tw": "主動技能-敲鐘：按下技能鍵敲鐘，使15格內的玩家短暫透視遊戲時間15秒，冷卻90秒。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "watchman_line_item_0",
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
-          "duration": 190,
+          "duration": 104,
           "text": {
-            "en_us": "Active - Toll the Bell: press the skill key to toll a bell, letting players within 15 blocks briefly see the game time for 15 seconds. 90s cooldown.",
-            "zh_cn": "主动技能-敲钟：按下技能键敲钟，使15格内的玩家短暂透视游戏时间15秒，冷却90秒。",
-            "zh_tw": "主動技能-敲鐘：按下技能鍵敲鐘，使15格內的玩家短暫透視遊戲時間15秒，冷卻90秒。"
+            "en_us": "You can see the remaining game time.",
+            "zh_cn": "你能看到剩余游戏时间。",
+            "zh_tw": "你能看到剩餘遊戲時間。"
           },
           "point": [
             3.0,
@@ -236,57 +257,15 @@
         },
         {
           "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "watchman_skill_target_1",
-            "outline": -10456888
-          }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "idle",
-          "duration": 40
+          "duration": 114
         },
         {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "Gong: when struck, non-Civilian/non-Sheriff players within 15 blocks cannot use skills or inventory for 10 seconds. 120s cooldown.",
-            "zh_cn": "锣：敲响后使15格内非平民/非警长阵营的玩家10秒内无法使用技能与背包。冷却120秒。",
-            "zh_tw": "鑼：敲響後使15格內非平民/非警長陣營的玩家10秒內無法使用技能與背包。冷卻120秒。"
+            "en_us": "Active - Toll the Bell: press the skill key to toll a bell, letting players within 15 blocks briefly see the game time for 15 seconds. 90s cooldown.",
+            "zh_cn": "主动技能-敲钟：按下技能键敲钟，使15格内的玩家短暂透视游戏时间15秒，冷却90秒。",
+            "zh_tw": "主動技能-敲鐘：按下技能鍵敲鐘，使15格內的玩家短暫透視遊戲時間15秒，冷卻90秒。"
           },
           "point": [
             3.0,
@@ -301,32 +280,32 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "watchman_skill_target_2",
-            "outline": -10456888
-          }
-        },
-        {
-          "type": "highlight_section",
+          "type": "indicate_success",
           "blockPos": [
             3,
             0,
             3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Gong: when struck, non-Civilian/non-Sheriff players within 15 blocks cannot use skills or inventory for 10 seconds. 120s cooldown.",
+            "zh_cn": "锣：敲响后使15格内非平民/非警长阵营的玩家10秒内无法使用技能与背包。冷却120秒。",
+            "zh_tw": "鑼：敲響後使15格內非平民/非警長陣營的玩家10秒內無法使用技能與背包。冷卻120秒。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
           ],
-          "duration": 220,
-          "color": "blue"
+          "placeNearTarget": true,
+          "attachKeyFrame": true
         },
         {
           "type": "idle",
-          "duration": 40
+          "duration": 200
         },
         {
           "type": "text",
@@ -338,7 +317,35 @@
           },
           "point": [
             3.0,
-            2.36,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Dream: a player with this effect restores 50% Sanity on sleeping and gets a matching level of Swiftness; clears after one trigger.",
+            "zh_cn": "入梦：拥有该效果的玩家睡觉后回复50%的理智，并获得对应等级的迅捷效果，触发一次后清除。",
+            "zh_tw": "入夢：擁有該效果的玩家睡覺後回復50%的理智，並獲得對應等級的迅捷效果，觸發一次後清除。"
+          },
+          "point": [
+            3.0,
+            2.92,
             3.0
           ],
           "placeNearTarget": true,

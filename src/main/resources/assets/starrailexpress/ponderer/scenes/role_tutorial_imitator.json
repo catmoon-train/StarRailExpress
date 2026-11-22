@@ -122,30 +122,25 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Press the skill key at a living player to copy their skill (temporary skill, max 3 uses, copied ability cooldown 60s)",
-                "zh_cn": "对活人按技能键复制技能（临时技能最多使用3次，复制能力冷却60秒）",
-                "zh_tw": "對活人按技能鍵複製技能（臨時技能最多使用3次，複製能力冷卻60秒）"
-              },
-              {
-                "en_us": "Apart from copied skills, all skill cooldowns are 90 seconds",
-                "zh_cn": "除复制技能外，所有技能冷却统一为90秒",
-                "zh_tw": "除複製技能外，所有技能冷卻統一為90秒"
-              }
-            ]
-          },
-          "attachKeyFrame": true
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "imitator_copy_target",
+            "outline": -10223616
+          }
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -155,17 +150,71 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "imitator_copy_target",
+            "color": 16753920
+          },
+          "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_timer",
+          "type": "starrailexpress:role_bond",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Press the skill key at a living player to copy their skill (temporary skill, max 3 uses, copied ability cooldown 60s)",
+                "zh_cn": "对活人按技能键复制技能（临时技能最多使用3次，复制能力冷却60秒）",
+                "zh_tw": "對活人按技能鍵複製技能（臨時技能最多使用3次，複製能力冷卻60秒）"
+              }
+            ],
+            "color": 16753920
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": "ponder.starrailexpress.label.items",
+            "lines": [
+              {
+                "en_us": "Right-click to devour a corpse and gain a permanent skill; devoured corpses glow",
+                "zh_cn": "右键吞噬尸体并获得永久技能，被吞噬的尸体会发光",
+                "zh_tw": "右鍵吞噬屍體並獲得永久技能，被吞噬的屍體會發光"
+              },
+              {
+                "en_us": "At most 3 slots",
+                "zh_cn": "最多3个槽位",
+                "zh_tw": "最多3個槽位"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "imitator_copy_target",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.25,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "next_ability",
+            "text": "ponder.starrailexpress.ponder.press_next_ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
           "parameters": {
             "progress": [
               0.0,
@@ -173,33 +222,12 @@
             ],
             "lines": [
               {
-                "en_us": "Press the skill key at a living player to copy their skill (temporary skill, max 3 uses, copied ability cooldown 60s)",
-                "zh_cn": "对活人按技能键复制技能（临时技能最多使用3次，复制能力冷却60秒）",
-                "zh_tw": "對活人按技能鍵複製技能（臨時技能最多使用3次，複製能力冷卻60秒）"
+                "en_us": "Press the skill-switch key (default Y) to switch skill slots",
+                "zh_cn": "按下技能切换键（默认Y键）切换技能槽位",
+                "zh_tw": "按下技能切換鍵（默認Y鍵）切換技能槽位"
               }
             ]
           },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:hedinghong",
-          "linkId": "imitator_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -223,39 +251,12 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "next_ability",
-            "text": "ponder.starrailexpress.ponder.press_next_ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
           "type": "text",
-          "duration": 148,
+          "duration": 184,
           "text": {
-            "en_us": "Press the skill-switch key (default Y) to switch skill slots",
-            "zh_cn": "按下技能切换键（默认Y键）切换技能槽位",
-            "zh_tw": "按下技能切換鍵（默認Y鍵）切換技能槽位"
+            "en_us": "Right-click to devour a corpse and gain a permanent skill; devoured corpses glow",
+            "zh_cn": "右键吞噬尸体并获得永久技能，被吞噬的尸体会发光",
+            "zh_tw": "右鍵吞噬屍體並獲得永久技能，被吞噬的屍體會發光"
           },
           "point": [
             3.0,
@@ -267,60 +268,23 @@
         },
         {
           "type": "idle",
-          "duration": 158
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "play_sound",
-          "sound": "minecraft:entity.enderman.teleport",
-          "soundVolume": 1.0,
-          "pitch": 1.0,
-          "source": "players"
-        },
-        {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "imitator_main",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ]
-          },
-          "attachKeyFrame": true
+          "duration": 194
         },
         {
           "type": "indicate_success",
           "blockPos": [
-            5,
+            3,
             0,
-            2
+            3
           ]
         },
         {
-          "type": "idle",
-          "duration": 30
-        },
-        {
           "type": "text",
-          "duration": 190,
+          "duration": 67,
           "text": {
-            "en_us": "Can only copy skills from: Star / Recaller / Veteran / Broadcaster / Telegrapher / Athlete / Fighter / Ghost / Noisemaker / Singer / Glitch Robot / Clockmaker / Alchemist / Pilot / Painter / Builder / Accountant / Doctor",
-            "zh_cn": "只能复制以下角色的技能: 明星/召回者/退伍军人/广播员/电报员/运动员/斗士/小透明/大嗓门/歌手/故障机器人/钟表匠/药剂师/飞行员/画家/建筑师/会计/医生",
-            "zh_tw": "只能複製以下角色的技能: 明星/召回者/退伍軍人/廣播員/電報員/運動員/鬥士/小透明/大嗓門/歌手/故障機器人/鐘錶匠/藥劑師/飛行員/畫家/建築師/會計/醫生"
+            "en_us": "At most 3 slots",
+            "zh_cn": "最多3个槽位",
+            "zh_tw": "最多3個槽位"
           },
           "point": [
             3.0,
@@ -332,43 +296,15 @@
         },
         {
           "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "idle",
-          "duration": 40
+          "duration": 77
         },
         {
           "type": "text",
           "duration": 148,
           "text": {
-            "en_us": "Apart from copied skills, all skill cooldowns are 90 seconds",
-            "zh_cn": "除复制技能外，所有技能冷却统一为90秒",
-            "zh_tw": "除複製技能外，所有技能冷卻統一為90秒"
+            "en_us": "Press the skill-switch key (default Y) to switch skill slots",
+            "zh_cn": "按下技能切换键（默认Y键）切换技能槽位",
+            "zh_tw": "按下技能切換鍵（默認Y鍵）切換技能槽位"
           },
           "point": [
             3.0,
@@ -383,66 +319,20 @@
           "duration": 158
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "imitator_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
           "type": "indicate_success",
           "blockPos": [
-            5,
+            3,
             0,
-            2
+            3
           ]
         },
         {
-          "type": "idle",
-          "duration": 25
-        },
-        {
           "type": "text",
-          "duration": 85,
+          "duration": 148,
           "text": {
-            "en_us": "Some skills are modified:",
-            "zh_cn": "部分技能有所更改，具体如下：",
-            "zh_tw": "部分技能有所更改，具體如下："
+            "en_us": "Apart from copied skills, all skill cooldowns are 90 seconds",
+            "zh_cn": "除复制技能外，所有技能冷却统一为90秒",
+            "zh_tw": "除複製技能外，所有技能冷卻統一為90秒"
           },
           "point": [
             3.0,
@@ -454,57 +344,15 @@
         },
         {
           "type": "idle",
-          "duration": 95
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "imitator_skill_target_5",
-            "outline": -10223616
-          }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "idle",
-          "duration": 40
+          "duration": 158
         },
         {
           "type": "text",
-          "duration": 142,
+          "duration": 190,
           "text": {
-            "en_us": "Singer skill: roots players within 4 blocks for 2 seconds",
-            "zh_cn": "歌手技能：使四格内的玩家定身2秒",
-            "zh_tw": "歌手技能：使四格內的玩家定身2秒"
+            "en_us": "Newly copied temporary skills overwrite old ones; when all 3 slots are full, devouring another corpse overwrites the earliest slot",
+            "zh_cn": "新复制的临时技能会覆盖掉旧的临时技能,三个槽位占满的情况下，再次吞噬可吞噬尸体，会导致最早复制的槽位被覆盖",
+            "zh_tw": "新複製的臨時技能會覆蓋掉舊的臨時技能,三個槽位占滿的情況下，再次吞噬可吞噬屍體，會導致最早複製的槽位被覆蓋"
           },
           "point": [
             3.0,
@@ -516,209 +364,7 @@
         },
         {
           "type": "idle",
-          "duration": 152
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "imitator_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "text",
-          "duration": 153,
-          "text": {
-            "en_us": "Glitch Robot skill: spawns a Slowness potion cloud at your feet",
-            "zh_cn": "故障机器人技能:在脚下生成一团缓慢效果的药水云",
-            "zh_tw": "故障機器人技能:在腳下生成一團緩慢效果的藥水雲"
-          },
-          "point": [
-            3.0,
-            3.48,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 163
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "imitator_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "text",
-          "duration": 112,
-          "text": {
-            "en_us": "Alchemist skill: brews a dose of arsenic",
-            "zh_cn": "药剂师技能:调制一份鹤顶红",
-            "zh_tw": "藥劑師技能:調製一份鶴頂紅"
-          },
-          "point": [
-            3.15,
-            1.8,
-            2.85
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 122
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            3.9,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:hedinghong",
-          "linkId": "imitator_skill_item_8"
-        },
-        {
-          "type": "idle",
-          "duration": 35
-        },
-        {
-          "type": "text",
-          "duration": 97,
-          "text": {
-            "en_us": "Accountant skill: gain 100 coins",
-            "zh_cn": "会计技能：获得100金币",
-            "zh_tw": "會計技能：獲得100金幣"
-          },
-          "point": [
-            3.15,
-            2.08,
-            2.85
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 107
+          "duration": 200
         },
         {
           "type": "rotate_camera_y",

@@ -152,20 +152,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Plague Time: instantly kills all infected players, instantly refreshes a cooldown, shortens skill cooldown to 3s, shortens spread interval to 10s; infecting everyone then helps the Killer team win.",
-                "zh_cn": "疫使时刻：立即使场上的所有被感染者致死，疫使立即刷新一次冷却，疫使的技能冷却缩短至3秒，病毒传播间隔缩短至10秒，此时感染完所有玩家即可帮助杀手阵营获胜。",
-                "zh_tw": "疫使時刻：立即使場上的所有被感染者致死，疫使立即刷新一次冷卻，疫使的技能冷卻縮短至3秒，病毒傳播間隔縮短至10秒，此時感染完所有玩家即可幫助殺手陣營獲勝。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -175,8 +161,8 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "infected_skill_target_0",
-            "outline": 4294944000
+            "linkId": "infected_infected_target",
+            "outline": 16753920
           }
         },
         {
@@ -184,7 +170,7 @@
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -194,159 +180,71 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_walk",
+          "type": "starrailexpress:role_outline",
           "parameters": {
-            "linkId": "infected_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
+            "linkId": "infected_infected_target",
+            "color": 16753920
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_vitals",
+          "parameters": {
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 1.0,
+                "after": 0.2,
+                "color": 16753920
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "play_sound",
+          "sound": "noellesroles:cough",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_broadcast",
+          "parameters": {
+            "title": {
+              "en_us": "Plague Hour",
+              "zh_cn": "疫使时刻",
+              "zh_tw": "疫使時刻"
+            },
+            "lines": [
+              {
+                "en_us": "All infected die",
+                "zh_cn": "全场感染者致死",
+                "zh_tw": "全場感染者致死"
+              }
             ],
-            "duration": 40
+            "cost": 0,
+            "duration": 120
           },
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "infected_line_item_0",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 113,
-          "text": {
-            "en_us": "Use the skill at a target to infect them.",
-            "zh_cn": "对准目标释放技能使目标进入感染状态",
-            "zh_tw": "對準目標釋放技能使目標進入感染狀態"
-          },
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:catalyst",
+          "duration": 70,
           "point": [
-            3.0,
-            1.8,
+            4.2,
+            2.0,
             3.0
           ],
-          "placeNearTarget": true,
+          "direction": "down",
           "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 123
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "infected_skill_target_1",
-            "outline": 4294944000
-          }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "Plague Time: instantly kills all infected players, instantly refreshes a cooldown, shortens skill cooldown to 3s, shortens spread interval to 10s; infecting everyone then helps the Killer team win.",
-                "zh_cn": "疫使时刻：立即使场上的所有被感染者致死，疫使立即刷新一次冷却，疫使的技能冷却缩短至3秒，病毒传播间隔缩短至10秒，此时感染完所有玩家即可帮助杀手阵营获胜。",
-                "zh_tw": "疫使時刻：立即使場上的所有被感染者致死，疫使立即刷新一次冷卻，疫使的技能冷卻縮短至3秒，病毒傳播間隔縮短至10秒，此時感染完所有玩家即可幫助殺手陣營獲勝。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "infected_death_target_1",
-            "outline": 4294944000
-          }
         },
         {
           "type": "starrailexpress:role_death",
           "parameters": {
-            "linkId": "infected_death_target_1",
+            "linkId": "infected_infected_target",
             "pos": [
               5.0,
               1.0,
@@ -360,9 +258,29 @@
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "Plague Time: instantly kills all infected players, instantly refreshes a cooldown, shortens skill cooldown to 3s, shortens spread interval to 10s; infecting everyone then helps the Killer team win.",
-            "zh_cn": "疫使时刻：立即使场上的所有被感染者致死，疫使立即刷新一次冷却，疫使的技能冷却缩短至3秒，病毒传播间隔缩短至10秒，此时感染完所有玩家即可帮助杀手阵营获胜。",
-            "zh_tw": "疫使時刻：立即使場上的所有被感染者致死，疫使立即刷新一次冷卻，疫使的技能冷卻縮短至3秒，病毒傳播間隔縮短至10秒，此時感染完所有玩家即可幫助殺手陣營獲勝。"
+            "en_us": "When the Plaguebearer is alive and no other Killers remain, the game doesn't end; the Plague Time begins (if a Doctor / Glitch Robot is present, the Plaguebearer dies and the game proceeds normally).",
+            "zh_cn": "当疫使存活且场上无其它杀手时游戏不会结束，此时进入疫使时刻(若场上存在医生/故障机器人，则疫使死亡，游戏正常进行)。",
+            "zh_tw": "當疫使存活且場上無其他殺手時遊戲不會結束，此時進入疫使時刻(若場上存在醫生/故障機器人，則疫使死亡，遊戲正常進行)。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 113,
+          "text": {
+            "en_us": "Use the skill at a target to infect them.",
+            "zh_cn": "对准目标释放技能使目标进入感染状态",
+            "zh_tw": "對準目標釋放技能使目標進入感染狀態"
           },
           "point": [
             3.0,
@@ -374,75 +292,131 @@
         },
         {
           "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "infected_skill_target_2",
-            "outline": 4294944000
-          }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "infected_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
+          "duration": 123
         },
         {
           "type": "indicate_success",
           "blockPos": [
-            5,
+            3,
             0,
-            2
+            3
           ]
         },
         {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Infected players die after 240 seconds; when the Plaguebearer dies, all infections clear.",
+            "zh_cn": "被病毒感染的玩家会在240秒后死亡，疫使死亡时会清除所有玩家的感染状态。",
+            "zh_tw": "被病毒感染的玩家會在240秒後死亡，疫使死亡時會清除所有玩家的感染狀態。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
           "type": "idle",
-          "duration": 25
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Infected players spread the virus to 1 nearby player within 3 blocks every 50 seconds (max 1 per spread).",
+            "zh_cn": "被感染玩家每50秒会将病毒传播给附近3格内的玩家（一次最多传染1人）。",
+            "zh_tw": "被感染玩家每50秒會將病毒傳播給附近3格內的玩家（一次最多傳染1人）。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Plague Time: instantly kills all infected players, instantly refreshes a cooldown, shortens skill cooldown to 3s, shortens spread interval to 10s; infecting everyone then helps the Killer team win.",
+            "zh_cn": "疫使时刻：立即使场上的所有被感染者致死，疫使立即刷新一次冷却，疫使的技能冷却缩短至3秒，病毒传播间隔缩短至10秒，此时感染完所有玩家即可帮助杀手阵营获胜。",
+            "zh_tw": "疫使時刻：立即使場上的所有被感染者致死，疫使立即刷新一次冷卻，疫使的技能冷卻縮短至3秒，病毒傳播間隔縮短至10秒，此時感染完所有玩家即可幫助殺手陣營獲勝。"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 99,
+          "text": {
+            "en_us": "Shop: attendant key and catalyst.",
+            "zh_cn": "商店可购买乘务员钥匙和催化剂",
+            "zh_tw": "商店可購買乘務員鑰匙和催化劑"
+          },
+          "point": [
+            3.0,
+            3.2,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 109
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Catalyst instantly kills virus-infected players on the field (does not kill infected Killer-side Neutrals or Killers).",
+            "zh_cn": "催化剂可以直接使场上被病毒感染的玩家立刻死亡（不会使被感染的杀手方中立和杀手死亡）",
+            "zh_tw": "催化劑可以直接使場上被病毒感染的玩家立刻死亡（不會使被感染的殺手方中立和殺手死亡）"
+          },
+          "point": [
+            3.0,
+            3.48,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
         },
         {
           "type": "text",
@@ -453,9 +427,9 @@
             "zh_tw": "感染特徵：被病毒感染的玩家會時不時發出咳嗽聲，病毒傳播時會發出噴嚏聲，疫使釋放技能感染時會發出注射器的聲音(與使用解毒劑的音效一致)"
           },
           "point": [
-            3.0,
-            2.36,
-            3.0
+            3.15,
+            1.8,
+            2.85
           ],
           "placeNearTarget": true,
           "attachKeyFrame": true

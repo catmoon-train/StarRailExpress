@@ -214,16 +214,10 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_hold",
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "On flyable maps, press the skill key to fly briefly; on non-flyable maps you dash forward instead.",
-                "zh_cn": "在可飞行地图中按下技能键可进行短暂飞行，在不可飞行地图中将会向前进行冲刺。",
-                "zh_tw": "在可飛行地圖中按下技能鍵可進行短暫飛行，在不可飛行地圖中將會向前進行衝刺。"
-              }
-            ]
+            "linkId": "hakurei_reimu_main",
+            "item": "noellesroles:reimu_gohei"
           },
           "attachKeyFrame": true
         },
@@ -232,7 +226,7 @@
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -246,56 +240,29 @@
           "parameters": {
             "linkId": "hakurei_reimu_main",
             "to": [
-              4.1,
-              1.0,
+              5.0,
+              4.0,
               2.0
             ],
-            "duration": 40
+            "duration": 46
           },
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:fake_revolver",
-          "linkId": "hakurei_reimu_line_item_0",
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
+            "lines": [
+              {
+                "en_us": "On flyable maps, press the skill key to fly briefly; on non-flyable maps you dash forward instead.",
+                "zh_cn": "在可飞行地图中按下技能键可进行短暂飞行，在不可飞行地图中将会向前进行冲刺。",
+                "zh_tw": "在可飛行地圖中按下技能鍵可進行短暫飛行，在不可飛行地圖中將會向前進行衝刺。"
+              }
+            ]
+          },
           "attachKeyFrame": true
         },
         {
@@ -309,6 +276,68 @@
           "point": [
             3.0,
             1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:danmuku",
+          "duration": 85,
+          "point": [
+            7.5,
+            2.3,
+            2.0
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "parameters": {
+            "title": {
+              "en_us": "Gohei danmaku",
+              "zh_cn": "御币弹幕",
+              "zh_tw": "御幣彈幕"
+            },
+            "progress": [
+              0.0,
+              1.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You start with an ofuda and can buy bullets; firing bullets through the ofuda is faster than firing them directly!",
+            "zh_cn": "初始自带一个御币，可购买弹幕，使用御币发射弹幕比直接使用弹幕发射速度更快！",
+            "zh_tw": "初始自帶一個禦幣，可購買彈幕，使用禦幣發射彈幕比直接使用彈幕發射速度更快！"
+          },
+          "point": [
+            3.0,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,

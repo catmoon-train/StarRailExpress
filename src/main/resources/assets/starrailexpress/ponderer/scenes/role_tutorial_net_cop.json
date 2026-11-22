@@ -196,43 +196,70 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "net_cop_robbed",
+            "outline": 8421504
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "net_cop_robbed",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              0.2,
+              0.9
+            ],
             "lines": [
               {
-                "en_us": "After the Net Cop kills a player with a melee weapon, the weapon enters a 20-second cooldown; killing with an Explosive Crossbow puts the crossbow on a 12-second cooldown.",
-                "zh_cn": "网警使用近战武器击杀玩家后会使武器进入20秒冷却，使用爆炸弩击杀玩家时会使弩进入12秒冷却。",
-                "zh_tw": "網警使用近戰武器擊殺玩家後會使武器進入20秒冷卻，使用爆炸弩擊殺玩家時會使弩進入12秒冷卻。"
+                "en_us": "Completing a normal task grants 1 game token; completing a minigame task grants 1 extra game token",
+                "zh_cn": "完成普通任务会获得1个游戏代币，完成小游戏任务会额外获得1个游戏代币",
+                "zh_tw": "完成普通任務會獲得1個遊戲代幣，完成小遊戲任務會額外獲得1個遊戲代幣"
               }
             ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "net_cop_line_item_0",
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
-          "duration": 85,
+          "duration": 190,
           "text": {
-            "en_us": "Has a passive coin income",
-            "zh_cn": "拥有被动游戏币收入",
-            "zh_tw": "擁有被動遊戲幣收入"
+            "en_us": "Completing a normal task grants 1 game token; completing a minigame task grants 1 extra game token",
+            "zh_cn": "完成普通任务会获得1个游戏代币，完成小游戏任务会额外获得1个游戏代币",
+            "zh_tw": "完成普通任務會獲得1個遊戲代幣，完成小遊戲任務會額外獲得1個遊戲代幣"
           },
           "point": [
             3.0,
@@ -244,14 +271,14 @@
         },
         {
           "type": "idle",
-          "duration": 95
+          "duration": 200
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -261,52 +288,25 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "net_cop_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
-          },
+          "type": "show_controls",
+          "action": "right",
+          "item": "minecraft:crossbow",
+          "duration": 70,
+          "point": [
+            1.7,
+            1.9,
+            1.8
+          ],
+          "direction": "down",
           "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
         },
         {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "Using the skill swaps your main-hand item to the off-hand; using it again swaps back.",
-            "zh_cn": "释放技能可以将主手物品放到副手，再次释放技能取回副手上的物品。",
-            "zh_tw": "釋放技能可以將主手物品放到副手，再次釋放技能取回副手上的物品。"
+            "en_us": "The shop trades in minigame tokens: you may buy one of an Iron Axe / Diamond Sword / Heavy Hammer (buying grants 8 Wind Charges), and can buy an Explosive Crossbow and Firework Rocket",
+            "zh_cn": "商店中使用小游戏代币交易，可选择购买铁斧/钻石剑/重锤(购买后会获得8个风弹)的其中一个，可购买爆炸弩和烟花火箭",
+            "zh_tw": "商店中使用小遊戲代幣交易，可選擇購買鐵斧/鑽石劍/重錘(購買後會獲得8個風彈)的其中一個，可購買爆炸弩和煙花火箭"
           },
           "point": [
             3.0,
@@ -321,47 +321,73 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_key",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
+            "point": [
+              3.0,
+              3.0,
+              3.0
             ],
-            "yaw": 180.0,
-            "linkId": "net_cop_skill_target_2",
-            "outline": -16728104
-          }
-        },
-        {
-          "type": "idle",
-          "duration": 15
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "net_cop_skill_target_2",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "net_cop_main",
+            "item": "noellesroles:dream_axe"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Using the skill swaps your main-hand item to the off-hand; using it again swaps back.",
+            "zh_cn": "释放技能可以将主手物品放到副手，再次释放技能取回副手上的物品。",
+            "zh_tw": "釋放技能可以將主手物品放到副手，再次釋放技能取回副手上的物品。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
         },
         {
           "type": "idle",
-          "duration": 30
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "minecraft:crossbow",
+          "duration": 70,
+          "point": [
+            1.7,
+            1.9,
+            1.8
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -373,7 +399,54 @@
           },
           "point": [
             3.0,
-            2.36,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "minecraft:crossbow",
+          "duration": 70,
+          "point": [
+            1.7,
+            1.9,
+            1.8
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "The Explosive Crossbow kills the player hit by the firework and deals splash damage to nearby players (this damage drains virtual health but cannot be lethal).",
+            "zh_cn": "爆炸弩会击杀烟花火箭命中的那个玩家，并对周围玩家造成溅射伤害(此伤害会扣除虚拟血量，但不会致死)",
+            "zh_tw": "爆炸弩會擊殺煙花火箭命中的那個玩家，並對周圍玩家造成濺射傷害(此傷害會扣除虛擬血量，但不會致死)"
+          },
+          "point": [
+            3.0,
+            2.92,
             3.0
           ],
           "placeNearTarget": true,

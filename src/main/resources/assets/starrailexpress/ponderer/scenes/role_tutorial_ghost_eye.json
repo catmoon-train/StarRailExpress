@@ -124,28 +124,47 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Active · Uncanny Domain (70s cd): unfold a 12-block, 6s domain at your feet. Inside, all movement slows (Slowness II); Killers can't use see-through; everyone but you is blinded and darkened.",
-                "zh_cn": "主动·诡域(冷却70秒)：在脚下展开半径12格、持续6秒的领域。领域内所有人移速降低(缓慢II)；领域内的杀手无法开启透视；除你之外的所有人陷入失明与黑暗。",
-                "zh_tw": "主動·詭域(冷卻70秒)：在腳下展開半徑12格、持續6秒的領域。領域內所有人移速降低(緩慢II)；領域內的殺手無法開啟透視；除你之外的所有人陷入失明與黑暗。"
-              }
-            ]
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "ghost_eye_scanned",
+            "outline": 16777215
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "ghost_eye_scanned",
+            "color": 16777215
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:block.amethyst_block.chime",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
         },
         {
           "type": "starrailexpress:role_timer",
@@ -156,34 +175,71 @@
             ],
             "lines": [
               {
-                "en_us": "Active · Uncanny Domain (70s cd): unfold a 12-block, 6s domain at your feet. Inside, all movement slows (Slowness II); Killers can't use see-through; everyone but you is blinded and darkened.",
-                "zh_cn": "主动·诡域(冷却70秒)：在脚下展开半径12格、持续6秒的领域。领域内所有人移速降低(缓慢II)；领域内的杀手无法开启透视；除你之外的所有人陷入失明与黑暗。",
-                "zh_tw": "主動·詭域(冷卻70秒)：在腳下展開半徑12格、持續6秒的領域。領域內所有人移速降低(緩慢II)；領域內的殺手無法開啟透視；除你之外的所有人陷入失明與黑暗。"
+                "en_us": "Complete two tasks for a revolver; if you die before getting it, a revolver drops where you fell.",
+                "zh_cn": "完成两个任务后获得左轮手枪；在获得左轮手枪之前阵亡，会在死亡位置掉落一把左轮手枪。",
+                "zh_tw": "完成兩個任務後獲得左輪手槍；在獲得左輪手槍之前陣亡，會在死亡位置掉落一把左輪手槍。"
               }
             ]
           },
           "attachKeyFrame": true
         },
         {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Complete two tasks for a revolver; if you die before getting it, a revolver drops where you fell.",
+            "zh_cn": "完成两个任务后获得左轮手枪；在获得左轮手枪之前阵亡，会在死亡位置掉落一把左轮手枪。",
+            "zh_tw": "完成兩個任務後獲得左輪手槍；在獲得左輪手槍之前陣亡，會在死亡位置掉落一把左輪手槍。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
           "type": "idle",
-          "duration": 40
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:entity.warden.sonic_boom",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
         },
         {
           "type": "spawn_particles",
           "particle": "minecraft:sculk_soul",
           "pos": [
             3.0,
-            1.9,
+            2.0,
             3.0
           ],
           "distribution": "box",
           "spread": [
-            0.35,
-            0.6,
-            0.35
+            6.0,
+            1.0,
+            6.0
           ],
-          "count": 8,
-          "duration": 60,
+          "count": 16,
+          "duration": 120,
           "motion": [
             0,
             0.04,
@@ -191,11 +247,90 @@
           ]
         },
         {
+          "type": "starrailexpress:role_ambience",
+          "parameters": {
+            "color": 1052696,
+            "alpha": 0.5,
+            "mode": "fog"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "title": {
+              "en_us": "Blindness",
+              "zh_cn": "失明、缓慢II",
+              "zh_tw": "失明"
+            },
+            "bars": [
+              {
+                "label": {
+                  "en_us": "Slow II",
+                  "zh_cn": "缓慢 II",
+                  "zh_tw": "緩慢 II"
+                },
+                "before": 0.0,
+                "after": 1.0,
+                "color": 8421504
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Passive · Ghost Eye: every 16s auto-scans 20 blocks around, briefly (2s) showing all outlines in white instinct.",
+            "zh_cn": "被动·鬼眼：每隔16秒自动扫描周身20格范围，短暂(2秒)以白色直觉显示范围内所有玩家的轮廓。",
+            "zh_tw": "被動·鬼眼：每隔16秒自動掃描周身20格範圍，短暫(2秒)以白色直覺顯示範圍內所有玩家的輪廓。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "ghost_eye_scanned",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "create_item_entity",
           "pos": [
-            2.2,
+            5.5,
             1.5,
-            3.0
+            2.0
           ],
           "motion": [
             0.0,
@@ -203,8 +338,8 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "ghost_eye_line_item_0",
+          "item": "trainmurdermystery:revolver",
+          "linkId": "ghost_eye_gun",
           "attachKeyFrame": true
         },
         {
@@ -217,7 +352,7 @@
           },
           "point": [
             3.0,
-            1.8,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,

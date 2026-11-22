@@ -17,7 +17,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 14
+   "texts": 23
   },
   "admirer": {
    "segments": [
@@ -38,7 +38,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_room",
-   "texts": 10
+   "texts": 15
   },
   "agent": {
    "segments": [
@@ -59,7 +59,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 11
+   "texts": 18
   },
   "amnesiac": {
    "segments": [
@@ -86,7 +86,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_graveyard",
-   "texts": 15
+   "texts": 23
   },
   "anatman": {
    "segments": [
@@ -98,7 +98,7 @@
     "form"
    ],
    "structure": "starrailexpress:role_tutorial_carriage",
-   "texts": 12
+   "texts": 17
   },
   "angler": {
    "segments": [
@@ -108,7 +108,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_water",
-   "texts": 7
+   "texts": 10
   },
   "arsonist": {
    "segments": [
@@ -131,7 +131,7 @@
     "vitals"
    ],
    "structure": "starrailexpress:role_tutorial_carriage",
-   "texts": 11
+   "texts": 15
   },
   "athlete": {
    "segments": [
@@ -141,7 +141,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 5
+   "texts": 7
   },
   "attendant": {
    "segments": [
@@ -153,7 +153,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_corridor",
-   "texts": 10
+   "texts": 16
   },
   "avaricious": {
    "segments": [
@@ -218,7 +218,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 10
+   "texts": 16
   },
   "barbarian": {
    "segments": [
@@ -228,7 +228,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 6
+   "texts": 8
   },
   "baseball_player": {
    "segments": [
@@ -259,7 +259,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 9
+   "texts": 14
   },
   "bee_worker": {
    "segments": [
@@ -269,7 +269,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 10
+   "texts": 13
   },
   "best_vigilante": {
    "segments": [
@@ -289,7 +289,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 6
+   "texts": 8
   },
   "blood_feudist": {
    "segments": [
@@ -322,7 +322,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 8
+   "texts": 11
   },
   "broadcaster": {
    "segments": [
@@ -342,7 +342,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 7
+   "texts": 8
   },
   "cake_maker": {
    "segments": [
@@ -354,7 +354,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 11
+   "texts": 16
   },
   "canada_goose": {
    "segments": [
@@ -372,7 +372,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 7
+   "texts": 10
   },
   "candlebearer": {
    "segments": [
@@ -428,7 +428,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 10
+   "texts": 15
   },
   "chef": {
    "segments": [
@@ -441,7 +441,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 14
+   "texts": 17
   },
   "civilian": {
    "segments": [
@@ -459,7 +459,7 @@
     "body"
    ],
    "structure": "starrailexpress:role_tutorial_graveyard",
-   "texts": 5
+   "texts": 6
   },
   "clockmaker": {
    "segments": [
@@ -470,7 +470,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 10
+   "texts": 12
   },
   "clone_doctor": {
    "segments": [
@@ -482,7 +482,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_room",
-   "texts": 14
+   "texts": 16
   },
   "command_block": {
    "segments": [
@@ -512,7 +512,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_room",
-   "texts": 10
+   "texts": 14
   },
   "conspirator": {
    "segments": [
@@ -534,7 +534,7 @@
     "vision"
    ],
    "structure": "starrailexpress:role_tutorial_graveyard",
-   "texts": 7
+   "texts": 9
   },
   "courier": {
    "segments": [
@@ -565,7 +565,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 9
+   "texts": 13
   },
   "cupid": {
    "segments": [
@@ -585,7 +585,7 @@
     "mood"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 5
+   "texts": 7
   },
   "daywalker": {
    "segments": [
@@ -598,7 +598,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 15
+   "texts": 19
   },
   "decree_mage": {
    "segments": [
@@ -609,7 +609,7 @@
     "vision"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 8
+   "texts": 10
   },
   "delayer": {
    "segments": [
@@ -622,7 +622,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 12
+   "texts": 13
   },
   "dictator": {
    "segments": [
@@ -648,7 +648,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_graveyard",
-   "texts": 14
+   "texts": 19
   },
   "disabled_patient": {
    "segments": [
@@ -677,7 +677,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_water",
-   "texts": 9
+   "texts": 13
   },
   "diviner": {
    "segments": [
@@ -716,7 +716,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_graveyard",
-   "texts": 11
+   "texts": 13
   },
   "doremy_sweet": {
    "segments": [
@@ -728,7 +728,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 10
+   "texts": 16
   },
   "dreadlord": {
    "segments": [
@@ -749,7 +749,7 @@
     "vitals"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 11
+   "texts": 12
   },
   "dummy_bird": {
    "segments": [
@@ -771,7 +771,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_room",
-   "texts": 9
+   "texts": 12
   },
   "elf": {
    "segments": [
@@ -783,7 +783,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 8
+   "texts": 12
   },
   "embalmer": {
    "segments": [
@@ -796,7 +796,7 @@
     "form"
    ],
    "structure": "starrailexpress:role_tutorial_graveyard",
-   "texts": 10
+   "texts": 11
   },
   "engineer": {
    "segments": [
@@ -816,7 +816,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 9
+   "texts": 11
   },
   "entity_null": {
    "segments": [
@@ -827,7 +827,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 9
+   "texts": 11
   },
   "error_404": {
    "segments": [
@@ -839,7 +839,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_room",
-   "texts": 13
+   "texts": 19
   },
   "exampler": {
    "segments": [
@@ -851,7 +851,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 11
+   "texts": 16
   },
   "executioner": {
    "segments": [
@@ -877,7 +877,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_graveyard",
-   "texts": 10
+   "texts": 12
   },
   "farlands": {
    "segments": [
@@ -886,7 +886,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 5
+   "texts": 6
   },
   "fat_fish": {
    "segments": [
@@ -896,7 +896,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_water",
-   "texts": 13
+   "texts": 11
   },
   "fighter": {
    "segments": [
@@ -937,7 +937,7 @@
     "shop"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 7
+   "texts": 8
   },
   "forest_mushroom_zombie": {
    "segments": [
@@ -949,7 +949,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_room",
-   "texts": 8
+   "texts": 9
   },
   "fortuneteller": {
    "segments": [
@@ -970,7 +970,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 12
+   "texts": 15
   },
   "futatuiwa_mamizou": {
    "segments": [
@@ -990,7 +990,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_room",
-   "texts": 14
+   "texts": 17
   },
   "gangsters": {
    "segments": [
@@ -1022,7 +1022,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 5
+   "texts": 7
   },
   "glitch_robot": {
    "segments": [
@@ -1034,7 +1034,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 11
+   "texts": 15
   },
   "godfather": {
    "segments": [
@@ -1047,7 +1047,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 15
+   "texts": 17
   },
   "great_detective": {
    "segments": [
@@ -1071,7 +1071,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_room",
-   "texts": 9
+   "texts": 14
   },
   "guest_ghost": {
    "segments": [
@@ -1084,7 +1084,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_room",
-   "texts": 11
+   "texts": 13
   },
   "hakurei_reimu": {
    "segments": [
@@ -1095,7 +1095,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_room",
-   "texts": 6
+   "texts": 7
   },
   "halloween_event": {
    "segments": [
@@ -1117,7 +1117,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 6
+   "texts": 8
   },
   "hata_no_kokoro": {
    "segments": [
@@ -1130,7 +1130,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 9
+   "texts": 12
   },
   "hatate": {
    "segments": [
@@ -1158,7 +1158,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 6
+   "texts": 8
   },
   "hinanawi_tenshi": {
    "segments": [
@@ -1178,7 +1178,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_room",
-   "texts": 11
+   "texts": 13
   },
   "hoto_kokoa": {
    "segments": [
@@ -1220,7 +1220,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 10
+   "texts": 13
   },
   "huziwara_no_mokou": {
    "segments": [
@@ -1261,7 +1261,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_graveyard",
-   "texts": 14
+   "texts": 11
   },
   "infected": {
    "segments": [
@@ -1274,7 +1274,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 15
+   "texts": 20
   },
   "initiate": {
    "segments": [
@@ -1329,7 +1329,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_carriage",
-   "texts": 12
+   "texts": 16
   },
   "kaenbyou_rin": {
    "segments": [
@@ -1399,7 +1399,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_room",
-   "texts": 8
+   "texts": 10
   },
   "koakuma": {
    "segments": [
@@ -1409,7 +1409,7 @@
     "vision"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 8
+   "texts": 10
   },
   "konpaku_youmu": {
    "segments": [
@@ -1419,7 +1419,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 6
+   "texts": 9
   },
   "kotiya_sanae": {
    "segments": [
@@ -1433,7 +1433,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 12
+   "texts": 15
   },
   "lao_da": {
    "segments": [
@@ -1444,7 +1444,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 5
+   "texts": 7
   },
   "leader": {
    "segments": [
@@ -1453,7 +1453,7 @@
     "bond"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 14
+   "texts": 21
   },
   "leather_pig": {
    "segments": [
@@ -1462,7 +1462,7 @@
     "form"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 6
+   "texts": 5
   },
   "lender": {
    "segments": [
@@ -1473,7 +1473,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 14
+   "texts": 17
   },
   "lengxiao": {
    "segments": [
@@ -1494,7 +1494,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 7
+   "texts": 10
   },
   "licensed_villain": {
    "segments": [
@@ -1516,7 +1516,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 13
+   "texts": 15
   },
   "locksmith": {
    "segments": [
@@ -1553,7 +1553,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 9
+   "texts": 12
   },
   "ma_chen_xu": {
    "segments": [
@@ -1562,7 +1562,7 @@
     "skill"
    ],
    "structure": "starrailexpress:role_tutorial_room",
-   "texts": 14
+   "texts": 19
   },
   "mafioso": {
    "segments": [
@@ -1584,7 +1584,7 @@
     "body"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 13
+   "texts": 20
   },
   "magician": {
    "segments": [
@@ -1607,7 +1607,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 5
+   "texts": 7
   },
   "manipulator": {
    "segments": [
@@ -1617,7 +1617,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 5
+   "texts": 7
   },
   "martial_arts_instructor": {
    "segments": [
@@ -1628,7 +1628,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 12
+   "texts": 18
   },
   "meatball": {
    "segments": [
@@ -1674,7 +1674,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_carriage",
-   "texts": 16
+   "texts": 17
   },
   "missionary": {
    "segments": [
@@ -1683,7 +1683,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_room",
-   "texts": 6
+   "texts": 8
   },
   "monitor": {
    "segments": [
@@ -1706,7 +1706,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 15
+   "texts": 21
   },
   "morichika_rinnosuke": {
    "segments": [
@@ -1726,7 +1726,7 @@
     "form"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 6
+   "texts": 7
   },
   "mortician": {
    "segments": [
@@ -1738,7 +1738,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_graveyard",
-   "texts": 7
+   "texts": 11
   },
   "mortician_bodymaker": {
    "segments": [
@@ -1761,7 +1761,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_room",
-   "texts": 10
+   "texts": 15
   },
   "musician_phantom": {
    "segments": [
@@ -1772,7 +1772,7 @@
     "form"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 12
+   "texts": 10
   },
   "mustard": {
    "segments": [
@@ -1784,7 +1784,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_carriage",
-   "texts": 11
+   "texts": 16
   },
   "mustard_puppet": {
    "segments": [
@@ -1794,7 +1794,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 5
+   "texts": 7
   },
   "mystia_lorelei": {
    "segments": [
@@ -1805,7 +1805,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 9
+   "texts": 15
   },
   "nature_spirit": {
    "segments": [
@@ -1816,7 +1816,7 @@
     "form"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 6
+   "texts": 8
   },
   "necromancer": {
    "segments": [
@@ -1842,7 +1842,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_room",
-   "texts": 14
+   "texts": 16
   },
   "nianshou": {
    "segments": [
@@ -1853,7 +1853,7 @@
     "mood"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 9
+   "texts": 12
   },
   "niaoshoushou": {
    "segments": [
@@ -1885,7 +1885,7 @@
     "vitals"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 9
+   "texts": 15
   },
   "noisemaker": {
    "segments": [
@@ -1906,7 +1906,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 12
+   "texts": 20
   },
   "nurse": {
    "segments": [
@@ -1950,7 +1950,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 7
+   "texts": 9
   },
   "pachuri": {
    "segments": [
@@ -1970,7 +1970,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_water",
-   "texts": 14
+   "texts": 17
   },
   "paper_doll": {
    "segments": [
@@ -1979,7 +1979,7 @@
     "vision"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 8
+   "texts": 9
   },
   "parasol": {
    "segments": [
@@ -2001,7 +2001,7 @@
     "form"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 8
+   "texts": 10
   },
   "patroller": {
    "segments": [
@@ -2012,7 +2012,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_room",
-   "texts": 7
+   "texts": 10
   },
   "pelican": {
    "segments": [
@@ -2025,7 +2025,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_room",
-   "texts": 15
+   "texts": 23
   },
   "pendulum": {
    "segments": [
@@ -2035,7 +2035,7 @@
     "vision"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 6
+   "texts": 8
   },
   "phantom": {
    "segments": [
@@ -2054,7 +2054,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 9
+   "texts": 14
   },
   "photographer": {
    "segments": [
@@ -2077,7 +2077,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_room",
-   "texts": 7
+   "texts": 10
   },
   "poisoner": {
    "segments": [
@@ -2152,7 +2152,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 14
+   "texts": 23
   },
   "pumpkin_spirit": {
    "segments": [
@@ -2164,7 +2164,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_room",
-   "texts": 16
+   "texts": 24
   },
   "puppeteer": {
    "segments": [
@@ -2178,7 +2178,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_graveyard",
-   "texts": 15
+   "texts": 24
   },
   "purple_monster": {
    "segments": [
@@ -2203,7 +2203,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_carriage",
-   "texts": 13
+   "texts": 17
   },
   "raven": {
    "segments": [
@@ -2215,7 +2215,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 14
+   "texts": 23
   },
   "reasoner": {
    "segments": [
@@ -2226,7 +2226,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_graveyard",
-   "texts": 8
+   "texts": 11
   },
   "recorder": {
    "segments": [
@@ -2256,7 +2256,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_graveyard",
-   "texts": 7
+   "texts": 11
   },
   "remilia_blood_servant": {
    "segments": [
@@ -2287,7 +2287,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 6
+   "texts": 9
   },
   "rift_walker": {
    "segments": [
@@ -2307,7 +2307,7 @@
     "form"
    ],
    "structure": "starrailexpress:role_tutorial_carriage",
-   "texts": 17
+   "texts": 23
   },
   "saigyouji_yuyuko": {
    "segments": [
@@ -2326,7 +2326,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 5
+   "texts": 6
   },
   "scout": {
    "segments": [
@@ -2337,7 +2337,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_room",
-   "texts": 10
+   "texts": 14
   },
   "scout_captain": {
    "segments": [
@@ -2347,7 +2347,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_room",
-   "texts": 9
+   "texts": 13
   },
   "sea_king": {
    "segments": [
@@ -2359,7 +2359,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_water",
-   "texts": 10
+   "texts": 15
   },
   "shadow_falcon": {
    "segments": [
@@ -2371,7 +2371,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_room",
-   "texts": 12
+   "texts": 13
   },
   "sheriff": {
    "segments": [
@@ -2413,7 +2413,7 @@
     "form"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 8
+   "texts": 12
   },
   "silent_killer": {
    "segments": [
@@ -2431,7 +2431,7 @@
     "shop"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 7
+   "texts": 9
   },
   "singer": {
    "segments": [
@@ -2463,7 +2463,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_graveyard",
-   "texts": 6
+   "texts": 7
   },
   "snow_golem": {
    "segments": [
@@ -2475,7 +2475,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_room",
-   "texts": 12
+   "texts": 16
   },
   "spellbreaker": {
    "segments": [
@@ -2484,7 +2484,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 6
+   "texts": 7
   },
   "stalker": {
    "segments": [
@@ -2496,7 +2496,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 13
+   "texts": 18
   },
   "star": {
    "segments": [
@@ -2518,7 +2518,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_water",
-   "texts": 14
+   "texts": 18
   },
   "steve": {
    "segments": [
@@ -2530,7 +2530,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 9
+   "texts": 12
   },
   "stone_man": {
    "segments": [
@@ -2539,7 +2539,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_carriage",
-   "texts": 6
+   "texts": 7
   },
   "stringer": {
    "segments": [
@@ -2550,7 +2550,7 @@
     "vision"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 7
+   "texts": 9
   },
   "swapper": {
    "segments": [
@@ -2560,7 +2560,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 7
+   "texts": 10
   },
   "swast": {
    "segments": [
@@ -2585,7 +2585,7 @@
     "vitals"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 14
+   "texts": 21
   },
   "tailor": {
    "segments": [
@@ -2596,7 +2596,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 10
+   "texts": 16
   },
   "tamer": {
    "segments": [
@@ -2616,7 +2616,7 @@
     "form"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 8
+   "texts": 12
   },
   "telegrapher": {
    "segments": [
@@ -2687,7 +2687,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 7
+   "texts": 11
   },
   "undead_lord": {
    "segments": [
@@ -2699,7 +2699,7 @@
     "form"
    ],
    "structure": "starrailexpress:role_tutorial_graveyard",
-   "texts": 14
+   "texts": 24
   },
   "veteran": {
    "segments": [
@@ -2711,7 +2711,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 8
+   "texts": 12
   },
   "vigilante": {
    "segments": [
@@ -2731,7 +2731,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 9
+   "texts": 10
   },
   "voodoo": {
    "segments": [
@@ -2789,7 +2789,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 9
+   "texts": 14
   },
   "watchman": {
    "segments": [
@@ -2800,7 +2800,7 @@
     "mood"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 9
+   "texts": 11
   },
   "water_ghost": {
    "segments": [
@@ -2812,7 +2812,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_water",
-   "texts": 11
+   "texts": 14
   },
   "wayfarer": {
    "segments": [
@@ -2823,7 +2823,7 @@
     "form"
    ],
    "structure": "starrailexpress:role_tutorial_graveyard",
-   "texts": 9
+   "texts": 13
   },
   "white_eyes": {
    "segments": [
@@ -2833,7 +2833,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 6
+   "texts": 8
   },
   "wind_yaose": {
    "segments": [
@@ -2844,7 +2844,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 7
+   "texts": 10
   },
   "witch_maiden": {
    "segments": [
@@ -2867,7 +2867,7 @@
     "vitals"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 14
+   "texts": 17
   },
   "wraith_assassin": {
    "segments": [
@@ -2879,7 +2879,7 @@
     "mood"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 10
+   "texts": 14
   },
   "writer": {
    "segments": [
@@ -2899,7 +2899,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 9
+   "texts": 14
   },
   "youlu": {
    "segments": [
@@ -2909,7 +2909,7 @@
     "form"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 6
+   "texts": 8
   },
   "zhang_angel": {
    "segments": [
@@ -2917,7 +2917,7 @@
     "skill"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 6
+   "texts": 5
   }
  },
  "omitted": {

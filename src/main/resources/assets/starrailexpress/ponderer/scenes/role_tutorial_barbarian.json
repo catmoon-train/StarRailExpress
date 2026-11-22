@@ -124,20 +124,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "[Smoke Breath] (skill key): costs 100 coins, creates a 7s smoke cloud at your position. Players inside are blinded and can't use instinct see-through. 60s cd.",
-                "zh_cn": "【烟雾吐息】（技能键）：消耗 100 金币，在当前位置生成一团持续7秒的烟雾。烟雾内的玩家失明且无法开启本能透视。冷却 60 秒。",
-                "zh_tw": "【煙霧吐息】（技能鍵）：消耗 100 金幣，在當前位置生成一團持續7秒的煙霧。煙霧內的玩家失明且無法開啟本能透視。冷卻 60 秒。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -147,16 +133,29 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "barbarian_skill_target_0",
-            "outline": -9810896
+            "linkId": "barbarian_barbarian_victim",
+            "outline": 8421504
           }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "barbarian_barbarian_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -166,21 +165,135 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "barbarian_main",
+            "item": "noellesroles:barbarian_knife"
+          },
+          "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_timer",
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Speed V - night vision - no penalty",
+                "zh_cn": "速度 V · 夜视 · 无小脑惩罚",
+                "zh_tw": "速度 V · 夜視 · 無小腦懲罰"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:entity.ravager.roar",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When a Killer attacks you, if you hold at least 150 coins, you block that hit and enter a 30s Berserk form.",
+            "zh_cn": "被杀手阵营玩家攻击时，若持有至少 150 金币，会抵挡这一次伤害并进入持续 30 秒的魔了形态。",
+            "zh_tw": "被殺手陣營玩家攻擊時，若持有至少 150 金幣，會抵擋這一次傷害並進入持續 30 秒的魔了形態。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "barbarian_main",
+            "item": "noellesroles:barbarian_knife"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Speed V - night vision - no penalty",
+                "zh_cn": "速度 V · 夜视 · 无小脑惩罚",
+                "zh_tw": "速度 V · 夜視 · 無小腦懲罰"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:entity.ravager.roar",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Berserk form (Rampage): enable night vision (Killer instinct, but no player see-through). Gain Speed V and an infinite-durability Savage Blade; blade kills have no cerebellum penalty. Being hit again during Rampage, or when Rampage ends, kills you immediately.",
+            "zh_cn": "魔了形态(疯狂模式)：可以启用夜视（杀手直觉，但无法透视玩家）。获得速度 V 与一把无限耐久的野人利刃；利刃击杀无小脑惩罚。疯狂模式期间再次被攻击，或疯狂模式结束时，会直接死亡。",
+            "zh_tw": "魔了形態(瘋狂模式)：可以啟用夜視（殺手直覺，但無法透視玩家）。獲得速度 V 與一把無限耐久的野人利刃；利刃擊殺無小腦懲罰。瘋狂模式期間再次被攻擊，或瘋狂模式結束時，會直接死亡。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
           "parameters": {
             "progress": [
-              0.0,
-              1.0
+              0.7,
+              0.3
             ],
             "lines": [
               {
@@ -193,24 +306,32 @@
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 40
+          "type": "starrailexpress:role_ambience",
+          "parameters": {
+            "color": 8947848,
+            "alpha": 0.6,
+            "mode": "fog"
+          },
+          "attachKeyFrame": true
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "barbarian_line_item_0",
+          "type": "play_sound",
+          "sound": "minecraft:block.fire.extinguish",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Blind in smoke - no instinct vision",
+                "zh_cn": "烟雾内失明 · 无法本能透视",
+                "zh_tw": "煙霧內失明 · 無法本能透視"
+              }
+            ]
+          },
           "attachKeyFrame": true
         },
         {
@@ -223,7 +344,7 @@
           },
           "point": [
             3.0,
-            1.8,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,

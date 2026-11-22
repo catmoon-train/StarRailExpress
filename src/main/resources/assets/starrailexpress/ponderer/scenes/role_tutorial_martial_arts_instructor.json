@@ -384,25 +384,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "After each player kill, the nunchaku enters a 5s cooldown.",
-                "zh_cn": "每次击杀玩家之后，双节棍会进入5s冷却。",
-                "zh_tw": "每次擊殺玩家之後，雙節棍會進入5s冷卻。"
-              },
-              {
-                "en_us": "Using the nunchaku 3 times in a row puts it on a 5s cooldown even without a kill.",
-                "zh_cn": "连续使用3次双节棍即使不造成击杀也会使双节棍进入5s冷却。",
-                "zh_tw": "連續使用3次雙節棍即使不造成擊殺也會使雙節棍進入5s冷卻。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -412,18 +393,125 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "martial_arts_instructor_skill_target_0",
+            "linkId": "martial_arts_instructor_martial_target",
             "outline": -22016
           }
         },
         {
-          "type": "idle",
-          "duration": 15
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "martial_arts_instructor_main",
+            "item": "trainmurdermystery:nunchuck"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:nunchuck",
+          "duration": 70,
+          "point": [
+            4.2,
+            2.0,
+            3.0
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_knockback",
+          "parameters": {
+            "linkId": "martial_arts_instructor_martial_target",
+            "from": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "to": [
+              3.0,
+              1.0,
+              2.0
+            ],
+            "duration": 12,
+            "arc": 0.25
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_knockback",
+          "parameters": {
+            "linkId": "martial_arts_instructor_martial_target",
+            "from": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "to": [
+              7.0,
+              1.0,
+              2.0
+            ],
+            "duration": 12,
+            "arc": 0.25
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "martial_arts_instructor_main",
+            "pose": "crouching"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "martial_arts_instructor_martial_target",
+            "to": [
+              3.8,
+              1.0,
+              3.0
+            ],
+            "duration": 32
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
+            "lines": [
+              {
+                "en_us": "Starts with Nunchaku, has 2.5x stamina, and cannot pick up Revolvers.",
+                "zh_cn": "开局自带双节棍，拥有2.5倍体力，无法捡起左轮手枪。",
+                "zh_tw": "開局自帶雙節棍，擁有2.5倍體力，無法撿起左輪手槍。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_death",
           "parameters": {
-            "linkId": "martial_arts_instructor_skill_target_0",
+            "linkId": "martial_arts_instructor_martial_target",
             "pos": [
               5.0,
               1.0,
@@ -434,22 +522,10 @@
           "attachKeyFrame": true
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 30
-        },
-        {
           "type": "create_item_entity",
           "pos": [
-            2.2,
-            1.5,
+            3.0,
+            1.6,
             3.0
           ],
           "motion": [
@@ -458,17 +534,17 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:nunchuck",
-          "linkId": "martial_arts_instructor_line_item_0",
+          "item": "trainmurdermystery:revolver",
+          "linkId": "martial_arts_instructor_martial_drop",
           "attachKeyFrame": true
         },
         {
           "type": "text",
-          "duration": 144,
+          "duration": 164,
           "text": {
-            "en_us": "After each player kill, the nunchaku enters a 5s cooldown.",
-            "zh_cn": "每次击杀玩家之后，双节棍会进入5s冷却。",
-            "zh_tw": "每次擊殺玩家之後，雙節棍會進入5s冷卻。"
+            "en_us": "Starts with Nunchaku, has 2.5x stamina, and cannot pick up Revolvers.",
+            "zh_cn": "开局自带双节棍，拥有2.5倍体力，无法捡起左轮手枪。",
+            "zh_tw": "開局自帶雙節棍，擁有2.5倍體力，無法撿起左輪手槍。"
           },
           "point": [
             3.0,
@@ -480,50 +556,151 @@
         },
         {
           "type": "idle",
-          "duration": 154
+          "duration": 174
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "martial_arts_instructor_skill_target_1",
-            "outline": -22016
-          }
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Left-click knocks the nearest player within 5 blocks to the left; right-click knocks them to the right.",
+            "zh_cn": "左键将5格内离你最近的玩家向左击退，右键将5格内离你最近的玩家向右击退。",
+            "zh_tw": "左鍵將5格內離你最近的玩家向左擊退，右鍵將5格內離你最近的玩家向右擊退。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
         },
         {
           "type": "idle",
-          "duration": 15
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "martial_arts_instructor_skill_target_1",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
-          },
-          "attachKeyFrame": true
+          "duration": 200
         },
         {
           "type": "indicate_success",
           "blockPos": [
-            5,
+            3,
             0,
-            2
+            3
           ]
         },
         {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Crouch + left-click pulls a player to in front of you; crouch + right-click pushes them away.",
+            "zh_cn": "蹲下左键将玩家拉到你面前，蹲下右键将玩家推开。",
+            "zh_tw": "蹲下左鍵將玩家拉到你面前，蹲下右鍵將玩家推開。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
           "type": "idle",
-          "duration": 30
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "If this attack knocks the victim into a block, a follow-up attack kills the target outright.",
+            "zh_cn": "如果此次攻击使受击者被击退到方块上，再次攻击则会使目标直接死亡。",
+            "zh_tw": "如果此次攻擊使受擊者被擊退到方塊上，再次攻擊則會使目標直接死亡。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 166,
+          "text": {
+            "en_us": "If the same target takes 3 nunchaku hits within 7s, they die outright.",
+            "zh_cn": "如果在7s内,同个目标连续受到3次棍击，则目标直接死亡。",
+            "zh_tw": "如果在7s內,同個目標連續受到3次棍擊，則目標直接死亡。"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 176
+        },
+        {
+          "type": "text",
+          "duration": 144,
+          "text": {
+            "en_us": "Nunchaku hits give the target Slowness II for 1.5 seconds.",
+            "zh_cn": "双节棍命中目标会使目标获得1.5秒的缓慢2效果。",
+            "zh_tw": "雙節棍命中目標會使目標獲得1.5秒的緩慢2效果。"
+          },
+          "point": [
+            3.0,
+            3.2,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 154
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 144,
+          "text": {
+            "en_us": "After each player kill, the nunchaku enters a 5s cooldown.",
+            "zh_cn": "每次击杀玩家之后，双节棍会进入5s冷却。",
+            "zh_tw": "每次擊殺玩家之後，雙節棍會進入5s冷卻。"
+          },
+          "point": [
+            3.0,
+            3.48,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 154
         },
         {
           "type": "text",
@@ -534,9 +711,9 @@
             "zh_tw": "連續使用3次雙節棍即使不造成擊殺也會使雙節棍進入5s冷卻。"
           },
           "point": [
-            3.0,
-            2.08,
-            3.0
+            3.15,
+            1.8,
+            2.85
           ],
           "placeNearTarget": true,
           "attachKeyFrame": true

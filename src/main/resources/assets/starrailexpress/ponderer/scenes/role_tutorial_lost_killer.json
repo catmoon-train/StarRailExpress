@@ -208,97 +208,107 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "lost_killer_lost_seen",
+            "outline": 65280
+          }
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "lost_killer_lost_seen",
+            "color": 65280
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "lost_killer_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_screen",
+          "parameters": {
+            "title": {
+              "en_us": "Killer skill page",
+              "zh_cn": "杀手技能页面",
+              "zh_tw": "殺手技能頁面"
+            },
+            "hint": {
+              "en_us": "Not a killer ally",
+              "zh_cn": "不是杀手同伙",
+              "zh_tw": "不是殺手同夥"
+            },
+            "columns": 4
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "lost_killer_main",
+            "item": "trainmurdermystery:revolver"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_shop",
+          "parameters": {
+            "role": "lost_killer",
+            "columns": 4
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "parameters": {
             "lines": [
               {
-                "en_us": "Other Killers do not see the Lost Killer as a fellow Killer in the skill page",
-                "zh_cn": "其它杀手通过技能页面看迷失杀手不是杀手同伙",
-                "zh_tw": "其他殺手通過技能頁面看迷失殺手不是殺手同夥"
+                "en_us": "Like the Lost Duck in Goose Goose Duck.",
+                "zh_cn": "类似于鹅鸭杀的走失小鸭",
+                "zh_tw": "類似於鵝鴨殺的走失小鴨"
+              }
+            ],
+            "color": 65280
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "You cannot see game time, have no Killer instinct, and cannot see who your teammates are.",
+                "zh_cn": "你看不到游戏时间，没有杀手本能，看不到队友是谁。",
+                "zh_tw": "你看不到遊戲時間，沒有殺手本能，看不到隊友是誰。"
+              },
+              {
+                "en_us": "Other Killers see the Lost Killer's outline as green via see-through",
+                "zh_cn": "其它杀手通过透视看迷失杀手的框是绿框",
+                "zh_tw": "其他殺手通過透視看迷失殺手的框是綠框"
               }
             ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "lost_killer_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:revolver",
-          "linkId": "lost_killer_line_item_0",
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
-          "duration": 178,
+          "duration": 110,
           "text": {
-            "en_us": "Other Killers do not see the Lost Killer as a fellow Killer in the skill page",
-            "zh_cn": "其它杀手通过技能页面看迷失杀手不是杀手同伙",
-            "zh_tw": "其他殺手通過技能頁面看迷失殺手不是殺手同夥"
+            "en_us": "Like the Lost Duck in Goose Goose Duck.",
+            "zh_cn": "类似于鹅鸭杀的走失小鸭",
+            "zh_tw": "類似於鵝鴨殺的走失小鴨"
           },
           "point": [
             3.0,
@@ -310,7 +320,75 @@
         },
         {
           "type": "idle",
-          "duration": 188
+          "duration": 120
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You cannot see game time, have no Killer instinct, and cannot see who your teammates are.",
+            "zh_cn": "你看不到游戏时间，没有杀手本能，看不到队友是谁。",
+            "zh_tw": "你看不到遊戲時間，沒有殺手本能，看不到隊友是誰。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 162,
+          "text": {
+            "en_us": "Other Killers see the Lost Killer's outline as green via see-through",
+            "zh_cn": "其它杀手通过透视看迷失杀手的框是绿框",
+            "zh_tw": "其他殺手通過透視看迷失殺手的框是綠框"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 172
+        },
+        {
+          "type": "text",
+          "duration": 131,
+          "text": {
+            "en_us": "Starts with a Revolver and the default Killer shop.",
+            "zh_cn": "开局自带一把左轮手枪，拥有默认的杀手商店。",
+            "zh_tw": "開局自帶一把左輪手槍，擁有默認的殺手商店。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 141
         },
         {
           "type": "rotate_camera_y",

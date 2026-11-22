@@ -150,9 +150,26 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_key",
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
             "lines": [
               {
                 "en_us": "Draws a new role every 120s; choose with the skill key.",
@@ -164,74 +181,21 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_key",
+          "type": "starrailexpress:role_panel",
           "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
+            "title": {
+              "en_us": "Drawn roles",
+              "zh_cn": "抽到的职业",
+              "zh_tw": "抽到的職業"
+            },
+            "lines": [
+              {
+                "en_us": "Draws a new role every 120s; choose with the skill key.",
+                "zh_cn": "每120s抽取一个职业，使用技能键进行选择。",
+                "zh_tw": "每120s抽取一個職業，使用技能鍵進行選擇。"
+              }
+            ]
           },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "gambler_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:once_revolver",
-          "linkId": "gambler_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -253,6 +217,339 @@
         {
           "type": "idle",
           "duration": 149
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
+            "lines": [
+              {
+                "en_us": "Can crouch and use a pistol on yourself to suicide into the chosen role.",
+                "zh_cn": "可使用手枪蹲下自杀变为选择的职业。",
+                "zh_tw": "可使用手槍蹲下自殺變為選擇的職業。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": {
+              "en_us": "Drawn roles",
+              "zh_cn": "抽到的职业",
+              "zh_tw": "抽到的職業"
+            },
+            "lines": [
+              {
+                "en_us": "Can crouch and use a pistol on yourself to suicide into the chosen role.",
+                "zh_cn": "可使用手枪蹲下自杀变为选择的职业。",
+                "zh_tw": "可使用手槍蹲下自殺變為選擇的職業。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "gambler_main",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "gambler_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "parameters": {
+            "title": {
+              "en_us": "New role",
+              "zh_cn": "转职结果",
+              "zh_tw": "轉職結果"
+            },
+            "progress": [
+              0.25,
+              0.5
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 169,
+          "text": {
+            "en_us": "Can crouch and use a pistol on yourself to suicide into the chosen role.",
+            "zh_cn": "可使用手枪蹲下自杀变为选择的职业。",
+            "zh_tw": "可使用手槍蹲下自殺變為選擇的職業。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 179
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
+            "lines": [
+              {
+                "en_us": "After being killed by someone: 33% chance to become a Killer-team role,",
+                "zh_cn": "被别人杀死后有33%概率变成杀手阵营职业,",
+                "zh_tw": "被別人殺死後有33%概率變成殺手陣營職業,"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": {
+              "en_us": "Drawn roles",
+              "zh_cn": "抽到的职业",
+              "zh_tw": "抽到的職業"
+            },
+            "lines": [
+              {
+                "en_us": "After being killed by someone: 33% chance to become a Killer-team role,",
+                "zh_cn": "被别人杀死后有33%概率变成杀手阵营职业,",
+                "zh_tw": "被別人殺死後有33%概率變成殺手陣營職業,"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "gambler_main",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "gambler_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "parameters": {
+            "title": {
+              "en_us": "New role",
+              "zh_cn": "转职结果",
+              "zh_tw": "轉職結果"
+            },
+            "progress": [
+              0.5,
+              0.75
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 167,
+          "text": {
+            "en_us": "After being killed by someone: 33% chance to become a Killer-team role,",
+            "zh_cn": "被别人杀死后有33%概率变成杀手阵营职业,",
+            "zh_tw": "被別人殺死後有33%概率變成殺手陣營職業,"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 177
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
+            "lines": [
+              {
+                "en_us": "When the Gambler suicides with a revolver or is killed by others (unless they immediately die from the bet), they return to their room",
+                "zh_cn": "赌徒使用左轮自杀或被他人击杀(如果不是赌中直接死亡的话)时会回到自己的房间",
+                "zh_tw": "賭徒使用左輪自殺或被他人擊殺(如果不是賭中直接死亡的話)時會回到自己的房間"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": {
+              "en_us": "Drawn roles",
+              "zh_cn": "抽到的职业",
+              "zh_tw": "抽到的職業"
+            },
+            "lines": [
+              {
+                "en_us": "When the Gambler suicides with a revolver or is killed by others (unless they immediately die from the bet), they return to their room",
+                "zh_cn": "赌徒使用左轮自杀或被他人击杀(如果不是赌中直接死亡的话)时会回到自己的房间",
+                "zh_tw": "賭徒使用左輪自殺或被他人擊殺(如果不是賭中直接死亡的話)時會回到自己的房間"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "gambler_main",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "gambler_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "parameters": {
+            "title": {
+              "en_us": "New role",
+              "zh_cn": "转职结果",
+              "zh_tw": "轉職結果"
+            },
+            "progress": [
+              0.75,
+              1.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When the Gambler suicides with a revolver or is killed by others (unless they immediately die from the bet), they return to their room",
+            "zh_cn": "赌徒使用左轮自杀或被他人击杀(如果不是赌中直接死亡的话)时会回到自己的房间",
+            "zh_tw": "賭徒使用左輪自殺或被他人擊殺(如果不是賭中直接死亡的話)時會回到自己的房間"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
         },
         {
           "type": "rotate_camera_y",

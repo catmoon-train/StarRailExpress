@@ -124,20 +124,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Aim at a target and use the skill to view and buy items from their shop inside your own inventory (normal items only). The target's shop appears behind your Killer shop, priced at 150% of their cost. Selection cooldown 60s.",
-                "zh_cn": "你可以对准目标使用技能，在自己背包内查看并购买对方的商店物品（仅限普通物品）。目标的商店会显示在自己杀手商店后面，价格为对方职业购买该物品金额的150%。选择冷却60s。",
-                "zh_tw": "你可以對準目標使用技能，在自己背包內查看並購買對方的商店物品（僅限普通物品）。目標的商店會顯示在自己殺手商店後面，價格為對方職業購買該物品金額的150%。選擇冷卻60s。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -147,7 +133,7 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "futatuiwa_mamizou_skill_target_0",
+            "linkId": "futatuiwa_mamizou_shop_target",
             "outline": -9350841
           }
         },
@@ -156,7 +142,7 @@
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -166,17 +152,48 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_outline",
+          "type": "starrailexpress:role_walk",
           "parameters": {
-            "linkId": "futatuiwa_mamizou_skill_target_0",
-            "color": -9350841
+            "linkId": "futatuiwa_mamizou_main",
+            "to": [
+              4.0,
+              1.0,
+              2.0
+            ],
+            "duration": 38
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_bond",
+          "parameters": {
+            "title": {
+              "en_us": "Target shop",
+              "zh_cn": "读取目标商店",
+              "zh_tw": "讀取目標商店"
+            },
+            "lines": [
+              {
+                "en_us": "Aim at a target and use the skill to view and buy items from their shop inside your own inventory (normal items only). The target's shop appears behind your Killer shop, priced at 150% of their cost. Selection cooldown 60s.",
+                "zh_cn": "你可以对准目标使用技能，在自己背包内查看并购买对方的商店物品（仅限普通物品）。目标的商店会显示在自己杀手商店后面，价格为对方职业购买该物品金额的150%。选择冷却60s。",
+                "zh_tw": "你可以對準目標使用技能，在自己背包內查看並購買對方的商店物品（僅限普通物品）。目標的商店會顯示在自己殺手商店後面，價格為對方職業購買該物品金額的150%。選擇冷卻60s。"
+              }
+            ],
+            "progress": [
+              0.0,
+              1.0
+            ]
           },
           "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_panel",
           "parameters": {
-            "title": "ponder.starrailexpress.label.items",
+            "title": {
+              "en_us": "Target shop 150%",
+              "zh_cn": "目标商店（150%）",
+              "zh_tw": "目標商店 150%"
+            },
             "lines": [
               {
                 "en_us": "Aim at a target and use the skill to view and buy items from their shop inside your own inventory (normal items only). The target's shop appears behind your Killer shop, priced at 150% of their cost. Selection cooldown 60s.",
@@ -188,37 +205,20 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_walk",
+          "type": "starrailexpress:role_currency",
           "parameters": {
-            "linkId": "futatuiwa_mamizou_skill_target_0",
-            "to": [
-              6.2,
+            "progress": [
               1.0,
-              2.0
+              0.5
             ],
-            "duration": 40
+            "lines": [
+              {
+                "en_us": "Aim at a target and use the skill to view and buy items from their shop inside your own inventory (normal items only). The target's shop appears behind your Killer shop, priced at 150% of their cost. Selection cooldown 60s.",
+                "zh_cn": "你可以对准目标使用技能，在自己背包内查看并购买对方的商店物品（仅限普通物品）。目标的商店会显示在自己杀手商店后面，价格为对方职业购买该物品金额的150%。选择冷却60s。",
+                "zh_tw": "你可以對準目標使用技能，在自己背包內查看並購買對方的商店物品（僅限普通物品）。目標的商店會顯示在自己殺手商店後面，價格為對方職業購買該物品金額的150%。選擇冷卻60s。"
+              }
+            ]
           },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "futatuiwa_mamizou_line_item_0",
           "attachKeyFrame": true
         },
         {
