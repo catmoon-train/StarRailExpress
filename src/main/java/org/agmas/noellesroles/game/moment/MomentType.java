@@ -58,7 +58,7 @@ public enum MomentType {
     /** 恶魔之妹时刻（芙兰朵露最后立会）。 */
     FURANDORU("furandoru", NRSounds.ROLES_FURANDORU_FINAL, null, 1.0F, SoundSource.MASTER, 10, 20),
     /** 黑警时刻。 */
-    LICENSED_VILLAIN("licensed_villain", NRSounds.FATE, null, 0.75F, SoundSource.MASTER, 10, 20),
+    LICENSED_VILLAIN("licensed_villain", NRSounds.FATE, null, 0.7F, SoundSource.MASTER, 10, 20),
     /** 疫使时刻：没有音乐，只有触发瞬间的一小段提示音效。 */
     INFECTED("infected", null, new Cue(SoundEvents.WITCH_CELEBRATE, SoundSource.MASTER, 1.0F, 1.0F),
             1.0F, SoundSource.MASTER, 10, 20),
