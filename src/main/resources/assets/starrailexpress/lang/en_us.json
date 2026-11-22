@@ -4,6 +4,8 @@
   "ponder.starrailexpress.step.role_walk": "Role walk",
   "ponder.starrailexpress.step.role_teleport": "Role teleport",
   "ponder.starrailexpress.step.role_key": "Key hint",
+  "ponder.starrailexpress.step.role_knockback": "Player knockback",
+  "ponder.starrailexpress.step.role_broadcast": "Broadcast screen",
   "ponder.starrailexpress.ponder.press_skill": "Press the skill key",
   "ponder.starrailexpress.ponder.press_next_ability": "Press the skill switch key",
   "ponder.starrailexpress.step.role_domain": "Domain scene",

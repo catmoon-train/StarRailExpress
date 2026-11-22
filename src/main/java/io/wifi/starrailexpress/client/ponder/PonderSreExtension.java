@@ -143,6 +143,12 @@ public final class PonderSreExtension {
     /** 环境染色：近似表现紫天 / 橙天 / 夜雾。 */
     public static final String STEP_ROLE_AMBIENCE = "starrailexpress:role_ambience";
 
+    /** 把已存在的玩家模型沿指定方向击退（先快后慢 + 抛物线腾空）。 */
+    public static final String STEP_ROLE_KNOCKBACK = "starrailexpress:role_knockback";
+
+    /** 在屏幕上方显示广播消息界面（广播员技能键打开的那一页）。 */
+    public static final String STEP_ROLE_BROADCAST = "starrailexpress:role_broadcast";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PonderSreExtension.class);
 
     /** 扩展步骤在编辑器与覆盖层里显示的文本全部走语言文件。 */
@@ -183,6 +189,8 @@ public final class PonderSreExtension {
         engine.steps().register(STEP_ROLE_SCALE, new RoleScaleStep());
         engine.steps().register(STEP_ROLE_SCREEN, new RoleScreenStep());
         engine.steps().register(STEP_ROLE_AMBIENCE, new RoleAmbienceStep());
+        engine.steps().register(STEP_ROLE_KNOCKBACK, new RoleKnockbackStep());
+        engine.steps().register(STEP_ROLE_BROADCAST, new RoleBroadcastStep());
         LOGGER.info("StarRailExpress Ponderer extension installed: {}", EXTENSION_ID);
     }
 
@@ -1116,6 +1124,146 @@ public final class PonderSreExtension {
         }
     }
 
+    /** {@code role_knockback} 的参数。 */
+    record RoleKnockbackParams(String linkId, Vec3 from, Vec3 to, Integer duration,
+                               Float arc, ResourceLocation skin, Integer outline,
+                               String heldItem, Pose pose) {
+    }
+
+    /** 击退步骤：复用走动的时间轴推进，但用先快后慢 + 抛物线的位移曲线。 */
+    static final class RoleKnockbackStep implements StepType<RoleKnockbackParams> {
+        @Override
+        public StepCodec<RoleKnockbackParams> codec() {
+            return new StepCodec<>() {
+                @Override
+                public RoleKnockbackParams decode(JsonObject data) {
+                    Vec3 from = readVec(data, "from", new Vec3(2.0, 1.0, 4.0));
+                    return new RoleKnockbackParams(readString(data, "linkId"), from,
+                            readVec(data, "to", from), readInt(data, "duration"),
+                            readFloat(data, "arc"), readSkin(data), readInt(data, "outline"),
+                            readString(data, "heldItem"), readPose(data));
+                }
+
+                @Override
+                public JsonObject encode(RoleKnockbackParams value) {
+                    JsonObject data = new JsonObject();
+                    data.addProperty("from", value.from().x + "," + value.from().y + "," + value.from().z);
+                    data.addProperty("to", value.to().x + "," + value.to().y + "," + value.to().z);
+                    if (value.linkId() != null) {
+                        data.addProperty("linkId", value.linkId());
+                    }
+                    if (value.duration() != null) {
+                        data.addProperty("duration", value.duration());
+                    }
+                    if (value.arc() != null) {
+                        data.addProperty("arc", value.arc());
+                    }
+                    return data;
+                }
+            };
+        }
+
+        @Override
+        public String editorLabel() {
+            return text(KEY_PREFIX + "role_knockback");
+        }
+
+        @Override
+        public void build(RoleKnockbackParams params, StepBuildContext context) {
+            SceneBuilder scene = context.builder();
+            int ticks = params.duration() == null ? 14 : Math.max(1, params.duration());
+            float arc = params.arc() == null ? 0.45F : params.arc();
+            Vec3 to = params.to();
+            PonderPlayerElement existing = playerElement(context, params.linkId());
+            if (existing != null) {
+                scheduleKnockback(scene, existing, to, ticks, arc);
+                return;
+            }
+            Vec3 from = params.from();
+            PonderPlayerPreset.Builder builder = PonderPlayerPreset.at(from).facing(180.0F);
+            if (params.skin() != null) {
+                builder.skin(params.skin());
+            }
+            if (params.outline() != null) {
+                builder.outline(params.outline());
+            }
+            builder.pose(params.pose());
+            builder.addTo(scene, element -> {
+                if (params.linkId() != null && !params.linkId().isBlank()) {
+                    context.state().put(params.linkId(), element);
+                }
+                scheduleKnockback(scene, element, to, ticks, arc);
+            });
+        }
+    }
+
+    /** {@code role_broadcast} 的参数。 */
+    record RoleBroadcastParams(PonderLocalizedText title, List<PonderLocalizedText> lines,
+                               Integer duration, Integer cost) {
+    }
+
+    /** 广播消息界面步骤：按技能键打开的那一页 + 顶部绿色消息条。 */
+    static final class RoleBroadcastStep implements StepType<RoleBroadcastParams> {
+        @Override
+        public StepCodec<RoleBroadcastParams> codec() {
+            return new StepCodec<>() {
+                @Override
+                public RoleBroadcastParams decode(JsonObject data) {
+                    return new RoleBroadcastParams(readLocalized(data, "title"),
+                            readBroadcastLines(data), readInt(data, "duration"),
+                            readInt(data, "cost"));
+                }
+
+                @Override
+                public JsonObject encode(RoleBroadcastParams value) {
+                    JsonObject data = new JsonObject();
+                    if (value.title() != null) {
+                        data.addProperty("title", value.title().plain());
+                    }
+                    JsonArray lines = new JsonArray();
+                    value.lines().forEach(line -> lines.add(line.plain()));
+                    data.add("lines", lines);
+                    if (value.duration() != null) {
+                        data.addProperty("duration", value.duration());
+                    }
+                    if (value.cost() != null) {
+                        data.addProperty("cost", value.cost());
+                    }
+                    return data;
+                }
+            };
+        }
+
+        @Override
+        public String editorLabel() {
+            return text(KEY_PREFIX + "role_broadcast");
+        }
+
+        private static List<PonderLocalizedText> readBroadcastLines(JsonObject data) {
+            if (data == null || !data.has("lines") || data.get("lines").isJsonNull()) {
+                return List.of();
+            }
+            JsonElement element = data.get("lines");
+            List<PonderLocalizedText> result = new ArrayList<>();
+            if (element.isJsonArray()) {
+                for (JsonElement line : element.getAsJsonArray()) {
+                    result.add(PonderLocalizedText.fromJson(line));
+                }
+            } else {
+                result.add(PonderLocalizedText.fromJson(element));
+            }
+            return List.copyOf(result);
+        }
+
+        @Override
+        public void build(RoleBroadcastParams params, StepBuildContext context) {
+            new PonderBroadcastOverlayElement(params.title(), params.lines(),
+                    params.cost() == null ? -1 : params.cost())
+                    .addTo(context.builder(), params.duration() == null ? 160 :
+                            Math.max(1, params.duration()));
+        }
+    }
+
     /** 控件的指向：默认从上方指下来。 */
     private static Pointing parseDirection(String raw) {        if (raw == null || raw.isBlank()) {
             return Pointing.DOWN;
@@ -1184,6 +1332,30 @@ public final class PonderSreExtension {
                     return;
                 }
                 target.setWalkProgress(progress);
+            });
+            scene.idle(1);
+        }
+    }
+
+    /** 与 {@link #scheduleWalk} 同构，但走击退的抛物线位移曲线。 */
+    private static void scheduleKnockback(SceneBuilder scene, @Nullable PonderPlayerElement element,
+                                          Vec3 to, int ticks, float arc) {
+        int total = Math.max(1, ticks);
+        scene.addInstruction(ps -> {
+            PonderPlayerElement target = resolvePlayer(ps, element);
+            if (target == null) {
+                LOGGER.warn("role_knockback: 场景里找不到玩家模型，击退被跳过（to={}）", to);
+                return;
+            }
+            target.beginKnockback(to, total, arc);
+        });
+        for (int step = 1; step <= total; step++) {
+            final float progress = step / (float) total;
+            scene.addInstruction(ps -> {
+                PonderPlayerElement target = resolvePlayer(ps, element);
+                if (target != null) {
+                    target.setWalkProgress(progress);
+                }
             });
             scene.idle(1);
         }

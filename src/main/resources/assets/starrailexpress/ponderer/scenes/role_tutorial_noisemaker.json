@@ -277,9 +277,106 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "noisemaker_shout_target"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              6.4,
+              1.0,
+              2.6
+            ],
+            "yaw": 180.0,
+            "linkId": "noisemaker_shout_bystander"
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 15
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "noisemaker_main",
+            "color": 4294967142
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "noisemaker_shout_target",
+            "color": 4294967142
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "noisemaker_shout_bystander",
+            "color": 4294967142
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:block.note_block.harp",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_knockback",
+          "parameters": {
+            "linkId": "noisemaker_shout_target",
+            "from": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "to": [
+              7.2,
+              1.0,
+              2.0
+            ],
+            "duration": 14,
+            "arc": 0.42
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
             "lines": [
               {
                 "en_us": "Using the skill quadruples your speaking range and ignores any voice-changing effects.",
@@ -291,75 +388,15 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "noisemaker_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
+          "type": "play_sound",
+          "sound": "minecraft:entity.warden.sonic_boom",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
         },
         {
           "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:radio",
-          "linkId": "noisemaker_line_item_0",
-          "attachKeyFrame": true
+          "duration": 30
         },
         {
           "type": "text",

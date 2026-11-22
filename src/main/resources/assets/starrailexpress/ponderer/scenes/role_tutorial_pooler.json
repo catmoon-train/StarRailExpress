@@ -317,25 +317,25 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Use the skill switch key to cycle between the four skills.",
-                "zh_cn": "使用技能切换键可在四个技能间循环切换",
-                "zh_tw": "使用技能切換鍵可在四個技能間迴圈切換"
-              }
-            ]
-          },
-          "attachKeyFrame": true
+            "pos": [
+              3.0,
+              1.0,
+              4.0
+            ],
+            "yaw": 180.0,
+            "linkId": "pooler_moon_target",
+            "outline": -8866561
+          }
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -346,33 +346,18 @@
           "attachKeyFrame": true
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": "技能轮盘",
+            "lines": [
+              "奔涌 / 吞月 / 水中镜 / 称颂"
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "idle",
           "duration": 25
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:moon_blessing",
-          "linkId": "pooler_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -399,38 +384,29 @@
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
             "duration": 60,
-            "keyBind": "ability"
+            "keyBind": "next_ability",
+            "text": "ponder.starrailexpress.ponder.press_next_ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_hold",
+          "type": "starrailexpress:role_panel",
           "parameters": {
-            "linkId": "pooler_main",
-            "item": "noellesroles:moon_blessing"
+            "title": "技能轮盘",
+            "lines": [
+              "奔涌 / 吞月 / 水中镜 / 称颂"
+            ]
           },
           "attachKeyFrame": true
-        },
-        {
-          "type": "show_controls",
-          "action": "right",
-          "item": "noellesroles:moon_blessing",
-          "duration": 65,
-          "point": [
-            2.2,
-            2.2,
-            3.0
-          ],
-          "direction": "down"
         },
         {
           "type": "idle",
-          "duration": 30
+          "duration": 25
         },
         {
           "type": "text",

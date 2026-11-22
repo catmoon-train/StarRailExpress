@@ -70,6 +70,8 @@ SOURCE_PARTICLES = {
 ITEM_EFFECT_PARTICLES = {
     "noellesroles:deathblood", "minecraft:dripping_water", "minecraft:sneeze",
     "minecraft:campfire_cosy_smoke", "minecraft:explosion",
+    # CreeperRoleData:240 / NoellesrolesClient:691-730 的彩虹爆炸粒子。
+    "minecraft:dust_color_transition",
 }
 
 violations = []

@@ -206,14 +206,21 @@
           ]
         },
         {
-          "type": "starrailexpress:role_teleport",
+          "type": "starrailexpress:role_knockback",
           "parameters": {
             "linkId": "jade_general_kick_target",
-            "pos": [
+            "from": [
+              3.0,
+              1.0,
+              4.5
+            ],
+            "to": [
               5.0,
               1.0,
-              0.8
-            ]
+              3.0
+            ],
+            "duration": 12,
+            "arc": 0.17
           },
           "attachKeyFrame": true
         },
@@ -287,14 +294,21 @@
           ]
         },
         {
-          "type": "starrailexpress:role_teleport",
+          "type": "starrailexpress:role_knockback",
           "parameters": {
             "linkId": "jade_general_kick_target",
-            "pos": [
+            "from": [
+              3.0,
+              1.0,
+              4.5
+            ],
+            "to": [
               5.0,
               1.0,
-              0.8
-            ]
+              3.0
+            ],
+            "duration": 12,
+            "arc": 0.17
           },
           "attachKeyFrame": true
         },

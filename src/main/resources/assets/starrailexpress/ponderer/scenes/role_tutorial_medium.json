@@ -124,20 +124,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Press the skill key at a corpse and spend 150 coins to question the dead within 20 seconds.",
-                "zh_cn": "对着尸体按下技能键，花费150金币即可在20秒内询问死者。",
-                "zh_tw": "對著屍體按下技能鍵，花費150金幣即可在20秒內詢問死者。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -147,45 +133,13 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "medium_skill_target_0",
-            "outline": -10727768
+            "linkId": "medium_body"
           }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "medium_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 45
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 15
         },
         {
           "type": "starrailexpress:role_death",
           "parameters": {
-            "linkId": "medium_skill_target_0",
+            "linkId": "medium_body",
             "pos": [
               5.0,
               1.0,
@@ -196,33 +150,77 @@
           "attachKeyFrame": true
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.25
+            ],
+            "lines": [
+              "花费 150 金币"
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:block.amethyst_block.chime",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_teleport",
+          "parameters": {
+            "linkId": "medium_body",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": "通灵界面",
+            "lines": [
+              "死者与通灵师对话 · 20 秒"
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              "20 秒"
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "idle",
           "duration": 30
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "medium_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",

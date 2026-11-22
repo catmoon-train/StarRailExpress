@@ -222,21 +222,42 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Press the skill key to spend 1 stealth charge for 18 seconds of invisibility.",
-                "zh_cn": "按技能键可消耗1次隐身机会，进入18秒隐身。",
-                "zh_tw": "按技能鍵可消耗1次隱身機會，進入18秒隱身。"
-              },
-              {
-                "en_us": "Each lighting of a living person has a 1.5-second cooldown before you can light again",
-                "zh_cn": "每次为活人秉烛需要等待1.5秒冷却后才能再次秉烛",
-                "zh_tw": "每次為活人秉燭需要等待1.5秒冷卻後才能再次秉燭"
-              }
-            ]
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "candlebearer_candle_target",
+            "outline": 4294955640
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "candlebearer_candle_corpse"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "candlebearer_candle_corpse",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
           },
           "attachKeyFrame": true
         },
@@ -245,7 +266,7 @@
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -255,52 +276,48 @@
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "candlebearer_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_timer",
+          "type": "starrailexpress:role_effects",
           "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
             "lines": [
-              {
-                "en_us": "Press the skill key to spend 1 stealth charge for 18 seconds of invisibility.",
-                "zh_cn": "按技能键可消耗1次隐身机会，进入18秒隐身。",
-                "zh_tw": "按技能鍵可消耗1次隱身機會，進入18秒隱身。"
-              }
+              "隐身 18 秒"
             ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 40
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "candlebearer_candle_target",
+            "color": 4294967142
+          },
+          "attachKeyFrame": true
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:lockpick",
-          "linkId": "candlebearer_line_item_0",
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "candlebearer_candle_corpse",
+            "color": 4294967142
+          },
           "attachKeyFrame": true
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:block.bell.resonate",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "idle",
+          "duration": 30
         },
         {
           "type": "text",
@@ -323,18 +340,62 @@
           "duration": 188
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "candlebearer_main",
+            "visible": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              "隐身 18 秒"
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "candlebearer_candle_target",
+            "color": 4294967142
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "candlebearer_candle_corpse",
+            "color": 4294967142
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:block.bell.resonate",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
         },
         {
           "type": "idle",
-          "duration": 40
+          "duration": 30
         },
         {
           "type": "text",
@@ -355,6 +416,14 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_hide",
+          "parameters": {
+            "linkId": "candlebearer_main",
+            "visible": true
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "rotate_camera_y",

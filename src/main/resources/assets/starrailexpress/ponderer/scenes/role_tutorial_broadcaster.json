@@ -274,6 +274,105 @@
       ]
     },
     {
+      "id": "skill",
+      "title": {
+        "en_us": "Broadcaster",
+        "zh_cn": "广播员",
+        "zh_tw": "廣播員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "broadcaster_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.5
+            ],
+            "lines": [
+              {
+                "zh_cn": "你开局拥有200金币，可以花费50金币进行一次全服广播，开局自带一个对讲机。",
+                "en_us": "You start with 200 coins and can spend 50 on a server-wide broadcast; you also start with a walkie-talkie.",
+                "zh_tw": "你開局擁有200金幣，可以花費50金幣進行一次全廣播，開局自帶一個對講機。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_broadcast",
+          "parameters": {
+            "title": "screen.noellesroles.broadcaster.title",
+            "lines": [
+              "screen.noellesroles.broadcaster.placeholder",
+              "tip.broadcaster.with_cost"
+            ],
+            "cost": 50,
+            "duration": 120
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "zh_cn": "你开局拥有200金币，可以花费50金币进行一次全服广播，开局自带一个对讲机。",
+            "en_us": "You start with 200 coins and can spend 50 on a server-wide broadcast; you also start with a walkie-talkie.",
+            "zh_tw": "你開局擁有200金幣，可以花費50金幣進行一次全廣播，開局自帶一個對講機。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
       "id": "panel",
       "title": {
         "en_us": "Broadcaster",

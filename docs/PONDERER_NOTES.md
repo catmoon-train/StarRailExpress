@@ -986,3 +986,55 @@ indicate_success [2,0,4] + idle 80 + rotate_camera_y
 `audit_ponder_authoring.py`：269 场景 0 violation；`verify_ponder_scenes.py`：272 场景
 0 error / 2 条既有 warning。
 
+## 26. 技能逐个重做与新扩展（2026-11-22）
+
+### 26.1 为什么不能批量套模板
+
+技能段原先由 `build_skill_act()` 按句子里的关键词拼通用动作：键帽 + 走动 + 高亮 + 计时。
+175 个带 `skill` 段的职业里，大量职业技能被演成同一个样子——例如大嗓门的击退 / 发光、
+广播员的按技能键打开广播页都被漏掉。用户点名要求按职业逐个重做，因此新增专属
+`ROLE_SEGMENT_OVERRIDES`，每个职业按自己的源码行为编排，不再共享通用模板。
+
+### 26.2 新增 Ponderer 步骤
+
+现有 25 个步骤不足以表达某些技能的独特表现，补充两个：
+
+| 步骤 | 参数 | 用途 |
+| --- | --- | --- |
+| `starrailexpress:role_knockback` | `linkId`, `from`, `to`, `duration`, `arc` | 玩家被击退：复用走动时间轴，但用 `1-(1-t)^2` 先快后慢 + Y 抛物线腾空；`PonderPlayerElement.beginKnockback()` 实现位移曲线。 |
+| `starrailexpress:role_broadcast` | `title`, `lines`, `cost`, `duration` | 广播员按技能键打开的编辑页 + 顶部绿色广播条，由 `PonderBroadcastOverlayElement` 自绘（离屏沙盒构造不出真实 `BroadcasterScreen`）。 |
+
+两个步骤都在 `PonderSreExtension.install()` 注册，三语标签在
+`assets/starrailexpress/lang/{zh_cn,en_us,zh_tw}.json`。
+
+### 26.3 已逐个重做的职业
+
+| 职业 | 演示依据（源码） |
+| --- | --- |
+| 大嗓门 `noisemaker` | Y 键帽 + 自身 / 周围玩家发光 + 前方玩家 `role_knockback`（水平击退 + 腾空）+ `NOTE_BLOCK_HARP` / `WARDEN_SONIC_BOOM`（`NoiseMakerRoleData:117-175`） |
+| 广播员 `broadcaster` | 技能键帽 + 50 金币消耗 + `role_broadcast` 广播编辑页与消息条（`BroadcasterScreen`、`BroadcasterHud`、`ModPacketsReciever:990-1024`） |
+| 小偷 `thief` | 三模式轮盘 + 偷钱 / 偷物 / 卖物三次独立演示，金币 / 背包变化（`ThiefRoleData:138-162,232-434,900-942`） |
+| 苦力怕 `creeper` | 左轮击杀 → 5 格爆炸高亮 + `minecraft:dust_color_transition` 彩虹粒子 + `entity.generic.explode`（`CreeperRoleData:225-262`、`NoellesrolesClient:691-730`） |
+| 医生 `doctor` | 起搏器右键蓄力 → 保护条 → 目标死亡 → 30 秒计时 → 复活血条（`DefibrillatorItem:52-109`、`DefibrillatorComponent:65-82,159-196`） |
+| 玉将军 `jade_general` | 飞踢撞门开门 + `role_knockback` 击退目标 + 眩晕 / 缓慢（`JadeGeneralRoleData:86-285`） |
+| 秃鹫 `vulture` | 尸体死亡 → 吃尸 → 缓慢 II + 计数 → 达标全场 `hoglin.zombify` 音效换杀手（`ModPacketsReciever:805-885`） |
+| 锁匠 `locksmith` | 观察门攒灵感 + 钥胚配钥 + 开锁器右键，无凭空粒子（`LocksmithInspirationRoleData:36-130`、`LockpickItem:50-131`） |
+| 秉烛人 `candlebearer` | 隐身 18 秒 + 玩家 / 尸体发光 + `block.bell.resonate`（`CandleBearerRoleData:287-322`、`RiceEventRegister:369-420`） |
+| 通灵师 `medium` | 对尸体按键 + 150 金币 + `amethyst_block.chime` + 通灵界面 + 20 秒计时（`MediumRoleData:146-246`） |
+| 摄影师 `photographer` | 拍照致盲（不凭空加粒子）+ 画框 `enderman.teleport` 音效 + 传送（`PhotographerMixin:38-99`、`PhotographerFrameEvents:83-199`） |
+| 祈月者 `pooler` | 切换轮盘、奔涌三叉戟 + splash/bubble + riptide 音效、吞月 / 水中镜传送目标、称颂 end_rod（`PoolerRoleData:244-371`、`PoolerDomainManager`） |
+
+这些职业的 `skill` 段都由 `ROLE_SEGMENT_OVERRIDES` 的专属函数生成；广播员介绍里
+没有「技能」二字，但源码确实是技能键打开广播页，因此有专属 override 时强制建 `skill` 段。
+
+### 26.4 自检
+
+- `audit_ponder_authoring.py`：269 场景 0 violation。
+- `verify_ponder_scenes.py`：272 场景 0 error / 2 条既有 warning。
+- `gradlew compileJava --offline` 仍因 `settings.gradle` 引用的 `../sre-performance`
+  等兄弟目录不存在而在配置阶段失败；本次新增 Java 类未能在该环境下编译验证，
+  已通过 IDE 诊断确认没有新增 error（仅有项目原有的空值安全 warning）。
+
+> 未完成：其余有技能职业仍由通用模板生成，尚未逐个核对源码重做。本文档记录的是本轮
+> 已完成的 12 个职业；继续推进时应照 26.3 的格式逐职业补 override 与源码依据。
+

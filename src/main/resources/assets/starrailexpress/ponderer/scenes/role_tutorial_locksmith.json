@@ -495,15 +495,43 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "set_block",
+          "block": "starrailexpress:light_blue_oak_door",
+          "blockProperties": {
+            "half": "lower",
+            "facing": "north"
+          },
+          "blockPos": [
+            3,
+            1,
+            6
+          ],
+          "blockPos2": [
+            3,
+            2,
+            6
+          ],
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            1,
+            6
+          ],
+          "duration": 180,
+          "color": "green"
+        },
+        {
+          "type": "starrailexpress:role_timer",
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
+            "progress": [
+              0.0,
+              1.0
+            ],
             "lines": [
-              {
-                "en_us": "Passive - Inspiration: observing any door within 4 blocks for 10 seconds straight grants 1 Inspiration point; store up to 18.",
-                "zh_cn": "被动-灵感：持续在4格内观察任意一扇门10秒可获得1点灵感，最多储存18点。",
-                "zh_tw": "被動-靈感：持續在4格內觀察任意一扇門10秒可獲得1點靈感，最多儲存18點。"
-              }
+              "观察门 · 灵感 +1"
             ]
           },
           "attachKeyFrame": true
@@ -511,8 +539,8 @@
         {
           "type": "create_item_entity",
           "pos": [
-            2.2,
-            1.5,
+            2.0,
+            1.55,
             6.0
           ],
           "motion": [
@@ -521,9 +549,34 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:noell_paperclip",
-          "linkId": "locksmith_line_item_0",
+          "item": "noellesroles:noell_key_blank",
+          "linkId": "locksmith_blank_0",
           "attachKeyFrame": true
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:lockpick",
+          "duration": 70,
+          "point": [
+            2.2,
+            2.2,
+            6.0
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            1,
+            6
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
         },
         {
           "type": "text",

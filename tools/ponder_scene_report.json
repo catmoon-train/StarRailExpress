@@ -327,11 +327,12 @@
    "segments": [
     "faction",
     "items",
+    "skill",
     "panel",
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 8
+   "texts": 9
   },
   "builder": {
    "segments": [
@@ -694,6 +695,7 @@
    "segments": [
     "faction",
     "items",
+    "skill",
     "shop",
     "vision",
     "vitals",
@@ -2743,6 +2745,7 @@
   "vulture": {
    "segments": [
     "faction",
+    "skill",
     "shop",
     "body",
     "form",

@@ -122,25 +122,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
-          "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Press the skill key to spend 300 coin and ignite yourself; after 6s you explode, killing yourself and players within 5 blocks.",
-                "zh_cn": "按下技能键花费300金币引燃自身，6s后爆炸，将自己和范围5格内的玩家炸死。",
-                "zh_tw": "按下技能鍵花費300金幣引燃自身，6s後爆炸，將自己和範圍5格內的玩家炸死。"
-              },
-              {
-                "en_us": "After igniting, press the skill key again to spend 75 coin and detonate immediately, expanding the blast by 1 block.",
-                "zh_cn": "引燃后再次按下技能键可花费75金币立刻引爆，爆炸范围扩大1格。",
-                "zh_tw": "引燃後再次按下技能鍵可花費75金幣立刻引爆，爆炸範圍擴大1格。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -150,16 +131,37 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "creeper_skill_target_0",
+            "linkId": "creeper_creeper_victim",
             "outline": -16744448
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.0,
+            1.55,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:revolver",
+          "linkId": "creeper_revolver",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 18
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -169,41 +171,65 @@
           "attachKeyFrame": true
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            3.9,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:lockpick",
-          "linkId": "creeper_skill_item_0"
-        },
-        {
-          "type": "starrailexpress:role_currency",
+          "type": "starrailexpress:role_death",
           "parameters": {
-            "progress": [
+            "linkId": "creeper_creeper_victim",
+            "pos": [
+              5.0,
               1.0,
-              0.5
+              2.0
             ],
-            "lines": [
-              {
-                "en_us": "Press the skill key to spend 300 coin and ignite yourself; after 6s you explode, killing yourself and players within 5 blocks.",
-                "zh_cn": "按下技能键花费300金币引燃自身，6s后爆炸，将自己和范围5格内的玩家炸死。",
-                "zh_tw": "按下技能鍵花費300金幣引燃自身，6s後爆炸，將自己和範圍5格內的玩家炸死。"
-              }
-            ]
+            "name": "ponder.starrailexpress.label.victim"
           },
           "attachKeyFrame": true
         },
         {
+          "type": "spawn_particles",
+          "particle": "minecraft:dust_color_transition",
+          "pos": [
+            5.0,
+            1.9,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            2.4,
+            1.2,
+            2.4
+          ],
+          "count": 30,
+          "duration": 70,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:entity.generic.explode",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            0
+          ],
+          "blockPos2": [
+            7,
+            0,
+            4
+          ],
+          "duration": 180,
+          "color": "red"
+        },
+        {
           "type": "idle",
-          "duration": 35
+          "duration": 40
         },
         {
           "type": "text",
@@ -230,7 +256,7 @@
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -240,24 +266,65 @@
           "attachKeyFrame": true
         },
         {
-          "type": "create_item_entity",
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "creeper_creeper_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:dust_color_transition",
           "pos": [
-            3.9,
-            1.5,
-            3.0
+            5.0,
+            1.9,
+            2.0
           ],
+          "distribution": "box",
+          "spread": [
+            2.4,
+            1.2,
+            2.4
+          ],
+          "count": 30,
+          "duration": 70,
           "motion": [
-            0.0,
-            0.0,
-            0.0
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:entity.generic.explode",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            0
           ],
-          "count": 1,
-          "item": "trainmurdermystery:lockpick",
-          "linkId": "creeper_skill_item_1"
+          "blockPos2": [
+            7,
+            0,
+            4
+          ],
+          "duration": 180,
+          "color": "red"
         },
         {
           "type": "idle",
-          "duration": 35
+          "duration": 40
         },
         {
           "type": "text",

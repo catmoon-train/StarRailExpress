@@ -82,6 +82,9 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
     @Nullable
     private Vec3 walkDelta;
     private int walkTicks;
+    /** 击退模式：用快速外抛 + 回落代替平滑走动，模拟被冲击波推开。 */
+    private boolean knockbackMode = false;
+    private float knockbackArc = 0.45F;
 
     /** 所属场景的 Outliner，在加入场景时绑定，用于绘制与保活描边。 */
     @Nullable
@@ -189,22 +192,44 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
         this.walkTicks = Math.max(1, ticks);
     }
 
+    /**
+     * 以击退方式起步到绝对坐标 {@code target}：位移先快后慢，并沿 Y 画一道抛物线，
+     * 表现玩家被冲击波 / 爆炸推开、短暂腾空的效果。
+     */
+    public void beginKnockback(Vec3 target, int ticks, float arc) {
+        if (puppet != null) {
+            resetWalkAnimation();
+        }
+        this.walkBase = offset;
+        this.walkDelta = target.subtract(location).subtract(offset);
+        this.walkTicks = Math.max(1, ticks);
+        this.knockbackMode = true;
+        this.knockbackArc = Math.max(0.0F, arc);
+    }
+
     /** 推进走动进度（0~1）；结束时把迈腿幅度归零，模型回到站立姿态。 */
     public void setWalkProgress(float progress) {
         if (walkDelta == null) {
             return;
         }
         float clamped = Mth.clamp(progress, 0.0F, 1.0F);
-        // 平滑起步与收尾，避免模型像被线性拖走。
-        float eased = clamped * clamped * (3.0F - 2.0F * clamped);
-        offset = walkBase.add(walkDelta.scale(eased));
+        if (knockbackMode) {
+            // 1-(1-t)^2：被击飞的瞬间最快，随后减速落地。
+            float eased = 1.0F - (1.0F - clamped) * (1.0F - clamped);
+            offset = walkBase.add(walkDelta.scale(eased));
+            offset = offset.add(0.0, knockbackArc * 4.0F * clamped * (1.0F - clamped), 0.0);
+        } else {
+            // 平滑起步与收尾，避免模型像被线性拖走。
+            float eased = clamped * clamped * (3.0F - 2.0F * clamped);
+            offset = walkBase.add(walkDelta.scale(eased));
+        }
         if (puppet != null) {
             if (clamped >= 1.0F) {
                 // 只 setSpeed(0) 会把 walkAnimation.pos 留在半个步幅上，
                 // 玩家停在终点后腿会僵在一个奇怪角度（看到的就是「鬼畜」）。
                 // 这里借 mixin accessors 同时清掉 pos 与 speed。
                 resetWalkAnimation();
-            } else {
+            } else if (!knockbackMode) {
                 puppet.walkAnimation.update(1.0F, 1.0F);
                 puppet.walkAnimation.setSpeed(1.0F);
             }
@@ -225,6 +250,7 @@ public class PonderPlayerElement extends AnimatedSceneElementBase {
         this.walkBase = Vec3.ZERO;
         this.walkDelta = null;
         this.walkTicks = 0;
+        this.knockbackMode = false;
     }
 
     /** 清零步幅与速度；思索场景不跑原版 tick，必须显式做这件事。 */

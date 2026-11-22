@@ -310,6 +310,8 @@ SOURCE_PARTICLE_BY_ROLE = {
     "alchemist": "wathe:poison",
     "arsonist": "stupid_express:arsonist_flame",
     "conspirator": "minecraft:dragon_breath",
+    # CreeperRoleData:240 / NoellesrolesClient:691-730 左轮击杀爆炸的彩虹粒子。
+    "creeper": "minecraft:dust_color_transition",
     "delayer": "minecraft:enchant",
     "diviner": "minecraft:enchant",
     "doctor": "minecraft:heart",
@@ -1132,6 +1134,58 @@ def override_arsonist_vision(builder, ctx):
         builder.say(line)
 
 
+def override_noisemaker_skill(builder, ctx):
+    """大嗓门：按技能键 → 自身发光 + 前方玩家击退眩晕 + 周围玩家发光 + 两声音效。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    rid, main = ctx["rid"], ctx["rid"] + "_main"
+    target = rid + "_shout_target"
+    bystander = [t[0] + 1.4, t[1], t[2] + 0.6]
+    builder.add(player_step(t, target))
+    builder.add(player_step(bystander, rid + "_shout_bystander"))
+    builder.add({"type": "idle", "duration": 15})
+    for index, line in enumerate(ctx["lines"]):
+        builder.add(key_cap([p[0], p[1] + 2.0, p[2]]))
+        # 自身 LOUD_VOICE 发光 + 15 格内玩家 GLOWING（源码 NoiseMakerRoleData:117-138）。
+        builder.add(custom("role_outline", {"linkId": main, "color": 0xFFFFFF66}))
+        for link in (target, rid + "_shout_bystander"):
+            builder.add(custom("role_outline", {"linkId": link, "color": 0xFFFFFF66}))
+        # NOTE_BLOCK_HARP + WARDEN_SONIC_BOOM（源码 :126-127, :174-175）。
+        builder.add(scene_sound("minecraft:block.note_block.harp"))
+        # 正前方玩家被击退：x 方向推远 2.2 格并短暂腾空（源码水平 1.4 / Y 0.42）。
+        builder.add(custom("role_knockback", {
+            "linkId": target,
+            "from": t,
+            "to": [t[0] + 2.2, t[1], t[2]],
+            "duration": 14,
+            "arc": 0.42,
+        }))
+        builder.add(custom("role_timer", {"progress": [1.0, 0.0], "lines": [line]}))
+        builder.add(scene_sound("minecraft:entity.warden.sonic_boom"))
+        builder.add({"type": "idle", "duration": 30})
+        builder.say(line)
+
+
+def override_broadcaster_skill(builder, ctx):
+    """广播员：按技能键打开广播编辑页，花 50 金币发送后顶部出现广播消息。"""
+    p = ctx["player_pos"]
+    rid = ctx["rid"]
+    lines = ctx["lines"] or [
+        {"zh_cn": "你开局拥有200金币，可以花费50金币进行一次全服广播，开局自带一个对讲机。",
+         "en_us": "You start with 200 coins and can spend 50 on a server-wide broadcast; you also start with a walkie-talkie.",
+         "zh_tw": "你開局擁有200金幣，可以花費50金幣進行一次全廣播，開局自帶一個對講機。"}]
+    for index, line in enumerate(lines):
+        builder.add(key_cap([p[0], p[1] + 2.0, p[2]]))
+        builder.add(custom("role_currency", {"progress": [1.0, 0.5], "lines": [line]}))
+        builder.add(custom("role_broadcast", {
+            "title": "screen.noellesroles.broadcaster.title",
+            "lines": ["screen.noellesroles.broadcaster.placeholder",
+                      "tip.broadcaster.with_cost"],
+            "cost": 50,
+            "duration": 120,
+        }))
+        builder.say(line)
+
+
 def override_baka_items(builder, ctx):
     """baka 没有技能键：弹幕长按右键蓄力后命中目标，目标死亡。"""
     p, t = ctx["player_pos"], ctx["second_pos"]
@@ -1507,6 +1561,215 @@ def override_kasen_shop(builder, ctx):
         builder.say(line)
 
 
+def override_candlebearer_skill(builder, ctx):
+    """秉烛人：按技能键隐身 18 秒；对玩家/尸体点烛使其发光，成功敲钟。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    rid, main = ctx["rid"], ctx["rid"] + "_main"
+    builder.add(player_step(t, rid + "_candle_target", outline=ctx["outline_color"]))
+    builder.add(player_step(t, rid + "_candle_corpse"))
+    builder.add(custom("role_death", {"linkId": rid + "_candle_corpse", "pos": t,
+                                      "name": "ponder.starrailexpress.label.victim"}))
+    for index, line in enumerate(ctx["lines"]):
+        builder.add(key_cap([p[0], p[1] + 2.0, p[2]]))
+        builder.add(custom("role_hide", {"linkId": main, "visible": False}))
+        builder.add(custom("role_effects", {"lines": ["隐身 18 秒"]}))
+        builder.add(custom("role_outline", {"linkId": rid + "_candle_target",
+                                            "color": 0xFFFFFF66}))
+        builder.add(custom("role_outline", {"linkId": rid + "_candle_corpse",
+                                            "color": 0xFFFFFF66}))
+        builder.add(scene_sound("minecraft:block.bell.resonate"))
+        builder.add({"type": "idle", "duration": 30})
+        builder.say(line)
+    builder.add(custom("role_hide", {"linkId": main, "visible": True}))
+
+
+def override_medium_skill(builder, ctx):
+    """通灵师：对尸体按技能键，花 150 金币把死者拉回尸体旁 20 秒并开启通灵界面。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    rid = ctx["rid"]
+    builder.add(player_step(t, rid + "_body"))
+    builder.add(custom("role_death", {"linkId": rid + "_body", "pos": t,
+                                      "name": "ponder.starrailexpress.label.victim"}))
+    for line in ctx["lines"]:
+        builder.add(key_cap([p[0], p[1] + 2.0, p[2]]))
+        builder.add(custom("role_currency", {"progress": [1.0, 0.25],
+                                             "lines": ["花费 150 金币"]}))
+        builder.add(scene_sound("minecraft:block.amethyst_block.chime"))
+        builder.add(custom("role_teleport", {"linkId": rid + "_body",
+                                             "pos": [t[0], t[1], t[2]]}))
+        builder.add(custom("role_panel", {"title": "通灵界面",
+                                          "lines": ["死者与通灵师对话 · 20 秒"]}))
+        builder.add(custom("role_timer", {"progress": [0.0, 1.0], "lines": ["20 秒"]}))
+        builder.add({"type": "idle", "duration": 30})
+        builder.say(line)
+
+
+def override_photographer_skill(builder, ctx):
+    """摄影师：拍照致盲目标 → 放画框 → 右键画框传送并再次致盲。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    rid, main = ctx["rid"], ctx["rid"] + "_main"
+    target = rid + "_photo_target"
+    builder.add(player_step(t, target, outline=ctx["outline_color"]))
+    for index, line in enumerate(ctx["lines"]):
+        builder.add(show_right_click([p[0] - 0.8, p[1] + 1.2, p[2]],
+                                     "minecraft:camera"))
+        builder.add(custom("role_effects", {"lines": ["黑屏 3 秒 · 致盲"]}))
+        builder.add(custom("role_outline", {"linkId": target, "color": 0xFFFFFFFF}))
+        # PhotographerFrameEvents:192-193 画框传送只有 ENDERMAN_TELEPORT 音效，没有粒子。
+        builder.add(scene_sound("minecraft:entity.enderman.teleport"))
+        builder.add(custom("role_teleport", {"linkId": main,
+                                             "pos": [p[0] - 1.2, p[1], p[2] - 1.2]}))
+        builder.add({"type": "idle", "duration": 30})
+        builder.say(line)
+
+
+def override_pooler_skill(builder, ctx):
+    """祈月者：按技能切换键选技能；奔涌给三叉戟附魔 + 水粒子；吞月 / 水中镜切领域。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    rid, main = ctx["rid"], ctx["rid"] + "_main"
+    builder.add(player_step(t, rid + "_moon_target", outline=ctx["outline_color"]))
+    for index, line in enumerate(ctx["lines"]):
+        zh = line.get("zh_cn", "")
+        if "切换" in zh:
+            builder.add(key_cap([p[0], p[1] + 2.0, p[2]], switch=True))
+            builder.add(custom("role_panel", {"title": "技能轮盘",
+                                              "lines": ["奔涌 / 吞月 / 水中镜 / 称颂"]}))
+        elif "奔涌" in zh or "三叉戟" in zh:
+            builder.add(key_cap([p[0], p[1] + 2.0, p[2]]))
+            builder.add(custom("role_hold", {"linkId": main, "item": "minecraft:trident"}))
+            builder.add(scene_particle("minecraft:splash", [p[0], p[1] + 0.6, p[2]],
+                                       count=20, duration=60))
+            builder.add(scene_particle("minecraft:bubble", [p[0], p[1] + 0.8, p[2]],
+                                       count=12, duration=60))
+            builder.add(scene_sound("minecraft:item.trident.riptide_3"))
+        elif "吞月" in zh or "水中镜" in zh:
+            builder.add(key_cap([p[0], p[1] + 2.0, p[2]]))
+            builder.add(custom("role_teleport", {"linkId": rid + "_moon_target",
+                                                 "pos": [t[0] + 1.2, t[1], t[2]]}))
+        elif "称颂" in zh:
+            builder.add(key_cap([p[0], p[1] + 2.0, p[2]]))
+            builder.add(scene_particle("minecraft:end_rod", [t[0], t[1] + 1.2, t[2]],
+                                       count=10, duration=50))
+        builder.add({"type": "idle", "duration": 25})
+        builder.say(line)
+
+
+def override_thief_skill(builder, ctx):
+    """小偷：按技能键按当前模式偷钱 / 偷物品 / 卖物品，按切换键切模式。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    rid, main = ctx["rid"], ctx["rid"] + "_main"
+    target = rid + "_theft_target"
+    builder.add(player_step(t, target, outline=ctx["outline_color"]))
+    builder.add({"type": "idle", "duration": 15})
+    modes = [
+        ("偷钱", "noellesroles:passbook", 0.6, 1.0),
+        ("偷物品", "noellesroles:master_key", 1.0, 1.0),
+        ("卖物品", "trainmurdermystery:note", 1.0, 0.5),
+    ]
+    for index, (name, item, after, coins) in enumerate(modes):
+        builder.add(key_cap([p[0], p[1] + 2.0, p[2]], switch=(index == 0)))
+        builder.add(custom("role_panel", {"title": "偷钱 / 偷物品 / 卖物品",
+                                          "lines": ["当前模式：" + name]}))
+        builder.add(custom("role_walk", {"linkId": main,
+                                         "to": [t[0] - 0.9, t[1], t[2]], "duration": 36}))
+        builder.add(item_entity([t[0] - 1.0, t[1] + 0.55, t[2]], item,
+                                rid + "_stolen_" + str(index)))
+        builder.add(custom("role_currency", {"progress": [1.0, coins],
+                                             "lines": ["目标金币 -> 小偷金币"]}))
+        builder.add({"type": "indicate_success", "blockPos": [int(t[0]), 0, int(t[2])]})
+        builder.add({"type": "idle", "duration": 30})
+    for line in ctx["lines"]:
+        builder.say(line)
+
+
+def override_creeper_skill(builder, ctx):
+    """苦力怕：被左轮击杀 => 5 格爆炸 + 彩虹粒子 + generic.explode，命中 >5 人再爆一次。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    rid = ctx["rid"]
+    victim = rid + "_creeper_victim"
+    builder.add(player_step(t, victim, outline=ctx["outline_color"]))
+    builder.add(item_entity([p[0] - 1.0, p[1] + 0.55, p[2]],
+                            "trainmurdermystery:revolver", rid + "_revolver"))
+    builder.add({"type": "idle", "duration": 18})
+    for line in ctx["lines"]:
+        builder.add(key_cap([p[0], p[1] + 2.0, p[2]]))
+        builder.add(custom("role_death", {"linkId": victim, "pos": t,
+                                          "name": "ponder.starrailexpress.label.victim"}))
+        builder.add(scene_particle("minecraft:dust_color_transition", [t[0], t[1] + 0.9, t[2]],
+                                   count=30, duration=70, spread=[2.4, 1.2, 2.4]))
+        builder.add(scene_sound("minecraft:entity.generic.explode"))
+        builder.add({"type": "highlight_section",
+                     "blockPos": [int(t[0]) - 2, 0, int(t[2]) - 2],
+                     "blockPos2": [int(t[0]) + 2, 0, int(t[2]) + 2],
+                     "duration": 180, "color": "red"})
+        builder.add({"type": "idle", "duration": 40})
+        builder.say(line)
+
+
+def override_doctor_skill(builder, ctx):
+    """医生：起搏器蓄力保护 → 目标死亡 → 原地留下不可交互尸体 → 30 秒后复活。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    rid, main = ctx["rid"], ctx["rid"] + "_main"
+    target = rid + "_patient"
+    builder.add(player_step(t, target, outline=ctx["outline_color"]))
+    builder.add(custom("role_hold", {"linkId": main, "item": "noellesroles:defibrillator"}))
+    for index, line in enumerate(ctx["lines"]):
+        if "起搏器" in line.get("zh_cn", ""):
+            builder.add(show_right_click([p[0] - 0.8, p[1] + 1.2, p[2]],
+                                         "noellesroles:defibrillator"))
+            builder.add(custom("role_vitals", {"bars": [
+                {"label": "保护", "before": 0.0, "after": 1.0, "color": -16776961}]}))
+        elif "死亡" in line.get("zh_cn", ""):
+            builder.add(custom("role_death", {"linkId": target, "pos": t,
+                                              "name": "ponder.starrailexpress.label.victim"}))
+            builder.add(custom("role_timer", {"progress": [0.0, 1.0],
+                                              "lines": ["30 秒后复活"]}))
+            builder.add(player_step(t, rid + "_patient_revived"))
+            builder.add(custom("role_vitals", {"bars": [
+                {"label": "复活", "before": 0.0, "after": 1.0, "color": -65536}]}))
+        builder.say(line)
+
+
+def override_vulture_skill(builder, ctx):
+    """秃鹫：按技能键吃周围尸体，自身缓慢 II，吃够数量后全场音效并换成杀手。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    rid, main = ctx["rid"], ctx["rid"] + "_main"
+    builder.add(player_step(t, rid + "_meal"))
+    builder.add(custom("role_death", {"linkId": rid + "_meal", "pos": t,
+                                      "name": "ponder.starrailexpress.label.victim"}))
+    for index, line in enumerate(ctx["lines"]):
+        builder.add(key_cap([p[0], p[1] + 2.0, p[2]]))
+        builder.add(custom("role_effects", {"lines": ["缓慢 II · 40 tick"]}))
+        builder.add(custom("role_currency", {"progress": [0.4, 1.0], "lines": ["吃尸计数"]}))
+        if index == len(ctx["lines"]) - 1:
+            builder.add(scene_sound("minecraft:entity.hoglin.zombify"))
+            builder.add(custom("role_outline", {"linkId": main, "color": -65536}))
+        builder.add({"type": "idle", "duration": 30})
+        builder.say(line)
+
+
+def override_locksmith_skill(builder, ctx):
+    """锁匠：看门攒灵感 → 消耗钥胚配钥 → 开锁器右键给门上锁/解锁。"""
+    p = ctx["player_pos"]
+    rid, main = ctx["rid"], ctx["rid"] + "_main"
+    door = [int(p[0]), 1, 6]
+    builder.add({"type": "set_block", "block": "starrailexpress:light_blue_oak_door",
+                 "blockProperties": {"half": "lower", "facing": "north"},
+                 "blockPos": door, "blockPos2": [door[0], door[1] + 1, door[2]],
+                 "attachKeyFrame": True})
+    for index, line in enumerate(ctx["lines"]):
+        builder.add({"type": "highlight_section", "blockPos": door, "duration": 180,
+                     "color": "green"})
+        builder.add(custom("role_timer", {"progress": [0.0, 1.0], "lines": ["观察门 · 灵感 +1"]}))
+        builder.add(item_entity([p[0] - 1.0, p[1] + 0.55, p[2]],
+                                "noellesroles:noell_key_blank", rid + "_blank_" + str(index)))
+        builder.add(show_right_click([p[0] - 0.8, p[1] + 1.2, p[2]],
+                                     "trainmurdermystery:lockpick"))
+        builder.add({"type": "indicate_success", "blockPos": door})
+        builder.add({"type": "idle", "duration": 30})
+        builder.say(line)
+
+
 def override_jade_general_skill(builder, ctx):
     """玉将军：面前摆一扇列车门，飞踢撞门、门打开、目标被击退。"""
     p, t = ctx["player_pos"], ctx["second_pos"]
@@ -1526,13 +1789,26 @@ def override_jade_general_skill(builder, ctx):
             builder.add({"type": "set_block", "block": "minecraft:air",
                          "blockPos": door, "blockPos2": [door[0], door[1] + 1, door[2]]})
             builder.add({"type": "indicate_success", "blockPos": door})
-            builder.add(custom("role_teleport", {"linkId": rid + "_kick_target",
-                                                 "pos": [t[0], t[1], t[2] - 1.2]}))
+            builder.add(custom("role_knockback", {"linkId": rid + "_kick_target",
+                                                  "from": [p[0], p[1], p[2] + 1.5],
+                                                  "to": [t[0], t[1], t[2] + 1.0],
+                                                  "duration": 12, "arc": 0.17}))
         builder.say(line)
 
 
 ROLE_SEGMENT_OVERRIDES = {
     ("kafu_chino", "skill"): override_kafu_skill,
+    ("noisemaker", "skill"): override_noisemaker_skill,
+    ("broadcaster", "skill"): override_broadcaster_skill,
+    ("thief", "skill"): override_thief_skill,
+    ("creeper", "skill"): override_creeper_skill,
+    ("candlebearer", "skill"): override_candlebearer_skill,
+    ("medium", "skill"): override_medium_skill,
+    ("photographer", "skill"): override_photographer_skill,
+    ("pooler", "skill"): override_pooler_skill,
+    ("doctor", "skill"): override_doctor_skill,
+    ("vulture", "skill"): override_vulture_skill,
+    ("locksmith", "skill"): override_locksmith_skill,
     ("houjuu_nue", "skill"): override_nue_skill,
     ("houjuu_nue", "form"): override_nue_form,
     ("arsonist", "items"): override_arsonist_items,
@@ -1722,6 +1998,10 @@ def build_role_scene(rid, facts, intros, names, goals):
             forced = True
         if key == "form" and (rid, "form") in ROLE_SEGMENT_OVERRIDES:
             # 介绍里明确写了变身 / 伪装的职业，即使没有被自动分类到 form 段也要演出来。
+            forced = True
+        if key == "skill" and (rid, "skill") in ROLE_SEGMENT_OVERRIDES:
+            # 广播员的介绍只写「花 50 金币广播」，没有「技能」二字，但游戏里确实是
+            # 按技能键打开广播编辑页；有专属 override 就强制建这一段。
             forced = True
         if not lines and not forced:
             continue
