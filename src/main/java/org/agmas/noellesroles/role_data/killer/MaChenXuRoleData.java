@@ -35,6 +35,7 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffect;
@@ -224,7 +225,11 @@ public class MaChenXuRoleData extends SimpleRoleData {
         if (SackGhostItems.artCount(owner) > SackGhostRules.MAX_ART_ITEMS) return fail("message.noellesroles.sack.full");
         updateCooldowns();
         // 解除隐身和回响折返是同次施法的收尾，不再消耗或重置该诡术冷却。
-        if (art == GhostArt.SHROUD && shroudTicks > 0) { breakShroud(); return true; }
+        if (art == GhostArt.SHROUD && shroudTicks > 0) {
+            breakShroud();
+            sound(owner.serverLevel(), owner.position(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.4F, 1.6F);
+            return true;
+        }
         if (art == GhostArt.ECHO && echoTicks > 0 && echoToken != null
                 && echoToken.equals(SackGhostItems.tag(stack).getUUID("Token"))) return returnEcho(owner);
         int remaining = artCooldown(art);
@@ -240,6 +245,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
             case SEIZE -> castSeize(owner);
         };
         if (!used) return false;
+        playArtSound(owner, art);
         if (art != GhostArt.ECHO && SackGhostRules.consumesOnCast(art, otherworldActive, owner.getRandom().nextBoolean()))
             SackGhostItems.consumeArt(owner, stack);
         if (art != GhostArt.SHROUD) artReadyAt.put(art, now() + SackGhostRules.ART_COOLDOWN);
@@ -466,6 +472,9 @@ public class MaChenXuRoleData extends SimpleRoleData {
         target.getInventory().clearContent();
         MoneyUtils.addToBalance(owner, 50);
         ParticleFx.burst(owner.serverLevel(), ParticleTypes.SCULK_SOUL, target.getX(), target.getY() + 1, target.getZ(), 16, 0.4, 0.7, 0.4, 0.03);
+        Vec3 at = target.position();
+        sound(owner.serverLevel(), at, SoundEvents.WARDEN_DEATH, SoundSource.HOSTILE, 0.9F, 0.7F);
+        sound(owner.serverLevel(), at, SoundEvents.SOUL_ESCAPE.value(), SoundSource.HOSTILE, 0.65F, 0.6F);
         return true;
     }
 
@@ -654,6 +663,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
         leaseForm(owner, MobEffects.MOVEMENT_SPEED, SackGhostRules.ESCAPE_DURATION, 2);
         updateCooldowns();
         fx(owner, "escape", owner.position(), SackGhostRules.ESCAPE_DURATION, owner.getId());
+        sound(owner.serverLevel(), owner.position(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.HOSTILE, 0.5F, 1.3F);
         owner.displayClientMessage(Component.translatable("message.noellesroles.sack.escape_triggered"), true);
         publishForm(owner);
         sync();
@@ -738,6 +748,27 @@ public class MaChenXuRoleData extends SimpleRoleData {
         ParticleFx.sendCustom(owner.serverLevel(), Noellesroles.id("sack_ghost/" + name), origin, duration, params);
     }
 
+    /** 在指定位置向周围玩家广播一次音效。 */
+    private static void sound(ServerLevel level, Vec3 at, SoundEvent event, SoundSource source, float volume, float pitch) {
+        level.playSound(null, at.x, at.y, at.z, event, source, volume, pitch);
+    }
+
+    /** 八种诡术各有辨识度的施法音，只在成功施法后播放，失败不发声。 */
+    private static void playArtSound(ServerPlayer owner, GhostArt art) {
+        ServerLevel level = owner.serverLevel();
+        Vec3 at = owner.position();
+        switch (art) {
+            case VEIL -> sound(level, at, SoundEvents.ILLUSIONER_PREPARE_BLINDNESS, SoundSource.HOSTILE, 0.55F, 0.85F);
+            case PUSH -> sound(level, at, SoundEvents.WIND_CHARGE_BURST.value(), SoundSource.PLAYERS, 0.8F, 0.7F);
+            case SHROUD -> sound(level, at, SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.45F, 1.45F);
+            case EFFIGY -> sound(level, at, SoundEvents.EVOKER_PREPARE_SUMMON, SoundSource.HOSTILE, 0.55F, 0.7F);
+            case ECHO -> sound(level, at, SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.7F, 0.75F);
+            case WAIL -> sound(level, at, SoundEvents.WARDEN_ROAR, SoundSource.HOSTILE, 0.8F, 0.7F);
+            case PARASITE -> sound(level, at, SoundEvents.SCULK_SHRIEKER_SHRIEK, SoundSource.HOSTILE, 0.5F, 1.25F);
+            case SEIZE -> sound(level, at, SoundEvents.WARDEN_SONIC_CHARGE, SoundSource.HOSTILE, 0.6F, 1.1F);
+        }
+    }
+
     private void finishEcho(ServerPlayer owner) {
         if (echoToken == null) return;
         if (echoConsumes) SackGhostItems.consumeToken(owner, echoToken, echoLevel == null ? owner.serverLevel() : echoLevel);
@@ -756,6 +787,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
         Vec3 destination = echoPosition;
         finishEcho(owner);
         owner.teleportTo(destination.x, destination.y, destination.z);
+        sound(owner.serverLevel(), destination, SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.6F, 1.2F);
         for (ServerPlayer target : owner.serverLevel().players()) if (isEnemy(target)
                 && target.distanceToSqr(destination) <= SackGhostRules.ECHO_RADIUS * SackGhostRules.ECHO_RADIUS
                 && owner.hasLineOfSight(target)) drainSan(target, SackGhostRules.ECHO_SAN);
@@ -771,6 +803,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
         drainSan(target, SackGhostRules.EFFIGY_SAN);
         SackGhostActions.root(target, 40);
         fx(owner, "effigy", target.position(), 20, owner.getId(), target.getId());
+        sound(owner.serverLevel(), target.position(), SoundEvents.WARDEN_ATTACK_IMPACT, SoundSource.HOSTILE, 0.6F, 0.85F);
     }
 
     private void updateThreat(ServerPlayer owner) {
@@ -834,7 +867,6 @@ public class MaChenXuRoleData extends SimpleRoleData {
                 motions.put(target.getUUID(), new Motion(owner.serverLevel(), target.position(), destination, 6, 0, false));
         }
         fx(owner, "push", owner.position(), 25, (float) SackGhostRules.PUSH_RADIUS, owner.getId());
-        owner.serverLevel().playSound(null, owner.blockPosition(), SoundEvents.WIND_CHARGE_BURST.value(), SoundSource.PLAYERS, 0.8F, 0.7F);
         return true;
     }
 
@@ -885,7 +917,6 @@ public class MaChenXuRoleData extends SimpleRoleData {
         wailUntil = now() + SackGhostRules.WAIL_DURATION;
         wailExposure.clear();
         fx(owner, "wail", owner.position(), SackGhostRules.WAIL_DURATION, owner.getId(), (float) SackGhostRules.WAIL_RADIUS);
-        owner.serverLevel().playSound(null, owner.blockPosition(), SoundEvents.WARDEN_ROAR, SoundSource.HOSTILE, 0.8F, 0.7F);
         return true;
     }
 
@@ -905,6 +936,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
     private void executeParasite(ServerPlayer owner, ServerPlayer target) {
         parasites.remove(target.getUUID());
         fx(owner, "parasite", target.position(), 0, target.getId(), owner.getId());
+        sound(owner.serverLevel(), target.position(), SoundEvents.SOUL_ESCAPE.value(), SoundSource.HOSTILE, 0.6F, 0.55F);
         GameUtils.killPlayer(target, true, owner, Noellesroles.id("ghost_parasite"));
     }
 
@@ -938,7 +970,6 @@ public class MaChenXuRoleData extends SimpleRoleData {
         echoUntil = now() + SackGhostRules.ECHO_WINDOW;
         fx(owner, "echo_depart", echoPosition, SackGhostRules.ECHO_WINDOW, owner.getId());
         owner.teleportTo(destination.x, destination.y, destination.z);
-        owner.playNotifySound(SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.7F, 0.75F);
         return true;
     }
 
@@ -966,6 +997,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
                 if (motion.seize()) {
                     drainSan(target, SackGhostRules.SEIZE_SAN);
                     SackGhostActions.root(target, 40);
+                    sound(motion.level(), target.position(), SoundEvents.WARDEN_ATTACK_IMPACT, SoundSource.HOSTILE, 0.6F, 0.95F);
                 }
             } else entry.setValue(new Motion(motion.level(), motion.from(), motion.to(), motion.duration(), elapsed, motion.seize()));
         }
