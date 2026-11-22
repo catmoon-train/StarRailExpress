@@ -100,7 +100,13 @@ public final class ClientRoleEventHandlers {
         ClientGameplayEvents.KILLER_MOOD_RENDER.register((font, graphics, color, role) -> {
             Player player = Minecraft.getInstance().player;
             var game = SREGameWorldComponent.KEY.get(player.level());
-            if (!game.isRole(player, ModRoles.JESTER) && !game.isRole(player, ModRoles.MONOKUMA)) return false;
+            // 黑白是特殊中立，必须按权威阵营取图，不能与小丑共用 MOOD_JESTER。
+            if (game.isRole(player, ModRoles.MONOKUMA)) {
+                renderSpecialMood(graphics, HudMoodRenderer.getMoodIconByTeam(ModRoles.MONOKUMA),
+                        ModRoles.MONOKUMA.color());
+                return true;
+            }
+            if (!game.isRole(player, ModRoles.JESTER)) return false;
             renderSpecialMood(graphics, HudMoodRenderer.MOOD_JESTER, ModRoles.JESTER.color());
             return true;
         });
