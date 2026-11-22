@@ -4564,6 +4564,8 @@
   "message.noellesroles.fake_steve.control.ended": "自由操控结束，伪人AI重新接管身体。80秒后可再次使用。",
   "message.noellesroles.fake_steve.control.cancelled": "自由操控已取消，进入80秒冷却。",
   "message.noellesroles.fake_steve.control.unavailable": "现在无法夺回身体：仅本局存活的伪人可在非会议期间使用。",
+  "message.noellesroles.fake_steve.moment.hint": "伪人时刻开启，你可重新操控自己的身体",
+  "message.noellesroles.fake_steve.moment.timeout": "伪人时刻结束",
   "message.noellesroles.fake_steve.infected": "你被伪人击杀并感染，已作为伪人重新站起。",
   "message.noellesroles.fake_steve.event.title": "伪人出现",
   "message.noellesroles.fake_steve.event.subtitle": "它已经混入了这辆列车……",

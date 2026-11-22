@@ -4795,6 +4795,8 @@
   "message.noellesroles.fake_steve.control.ended": "Free control ended. The Fake Steve AI has reclaimed your body. Ready again in 80 seconds.",
   "message.noellesroles.fake_steve.control.cancelled": "Free control cancelled. The 80-second cooldown has started.",
   "message.noellesroles.fake_steve.control.unavailable": "You can only reclaim your body as a living Fake Steve in the current round, outside meetings.",
+  "message.noellesroles.fake_steve.moment.hint": "The Fake Steve moment has begun. You can control your own body again.",
+  "message.noellesroles.fake_steve.moment.timeout": "The Fake Steve moment has ended.",
   "message.noellesroles.fake_steve.infected": "A Fake Steve killed and infected you. You rise again as one of them.",
   "message.noellesroles.fake_steve.death.revive": "You rise again in your own room — a Fake Steve has possessed your body.",
   "message.noellesroles.fake_steve.event.title": "A Fake Steve Appears",

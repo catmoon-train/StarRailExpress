@@ -26,6 +26,8 @@ public final class FakeSteveRules {
     public static final long DEATH_REVIVE_DELAY_TICKS = 35L * 20L;
     /** 等待结束时仍处于死亡状态，则有 10% 概率复活并被夺舍。 */
     public static final int DEATH_REVIVE_CHANCE_PERCENT = 10;
+    /** 伪人时刻持续 2 分钟；到点所有仍存活的伪人会因到达不了那个地方而死亡。 */
+    public static final long MOMENT_DURATION_TICKS = 2L * 60L * 20L;
     public static final long MANUAL_CONTROL_TICKS = 10L * 20L;
     public static final long MANUAL_CONTROL_COOLDOWN_TICKS = 80L * 20L;
 

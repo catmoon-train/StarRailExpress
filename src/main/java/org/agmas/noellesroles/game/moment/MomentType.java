@@ -71,11 +71,13 @@ public enum MomentType {
     /** 逐日时刻（终末追逐）。 */
     DAYWALKER("daywalker", NRSounds.DAYWALKER, null, 1.0F, SoundSource.MASTER, 10, 20),
     /**
-     * 伪人时刻（开局掷骰或管理员命令启用伪人事件）。
+     * 伪人时刻（开局掷骰或管理员命令启用伪人事件，持续 2 分钟）。
      *
-     * <p>没有专属循环音乐；开场音效由 {@code FakeSteveDirector#announceNaturalEvent}
-     * 自行播放幽匿尖啸，因此 music/cue 都留空避免叠音。接入统一时刻系统是为了让
-     * 「一局一次」登记、活动栈、进度记录与音乐裁决和其它时刻保持一致。</p>
+     * <p>期间所有伪人由本人直接操控，不使用伪人自动行动；到点所有伪人会因
+     * 「到达不了那个地方」死亡。没有专属循环音乐；开场音效由
+     * {@code FakeSteveDirector#announceNaturalEvent} 自行播放幽匿尖啸，因此 music/cue
+     * 都留空避免叠音。接入统一时刻系统是为了让「一局一次」登记、活动栈、进度记录
+     * 与音乐裁决和其它时刻保持一致。</p>
      */
     FAKE_STEVE("fake_steve", null, null, 1.0F, SoundSource.MASTER, 10, 20);
 
