@@ -46,3 +46,4 @@ tools/quickbuild/__pycache__/
 /tmp_spark/
 __pycache__/
 /.pi/
+/sre-pack-compat
