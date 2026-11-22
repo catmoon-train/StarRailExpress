@@ -164,17 +164,17 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:handcuffs",
           "linkId": "sheriff_skill_item_0"
         },
         {
           "type": "show_controls",
           "action": "right",
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:handcuffs",
           "duration": 70,
           "point": [
-            3.0,
-            2.9,
+            2.2,
+            2.2,
             3.0
           ],
           "direction": "down"
@@ -315,6 +315,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:monokuma_revolver",
+          "linkId": "sheriff_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 155,
           "text": {
@@ -333,6 +350,23 @@
         {
           "type": "idle",
           "duration": 165
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "sheriff_line_item_1",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -415,6 +449,23 @@
             "linkId": "sheriff_main",
             "pose": "standing"
           },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:handcuffs",
+          "linkId": "sheriff_line_item_2",
           "attachKeyFrame": true
         },
         {

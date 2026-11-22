@@ -142,7 +142,7 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:conspiracy_page",
+          "item": "noellesroles:lockpick",
           "linkId": "conspirator_shop_line_0",
           "attachKeyFrame": true
         },
@@ -216,6 +216,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:halloween_heart",
+          "linkId": "conspirator_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -269,6 +286,23 @@
             "yaw": 180.0,
             "linkId": "conspirator_main"
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:conspiracy_page",
+          "linkId": "conspirator_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

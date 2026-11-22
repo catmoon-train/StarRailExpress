@@ -124,6 +124,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:lockpick",
+          "linkId": "ninja_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 86,
           "text": {
@@ -142,6 +159,23 @@
         {
           "type": "idle",
           "duration": 96
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:ninja_knife",
+          "linkId": "ninja_line_item_1",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -164,12 +198,21 @@
           "duration": 141
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:ninja_shuriken",
+          "linkId": "ninja_line_item_2",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -266,6 +309,23 @@
         {
           "type": "idle",
           "duration": 25
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "ninja_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -471,6 +531,23 @@
         {
           "type": "idle",
           "duration": 35
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "ninja_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

@@ -124,6 +124,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "monokuma_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 126,
           "text": {
@@ -263,6 +280,23 @@
           "duration": 30
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:yinyang_sword",
+          "linkId": "monokuma_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -327,11 +361,11 @@
         },
         {
           "type": "text",
-          "duration": 171,
+          "duration": 190,
           "text": {
-            "en_us": "Players inside the aura gain 8 coin and infinite stamina every 5 seconds.",
-            "zh_cn": "光环内玩家每5秒获得8金币、无限体力。",
-            "zh_tw": "光環內玩家每5秒獲得8金幣、無限體力。"
+            "en_us": "[Monokuma] form: nearly invulnerable, but cannot pick up items; 4-block aura effect.",
+            "zh_cn": "被黑白击杀的玩家会变成小黑白熊，小黑白熊不具有无敌和金币光环。",
+            "zh_tw": "[黑白熊]形態：幾乎無敵，但無法拾取物品，周圍4格光環效果。"
           },
           "point": [
             3.0,
@@ -343,7 +377,27 @@
         },
         {
           "type": "idle",
-          "duration": 181
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "At game end, win by attaching to the team of the nearest living player within 6 blocks.",
+            "zh_cn": "黑白熊光环内的玩家每5秒获得8金币、无限体力。",
+            "zh_tw": "遊戲結束時依附最近6格記憶體活玩家的陣營獲勝。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
         },
         {
           "type": "rotate_camera_y",
@@ -432,6 +486,23 @@
         {
           "type": "idle",
           "duration": 35
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:yinyang_sword",
+          "linkId": "monokuma_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -536,8 +607,18 @@
               },
               {
                 "en_us": "[Monokuma] form: nearly invulnerable, but cannot pick up items; 4-block aura effect.",
-                "zh_cn": "[黑白熊]形态：几乎无敌，但无法拾取物品，周围4格光环效果。",
+                "zh_cn": "被黑白击杀的玩家会变成小黑白熊，小黑白熊不具有无敌和金币光环。",
                 "zh_tw": "[黑白熊]形態：幾乎無敵，但無法拾取物品，周圍4格光環效果。"
+              },
+              {
+                "en_us": "Invulnerable only means you don't die from normal attacks; forced deaths like the void and Voodoo cannot be blocked.",
+                "zh_cn": "[黑白熊]形态：几乎无敌，但无法拾取物品，周围4格光环效果。",
+                "zh_tw": "無敵僅代表不會因為普通攻擊死亡，但虛空、巫毒等強制死亡無法抵擋。"
+              },
+              {
+                "en_us": "At game end, win by attaching to the team of the nearest living player within 6 blocks.",
+                "zh_cn": "黑白熊光环内的玩家每5秒获得8金币、无限体力。",
+                "zh_tw": "遊戲結束時依附最近6格記憶體活玩家的陣營獲勝。"
               }
             ],
             "color": 16753920
@@ -600,12 +681,60 @@
           "duration": 190,
           "text": {
             "en_us": "[Monokuma] form: nearly invulnerable, but cannot pick up items; 4-block aura effect.",
-            "zh_cn": "[黑白熊]形态：几乎无敌，但无法拾取物品，周围4格光环效果。",
+            "zh_cn": "被黑白击杀的玩家会变成小黑白熊，小黑白熊不具有无敌和金币光环。",
             "zh_tw": "[黑白熊]形態：幾乎無敵，但無法拾取物品，周圍4格光環效果。"
           },
           "point": [
             3.0,
             2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Invulnerable only means you don't die from normal attacks; forced deaths like the void and Voodoo cannot be blocked.",
+            "zh_cn": "[黑白熊]形态：几乎无敌，但无法拾取物品，周围4格光环效果。",
+            "zh_tw": "無敵僅代表不會因為普通攻擊死亡，但虛空、巫毒等強制死亡無法抵擋。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "At game end, win by attaching to the team of the nearest living player within 6 blocks.",
+            "zh_cn": "黑白熊光环内的玩家每5秒获得8金币、无限体力。",
+            "zh_tw": "遊戲結束時依附最近6格記憶體活玩家的陣營獲勝。"
+          },
+          "point": [
+            3.0,
+            2.92,
             3.0
           ],
           "placeNearTarget": true,
@@ -649,6 +778,23 @@
             "yaw": 180.0,
             "linkId": "monokuma_main"
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "monokuma_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -700,35 +846,15 @@
         },
         {
           "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Invulnerable only means you don't die from normal attacks; forced deaths like the void and Voodoo cannot be blocked.",
-            "zh_cn": "无敌仅代表不会因为普通攻击死亡，但虚空、巫毒等强制死亡无法抵挡。",
-            "zh_tw": "無敵僅代表不會因為普通攻擊死亡，但虛空、巫毒等強制死亡無法抵擋。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "text",
           "duration": 160,
           "text": {
             "en_us": "Invulnerability lifts after the good team or the bad team dies off.",
-            "zh_cn": "无敌会在好人阵营或坏人阵营全部死亡后解除。",
+            "zh_cn": "无敌仅代表不会因为普通攻击死亡，但虚空、巫毒等强制死亡无法抵挡。",
             "zh_tw": "無敵會在好人陣營或壞人陣營全部死亡後解除。"
           },
           "point": [
             3.0,
-            2.64,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,

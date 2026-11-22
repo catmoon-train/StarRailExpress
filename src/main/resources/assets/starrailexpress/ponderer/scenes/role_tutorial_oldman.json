@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.oldman",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "noellesroles:wheelchair"
   ],
   "title": {
     "en_us": "Old Man",
@@ -124,6 +122,20 @@
           }
         },
         {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "oldman",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
@@ -150,17 +162,17 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:wheelchair",
           "linkId": "oldman_skill_item_0"
         },
         {
           "type": "show_controls",
           "action": "right",
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:wheelchair",
           "duration": 70,
           "point": [
-            3.0,
-            2.9,
+            2.2,
+            2.2,
             3.0
           ],
           "direction": "down"
@@ -393,6 +405,23 @@
             "yaw": 180.0,
             "linkId": "oldman_main"
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:wheelchair",
+          "linkId": "oldman_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

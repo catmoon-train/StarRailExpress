@@ -183,6 +183,23 @@
           "duration": 40
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            3.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "asatya_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -304,8 +321,8 @@
           "item": "trainmurdermystery:note",
           "duration": 65,
           "point": [
-            4.0,
-            2.9,
+            3.2,
+            2.2,
             3.0
           ],
           "direction": "down"
@@ -609,6 +626,23 @@
         {
           "type": "idle",
           "duration": 35
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            3.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:lin_family_shield",
+          "linkId": "asatya_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

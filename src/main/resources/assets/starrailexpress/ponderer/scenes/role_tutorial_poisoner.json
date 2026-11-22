@@ -164,17 +164,17 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:toilet_poison",
           "linkId": "poisoner_skill_item_0"
         },
         {
           "type": "show_controls",
           "action": "right",
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:toilet_poison",
           "duration": 70,
           "point": [
-            3.0,
-            3.0,
+            2.2,
+            2.2,
             3.0
           ],
           "direction": "down"
@@ -266,8 +266,8 @@
           "item": "trainmurdermystery:note",
           "duration": 70,
           "point": [
-            3.0,
-            3.0,
+            2.2,
+            2.2,
             3.0
           ],
           "direction": "down"
@@ -539,6 +539,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "poisoner_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 182,
           "text": {
@@ -594,8 +611,8 @@
           "item": "trainmurdermystery:note",
           "duration": 70,
           "point": [
-            3.0,
-            3.0,
+            2.2,
+            2.2,
             3.0
           ],
           "direction": "down"
@@ -651,17 +668,17 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "trainmurdermystery:scorpion",
           "linkId": "poisoner_skill_item_2"
         },
         {
           "type": "show_controls",
           "action": "right",
-          "item": "trainmurdermystery:note",
+          "item": "trainmurdermystery:scorpion",
           "duration": 70,
           "point": [
-            3.0,
-            3.0,
+            2.2,
+            2.2,
             3.0
           ],
           "direction": "down"
@@ -717,17 +734,17 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:chlorine_bomb",
           "linkId": "poisoner_skill_item_3"
         },
         {
           "type": "show_controls",
           "action": "right",
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:chlorine_bomb",
           "duration": 70,
           "point": [
-            3.0,
-            3.0,
+            2.2,
+            2.2,
             3.0
           ],
           "direction": "down"

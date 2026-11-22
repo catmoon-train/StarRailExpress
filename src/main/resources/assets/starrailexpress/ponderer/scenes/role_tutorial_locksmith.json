@@ -2,9 +2,8 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.locksmith",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "noellesroles:noell_paperclip",
+    "trainmurdermystery:lockpick"
   ],
   "title": {
     "en_us": "Locksmith",
@@ -124,6 +123,37 @@
           }
         },
         {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "locksmith",
+            "origin": [
+              1.6,
+              1.55,
+              4.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            6.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:screwdriver",
+          "linkId": "locksmith_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 164,
           "text": {
@@ -239,17 +269,17 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:noell_key_blank",
           "linkId": "locksmith_skill_item_2"
         },
         {
           "type": "show_controls",
           "action": "right",
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:noell_key_blank",
           "duration": 70,
           "point": [
-            3.0,
-            2.9,
+            2.2,
+            2.2,
             6.0
           ],
           "direction": "down"
@@ -292,6 +322,23 @@
           "duration": 200
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            6.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:lockpick",
+          "linkId": "locksmith_line_item_3",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -312,12 +359,21 @@
           "duration": 200
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            6
-          ]
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            6.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:noell_paperclip",
+          "linkId": "locksmith_line_item_4",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -338,6 +394,23 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            6.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:noell_artisan_key",
+          "linkId": "locksmith_line_item_5",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -406,6 +479,23 @@
               }
             ]
           },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            6.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:noell_paperclip",
+          "linkId": "locksmith_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -690,6 +780,23 @@
             "yaw": 180.0,
             "linkId": "locksmith_main"
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            6.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:noell_key_blank",
+          "linkId": "locksmith_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

@@ -269,6 +269,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "writer_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 133,
           "text": {
@@ -309,12 +326,21 @@
           "duration": 200
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "starrailexpress:drawing_board",
+          "linkId": "writer_line_item_2",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

@@ -136,6 +136,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "starrailexpress:drawing_board",
+          "linkId": "painter_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -211,8 +228,8 @@
           "item": "starrailexpress:drawing_board",
           "duration": 70,
           "point": [
-            3.0,
-            2.9,
+            2.2,
+            2.2,
             3.0
           ],
           "direction": "down"
@@ -404,6 +421,23 @@
         {
           "type": "idle",
           "duration": 25
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "starrailexpress:drawing_board",
+          "linkId": "painter_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -623,6 +657,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:wheelchair",
+          "linkId": "painter_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -678,6 +729,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "starrailexpress:drawing_board",
+          "linkId": "painter_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 137,
           "text": {
@@ -698,6 +766,23 @@
           "duration": 147
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:monokuma_revolver",
+          "linkId": "painter_line_item_1",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 131,
           "text": {
@@ -716,14 +801,6 @@
         {
           "type": "idle",
           "duration": 141
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
         },
         {
           "type": "text",

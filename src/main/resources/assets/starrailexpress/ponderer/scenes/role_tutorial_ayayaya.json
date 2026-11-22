@@ -164,17 +164,17 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:delivery_box",
           "linkId": "ayayaya_skill_item_0"
         },
         {
           "type": "show_controls",
           "action": "right",
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:delivery_box",
           "duration": 70,
           "point": [
-            3.0,
-            2.9,
+            2.2,
+            2.2,
             3.0
           ],
           "direction": "down"
@@ -313,6 +313,23 @@
             "yaw": 180.0,
             "linkId": "ayayaya_main"
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:delivery_box",
+          "linkId": "ayayaya_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

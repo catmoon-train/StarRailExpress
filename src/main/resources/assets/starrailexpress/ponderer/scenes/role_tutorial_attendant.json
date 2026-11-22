@@ -162,17 +162,17 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:master_key_p",
+          "item": "noellesroles:flashlight",
           "linkId": "attendant_skill_item_0"
         },
         {
           "type": "show_controls",
           "action": "right",
-          "item": "noellesroles:master_key_p",
+          "item": "noellesroles:flashlight",
           "duration": 70,
           "point": [
-            3.0,
-            2.9,
+            2.2,
+            2.2,
             6.0
           ],
           "direction": "down"
@@ -213,6 +213,23 @@
         {
           "type": "idle",
           "duration": 136
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            6.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:master_key_p",
+          "linkId": "attendant_line_item_1",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -336,6 +353,23 @@
         {
           "type": "idle",
           "duration": 25
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            6.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:lightup",
+          "linkId": "attendant_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -630,6 +664,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            6.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:master_key_p",
+          "linkId": "attendant_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 112,
           "text": {
@@ -648,6 +699,23 @@
         {
           "type": "idle",
           "duration": 122
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            6.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:iron_door_key",
+          "linkId": "attendant_line_item_1",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

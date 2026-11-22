@@ -16,7 +16,7 @@ BLOCKING = {"rotate_camera_y", "show_interface"}
 VISUAL = {"spawn_particles", "highlight_section", "create_item_entity",
           "create_entity", "show_controls", "indicate_success",
           "indicate_redstone", "set_block"}
-PARTICLE_WORDS = ("\u7c92\u5b50", "\u91ca\u653e", "\u6295\u63b7", "\u55b7\u6d12", "\u55b7\u51fa")
+PARTICLE_WORDS = ("粒子", "释放", "投掷", "喷洒", "喷出", "泼洒")
 
 # 源码里确认过的粒子。按职业分组，未列出的职业不应在场景里发射粒子。
 # 依据：TMMParticles.java、各 role_data/*.java、stupid_express 客户端特效注册。
@@ -40,6 +40,8 @@ SOURCE_PARTICLES = {
     "loose_end": {"minecraft:portal"},
     "magician": {"minecraft:flame", "minecraft:soul_fire_flame"},
     "magic_apprentice": {"minecraft:flame", "minecraft:snowflake", "minecraft:cloud"},
+    # BloodBottleItem -> BloodMain.BLOOD_PARTICLE = noellesroles:deathblood
+    "mortician_bodymaker": {"noellesroles:deathblood"},
     "musician_phantom": {"minecraft:portal"},
     "nostalgist": {"minecraft:reverse_portal", "minecraft:portal"},
     "nurse": {"minecraft:heart"},
@@ -139,6 +141,14 @@ for path in sorted(glob.glob(os.path.join(SCENES, "*.json"))):
                 add(where, "create_item_entity motion is not [0,0,0]")
             if kind == "show_controls" and "action" in step and step["action"] not in ("left", "right"):
                 add(where, "show_controls action is not left/right")
+
+        key_points = [step.get("parameters", {}).get("point") for step in steps
+                      if step["type"] == "starrailexpress:role_key"]
+        control_points = [step.get("point") for step in steps
+                          if step["type"] == "show_controls"]
+        if any(kp and cp and math.dist(kp, cp) < 0.5
+               for kp in key_points for cp in control_points):
+            add(where, "role_key overlaps show_controls")
 
         for previous, following in zip(texts, texts[1:]):
             if following[0] < previous[0] + previous[1] + 10:

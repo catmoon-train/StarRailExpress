@@ -593,6 +593,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:reimu_gohei",
+          "linkId": "kotiya_sanae_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -701,6 +718,23 @@
           "duration": 35
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:mercenary_guard",
+          "linkId": "kotiya_sanae_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 130,
           "text": {
@@ -754,6 +788,23 @@
             "yaw": 180.0,
             "linkId": "kotiya_sanae_main"
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:reimu_gohei",
+          "linkId": "kotiya_sanae_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

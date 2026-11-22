@@ -179,17 +179,17 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:terminal",
+          "item": "noellesroles:handcuffs",
           "linkId": "programmer_skill_item_0"
         },
         {
           "type": "show_controls",
           "action": "right",
-          "item": "noellesroles:terminal",
+          "item": "noellesroles:handcuffs",
           "duration": 70,
           "point": [
-            3.0,
-            2.9,
+            2.2,
+            2.2,
             3.0
           ],
           "direction": "down"
@@ -411,8 +411,8 @@
           "item": "noellesroles:terminal",
           "duration": 70,
           "point": [
-            3.0,
-            2.9,
+            2.2,
+            2.2,
             3.0
           ],
           "direction": "down"
@@ -603,6 +603,23 @@
             "yaw": 180.0,
             "linkId": "programmer_main"
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:terminal",
+          "linkId": "programmer_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

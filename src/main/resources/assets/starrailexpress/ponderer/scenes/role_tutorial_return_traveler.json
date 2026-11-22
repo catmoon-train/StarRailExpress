@@ -165,8 +165,8 @@
           "item": "trainmurdermystery:note",
           "duration": 65,
           "point": [
-            3.0,
-            2.9,
+            2.2,
+            2.2,
             3.0
           ],
           "direction": "down"
@@ -337,6 +337,23 @@
             "yaw": 180.0,
             "linkId": "return_traveler_main"
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "return_traveler_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

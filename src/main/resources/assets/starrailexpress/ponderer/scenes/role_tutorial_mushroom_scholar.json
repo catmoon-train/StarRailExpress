@@ -190,6 +190,23 @@
           "duration": 25
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:mushroom_sample",
+          "linkId": "mushroom_scholar_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -253,6 +270,23 @@
         {
           "type": "idle",
           "duration": 40
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:mushroom_essence",
+          "linkId": "mushroom_scholar_line_item_1",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -390,6 +424,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:mushroom_sample",
+          "linkId": "mushroom_scholar_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 99,
           "text": {
@@ -408,6 +459,23 @@
         {
           "type": "idle",
           "duration": 109
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:safe_mushroom",
+          "linkId": "mushroom_scholar_line_item_1",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -430,14 +498,6 @@
           "duration": 200
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
           "type": "text",
           "duration": 148,
           "text": {
@@ -456,6 +516,23 @@
         {
           "type": "idle",
           "duration": 158
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:poisonous_mushroom",
+          "linkId": "mushroom_scholar_line_item_3",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -478,12 +555,21 @@
           "duration": 188
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:mushroom_essence",
+          "linkId": "mushroom_scholar_line_item_4",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

@@ -169,6 +169,23 @@
           "linkId": "entity_null_item"
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:blackout",
+          "linkId": "entity_null_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -323,6 +340,23 @@
           "duration": 35
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:blackout",
+          "linkId": "entity_null_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -383,6 +417,23 @@
         {
           "type": "idle",
           "duration": 40
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:void_step",
+          "linkId": "entity_null_line_item_1",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -460,7 +511,7 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:void_step",
+          "item": "noellesroles:null_item_eraser",
           "linkId": "entity_null_shop_line_0",
           "attachKeyFrame": true
         },
@@ -518,6 +569,23 @@
             "yaw": 180.0,
             "linkId": "entity_null_main"
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:void_step",
+          "linkId": "entity_null_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

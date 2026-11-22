@@ -139,6 +139,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:jetpack",
+          "linkId": "shadow_falcon_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 175,
           "text": {
@@ -259,6 +276,23 @@
             "linkId": "shadow_falcon_main",
             "pose": "standing"
           },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:jetpack",
+          "linkId": "shadow_falcon_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -414,6 +448,23 @@
         {
           "type": "idle",
           "duration": 35
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:mercenary_guard",
+          "linkId": "shadow_falcon_line_item_2",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -700,6 +751,23 @@
             "yaw": 180.0,
             "linkId": "shadow_falcon_main"
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:jetpack",
+          "linkId": "shadow_falcon_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

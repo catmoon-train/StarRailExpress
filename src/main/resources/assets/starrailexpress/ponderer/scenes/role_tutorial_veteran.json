@@ -2,6 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.veteran",
   "items": [
+    "noellesroles:sp_knife",
     "trainmurdermystery:knife"
   ],
   "title": {
@@ -122,21 +123,18 @@
           }
         },
         {
-          "type": "create_item_entity",
+          "type": "starrailexpress:role_items",
           "attachKeyFrame": true,
-          "pos": [
-            1.6,
-            1.55,
-            1.6
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:knife",
-          "linkId": "veteran_item"
+          "parameters": {
+            "role": "veteran",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
         },
         {
           "type": "starrailexpress:role_player",
@@ -182,6 +180,23 @@
         {
           "type": "idle",
           "duration": 40
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:sp_knife",
+          "linkId": "veteran_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -318,6 +333,23 @@
           "duration": 40
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:sp_knife",
+          "linkId": "veteran_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -393,7 +425,7 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:knife",
+          "item": "noellesroles:sp_knife",
           "linkId": "veteran_shop_line_0",
           "attachKeyFrame": true
         },
@@ -562,17 +594,17 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:knife",
+          "item": "noellesroles:sp_knife",
           "linkId": "veteran_skill_item_0"
         },
         {
           "type": "show_controls",
           "action": "left",
-          "item": "trainmurdermystery:knife",
+          "item": "noellesroles:sp_knife",
           "duration": 70,
           "point": [
-            3.0,
-            2.9,
+            2.2,
+            2.2,
             3.0
           ],
           "direction": "down"

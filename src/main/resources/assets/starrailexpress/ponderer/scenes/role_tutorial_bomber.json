@@ -2,10 +2,10 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.bomber",
   "items": [
+    "noellesroles:bomb",
     "trainmurdermystery:grenade",
     "trainmurdermystery:timed_grenade",
-    "trainmurdermystery:sticky_grenade",
-    "trainmurdermystery:firecracker"
+    "trainmurdermystery:sticky_grenade"
   ],
   "title": {
     "en_us": "Bomber",
@@ -125,21 +125,18 @@
           }
         },
         {
-          "type": "create_item_entity",
+          "type": "starrailexpress:role_items",
           "attachKeyFrame": true,
-          "pos": [
-            1.6,
-            1.55,
-            1.6
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:grenade",
-          "linkId": "bomber_item"
+          "parameters": {
+            "role": "bomber",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
         },
         {
           "type": "starrailexpress:role_player",
@@ -199,6 +196,23 @@
         {
           "type": "idle",
           "duration": 40
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:bomb",
+          "linkId": "bomber_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -276,7 +290,7 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:grenade",
+          "item": "noellesroles:bomb",
           "linkId": "bomber_shop_line_0",
           "attachKeyFrame": true
         },
@@ -313,7 +327,7 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:timed_grenade",
+          "item": "noellesroles:bomb",
           "linkId": "bomber_shop_line_1",
           "attachKeyFrame": true
         },
@@ -371,6 +385,23 @@
             "yaw": 180.0,
             "linkId": "bomber_main"
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:bomb",
+          "linkId": "bomber_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

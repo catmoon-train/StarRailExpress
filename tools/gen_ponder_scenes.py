@@ -19,6 +19,7 @@
   - 所有文本三语齐全；tags / customTags 不写 null。
 """
 
+import glob
 import io
 import json
 import os
@@ -323,6 +324,8 @@ SOURCE_PARTICLE_BY_ROLE = {
     "loose_end": "minecraft:portal",
     "magician": "minecraft:soul_fire_flame",
     "magic_apprentice": "minecraft:snowflake",
+    # BloodBottleItem#spawnBloodParticles -> BloodMain.BLOOD_PARTICLE（noellesroles:deathblood）
+    "mortician_bodymaker": "noellesroles:deathblood",
     "musician_phantom": "minecraft:portal",
     "nostalgist": "minecraft:reverse_portal",
     "nurse": "minecraft:heart",
@@ -384,6 +387,63 @@ def pick_item(facts, fallback="trainmurdermystery:note"):
     return fallback
 
 
+def _load_item_names():
+    """物品显示名 -> 物品 id，用来按介绍句子摆出真正讲到的道具。"""
+    mapping = {}
+    for path in sorted(glob.glob(os.path.join(ASSETS, "*", "lang", "zh_cn.json"))):
+        data = load_json(path)
+        for key, value in data.items():
+            parts = key.split(".")
+            if len(parts) == 3 and parts[0] == "item" and value and "\n" not in value:
+                name = value.strip()
+                if len(name) >= 2:
+                    mapping.setdefault(name, set()).add(parts[1] + ":" + parts[2])
+    return mapping
+
+
+ITEM_IDS_BY_NAME = _load_item_names()
+# 介绍里的叫法与物品显示名不一致时（例如「加固道具」实际叫维修工具），按这里补。
+ITEM_ALIASES = {
+    "加固道具": "noellesroles:reinforcement",
+    "鹤顶红": "noellesroles:hedinghong",
+    "初始军刀": "noellesroles:sp_knife",
+    "小麦": "minecraft:wheat",
+    "鸡蛋": "minecraft:egg",
+    "糖": "minecraft:sugar",
+}
+for _alias, _item_id in ITEM_ALIASES.items():
+    ITEM_IDS_BY_NAME.setdefault(_alias, set()).add(_item_id)
+
+
+def item_for_line(facts, zh):
+    """句子里明确提到某个道具时，演示那个道具，而不是职业的第一个物品。
+
+    同一句里出现多个道具名时按出现先后取，避免「可加固门（防一次撬棍）」
+    被后面的「撬棍」抢走，摆出完全不相干的物品。
+    """
+    if not zh:
+        return pick_item(facts)
+    candidates = (facts.get("initialItems") or []) + (facts.get("shopItems") or [])
+    hits = sorted((zh.find(name), -len(name), name)
+                  for name in ITEM_IDS_BY_NAME if name in zh)
+    for _, _, name in hits:
+        ids = ITEM_IDS_BY_NAME[name]
+        for item_id in candidates:
+            if item_id in ids:
+                return item_id
+    for _, _, name in hits:
+        ids = ITEM_IDS_BY_NAME[name]
+        if len(ids) == 1:
+            return next(iter(ids))
+        # 同名物品跨命名空间时优先通用物品，避免把「左轮手枪」画成某个职业专属皮肤。
+        for namespace in ("trainmurdermystery", "noellesroles", "starrailexpress"):
+            item_id = namespace + ":" + name
+            if item_id in ids:
+                return item_id
+        return sorted(ids)[0]
+    return pick_item(facts)
+
+
 def particle_for(text):
     for words, particle in PARTICLE_BY_WORD:
         if any(word in text for word in words):
@@ -429,12 +489,14 @@ def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None
     px, py, pz = base
     tx, ty, tz = target
     head = [px, py + 1.9, pz]
+    # 键帽挂在头顶，右键提示放到摆出的物品上方：两块控件不能共用一个 point。
+    controls = [px - 0.8, py + 1.2, pz]
     steps = []
     panel = False
     link = rid + "_main"
     target_link = rid + "_skill_target_" + suffix
     item_link = rid + "_skill_item_" + suffix
-    item = pick_item(facts)
+    item = item_for_line(facts, zh)
 
     # 被动描述（「拥有护盾」「击杀获得金币」）不该有技能键帽和走动；
     # 只有明确写了触发方式的句子才演「按键 → 动作」。
@@ -549,7 +611,7 @@ def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None
                       "motion": [0.0, 0.0, 0.0], "count": 1, "item": item,
                       "linkId": item_link})
         steps.append({"type": "show_controls", "action": "right", "item": item,
-                      "duration": 70, "point": [px, py + 2.0, pz],
+                      "duration": 70, "point": controls,
                       "direction": "down"})
         walk_to([tx - 0.9, ty, tz], 40)
         emit(particle_for_role(zh, rid), [tx, ty + 0.8, tz], count=8, duration=80)
@@ -621,7 +683,7 @@ def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None
         key()
         steps.append(custom("role_hold", {"linkId": link, "item": item}))
         steps.append({"type": "show_controls", "action": "right", "item": item,
-                      "duration": 65, "point": head, "direction": "down"})
+                      "duration": 65, "point": controls, "direction": "down"})
         steps.append({"type": "idle", "duration": 30})
         return steps, panel
 
@@ -631,7 +693,7 @@ def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None
                       "motion": [0.0, 0.0, 0.0], "count": 1, "item": item,
                       "linkId": item_link})
         steps.append({"type": "show_controls", "action": "right" if "右键" in zh else "left",
-                      "item": item, "duration": 70, "point": head, "direction": "down"})
+                      "item": item, "duration": 70, "point": controls, "direction": "down"})
         walk_to([tx - 0.9, ty, tz], 35)
         particles_at([tx, ty + 0.8, tz], count=8, duration=55)
         steps.append({"type": "idle", "duration": 25})
@@ -717,6 +779,20 @@ ROLE_ITEMS = {
                  "stupid_express:large_oil_can", "stupid_express:fire_gun"],
     "baka": ["noellesroles:danmuku", "noellesroles:problem_set"],
     "disc_master": ["noellesroles:speaker", "minecraft:music_disc_13"],
+    # 下列职业的 facts 初始/商店物品抽取不全或只抽到通用工具，按介绍与源码补齐。
+    "bomber": ["noellesroles:bomb"],
+    "cake_maker": ["minecraft:wheat", "minecraft:egg", "minecraft:sugar"],
+    "doctor": ["noellesroles:defibrillator", "noellesroles:antidote",
+               "noellesroles:pill", "noellesroles:purify_bomb"],
+    "imitator": ["noellesroles:hedinghong"],
+    "locksmith": ["noellesroles:noell_paperclip", "trainmurdermystery:lockpick"],
+    "oldman": ["noellesroles:wheelchair"],
+    "prankster": ["noellesroles:blank_cartridge", "noellesroles:smoke_grenade",
+                  "noellesroles:lockpick"],
+    "tomato_head": ["noellesroles:tomato"],
+    "undead_lord": ["noellesroles:bone_staff"],
+    "veteran": ["noellesroles:sp_knife"],
+    "wizard": ["noellesroles:wizard_staff"],
 }
 
 # 这些职业没有主动技能键，不能因为介绍里写了「右键道具」就塞技能键帽和走动。
@@ -855,7 +931,7 @@ def override_arsonist_items(builder, ctx):
                                         item, rid + "_start_" + str(slot)))
             builder.add(custom("role_hold", {"linkId": main, "item": cans[0]}))
             builder.add(custom("role_outline", {"linkId": oiled, "color": GRAY}))
-        elif "浇上汽油" in zh or "浇油" in zh:
+        elif ("浇上汽油" in zh or "浇油" in zh) and "警告" not in zh:
             builder.add(custom("role_hold", {"linkId": main, "item": cans[0]}))
             builder.add(show_right_click([p[0], p[1] + 2.0, p[2]], cans[0]))
             builder.add(custom("role_walk", {"linkId": main, "to": [t[0] - 0.8, t[1], t[2]], "duration": 40}))
@@ -875,6 +951,7 @@ def override_arsonist_items(builder, ctx):
                                                      "lines": [line]}))
                 disguise_used = True
         elif "大油罐" in zh:
+            builder.add(custom("role_hold", {"linkId": main, "item": "stupid_express:large_oil_can"}))
             builder.add(item_entity([p[0] - 1.0, p[1] + 0.55, p[2] - 1.0],
                                     "stupid_express:large_oil_can", rid + "_large_can"))
             builder.add(show_right_click([p[0], p[1] + 2.0, p[2]], "stupid_express:large_oil_can"))
@@ -894,7 +971,7 @@ def override_arsonist_skill(builder, ctx):
     for line in ctx["lines"]:
         builder.add(custom("role_hold", {"linkId": main, "item": "stupid_express:lighter"}))
         builder.add(key_cap([p[0], p[1] + 2.0, p[2]]))
-        builder.add(show_right_click([p[0], p[1] + 2.0, p[2]], "stupid_express:lighter"))
+        builder.add(show_right_click([p[0] - 0.8, p[1] + 1.2, p[2]], "stupid_express:lighter"))
         builder.add(scene_particle("stupid_express:arsonist_flame", [t[0], t[1] + 0.9, t[2]], count=14, duration=80))
         builder.add(scene_particle("stupid_express:arsonist_flame", [third[0], third[1] + 0.9, third[2]],
                                    count=14, duration=80))
@@ -1021,7 +1098,65 @@ def override_disc_master_shop(builder, ctx):
         builder.say(line)
 
 
-PARTICLE_WORDS = ("粒子", "释放", "投掷", "喷洒", "喷出")
+def override_mortician_bodymaker_items(builder, ctx):
+    """血瓶：摆血瓶，右键在死者周围泼血；血瓶是道具，不是技能键，不放键帽。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    rid, main = ctx["rid"], ctx["rid"] + "_main"
+    blood = "noellesroles:blood_bottle"
+    builder.add(player_step(t, rid + "_victim"))
+    builder.add(custom("role_death", {"linkId": rid + "_victim", "pos": t,
+                                      "name": "ponder.starrailexpress.label.victim"}))
+    builder.add({"type": "idle", "duration": 15})
+    for line in ctx["lines"]:
+        builder.add(custom("role_hold", {"linkId": main, "item": blood}))
+        builder.add(item_entity([p[0] - 0.8, p[1] + 0.5, p[2]], blood, rid + "_blood_bottle"))
+        # 只有鼠标右键提示，键帽不参与这一幕，UI 不会叠在一起。
+        builder.add(show_right_click([p[0] - 0.8, p[1] + 1.2, p[2]], blood))
+        # BloodBottleItem：12 发 noellesroles:deathblood + SoundEvents.GRASS_FALL。
+        builder.add(scene_particle("noellesroles:deathblood", [t[0], t[1] + 1.0, t[2]],
+                                   count=12, duration=70, spread=[0.9, 1.2, 0.9]))
+        builder.add(scene_sound("minecraft:block.grass.fall"))
+        builder.add({"type": "indicate_success", "blockPos": [int(t[0]), 0, int(t[2])]})
+        builder.add({"type": "idle", "duration": 35})
+        builder.say(line)
+
+
+def override_mortician_bodymaker_skill(builder, ctx):
+    """曳柩对尸体按技能键；不要把技能演成右键钥匙。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    rid, main = ctx["rid"], ctx["rid"] + "_main"
+    builder.add(player_step(t, rid + "_corpse_target", outline=ctx["outline_color"]))
+    head = [p[0], p[1] + 2.0, p[2]]
+    for line in ctx["lines"]:
+        zh = line.get("zh_cn", "")
+        if zh.startswith("技能（"):
+            builder.add(custom("role_skill", {"label": "ponder.starrailexpress.label.skill",
+                                              "lines": [line]}))
+        elif "曳柩" in zh:
+            builder.add(key_cap(head))
+            builder.add(custom("role_walk", {"linkId": main,
+                                             "to": [t[0] - 0.8, t[1], t[2]], "duration": 40}))
+            builder.add(custom("role_death", {"linkId": rid + "_corpse_target", "pos": t,
+                                              "name": "ponder.starrailexpress.label.victim"}))
+            builder.add({"type": "indicate_success", "blockPos": [int(t[0]), 0, int(t[2])]})
+        elif "丧钟" in zh:
+            builder.add(key_cap(head))
+            builder.add({"type": "highlight_section",
+                         "blockPos": [int(p[0]) - 2, 0, int(p[2]) - 2],
+                         "blockPos2": [int(p[0]) + 2, 0, int(p[2]) + 2],
+                         "duration": 220, "color": "red"})
+            builder.add(custom("role_timer", {"progress": [0.0, 1.0], "lines": [line]}))
+        elif "清洗" in zh:
+            builder.add(key_cap(head))
+            builder.add({"type": "highlight_section",
+                         "blockPos": [int(p[0]) - 2, 0, int(p[2]) - 2],
+                         "blockPos2": [int(p[0]) + 2, 0, int(p[2]) + 2],
+                         "duration": 220, "color": "blue"})
+            builder.add(custom("role_timer", {"progress": [0.0, 1.0], "lines": [line]}))
+        builder.say(line)
+
+
+PARTICLE_WORDS = ("粒子", "释放", "投掷", "喷洒", "喷出", "泼洒")
 
 
 def ensure_particles(builder, lines, rid=""):
@@ -1292,6 +1427,8 @@ ROLE_SEGMENT_OVERRIDES = {
     ("baka", "mood"): override_baka_mood,
     ("baka", "details"): override_baka_details,
     ("disc_master", "shop"): override_disc_master_shop,
+    ("mortician_bodymaker", "items"): override_mortician_bodymaker_items,
+    ("mortician_bodymaker", "skill"): override_mortician_bodymaker_skill,
     ("ibaraki_kasen", "shop"): override_kasen_shop,
     ("jade_general", "skill"): override_jade_general_skill,
     ("rabbit_wansui", "form"): override_rabbit_form,
@@ -1489,11 +1626,14 @@ def build_role_scene(rid, facts, intros, names, goals):
                                                        player_pos[2] - 1.4],
                                             "spacing": 0.7, "max": 4}})
             elif shop:
+                lead = item_for_line(facts, lines[0].get("zh_cn", "") if lines else "")
+                if lead not in shop:
+                    lead = shop[0]
                 builder.add({"type": "create_item_entity", "attachKeyFrame": True,
                              "pos": [player_pos[0] - 1.4, player_pos[1] + 0.55,
                                      player_pos[2] - 1.4],
                              "motion": [0.0, 0.0, 0.0], "count": 1,
-                             "item": shop[0], "linkId": rid + "_item"})
+                             "item": lead, "linkId": rid + "_item"})
         elif key == "skill":
             # 右上角只放冷却 / 代价等元信息，具体机制由下面逐句的动作演绎。
             meta = [dict(line) for line in lines
@@ -1575,10 +1715,14 @@ def build_role_scene(rid, facts, intros, names, goals):
         shop_items = [item for item in (facts.get("shopItems") or []) if item][:4] if key == "shop" else []
         for index, line in enumerate(lines):
             zh_line = line.get("zh_cn", "")
+            item_steps_before = sum(1 for step in builder.steps
+                                    if step["type"] in ("create_item_entity", "show_controls",
+                                                        "starrailexpress:role_hold"))
             if shop_items:
+                shown = item_for_line(facts, zh_line)
                 builder.add(item_entity(
                     [player_pos[0] - 1.4 + (index % 4) * 0.75, player_pos[1] + 0.55,
-                     player_pos[2] - 1.2], shop_items[index % len(shop_items)],
+                     player_pos[2] - 1.2], shown,
                     rid + "_shop_line_" + str(index)))
             if key in ACT_SEGMENTS and has_action(zh_line):
                 acts, _ = build_skill_act(zh_line, rid, facts,
@@ -1590,6 +1734,23 @@ def build_role_scene(rid, facts, intros, names, goals):
                     state_used = True
                 for step in acts:
                     builder.add(step)
+            # 只讲道具、没有触发词的句子也要把道具摆出来，否则介绍「药丸」时
+            # 画面里还停着上一句的心脏起搏器。
+            if key in ACT_SEGMENTS and zh_line and item_steps_before == sum(
+                    1 for step in builder.steps
+                    if step["type"] in ("create_item_entity", "show_controls",
+                                        "starrailexpress:role_hold")):
+                shown = item_for_line(facts, zh_line)
+                shown_ids = set()
+                for step in builder.steps:
+                    if step["type"] in ("create_item_entity", "show_controls"):
+                        shown_ids.add(step.get("item"))
+                    elif step["type"] == "starrailexpress:role_hold":
+                        shown_ids.add(step.get("parameters", {}).get("item"))
+                if shown not in shown_ids:
+                    builder.add(item_entity(
+                        [player_pos[0] - 0.8, player_pos[1] + 0.5, player_pos[2]], shown,
+                        rid + "_line_item_" + str(index)))
             builder.say(line)
         ensure_particles(builder, lines, rid)
         builder.finish()

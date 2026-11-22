@@ -124,6 +124,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "hoan_meirin_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 108,
           "text": {
@@ -236,6 +253,23 @@
         {
           "type": "idle",
           "duration": 40
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "hoan_meirin_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -387,6 +421,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "hoan_meirin_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 81,
           "text": {
@@ -462,8 +513,8 @@
           "item": "trainmurdermystery:note",
           "duration": 70,
           "point": [
-            3.0,
-            2.9,
+            2.2,
+            2.2,
             3.0
           ],
           "direction": "down"

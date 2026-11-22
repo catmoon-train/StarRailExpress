@@ -215,6 +215,23 @@
           "duration": 25
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:revolver",
+          "linkId": "nostalgist_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -327,7 +344,7 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:grenade",
+          "item": "trainmurdermystery:revolver",
           "linkId": "nostalgist_shop_line_1",
           "attachKeyFrame": true
         },
@@ -364,7 +381,7 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:short_shotgun",
+          "item": "trainmurdermystery:revolver",
           "linkId": "nostalgist_shop_line_2",
           "attachKeyFrame": true
         },
@@ -574,6 +591,23 @@
             "yaw": 180.0,
             "linkId": "nostalgist_main"
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:revolver",
+          "linkId": "nostalgist_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

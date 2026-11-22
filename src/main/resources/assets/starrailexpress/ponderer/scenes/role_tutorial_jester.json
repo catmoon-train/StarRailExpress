@@ -328,8 +328,25 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:knife",
-          "linkId": "knife",
+          "item": "noellesroles:fake_knife",
+          "linkId": "fake_knife",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.9,
+            1.4,
+            3.4
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:fake_revolver",
+          "linkId": "fake_revolver",
           "attachKeyFrame": true
         },
         {

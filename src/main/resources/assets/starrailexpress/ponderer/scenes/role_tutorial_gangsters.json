@@ -139,6 +139,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:c4",
+          "linkId": "gangsters_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 124,
           "text": {
@@ -382,6 +399,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:c4",
+          "linkId": "gangsters_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -400,6 +434,23 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:c4_detonator",
+          "linkId": "gangsters_line_item_1",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -422,12 +473,21 @@
           "duration": 200
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:camera_shears",
+          "linkId": "gangsters_line_item_2",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.imitator",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "noellesroles:hedinghong"
   ],
   "title": {
     "en_us": "Imitator",
@@ -188,6 +186,23 @@
           "duration": 40
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:hedinghong",
+          "linkId": "imitator_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -225,18 +240,18 @@
           "type": "starrailexpress:role_hold",
           "parameters": {
             "linkId": "imitator_main",
-            "item": "trainmurdermystery:note"
+            "item": "noellesroles:hedinghong"
           },
           "attachKeyFrame": true
         },
         {
           "type": "show_controls",
           "action": "right",
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:hedinghong",
           "duration": 65,
           "point": [
-            3.0,
-            2.9,
+            2.2,
+            2.2,
             3.0
           ],
           "direction": "down"
@@ -689,7 +704,7 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:hedinghong",
           "linkId": "imitator_skill_item_8"
         },
         {
@@ -915,6 +930,23 @@
             "yaw": 180.0,
             "linkId": "imitator_main"
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:hedinghong",
+          "linkId": "imitator_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

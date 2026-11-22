@@ -124,6 +124,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "diver_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 74,
           "text": {
@@ -142,6 +159,23 @@
         {
           "type": "idle",
           "duration": 84
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:diving_boots",
+          "linkId": "diver_line_item_1",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -267,6 +301,23 @@
           "duration": 25
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "diver_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 140,
           "text": {
@@ -385,6 +436,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "diver_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 94,
           "text": {
@@ -425,12 +493,21 @@
           "duration": 78
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:diving_helmet",
+          "linkId": "diver_line_item_2",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

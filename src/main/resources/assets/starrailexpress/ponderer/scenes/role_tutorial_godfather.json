@@ -296,6 +296,23 @@
           "duration": 40
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:lockpick",
+          "linkId": "godfather_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -371,7 +388,7 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:lockpick",
+          "item": "noellesroles:bullet",
           "linkId": "godfather_shop_line_0",
           "attachKeyFrame": true
         },
@@ -408,7 +425,7 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:bullet",
+          "item": "trainmurdermystery:lockpick",
           "linkId": "godfather_shop_line_1",
           "attachKeyFrame": true
         },
@@ -702,6 +719,23 @@
             "yaw": 180.0,
             "linkId": "godfather_main"
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:lockpick",
+          "linkId": "godfather_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

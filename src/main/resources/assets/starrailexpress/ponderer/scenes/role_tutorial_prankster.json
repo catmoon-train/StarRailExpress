@@ -2,9 +2,9 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.prankster",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "noellesroles:blank_cartridge",
+    "noellesroles:smoke_grenade",
+    "noellesroles:lockpick"
   ],
   "title": {
     "en_us": "Prankster",
@@ -152,6 +152,20 @@
           }
         },
         {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "prankster",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -192,17 +206,17 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:blank_cartridge",
           "linkId": "prankster_skill_item_0"
         },
         {
           "type": "show_controls",
           "action": "right",
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:blank_cartridge",
           "duration": 70,
           "point": [
-            3.0,
-            2.9,
+            2.2,
+            2.2,
             3.0
           ],
           "direction": "down"
@@ -304,6 +318,23 @@
           "duration": 40
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:smoke_grenade",
+          "linkId": "prankster_line_item_1",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -322,6 +353,23 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:lockpick",
+          "linkId": "prankster_line_item_2",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -440,6 +488,23 @@
             "yaw": 180.0,
             "linkId": "prankster_main"
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:blank_cartridge",
+          "linkId": "prankster_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

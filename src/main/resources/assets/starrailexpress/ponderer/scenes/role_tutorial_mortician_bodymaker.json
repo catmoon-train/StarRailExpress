@@ -152,23 +152,6 @@
           }
         },
         {
-          "type": "create_item_entity",
-          "attachKeyFrame": true,
-          "pos": [
-            1.6,
-            1.55,
-            1.6
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:master_key_p",
-          "linkId": "mortician_bodymaker_item"
-        },
-        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -178,21 +161,31 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "mortician_bodymaker_skill_target_0",
-            "outline": -4939556
+            "linkId": "mortician_bodymaker_victim"
           }
         },
         {
-          "type": "starrailexpress:role_key",
+          "type": "starrailexpress:role_death",
           "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
+            "linkId": "mortician_bodymaker_victim",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
             ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 15
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "mortician_bodymaker_main",
+            "item": "noellesroles:blood_bottle"
           },
           "attachKeyFrame": true
         },
@@ -209,37 +202,63 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:master_key_p",
-          "linkId": "mortician_bodymaker_skill_item_0"
+          "item": "noellesroles:blood_bottle",
+          "linkId": "mortician_bodymaker_blood_bottle",
+          "attachKeyFrame": true
         },
         {
           "type": "show_controls",
           "action": "right",
-          "item": "noellesroles:master_key_p",
+          "item": "noellesroles:blood_bottle",
           "duration": 70,
           "point": [
-            3.0,
-            2.9,
+            2.2,
+            2.2,
             3.0
           ],
-          "direction": "down"
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "mortician_bodymaker_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 35
-          },
+          "direction": "down",
           "attachKeyFrame": true
         },
         {
+          "type": "spawn_particles",
+          "particle": "noellesroles:deathblood",
+          "pos": [
+            5.0,
+            2.0,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.9,
+            1.2,
+            0.9
+          ],
+          "count": 12,
+          "duration": 70,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:block.grass.fall",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
           "type": "idle",
-          "duration": 25
+          "duration": 35
         },
         {
           "type": "text",
@@ -284,6 +303,28 @@
           "attachKeyFrame": true
         },
         {
+          "type": "spawn_particles",
+          "particle": "noellesroles:deathblood",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -297,6 +338,20 @@
           }
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mortician_bodymaker_corpse_target",
+            "outline": -4939556
+          }
+        },
+        {
           "type": "starrailexpress:role_skill",
           "parameters": {
             "label": "ponder.starrailexpress.label.skill",
@@ -305,53 +360,10 @@
                 "en_us": "Skills (switch with the skill-switch key (default Y), shared cooldown):",
                 "zh_cn": "技能（按下技能切换键（默认Y键）切换模式，技能冷却共通）：",
                 "zh_tw": "技能（按下技能切換鍵（默認Y鍵）切換模式，技能冷卻共通）："
-              },
-              {
-                "en_us": "Drag: press the skill key at a corpse to drag it; press again to drop it, 45s cooldown",
-                "zh_cn": "曳柩：对尸体按下技能键，可以拖动尸体，再次按下放下尸体并进入45秒冷却",
-                "zh_tw": "曳柩：對屍體按下技能鍵，可以拖動屍體，再次按下放下屍體並進入45秒冷卻"
               }
             ]
           },
           "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "mortician_bodymaker_main",
-            "item": "noellesroles:master_key_p"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "show_controls",
-          "action": "right",
-          "item": "noellesroles:master_key_p",
-          "duration": 65,
-          "point": [
-            3.0,
-            2.9,
-            3.0
-          ],
-          "direction": "down"
-        },
-        {
-          "type": "idle",
-          "duration": 30
         },
         {
           "type": "text",
@@ -374,25 +386,11 @@
           "duration": 177
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "mortician_bodymaker_skill_target_1",
-            "outline": -4939556
-          }
-        },
-        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
@@ -406,22 +404,18 @@
           "parameters": {
             "linkId": "mortician_bodymaker_main",
             "to": [
-              4.1,
+              4.2,
               1.0,
               2.0
             ],
-            "duration": 45
+            "duration": 40
           },
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 15
-        },
-        {
           "type": "starrailexpress:role_death",
           "parameters": {
-            "linkId": "mortician_bodymaker_skill_target_1",
+            "linkId": "mortician_bodymaker_corpse_target",
             "pos": [
               5.0,
               1.0,
@@ -438,10 +432,6 @@
             0,
             2
           ]
-        },
-        {
-          "type": "idle",
-          "duration": 30
         },
         {
           "type": "text",
@@ -464,28 +454,33 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_key",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
+            "point": [
+              3.0,
+              3.0,
+              3.0
             ],
-            "yaw": 180.0,
-            "linkId": "mortician_bodymaker_skill_target_2",
-            "outline": -4939556
-          }
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "highlight_section",
           "blockPos": [
-            3,
+            1,
             0,
-            3
+            1
+          ],
+          "blockPos2": [
+            5,
+            0,
+            5
           ],
           "duration": 220,
-          "color": "blue"
+          "color": "red"
         },
         {
           "type": "starrailexpress:role_timer",
@@ -503,10 +498,6 @@
             ]
           },
           "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 40
         },
         {
           "type": "text",
@@ -529,18 +520,50 @@
           "duration": 186
         },
         {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "keyBind": "ability",
+            "duration": 60
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "highlight_section",
           "blockPos": [
-            3,
+            1,
             0,
-            3
+            1
+          ],
+          "blockPos2": [
+            5,
+            0,
+            5
           ],
           "duration": 220,
           "color": "blue"
         },
         {
-          "type": "idle",
-          "duration": 40
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Wash: clears blood within 4 blocks, 45s cooldown",
+                "zh_cn": "清洗：消除4格半径内的血迹，进入45秒冷却",
+                "zh_tw": "清洗：消除4格半徑內的血跡，進入45秒冷卻"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "text",

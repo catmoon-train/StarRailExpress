@@ -136,6 +136,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:grosell_travelog",
+          "linkId": "adventurer_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 126,
           "text": {
@@ -248,6 +265,23 @@
         {
           "type": "idle",
           "duration": 40
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:grosell_travelog",
+          "linkId": "adventurer_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -420,6 +454,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:grosell_travelog",
+          "linkId": "adventurer_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 121,
           "text": {
@@ -440,6 +491,23 @@
           "duration": 131
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:summon_rolling_stone",
+          "linkId": "adventurer_line_item_1",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -458,14 +526,6 @@
         {
           "type": "idle",
           "duration": 200
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
         },
         {
           "type": "text",

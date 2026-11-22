@@ -124,6 +124,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:apprentice_wand",
+          "linkId": "magic_apprentice_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 97,
           "text": {
@@ -142,6 +159,23 @@
         {
           "type": "idle",
           "duration": 107
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "magic_apprentice_line_item_1",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -164,12 +198,21 @@
           "duration": 150
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:him_fireball",
+          "linkId": "magic_apprentice_line_item_2",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -306,6 +349,23 @@
             0.04,
             0
           ]
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:wizard_staff",
+          "linkId": "magic_apprentice_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

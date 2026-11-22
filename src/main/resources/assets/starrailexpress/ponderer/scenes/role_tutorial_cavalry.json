@@ -136,6 +136,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:super_pig_horseshoe",
+          "linkId": "cavalry_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 99,
           "text": {
@@ -205,8 +222,8 @@
           "item": "noellesroles:super_pig_horseshoe",
           "duration": 70,
           "point": [
-            3.0,
-            2.9,
+            2.2,
+            2.2,
             3.0
           ],
           "direction": "down"
@@ -298,8 +315,8 @@
           "item": "noellesroles:super_pig_horseshoe",
           "duration": 70,
           "point": [
-            3.0,
-            2.9,
+            2.2,
+            2.2,
             3.0
           ],
           "direction": "down"
@@ -493,6 +510,23 @@
           "duration": 35
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:lin_family_shield",
+          "linkId": "cavalry_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -546,6 +580,23 @@
             "yaw": 180.0,
             "linkId": "cavalry_main"
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:super_pig_horseshoe",
+          "linkId": "cavalry_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -614,6 +665,23 @@
         {
           "type": "idle",
           "duration": 179
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:netherite_spear",
+          "linkId": "cavalry_line_item_3",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

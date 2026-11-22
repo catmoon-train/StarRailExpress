@@ -2,8 +2,9 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.cake_maker",
   "items": [
-    "noellesroles:cake_ingredients",
-    "minecraft:bundle"
+    "minecraft:wheat",
+    "minecraft:egg",
+    "minecraft:sugar"
   ],
   "title": {
     "en_us": "Cake Maker",
@@ -163,17 +164,17 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:cake_ingredients",
+          "item": "minecraft:wheat",
           "linkId": "cake_maker_skill_item_0"
         },
         {
           "type": "show_controls",
           "action": "right",
-          "item": "noellesroles:cake_ingredients",
+          "item": "minecraft:wheat",
           "duration": 70,
           "point": [
-            3.0,
-            2.9,
+            2.2,
+            2.2,
             3.0
           ],
           "direction": "down"
@@ -378,6 +379,23 @@
         {
           "type": "idle",
           "duration": 40
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "minecraft:wheat",
+          "linkId": "cake_maker_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -622,6 +640,23 @@
           "duration": 35
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "minecraft:wheat",
+          "linkId": "cake_maker_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -675,6 +710,23 @@
             "yaw": 180.0,
             "linkId": "cake_maker_main"
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "minecraft:wheat",
+          "linkId": "cake_maker_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

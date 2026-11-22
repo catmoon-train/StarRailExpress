@@ -3,8 +3,8 @@
   "id": "starrailexpress:role_tutorial.doctor",
   "items": [
     "noellesroles:defibrillator",
-    "noellesroles:antidote_reagent",
     "noellesroles:antidote",
+    "noellesroles:pill",
     "noellesroles:purify_bomb"
   ],
   "title": {
@@ -137,6 +137,23 @@
             "spacing": 0.7,
             "max": 4
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:defibrillator",
+          "linkId": "doctor_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -410,17 +427,17 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:defibrillator",
+          "item": "noellesroles:antidote",
           "linkId": "doctor_skill_item_0"
         },
         {
           "type": "show_controls",
           "action": "right",
-          "item": "noellesroles:defibrillator",
+          "item": "noellesroles:antidote",
           "duration": 70,
           "point": [
-            3.0,
-            3.0,
+            2.2,
+            2.2,
             3.0
           ],
           "direction": "down"
@@ -625,8 +642,8 @@
           "item": "noellesroles:defibrillator",
           "duration": 70,
           "point": [
-            3.0,
-            3.0,
+            2.2,
+            2.2,
             3.0
           ],
           "direction": "down"
@@ -794,6 +811,23 @@
           "duration": 35
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:pill",
+          "linkId": "doctor_line_item_3",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 158,
           "text": {
@@ -860,6 +894,23 @@
         {
           "type": "idle",
           "duration": 35
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:purify_bomb",
+          "linkId": "doctor_line_item_4",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

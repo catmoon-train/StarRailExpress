@@ -353,14 +353,14 @@
           "type": "starrailexpress:role_hold",
           "parameters": {
             "linkId": "arsonist_main",
-            "item": "stupid_express:jerry_can"
+            "item": "stupid_express:lighter"
           },
           "attachKeyFrame": true
         },
         {
           "type": "show_controls",
           "action": "right",
-          "item": "stupid_express:jerry_can",
+          "item": "stupid_express:lighter",
           "duration": 70,
           "point": [
             3.0,
@@ -371,45 +371,19 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_walk",
+          "type": "starrailexpress:role_timer",
           "parameters": {
-            "linkId": "arsonist_main",
-            "to": [
-              4.2,
-              1.0,
-              2.0
+            "progress": [
+              0.0,
+              1.0
             ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:smoke",
-          "pos": [
-            5.0,
-            1.9,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 10,
-          "duration": 70,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "arsonist_oiled",
-            "color": 16753920
+            "lines": [
+              {
+                "en_us": "If too few players are doused, the first right-click warns you; right-click again within 3 seconds and the failed ignition kills you",
+                "zh_cn": "浇油人数不足时右键打火机会先收到一次警告，3秒内再次右键就会点火失败烧死自己",
+                "zh_tw": "澆油人數不足時右鍵打火機會先收到一次警告，3秒內再次右鍵就會點火失敗燒死自己"
+              }
+            ]
           },
           "attachKeyFrame": true
         },
@@ -678,8 +652,8 @@
           "item": "stupid_express:lighter",
           "duration": 70,
           "point": [
-            3.0,
-            3.0,
+            2.2,
+            2.2,
             3.0
           ],
           "direction": "down",

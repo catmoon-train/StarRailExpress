@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.tomato_head",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "noellesroles:tomato"
   ],
   "title": {
     "en_us": "Tomato Head",
@@ -186,6 +184,23 @@
         {
           "type": "idle",
           "duration": 40
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:tomato",
+          "linkId": "tomato_head_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -523,17 +538,17 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:tomato",
           "linkId": "tomato_head_skill_item_0"
         },
         {
           "type": "show_controls",
           "action": "left",
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:tomato",
           "duration": 70,
           "point": [
-            3.0,
-            2.9,
+            2.2,
+            2.2,
             3.0
           ],
           "direction": "down"

@@ -136,6 +136,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:master_key",
+          "linkId": "conductor_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 115,
           "text": {
@@ -202,6 +219,23 @@
             "linkId": "conductor_main",
             "pose": "standing"
           },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:screwdriver",
+          "linkId": "conductor_line_item_1",
           "attachKeyFrame": true
         },
         {
@@ -331,6 +365,23 @@
         {
           "type": "idle",
           "duration": 40
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:master_key",
+          "linkId": "conductor_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -469,6 +520,23 @@
             "yaw": 180.0,
             "linkId": "conductor_main"
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:master_key",
+          "linkId": "conductor_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

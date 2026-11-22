@@ -136,7 +136,7 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:recovery_pill",
+          "item": "noellesroles:recovery_reagent",
           "linkId": "nurse_item"
         },
         {
@@ -370,6 +370,23 @@
           "duration": 35
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:recovery_pill",
+          "linkId": "nurse_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 171,
           "text": {
@@ -458,12 +475,21 @@
           "duration": 195
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:recovery_reagent",
+          "linkId": "nurse_line_item_4",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
