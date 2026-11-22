@@ -1,0 +1,20 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_8",
+  "package": "org.ladysnake.cca.mixin.entity",
+  "mixins": [
+    "common.BucketableMixin",
+    "common.MixinEntity",
+    "common.MixinEntityTrackerEntry",
+    "common.MixinPlayerManager",
+    "common.MixinServerPlayerEntity",
+    "common.MixinServerWorld"
+  ],
+  "client": [
+    "client.MixinClientWorld"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

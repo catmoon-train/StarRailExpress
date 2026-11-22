@@ -1,0 +1,50 @@
+{
+  "checks.json": {
+    "bytes": 446,
+    "sha256": "6a36b25a86a10b46b5b6de6b40c943be3ab4088cc8363c466b548a7ffc0866d7"
+  },
+  "events-startup.tsv": {
+    "bytes": 79052,
+    "sha256": "dc41540619bf959f4ec751aaef49df661647a3cf2ffda2e22c8ec81bf45bc5dd"
+  },
+  "jar-manifest-after.json": {
+    "bytes": 13515,
+    "sha256": "d4f835e54a4dde08d3dea72656c691dd954b0b0ee762c8161b8192d2df1e5901"
+  },
+  "jar-manifest-before-valid-run.json": {
+    "bytes": 13515,
+    "sha256": "224ff9569fe3ec50274e29fe5a8ed6b6bbfb3d02ad906e295fbba3da7304f460"
+  },
+  "loaded-mod-ids.csv": {
+    "bytes": 39848,
+    "sha256": "78931686dcb7d5fb421a1508a1b32f4d233cfc5a643a07de0866323b8f14c96a"
+  },
+  "mod-load-times.csv": {
+    "bytes": 20857,
+    "sha256": "32fcb19125d8a4acb83eef34e471786558c7d675db084298a55b5dcd83e247f4"
+  },
+  "mods.tsv": {
+    "bytes": 48591,
+    "sha256": "19a494a359100dc89217872616a94d394f06f1d6a876f7d3080e7f77855a7bc8"
+  },
+  "README.txt": {
+    "bytes": 373,
+    "sha256": "6bfb7f4d2939f61a0bddc5f8dc43a1cefb2196490c564757a9bfee0a1b213e84"
+  },
+  "resource-listeners.csv": {
+    "bytes": 10105,
+    "sha256": "3643ee24a60156c588bb332121fbdf718b5a69d8a4611dca6332bf10078802d2"
+  },
+  "runtime.properties": {
+    "bytes": 81,
+    "sha256": "e2757aeb6c30c0e96c75349ee33595e6639359ed6d68583c6a3d48cf012451c0"
+  },
+  "summary.json": {
+    "bytes": 59501,
+    "sha256": "1b38773be82e8f904692db35c15f645d934154d2718b00d06a0d4fe62806c370"
+  },
+  "transforms.tsv": {
+    "bytes": 164,
+    "sha256": "bb557a9e48ee8584308cb407a0fd52f9f7161bf5b800e1aafbe3ee9a12220ddc"
+  }
+}

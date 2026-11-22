@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "environment": "*",
+  "id": "cardinal-components-base",
+  "name": "Cardinal Components API (base)",
+  "description": "dynamically exposing components",
+  "version": "${version}",
+  "icon": "assets/cardinal-components-base/icon.png",
+  "entrypoints": {
+    "main": [
+      "org.ladysnake.cca.internal.base.ComponentsInternals::init"
+    ]
+  },
+  "custom": {
+    "modmenu": {
+      "badges": [ "library" ],
+      "parent": {
+        "id": "cardinal-components",
+        "name": "Cardinal Components API",
+        "description": "Attaching more data to various game objects",
+        "badges": [ "library" ]
+      }
+    }
+  },
+  "depends": {
+    "minecraft": ">=1.17-",
+    "fabric-api-base": ">=0.1.2"
+  },
+  "breaks": {
+    "cardinal-components-block": "<6.0.0-beta.2",
+    "cardinal-components-chunk": "<6.0.0-beta.2",
+    "cardinal-components-entity": "<6.0.0-beta.2",
+    "cardinal-components-level": "<6.0.0-beta.2",
+    "cardinal-components-scoreboard": "<6.0.0-beta.2",
+    "cardinal-components-world": "<6.0.0-beta.2"
+  },
+  "authors": [
+    {
+      "name": "UpcraftLP",
+      "contact": {
+        "homepage": "https://twitter.com/UpcraftLP"
+      }
+    },
+    "Pyrofab"
+  ],
+  "contact": {
+    "homepage": "https://minecraft.curseforge.com/projects/318449",
+    "issues": "https://github.com/Ladysnake/Cardinal-Components-API/issues",
+    "sources": "https://github.com/Ladysnake/Cardinal-Components-API"
+  },
+  "license": "MIT",
+  "mixins": [
+    {
+      "environment": "*",
+      "config": "mixins.cardinal_components_base.json"
+    }
+  ]
+}

@@ -143,7 +143,6 @@
     "client.ui.TooltipBackgroundRendererMixin",
     "client.vc.BetterVoiceChatVolumeManageMixin",
     "client.vc.DoubleConfigEntryMixin",
-    "compat.carpet.FixClientReturnCrash",
     "compat.iris.IrisWorldTextBatchingSourceMixin",
     "compat.iris.IrisShaderPackFogMixin",
     "compat.lightspeed.GlobalCacheMixin",

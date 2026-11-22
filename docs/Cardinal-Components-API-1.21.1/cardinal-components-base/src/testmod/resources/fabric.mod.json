@@ -1,0 +1,31 @@
+{
+    "schemaVersion": 1,
+    "environment": "*",
+    "id": "cca-base-test",
+    "name": "Cardinal Components API Test Mod",
+    "description": "Test mod for Cardinal Components API",
+    "version": "${version}",
+    "entrypoints": {
+        "fabric-gametest": [
+          "org.ladysnake.cca.internal.base.ComponentRegistryImplTest",
+          "org.ladysnake.cca.internal.base.QualifiedComponentFactoryTest"
+        ]
+    },
+    "custom": {
+        "cardinal-components": [
+            "cca-base-test:vita",
+            "cca-base-test:ticking",
+            "cca-base-test:loading",
+            "testmod:test",
+            "testmod:test_2",
+            "testmod:test_3"
+        ]
+    },
+    "depends": {
+        "fabric-api-base": "*"
+    },
+    "authors": [
+        "Pyrofab"
+    ],
+    "license": "MIT"
+}

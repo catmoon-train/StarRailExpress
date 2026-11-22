@@ -1,0 +1,40 @@
+{
+    "schemaVersion": 1,
+    "environment": "*",
+    "id": "componenttest",
+    "name": "Cardinal Components API Test Mod",
+    "description": "Test mod for Cardinal Components API",
+    "version": "${version}",
+    "entrypoints": {
+        "main": [
+          "org.ladysnake.componenttest.content.CardinalComponentsTest::init"
+        ],
+        "client": [
+          "org.ladysnake.componenttest.content.CCATestClient::clientInit"
+        ],
+        "cardinal-components:static-init": [
+          "org.ladysnake.componenttest.content.TestStaticComponentInitializer"
+        ],
+        "cardinal-components": [
+          "org.ladysnake.componenttest.content.TestComponents"
+        ],
+        "fabric-gametest": [
+          "org.ladysnake.componenttest.tests.CcaTestSuite"
+        ]
+    },
+    "custom": {
+        "cardinal-components": [
+            "componenttest:vita",
+            "testmod:test",
+            "testmod:test_2",
+            "testmod:test_3"
+        ]
+    },
+    "depends": {
+        "fabric-api-base": "*"
+    },
+    "authors": [
+        "Pyrofab"
+    ],
+    "license": "MIT"
+}

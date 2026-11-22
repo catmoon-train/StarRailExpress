@@ -1,0 +1,402 @@
+[
+  {
+    "file": "1_wathe-extra-items-1.21.1-1.0.7.jar",
+    "bytes": 449528,
+    "sha256": "20736c11b75eb2f1ea0fa05cb83ec7c3e5f6309101185541923376d2a99e4e6b"
+  },
+  {
+    "file": "amendments-1.21-2.2.7-fabric.jar",
+    "bytes": 1208148,
+    "sha256": "420d58035b89f91c3e63e099e162ae20023e2b12e63dd25605d33a60c9fa19eb"
+  },
+  {
+    "file": "architectury-13.0.8-fabric.jar",
+    "bytes": 600915,
+    "sha256": "10cbbb6f5f96a2f1853b0cc68428424cec8903409517b299ff02350756b6399d"
+  },
+  {
+    "file": "auditory-0.0.7-1.21.1.jar",
+    "bytes": 1837989,
+    "sha256": "37fc905e2d75d028a1dcb976252214db9f582c78b342ed7dbfa6e920c225b245"
+  },
+  {
+    "file": "charta-1.1.0-fabric-1.21.1.jar",
+    "bytes": 7221668,
+    "sha256": "9dc3366e7c57318434c385f486fd388026f141ba2c4d3e5d3d44100ad4557287"
+  },
+  {
+    "file": "chloride-FABRIC-mc1.21.1-v1.8.1.jar",
+    "bytes": 527475,
+    "sha256": "b88b0e0d2fd3f50fdd2fd3649065444568e8ad29e8e3f2f2bf6c22baf7fa2011"
+  },
+  {
+    "file": "cloth-config-15.0.140-fabric.jar",
+    "bytes": 1157166,
+    "sha256": "33894e95da3af59014b39d126586d5241e07ea39f8618763e30dab637405f95f"
+  },
+  {
+    "file": "coroutil-fabric-1.21.1-1.3.8.jar",
+    "bytes": 2956258,
+    "sha256": "d4664c92c17ce9608ab4b36f760b2e988ae2de1660d70d746badb3ed5a033e30"
+  },
+  {
+    "file": "exkeys-fabric-1.21.1-1.0.0.jar",
+    "bytes": 53608,
+    "sha256": "aef25c026000160f47362685c0cbbcf1aee10c92bdf452482b5838c468dc8fc2"
+  },
+  {
+    "file": "exposure_polaroid-fabric-1.21.1-1.1.5.jar",
+    "bytes": 180972,
+    "sha256": "2cad8b5936d328a141ae5724c26bb80b68701be23bf98d9bfd1ae69a69cd4363"
+  },
+  {
+    "file": "fabric-api-0.116.13+1.21.1.jar",
+    "bytes": 2427135,
+    "sha256": "adaa7d67d7b5a9dd2d19f3e2139bf3e63480e09c005c77ada014067443741863"
+  },
+  {
+    "file": "fabric-language-kotlin-1.13.12+kotlin.2.4.0.jar",
+    "bytes": 8076848,
+    "sha256": "36c5dd8b728e3470d2882ae63119b93a20500fc0ea6f5c945c12bf65b5ab1832"
+  },
+  {
+    "file": "fastboot-1.21.x-v1.3.jar",
+    "bytes": 36993,
+    "sha256": "3c5963545cf51f646b4ce29c575dcb08dc23c1bcb964b5171817f6e6fe1cc074"
+  },
+  {
+    "file": "fastpaintings-1.21-1.3.1-fabric.jar",
+    "bytes": 156680,
+    "sha256": "5646070eb6ce47c1035b48f3f4a33c48596e6835389d15745a63820e92b03f9e"
+  },
+  {
+    "file": "firstperson-fabric-2.7.3-mc1.21.1.jar",
+    "bytes": 1546239,
+    "sha256": "6860f4fe1e96cfcb5127ec991e27360d63f17e580300004fe64c7903d86b29a9"
+  },
+  {
+    "file": "ForgeConfigAPIPort-v21.1.6-1.21.1-Fabric.jar",
+    "bytes": 633065,
+    "sha256": "2e3a8f0e3bda85a7d722720e7ce879cbd9d028d9395c6fc224d329b3c982d9b1"
+  },
+  {
+    "file": "framepacer-1.2-1.15-1.21.11-multiloader.jar",
+    "bytes": 4812,
+    "sha256": "61e2ecd0e05761f5bf6ee293ce58e827ee5e92ad5290a99ef4947374b154aebf"
+  },
+  {
+    "file": "fzzy_config-0.7.6+1.21.jar",
+    "bytes": 2365335,
+    "sha256": "323dc065cc3aaeb7f908be7e5d31070a25d4188b433ed770a79700ef8f5e8f7d"
+  },
+  {
+    "file": "geckolib-fabric-1.21.1-4.9.3.jar",
+    "bytes": 664463,
+    "sha256": "70186c70660e8de6c58f5b28625f71ae9e80eb0ad81b5d47b62fd5809bef2ee0"
+  },
+  {
+    "file": "Gnetum-4.6.4+1.21.1-fabric.jar",
+    "bytes": 101940,
+    "sha256": "2926ab66a4f401c60b7820bb810a5494a89cd311fa08d17079c94445e48a7360"
+  },
+  {
+    "file": "hatsfabric-1.21.1-1.1.0.jar",
+    "bytes": 1404831,
+    "sha256": "b01dc3e1bd7a4448c07beebf7bc91013540767f0cae403bf03887a5e15671839"
+  },
+  {
+    "file": "ImmediatelyFast-Fabric-1.6.15+1.21.1.jar",
+    "bytes": 342235,
+    "sha256": "9c391f0864caf9083cac98e44b1ab6235e45fbf340efda5ba75e0a21929d05d5"
+  },
+  {
+    "file": "InvMove-0.9.3+1.21.1-Fabric.jar",
+    "bytes": 84035,
+    "sha256": "09b6c6352d0ea4ec4890f2ec798e18bbc6dbcad9171cb3e4041c46fb8c85ce03"
+  },
+  {
+    "file": "iris-fabric-1.8.14-beta.1+mc1.21.1.jar",
+    "bytes": 2791343,
+    "sha256": "0ceb694040b4628bf3fa02286cfe5f0db833195669ab07f8caa4001359763eff"
+  },
+  {
+    "file": "Ixeris-4.6.11+1.21.1-fabric.jar",
+    "bytes": 785549,
+    "sha256": "b3bae2aecb5b8fae46040247c9a2c5f5647bcfcc75a2bb039a829b1a0d18c900"
+  },
+  {
+    "file": "KeyOverlay-1.21+.jar",
+    "bytes": 38583,
+    "sha256": "8e9df6a9effa9e549a4e8b3af85fe9c6b795ce2d6011d24850eba1d16d94c15b"
+  },
+  {
+    "file": "lambdynamiclights-4.8.11+1.21.1-fabirc.jar",
+    "bytes": 2023375,
+    "sha256": "913b0358b1031828f1e060ea0ee361232dc2a1c82464f488a0a920739ce7c763"
+  },
+  {
+    "file": "language-reload-1.7.6+1.21.1.jar",
+    "bytes": 75091,
+    "sha256": "6431706e6243897c8b2aa8f4de7180037ee86110a865a5d48ee1a292d604a6af"
+  },
+  {
+    "file": "lightspeed-fabric-1.21.1-2.0.5+hotfix.jar",
+    "bytes": 186617,
+    "sha256": "f621301380bb0c2270c1874c190ec9b4c02c3f23b30ef65851e4fc2444376bef"
+  },
+  {
+    "file": "mc-skin-unlocker-1.0.2.jar",
+    "bytes": 5923,
+    "sha256": "a8c63ad587cff8077dbf3522f2fad044038bfa5d6855dc25cf4d1e29b05b7311"
+  },
+  {
+    "file": "minopp-1.4.0+1.21.1+fabric.jar",
+    "bytes": 261050,
+    "sha256": "90386117b8dd7a02a33e17053bcfdec4460f15458b84617f5cd9595c3cb227bd"
+  },
+  {
+    "file": "modmenu-11.0.4.jar",
+    "bytes": 973059,
+    "sha256": "a88e0d67c82b0434cbf56776c482587c275ed660f635d33f53ba485dfa30dcc3"
+  },
+  {
+    "file": "moonlight-1.21.1-3.7.2-fabric.jar",
+    "bytes": 2325731,
+    "sha256": "780c322348c5a414eafa7b537e2512076ea9117271372162bfa4cb186008a1b7"
+  },
+  {
+    "file": "multi-key-bindings-1.3.4+1.21.1.jar",
+    "bytes": 90521,
+    "sha256": "3dfbeea40f14e850a0d37db4df37314b7c9aed95b598a70b5380cdbb19203ab8"
+  },
+  {
+    "file": "obe+1.21.1-1.2.1.jar",
+    "bytes": 179125,
+    "sha256": "6b2a7ca2e9b7de4608afaf16e52b5c18ffd7852c88a0565f5832aae86d70f326"
+  },
+  {
+    "file": "packetfixer-3.3.1-1.20.5-1.21.X-merged.jar",
+    "bytes": 46623,
+    "sha256": "2979a8a3f44e5d5df4f9f6315d18c220f3debf736bb8a2c2740acdfb13bd820f"
+  },
+  {
+    "file": "particle_core-0.3.3+1.21.jar",
+    "bytes": 147812,
+    "sha256": "e7cfef3eb16d5b73c00915a5f2b820d66555c23d13e0636125d7b07384a443e4"
+  },
+  {
+    "file": "placeholder-api-2.4.2+1.21.jar",
+    "bytes": 232325,
+    "sha256": "c0187ee299527ac7a3e0b1e83601dcdc0de631e286fe41e6be1a75958ea8e443"
+  },
+  {
+    "file": "ratatouille-1.4.3-1.21.1.jar",
+    "bytes": 941074,
+    "sha256": "6bdfb8ac48d10e395d39738f5d5624d86eb6df4405124fbdcee2920540f2a91a"
+  },
+  {
+    "file": "resourcefullib-fabric-1.21-3.0.12.jar",
+    "bytes": 485586,
+    "sha256": "93064c5aff85bf5e6385470f311fd1c7de172f58b02fefb1d2920db76f8cd8b5"
+  },
+  {
+    "file": "smoothmenu-1.1.0.jar",
+    "bytes": 430417,
+    "sha256": "f0c96fae3b712638656248d81533f4f100e0ddf2725e6f6d4ce403095140e821"
+  },
+  {
+    "file": "sre-lib-1.0.3.jar",
+    "bytes": 61338955,
+    "sha256": "065efdec60772040f4f3392c07397b3cab93b4624ef0d79ac32f8dc4fc732ca3"
+  },
+  {
+    "file": "sre-pack-compat-1.0.0.jar",
+    "bytes": 172871,
+    "sha256": "fc193c6dcd80d38cfc3428abe095aeff3b2f57fa2f0fccda11b8a8dd21fb6747"
+  },
+  {
+    "file": "sre-WatheExtended-1.0.0.jar",
+    "bytes": 34252182,
+    "sha256": "606d6732917c2109eb84c71a25e594e7dd7d4f216424b6594855ef88600e048d"
+  },
+  {
+    "file": "sre-wathextras-1.0.0.jar",
+    "bytes": 1128032,
+    "sha256": "2ea525e265a0453d31ba09c6067a6061b246cb46a5629081c5f2e6581dce8b62"
+  },
+  {
+    "file": "starrail-express-item-skin-mod-1.0.0.jar",
+    "bytes": 22504141,
+    "sha256": "f2f75ede8637ee826cffdc839a21292d99b4ba6d036846cc7c8ad81af2a76699"
+  },
+  {
+    "file": "star_rail_express-4.3.0.jar",
+    "bytes": 24159034,
+    "sha256": "b6f3d9e83beb391148f7c317d25fda7c9ae1a9438cdcbce8dcd26f40f539070e"
+  },
+  {
+    "file": "Sus_InstantSwap-2.0.0-Fabric1.21.1.jar",
+    "bytes": 43136,
+    "sha256": "676858472ec085dfa8ad34315fd3a65d41d2f58a2c37b3c8566c725c0e7d248b"
+  },
+  {
+    "file": "talkbubbles-1.0.8.jar",
+    "bytes": 20323,
+    "sha256": "9366ab7206562b165786cca65cb7cd6843dd33c3e82734d841f6d0cec9616d79"
+  },
+  {
+    "file": "talking-heads-1.1.4+1.21.1+fabric.jar",
+    "bytes": 283269,
+    "sha256": "410bd9103a2c525edbf5d4dd98c0617113d7444f966ca72a2890b3995be70961"
+  },
+  {
+    "file": "tekst-1.0.0.jar",
+    "bytes": 37066,
+    "sha256": "76f0f99b124e55c13ee8c2ff54aa0c20bb8dd79c62f88677d696d49f664c5d28"
+  },
+  {
+    "file": "viewbobbingmod-1.6.jar",
+    "bytes": 15642,
+    "sha256": "52ffa795e30f7cc9852c9685b16515ebfbbb7043a53499fbe0d83c162987a2ea"
+  },
+  {
+    "file": "virtual_proxy_manger-1.0.0-SNAPSHOT.jar",
+    "bytes": 515036,
+    "sha256": "a303b56581e05cf7a5b419c04c6f2d29605467cad72b83a9ebfb20d5ae91f1b0"
+  },
+  {
+    "file": "voicechat-fabric-1.21.1-2.6.27.jar",
+    "bytes": 5389006,
+    "sha256": "bae2c4fa9f7764abac621ee70e1099bd39b7316cbc636280d188045b07f17ab1"
+  },
+  {
+    "file": "WalksyLib-0.9.96+1.21.jar",
+    "bytes": 237697,
+    "sha256": "b9cf26a4b85cfbb1aaf973e9e018dedfb1a9e0b349281bca18dfcb5eb73b240d"
+  },
+  {
+    "file": "wathe-1.3.2-1.21.1.jar",
+    "bytes": 9656454,
+    "sha256": "a3862fd56d4376c0d5da204d90446da7a4f8a35109feef8b487de043d3fd6384"
+  },
+  {
+    "file": "watut-fabric-1.21.0-1.2.7.jar",
+    "bytes": 839492,
+    "sha256": "4abc97c0a011794929278e460cd438ff356d3cc560e7500d7faea6edf7bd2b92"
+  },
+  {
+    "file": "WeatherRefind-fabric-1.21.1-v1.1.jar",
+    "bytes": 27246,
+    "sha256": "45e69791795d1d593ce3e9d2562a349a504ce4a261ebfe5cf9ae61e7f6377d74"
+  },
+  {
+    "file": "wifi-card-games-1.0.0.jar",
+    "bytes": 1632069,
+    "sha256": "48aa967decf5bbeb6e6681cd7bf07f065e7dd447e1e3c63f453b640b6db11cf1"
+  },
+  {
+    "file": "yet_another_config_lib_v3-3.8.2+1.21.1-fabric.jar",
+    "bytes": 1131265,
+    "sha256": "6ab420b7d1326fc9851b96a8967504bd644da421ed6438ceb9a9d9c993a408b1"
+  },
+  {
+    "file": "[Reese的钠视频界面] reeses-sodium-options-fabric-2.2.4+mc1.21.1.jar",
+    "bytes": 257229,
+    "sha256": "97dafa514cbecf3a32616209c7286a49673a108d84413493abc84fd5808c3c10"
+  },
+  {
+    "file": "[修复GPU内存泄漏] gpumemleakfix-fabric-1.21-1.8.jar",
+    "bytes": 6016,
+    "sha256": "c7b1abe0577f4e02dde9924e6f411d09b2ea5dd8c8f4ef7ba2659d6dc8d55f4b"
+  },
+  {
+    "file": "[动态环境／动态环绕] dynamicsurroundings-fabric-1.21.1-0.4.8.jar",
+    "bytes": 15659631,
+    "sha256": "fdec6dceb78876e92f7930fe42e9b9cf47e5cdfb0c323cc830dc50c48b62f993"
+  },
+  {
+    "file": "[录像回放] replaymod-1.21-2.6.28.jar",
+    "bytes": 15710248,
+    "sha256": "b6ac7feb7f8eeefcbfb90ad3f1a45d8cda8df35005d8a308748adbe4e1652ada"
+  },
+  {
+    "file": "[拾光定影] exposure-fabric-1.21.1-1.9.18.jar",
+    "bytes": 1980872,
+    "sha256": "4f6e74ddaf1fd7fe86ff4748553c959f4c5c3a32708b7c9ab93bf0873337d51c"
+  },
+  {
+    "file": "[更多动画] notenoughanimations-fabric-1.12.6-mc1.21.1.jar",
+    "bytes": 1873853,
+    "sha256": "c122d94d63493de89a90778f761ccebcc53ba009279c93492b99869381f37f45"
+  },
+  {
+    "file": "[氪] krypton-0.2.8.jar",
+    "bytes": 161045,
+    "sha256": "94f195819b24e5da64effdc9da15cdd84836cc75e8ff0fd098bab6bc2f49e3fe"
+  },
+  {
+    "file": "[火花] spark-1.10.109-fabric.jar",
+    "bytes": 3609981,
+    "sha256": "fafc121ac53dab1c32e74b7a1cae47d54435ba4cbeeda1180dc96675a7757047"
+  },
+  {
+    "file": "[物理声效重制版] sound-physics-remastered-fabric-1.21.1-1.5.2.jar",
+    "bytes": 205305,
+    "sha256": "ace731943db3a02c375e401d18bab3756be4582015066643db9b4a9dead87fbb"
+  },
+  {
+    "file": "[现代化 UI] ModernUI-Fabric-1.21.1-3.13.0.1-universal.jar",
+    "bytes": 25181222,
+    "sha256": "2fa279ca4e1e71914e11a2a588a6677ccac6d0486fc9fb30adedf4463d18785a"
+  },
+  {
+    "file": "[现代化修复] modernfix-fabric-5.25.1+mc1.21.1.jar",
+    "bytes": 471258,
+    "sha256": "3ce5a9ce75066961b7fa5382692bb1387cc3536cc984b064ab7d70b97f3c674c"
+  },
+  {
+    "file": "[疾速加载] dashloader-5.1.0-beta.8+1.21.1.jar",
+    "bytes": 7911236,
+    "sha256": "db5970610308e84debb050669c721e5eb7f37b242eaec7fdf5293af2bf1d7fd6"
+  },
+  {
+    "file": "[禁用聊天举报] NoChatReports-FABRIC-1.21.1-v2.9.1.jar",
+    "bytes": 309410,
+    "sha256": "413c3952cbbf641b492bb2e47763ed7e48d1d72db0863d9d2274a74ce5269849"
+  },
+  {
+    "file": "[精巧手艺] handcrafted-fabric-1.21.1-4.0.3.jar",
+    "bytes": 7127377,
+    "sha256": "9609c27e2eeaed4c633ade2d68ad980cfbed0442a10239846a67e9c62bc1b230"
+  },
+  {
+    "file": "[脚步声] PresenceFootsteps-1.11.1+1.21.jar",
+    "bytes": 5690812,
+    "sha256": "4ec7e5a700b2caa5e0bd736e243f49ed3e8ae6e6af8fd4a4e145875bc3127b90"
+  },
+  {
+    "file": "[输入法冲突修复] IMBlocker-5.6.2.1-fabric+1.17-1.21.8.jar",
+    "bytes": 229044,
+    "sha256": "60ba9e56a1fc196f6d94e26619ffc1f24c54930929700fd4d4ac0919ac7f1c22"
+  },
+  {
+    "file": "[进食动画] eating-animation-1.21+1.9.72.jar",
+    "bytes": 1060520,
+    "sha256": "0290d5c286dc10bf5d402ed7a28f17af5a06973d6a69ae73c6dcaceae79e5456"
+  },
+  {
+    "file": "[钠 · 扩展] sodium-extra-fabric-0.9.5+mc1.21.1.jar",
+    "bytes": 492939,
+    "sha256": "ca02f490cf28be9077078f5145d39f1415d2e6ba67acc6c037ad49009d10a7b0"
+  },
+  {
+    "file": "[钠] sodium-fabric-0.8.13+mc1.21.1.jar",
+    "bytes": 1574609,
+    "sha256": "3d43c14985a4deb19c654aad3393b454cf57e1ebcbba86c4ae6a98dfc60eca2d"
+  },
+  {
+    "file": "[锦致装饰] supplementaries-1.21.1-4.0.2-fabric.jar",
+    "bytes": 13669146,
+    "sha256": "ba03c34c2533e5bff3803b3134d73c82abba337d62de55e33479ec20f3dc5272"
+  }
+]

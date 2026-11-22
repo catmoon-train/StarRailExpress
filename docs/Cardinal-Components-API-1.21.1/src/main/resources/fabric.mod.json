@@ -1,0 +1,29 @@
+{
+    "schemaVersion": 1,
+    "environment": "*",
+    "id": "cardinal-components",
+    "name": "Cardinal Components API",
+    "description": "Attaching more data to various game objects",
+    "version": "${version}",
+    "icon": "assets/cardinal-components/icon.png",
+    "custom": {
+      "modmenu": {
+        "badges": ["library"]
+      }
+    },
+    "authors": [
+        {
+            "name": "UpcraftLP",
+            "contact": {
+                "homepage": "https://twitter.com/UpcraftLP"
+            }
+        },
+        "Pyrofab"
+    ],
+    "contact": {
+        "homepage": "https://www.curseforge.com/minecraft/mc-mods/cardinal-components",
+        "issues": "https://github.com/Ladysnake/Cardinal-Components-API/issues",
+        "sources": "https://github.com/Ladysnake/Cardinal-Components-API"
+    },
+    "license": "MIT"
+}

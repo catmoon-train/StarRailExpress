@@ -1,0 +1,16 @@
+{
+  "topLevelJars": 80,
+  "loadedModIds": 198,
+  "timedTopLevelJars": 66,
+  "unattributableTopLevelJars": 14,
+  "instantiateCalls": 153,
+  "initializeCalls": 153,
+  "resourceListeners": 45,
+  "allMeasuredEventsSucceeded": true,
+  "allDurationsNonNegative": true,
+  "jarContentUnchanged": true,
+  "temporaryJvmParameterRestoredToEmptyInYaml": true,
+  "testJavaExited": true,
+  "diagnosticErrorCount": 0,
+  "validStartupSamples": 1
+}

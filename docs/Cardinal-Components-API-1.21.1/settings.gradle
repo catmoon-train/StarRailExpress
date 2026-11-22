@@ -1,0 +1,28 @@
+pluginManagement {
+    repositories {
+        maven {
+            name = 'Fabric'
+            url = 'https://maven.fabricmc.net/'
+        }
+        maven {
+            name = 'Quilt'
+            url = 'https://maven.quiltmc.org/repository/release/'
+        }
+        maven {
+            name = 'Cotton'
+            url = 'https://server.bbkr.space/artifactory/libs-release/'
+        }
+        gradlePluginPortal()
+        mavenLocal()
+    }
+}
+rootProject.name = 'cardinal-components-api'
+
+include 'cardinal-components-base'
+include 'cardinal-components-block'
+include 'cardinal-components-chunk'
+include 'cardinal-components-entity'
+include 'cardinal-components-item'
+include 'cardinal-components-level'
+include 'cardinal-components-scoreboard'
+include 'cardinal-components-world'

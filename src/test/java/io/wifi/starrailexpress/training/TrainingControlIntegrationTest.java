@@ -48,6 +48,22 @@ class TrainingControlIntegrationTest {
                 assertFalse(json.get("training.sre." + key).getAsString().isBlank());
             assertEquals(switch (language) { case "zh_cn" -> "警长"; case "zh_tw" -> "警長"; default -> "Sheriff"; },
                     json.get("training.sre.ui.team.sheriff").getAsString());
+            assertFalse(json.get("training.sre.ui.control_bot").getAsString().isBlank());
+            assertFalse(json.get("training.sre.ui.control_bot_hint").getAsString().isBlank());
         }
+    }
+
+    @Test void trainingAdaptsCarpetDummyPlayerAndGuardsFirstPersonControl() throws Exception {
+        String rules = Files.readString(Path.of("src/main/java/io/wifi/starrailexpress/training/TrainingRules.java"));
+        assertTrue(rules.contains("carpet-dummy-player"));
+        assertTrue(rules.contains("carpetdummy.patches.EntityPlayerMPFake"));
+        assertTrue(rules.contains("isControllingDummy"));
+
+        String bots = Files.readString(Path.of("src/main/java/io/wifi/starrailexpress/training/CarpetTrainingBots.java"));
+        assertTrue(bots.contains("DummyPlayerApi.isControlled(bot)"));
+        assertTrue(bots.contains("DummyPlayerApi.startControl(owner, fake)"));
+
+        String session = session();
+        assertTrue(session.contains("if (!TrainingRules.isControllingDummy(owner))"));
     }
 }

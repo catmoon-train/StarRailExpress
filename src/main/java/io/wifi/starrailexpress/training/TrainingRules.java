@@ -68,7 +68,7 @@ public final class TrainingRules {
             if (session == null && !failed && server.getTickCount() >= 20) {
                 var owner = server.getPlayerList().getPlayers().stream().filter(p -> server.isSingleplayerOwner(p.getGameProfile())).findFirst().orElse(null);
                 if (owner == null) return;
-                if (!FabricLoader.getInstance().isModLoaded("carpet")) {
+                if (!FabricLoader.getInstance().isModLoaded("carpet-dummy-player")) {
                     owner.sendSystemMessage(Component.translatable("training.sre.error.carpet")); failed = true; return;
                 }
                 try { session = new TrainingSession(server, owner); }
@@ -94,9 +94,15 @@ public final class TrainingRules {
     public static boolean isIsolated() { return isolatedServer != null; }
     public static boolean isTrainingServer(MinecraftServer server) { return server != null && server == isolatedServer; }
     public static boolean isTrainingWorld(Level world) { return world != null && isTrainingServer(world.getServer()); }
-    /** 所有 Carpet 假玩家都不占真人容量，包括职业派生的假玩家。 */
+    /** 所有假玩家都不占真人容量，包括职业派生的假玩家。 */
     public static boolean isManagedBot(ServerPlayer player) {
-        return player != null && FabricLoader.getInstance().isModLoaded("carpet") && player instanceof carpet.patches.EntityPlayerMPFake;
+        return player != null && FabricLoader.getInstance().isModLoaded("carpet-dummy-player")
+                && player instanceof carpetdummy.patches.EntityPlayerMPFake;
+    }
+
+    public static boolean isControllingDummy(ServerPlayer player) {
+        return player != null && FabricLoader.getInstance().isModLoaded("carpet-dummy-player")
+                && carpetdummy.api.DummyPlayerApi.isControllingDummy(player);
     }
     public static boolean isAlive(ServerPlayer player) { return player != null && !player.isSpectator() && !player.isDeadOrDying() && !player.isRemoved(); }
     public static TrainingSession session(MinecraftServer server) { return isTrainingServer(server) ? session : null; }

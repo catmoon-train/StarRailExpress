@@ -1,0 +1,20 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_8",
+  "package": "org.ladysnake.cca.mixin.scoreboard",
+  "mixins": [
+    "MixinMinecraftServer",
+    "MixinPersistentState",
+    "MixinPlayerManager",
+    "MixinScoreboard",
+    "MixinScoreboardState",
+    "MixinServerScoreboard",
+    "MixinTeam",
+    "ServerScoreboardAccessor",
+    "TeamAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

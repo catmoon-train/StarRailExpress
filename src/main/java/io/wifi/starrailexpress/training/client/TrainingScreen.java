@@ -557,6 +557,12 @@ public final class TrainingScreen extends Screen {
                 () -> botAction("remove", new CompoundTag()), true);
         modifierEntry("botModifiers", cell(actions, 3, 4), "bot", selectedSlot);
         List<FormRow> rows = new ArrayList<>();
+        rows.add(new FormRow("botControl", tr("control_bot_hint"), () -> tr("control_bot"), () -> {
+            if (botReady() && bot(selectedSlot).getBoolean("alive")) {
+                botAction("control", new CompoundTag());
+                onClose();
+            }
+        }));
         rows.add(new FormRow("botRole", tr("choose_role_hint"), () -> tr("field_value", tr("enemy_role"), roleName(botString("role"))), () -> openPicker("bot")));
         rows.add(choiceRow("behavior", "behavior", BEHAVIORS, true));
         rows.add(choiceRow("equipment", "equipment", EQUIPMENT, true));

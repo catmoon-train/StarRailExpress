@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "id": "sre_performance_smoke",
-  "version": "1.0.0",
-  "name": "SRE Performance Isolated Smoke Fixture",
-  "environment": "client",
-  "entrypoints": { "client": ["io.wifi.sreperf.smoke.PerfSmoke"] },
-  "depends": { "sre_performance": "*", "fabric-api": "*" }
-}

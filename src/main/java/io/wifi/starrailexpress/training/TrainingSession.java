@@ -223,15 +223,18 @@ public final class TrainingSession {
         ServerPlayer owner = owner();
         if (owner == null) { assistance.clear(level().getGameTime()); return; }
         // 领域拥有自己的边界与返程流程，训练回拉/自动复活不能抢走控制权（愚者可死亡参会）。
+        // 第一人称操控假人期间，主人处于旁观者视角跟随假人，也不能触发越界拉回或自动复活。
         boolean inDomain = owner.serverLevel() == level() && org.agmas.noellesroles.init.ModEffects.isInAnyDomain(owner);
-        if (!inDomain && (owner.serverLevel() != level() || owner.getY() < 55
-                || !TrainingLayout.box(TrainingLayout.get().bounds).inflate(8).contains(owner.position())))
-            move(owner, TrainingLayout.get().area("lobby").spawn(), 0);
-        if (!inDomain && !TrainingRules.isAlive(owner)) {
-            if (ownerDeathAt < 0) { ownerDeathAt = level().getGameTime(); changed(); }
-            if (settings.autoRespawn && level().getGameTime() - ownerDeathAt >= settings.respawnDelay * 20L)
-                reviveOwner(owner);
-        } else ownerDeathAt = -1;
+        if (!TrainingRules.isControllingDummy(owner)) {
+            if (!inDomain && (owner.serverLevel() != level() || owner.getY() < 55
+                    || !TrainingLayout.box(TrainingLayout.get().bounds).inflate(8).contains(owner.position())))
+                move(owner, TrainingLayout.get().area("lobby").spawn(), 0);
+            if (!inDomain && !TrainingRules.isAlive(owner)) {
+                if (ownerDeathAt < 0) { ownerDeathAt = level().getGameTime(); changed(); }
+                if (settings.autoRespawn && level().getGameTime() - ownerDeathAt >= settings.respawnDelay * 20L)
+                    reviveOwner(owner);
+            } else ownerDeathAt = -1;
+        }
         updateAssistance();
         bots.tick();
         if (level().getGameTime() - lastCleanup >= 600) { cleanup(false); lastCleanup = level().getGameTime(); }

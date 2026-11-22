@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.training;
 
-import carpet.fakes.ServerPlayerInterface;
-import carpet.helpers.EntityPlayerActionPack;
+import carpetdummy.fakes.ServerPlayerInterface;
+import carpetdummy.helpers.EntityPlayerActionPack;
 import io.wifi.starrailexpress.api.hit.HitType;
 import io.wifi.starrailexpress.api.hit.SREHitManager;
 import io.wifi.starrailexpress.index.TMMItems;

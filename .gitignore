@@ -36,3 +36,13 @@ logs/
 /.codebuddy
 /sre-performance
 /sre-pokemon-compat
+
+# 快速构建工具（tools/quickbuild）的本地运行状态
+tools/quickbuild/quickbuild_config.json
+tools/quickbuild/__pycache__/
+
+# 本地构建/缓存产物（不纳入版本库）
+/b/
+/tmp_spark/
+__pycache__/
+/.pi/

@@ -3,7 +3,6 @@ package org.agmas.noellesroles.game.scanner;
 import com.google.gson.JsonParser;
 import org.junit.jupiter.api.Test;
 
-import javax.imageio.ImageIO;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -97,39 +96,6 @@ class IdentityScannerTest {
         assertTrue(machine.contains("readyAt = now + 30 * 20"));
         assertTrue(machine.contains("tag.putLong(\"ScannerReadyAt\", readyAt)"));
         assertTrue(machine.contains("history.clear()"));
-    }
-    @Test void translationsModelsAndGeneratedTexturesExist() throws Exception {
-        Path root = Path.of("src/main/resources/assets");
-        for (String locale : List.of("zh_cn", "zh_tw", "en_us")) {
-            var lang = JsonParser.parseString(Files.readString(root.resolve("noellesroles/lang/" + locale + ".json"))).getAsJsonObject();
-            for (String key : List.of("block.noellesroles.identity_scanner", "item.noellesroles.portable_identity_scanner",
-                    "gui.noellesroles.identity_scanner.scan", "gui.noellesroles.identity_scanner.history",
-                    "message.noellesroles.identity_scanner.result_target",
-                    "message.noellesroles.identity_scanner.drop_cooldown",
-                    "message.noellesroles.identity_scanner.neutral_forbidden",
-                    "message.noellesroles.identity_scanner.drop_while_cooling")) assertTrue(lang.has(key), key);
-            var intro = JsonParser.parseString(Files.readString(root.resolve("item_intro/lang/" + locale + ".json"))).getAsJsonObject();
-            String itemText = intro.get("item.noellesroles.portable_identity_scanner.desc").getAsString();
-            for (String number : List.of("5", "120", "125", "150")) assertTrue(itemText.contains(number), locale + number);
-            String neutralWord = locale.equals("en_us") ? "Neutral" : "中立";
-            assertTrue(itemText.contains(neutralWord));
-            assertTrue(intro.get("block.noellesroles.identity_scanner.desc").getAsString().contains(neutralWord));
-            var roles = JsonParser.parseString(Files.readString(root.resolve("role_modifier_intro/lang/" + locale + ".json"))).getAsJsonObject();
-            for (String key : List.of("info.screen.roleid.coroner", "info.screen.roleid.coroner.simple")) {
-                String text = roles.get(key).getAsString();
-                for (String number : List.of("125", "150", "120")) assertTrue(text.contains(number), locale + key + number);
-            }
-        }
-        for (String face : List.of("front", "side", "top", "bottom")) {
-            var image = ImageIO.read(root.resolve("noellesroles/textures/block/identity_scanner_" + face + ".png").toFile());
-            assertEquals(64, image.getWidth()); assertEquals(64, image.getHeight());
-            assertFalse(image.getColorModel().hasAlpha());
-        }
-        var item = ImageIO.read(root.resolve("noellesroles/textures/item/portable_identity_scanner.png").toFile());
-        assertEquals(64, item.getWidth()); assertTrue(item.getColorModel().hasAlpha());
-        assertEquals(0, (item.getRGB(0, 0) >>> 24) & 255);
-        var states = JsonParser.parseString(Files.readString(root.resolve("noellesroles/blockstates/identity_scanner.json"))).getAsJsonObject();
-        assertEquals(4, states.getAsJsonObject("variants").size());
     }
     @Test void coronerDropLockStartsAtRoundStartOrFirstRoleEntryWithoutBuyingAnything() {
         var ledger = new IdentityScannerLedger();

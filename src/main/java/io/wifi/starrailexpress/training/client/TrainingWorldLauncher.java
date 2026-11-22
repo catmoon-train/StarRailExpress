@@ -58,7 +58,7 @@ public final class TrainingWorldLauncher {
 
     private static void request(Screen parent, boolean rebuild) {
         Minecraft client = Minecraft.getInstance();
-        if (!FabricLoader.getInstance().isModLoaded("carpet")) {
+        if (!FabricLoader.getInstance().isModLoaded("carpet-dummy-player")) {
             client.setScreen(new AlertScreen(() -> client.setScreen(parent),
                     text("missing_carpet.title"), text("missing_carpet.message")));
             return;

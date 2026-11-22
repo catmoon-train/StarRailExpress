@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_8",
+  "package": "org.ladysnake.cca.mixin.level",
+  "client": [
+    "client.MixinClientWorldProperties"
+  ],
+  "mixins": [
+    "common.LevelStorageMixin",
+    "common.MixinLevelProperties",
+    "common.MixinMinecraftServer",
+    "common.MixinUnmodifiableLevelProperties",
+    "common.MixinWorldProperties"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

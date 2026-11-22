@@ -1,0 +1,9 @@
+{
+  "method": "Read ZIP entry sizes and PNG IHDR width/height; RGBA bytes = sum(width*height*4), not measured runtime memory",
+  "minecraftRunningAtInspection": false,
+  "jars": [
+    {"file":"Cobblemon-fabric-1.8.4+1.21.1.jar","jarBytes":139966403,"uncompressedBytes":256910907,"entries":42888,"pngCount":7169,"baseLevelRgbaBytes":296764080,"modelAnimationEntryBytes":64956755,"nestedJarBytes":65773784},
+    {"file":"mega_showdown-fabric-1.3.3+1.8.4+1.21.1-release.jar","jarBytes":20262744,"uncompressedBytes":60537777,"entries":6266,"pngCount":1493,"baseLevelRgbaBytes":331144320,"modelAnimationEntryBytes":40417410},
+    {"file":"jei-1.21.1-fabric-19.70.0.469.jar","jarBytes":4852071,"uncompressedBytes":9605052,"entries":2805,"pngCount":52,"baseLevelRgbaBytes":436736}
+  ]
+}

@@ -1,7 +1,8 @@
 package io.wifi.starrailexpress.training;
 
-import carpet.patches.EntityPlayerMPFake;
-import carpet.patches.FakeClientConnection;
+import carpetdummy.api.DummyPlayerApi;
+import carpetdummy.patches.EntityPlayerMPFake;
+import carpetdummy.patches.FakeClientConnection;
 import com.mojang.authlib.GameProfile;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -63,7 +64,7 @@ public final class CarpetTrainingBots implements AutoCloseable {
     private final String token = UUID.randomUUID().toString().replace("-", "").substring(0, 6);
     private final Map<Integer, Entry> slots = new LinkedHashMap<>();
     private final Set<TrainingBotSlot.Attempt> issued = new HashSet<>();
-    private final boolean carpet = FabricLoader.getInstance().isModLoaded("carpet");
+    private final boolean carpet = FabricLoader.getInstance().isModLoaded("carpet-dummy-player");
     private long generation;
     private int serial;
     private boolean closed;
@@ -162,6 +163,7 @@ public final class CarpetTrainingBots implements AutoCloseable {
                     stop(entry); moveToSpawn(entry, bot);
                 }
                 entry.player = bot;
+                if (DummyPlayerApi.isControlled(bot)) continue;
                 if (!entry.state.error.isEmpty()) { stop(entry); continue; }
                 try { entry.controller.tick(session, bot, session.settings().bot(entry.state.slot), now); }
                 catch (RuntimeException ex) { stop(entry); logFailure(entry, "control", ex); setError(entry, "training.error.bot_control_failed"); }
@@ -356,6 +358,13 @@ public final class CarpetTrainingBots implements AutoCloseable {
             case "revive", "retry", "reset" -> {
                 requestRevive(entry);
             }
+            case "control" -> {
+                var bot = online(entry);
+                var owner = session.owner();
+                if (bot instanceof EntityPlayerMPFake fake && owner != null && TrainingRules.isAlive(bot)) {
+                    DummyPlayerApi.startControl(owner, fake);
+                }
+            }
             case "inherit" -> {
                 session.settings().overrides.remove(slot);
                 entry.applied = null;
@@ -531,6 +540,10 @@ public final class CarpetTrainingBots implements AutoCloseable {
     }
 
     private void retire(Entry entry) {
+        if (entry.player instanceof EntityPlayerMPFake fake) {
+            var controller = DummyPlayerApi.getController(fake);
+            if (controller != null) DummyPlayerApi.stopControl(controller);
+        }
         stop(entry);
         cancelProfile(entry);
         cancel(entry.state.cancel());
