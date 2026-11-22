@@ -386,6 +386,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:revolver",
+          "linkId": "remilia_blood_servant_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 77,
           "text": {

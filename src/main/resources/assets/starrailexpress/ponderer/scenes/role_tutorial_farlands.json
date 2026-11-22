@@ -246,6 +246,23 @@
           "duration": 30
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:farlands_rift",
+          "linkId": "farlands_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -299,6 +316,23 @@
             "yaw": 180.0,
             "linkId": "farlands_main"
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:farlands_rift",
+          "linkId": "farlands_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

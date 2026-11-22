@@ -211,6 +211,23 @@
           "duration": 40
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "fake_steve_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 133,
           "text": {
@@ -447,6 +464,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "fake_steve_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -583,6 +617,23 @@
             "yaw": 180.0,
             "linkId": "fake_steve_main"
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "fake_steve_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

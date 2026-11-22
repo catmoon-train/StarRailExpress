@@ -152,6 +152,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "puppeteer_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 131,
           "text": {
@@ -294,6 +311,23 @@
         {
           "type": "idle",
           "duration": 30
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "puppeteer_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -875,6 +909,23 @@
             "yaw": 180.0,
             "linkId": "puppeteer_main"
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "puppeteer_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
