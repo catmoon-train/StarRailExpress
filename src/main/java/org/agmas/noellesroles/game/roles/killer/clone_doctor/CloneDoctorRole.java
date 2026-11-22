@@ -4,7 +4,9 @@ import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
 import io.wifi.starrailexpress.event.RoleAllegianceEvents;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -16,6 +18,7 @@ import net.minecraft.world.level.Level;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
@@ -82,7 +85,24 @@ public final class CloneDoctorRole extends NormalRole {
         return List.of(
                 new ShopEntry(TMMItems.POISON_VIAL.getDefaultInstance(), 60, ShopEntry.Type.POISON),
                 new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 80, ShopEntry.Type.TOOL),
-                new ShopEntry(ModItems.AREA_BLACKOUT.getDefaultInstance(), 175, ShopEntry.Type.TOOL),
+                // 范围关灯 - 购买即触发，以自身为中心熄灭半径30格的灯，冷却与普通关灯一致
+                new ShopEntry(ModItems.AREA_BLACKOUT.getDefaultInstance(), 175, ShopEntry.Type.TOOL) {
+                    @Override public boolean onBuy(Player player) {
+                        if (player.getCooldowns().isOnCooldown(ModItems.AREA_BLACKOUT)) {
+                            return false;
+                        }
+                        SREWorldBlackoutComponent blackout = SREWorldBlackoutComponent.KEY.get(player.level());
+                        if (blackout.isBlackoutActive()) {
+                            return false;
+                        }
+                        blackout.triggerBlackout(player.blockPosition(),
+                                NoellesRolesConfig.HANDLER.instance().dreamBlackoutRadius, true,
+                                SREWorldBlackoutComponent.getMaxDuration(player.level()));
+                        player.getCooldowns().addCooldown(ModItems.AREA_BLACKOUT,
+                                Math.max(60 * 20, GameConstants.getBlackoutCooldownGlobal()));
+                        return true;
+                    }
+                },
                 new ShopEntry(ModItems.SLIME_GRENADE.getDefaultInstance(), 50, ShopEntry.Type.TOOL) {
                     @Override public boolean canBuy(Player player) {
                         return CloneDoctorSessionManager.canBuySlime(player) && super.canBuy(player);
