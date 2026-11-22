@@ -109,7 +109,7 @@ public final class SettlementManager {
             String roleId = role == null ? replay.currentReplayData.getInitialPlayerRoleId(id) : role.identifier().toString();
             actors.add(new SettlementSnapshot.Actor(id, entry.player().getName(), roleId == null ? "" : roleId,
                     role == null ? 0xFFD4AF37 : role.getColor(), winner, entry.wasDead(),
-                    role != null && role.canUseKiller(), game.getPlayerKills(id), tasks.getOrDefault(id,0)));
+                    role != null && role.canUseKiller(), game.getPlayerMvpKills(id), tasks.getOrDefault(id,0)));
         }
         UUID mvp = SettlementSnapshot.selectMvp(actors);
         // 同一份 MVP 判定同时写进统计，避免舞台和战绩对“谁是 MVP”各算一套。

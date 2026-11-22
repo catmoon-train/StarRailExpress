@@ -36,11 +36,15 @@ import org.agmas.noellesroles.role_data.killer.UndeadLordRoleData;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 /**
  * 骨杖攻击：亡灵之主左键命中玩家时注入感染值，并消耗 1 点耐久。
  * <p>
  * 主路径为 {@link BoneStaffItem#onServerAttack}（{@code LeftClickHurtable} 服务端钩子）。
- * {@link AttackEntityCallback} 作为兜底，避免个别调用链漏触发；两者共用冷却，不会重复注入。
+ * {@link AttackEntityCallback} 作为兜底，避免个别调用链漏触发；两者共用同 tick 去重，不会重复注入。
  * 不造成普通击杀，仅注入感染（感染满值后由 {@link UndeadLordRoleData} 结算转化为亡灵）。
  * 耐久耗尽后骨杖不会消失，而是进入充能冷却，结束后由
  * {@link BoneStaffItem#inventoryTick} 自动恢复满耐久。
@@ -48,8 +52,13 @@ import org.agmas.noellesroles.role.ModRoles;
  */
 public class BoneStaffHandler {
 
-    /** 两次注入之间的最短间隔，防止同一击在多条钩子里重复结算。 */
-    private static final int HIT_COOLDOWN_TICKS = 5;
+    /**
+     * 同一 tick、同一攻击者对同一目标只结算一次：主钩子与兜底回调可能在同一击里都走到这里。
+     * 不同 tick 的连点属于独立攻击，应各自消耗 1 点耐久，因此不能用物品冷却去重。
+     */
+    private static final Map<UUID, HitMark> LAST_HIT = new HashMap<>();
+
+    private record HitMark(long tick, UUID target) {}
 
     public static void register() {
         AttackEntityCallback.EVENT.register(BoneStaffHandler::onEntityDamaged);
@@ -109,6 +118,13 @@ public class BoneStaffHandler {
             return false;
         }
 
+        long now = attacker.level().getGameTime();
+        HitMark last = LAST_HIT.get(attacker.getUUID());
+        if (last != null && last.tick() == now && last.target().equals(target.getUUID())) {
+            return false;
+        }
+        LAST_HIT.put(attacker.getUUID(), new HitMark(now, target.getUUID()));
+
         comp.addInfection(target, BoneStaffItem.BONE_STAFF_INFECTION_PER_HIT);
 
         if (!attacker.isCreative()) {
@@ -123,11 +139,9 @@ public class BoneStaffHandler {
                         config.undeadLordBoneStaffRechargeSeconds * 20);
             } else {
                 stack.setDamageValue(next);
-                attacker.getCooldowns().addCooldown(ModItems.BONE_STAFF, HIT_COOLDOWN_TICKS);
             }
-        } else {
-            attacker.getCooldowns().addCooldown(ModItems.BONE_STAFF, HIT_COOLDOWN_TICKS);
         }
+        // 未耗尽耐久时不加物品冷却：连点只要成功注入就逐次扣耐久，靠同 tick 去重防止双钩子重复结算。
 
         attacker.serverLevel().playSound(null, attacker.blockPosition(), SoundEvents.SOUL_ESCAPE.value(),
                 SoundSource.PLAYERS, 0.7f, 0.9f);

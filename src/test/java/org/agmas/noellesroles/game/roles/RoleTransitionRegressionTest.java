@@ -28,6 +28,34 @@ class RoleTransitionRegressionTest {
     }
 
     @Test
+    void allVariantLooseEndsReceiveOneSharedKillRewardIndependentOfTheirBuffs() throws Exception {
+        String base = read("org/agmas/noellesroles/game/roles/special/variant_loose_end/VariantLooseEndRole.java");
+        assertTrue(base.contains("setKillExtraCoinAwards(50);"));
+        for (String role : new String[] {"super_loose_end/SuperLooseEnd", "ghost_loose_end/GhostLooseEnd"}) {
+            String source = read("org/agmas/noellesroles/game/roles/special/" + role + ".java");
+            assertTrue(source.contains("extends VariantLooseEndRole"));
+            assertFalse(source.contains("addToBalance("), "子类不能重复发放公共击杀资金");
+            assertFalse(source.contains("setKillExtraCoinAwards("), "子类不能覆盖公共击杀资金");
+        }
+        String mode = read("io/wifi/starrailexpress/api/GameMode.java");
+        assertTrue(mode.contains("killerRole.grantKillCoin(killer);"));
+        String evilWar = read("io/wifi/starrailexpress/game/modes/funny/SREEvilWarGameMode.java");
+        assertTrue(evilWar.contains("playerShopComponent.setBalance(beyondKillerCount * 50);"));
+        assertTrue(evilWar.contains("else if (!VariantLooseEndRole.isVariant(role))"));
+    }
+
+    @Test
+    void evilWarRevivalBypassesOrdinaryKillerLimitBeforeCountingSlots() throws Exception {
+        String source = read("pro/fazeclan/river/stupid_express/role/necromancer/RevivalSelectionHandler.java");
+        int start = source.indexOf("private static boolean hasKillerSlot");
+        String check = source.substring(start, source.indexOf("\n    }", start));
+        String bypass = "if (game.gameMode instanceof SREEvilWarGameMode) {\n            return true;\n        }";
+        assertTrue(check.contains(bypass));
+        assertTrue(check.indexOf(bypass) < check.indexOf("RoleCountManager.getKillerCount("));
+        assertTrue(check.indexOf(bypass) < check.indexOf("level.players().stream()"));
+    }
+
+    @Test
     void bothNecromancersCheckActualKillerSlotsBeforeSpendingResources() throws Exception {
         String source = read("pro/fazeclan/river/stupid_express/role/necromancer/RevivalSelectionHandler.java");
         int start = source.indexOf("private static boolean hasKillerSlot");

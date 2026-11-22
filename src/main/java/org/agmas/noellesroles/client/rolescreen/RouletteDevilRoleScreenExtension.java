@@ -73,17 +73,14 @@ public final class RouletteDevilRoleScreenExtension extends PlayerListRoleScreen
         var font = client.font;
         var state = RouletteDevilClient.state();
         int line = font.lineHeight + 2;
+        // 头像行在 center.y + 80、高 16；胜利目标放在列表下方，避免与 center.y + 8~24 的快捷栏重叠。
+        int goalY = center.y + 100;
         graphics.drawCenteredString(font, Component.translatable(KEY + "progress", state.wins(), state.required(),
-                state.lives()), center.x, center.y + 40 - line * 2, 0xFFD1B1ED);
+                state.lives()), center.x, goalY, 0xFFD1B1ED);
         graphics.drawCenteredString(font, Component.translatable(KEY + "seeds", state.seeded().size(),
-                state.mature().size()), center.x, center.y + 40 - line, 0xFFB2A5BD);
+                state.mature().size()), center.x, goalY + line, 0xFFB2A5BD);
         Component selection = Component.translatable(KEY + (state.duelOpponent() != null ? "dueling" : "select"));
-        graphics.drawCenteredString(font, selection, center.x, center.y + 40, 0xFFDDCCEE);
-        int y = 8;
-        for (var text : font.split(Component.translatable(KEY + "skill"), Math.max(40, graphics.guiWidth() - 16))) {
-            graphics.drawString(font, text, (graphics.guiWidth() - font.width(text)) / 2, y, 0xFFCCBBDD);
-            y += font.lineHeight + 1;
-        }
+        graphics.drawCenteredString(font, selection, center.x, goalY + line * 2, 0xFFDDCCEE);
     }
 
     private static Component seedStatus(UUID target) {

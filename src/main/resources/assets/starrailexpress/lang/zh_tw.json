@@ -4292,7 +4292,7 @@
   "hud.sre.tip.gamemode.five_random": "五項隨機模式",
   "gui.sre.vote_flow.mode_name.three_random": "三項隨機模式",
   "gui.sre.vote_flow.mode_name.five_random": "五項隨機模式",
-  "gui.sre.vote_flow.mode_description.three_random": "發車時從謀殺模式、職業輪選模式、志願海選模式中隨機抽取一個",
+  "gui.sre.vote_flow.mode_description.three_random": "發車時從陽光志願模式、職業輪選模式、志願海選模式中隨機抽取一個",
   "gui.sre.vote_flow.mode_description.five_random": "發車時從謀殺模式、職業輪選模式、志願海選模式、志願模式、陽光自選模式中隨機抽取一個",
   "sre.random_mode.selected": "本局 %s 抽中了 %s",
   "item_group.starrailexpress.theme_decorations": "主題裝飾方塊",

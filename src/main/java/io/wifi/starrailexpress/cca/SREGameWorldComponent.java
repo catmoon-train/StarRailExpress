@@ -90,6 +90,8 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
 
     // 本局击杀数统计（按玩家UUID存储）
     private HashMap<UUID, Integer> perPlayerKills = new HashMap<>();
+    // MVP 专用击杀数：同阵营击杀不计入，避免影响其它依赖 perPlayerKills 的条件。
+    private HashMap<UUID, Integer> perPlayerMvpKills = new HashMap<>();
     public static HashMap<UUID, Integer> perPlayerDarknessTime = new HashMap<>();
 
     // 画板系统：本局已画出的物品类别（每个物品只能被画出一次）
@@ -151,6 +153,17 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
      */
     public void resetPerPlayerKills() {
         perPlayerKills.clear();
+        perPlayerMvpKills.clear();
+    }
+
+    /** 获取玩家本局计入 MVP 的击杀数。 */
+    public int getPlayerMvpKills(UUID playerUuid) {
+        return perPlayerMvpKills.getOrDefault(playerUuid, 0);
+    }
+
+    /** 增加玩家本局计入 MVP 的击杀数。 */
+    public void addPlayerMvpKill(UUID playerUuid) {
+        perPlayerMvpKills.merge(playerUuid, 1, Integer::sum);
     }
 
     // ==================== 画板系统：已画出物品追踪 ====================

@@ -112,6 +112,17 @@ public class RoleShopHandler {
                 || MCItemsUtils.hasItem(player, ModItems.DREAM_MACE);
     }
 
+    /** 大侦探商店：快捷栏（前 9 格）是否已持有推理之书。 */
+    private static boolean hasDeductionBookInHotbar(Player player) {
+        for (int i = 0; i < 9; i++) {
+            ItemStack stack = player.getInventory().items.get(i);
+            if (!stack.isEmpty() && stack.is(ModItems.DEDUCTION_BOOK)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static ItemStack createNetCopFirework(FireworkExplosion.Shape shape) {
         ItemStack rocket = Items.FIREWORK_ROCKET.getDefaultInstance();
         rocket.set(DataComponents.FIREWORKS, new Fireworks(3, List.of(
@@ -2140,6 +2151,27 @@ public class RoleShopHandler {
             var SHOP = new ArrayList<ShopEntry>();
             SHOP.add(new ShopEntry(ModItems.SIGNATURE_PAPER.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
             ShopContent.customEntries.put(ModRoles.SUPERSTAR.getIdentifier(), SHOP);
+        }
+        // 大侦探的商店：推理之书 50 金币，快捷栏已有则不可购买
+        {
+            var SHOP = new ArrayList<ShopEntry>();
+            SHOP.add(new ShopEntry(ModItems.DEDUCTION_BOOK.getDefaultInstance(), 50, ShopEntry.Type.TOOL) {
+                @Override
+                public boolean canDisplay(@NotNull Player player) {
+                    return !hasDeductionBookInHotbar(player);
+                }
+
+                @Override
+                public boolean canBuy(@NotNull Player player) {
+                    if (hasDeductionBookInHotbar(player)) {
+                        setFailedMessage(Component.translatable(
+                                "message.noellesroles.great_detective.already_owned"));
+                        return false;
+                    }
+                    return super.canBuy(player);
+                }
+            });
+            ShopContent.customEntries.put(ModRoles.GREAT_DETECTIVE.getIdentifier(), SHOP);
         }
         // 大妖精的商店
         {

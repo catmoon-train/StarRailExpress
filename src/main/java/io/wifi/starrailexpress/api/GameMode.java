@@ -701,6 +701,8 @@ public abstract class GameMode {
 
             // 增加本局击杀数
             gameWorldComponent.addPlayerKill(serverKiller.getUUID());
+            // 同阵营击杀不计入 MVP；中立互杀会在下方例外放行。
+            boolean sameTeamKillForMvp = false;
 
             ProgressionDataManager.onPlayerKill(serverKiller);
 
@@ -740,6 +742,8 @@ public abstract class GameMode {
                                     deathReason);
                         }
                         if (isTeamKill) {
+                            // 中立击杀中立仍算正常击杀，不排除出 MVP。
+                            sameTeamKillForMvp = !(killerAllegiance.isNeutrals() && victimRole.isNeutrals());
                             if (shouldRecordPlayerStats()) {
                                 killerStats.incrementTotalTeamKills();
                                 killerStats.getOrCreateRoleStats(killerRole.identifier()).incrementTeamKillsAsRole();
@@ -750,6 +754,9 @@ public abstract class GameMode {
                         }
                     }
                 }
+            }
+            if (!sameTeamKillForMvp) {
+                gameWorldComponent.addPlayerMvpKill(serverKiller.getUUID());
             }
         }
         // --- 结束新增统计数据更新逻辑 (击杀者) ---

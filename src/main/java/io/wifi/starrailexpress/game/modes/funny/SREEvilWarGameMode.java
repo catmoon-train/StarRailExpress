@@ -287,8 +287,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
 
     // 初始化模式物品列表
     protected void initItemList() {
-        // 使用亡命徒小刀替换普通小刀
-        looseEndsItems.add(ModItems.DESPERADO_KNIFE::getDefaultInstance);
+        looseEndsItems.add(TMMItems.KNIFE::getDefaultInstance);
         looseEndsItems.add(TMMItems.DERRINGER::getDefaultInstance);
         looseEndsItems.add(ModItems.PATROLLER_REVOLVER::getDefaultInstance);
         looseEndsItems.add(TMMItems.CROWBAR::getDefaultInstance);
@@ -454,6 +453,8 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             SRERole role = gameWorldComponent.getRole(player);
             // 为特定角色添加特定物品
             if (role == SpecialGameModeRoles.SUPER_LOOSE_END) {
+                // 新增亡命徒小刀
+                looseEndsItems.add(ModItems.DESPERADO_KNIFE::getDefaultInstance);
                 // 添加亡命徒模式专属物品
                 for (Supplier<ItemStack> itemSupplier : looseEndsItems) {
                     ItemStack itemStack = itemSupplier.get();
@@ -466,7 +467,8 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                     player.addItem(TMMItems.DEFENSE_VIAL.getDefaultInstance());
                 }
             } else if (role == SpecialGameModeRoles.GHOST_LOOSE_END) {
-                player.addItem(ModItems.DESPERADO_KNIFE.getDefaultInstance());
+//                player.addItem(ModItems.DESPERADO_KNIFE.getDefaultInstance());
+                player.addItem(TMMItems.KNIFE.getDefaultInstance());
                 for (Supplier<ItemStack> itemSupplier : looseEndsItems) {
                     ItemStack itemStack = itemSupplier.get();
                     // 亡命徒基础物品中 仅为幽灵亡命徒添加 防御药剂 和 撬棍
