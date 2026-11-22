@@ -20,6 +20,7 @@
 """
 
 import glob
+import importlib
 import io
 import json
 import os
@@ -216,7 +217,8 @@ def skill_lines(ctx, keywords):
     """
     found = [line for line in ctx.get("all_lines", [])
              if line.get("zh_cn") and any(word in line["zh_cn"] for word in keywords)]
-    return found or ctx["lines"]
+    # 和 MAX_QUOTED_LINES 一致：超长介绍只演主线，避免文本点越飘越远。
+    return (found or ctx["lines"])[:MAX_QUOTED_LINES]
 
 
 def argb(rgb):
@@ -2180,6 +2182,14 @@ ROLE_SEGMENT_OVERRIDES = {
     ("purple_monster", "form"): override_purple_monster_form,
     ("raven", "form"): override_raven_form,
 }
+
+# 逐职业技能重做的分批模块：每个模块只含自己的 override 与 (rid, "skill") 映射。
+# 从 tools/ponder_extra_*.py 自动加载，避免把 150+ 个函数全塞进本文件。
+for _module_path in sorted(glob.glob(os.path.join(os.path.dirname(__file__),
+                                                  "ponder_extra_*.py"))):
+    _module_name = os.path.splitext(os.path.basename(_module_path))[0]
+    _module = importlib.import_module(_module_name)
+    ROLE_SEGMENT_OVERRIDES.update(_module.OVERRIDES)
 
 
 def build_role_scene(rid, facts, intros, names, goals):
