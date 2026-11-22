@@ -109,6 +109,17 @@ public class ReturnTravelerRoleData extends SimpleRoleData {
     /** 末班车里世界是否正在进行（用于「再次按键转职」）。 */
     public boolean lastTrainActive = false;
 
+    /**
+     * 末班车受害者已全部拉入里世界、待转职为平民。
+     *
+     * <p>
+     * 转职必须延后到 {@link #serverTick()} 的末尾执行：{@code changeRole} 会触发
+     * {@code clear()} → {@code init()} 清空本 RoleData，若在 {@link #startLastTrainBackworld(ServerPlayer)}
+     * 内部直接转职，会打断同一 tick 中 {@code serverTick()} 后续的里世界维护逻辑。
+     * </p>
+     */
+    private boolean pendingCivilianTransformation = false;
+
     /** 旧日渡口前摇剩余 tick（>0 表示正在起手）。 */
     private int oldFerryWindup = 0;
     /** 旧日渡口里世界剩余 tick。 */
@@ -162,6 +173,7 @@ public class ReturnTravelerRoleData extends SimpleRoleData {
         currentMode = MODE_OLD_FERRY;
         lastTrainUsed = false;
         lastTrainActive = false;
+        pendingCivilianTransformation = false;
         oldFerryWindup = 0;
         oldFerryBackworld = 0;
         oldFerryCooldown = 0;
@@ -405,13 +417,23 @@ public class ReturnTravelerRoleData extends SimpleRoleData {
             return false;
         }
 
-        lastTrainUsed = true;
-        lastTrainWindup = LAST_TRAIN_WINDUP_TICKS;
         // 范围判定在释放瞬间完成：锁定 12 格内所有合法目标（无人数上限）。
         // 前摇结束后只对这份名单做合法性复核，不再重新判定距离，
         // 否则前摇 3 秒里跑出圈的人会逃掉、圈外的人反而被拉进来。
         lastTrainSnapshot.clear();
         lastTrainSnapshot.addAll(snapshotTargets(serverPlayer, LAST_TRAIN_RADIUS, Integer.MAX_VALUE));
+        // 没有合法目标时直接终止：旧日渡口有同样的守卫。否则一局一次的大招会被空放，
+        // 玩家只会看到自己变成平民，却没有任何人被拉进里世界。
+        if (lastTrainSnapshot.isEmpty()) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.return_traveler.last_train.no_target")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return false;
+        }
+
+        lastTrainUsed = true;
+        lastTrainWindup = LAST_TRAIN_WINDUP_TICKS;
         ServerLevel level = serverPlayer.serverLevel();
         level.playSound(null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(),
                 SoundEvents.PORTAL_TRIGGER, SoundSource.PLAYERS, 1.0F, 0.4F);
@@ -446,6 +468,21 @@ public class ReturnTravelerRoleData extends SimpleRoleData {
                     true);
         }
 
+        // 前摇期间目标可能全部掉线/死亡/被别人拉走，导致复核后一个都没拉到。
+        // 此时不能白白消耗一局一次的大招、更不该让玩家无故变成平民：保留职业允许重试。
+        if (lastTrainVictims.isEmpty()) {
+            lastTrainWindup = 0;
+            lastTrainBackworld = 0;
+            lastTrainActive = false;
+            lastTrainUsed = false;
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.return_traveler.last_train.no_target")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            sync();
+            return;
+        }
+
         lastTrainBackworld = LAST_TRAIN_BACKWORLD_TICKS;
         lastTrainActive = true;
 
@@ -464,15 +501,12 @@ public class ReturnTravelerRoleData extends SimpleRoleData {
                 Component.translatable("message.noellesroles.return_traveler.last_train.open",
                         lastTrainVictims.size()).withStyle(ChatFormatting.GOLD),
                 true);
-        // 先同步再转职：changeRole 会 clear() 掉这份 RoleData，之后 sync() 已无意义
-        // （受害者名单与倒计时都在 BACKWORLD_EXPIRY 里，由全局 tick 收尾）。
+        // 受害者已全部拉入里世界。转职不在这里执行：changeRole 会 clear() 掉这份 RoleData，
+        // 而本方法正被 serverTick() 调用，直接转职会中断本 tick 后续的技能收尾逻辑。
+        // 只打标记，由 serverTick() 在整段技能逻辑走完后统一转职。
+        // （受害者名单与倒计时都在 BACKWORLD_EXPIRY 里，由全局 tick 收尾。）
         sync();
-        RoleUtils.changeRole(serverPlayer, TMMRoles.CIVILIAN);
-        RoleUtils.sendWelcomeAnnouncement(serverPlayer, TMMRoles.CIVILIAN);
-        serverPlayer.displayClientMessage(
-                Component.translatable("message.noellesroles.return_traveler.last_train.leave")
-                        .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD),
-                true);
+        pendingCivilianTransformation = true;
     }
 
     /** 末班车里世界结束（时间到 / 主动下车）。 */
@@ -583,6 +617,19 @@ public class ReturnTravelerRoleData extends SimpleRoleData {
         }
 
         tickCooldown();
+
+        // 末班车的受害者已全部拉入里世界，整段技能逻辑（拉人 / 维护 / 前摇 / 冷却）都走完了，
+        // 此时才把施法者转为平民。changeRole 会 clear() 掉本 RoleData，因此必须放在所有
+        // 依赖本实例状态的逻辑之后，避免中途被清空导致拉人/收尾异常。
+        if (pendingCivilianTransformation) {
+            pendingCivilianTransformation = false;
+            RoleUtils.changeRole(serverPlayer, TMMRoles.CIVILIAN);
+            RoleUtils.sendWelcomeAnnouncement(serverPlayer, TMMRoles.CIVILIAN);
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.return_traveler.last_train.leave")
+                            .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD),
+                    true);
+        }
     }
 
     private void tickCooldown() {

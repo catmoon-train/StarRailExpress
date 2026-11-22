@@ -4441,6 +4441,7 @@
   "message.noellesroles.return_traveler.old_ferry.end": "里世界破碎，你隐入旧日之中。",
   "message.noellesroles.return_traveler.dragged": "你被归途旅人卷入里世界。",
   "message.noellesroles.return_traveler.last_train.used": "末班车已经开走，本局无法再召唤。",
+  "message.noellesroles.return_traveler.last_train.no_target": "附近没有可拉入里世界的乘客，末班车无法释放。",
   "message.noellesroles.return_traveler.last_train.start": "末班车即将进站……",
   "message.noellesroles.return_traveler.last_train.open": "末班车启动，%s 名乘客被带入里世界，你已下车变回普通乘客。",
   "message.noellesroles.return_traveler.last_train.leave": "你已变回普通乘客。",

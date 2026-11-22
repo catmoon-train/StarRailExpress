@@ -4672,6 +4672,7 @@
   "message.noellesroles.return_traveler.old_ferry.end": "The Back World shatters as you fade into the old days.",
   "message.noellesroles.return_traveler.dragged": "You have been dragged into the Back World by the Return Traveler.",
   "message.noellesroles.return_traveler.last_train.used": "The Last Train has already left; cannot be summoned again this round.",
+  "message.noellesroles.return_traveler.last_train.no_target": "No passengers nearby to drag into the Back World; Last Train cannot be used.",
   "message.noellesroles.return_traveler.last_train.start": "The Last Train is pulling in…",
   "message.noellesroles.return_traveler.last_train.open": "The Last Train departs; %s passengers are taken into the Back World, and you step off to become an ordinary passenger again.",
   "message.noellesroles.return_traveler.last_train.leave": "You have become an ordinary passenger again.",
