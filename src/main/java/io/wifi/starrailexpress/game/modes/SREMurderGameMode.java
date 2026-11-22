@@ -633,8 +633,20 @@ public class SREMurderGameMode extends GameMode {
             resultRoleInstances = RoleAssignmentManager.expandWithCompanionRoles(newRoleInstantList);
         }
         int needCivilian = (playerSize - forcedRoleSize) - resultRoleInstances.size();
-        for (int i = 0; i < needCivilian; i++)
-            resultRoleInstances.add(new RoleInstance(UUID.randomUUID(), TMMRoles.CIVILIAN));
+        if (needCivilian > 0) {
+            // 绑定职业展开时，若 companion 的 occupiedRoleCount > 1，会按槽位数释放多个实例、
+            // 却只加入 1 个 companion（如 MA_CHEN_XU -> GUEST_GHOST 释放 2 加 1），
+            // 在这里留下名额缺口。按其它阵营的补位惯例，应从平民池补真正的平民阵营职业，
+            // 而不是直接回退成裸的“平民”。
+            List<SRERole> extraCivilians = civilianPool.selectRoles(needCivilian);
+            for (SRERole role : extraCivilians) {
+                resultRoleInstances.add(new RoleInstance(UUID.randomUUID(), role));
+            }
+            // 平民池确实被抽空时才退回裸平民，避免玩家没有职业。
+            for (int i = extraCivilians.size(); i < needCivilian; i++) {
+                resultRoleInstances.add(new RoleInstance(UUID.randomUUID(), TMMRoles.CIVILIAN));
+            }
+        }
         return GameplayExtensionEvents.ROLE_POOL_RESULT.invoker().apply(resultRoleInstances);
     }
 
