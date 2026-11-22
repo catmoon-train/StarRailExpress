@@ -4,7 +4,9 @@
   "package": "io.wifi.starrailexpress.mixin.client.ponder",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "PonderEditorModuleMixin"
+    "PonderEditorModuleMixin",
+    "DynamicPonderPluginRoleMixin",
+    "SceneItemBindingsRoleMixin"
   ],
   "injectors": {
     "defaultRequire": 0

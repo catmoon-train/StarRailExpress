@@ -1,9 +1,9 @@
 package org.agmas.noellesroles.client.screen;
 
 import com.nododiiiii.ponderer.application.api.RuntimeAccess;
-import com.nododiiiii.ponderer.application.ui.PonderScreenNavigation;
 import com.nododiiiii.ponderer.scene.DslScene;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.client.ponder.RolePonderIsolation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +37,7 @@ public final class RolePonderTutorial {
                 LOGGER.warn("未找到职业思索场景 {}，Ponderer 当前已加载 {} 个场景", wantedId, scenes.size());
                 return false;
             }
-            if (!PonderScreenNavigation.openPonderUIForScene(scene, 0)) {
+            if (!RolePonderIsolation.open(scene, 0)) {
                 LOGGER.warn("Ponderer 未能打开职业思索场景 {}", wantedId);
                 return false;
             }
