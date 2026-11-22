@@ -193,8 +193,8 @@
               3.0
             ],
             "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
+            "duration": 60,
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
@@ -293,8 +293,8 @@
               3.0
             ],
             "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
+            "duration": 60,
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
@@ -358,45 +358,23 @@
               3.0
             ],
             "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
+            "duration": 60,
+            "keyBind": "next_ability",
+            "text": "ponder.starrailexpress.ponder.press_next_ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_pose",
-          "parameters": {
-            "linkId": "voice_changer_main",
-            "pose": "crouching"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
+          "type": "indicate_success",
           "blockPos": [
-            2,
+            3,
             0,
-            2
-          ],
-          "blockPos2": [
-            4,
-            0,
-            4
-          ],
-          "duration": 240,
-          "color": "green"
+            3
+          ]
         },
         {
           "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "starrailexpress:role_pose",
-          "parameters": {
-            "linkId": "voice_changer_main",
-            "pose": "standing"
-          },
-          "attachKeyFrame": true
+          "duration": 25
         },
         {
           "type": "text",

@@ -876,3 +876,76 @@ indicate_success [2,0,4] + idle 80 + rotate_camera_y
 最终：`verify_ponder_scenes.py` 272 个场景 0 error，`audit_ponder_authoring.py`
 269 个场景 0 violation，`compileJava --offline` 编译成功。
 
+## 24. 葬仪血瓶、技能切换键与物品使用效果修正（2026-11-22）
+
+### 24.1 葬仪：血瓶演示错配
+
+- 现象：`items` 段正文讲「血瓶：当场上有玩家死亡时，右键血瓶可以在玩家周围泼洒血液」，
+  画面里却摆着 `noellesroles:master_key_p`（乘务员钥匙）；技能键帽和右键物品提示共用一个
+  `point`，两块 UI 叠在一起。
+- 根因：`build_skill_act()` 用 `pick_item(facts)` 取职业第一个物品，葬仪的
+  `initialItems` 为空、`shopItems` 第一项是钥匙；键帽 `head` 与 `show_controls.point`
+  又写成同一个坐标。
+- 修复：新增 `override_mortician_bodymaker_items()`，摆 `noellesroles:blood_bottle`、
+  手持血瓶、右键血瓶，在死者位置发射源码里的 `noellesroles:deathblood` 粒子并播放
+  `minecraft:block.grass.fall`；这一幕**不显示技能键帽**（血瓶是道具，不是技能）。
+  `skill` 段同步去掉误加的钥匙与右键提示。
+
+### 24.2 技能切换键被误写成技能键
+
+- 现象：介绍「按下技能切换键（默认 Y）切换模式」时，画面显示的是技能键（默认 G）
+  的键帽与「按下技能键」，还附带一个右键物品；技能切换根本没有使用物品。
+- 根因：生成器把「切换」一律当成「更换手持道具」，`key_cap()` 也只有 `ability`
+  一种绑定。键位映射 `NoellesrolesClient.nextAbilityBind`（默认 Y）和
+  `abilityBind`（默认 G）是两套，`PonderSreExtension#resolveKeyName` 已支持
+  `keyBind: "next_ability"`，但场景里从没用过。
+- 修复：
+  - `key_cap(point, switch=True)` 输出 `keyBind: "next_ability"` 与新的
+    `ponder.starrailexpress.ponder.press_next_ability` 三语提示语；
+  - `is_switch_line()` 识别「技能切换键 / 切换技能 / 切换模式 /【切换技能】」等 22 种写法；
+  - 命中切换句时只画 Y 键帽 + 方块指示，**不再摆物品、不再显示右键提示**；
+  - shop / details 等非技能段里讲到切换键时也补正确键帽。
+- 结果：22 个介绍里带「技能切换键」的职业全部改用 `next_ability` 键帽，审计脚本新增
+  「切换句必须有 next_ability 键帽」检查。
+
+### 24.3 物品使用效果按源码演示
+
+不能再拿职业粒子给所有道具兜底。`ITEM_EFFECT_BY_ID` 按 Item / Entity 源码列出：
+
+| 物品 | 粒子 | 音效 | 源码 |
+| --- | --- | --- | --- |
+| `noellesroles:blood_bottle` | `noellesroles:deathblood` | `minecraft:block.grass.fall` | `BloodBottleItem:66,69,94` |
+| `noellesroles:purify_bomb` | `minecraft:dripping_water` | `minecraft:entity.guardian.attack` | `PurifyBombEntity:63,110,115` |
+| `noellesroles:chlorine_bomb` | `minecraft:sneeze` | `minecraft:entity.generic.extinguish_fire` | `ChlorineBombEntity:61,115` |
+| `noellesroles:smoke_grenade` | `minecraft:campfire_cosy_smoke` | `minecraft:entity.firework_rocket.blast` | `SmokeGrenadeEntity:88,103-111` |
+| `noellesroles:bomb` | `minecraft:explosion` | `minecraft:entity.generic.explode` | `BombItem:81-85,171-174` |
+| `noellesroles:antidote` | 无（只改状态） | `noellesroles:syringe_stab` | `AntidoteItem:92` |
+| `noellesroles:passbook` | 无界面特效 | `minecraft:item.book.page_turn` | `PassbookItem:73-74` |
+
+道具介绍句只摆实体、没有触发词时，也会按这张表补上对应粒子与音效；源码没有可见
+效果的物品（如 `noellesroles:pill`）不硬塞粒子。审计白名单新增
+`ITEM_EFFECT_PARTICLES`，允许按物品来源发射上述粒子。
+
+### 24.4 全量自检
+
+| 检查项 | 修复前 | 修复后 |
+| --- | --- | --- |
+| 技能键帽与右键提示 `point` 重叠的段落 | 142 | 0 |
+| 介绍物品与画面物品不符的段落（静态词表比对） | 56 | 34（剩余为 `lockpick` / `revolver` / `handcuffs` / `knife` 等**同名不同命名空间**的歧义、一句提到多个道具时的取词偏差，以及小丑「假毒」演示 `delusion_vial` 这类正确展示） |
+| 带「技能切换键」介绍却显示 G 键帽的职业 | 22 | 0 |
+| 只讲道具却没摆对应物品的段落 | 多处（医生「药丸」仍停着起搏器等） | 0 |
+
+其它同步修正：小丑初始道具由真刀改为 `noellesroles:fake_knife` + `noellesroles:fake_revolver`；
+纵火犯「警告」句手持打火机、「大油罐」句手持大油罐；医生 / 锁匠 / 裁缝 / 恶作剧者 / 退伍军人 /
+亡灵领主等 `facts` 抽取不全的职业按介绍与源码补齐真实物品 id。
+
+### 24.5 验证
+
+- `python tools/audit_ponder_authoring.py`：269 个场景，**0 violation**。
+- `python tools/verify_ponder_scenes.py`：272 个场景，**0 error**，2 条既有 warning
+  （酒保 / 小丑自定义正文，按要求不改）。
+- JSON 全量解析通过；13 个结构 NBT 解压后均不含 `minecraft:` 方块 id。
+- `gradlew compileJava --offline` **未能执行**：`settings.gradle` include 的
+  `../sre-performance` 等兄弟目录在当前工作区不存在，Gradle 配置阶段即失败。本次改动
+  只涉及 Python 生成 / 审计脚本、JSON 资源与三语文本，不触及 Java 或 Gradle 配置。
+

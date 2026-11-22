@@ -1,0 +1,2941 @@
+{
+ "roles": {
+  "abnormal": {
+   "segments": [
+    "faction",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 5
+  },
+  "accountant": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 14
+  },
+  "admirer": {
+   "segments": [
+    "faction",
+    "shop",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "adventurer": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "domain",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 10
+  },
+  "agent": {
+   "segments": [
+    "faction",
+    "panel",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "alchemist": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "mood",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 11
+  },
+  "amnesiac": {
+   "segments": [
+    "faction",
+    "body",
+    "vision",
+    "mood",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 7
+  },
+  "amon": {
+   "segments": [
+    "faction",
+    "skill",
+    "screen",
+    "shop",
+    "body",
+    "vision",
+    "bond",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 15
+  },
+  "anatman": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "vision",
+    "bond",
+    "form"
+   ],
+   "structure": "starrailexpress:role_tutorial_carriage",
+   "texts": 12
+  },
+  "angler": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_water",
+   "texts": 7
+  },
+  "arsonist": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "body",
+    "vision"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 15
+  },
+  "asatya": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "vision",
+    "vitals"
+   ],
+   "structure": "starrailexpress:role_tutorial_carriage",
+   "texts": 11
+  },
+  "athlete": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 5
+  },
+  "attendant": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_corridor",
+   "texts": 10
+  },
+  "avaricious": {
+   "segments": [
+    "faction",
+    "shop"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "avenger": {
+   "segments": [
+    "faction",
+    "items",
+    "body",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "awesome_binglus": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "panel",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 9
+  },
+  "ayayaya": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 5
+  },
+  "baka": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "panel",
+    "mood",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 10
+  },
+  "bandit": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "vision",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 10
+  },
+  "barbarian": {
+   "segments": [
+    "faction",
+    "skill",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "baseball_player": {
+   "segments": [
+    "faction",
+    "items",
+    "body",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 7
+  },
+  "bee_queen": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "body",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 10
+  },
+  "bee_wasp": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 9
+  },
+  "bee_worker": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 10
+  },
+  "best_vigilante": {
+   "segments": [
+    "faction",
+    "items",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "better_vigilante": {
+   "segments": [
+    "faction",
+    "skill",
+    "vision",
+    "mood",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "blood_feudist": {
+   "segments": [
+    "faction",
+    "shop",
+    "mood",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 13
+  },
+  "bomber": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "boom_maniac": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "bond",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 8
+  },
+  "broadcaster": {
+   "segments": [
+    "faction",
+    "items",
+    "panel",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 8
+  },
+  "builder": {
+   "segments": [
+    "faction",
+    "skill",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 7
+  },
+  "cake_maker": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "mood",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 11
+  },
+  "canada_goose": {
+   "segments": [
+    "faction",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 5
+  },
+  "candle_shade": {
+   "segments": [
+    "faction",
+    "skill",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 7
+  },
+  "candlebearer": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "body",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 15
+  },
+  "cat_killer": {
+   "segments": [
+    "faction",
+    "shop",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "cat_necromancer": {
+   "segments": [
+    "faction",
+    "shop",
+    "body",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 6
+  },
+  "cavalry": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "vitals",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 11
+  },
+  "central_control": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 10
+  },
+  "chef": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "vision",
+    "mood",
+    "vitals",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 14
+  },
+  "civilian": {
+   "segments": [
+    "faction",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 3
+  },
+  "cleaner": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "body"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 5
+  },
+  "clockmaker": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "panel",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 10
+  },
+  "clone_doctor": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 14
+  },
+  "command_block": {
+   "segments": [
+    "event_start",
+    "abnormal",
+    "field_event",
+    "settle"
+   ],
+   "structure": "starrailexpress:event_command_room",
+   "texts": 12
+  },
+  "commander": {
+   "segments": [
+    "faction",
+    "items",
+    "vision"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 7
+  },
+  "conductor": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 10
+  },
+  "conspirator": {
+   "segments": [
+    "faction",
+    "shop",
+    "panel",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 7
+  },
+  "coroner": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "body",
+    "vision"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 7
+  },
+  "courier": {
+   "segments": [
+    "faction",
+    "items",
+    "panel",
+    "form"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 7
+  },
+  "creeper": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 7
+  },
+  "cuckoo": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 9
+  },
+  "cupid": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "vision"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 8
+  },
+  "daiyousei": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "mood"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 5
+  },
+  "daywalker": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "vision",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 15
+  },
+  "decree_mage": {
+   "segments": [
+    "faction",
+    "skill",
+    "domain",
+    "shop",
+    "vision"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 8
+  },
+  "delayer": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "panel",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 12
+  },
+  "dictator": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "vision",
+    "mood",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 9
+  },
+  "dio": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "body",
+    "vision",
+    "bond",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 14
+  },
+  "disabled_patient": {
+   "segments": [
+    "faction",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 5
+  },
+  "disc_master": {
+   "segments": [
+    "faction",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 4
+  },
+  "diver": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_water",
+   "texts": 9
+  },
+  "diviner": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "screen",
+    "body",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 8
+  },
+  "doctor": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "vision",
+    "vitals",
+    "bond",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 12
+  },
+  "doomed_sinner": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "body",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 11
+  },
+  "doremy_sweet": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "screen",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 10
+  },
+  "dreadlord": {
+   "segments": [
+    "faction",
+    "vision",
+    "form"
+   ],
+   "structure": "starrailexpress:role_tutorial_carriage",
+   "texts": 8
+  },
+  "dream": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "vision",
+    "vitals"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 11
+  },
+  "dummy_bird": {
+   "segments": [
+    "faction",
+    "items",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 10
+  },
+  "echo_listener": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "vision",
+    "mood",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 9
+  },
+  "elf": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "body",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 8
+  },
+  "embalmer": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "screen",
+    "shop",
+    "panel",
+    "form"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 10
+  },
+  "engineer": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "bond"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 9
+  },
+  "entity_303": {
+   "segments": [
+    "faction",
+    "skill",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 9
+  },
+  "entity_null": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 9
+  },
+  "error_404": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "panel",
+    "bond",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 13
+  },
+  "exampler": {
+   "segments": [
+    "faction",
+    "skill",
+    "screen",
+    "shop",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 11
+  },
+  "executioner": {
+   "segments": [
+    "faction",
+    "screen",
+    "shop",
+    "body",
+    "vision",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 8
+  },
+  "fake_steve": {
+   "segments": [
+    "faction",
+    "skill",
+    "body",
+    "vision",
+    "mood",
+    "bond",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 10
+  },
+  "farlands": {
+   "segments": [
+    "faction",
+    "skill",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 5
+  },
+  "fat_fish": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_water",
+   "texts": 13
+  },
+  "fighter": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 4
+  },
+  "firefighter": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "bond",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 12
+  },
+  "fitter": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "bond",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 11
+  },
+  "fog_guest": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 7
+  },
+  "forest_mushroom_zombie": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "bond",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 8
+  },
+  "fortuneteller": {
+   "segments": [
+    "faction",
+    "skill",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 4
+  },
+  "furandoru": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 12
+  },
+  "futatuiwa_mamizou": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 4
+  },
+  "gambler": {
+   "segments": [
+    "faction",
+    "skill",
+    "body",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 14
+  },
+  "gangsters": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "bond",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 10
+  },
+  "ghost": {
+   "segments": [
+    "faction",
+    "shop",
+    "panel",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 7
+  },
+  "ghost_eye": {
+   "segments": [
+    "faction",
+    "skill",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 5
+  },
+  "glitch_robot": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "mood",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 11
+  },
+  "godfather": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "body",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 15
+  },
+  "great_detective": {
+   "segments": [
+    "faction",
+    "items",
+    "body",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 8
+  },
+  "guard": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "body",
+    "panel",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 9
+  },
+  "guest_ghost": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "domain",
+    "vision",
+    "bond",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 11
+  },
+  "hakurei_reimu": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 6
+  },
+  "halloween_event": {
+   "segments": [
+    "village",
+    "knock",
+    "contract",
+    "combat",
+    "pumpkin"
+   ],
+   "structure": "starrailexpress:event_halloween_porch",
+   "texts": 9
+  },
+  "halloween_pact": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "bond",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "hata_no_kokoro": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "vision",
+    "vitals",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 9
+  },
+  "hatate": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 5
+  },
+  "heng_xing_ti": {
+   "segments": [
+    "faction",
+    "skill",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 8
+  },
+  "him": {
+   "segments": [
+    "faction",
+    "skill",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "hinanawi_tenshi": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "hoan_meirin": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 11
+  },
+  "hoto_kokoa": {
+   "segments": [
+    "faction",
+    "mood",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 5
+  },
+  "houjuu_nue": {
+   "segments": [
+    "faction",
+    "skill",
+    "vision",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 8
+  },
+  "houraisan_kaguya": {
+   "segments": [
+    "faction",
+    "shop",
+    "body",
+    "bond",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 10
+  },
+  "hunter": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "bond",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 10
+  },
+  "huziwara_no_mokou": {
+   "segments": [
+    "faction",
+    "shop",
+    "body",
+    "vision",
+    "bond",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 12
+  },
+  "ibaraki_kasen": {
+   "segments": [
+    "faction",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 5
+  },
+  "ibuki_suika": {
+   "segments": [
+    "faction",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 7
+  },
+  "imitator": {
+   "segments": [
+    "faction",
+    "skill",
+    "body",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 14
+  },
+  "infected": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "vision",
+    "bond",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 15
+  },
+  "initiate": {
+   "segments": [
+    "faction",
+    "shop",
+    "vision",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 14
+  },
+  "insurance": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 8
+  },
+  "jade_general": {
+   "segments": [
+    "faction",
+    "skill",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "janitor": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 10
+  },
+  "jojo": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "vision",
+    "mood",
+    "bond",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_carriage",
+   "texts": 12
+  },
+  "kaenbyou_rin": {
+   "segments": [
+    "faction",
+    "shop",
+    "body"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 4
+  },
+  "kafu_chino": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "mood",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 12
+  },
+  "kasodani_kyouko": {
+   "segments": [
+    "faction",
+    "shop",
+    "vision"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 4
+  },
+  "kawashiro_nitori": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 8
+  },
+  "kijin_seija": {
+   "segments": [
+    "faction",
+    "skill"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 3
+  },
+  "killer": {
+   "segments": [
+    "faction",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 5
+  },
+  "kirisame_marisa": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 8
+  },
+  "koakuma": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "vision"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 8
+  },
+  "konpaku_youmu": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "kotiya_sanae": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "vision",
+    "mood",
+    "vitals",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 12
+  },
+  "lao_da": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "mood",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 5
+  },
+  "leader": {
+   "segments": [
+    "faction",
+    "skill",
+    "bond"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 14
+  },
+  "leather_pig": {
+   "segments": [
+    "faction",
+    "skill",
+    "form"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "lender": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 14
+  },
+  "lengxiao": {
+   "segments": [
+    "faction",
+    "screen",
+    "vitals",
+    "bond"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 4
+  },
+  "leon": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "vitals",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 7
+  },
+  "licensed_villain": {
+   "segments": [
+    "faction",
+    "shop",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 9
+  },
+  "lin_family": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 13
+  },
+  "locksmith": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "body",
+    "bond",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_corridor",
+   "texts": 13
+  },
+  "loose_end": {
+   "segments": [
+    "faction",
+    "items",
+    "vision",
+    "vitals",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_water",
+   "texts": 11
+  },
+  "lost_killer": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "vision",
+    "bond",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 9
+  },
+  "ma_chen_xu": {
+   "segments": [
+    "faction",
+    "items",
+    "skill"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 14
+  },
+  "mafioso": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 10
+  },
+  "magic_apprentice": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "body"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 13
+  },
+  "magician": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "mood",
+    "bond",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 15
+  },
+  "maid_sakuya": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 5
+  },
+  "manipulator": {
+   "segments": [
+    "faction",
+    "skill",
+    "screen",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 5
+  },
+  "martial_arts_instructor": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "body",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 12
+  },
+  "meatball": {
+   "segments": [
+    "faction",
+    "shop",
+    "vision",
+    "mood",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 12
+  },
+  "medium": {
+   "segments": [
+    "faction",
+    "skill",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 6
+  },
+  "mercenary": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "vision",
+    "vitals",
+    "bond",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 13
+  },
+  "metal_monster": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "vitals",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_carriage",
+   "texts": 16
+  },
+  "missionary": {
+   "segments": [
+    "faction",
+    "skill",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 6
+  },
+  "monitor": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "vision"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "monokuma": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "vitals",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 15
+  },
+  "morichika_rinnosuke": {
+   "segments": [
+    "faction",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 7
+  },
+  "morphling": {
+   "segments": [
+    "faction",
+    "skill",
+    "screen",
+    "shop",
+    "form"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "mortician": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "body",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 7
+  },
+  "mortician_bodymaker": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "screen",
+    "shop",
+    "body",
+    "vision"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 13
+  },
+  "mushroom_scholar": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 10
+  },
+  "musician_phantom": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "vision",
+    "form"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 12
+  },
+  "mustard": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "vitals",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_carriage",
+   "texts": 11
+  },
+  "mustard_puppet": {
+   "segments": [
+    "faction",
+    "skill",
+    "vitals",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 5
+  },
+  "mystia_lorelei": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 9
+  },
+  "nature_spirit": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "form"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "necromancer": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "body",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 7
+  },
+  "net_cop": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "body",
+    "mood",
+    "vitals",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 14
+  },
+  "nianshou": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "panel",
+    "mood"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 9
+  },
+  "niaoshoushou": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "body",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 11
+  },
+  "night_event": {
+   "segments": [
+    "nightfall",
+    "flashlight",
+    "undead",
+    "restore"
+   ],
+   "structure": "starrailexpress:event_night_town",
+   "texts": 5
+  },
+  "ninja": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "vitals"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 9
+  },
+  "noisemaker": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "vision"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 6
+  },
+  "nostalgist": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 12
+  },
+  "nurse": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "vitals",
+    "bond"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 10
+  },
+  "nutritionist": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "vision",
+    "vitals",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 10
+  },
+  "oldman": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 9
+  },
+  "onozuka_komachi": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "body",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 7
+  },
+  "pachuri": {
+   "segments": [
+    "faction",
+    "shop",
+    "panel"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 4
+  },
+  "painter": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "panel",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_water",
+   "texts": 14
+  },
+  "paper_doll": {
+   "segments": [
+    "faction",
+    "skill",
+    "vision"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 8
+  },
+  "parasol": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 10
+  },
+  "party_killer": {
+   "segments": [
+    "faction",
+    "skill",
+    "screen",
+    "shop",
+    "form"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 8
+  },
+  "patroller": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 7
+  },
+  "pelican": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "body",
+    "vision",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 15
+  },
+  "pendulum": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "vision"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "phantom": {
+   "segments": [
+    "faction",
+    "items"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 3
+  },
+  "phantom_spirit": {
+   "segments": [
+    "faction",
+    "skill",
+    "vision",
+    "bond",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 9
+  },
+  "photographer": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 10
+  },
+  "pilot": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "bond",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 7
+  },
+  "poisoner": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 13
+  },
+  "politician": {
+   "segments": [
+    "faction",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 6
+  },
+  "pooler": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "domain",
+    "bond",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_water",
+   "texts": 11
+  },
+  "prankster": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 8
+  },
+  "priest": {
+   "segments": [
+    "faction",
+    "items",
+    "panel",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 7
+  },
+  "programmer": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "panel",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 10
+  },
+  "psychologist": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "mood",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 14
+  },
+  "pumpkin_spirit": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 16
+  },
+  "puppeteer": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "body",
+    "vision",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 15
+  },
+  "purple_monster": {
+   "segments": [
+    "faction",
+    "items",
+    "body",
+    "mood",
+    "vitals",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 12
+  },
+  "rabbit_wansui": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "body",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_carriage",
+   "texts": 13
+  },
+  "raven": {
+   "segments": [
+    "faction",
+    "skill",
+    "vision",
+    "mood",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 14
+  },
+  "reasoner": {
+   "segments": [
+    "faction",
+    "skill",
+    "body",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 8
+  },
+  "recorder": {
+   "segments": [
+    "faction",
+    "panel",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 10
+  },
+  "reiuji_utsuho": {
+   "segments": [
+    "faction",
+    "vision"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 3
+  },
+  "remilia": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "body",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 7
+  },
+  "remilia_blood_servant": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 10
+  },
+  "rescuer": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "body"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 5
+  },
+  "return_traveler": {
+   "segments": [
+    "faction",
+    "skill",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "rift_walker": {
+   "segments": [
+    "faction",
+    "skill"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 4
+  },
+  "roulette_devil": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "domain",
+    "screen",
+    "form"
+   ],
+   "structure": "starrailexpress:role_tutorial_carriage",
+   "texts": 17
+  },
+  "saigyouji_yuyuko": {
+   "segments": [
+    "faction",
+    "body",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 6
+  },
+  "salted_fish": {
+   "segments": [
+    "faction",
+    "skill",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 5
+  },
+  "scout": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "bond",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 10
+  },
+  "scout_captain": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 9
+  },
+  "sea_king": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "body",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_water",
+   "texts": 10
+  },
+  "shadow_falcon": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "bond",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 12
+  },
+  "sheriff": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 7
+  },
+  "shikieiki": {
+   "segments": [
+    "faction",
+    "items",
+    "screen",
+    "shop",
+    "vision"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "siege": {
+   "segments": [
+    "faction",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 6
+  },
+  "silencer": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "screen",
+    "mood",
+    "form"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 8
+  },
+  "silent_killer": {
+   "segments": [
+    "faction",
+    "skill"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 3
+  },
+  "silver_wing": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 7
+  },
+  "singer": {
+   "segments": [
+    "faction",
+    "shop",
+    "mood",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 10
+  },
+  "skeleton": {
+   "segments": [
+    "faction",
+    "items",
+    "panel",
+    "bond",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 10
+  },
+  "skincrawler": {
+   "segments": [
+    "faction",
+    "skill",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 6
+  },
+  "snow_golem": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "vitals",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 12
+  },
+  "spellbreaker": {
+   "segments": [
+    "faction",
+    "skill",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "stalker": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "vitals",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 13
+  },
+  "star": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "vision"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 10
+  },
+  "star_gatherer": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "domain",
+    "bond",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_water",
+   "texts": 14
+  },
+  "steve": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "vitals",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 9
+  },
+  "stone_man": {
+   "segments": [
+    "faction",
+    "skill",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_carriage",
+   "texts": 6
+  },
+  "stringer": {
+   "segments": [
+    "faction",
+    "skill",
+    "screen",
+    "shop",
+    "vision"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 7
+  },
+  "swapper": {
+   "segments": [
+    "faction",
+    "skill",
+    "screen",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 7
+  },
+  "swast": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "body",
+    "mood",
+    "vitals",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_corridor",
+   "texts": 11
+  },
+  "swordsman": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "body",
+    "vitals"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 14
+  },
+  "tailor": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 10
+  },
+  "tamer": {
+   "segments": [
+    "faction",
+    "shop",
+    "bond"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "tartaglia": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "form"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 8
+  },
+  "telegrapher": {
+   "segments": [
+    "faction",
+    "skill",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "the_fool": {
+   "segments": [
+    "faction",
+    "items",
+    "domain",
+    "shop",
+    "panel",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 13
+  },
+  "the_insane_damned_paranoid_killer": {
+   "segments": [
+    "faction",
+    "body",
+    "vision"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 7
+  },
+  "thief": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop"
+   ],
+   "structure": "starrailexpress:role_tutorial_room",
+   "texts": 10
+  },
+  "tomato_head": {
+   "segments": [
+    "faction",
+    "skill",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 10
+  },
+  "traitor": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 5
+  },
+  "trapper": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 7
+  },
+  "undead_lord": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "body",
+    "bond",
+    "form"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 14
+  },
+  "veteran": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 8
+  },
+  "vigilante": {
+   "segments": [
+    "faction",
+    "items",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 4
+  },
+  "voice_changer": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 9
+  },
+  "voodoo": {
+   "segments": [
+    "faction",
+    "screen",
+    "vitals",
+    "bond",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 5
+  },
+  "vulture": {
+   "segments": [
+    "faction",
+    "shop",
+    "body",
+    "form",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 10
+  },
+  "waiter": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "vision",
+    "vitals",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 9
+  },
+  "warlock": {
+   "segments": [
+    "faction",
+    "skill",
+    "domain",
+    "screen",
+    "body"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 6
+  },
+  "watcher": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "vision",
+    "vitals",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 9
+  },
+  "watchman": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "vision",
+    "mood"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 9
+  },
+  "water_ghost": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "body",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_water",
+   "texts": 11
+  },
+  "wayfarer": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "panel",
+    "form"
+   ],
+   "structure": "starrailexpress:role_tutorial_graveyard",
+   "texts": 9
+  },
+  "white_eyes": {
+   "segments": [
+    "faction",
+    "skill",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "wind_yaose": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 7
+  },
+  "witch_maiden": {
+   "segments": [
+    "faction",
+    "items",
+    "shop",
+    "vitals",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 11
+  },
+  "wizard": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "screen",
+    "shop",
+    "vitals"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 14
+  },
+  "wraith_assassin": {
+   "segments": [
+    "faction",
+    "items",
+    "skill",
+    "shop",
+    "vision",
+    "mood"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 10
+  },
+  "writer": {
+   "segments": [
+    "faction",
+    "shop",
+    "body",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 7
+  },
+  "yakumo_yukari": {
+   "segments": [
+    "faction",
+    "skill",
+    "vision",
+    "details"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 9
+  },
+  "youlu": {
+   "segments": [
+    "faction",
+    "skill",
+    "shop",
+    "form"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  },
+  "zhang_angel": {
+   "segments": [
+    "faction",
+    "skill"
+   ],
+   "structure": "starrailexpress:role_tutorial_common",
+   "texts": 6
+  }
+ },
+ "omitted": {
+  "accountant": 2,
+  "arsonist": 2,
+  "chef": 3,
+  "clone_doctor": 1,
+  "dio": 2,
+  "godfather": 1,
+  "initiate": 4,
+  "leader": 1,
+  "lender": 5,
+  "ma_chen_xu": 15,
+  "monokuma": 4,
+  "painter": 5,
+  "pelican": 4,
+  "psychologist": 1,
+  "pumpkin_spirit": 2,
+  "puppeteer": 4,
+  "roulette_devil": 3,
+  "swordsman": 5,
+  "undead_lord": 2,
+  "wizard": 1
+ },
+ "total": 269
+}

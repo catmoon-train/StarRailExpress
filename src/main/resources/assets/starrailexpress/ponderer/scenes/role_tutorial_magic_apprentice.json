@@ -292,8 +292,8 @@
               3.0
             ],
             "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
+            "duration": 60,
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
@@ -545,6 +545,21 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "next_ability",
+            "text": "ponder.starrailexpress.ponder.press_next_ability"
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "text",

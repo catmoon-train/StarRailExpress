@@ -188,8 +188,8 @@
               3.0
             ],
             "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
+            "duration": 60,
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
@@ -281,8 +281,8 @@
               3.0
             ],
             "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
+            "duration": 60,
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
@@ -333,6 +333,35 @@
           "item": "noellesroles:smoke_grenade",
           "linkId": "prankster_line_item_1",
           "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:campfire_cosy_smoke",
+          "pos": [
+            5.0,
+            1.8,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 10,
+          "duration": 70,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:entity.firework_rocket.blast",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
         },
         {
           "type": "text",

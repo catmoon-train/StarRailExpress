@@ -263,8 +263,8 @@
               3.0
             ],
             "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
+            "duration": 60,
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
@@ -359,8 +359,8 @@
               3.0
             ],
             "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
+            "duration": 60,
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
@@ -435,34 +435,23 @@
               3.0
             ],
             "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
+            "duration": 60,
+            "keyBind": "next_ability",
+            "text": "ponder.starrailexpress.ponder.press_next_ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "embalmer_main",
-            "item": "trainmurdermystery:lockpick"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "show_controls",
-          "action": "right",
-          "item": "trainmurdermystery:lockpick",
-          "duration": 65,
-          "point": [
-            2.2,
-            2.2,
-            3.0
-          ],
-          "direction": "down"
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
         },
         {
           "type": "idle",
-          "duration": 30
+          "duration": 25
         },
         {
           "type": "text",

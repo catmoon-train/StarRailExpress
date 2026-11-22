@@ -182,8 +182,8 @@
               6.0
             ],
             "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
+            "duration": 60,
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
@@ -251,8 +251,8 @@
               6.0
             ],
             "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
+            "duration": 60,
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },

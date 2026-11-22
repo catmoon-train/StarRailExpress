@@ -302,8 +302,8 @@
               3.0
             ],
             "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
+            "duration": 60,
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
@@ -377,20 +377,6 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "entity_null_skill_target_1",
-            "outline": -12171688
-          }
-        },
-        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
@@ -399,24 +385,23 @@
               3.0
             ],
             "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
+            "duration": 60,
+            "keyBind": "next_ability",
+            "text": "ponder.starrailexpress.ponder.press_next_ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
+          "type": "indicate_success",
           "blockPos": [
             3,
             0,
             3
-          ],
-          "duration": 220,
-          "color": "blue"
+          ]
         },
         {
           "type": "idle",
-          "duration": 40
+          "duration": 25
         },
         {
           "type": "create_item_entity",

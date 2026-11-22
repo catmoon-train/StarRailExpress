@@ -144,8 +144,8 @@
               3.0
             ],
             "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
+            "duration": 60,
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
@@ -235,41 +235,23 @@
               3.0
             ],
             "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
+            "duration": 60,
+            "keyBind": "next_ability",
+            "text": "ponder.starrailexpress.ponder.press_next_ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
+          "type": "indicate_success",
           "blockPos": [
             3,
             0,
             3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "Use the skill-switch key to switch to skill 2; hold a mushroom and press the skill key to brew it into mushroom extract, 90s cd.",
-                "zh_cn": "可使用技能切换键切换到第二技能，手持蘑菇时按技能键可将蘑菇调制为对应蘑菇素，冷却 90 秒。",
-                "zh_tw": "可使用技能切換鍵切換到第二技能，手持蘑菇時按技能鍵可將蘑菇調製為對應蘑菇素，冷卻 90 秒。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
+          ]
         },
         {
           "type": "idle",
-          "duration": 40
+          "duration": 25
         },
         {
           "type": "create_item_entity",

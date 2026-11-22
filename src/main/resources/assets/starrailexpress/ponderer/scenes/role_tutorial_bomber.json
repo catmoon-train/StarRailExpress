@@ -161,8 +161,8 @@
               3.0
             ],
             "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
+            "duration": 60,
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
@@ -213,6 +213,35 @@
           "item": "noellesroles:bomb",
           "linkId": "bomber_line_item_0",
           "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:explosion",
+          "pos": [
+            5.0,
+            1.8,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 10,
+          "duration": 70,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:entity.generic.explode",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
         },
         {
           "type": "text",
@@ -402,6 +431,35 @@
           "item": "noellesroles:bomb",
           "linkId": "bomber_line_item_0",
           "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:explosion",
+          "pos": [
+            5.0,
+            1.8,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 10,
+          "duration": 70,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:entity.generic.explode",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
         },
         {
           "type": "text",

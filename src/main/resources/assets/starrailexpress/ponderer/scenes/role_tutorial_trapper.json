@@ -111,6 +111,28 @@
           "attachKeyFrame": true
         },
         {
+          "type": "spawn_particles",
+          "particle": "minecraft:electric_spark",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -146,63 +168,23 @@
               3.0
             ],
             "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
+            "duration": 60,
+            "keyBind": "next_ability",
+            "text": "ponder.starrailexpress.ponder.press_next_ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
+          "type": "indicate_success",
           "blockPos": [
             3,
             0,
             3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "The skill key deploys the current trap (press the skill-switch key, default Y, to switch type); placement has a 1-second wind-up (you cannot move during it); Tripwire and Quagmire have independent cooldowns (35s each); at most 5 of both traps can exist at once.",
-                "zh_cn": "技能键释放当前陷阱（按技能切换键（默认Y键）切换类型），放置有1秒前摇（期间无法移动）；绊线与泥沼冷却各自独立（35秒），两种陷阱合计最多同时存在5个。",
-                "zh_tw": "技能鍵釋放當前陷阱（按技能切換鍵（默認Y鍵）切換類型），放置有1秒前搖（期間無法移動）；絆線與泥沼冷卻各自獨立（35秒），兩種陷阱合計最多同時存在5個。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
+          ]
         },
         {
           "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:electric_spark",
-          "pos": [
-            3.0,
-            1.9,
-            3.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 60,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
+          "duration": 25
         },
         {
           "type": "create_item_entity",

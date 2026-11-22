@@ -146,34 +146,40 @@
               3.0
             ],
             "direction": "down",
-            "keyBind": "ability",
-            "duration": 60
+            "duration": 60,
+            "keyBind": "next_ability",
+            "text": "ponder.starrailexpress.ponder.press_next_ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "return_traveler_main",
-            "item": "trainmurdermystery:note"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "show_controls",
-          "action": "right",
-          "item": "trainmurdermystery:note",
-          "duration": 65,
-          "point": [
-            2.2,
-            2.2,
-            3.0
-          ],
-          "direction": "down"
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
         },
         {
           "type": "idle",
-          "duration": 30
+          "duration": 25
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "return_traveler_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

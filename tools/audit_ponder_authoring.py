@@ -60,6 +60,13 @@ SOURCE_PARTICLES = {
     "zhang_angel": {"minecraft:electric_spark"},
 }
 
+# 物品使用真实发射的粒子，按物品来源允许出现在任何用到该物品的职业里。
+# 依据：BloodBottleItem / PurifyBombEntity / ChlorineBombEntity / SmokeGrenadeEntity / BombItem。
+ITEM_EFFECT_PARTICLES = {
+    "noellesroles:deathblood", "minecraft:dripping_water", "minecraft:sneeze",
+    "minecraft:campfire_cosy_smoke", "minecraft:explosion",
+}
+
 violations = []
 
 
@@ -160,13 +167,25 @@ for path in sorted(glob.glob(os.path.join(SCENES, "*.json"))):
 
         body = "".join(step.get("text", {}).get("zh_cn", "")
                        for step in steps if step["type"] == "text")
+        mentions_switch = any(
+            "切换键" in step.get("text", {}).get("zh_cn", "")
+            or "切換鍵" in step.get("text", {}).get("zh_cn", "")
+            or "技能切换" in step.get("text", {}).get("zh_cn", "")
+            or "技能切換" in step.get("text", {}).get("zh_cn", "")
+            for step in steps if step["type"] == "text")
+        if mentions_switch and not any(
+                step["type"] == "starrailexpress:role_key"
+                and step.get("parameters", {}).get("keyBind") == "next_ability"
+                for step in steps):
+            add(where, "skill switch line without next_ability key cap")
         used_particles = [step.get("particle") for step in steps
                           if step["type"] == "spawn_particles"]
-        allowed = SOURCE_PARTICLES.get(rid, set())
+        allowed = SOURCE_PARTICLES.get(rid, set()) | ITEM_EFFECT_PARTICLES
         for particle in used_particles:
             if particle not in allowed:
                 add(where, "particle not backed by source: " + str(particle))
-        if any(word in body for word in PARTICLE_WORDS) and allowed and not used_particles:
+        if (any(word in body for word in PARTICLE_WORDS)
+                and SOURCE_PARTICLES.get(rid, set()) and not used_particles):
             add(where, "source has particle but scene emitted none")
 
 print("audited scenes:", len([p for p in glob.glob(os.path.join(SCENES, "*.json"))

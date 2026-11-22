@@ -360,13 +360,46 @@ def scene_sound(sound):
             "pitch": 1.0, "source": "players"}
 
 
+# 物品使用产生的可见效果，逐项对照 Item / Entity 源码，不用职业粒子兜底。
+# 依据见 docs/PONDERER_NOTES.md「物品使用效果」一节。
+ITEM_EFFECT_BY_ID = {
+    "noellesroles:blood_bottle": ("noellesroles:deathblood", "minecraft:block.grass.fall"),
+    "noellesroles:purify_bomb": ("minecraft:dripping_water", "minecraft:entity.guardian.attack"),
+    "noellesroles:chlorine_bomb": ("minecraft:sneeze", "minecraft:entity.generic.extinguish_fire"),
+    "noellesroles:smoke_grenade": ("minecraft:campfire_cosy_smoke",
+                                   "minecraft:entity.firework_rocket.blast"),
+    "noellesroles:bomb": ("minecraft:explosion", "minecraft:entity.generic.explode"),
+    "noellesroles:antidote": (None, "noellesroles:syringe_stab"),
+    "noellesroles:passbook": (None, "minecraft:item.book.page_turn"),
+}
+
+
+def item_effect_steps(item_id, pos, count=10, duration=70):
+    """按物品源码补粒子 / 音效；没有可见效果的物品不硬塞。"""
+    effect = ITEM_EFFECT_BY_ID.get(item_id)
+    if not effect:
+        return []
+    steps = []
+    if effect[0]:
+        steps.append(scene_particle(effect[0], pos, count=count, duration=duration))
+    if effect[1]:
+        steps.append(scene_sound(effect[1]))
+    return steps
+
+
 def custom(kind, params):
     return {"type": "starrailexpress:" + kind, "parameters": params, "attachKeyFrame": True}
 
 
-def key_cap(point):
-    return custom("role_key", {"point": list(point), "direction": "down",
-                               "keyBind": "ability", "duration": 60})
+def key_cap(point, switch=False):
+    params = {"point": list(point), "direction": "down", "duration": 60}
+    if switch:
+        # 技能切换键（默认 Y）与技能释放键（默认 G）是两套绑定，不能混用键帽。
+        params["keyBind"] = "next_ability"
+        params["text"] = "ponder.starrailexpress.ponder.press_next_ability"
+    else:
+        params["keyBind"] = "ability"
+    return custom("role_key", params)
 
 
 def parse_seconds(text):
@@ -477,6 +510,22 @@ def has_action(zh):
     return any(word in zh for word in ACTION_WORDS)
 
 
+# 这些句子讲的是「换技能」，不是「换手里的道具」。以前生成器把「切换」
+# 一律演成 role_hold + 右键道具，于是葬仪等职业介绍切换键时画面里
+# 出现了右键血瓶 / 钥匙，且键帽错误地显示成技能键。
+SWITCH_KEY_WORDS = (
+    "技能切换键", "技能切換鍵", "切换键", "切換鍵", "切换技能", "切換技能",
+    "可切换技能", "切換技能", "切换模式", "切換模式", "切换法术", "切換法術",
+    "切换已解锁", "切换变声", "切換變聲", "切换类型", "切換類型",
+    "切换建造", "切换调制", "切換調制", "切换技能槽位", "切换两个技能",
+    "切换四个技能", "切换三个技能", "切换技能之间", "【切换技能】", "【切換技能】",
+)
+
+
+def is_switch_line(zh):
+    return any(word in zh for word in SWITCH_KEY_WORDS)
+
+
 def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None):
     """把一条技能介绍翻译成一组动作步骤。
 
@@ -502,10 +551,19 @@ def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None
     # 只有明确写了触发方式的句子才演「按键 → 动作」。
     triggered = any(word in zh for word in
                     ("技能", "按下", "按键", "右键", "左键", "按住", "施放", "释放", "切换", "蹲下"))
+    switched = is_switch_line(zh)
 
     def key():
         if triggered:
-            steps.append(key_cap(head))
+            steps.append(key_cap(head, switch=switched))
+
+    if switched:
+        # 切模式只按切换键，画面上不该出现右键道具或手持物。
+        # 用方块指示表示当前模式变化，键帽显示玩家实际绑定的切换键。
+        steps.append(key_cap(head, switch=True))
+        steps.append({"type": "indicate_success", "blockPos": [int(px), 0, int(pz)]})
+        steps.append({"type": "idle", "duration": 25})
+        return steps, panel
 
     def walk_to(point, duration):
         if triggered:
@@ -695,7 +753,11 @@ def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None
         steps.append({"type": "show_controls", "action": "right" if "右键" in zh else "left",
                       "item": item, "duration": 70, "point": controls, "direction": "down"})
         walk_to([tx - 0.9, ty, tz], 35)
-        particles_at([tx, ty + 0.8, tz], count=8, duration=55)
+        effects = item_effect_steps(item, [tx, ty + 0.8, tz])
+        if effects:
+            steps.extend(effects)
+        else:
+            particles_at([tx, ty + 0.8, tz], count=8, duration=55)
         steps.append({"type": "idle", "duration": 25})
         return steps, panel
 
@@ -1130,6 +1192,8 @@ def override_mortician_bodymaker_skill(builder, ctx):
     for line in ctx["lines"]:
         zh = line.get("zh_cn", "")
         if zh.startswith("技能（"):
+            # 这一句介绍的是技能切换键，不是按技能键释放，也没有物品使用。
+            builder.add(key_cap(head, switch=True))
             builder.add(custom("role_skill", {"label": "ponder.starrailexpress.label.skill",
                                               "lines": [line]}))
         elif "曳柩" in zh:
@@ -1734,6 +1798,10 @@ def build_role_scene(rid, facts, intros, names, goals):
                     state_used = True
                 for step in acts:
                     builder.add(step)
+            elif key not in ACT_SEGMENTS and is_switch_line(zh_line):
+                # shop / details 等段落里讲到切换键时也要显示正确的 Y 键帽。
+                builder.add(key_cap([player_pos[0], player_pos[1] + 1.9, player_pos[2]],
+                                    switch=True))
             # 只讲道具、没有触发词的句子也要把道具摆出来，否则介绍「药丸」时
             # 画面里还停着上一句的心脏起搏器。
             if key in ACT_SEGMENTS and zh_line and item_steps_before == sum(
@@ -1751,6 +1819,9 @@ def build_role_scene(rid, facts, intros, names, goals):
                     builder.add(item_entity(
                         [player_pos[0] - 0.8, player_pos[1] + 0.5, player_pos[2]], shown,
                         rid + "_line_item_" + str(index)))
+                    for effect in item_effect_steps(
+                            shown, [second_pos[0], second_pos[1] + 0.8, second_pos[2]]):
+                        builder.add(effect)
             builder.say(line)
         ensure_particles(builder, lines, rid)
         builder.finish()
