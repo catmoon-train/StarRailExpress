@@ -684,6 +684,33 @@
           "attachKeyFrame": true
         },
         {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "cavalry_main",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "cavalry_main"
+          }
+        },
+        {
           "type": "text",
           "duration": 130,
           "text": {

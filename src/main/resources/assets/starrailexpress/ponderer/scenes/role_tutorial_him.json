@@ -227,6 +227,33 @@
           "attachKeyFrame": true
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "him_death_target_0",
+            "outline": -14155776
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "him_death_target_0",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -296,6 +323,33 @@
           "count": 1,
           "item": "noellesroles:him_fireball",
           "linkId": "him_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "him_death_target_0",
+            "outline": -14155776
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "him_death_target_0",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
           "attachKeyFrame": true
         },
         {

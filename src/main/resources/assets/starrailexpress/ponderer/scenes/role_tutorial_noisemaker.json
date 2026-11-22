@@ -67,6 +67,33 @@
           "duration": 75
         },
         {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "noisemaker_main",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "noisemaker_main"
+          }
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -420,6 +447,33 @@
                 "zh_tw": "觸發技能時，會擊退並眩暈正前方的玩家並使周圍15格範圍內的人（不包括大嗓門）發光。"
               }
             ]
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "noisemaker_main",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "noisemaker_main"
           }
         },
         {

@@ -171,6 +171,24 @@
           "attachKeyFrame": true
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [3.2, 1.0, 2.5],
+            "yaw": 140.0,
+            "linkId": "jester_tools_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "jester_tools_victim",
+            "pos": [3.2, 1.0, 2.5],
+            "name": "ponder.starrailexpress.label.victim"
+          }
+        },
+        {
           "type": "text",
           "duration": 90,
           "text": {
@@ -350,17 +368,22 @@
           "attachKeyFrame": true
         },
         {
-          "type": "create_entity",
-          "entity": "trainmurdermystery:player_body",
-          "pos": [
-            3.2,
-            1.0,
-            2.5
-          ],
-          "yaw": 140.0,
-          "nbt": "{CustomName:'{\"text\":\"小丑\"}',CustomNameVisible:1b}",
-          "linkId": "jester_body",
-          "attachKeyFrame": true
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [3.2, 1.0, 2.5],
+            "yaw": 140.0,
+            "linkId": "jester_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "jester_victim",
+            "pos": [3.2, 1.0, 2.5],
+            "name": "ponder.starrailexpress.label.victim"
+          }
         },
         {
           "type": "idle",
@@ -655,6 +678,24 @@
             0
           ],
           "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [5.0, 1.0, 2.0],
+            "yaw": 180.0,
+            "linkId": "fake_poison_victim"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "fake_poison_victim",
+            "pos": [5.0, 1.0, 2.0],
+            "name": "ponder.starrailexpress.label.victim"
+          }
         },
         {
           "type": "idle",

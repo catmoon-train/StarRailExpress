@@ -354,6 +354,33 @@
           "duration": 200
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dreadlord_death_target_1",
+            "outline": -14153680
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "dreadlord_death_target_1",
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {

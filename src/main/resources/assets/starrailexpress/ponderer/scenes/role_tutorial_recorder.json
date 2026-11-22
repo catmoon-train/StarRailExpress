@@ -264,6 +264,33 @@
           "duration": 172
         },
         {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "recorder_main",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "recorder_main"
+          }
+        },
+        {
           "type": "text",
           "duration": 131,
           "text": {

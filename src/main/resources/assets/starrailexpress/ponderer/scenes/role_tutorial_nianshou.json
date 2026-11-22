@@ -181,6 +181,33 @@
           "attachKeyFrame": true
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "nianshou_death_target_0",
+            "outline": -40121
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "nianshou_death_target_0",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -430,6 +457,33 @@
           "item": "trainmurdermystery:blackout",
           "linkId": "nianshou_line_item_0",
           "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "nianshou_main",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "nianshou_main"
+          }
         },
         {
           "type": "text",

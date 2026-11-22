@@ -321,6 +321,33 @@
           }
         },
         {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "voodoo_main",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "voodoo_main"
+          }
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -390,6 +417,33 @@
           "count": 1,
           "item": "trainmurdermystery:note",
           "linkId": "voodoo_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "voodoo_death_target_0",
+            "outline": -8359171
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "voodoo_death_target_0",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
           "attachKeyFrame": true
         },
         {

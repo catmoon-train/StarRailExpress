@@ -200,6 +200,33 @@
           "attachKeyFrame": true
         },
         {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "asatya_main",
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "asatya_main"
+          }
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -649,6 +676,33 @@
           "item": "noellesroles:lin_family_shield",
           "linkId": "asatya_line_item_0",
           "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "asatya_main",
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "asatya_main"
+          }
         },
         {
           "type": "text",

@@ -719,6 +719,33 @@
           "duration": 141
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "daywalker_death_target_2",
+            "outline": -25600
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "daywalker_death_target_2",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "indicate_success",
           "blockPos": [
             3,
@@ -765,6 +792,33 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "daywalker_main",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "daywalker_main"
+          }
         },
         {
           "type": "indicate_success",

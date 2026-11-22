@@ -949,3 +949,40 @@ indicate_success [2,0,4] + idle 80 + rotate_camera_y
   `../sre-performance` 等兄弟目录在当前工作区不存在，Gradle 配置阶段即失败。本次改动
   只涉及 Python 生成 / 审计脚本、JSON 资源与三语文本，不触及 Java 或 Gradle 配置。
 
+## 25. 死亡介绍必须播放死亡动画（2026-11-22）
+
+### 25.1 问题与根因
+
+- 初始扫描：272 个职业里有 172 个介绍提到「死亡 / 杀死 / 击杀 / 阵亡 / 致死」，
+  其中 102 个场景**一个 `role_death` 步骤都没有**——介绍只配了文字，玩家模型毫发无损。
+- 根因：`build_skill_act()` 只在「击杀 / 杀死 / 击倒 / 尸体」分支演死亡，而绝大多数死亡
+  介绍写的是「当你死亡时」「死亡后掉落」「场上有人死亡」「被列车碾压致死」等；这些句子
+  既不含技能触发词，也不走击杀分支，只由 `builder.say()` 显示文字。
+
+### 25.2 修复
+
+- 新增 `DEATH_WORDS` / `IMMUNE_DEATH_WORDS` / `SELF_DEATH_WORDS` / `OTHER_PLAYER_WORDS`
+  与 `is_death_line()` / `is_immune_death()` / `is_self_death()`，先判主体再选动画对象：
+  - 讲「你 / 自己 / 当你死亡、被击杀、死后、舍己、自爆」→ 主角死亡：
+    `role_death(linkId=<rid>_main, corpse=false)` 后立刻重建主角，避免后续句子没有模型可驱动；
+  - 讲「击杀 / 致死 / 场上玩家死亡」→ 另立一个目标玩家模型，再 `role_death` 留尸体；
+  - 讲「免疫死亡 / 不会致死 / 无法击杀 / 从死亡边缘拉回 / 非强制死亡」→ **不演死亡**，
+    否则会把「免死」「救人」演成真死。
+- 覆盖所有入口：faction 胜利目标、items / skill / details / shop 通用逐句循环、
+  `disguise_perform()` 变身类 override、`event_scene()` 事件场景。
+- 手写精修场景单独补：小丑 `tools` / `rampage_trigger`（被好人击杀触发狂暴）、
+  小丑 `shop`（假毒致死）、召回者 `faction`（击杀所有杀手取得胜利）。
+- 审计脚本新增 `death line without death animation`：段落正文出现非免疫的死亡句却没有
+  `role_death` 时直接报 violation。
+
+### 25.3 自检结果
+
+| 指标 | 修复前 | 修复后 |
+| --- | --- | --- |
+| 介绍提到死亡但场景完全没有死亡动画的职业 | 102 | 0 |
+| 场景正文中的死亡句（260 条）缺对应动画 | 大量 | 0 |
+| 免疫 / 免死类句子误播死亡动画 | 无 | 仍为 0（词表排除） |
+
+`audit_ponder_authoring.py`：269 场景 0 violation；`verify_ponder_scenes.py`：272 场景
+0 error / 2 条既有 warning。
+

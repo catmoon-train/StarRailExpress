@@ -403,6 +403,33 @@
           "attachKeyFrame": true
         },
         {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "coroner_main",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "coroner_main"
+          }
+        },
+        {
           "type": "text",
           "duration": 157,
           "text": {
@@ -565,6 +592,33 @@
                 "zh_tw": "可以看到死者的資訊（死亡原因、死亡時間），可以察覺假扮的屍體。"
               }
             ]
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "coroner_main",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "coroner_main"
           }
         },
         {

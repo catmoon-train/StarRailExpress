@@ -370,6 +370,33 @@
           "attachKeyFrame": true
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "stone_man_death_target_0",
+            "outline": -8224126
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "stone_man_death_target_0",
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 166,
           "text": {

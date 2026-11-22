@@ -929,6 +929,33 @@
           "attachKeyFrame": true
         },
         {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "jojo_main",
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              4.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "jojo_main"
+          }
+        },
+        {
           "type": "text",
           "duration": 58,
           "text": {

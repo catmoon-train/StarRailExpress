@@ -526,6 +526,52 @@ def is_switch_line(zh):
     return any(word in zh for word in SWITCH_KEY_WORDS)
 
 
+# 介绍里凡是讲到死亡，对应那一幕就要真的把玩家模型演死，不能只有文字。
+DEATH_WORDS = ("死亡", "死去", "致死", "杀死", "击杀", "击倒", "阵亡", "去世", "丧生", "自尽", "殉")
+IMMUNE_DEATH_WORDS = ("免疫死亡", "不会死亡", "不死亡", "防止死亡", "免除死亡", "抵挡死亡",
+                      "阻止死亡", "避免死亡", "无法死亡", "不会因", "不会致死", "免于死亡",
+                      "不会将其击杀", "无法击杀", "不能杀死", "无法致死", "不能致死",
+                      "不会让你轻易死亡", "从死亡的边缘", "死亡标记", "非强制死亡",
+                      "无法被击杀", "不会死亡")
+SELF_DEATH_WORDS = ("你死亡", "当你死亡", "自己死亡", "自身死亡", "死亡时", "死亡后", "死后",
+                    "被击杀", "被杀死", "被杀", "阵亡", "舍己", "自爆", "自尽")
+OTHER_PLAYER_WORDS = ("场上", "有人", "其他玩家", "其它玩家", "附近的玩家", "周围有玩家",
+                      "周围的玩家", "另一名玩家", "另一位", "目标玩家", "被标记的玩家")
+
+
+def is_death_line(zh):
+    return any(word in zh for word in DEATH_WORDS)
+
+
+def is_immune_death(zh):
+    return any(word in zh for word in IMMUNE_DEATH_WORDS)
+
+
+def is_self_death(zh):
+    if any(word in zh for word in OTHER_PLAYER_WORDS):
+        return False
+    return any(word in zh for word in SELF_DEATH_WORDS)
+
+
+def death_act_steps(zh, rid, player_pos, second_pos, index, outline):
+    """死亡介绍句对应的动画：讲自己就演主角，讲击杀/场上玩家就演目标。"""
+    if not is_death_line(zh) or is_immune_death(zh):
+        return []
+    victim = "ponder.starrailexpress.label.victim"
+    if is_self_death(zh):
+        # 死亡瞬间不留尸体，立刻重建主角，避免后续句子没有模型可驱动。
+        return [
+            custom("role_death", {"linkId": rid + "_main", "pos": list(player_pos),
+                                  "name": victim, "corpse": False}),
+            player_step(player_pos, rid + "_main"),
+        ]
+    target_link = rid + "_death_target_" + str(index)
+    return [
+        player_step(second_pos, target_link, outline=outline),
+        custom("role_death", {"linkId": target_link, "pos": list(second_pos), "name": victim}),
+    ]
+
+
 def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None):
     """把一条技能介绍翻译成一组动作步骤。
 
@@ -1117,12 +1163,17 @@ def override_baka_panel(builder, ctx):
 
 def override_baka_shop(builder, ctx):
     p = ctx["player_pos"]
+    t = ctx["second_pos"]
     rid = ctx["rid"]
     builder.add({"type": "starrailexpress:role_shop", "attachKeyFrame": True,
                  "parameters": {"role": rid, "columns": 4}})
-    for line in ctx["lines"]:
+    for index, line in enumerate(ctx["lines"]):
         builder.add(item_entity([p[0] - 1.0, p[1] + 0.55, p[2] - 1.0],
                                 "noellesroles:problem_set", rid + "_shop_book"))
+        zh = line.get("zh_cn", "")
+        if is_death_line(zh) and not is_immune_death(zh):
+            for step in death_act_steps(zh, rid, p, t, index, ctx.get("outline_color")):
+                builder.add(step)
         builder.say(line)
 
 
@@ -1285,7 +1336,11 @@ def disguise_perform(builder, ctx, lines, entity=None, skin=None, block=None,
                  "parameters": {"label": SEGMENT_TITLE_KEY["form"],
                                 "lines": [dict(line) for line in lines], "color": 0xFFA500}})
     builder.add({"type": "idle", "duration": 25})
-    for line in lines:
+    for index, line in enumerate(lines):
+        zh = line.get("zh_cn", "")
+        if is_death_line(zh) and not is_immune_death(zh):
+            for step in death_act_steps(zh, rid, p, t, index, ctx.get("outline_color")):
+                builder.add(step)
         builder.say(line)
 
 
@@ -1635,14 +1690,19 @@ def build_role_scene(rid, facts, intros, names, goals):
     builder.add(show_structure(nbt))
     builder.add(player_step(player_pos, rid + "_main"))
     builder.add({"type": "idle", "duration": 20})
-    builder.say(faction_line)
+    opening_lines = [faction_line]
     if relation_index is not None:
-        builder.say(trio(relation_index))
+        opening_lines.append(trio(relation_index))
     if goal_text:
-        builder.say(goal_text)
-    ensure_particles(builder, [faction_line] +
-                    ([trio(relation_index)] if relation_index is not None else []) +
-                    ([goal_text] if goal_text else []), rid)
+        opening_lines.append(goal_text)
+    for index, line in enumerate(opening_lines):
+        zh = line.get("zh_cn", "")
+        if is_death_line(zh) and not is_immune_death(zh):
+            for step in death_act_steps(zh, rid, player_pos, second_pos,
+                                        index, outline_color):
+                builder.add(step)
+        builder.say(line)
+    ensure_particles(builder, opening_lines, rid)
     builder.finish()
     scenes.append({"id": "faction", "title": title, "steps": builder.steps})
 
@@ -1779,6 +1839,8 @@ def build_role_scene(rid, facts, intros, names, goals):
         shop_items = [item for item in (facts.get("shopItems") or []) if item][:4] if key == "shop" else []
         for index, line in enumerate(lines):
             zh_line = line.get("zh_cn", "")
+            death_before = sum(1 for step in builder.steps
+                               if step["type"] == "starrailexpress:role_death")
             item_steps_before = sum(1 for step in builder.steps
                                     if step["type"] in ("create_item_entity", "show_controls",
                                                         "starrailexpress:role_hold"))
@@ -1822,6 +1884,14 @@ def build_role_scene(rid, facts, intros, names, goals):
                     for effect in item_effect_steps(
                             shown, [second_pos[0], second_pos[1] + 0.8, second_pos[2]]):
                         builder.add(effect)
+            # 讲死亡的句子必须在这一幕演一次死亡；build_skill_act 若已经演过
+            # 击杀就不重复。body 段开头已有受害者死亡，不再逐句叠尸体。
+            if (key != "body" and zh_line and
+                    death_before == sum(1 for step in builder.steps
+                                        if step["type"] == "starrailexpress:role_death")):
+                for step in death_act_steps(zh_line, rid, player_pos, second_pos,
+                                            index, outline_color):
+                    builder.add(step)
             builder.say(line)
         ensure_particles(builder, lines, rid)
         builder.finish()
@@ -1949,7 +2019,13 @@ def event_scene(rid, facts, intros, names, goals):
                              "parameters": {"label": "万圣节亡灵"}})
 
         for line_index in line_indices:
-            builder.say(trio(line_index))
+            line = trio(line_index)
+            zh = line.get("zh_cn", "")
+            if is_death_line(zh) and not is_immune_death(zh):
+                for step in death_act_steps(zh, rid, player_pos, second_pos,
+                                            line_index, -65536):
+                    builder.add(step)
+            builder.say(line)
         ensure_particles(builder, [trio(i) for i in line_indices], rid)
         builder.finish()
         scenes.append({"id": segment_id, "title": title, "steps": builder.steps})

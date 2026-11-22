@@ -60,6 +60,24 @@
           "attachKeyFrame": true
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [5.0, 1.0, 2.0],
+            "yaw": 180.0,
+            "linkId": "recaller_killer_target"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "attachKeyFrame": true,
+          "parameters": {
+            "linkId": "recaller_killer_target",
+            "pos": [5.0, 1.0, 2.0],
+            "name": "ponder.starrailexpress.label.victim"
+          }
+        },
+        {
           "type": "idle",
           "duration": 80
         },

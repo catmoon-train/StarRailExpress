@@ -17,6 +17,11 @@ VISUAL = {"spawn_particles", "highlight_section", "create_item_entity",
           "create_entity", "show_controls", "indicate_success",
           "indicate_redstone", "set_block"}
 PARTICLE_WORDS = ("粒子", "释放", "投掷", "喷洒", "喷出", "泼洒")
+DEATH_WORDS = ("死亡", "死去", "致死", "杀死", "击杀", "击倒", "阵亡", "去世", "丧生", "自尽", "殉")
+IMMUNE_DEATH_WORDS = ("免疫死亡", "不会死亡", "不死亡", "防止死亡", "免除死亡", "抵挡死亡",
+                      "阻止死亡", "避免死亡", "无法死亡", "不会因", "不会致死", "免于死亡",
+                      "无法击杀", "不能杀死", "无法致死", "不能致死", "死亡标记",
+                      "不会让你轻易死亡", "从死亡的边缘", "无法被击杀", "非强制死亡")
 
 # 源码里确认过的粒子。按职业分组，未列出的职业不应在场景里发射粒子。
 # 依据：TMMParticles.java、各 role_data/*.java、stupid_express 客户端特效注册。
@@ -167,6 +172,14 @@ for path in sorted(glob.glob(os.path.join(SCENES, "*.json"))):
 
         body = "".join(step.get("text", {}).get("zh_cn", "")
                        for step in steps if step["type"] == "text")
+        death_texts = [step.get("text", {}).get("zh_cn", "") for step in steps
+                       if step["type"] == "text"
+                       and any(w in step.get("text", {}).get("zh_cn", "") for w in DEATH_WORDS)
+                       and not any(w in step.get("text", {}).get("zh_cn", "")
+                                   for w in IMMUNE_DEATH_WORDS)]
+        if death_texts and not any(step["type"] == "starrailexpress:role_death"
+                                   for step in steps):
+            add(where, "death line without death animation")
         mentions_switch = any(
             "切换键" in step.get("text", {}).get("zh_cn", "")
             or "切換鍵" in step.get("text", {}).get("zh_cn", "")
