@@ -1003,8 +1003,9 @@ indicate_success [2,0,4] + idle 80 + rotate_camera_y
 | --- | --- | --- |
 | `starrailexpress:role_knockback` | `linkId`, `from`, `to`, `duration`, `arc` | 玩家被击退：复用走动时间轴，但用 `1-(1-t)^2` 先快后慢 + Y 抛物线腾空；`PonderPlayerElement.beginKnockback()` 实现位移曲线。 |
 | `starrailexpress:role_broadcast` | `title`, `lines`, `cost`, `duration` | 广播员按技能键打开的编辑页 + 顶部绿色广播条，由 `PonderBroadcastOverlayElement` 自绘（离屏沙盒构造不出真实 `BroadcasterScreen`）。 |
+| `starrailexpress:role_telegraph` | `title`, `hint`, `message`, `remaining`, `duration` | 电报员按技能键打开的电报编辑页 + 发送后全体屏幕上的淡蓝色匿名标题，由 `PonderTelegraphOverlayElement` 自绘；对应 `TelegrapherScreen` 的青色标题、剩余次数、输入框与确认按钮。 |
 
-两个步骤都在 `PonderSreExtension.install()` 注册，三语标签在
+三个步骤都在 `PonderSreExtension.install()` 注册，三语标签在
 `assets/starrailexpress/lang/{zh_cn,en_us,zh_tw}.json`。
 
 ### 26.3 已逐个重做的职业
@@ -1023,18 +1024,36 @@ indicate_success [2,0,4] + idle 80 + rotate_camera_y
 | 通灵师 `medium` | 对尸体按键 + 150 金币 + `amethyst_block.chime` + 通灵界面 + 20 秒计时（`MediumRoleData:146-246`） |
 | 摄影师 `photographer` | 拍照致盲（不凭空加粒子）+ 画框 `enderman.teleport` 音效 + 传送（`PhotographerMixin:38-99`、`PhotographerFrameEvents:83-199`） |
 | 祈月者 `pooler` | 切换轮盘、奔涌三叉戟 + splash/bubble + riptide 音效、吞月 / 水中镜传送目标、称颂 end_rod（`PoolerRoleData:244-371`、`PoolerDomainManager`） |
+| 电报员 `telegrapher` | 技能键帽 + 电报编辑页（青色标题 / 剩余次数 / 输入框）+ 每局 6 次计数 + 淡蓝匿名标题播报（`TelegrapherScreen:49-144`、`TelegrapherRoleData:34-38,94-131`、`GKeyRoleSkill:236-242`） |
+| 探员 `agent` | 瞄准按键看目标物品栏（150 金币 + 目标高亮）→ 目标走动后界面关闭 + 60 秒冷却 → 蹲下聆听区域高亮 → 阴谋家身份与位置揭示（`AgentRoleData:83-95,138-173`、`RiceReceiverRegister:460-530`、`AgentListenStepHandler:89-101`） |
+| 算命大师 `fortuneteller` | 200 金币卜算 + 目标濒死血条 → 传送到算命师身边 → 免死 120 秒 + 技能冷却（`FortunetellerRoleData:66-83,163-183`、`NRDeathEvents:735-757`） |
+| 占卜家 `diviner` | 背包选目标 + 手持水晶球 → 对尸体右键、soul_fire_flame / amethyst 音效与 3 秒计时 → 传送到目标 → 10 秒回传 / 50 秒冷却 / 50% 碎球 → 每尸一次 → 死亡时 5 格发光 8 秒（`DivinerRoleData:157-334,408-432`、`CrystalBallItem:56-95`、`DivinerDeathHandler:31-50`） |
+| 死灵法师 `necromancer` | 杀手阵亡攒复活次数 → 右键尸体复活为普通杀手（权限 / 位置变化）+ 3 分钟冷却 → 只剩开锁器 → totem_use 与全服通报（`RevivalSelectionHandler:181-292`、`NecromancerComponent:53-59`、`SERoles:68-75`） |
+| 咒术师 `warlock` | G 窃取咒物（soul 粒子 + 目标高亮）→ Y 切换蚀骨之咒（SAN -30% / 隔离缓慢 / 45 秒标记 / 死亡 +40）→ 背包点选开灰髓之境（灰雾 / 25 秒 / 黑暗失明禁技）→ 破界返回（`WarlockRoleData:126-218,226-258`、`WarlockDomainManager:175-207`） |
 
 这些职业的 `skill` 段都由 `ROLE_SEGMENT_OVERRIDES` 的专属函数生成；广播员介绍里
 没有「技能」二字，但源码确实是技能键打开广播页，因此有专属 override 时强制建 `skill` 段。
 
-### 26.4 自检
+### 26.4 继续推进（本轮新增 6 个）
+
+新增 `skill_lines()`：分类器会把「查看他的物品栏界面」归到 panel、「开局拥有水晶球」
+归到 items，只用 `ctx["lines"]`（skill 桶）会漏掉大半个技能。专属 override 现在按
+各自的关键词从 `ctx["all_lines"]` 取全文句子，再逐句配动作。
+
+本轮新增职业见 26.3 表最后 6 行。加上前一轮的 12 个，`ROLE_SEGMENT_OVERRIDES`
+里共有 22 个 `skill` 专属函数；全部 179 个带技能段的场景里还有约 157 个仍由
+`build_skill_act()` 通用模板生成，尚未逐个核对源码重做。
+
+### 26.5 自检
 
 - `audit_ponder_authoring.py`：269 场景 0 violation。
-- `verify_ponder_scenes.py`：272 场景 0 error / 2 条既有 warning。
-- `gradlew compileJava --offline` 仍因 `settings.gradle` 引用的 `../sre-performance`
-  等兄弟目录不存在而在配置阶段失败；本次新增 Java 类未能在该环境下编译验证，
-  已通过 IDE 诊断确认没有新增 error（仅有项目原有的空值安全 warning）。
+- `verify_ponder_scenes.py`：272 场景 0 error / 2 条既有 warning（酒保 / 小丑原文说明句）。
+- 六个职业的技能段步骤序列互不相同，且分别包含各自的专属步骤（见下）。
+- `gradlew compileJava --offline` 仍在配置阶段失败：`settings.gradle` 引用的
+  `D:\gengxin\sre-performance` 兄弟目录不存在。新增 `PonderTelegraphOverlayElement`
+  与 `role_telegraph` 步骤未能在该环境下编译验证；IDE 诊断没有新增 error，
+  只有项目原有的空值安全 warning。需要在兄弟目录齐备的环境里补一次实机播放确认。
 
-> 未完成：其余有技能职业仍由通用模板生成，尚未逐个核对源码重做。本文档记录的是本轮
-> 已完成的 12 个职业；继续推进时应照 26.3 的格式逐职业补 override 与源码依据。
+> 未完成：其余约 157 个有技能职业仍由通用模板生成。继续推进时照 26.3 的格式，
+> 先读源码确认触发方式 / 物品 / 粒子 / 音效，再逐职业补 override，不要用通用模板批量套。
 

@@ -206,6 +206,339 @@
       ]
     },
     {
+      "id": "skill",
+      "title": {
+        "en_us": "Necromancer",
+        "zh_cn": "死灵法师",
+        "zh_tw": "死靈法師"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "necromancer_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "necromancer_revive_corpse"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "necromancer_revive_corpse",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              6.4,
+              1.0,
+              2.8
+            ],
+            "yaw": 180.0,
+            "linkId": "necromancer_fallen_killer",
+            "outline": -65536
+          }
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 83,
+          "text": {
+            "en_us": "You can revive the dead.",
+            "zh_cn": "你拥有复活死者的能力。",
+            "zh_tw": "你擁有復活死者的能力。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 93
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "necromancer_fallen_killer",
+            "pos": [
+              6.4,
+              1.0,
+              2.8
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "One revival charge gained",
+                "zh_cn": "复活机会 +1",
+                "zh_tw": "復活機會 +1"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 157,
+          "text": {
+            "en_us": "For every Killer who dies on the map, you gain one revival charge",
+            "zh_cn": "场上每阵亡一名杀手，你会获得一次复活机会",
+            "zh_tw": "場上每陣亡一名殺手，你會獲得一次復活機會"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 167
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "point": [
+            5.0,
+            2.2,
+            2.0
+          ],
+          "direction": "down",
+          "duration": 70,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_teleport",
+          "parameters": {
+            "linkId": "necromancer_fallen_killer",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "necromancer_fallen_killer",
+            "color": -65536
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
+            "lines": [
+              {
+                "en_us": "3-minute cooldown",
+                "zh_cn": "冷却 3 分钟",
+                "zh_tw": "冷卻 3 分鐘"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Right-click a corpse to revive it as a normal Killer, consuming one charge (cooldown: 3 minutes).",
+            "zh_cn": "右键尸体可以将尸体复活为普通杀手并消耗一次复活机会(冷却时间：3分钟)。",
+            "zh_tw": "右鍵屍體可以將屍體復活為普通殺手並消耗一次復活機會(冷卻時間：3分鐘)。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.0,
+            1.55,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:lockpick",
+          "linkId": "necromancer_lockpick",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "necromancer_main",
+            "item": "noellesroles:lockpick"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "You cannot buy any items or weapons except a Lockpick, but you keep Killer see-through.",
+            "zh_cn": "你无法购买除开锁器以外的任何道具和武器，但你仍然拥有杀手透视。",
+            "zh_tw": "你無法購買除開鎖器以外的任何道具和武器，但你仍然擁有殺手透視。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:totem_use",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": {
+              "en_us": "Server-wide announcement",
+              "zh_cn": "全服通报",
+              "zh_tw": "全服通報"
+            },
+            "lines": [
+              {
+                "en_us": "The dead returns as a plain killer",
+                "zh_cn": "死者已复活为普通杀手",
+                "zh_tw": "死者已復活為普通殺手"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 160,
+          "text": {
+            "en_us": "Reviving the dead plays a totem sound and announces it server-wide.",
+            "zh_cn": "复活死者时，会有图腾音效并向全服通报。",
+            "zh_tw": "復活死者時，會有圖騰音效並向全服通報。"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 170
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
       "id": "shop",
       "title": {
         "en_us": "Necromancer",

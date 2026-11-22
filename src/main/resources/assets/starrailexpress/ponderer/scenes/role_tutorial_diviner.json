@@ -393,91 +393,50 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "Within 10s of teleporting, right-click the crystal ball again to return; after 10s it enters a 50s cooldown.",
-                "zh_cn": "传送后 10 秒内再次右键水晶球可传送回原来的位置；超过 10 秒未回传则水晶球自动进入 50 秒冷却。",
-                "zh_tw": "傳送後 10 秒內再次右鍵水晶球可傳送回原來的位置；超過 10 秒未回傳則水晶球自動進入 50 秒冷卻。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
+            "pos": [
+              5.0,
+              1.0,
+              2.0
             ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
+            "yaw": 180.0,
+            "linkId": "diviner_divine_target",
+            "outline": -7077677
+          }
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            3,
-            0,
-            3
-          ],
-          "duration": 220,
-          "color": "blue"
-        },
-        {
-          "type": "starrailexpress:role_timer",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "progress": [
-              0.0,
+            "pos": [
+              5.0,
+              1.0,
               1.0
             ],
-            "lines": [
-              {
-                "en_us": "Within 10s of teleporting, right-click the crystal ball again to return; after 10s it enters a 50s cooldown.",
-                "zh_cn": "传送后 10 秒内再次右键水晶球可传送回原来的位置；超过 10 秒未回传则水晶球自动进入 50 秒冷却。",
-                "zh_tw": "傳送後 10 秒內再次右鍵水晶球可傳送回原來的位置；超過 10 秒未回傳則水晶球自動進入 50 秒冷卻。"
-              }
-            ]
+            "yaw": 180.0,
+            "linkId": "diviner_divine_corpse"
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "diviner_divine_corpse",
+            "pos": [
+              5.0,
+              1.0,
+              1.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
           },
           "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 40
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:enchant",
-          "pos": [
-            3.0,
-            1.9,
-            3.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 60,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
         },
         {
           "type": "create_item_entity",
           "pos": [
-            2.2,
-            1.5,
+            2.0,
+            1.55,
             3.0
           ],
           "motion": [
@@ -487,16 +446,45 @@
           ],
           "count": 1,
           "item": "noellesroles:crystal_ball",
-          "linkId": "diviner_line_item_0",
+          "linkId": "diviner_ball",
           "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_hold",
+          "parameters": {
+            "linkId": "diviner_main",
+            "item": "noellesroles:crystal_ball"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_screen",
+          "parameters": {
+            "title": {
+              "en_us": "Choose a divination target",
+              "zh_cn": "选择占卜目标",
+              "zh_tw": "選擇占卜目標"
+            },
+            "hint": {
+              "en_us": "Click a player head in the inventory",
+              "zh_cn": "点击背包中的玩家头像",
+              "zh_tw": "點擊背包中的玩家頭像"
+            },
+            "columns": 6
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
         },
         {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "Within 10s of teleporting, right-click the crystal ball again to return; after 10s it enters a 50s cooldown.",
-            "zh_cn": "传送后 10 秒内再次右键水晶球可传送回原来的位置；超过 10 秒未回传则水晶球自动进入 50 秒冷却。",
-            "zh_tw": "傳送後 10 秒內再次右鍵水晶球可傳送回原來的位置；超過 10 秒未回傳則水晶球自動進入 50 秒冷卻。"
+            "en_us": "You start with a Crystal Ball (invisible to others). Open inventory and click a player's avatar to select a divination target.",
+            "zh_cn": "开局拥有一个水晶球(水晶球对他人不可见)。打开背包点击玩家头像可选中占卜目标。",
+            "zh_tw": "開局擁有一個水晶球(水晶球對他人不可見)。打開背包點擊玩家頭像可選中占卜目標。"
           },
           "point": [
             3.0,
@@ -509,6 +497,369 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:crystal_ball",
+          "duration": 70,
+          "point": [
+            2.2,
+            2.2,
+            3.0
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:soul_fire_flame",
+          "pos": [
+            5.0,
+            1.9,
+            1.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 10,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:block.amethyst_block.resonate",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Divining for 3 seconds",
+                "zh_cn": "占卜 3 秒",
+                "zh_tw": "占卜 3 秒"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:enchant",
+          "pos": [
+            5.0,
+            2.0,
+            1.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 12,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:block.amethyst_block.chime",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_teleport",
+          "parameters": {
+            "linkId": "diviner_main",
+            "pos": [
+              4.2,
+              1.0,
+              2.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Hold the crystal ball and right-click a corpse to begin 3s of divination, then teleport to the target: if alive, to their position; if dead, to their corpse; if dead with no corpse, no teleport.",
+            "zh_cn": "手持水晶球右键一具尸体开始 3 秒占卜，完成后传送到目标身边：若目标存活则传送到其位置；若目标死亡则传送到其尸体位置；若目标死亡且没有尸体则无法传送。",
+            "zh_tw": "手持水晶球右鍵一具屍體開始 3 秒占卜，完成後傳送到目標身邊：若目標存活則傳送到其位置；若目標死亡則傳送到其屍體位置；若目標死亡且沒有屍體則無法傳送。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "show_controls",
+          "action": "right",
+          "item": "noellesroles:crystal_ball",
+          "duration": 70,
+          "point": [
+            2.2,
+            2.2,
+            3.0
+          ],
+          "direction": "down",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_teleport",
+          "parameters": {
+            "linkId": "diviner_main",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Return within 10 seconds",
+                "zh_cn": "10 秒内可回传",
+                "zh_tw": "10 秒內可回傳"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
+            "lines": [
+              {
+                "en_us": "Ball goes on a 50-second cooldown after timeout",
+                "zh_cn": "超时后水晶球冷却 50 秒",
+                "zh_tw": "逾時後水晶球冷卻 50 秒"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Within 10s of teleporting, right-click the crystal ball again to return; after 10s it enters a 50s cooldown.",
+            "zh_cn": "传送后 10 秒内再次右键水晶球可传送回原来的位置；超过 10 秒未回传则水晶球自动进入 50 秒冷却。",
+            "zh_tw": "傳送後 10 秒內再次右鍵水晶球可傳送回原來的位置；超過 10 秒未回傳則水晶球自動進入 50 秒冷卻。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.5
+            ],
+            "lines": [
+              {
+                "en_us": "50% chance to break the ball",
+                "zh_cn": "50% 概率破坏水晶球",
+                "zh_tw": "50% 機率破壞水晶球"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 153,
+          "text": {
+            "en_us": "On a successful divination, 50% chance the crystal ball breaks.",
+            "zh_cn": "占卜成功后有 50% 概率破坏水晶球。",
+            "zh_tw": "占卜成功後有 50% 概率破壞水晶球。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 163
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            1
+          ],
+          "duration": 180,
+          "color": "green"
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": {
+              "en_us": "Divination record",
+              "zh_cn": "占卜记录",
+              "zh_tw": "占卜記錄"
+            },
+            "lines": [
+              {
+                "en_us": "Each body can only be divined once by the same seer",
+                "zh_cn": "每具尸体只能被同一名占卜家占卜一次",
+                "zh_tw": "每具屍體只能被同一名占卜家占卜一次"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 144,
+          "text": {
+            "en_us": "Note: each corpse can be divined by the same Diviner once.",
+            "zh_cn": "注：每具尸体只能被同一名占卜家占卜一次",
+            "zh_tw": "注：每具屍體只能被同一名占卜家占卜一次"
+          },
+          "point": [
+            3.0,
+            2.92,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 154
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "diviner_main",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "diviner_divine_target",
+            "color": 4294967142
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
+            "lines": [
+              {
+                "en_us": "Nearby players glow for 8 seconds",
+                "zh_cn": "周围 5 格发光 8 秒",
+                "zh_tw": "周圍 5 格發光 8 秒"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 146,
+          "text": {
+            "en_us": "When the Diviner dies, players within 5 blocks glow for 8s.",
+            "zh_cn": "占卜家死亡时，周围 5 格内的玩家会发光 8 秒。",
+            "zh_tw": "占卜家死亡時，周圍 5 格內的玩家會發光 8 秒。"
+          },
+          "point": [
+            3.0,
+            3.2,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 156
         },
         {
           "type": "rotate_camera_y",

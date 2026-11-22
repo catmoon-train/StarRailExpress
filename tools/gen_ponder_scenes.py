@@ -207,6 +207,18 @@ def tr(values):
     }
 
 
+def skill_lines(ctx, keywords):
+    """按关键词从整篇介绍里挑技能句。
+
+    分类器会把「查看他的物品栏界面」归到 panel、「开局拥有水晶球」归到 items，
+    但这些都是技能的一部分。专属 override 必须按自己的关键词取全文句子，
+    只用 ctx["lines"]（skill 桶）会把大半机制漏掉。
+    """
+    found = [line for line in ctx.get("all_lines", [])
+             if line.get("zh_cn") and any(word in line["zh_cn"] for word in keywords)]
+    return found or ctx["lines"]
+
+
 def argb(rgb):
     """0xRRGGBB -> 带不透明 alpha 的有符号 ARGB。"""
     value = (0xFF000000 | (rgb & 0xFFFFFF)) & 0xFFFFFFFF
@@ -1796,6 +1808,320 @@ def override_jade_general_skill(builder, ctx):
         builder.say(line)
 
 
+def override_telegrapher_skill(builder, ctx):
+    """电报员：G 打开电报编辑页，每局 6 次；匿名消息以淡蓝标题与语音播报给全场。"""
+    p = ctx["player_pos"]
+    rid = ctx["rid"]
+    lines = skill_lines(ctx, ["电报", "技能键", "语音播报"])
+    for index, line in enumerate(lines):
+        builder.add(key_cap([p[0], p[1] + 2.0, p[2]]))
+        builder.add(custom("role_telegraph", {
+            "title": tr(("电报", "Telegram", "電報")),
+            "hint": tr(("匿名发送 · 全服标题与语音播报",
+                        "Anonymous send - server-wide title and narration",
+                        "匿名傳送 · 全服標題與語音播報")),
+            "message": tr(("匿名消息：车内出现异常",
+                           "Anonymous: something is wrong on the train",
+                           "匿名訊息：車內出現異常")),
+            "remaining": max(1, 6 - index),
+            "duration": 150,
+        }))
+        if index == 0:
+            builder.add(custom("role_currency", {
+                "progress": [1.0, 5 / 6],
+                "lines": [tr(("每局最多发送 6 次电报", "At most six telegrams per match",
+                              "每局最多傳送 6 次電報"))]}))
+        builder.add({"type": "idle", "duration": 20})
+        builder.say(line)
+
+
+def override_agent_skill(builder, ctx):
+    """探员：瞄准按键查看目标物品栏，目标移动即关闭；蹲下聆听；得知阴谋家身份位置。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    rid, main = ctx["rid"], ctx["rid"] + "_main"
+    target = rid + "_inspect_target"
+    builder.add(player_step(t, target, outline=ctx["outline_color"]))
+    builder.add({"type": "idle", "duration": 12})
+    lines = skill_lines(ctx, ["技能键", "物品栏", "移动", "蹲下", "阴谋家"])
+    for line in lines:
+        zh = line.get("zh_cn", "")
+        if "物品栏" in zh:
+            builder.add(key_cap([p[0], p[1] + 2.0, p[2]]))
+            builder.add(custom("role_outline", {"linkId": target, "color": 0x55FFFF}))
+            builder.add(custom("role_panel", {
+                "title": tr(("目标物品栏", "Target inventory", "目標物品欄")),
+                "lines": [tr(("只读审查", "Read-only inspection", "唯讀審查")), line]}))
+            builder.add(custom("role_currency", {
+                "progress": [1.0, 0.25],
+                "lines": [tr(("审查花费 150 金币", "Inspection costs 150 coins",
+                              "審查花費 150 金幣"))]}))
+        elif "移动" in zh or "关闭" in zh:
+            builder.add(custom("role_walk", {"linkId": target,
+                                             "to": [t[0] + 1.3, t[1], t[2]], "duration": 36}))
+            builder.add(custom("role_panel", {
+                "title": tr(("目标物品栏", "Target inventory", "目標物品欄")),
+                "lines": [tr(("目标移动 · 界面关闭", "Target moved - panel closed",
+                              "目標移動 · 介面關閉"))]}))
+            builder.add(custom("role_timer", {
+                "progress": [1.0, 0.0],
+                "lines": [tr(("冷却 60 秒", "60-second cooldown", "冷卻 60 秒"))]}))
+        elif "蹲下" in zh:
+            builder.add(custom("role_pose", {"linkId": main, "pose": "crouching"}))
+            builder.add({"type": "highlight_section",
+                         "blockPos": [int(p[0]) - 2, 0, int(p[2]) - 2],
+                         "blockPos2": [int(p[0]) + 2, 0, int(p[2]) + 2],
+                         "duration": 220, "color": "green"})
+            builder.add(custom("role_effects", {
+                "lines": [tr(("聆听周围动静", "Listen for nearby movement", "聆聽周圍動靜"))]}))
+            builder.add({"type": "idle", "duration": 30})
+            builder.add(custom("role_pose", {"linkId": main, "pose": "standing"}))
+        elif "阴谋家" in zh:
+            builder.add(custom("role_outline", {"linkId": target, "color": -65536}))
+            builder.add(custom("role_panel", {
+                "title": tr(("身份揭示", "Identity revealed", "身分揭示")),
+                "lines": [tr(("得知阴谋家的名字与位置",
+                              "You learn the conspirator's name and position",
+                              "得知陰謀家的名字與位置")), line]}))
+        builder.add({"type": "idle", "duration": 20})
+        builder.say(line)
+
+
+def override_fortuneteller_skill(builder, ctx):
+    """算命大师：花 200 金币卜算，目标濒死时传送到身边并免死 120 秒。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    rid, main = ctx["rid"], ctx["rid"] + "_main"
+    target = rid + "_fate_target"
+    builder.add(player_step(t, target, outline=ctx["outline_color"]))
+    lines = skill_lines(ctx, ["卜算", "金币", "冷却"])
+    for line in lines:
+        zh = line.get("zh_cn", "")
+        if "卜算" in zh or "金币" in zh:
+            builder.add(key_cap([p[0], p[1] + 2.0, p[2]]))
+            builder.add(custom("role_currency", {
+                "progress": [1.0, 0.0],
+                "lines": [tr(("花费 200 金币", "Spend 200 coins", "花費 200 金幣"))]}))
+            builder.add(custom("role_outline", {"linkId": target, "color": 0x99DDFF}))
+            builder.add(custom("role_walk", {"linkId": main,
+                                             "to": [t[0] - 0.9, t[1], t[2]], "duration": 36}))
+            builder.add(custom("role_vitals", {"bars": [{
+                "label": tr(("濒死", "Near death", "瀕死")),
+                "before": 0.15, "after": 0.9, "color": -65536}]}))
+            builder.add(custom("role_teleport", {"linkId": target,
+                                                 "pos": [p[0] + 1.1, p[1], p[2]]}))
+            builder.add(custom("role_effects", {
+                "lines": [tr(("免除死亡 120 秒", "Death nullified for 120 seconds",
+                              "免除死亡 120 秒"))]}))
+            builder.add(custom("role_timer", {
+                "progress": [0.0, 1.0],
+                "lines": [tr(("保护 120 秒", "Protected for 120 seconds", "保護 120 秒"))]}))
+        elif "冷却" in zh:
+            builder.add(custom("role_timer", {
+                "progress": [1.0, 0.0],
+                "lines": [tr(("技能冷却", "Skill cooldown", "技能冷卻"))]}))
+        builder.add({"type": "idle", "duration": 25})
+        builder.say(line)
+
+
+def override_diviner_skill(builder, ctx):
+    """占卜家：背包选目标 → 水晶球右键尸体占卜 3 秒 → 传送 → 10 秒回传 / 50 秒冷却。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    rid, main = ctx["rid"], ctx["rid"] + "_main"
+    ball = "noellesroles:crystal_ball"
+    target = rid + "_divine_target"
+    corpse_pos = [t[0], t[1], t[2] - 1.0]
+    corpse = rid + "_divine_corpse"
+    builder.add(player_step(t, target, outline=ctx["outline_color"]))
+    builder.add(player_step(corpse_pos, corpse))
+    builder.add(custom("role_death", {"linkId": corpse, "pos": corpse_pos,
+                                      "name": "ponder.starrailexpress.label.victim"}))
+    lines = skill_lines(ctx, ["水晶球", "头像", "3 秒", "10 秒", "50%", "每具尸体", "发光"])
+    for line in lines:
+        zh = line.get("zh_cn", "")
+        if "头像" in zh or "开局拥有" in zh:
+            builder.add(item_entity([p[0] - 1.0, p[1] + 0.55, p[2]], ball, rid + "_ball"))
+            builder.add(custom("role_hold", {"linkId": main, "item": ball}))
+            builder.add(custom("role_screen", {
+                "title": tr(("选择占卜目标", "Choose a divination target", "選擇占卜目標")),
+                "hint": tr(("点击背包中的玩家头像", "Click a player head in the inventory",
+                            "點擊背包中的玩家頭像")),
+                "columns": 6}))
+        elif "3 秒" in zh:
+            builder.add(show_right_click([p[0] - 0.8, p[1] + 1.2, p[2]], ball))
+            builder.add(scene_particle("minecraft:soul_fire_flame",
+                                       [corpse_pos[0], corpse_pos[1] + 0.9, corpse_pos[2]],
+                                       count=10, duration=60))
+            builder.add(scene_sound("minecraft:block.amethyst_block.resonate"))
+            builder.add(custom("role_timer", {
+                "progress": [0.0, 1.0],
+                "lines": [tr(("占卜 3 秒", "Divining for 3 seconds", "占卜 3 秒"))]}))
+            builder.add(scene_particle("minecraft:enchant",
+                                       [corpse_pos[0], corpse_pos[1] + 1.0, corpse_pos[2]],
+                                       count=12, duration=60))
+            builder.add(scene_sound("minecraft:block.amethyst_block.chime"))
+            builder.add(custom("role_teleport", {"linkId": main, "pos": [t[0] - 0.8, t[1], t[2]]}))
+        elif "10 秒" in zh or "50 秒" in zh:
+            builder.add(show_right_click([p[0] - 0.8, p[1] + 1.2, p[2]], ball))
+            builder.add(custom("role_teleport", {"linkId": main, "pos": list(p)}))
+            builder.add(custom("role_timer", {
+                "progress": [0.0, 1.0],
+                "lines": [tr(("10 秒内可回传", "Return within 10 seconds", "10 秒內可回傳"))]}))
+            builder.add(custom("role_timer", {
+                "progress": [1.0, 0.0],
+                "lines": [tr(("超时后水晶球冷却 50 秒",
+                              "Ball goes on a 50-second cooldown after timeout",
+                              "逾時後水晶球冷卻 50 秒"))]}))
+        elif "50%" in zh:
+            builder.add(custom("role_currency", {
+                "progress": [1.0, 0.5],
+                "lines": [tr(("50% 概率破坏水晶球", "50% chance to break the ball",
+                              "50% 機率破壞水晶球"))]}))
+        elif "每具尸体" in zh:
+            builder.add({"type": "highlight_section", "blockPos": [int(corpse_pos[0]), 0,
+                                                                    int(corpse_pos[2])],
+                         "duration": 180, "color": "green"})
+            builder.add(custom("role_panel", {
+                "title": tr(("占卜记录", "Divination record", "占卜記錄")),
+                "lines": [tr(("每具尸体只能被同一名占卜家占卜一次",
+                              "Each body can only be divined once by the same seer",
+                              "每具屍體只能被同一名占卜家占卜一次"))]}))
+        elif "发光" in zh:
+            builder.add(custom("role_death", {"linkId": main, "pos": p,
+                                              "name": "ponder.starrailexpress.label.victim",
+                                              "corpse": False}))
+            builder.add(custom("role_outline", {"linkId": target, "color": 0xFFFFFF66}))
+            builder.add(custom("role_timer", {
+                "progress": [1.0, 0.0],
+                "lines": [tr(("周围 5 格发光 8 秒", "Nearby players glow for 8 seconds",
+                              "周圍 5 格發光 8 秒"))]}))
+        builder.add({"type": "idle", "duration": 25})
+        builder.say(line)
+
+
+def override_necromancer_skill(builder, ctx):
+    """死灵法师：杀手阵亡攒次数 → 右键尸体复活为普通杀手 → 图腾音效与全服通报。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    rid, main = ctx["rid"], ctx["rid"] + "_main"
+    corpse = rid + "_revive_corpse"
+    fallen_pos = [t[0] + 1.4, t[1], t[2] + 0.8]
+    fallen = rid + "_fallen_killer"
+    builder.add(player_step(t, corpse))
+    builder.add(custom("role_death", {"linkId": corpse, "pos": t,
+                                      "name": "ponder.starrailexpress.label.victim"}))
+    builder.add(player_step(fallen_pos, fallen, outline=ctx["outline_color"]))
+    lines = skill_lines(ctx, ["复活", "阵亡", "开锁器", "图腾音效"])
+    for line in lines:
+        zh = line.get("zh_cn", "")
+        if "拥有复活" in zh:
+            builder.add({"type": "indicate_success", "blockPos": [int(t[0]), 0, int(t[2])]})
+        elif "阵亡" in zh:
+            builder.add(custom("role_death", {"linkId": fallen, "pos": fallen_pos,
+                                              "name": "ponder.starrailexpress.label.victim",
+                                              "corpse": False}))
+            builder.add(custom("role_currency", {
+                "progress": [0.0, 1.0],
+                "lines": [tr(("复活机会 +1", "One revival charge gained", "復活機會 +1"))]}))
+        elif "右键尸体" in zh:
+            builder.add({"type": "show_controls", "action": "right",
+                         "point": [t[0], t[1] + 1.2, t[2]], "direction": "down",
+                         "duration": 70, "attachKeyFrame": True})
+            builder.add(custom("role_teleport", {"linkId": fallen, "pos": list(t)}))
+            builder.add(custom("role_outline", {"linkId": fallen, "color": -65536}))
+            builder.add(custom("role_timer", {
+                "progress": [1.0, 0.0],
+                "lines": [tr(("冷却 3 分钟", "3-minute cooldown", "冷卻 3 分鐘"))]}))
+        elif "开锁器" in zh:
+            shown = item_for_line(ctx["facts"], zh)
+            builder.add(item_entity([p[0] - 1.0, p[1] + 0.55, p[2]], shown, rid + "_lockpick"))
+            builder.add(custom("role_hold", {"linkId": main, "item": shown}))
+        elif "图腾音效" in zh:
+            builder.add(scene_sound("minecraft:totem_use"))
+            builder.add(custom("role_panel", {
+                "title": tr(("全服通报", "Server-wide announcement", "全服通報")),
+                "lines": [tr(("死者已复活为普通杀手", "The dead returns as a plain killer",
+                              "死者已復活為普通殺手"))]}))
+        builder.add({"type": "idle", "duration": 25})
+        builder.say(line)
+
+
+def override_warlock_skill(builder, ctx):
+    """咒术师：G 窃取咒物 → Y 切蚀骨之咒 → 诅咒标记扣 SAN → 背包开灰髓之境。"""
+    p, t = ctx["player_pos"], ctx["second_pos"]
+    rid, main = ctx["rid"], ctx["rid"] + "_main"
+    target = rid + "_curse_target"
+    builder.add(player_step(t, target, outline=ctx["outline_color"]))
+    lines = skill_lines(ctx, ["窃取发肤", "蚀骨之咒", "领域展开", "破界"])
+    for line in lines:
+        zh = line.get("zh_cn", "")
+        if "窃取发肤" in zh:
+            builder.add(key_cap([p[0], p[1] + 2.0, p[2]]))
+            builder.add(custom("role_walk", {"linkId": main,
+                                             "to": [t[0] - 0.9, t[1], t[2]], "duration": 36}))
+            builder.add(scene_particle("minecraft:soul", [t[0], t[1] + 1.0, t[2]],
+                                       count=14, duration=60))
+            builder.add(custom("role_outline", {"linkId": target, "color": 0xAA55FF}))
+            builder.add(custom("role_panel", {
+                "title": tr(("咒物", "Cursed object", "咒物")),
+                "lines": [tr(("获得一份咒物 · 每人整局一次",
+                              "Gain a cursed object - once per player per match",
+                              "獲得一份咒物 · 每人整局一次"))]}))
+        elif "蚀骨之咒" in zh:
+            builder.add(key_cap([p[0], p[1] + 2.0, p[2]], switch=True))
+            builder.add(custom("role_mood", {
+                "before": 0.9, "after": 0.6,
+                "lines": [tr(("扣除 30% SAN", "Lose 30% SAN", "扣除 30% SAN"))]}))
+            builder.add(custom("role_effects", {
+                "lines": [tr(("隔离 · 缓慢 II · 被诅咒 45 秒",
+                              "Isolated - slowness II - cursed for 45 seconds",
+                              "隔離 · 緩慢 II · 被詛咒 45 秒"))]}))
+            builder.add(custom("role_outline", {"linkId": target, "color": -65536}))
+            builder.add(custom("role_timer", {
+                "progress": [1.0, 0.0],
+                "lines": [tr(("诅咒 45 秒 · 冷却 45 秒",
+                              "Curse lasts 45 seconds - 45-second cooldown",
+                              "詛咒 45 秒 · 冷卻 45 秒"))]}))
+            builder.add(scene_particle("minecraft:soul", [t[0], t[1] + 1.1, t[2]],
+                                       count=12, duration=60))
+            builder.add(custom("role_death", {"linkId": target, "pos": t,
+                                              "name": "ponder.starrailexpress.label.victim"}))
+            builder.add(custom("role_currency", {
+                "progress": [0.0, 1.0],
+                "lines": [tr(("诅咒期间死亡 +40 金币", "Target dies cursed - gain 40 coins",
+                              "詛咒期間死亡 +40 金幣"))]}))
+        elif "领域展开" in zh:
+            builder.add(custom("role_screen", {
+                "title": tr(("选择被诅咒的玩家", "Choose the cursed player", "選擇被詛咒的玩家")),
+                "hint": tr(("打开背包点选一名已被诅咒且存活的目标",
+                            "Pick a living cursed target in the inventory",
+                            "開啟背包點選一名已被詛咒且存活的目標")),
+                "columns": 6}))
+            builder.add(custom("role_ambience", {"color": 0x888888, "alpha": 0.55,
+                                                 "mode": "fog"}))
+            builder.add(custom("role_timer", {
+                "progress": [0.0, 1.0],
+                "lines": [tr(("灰髓之境 25 秒 · 冷却 60 秒",
+                              "Ashen Marrow for 25 seconds - 60-second cooldown",
+                              "灰髓之境 25 秒 · 冷卻 60 秒"))]}))
+            builder.add(custom("role_effects", {
+                "lines": [tr(("目标黑暗 / 失明 / 禁技 · 自身速度提升",
+                              "Target blinded and silenced - you gain speed",
+                              "目標黑暗 / 失明 / 禁技 · 自身速度提升"))]}))
+            builder.add(custom("role_teleport", {"linkId": target,
+                                                 "pos": [t[0], t[1] + 2.0, t[2]]}))
+        else:
+            builder.add(custom("role_death", {"linkId": main, "pos": p,
+                                              "name": "ponder.starrailexpress.label.victim",
+                                              "corpse": False}))
+            builder.add(player_step(p, main))
+            builder.add(custom("role_teleport", {"linkId": target, "pos": list(t)}))
+            builder.add(custom("role_timer", {
+                "progress": [1.0, 0.0],
+                "lines": [tr(("时间到 · 幸存者原路返回",
+                              "Time up - survivors return where they came from",
+                              "時間到 · 倖存者原路返回"))]}))
+        builder.add({"type": "idle", "duration": 25})
+        builder.say(line)
+
+
 ROLE_SEGMENT_OVERRIDES = {
     ("kafu_chino", "skill"): override_kafu_skill,
     ("noisemaker", "skill"): override_noisemaker_skill,
@@ -1826,6 +2152,12 @@ ROLE_SEGMENT_OVERRIDES = {
     ("mortician_bodymaker", "skill"): override_mortician_bodymaker_skill,
     ("ibaraki_kasen", "shop"): override_kasen_shop,
     ("jade_general", "skill"): override_jade_general_skill,
+    ("telegrapher", "skill"): override_telegrapher_skill,
+    ("agent", "skill"): override_agent_skill,
+    ("fortuneteller", "skill"): override_fortuneteller_skill,
+    ("diviner", "skill"): override_diviner_skill,
+    ("necromancer", "skill"): override_necromancer_skill,
+    ("warlock", "skill"): override_warlock_skill,
     ("rabbit_wansui", "form"): override_rabbit_form,
     ("snow_golem", "form"): override_snow_golem_form,
     ("metal_monster", "form"): override_metal_monster_form,

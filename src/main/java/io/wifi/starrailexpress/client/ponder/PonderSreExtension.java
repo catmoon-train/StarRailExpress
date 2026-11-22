@@ -149,6 +149,9 @@ public final class PonderSreExtension {
     /** 在屏幕上方显示广播消息界面（广播员技能键打开的那一页）。 */
     public static final String STEP_ROLE_BROADCAST = "starrailexpress:role_broadcast";
 
+    /** 显示电报员按技能键打开的电报编辑页，以及发送后的淡蓝色标题。 */
+    public static final String STEP_ROLE_TELEGRAPH = "starrailexpress:role_telegraph";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PonderSreExtension.class);
 
     /** 扩展步骤在编辑器与覆盖层里显示的文本全部走语言文件。 */
@@ -191,6 +194,7 @@ public final class PonderSreExtension {
         engine.steps().register(STEP_ROLE_AMBIENCE, new RoleAmbienceStep());
         engine.steps().register(STEP_ROLE_KNOCKBACK, new RoleKnockbackStep());
         engine.steps().register(STEP_ROLE_BROADCAST, new RoleBroadcastStep());
+        engine.steps().register(STEP_ROLE_TELEGRAPH, new RoleTelegraphStep());
         LOGGER.info("StarRailExpress Ponderer extension installed: {}", EXTENSION_ID);
     }
 
@@ -1261,6 +1265,60 @@ public final class PonderSreExtension {
                     params.cost() == null ? -1 : params.cost())
                     .addTo(context.builder(), params.duration() == null ? 160 :
                             Math.max(1, params.duration()));
+        }
+    }
+
+    /** {@code role_telegraph} 的参数。 */
+    record RoleTelegraphParams(PonderLocalizedText title, PonderLocalizedText hint,
+                               PonderLocalizedText message, Integer duration, Integer remaining) {
+    }
+
+    /** 电报界面步骤：按技能键打开的输入页 + 全体玩家屏幕上淡蓝色的匿名标题。 */
+    static final class RoleTelegraphStep implements StepType<RoleTelegraphParams> {
+        @Override
+        public StepCodec<RoleTelegraphParams> codec() {
+            return new StepCodec<>() {
+                @Override
+                public RoleTelegraphParams decode(JsonObject data) {
+                    return new RoleTelegraphParams(readLocalized(data, "title"),
+                            readLocalized(data, "hint"), readLocalized(data, "message"),
+                            readInt(data, "duration"), readInt(data, "remaining"));
+                }
+
+                @Override
+                public JsonObject encode(RoleTelegraphParams value) {
+                    JsonObject data = new JsonObject();
+                    if (value.title() != null) {
+                        data.addProperty("title", value.title().plain());
+                    }
+                    if (value.hint() != null) {
+                        data.addProperty("hint", value.hint().plain());
+                    }
+                    if (value.message() != null) {
+                        data.addProperty("message", value.message().plain());
+                    }
+                    if (value.duration() != null) {
+                        data.addProperty("duration", value.duration());
+                    }
+                    if (value.remaining() != null) {
+                        data.addProperty("remaining", value.remaining());
+                    }
+                    return data;
+                }
+            };
+        }
+
+        @Override
+        public String editorLabel() {
+            return text(KEY_PREFIX + "role_telegraph");
+        }
+
+        @Override
+        public void build(RoleTelegraphParams params, StepBuildContext context) {
+            new PonderTelegraphOverlayElement(params.title(), params.hint(), params.message(),
+                    params.remaining() == null ? 6 : params.remaining())
+                    .addTo(context.builder(), params.duration() == null ? 140 :
+                            Math.max(2, params.duration()));
         }
     }
 

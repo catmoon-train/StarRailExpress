@@ -124,30 +124,55 @@
           }
         },
         {
-          "type": "starrailexpress:role_skill",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "label": "ponder.starrailexpress.label.skill",
-            "lines": [
-              {
-                "en_us": "The skill goes on cooldown after use.",
-                "zh_cn": "技能使用完毕后会进入冷却。",
-                "zh_tw": "技能使用完畢後會進入冷卻。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "fortuneteller_fate_target",
+            "outline": -1055568
+          }
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              2.9,
+              3.0,
               3.0
             ],
             "direction": "down",
             "duration": 60,
             "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
+            "lines": [
+              {
+                "en_us": "Spend 200 coins",
+                "zh_cn": "花费 200 金币",
+                "zh_tw": "花費 200 金幣"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "fortuneteller_fate_target",
+            "color": 10083839
           },
           "attachKeyFrame": true
         },
@@ -160,53 +185,114 @@
               1.0,
               2.0
             ],
-            "duration": 40
+            "duration": 36
           },
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            5,
-            0,
-            2
-          ],
-          "blockPos2": [
-            5,
-            0,
-            2
-          ],
-          "duration": 200,
-          "color": "green"
+          "type": "starrailexpress:role_vitals",
+          "parameters": {
+            "bars": [
+              {
+                "label": {
+                  "en_us": "Near death",
+                  "zh_cn": "濒死",
+                  "zh_tw": "瀕死"
+                },
+                "before": 0.15,
+                "after": 0.9,
+                "color": -65536
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            5,
-            0,
-            2
-          ]
+          "type": "starrailexpress:role_teleport",
+          "parameters": {
+            "linkId": "fortuneteller_fate_target",
+            "pos": [
+              4.1,
+              1.0,
+              3.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Death nullified for 120 seconds",
+                "zh_cn": "免除死亡 120 秒",
+                "zh_tw": "免除死亡 120 秒"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Protected for 120 seconds",
+                "zh_cn": "保护 120 秒",
+                "zh_tw": "保護 120 秒"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "idle",
           "duration": 25
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Can pay to divine a player's fate; when the divined player is about to die, they are teleported to you and spared (valid for 120s; does not prevent death from a wrongful Civilian kill)",
+            "zh_cn": "可以花钱为一名玩家卜算命运，当被卜算的玩家即将死亡时，他会传送到你身边并免除死亡（有效时间120s，不防止误杀平民而亡）",
+            "zh_tw": "可以花錢為一名玩家蔔算命運，當被蔔算的玩家即將死亡時，他會傳送到你身邊並免除死亡（有效時間120s，不防止誤殺平民而亡）"
+          },
+          "point": [
+            3.0,
+            1.8,
             3.0
           ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "fortuneteller_line_item_0",
+          "placeNearTarget": true,
           "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
+            "lines": [
+              {
+                "en_us": "Skill cooldown",
+                "zh_cn": "技能冷却",
+                "zh_tw": "技能冷卻"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
         },
         {
           "type": "text",
@@ -218,7 +304,7 @@
           },
           "point": [
             3.0,
-            1.8,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,

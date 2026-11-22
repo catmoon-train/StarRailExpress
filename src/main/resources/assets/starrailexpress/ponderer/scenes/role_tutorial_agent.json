@@ -97,6 +97,344 @@
       ]
     },
     {
+      "id": "skill",
+      "title": {
+        "en_us": "Agent",
+        "zh_cn": "探员",
+        "zh_tw": "探員"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "agent_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "agent_inspect_target",
+            "outline": -3308225
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 12
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              3.0,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "agent_inspect_target",
+            "color": 5636095
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": {
+              "en_us": "Target inventory",
+              "zh_cn": "目标物品栏",
+              "zh_tw": "目標物品欄"
+            },
+            "lines": [
+              {
+                "en_us": "Read-only inspection",
+                "zh_cn": "只读审查",
+                "zh_tw": "唯讀審查"
+              },
+              {
+                "en_us": "Aim at a player and press the skill key to view their inventory interface.",
+                "zh_cn": "指针对准一名玩家并按下技能键，可以查看他的物品栏界面。",
+                "zh_tw": "指針對準一名玩家並按下技能鍵，可以查看他的物品欄介面。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_currency",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.25
+            ],
+            "lines": [
+              {
+                "en_us": "Inspection costs 150 coins",
+                "zh_cn": "审查花费 150 金币",
+                "zh_tw": "審查花費 150 金幣"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 173,
+          "text": {
+            "en_us": "Aim at a player and press the skill key to view their inventory interface.",
+            "zh_cn": "指针对准一名玩家并按下技能键，可以查看他的物品栏界面。",
+            "zh_tw": "指針對準一名玩家並按下技能鍵，可以查看他的物品欄介面。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 183
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "agent_inspect_target",
+            "to": [
+              6.3,
+              1.0,
+              2.0
+            ],
+            "duration": 36
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": {
+              "en_us": "Target inventory",
+              "zh_cn": "目标物品栏",
+              "zh_tw": "目標物品欄"
+            },
+            "lines": [
+              {
+                "en_us": "Target moved - panel closed",
+                "zh_cn": "目标移动 · 界面关闭",
+                "zh_tw": "目標移動 · 介面關閉"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              1.0,
+              0.0
+            ],
+            "lines": [
+              {
+                "en_us": "60-second cooldown",
+                "zh_cn": "冷却 60 秒",
+                "zh_tw": "冷卻 60 秒"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 140,
+          "text": {
+            "en_us": "If the player moves, the interface closes; 60s cooldown.",
+            "zh_cn": "如果该玩家移动则会关闭界面，冷却60s。",
+            "zh_tw": "如果該玩家移動則會關閉介面，冷卻60s。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 150
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "agent_main",
+            "pose": "crouching"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            1,
+            0,
+            1
+          ],
+          "blockPos2": [
+            5,
+            0,
+            5
+          ],
+          "duration": 220,
+          "color": "green"
+        },
+        {
+          "type": "starrailexpress:role_effects",
+          "parameters": {
+            "lines": [
+              {
+                "en_us": "Listen for nearby movement",
+                "zh_cn": "聆听周围动静",
+                "zh_tw": "聆聽周圍動靜"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "agent_main",
+            "pose": "standing"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 126,
+          "text": {
+            "en_us": "Staying crouched lets you sense nearby movement.",
+            "zh_cn": "持续蹲下可以察觉周围的动静。",
+            "zh_tw": "持續蹲下可以察覺周圍的動靜。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 136
+        },
+        {
+          "type": "starrailexpress:role_outline",
+          "parameters": {
+            "linkId": "agent_inspect_target",
+            "color": -65536
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_panel",
+          "parameters": {
+            "title": {
+              "en_us": "Identity revealed",
+              "zh_cn": "身份揭示",
+              "zh_tw": "身分揭示"
+            },
+            "lines": [
+              {
+                "en_us": "You learn the conspirator's name and position",
+                "zh_cn": "得知阴谋家的名字与位置",
+                "zh_tw": "得知陰謀家的名字與位置"
+              },
+              {
+                "en_us": "After the Conspirator guesses you, you learn the Conspirator's name and position.",
+                "zh_cn": "当你被阴谋家猜测后，你将得知阴谋家的名字与位置。",
+                "zh_tw": "當你被陰謀家猜測後，你將得知陰謀家的名字與位置。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 185,
+          "text": {
+            "en_us": "After the Conspirator guesses you, you learn the Conspirator's name and position.",
+            "zh_cn": "当你被阴谋家猜测后，你将得知阴谋家的名字与位置。",
+            "zh_tw": "當你被陰謀家猜測後，你將得知陰謀家的名字與位置。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 195
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
       "id": "panel",
       "title": {
         "en_us": "Agent",

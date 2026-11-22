@@ -43,11 +43,12 @@
   "agent": {
    "segments": [
     "faction",
+    "skill",
     "panel",
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 6
+   "texts": 10
   },
   "alchemist": {
    "segments": [
@@ -689,7 +690,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_graveyard",
-   "texts": 8
+   "texts": 13
   },
   "doctor": {
    "segments": [
@@ -957,7 +958,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 4
+   "texts": 5
   },
   "furandoru": {
    "segments": [
@@ -1821,12 +1822,13 @@
    "segments": [
     "faction",
     "items",
+    "skill",
     "shop",
     "body",
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_graveyard",
-   "texts": 7
+   "texts": 12
   },
   "net_cop": {
    "segments": [
@@ -2623,7 +2625,7 @@
     "details"
    ],
    "structure": "starrailexpress:role_tutorial_common",
-   "texts": 6
+   "texts": 8
   },
   "the_fool": {
    "segments": [
@@ -2775,7 +2777,7 @@
     "body"
    ],
    "structure": "starrailexpress:role_tutorial_graveyard",
-   "texts": 6
+   "texts": 9
   },
   "watcher": {
    "segments": [
