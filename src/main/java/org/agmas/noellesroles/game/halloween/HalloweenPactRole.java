@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.game.halloween;
 
 import io.wifi.starrailexpress.api.CustomWinnerRoleInterface;
-import io.wifi.starrailexpress.api.NormalRole;
+import io.wifi.starrailexpress.api.ExtraEffectRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.data.RoleData;
@@ -17,22 +17,27 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.agmas.noellesroles.init.ModEffects;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-/** 魂契复活后的玩家亡灵：独立职业、无法攻击，胜利阵营在复活时锁定。 */
-public final class HalloweenPactRole extends NormalRole implements CustomWinnerRoleInterface {
+/** 魂契复活后的玩家亡灵：独立职业、无法说话和打字、无法攻击，胜利阵营在复活时锁定。 */
+public final class HalloweenPactRole extends ExtraEffectRole implements CustomWinnerRoleInterface {
     public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("noellesroles", "halloween_pact");
     private static SRERole instance;
     private static final ThreadLocal<Set<UUID>> WIN_GUARD = ThreadLocal.withInitial(HashSet::new);
 
     private HalloweenPactRole() {
         super(ID, 0xA780D9, false, false, MoodType.NONE, 160, true);
+        // 常态药水效果（ExtraEffectRole 每秒自动续期）：与骷髅一致，静音 + 禁用聊天栏
+        addEffect(new MobEffectInstance(ModEffects.VOICE_SILENCE, 30 * 20, 0, true, false, false));
+        addEffect(new MobEffectInstance(ModEffects.CHAT_BAN, 30 * 20, 0, true, false, false));
         setDefaultMax(0);
         setCanBeRandomedByOtherRoles(false);
         setCanSetSpawnInfoInConfig(false);
