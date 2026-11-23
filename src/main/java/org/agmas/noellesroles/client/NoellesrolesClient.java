@@ -1050,12 +1050,11 @@ public class NoellesrolesClient implements ClientModInitializer {
                     // Minecraft.getInstance().options.setCameraType(CameraType.FIRST_PERSON);
                     // }
                     isPlayerBodyEntity.put(abstractClientPlayer.getUUID(), false);
-                    if (playerBodyEntities.containsKey(abstractClientPlayer.getUUID())) {
-                        clientLevel.removeEntity(playerBodyEntities.get(abstractClientPlayer.getUUID()).getId(),
-                                Entity.RemovalReason.DISCARDED);
-                        playerBodyEntities.remove(abstractClientPlayer.getUUID());
-
+                    PlayerBodyEntity cached = playerBodyEntities.get(abstractClientPlayer.getUUID());
+                    if (cached != null && clientLevel != null && cached.level() == clientLevel) {
+                        clientLevel.removeEntity(cached.getId(), Entity.RemovalReason.DISCARDED);
                     }
+                    playerBodyEntities.remove(abstractClientPlayer.getUUID());
                 }
             }
 

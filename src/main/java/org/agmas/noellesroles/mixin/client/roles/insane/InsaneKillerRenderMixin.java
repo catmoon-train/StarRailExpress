@@ -20,6 +20,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.index.TMMEntities;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -53,8 +54,13 @@ public abstract class InsaneKillerRenderMixin
             MultiBufferSource multiBufferSource, int i, CallbackInfo ci) {
         if (abstractClientPlayer.isSpectator())
             return;
-        InsaneKillerRoleData component = RoleData.getNullable(InsaneKillerRoleData.class, abstractClientPlayer);
         ClientLevel clientLevel = abstractClientPlayer.clientLevel;
+        Minecraft client = Minecraft.getInstance();
+        // 思索沙盒里的玩家模型复用观看者的 GameProfile/UUID，甚至会继承职业数据。
+        // 这些模型不在现实世界里，参与尸体生成会污染全局映射并把尸体漏到现实中。
+        if (client.level == null || clientLevel != client.level)
+            return;
+        InsaneKillerRoleData component = RoleData.getNullable(InsaneKillerRoleData.class, abstractClientPlayer);
         if (component != null && component.isActive) {
             ci.cancel();
             isPlayerBodyEntity.put(abstractClientPlayer.getUUID(), true);
@@ -62,8 +68,8 @@ public abstract class InsaneKillerRenderMixin
             // 本体在区域内时不动假尸体（既不新建也不跟随），离开后再恢复。
             if (!BodyCleanupZones.isInside(abstractClientPlayer)) {
                 PlayerBodyEntity cached = playerBodyEntities.get(abstractClientPlayer.getUUID());
-                if (cached != null && cached.isRemoved()) {
-                    // 尸体已被清理，丢掉失效引用重建，否则伪装永远不再出现
+                if (cached != null && (cached.isRemoved() || cached.level() != clientLevel)) {
+                    // 尸体已被清理或属于旧世界/思索沙盒，丢掉失效引用重建，否则伪装永远不再出现
                     playerBodyEntities.remove(abstractClientPlayer.getUUID());
                     cached = null;
                 }
@@ -107,12 +113,11 @@ public abstract class InsaneKillerRenderMixin
                 // Minecraft.getInstance().options.setCameraType(CameraType.FIRST_PERSON);
                 // }
                 isPlayerBodyEntity.put(abstractClientPlayer.getUUID(), false);
-                if (playerBodyEntities.containsKey(abstractClientPlayer.getUUID())) {
-                    clientLevel.removeEntity(playerBodyEntities.get(abstractClientPlayer.getUUID()).getId(),
-                            Entity.RemovalReason.DISCARDED);
-                    playerBodyEntities.remove(abstractClientPlayer.getUUID());
-
+                PlayerBodyEntity cached = playerBodyEntities.get(abstractClientPlayer.getUUID());
+                if (cached != null && cached.level() == clientLevel) {
+                    clientLevel.removeEntity(cached.getId(), Entity.RemovalReason.DISCARDED);
                 }
+                playerBodyEntities.remove(abstractClientPlayer.getUUID());
             }
         }
     }

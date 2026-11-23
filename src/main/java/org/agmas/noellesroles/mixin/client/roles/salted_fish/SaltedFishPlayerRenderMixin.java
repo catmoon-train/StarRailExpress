@@ -17,6 +17,7 @@ package org.agmas.noellesroles.mixin.client.roles.salted_fish;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.api.data.RoleData;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
@@ -32,6 +33,11 @@ public abstract class SaltedFishPlayerRenderMixin {
             at = @At("HEAD"), cancellable = true)
     private void noellesroles$hideActiveSaltedFishPlayer(AbstractClientPlayer player, float yaw, float tickDelta,
             PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, CallbackInfo ci) {
+        // 思索沙盒里的玩家模型复用观看者身份，不能套用现实世界玩家的伪装渲染效果。
+        Minecraft client = Minecraft.getInstance();
+        if (client.level == null || player.clientLevel != client.level) {
+            return;
+        }
         SaltedFishRoleData component = RoleData.getNullable(SaltedFishRoleData.class, player);
         if (component != null && component.isActive()) {
             ci.cancel();
