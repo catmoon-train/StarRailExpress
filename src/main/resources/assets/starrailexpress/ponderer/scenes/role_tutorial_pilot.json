@@ -153,20 +153,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_pose",
           "parameters": {
             "linkId": "pilot_main",
@@ -257,38 +243,16 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "pilot_falcon",
-            "outline": 16753920
-          }
-        },
-        {
-          "type": "starrailexpress:role_bond",
-          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
             "lines": [
               {
-                "en_us": "Spawns bound to Shadow Falcon (Killer team).",
-                "zh_cn": "与影隼(杀手阵营)绑定生成。",
-                "zh_tw": "與影隼(殺手陣營)綁定生成。"
+                "en_us": "The Pilot can buy a jetpack, elytra and firework rockets; press the skill key to remove the jetpack and elytra.",
+                "zh_cn": "飞行员可购买喷气背包、鞘翅和烟花火箭，按下技能键可脱下喷气背包和鞘翅。",
+                "zh_tw": "飛行員可購買噴氣背包、鞘翅和煙花火箭，按下技能鍵可脫下噴氣背包和鞘翅。"
               }
-            ],
-            "color": 16753920
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "pilot_main",
-            "item": "noellesroles:jetpack"
+            ]
           },
           "attachKeyFrame": true
         },
@@ -297,7 +261,7 @@
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -307,10 +271,50 @@
           "attachKeyFrame": true
         },
         {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "pilot_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
           "type": "create_item_entity",
           "pos": [
-            3.8,
-            1.55,
+            2.2,
+            1.5,
             3.0
           ],
           "motion": [
@@ -320,94 +324,8 @@
           ],
           "count": 1,
           "item": "noellesroles:jetpack",
-          "linkId": "pilot_pack",
+          "linkId": "pilot_line_item_0",
           "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_pose",
-          "parameters": {
-            "linkId": "pilot_main",
-            "pose": "crouching"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.55,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "minecraft:elytra",
-          "linkId": "pilot_elytra",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            3.0,
-            2.6,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "minecraft:firework_rocket",
-          "linkId": "pilot_rocket",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Pilots glide with Gliding 5; others get Gliding 1 (except Shadow Falcon).",
-                "zh_cn": "飞行员使用喷气背包会获得漂浮5效果，其他人为漂浮1(除了影隼)。",
-                "zh_tw": "飛行員使用噴氣背包會獲得漂浮5效果，其他人為漂浮1(除了影隼)。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.0
-            ],
-            "lines": []
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 119,
-          "text": {
-            "en_us": "Spawns bound to Shadow Falcon (Killer team).",
-            "zh_cn": "与影隼(杀手阵营)绑定生成。",
-            "zh_tw": "與影隼(殺手陣營)綁定生成。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 129
         },
         {
           "type": "text",
@@ -419,7 +337,7 @@
           },
           "point": [
             3.0,
-            2.08,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,
@@ -428,97 +346,6 @@
         {
           "type": "idle",
           "duration": 200
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Sneak to activate the jetpack for gliding; once durability runs out it disappears. The jetpack can be dropped with Q to others and has 60 durability.",
-            "zh_cn": "蹲下激活喷气背包获得漂浮效果，耐久耗尽后喷气背包消失，喷气背包可以按Q键丢出给其它玩家，拥有60点耐久。",
-            "zh_tw": "蹲下啟動噴氣背包獲得漂浮效果，耐久耗盡後噴氣背包消失，噴氣背包可以按Q鍵丟出給其他玩家，擁有60點耐久。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "text",
-          "duration": 171,
-          "text": {
-            "en_us": "Pilots glide with Gliding 5; others get Gliding 1 (except Shadow Falcon).",
-            "zh_cn": "飞行员使用喷气背包会获得漂浮5效果，其他人为漂浮1(除了影隼)。",
-            "zh_tw": "飛行員使用噴氣背包會獲得漂浮5效果，其他人為漂浮1(除了影隼)。"
-          },
-          "point": [
-            3.0,
-            2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 181
-        },
-        {
-          "type": "rotate_camera_y",
-          "degrees": 12.0,
-          "duration": 50,
-          "attachKeyFrame": true
-        }
-      ]
-    },
-    {
-      "id": "shop",
-      "title": {
-        "en_us": "Pilot",
-        "zh_cn": "飞行员",
-        "zh_tw": "飛行員"
-      },
-      "steps": [
-        {
-          "type": "show_structure",
-          "structure": "starrailexpress:role_tutorial_room",
-          "scale": 1.0,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "pilot_main"
-          }
-        },
-        {
-          "type": "starrailexpress:role_shop",
-          "attachKeyFrame": true,
-          "parameters": {
-            "role": "pilot",
-            "columns": 4
-          }
         },
         {
           "type": "rotate_camera_y",

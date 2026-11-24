@@ -142,9 +142,9 @@
         },
         {
           "type": "text",
-          "duration": 190,
+          "duration": 99,
           "text": {
-            "en_us": "The soul pact grants you one revival. You can't use your original role's skills, pick up, or use items; only empty-hand melee: within 3 blocks you attempt a kill every 2 seconds, still subject to shields and death-immunity. You always glow and emit soul particles; your victory follows the faction of the nearest non-attached living player at revival (including neutral/custom factions), and you won't revive again.",
+            "en_us": "Default: you can't speak or type.",
             "zh_cn": "拥有特殊获胜条件",
             "zh_tw": "擁有特殊獲勝條件"
           },
@@ -158,7 +158,7 @@
         },
         {
           "type": "idle",
-          "duration": 200
+          "duration": 109
         },
         {
           "type": "rotate_camera_y",
@@ -196,31 +196,130 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              5.0,
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "你不能攻击、使用原职业技能、拾取或使用物品。",
+                "zh_cn": "你不能攻击、使用原职业技能、拾取或使用物品。",
+                "zh_tw": "你不能攻擊、使用原職業技能、拾取或使用物品。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "halloween_pact_main",
+            "to": [
+              4.1,
               1.0,
               2.0
             ],
-            "yaw": 180.0,
-            "linkId": "halloween_pact_followed",
-            "outline": -65536
-          }
+            "duration": 40
+          },
+          "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "halloween_pact_main",
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "name": "ponder.starrailexpress.label.victim",
-            "corpse": false
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "halloween_pact_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 79,
+          "text": {
+            "en_us": "你不能攻击、使用原职业技能、拾取或使用物品。",
+            "zh_cn": "你不能攻击、使用原职业技能、拾取或使用物品。",
+            "zh_tw": "你不能攻擊、使用原職業技能、拾取或使用物品。"
           },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 89
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "title": {
+        "en_us": "魂契亡灵",
+        "zh_cn": "魂契亡灵",
+        "zh_tw": "魂契亡靈"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_common",
+          "scale": 1.0,
           "attachKeyFrame": true
         },
         {
@@ -237,65 +336,40 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
+            "pos": [
+              5.0,
+              1.0,
+              2.0
             ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
+            "yaw": 180.0,
+            "linkId": "halloween_pact_target",
+            "outline": -65536
+          }
         },
         {
-          "type": "starrailexpress:role_outline",
+          "type": "starrailexpress:role_render",
+          "attachKeyFrame": true,
           "parameters": {
-            "linkId": "halloween_pact_main",
-            "color": 12624127
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_ambience",
-          "parameters": {
-            "color": 7356576,
-            "alpha": 0.35,
-            "mode": "sky"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_bond",
-          "parameters": {
-            "title": {
-              "en_us": "Pact bond",
-              "zh_cn": "魂契跟随",
-              "zh_tw": "魂契跟隨"
-            },
+            "label": "ponder.starrailexpress.label.vision",
             "lines": [
               {
-                "en_us": "魂契给予你一次复生，整局仅一人可交付魂契。",
-                "zh_cn": "魂契给予你一次复生，整局仅一人可交付魂契。",
-                "zh_tw": "魂契給予你一次複生，整局僅一人可交付魂契。"
+                "en_us": "你始终发光并散发灵魂粒子",
+                "zh_cn": "你始终发光并散发灵魂粒子",
+                "zh_tw": "你始終發光並散發靈魂粒子"
               }
-            ],
-            "progress": [
-              0.0,
-              1.0
             ]
-          },
-          "attachKeyFrame": true
+          }
         },
         {
           "type": "text",
-          "duration": 77,
+          "duration": 61,
           "text": {
-            "en_us": "魂契给予你一次复生，整局仅一人可交付魂契。",
-            "zh_cn": "魂契给予你一次复生，整局仅一人可交付魂契。",
-            "zh_tw": "魂契給予你一次複生，整局僅一人可交付魂契。"
+            "en_us": "你始终发光并散发灵魂粒子",
+            "zh_cn": "你始终发光并散发灵魂粒子",
+            "zh_tw": "你始終發光並散發靈魂粒子"
           },
           "point": [
             3.0,
@@ -307,132 +381,7 @@
         },
         {
           "type": "idle",
-          "duration": 87
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_vitals",
-          "parameters": {
-            "bars": [
-              {
-                "label": {
-                  "en_us": "No attack",
-                  "zh_cn": "无法攻击",
-                  "zh_tw": "無法攻擊"
-                },
-                "before": 1.0,
-                "after": 0.0,
-                "color": 8421504
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 77,
-          "text": {
-            "en_us": "不能攻击、使用原职业技能、拾取或使用物品。",
-            "zh_cn": "不能攻击、使用原职业技能、拾取或使用物品。",
-            "zh_tw": "不能攻擊、使用原職業技能、拾取或使用物品。"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 87
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "halloween_pact_main",
-            "color": 12624127
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_ambience",
-          "parameters": {
-            "color": 7356576,
-            "alpha": 0.35,
-            "mode": "sky"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_bond",
-          "parameters": {
-            "title": {
-              "en_us": "Pact bond",
-              "zh_cn": "魂契跟随",
-              "zh_tw": "魂契跟隨"
-            },
-            "lines": [
-              {
-                "en_us": "你始终发光并散发灵魂粒子；胜利跟随复活时最近的非依附存活玩家阵营（包括中立/自定义阵营），不会再次复活。",
-                "zh_cn": "你始终发光并散发灵魂粒子；胜利跟随复活时最近的非依附存活玩家阵营（包括中立/自定义阵营），不会再次复活。",
-                "zh_tw": "你始終發光並散發靈魂粒子；勝利跟隨復活時最近的非依附存活玩家陣營（包括中立/自定義陣營），不會再次復活。"
-              }
-            ],
-            "progress": [
-              0.0,
-              1.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 133,
-          "text": {
-            "en_us": "你始终发光并散发灵魂粒子；胜利跟随复活时最近的非依附存活玩家阵营（包括中立/自定义阵营），不会再次复活。",
-            "zh_cn": "你始终发光并散发灵魂粒子；胜利跟随复活时最近的非依附存活玩家阵营（包括中立/自定义阵营），不会再次复活。",
-            "zh_tw": "你始終發光並散發靈魂粒子；勝利跟隨復活時最近的非依附存活玩家陣營（包括中立/自定義陣營），不會再次復活。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 143
+          "duration": 71
         },
         {
           "type": "rotate_camera_y",
@@ -489,9 +438,9 @@
           "parameters": {
             "lines": [
               {
-                "en_us": "你始终发光并散发灵魂粒子；胜利跟随复活时最近的非依附存活玩家阵营（包括中立/自定义阵营），不会再次复活。",
-                "zh_cn": "你始终发光并散发灵魂粒子；胜利跟随复活时最近的非依附存活玩家阵营（包括中立/自定义阵营），不会再次复活。",
-                "zh_tw": "你始終發光並散發靈魂粒子；勝利跟隨復活時最近的非依附存活玩家陣營（包括中立/自定義陣營），不會再次復活。"
+                "en_us": "跟随复活时最近的玩家获胜(跟随胜利职业除外)。",
+                "zh_cn": "跟随复活时最近的玩家获胜(跟随胜利职业除外)。",
+                "zh_tw": "跟隨復活時最近的玩家獲勝(跟隨勝利職業除外)。"
               }
             ],
             "color": -65536
@@ -499,11 +448,11 @@
         },
         {
           "type": "text",
-          "duration": 133,
+          "duration": 81,
           "text": {
-            "en_us": "你始终发光并散发灵魂粒子；胜利跟随复活时最近的非依附存活玩家阵营（包括中立/自定义阵营），不会再次复活。",
-            "zh_cn": "你始终发光并散发灵魂粒子；胜利跟随复活时最近的非依附存活玩家阵营（包括中立/自定义阵营），不会再次复活。",
-            "zh_tw": "你始終發光並散發靈魂粒子；勝利跟隨復活時最近的非依附存活玩家陣營（包括中立/自定義陣營），不會再次復活。"
+            "en_us": "跟随复活时最近的玩家获胜(跟随胜利职业除外)。",
+            "zh_cn": "跟随复活时最近的玩家获胜(跟随胜利职业除外)。",
+            "zh_tw": "跟隨復活時最近的玩家獲勝(跟隨勝利職業除外)。"
           },
           "point": [
             3.0,
@@ -515,7 +464,7 @@
         },
         {
           "type": "idle",
-          "duration": 143
+          "duration": 91
         },
         {
           "type": "rotate_camera_y",
@@ -571,11 +520,11 @@
         },
         {
           "type": "text",
-          "duration": 77,
+          "duration": 190,
           "text": {
-            "en_us": "魂契给予你一次复生，整局仅一人可交付魂契。",
-            "zh_cn": "魂契给予你一次复生，整局仅一人可交付魂契。",
-            "zh_tw": "魂契給予你一次複生，整局僅一人可交付魂契。"
+            "en_us": "The soul pact grants you one revival. You can't use your original role's skills, pick up, or use items; only empty-hand melee: within 3 blocks you attempt a kill every 2 seconds, still subject to shields and death-immunity. You always glow and emit soul particles; your victory follows the faction of the nearest non-attached living player at revival (including neutral/custom factions), and you won't revive again.",
+            "zh_cn": "由魂契复活而成，全局仅一人可被复活。",
+            "zh_tw": "由魂契復活而成，全局僅一人可被復活。"
           },
           "point": [
             3.0,
@@ -587,7 +536,44 @@
         },
         {
           "type": "idle",
-          "duration": 87
+          "duration": 200
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "halloween_pact_line_item_1",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 59,
+          "text": {
+            "en_us": "你无法说话也无法打字。",
+            "zh_cn": "你无法说话也无法打字。",
+            "zh_tw": "你無法說話也無法打字。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 69
         },
         {
           "type": "rotate_camera_y",

@@ -180,20 +180,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "create_item_entity",
           "pos": [
             2.2,
@@ -271,20 +257,6 @@
             "linkId": "prankster_skill_target_1",
             "outline": -5192482
           }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "highlight_section",

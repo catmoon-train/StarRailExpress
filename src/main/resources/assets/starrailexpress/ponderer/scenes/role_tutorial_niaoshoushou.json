@@ -125,44 +125,39 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "niaoshoushou_bird_foe",
-            "outline": 16753920
-          }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
             "lines": [
               {
                 "en_us": "Passive [Super Stamina]: run 5s continuously for Speed I.",
                 "zh_cn": "被动【超强耐力】：连续跑步5秒后获得速度I。",
                 "zh_tw": "被動【超強耐力】：連續跑步5秒後獲得速度I。"
+              },
+              {
+                "en_us": "- Incendiary grenade (throwable, 45s cd);",
+                "zh_cn": "- 燃烧弹（可投掷，拥有45秒冷却）；",
+                "zh_tw": "- 燃燒彈（可投擲，擁有45秒冷卻）；"
               }
             ]
           },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:niaoshoushou_knife",
+          "linkId": "niaoshoushou_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -186,75 +181,51 @@
           "duration": 152
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
         },
         {
-          "type": "starrailexpress:role_death",
+          "type": "starrailexpress:role_timer",
           "parameters": {
-            "linkId": "niaoshoushou_bird_foe",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "- Incendiary grenade (throwable, 45s cd);",
+                "zh_cn": "- 燃烧弹（可投掷，拥有45秒冷却）；",
+                "zh_tw": "- 燃燒彈（可投擲，擁有45秒冷卻）；"
+              }
             ]
           },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Passive [Niaoshoushou's Flame]: corpses of players you kill burn and vanish after 5s.",
-            "zh_cn": "被动【鸟兽兽的火焰】：你击杀的目标尸体会燃烧，并在5秒后消失。",
-            "zh_tw": "被動【鳥獸獸的火焰】：你擊殺的目標屍體會燃燒，並在5秒後消失。"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
           "attachKeyFrame": true
         },
         {
           "type": "idle",
-          "duration": 200
+          "duration": 40
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "niaoshoushou_bird_foe",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ]
-          },
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:incendiary_grenade",
+          "linkId": "niaoshoushou_line_item_1",
           "attachKeyFrame": true
         },
         {
@@ -267,7 +238,7 @@
           },
           "point": [
             3.0,
-            2.36,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,
@@ -278,39 +249,90 @@
           "duration": 123
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
         },
         {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "- Family Portrait (one per match, right-click two Killer players or a Magician to form a family! Each member gets 30% of the other two's combined coins; after everyone dies, Niaoshoushou revives in a random room with Speed II and one incendiary);",
-                "zh_cn": "- 全家福（每局限购1张，右键两名杀手阵营玩家或魔术师与它们组成家庭！队伍成员各获得其他两人的金币总额30%。全员死亡后鸟兽兽在随机房间复活并获得速度II与1颗燃烧弹）；",
-                "zh_tw": "- 全家福（每局限購1張，右鍵兩名殺手陣營玩家或魔術師與它們組成家庭！隊伍成員各獲得其他兩人的金幣總額30%。全員死亡後鳥獸獸在隨機房間復活並獲得速度II與1顆燃燒彈）；"
-              }
-            ]
-          },
-          "attachKeyFrame": true
+          "type": "idle",
+          "duration": 40
         },
         {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "- Family Portrait (one per match, right-click two Killer players or a Magician to form a family! Each member gets 30% of the other two's combined coins; after everyone dies, Niaoshoushou revives in a random room with Speed II and one incendiary);",
-            "zh_cn": "- 全家福（每局限购1张，右键两名杀手阵营玩家或魔术师与它们组成家庭！队伍成员各获得其他两人的金币总额30%。全员死亡后鸟兽兽在随机房间复活并获得速度II与1颗燃烧弹）；",
-            "zh_tw": "- 全家福（每局限購1張，右鍵兩名殺手陣營玩家或魔術師與它們組成家庭！隊伍成員各獲得其他兩人的金幣總額30%。全員死亡後鳥獸獸在隨機房間復活並獲得速度II與1顆燃燒彈）；"
+            "en_us": "- Loitering missile (60s cd, steerable with arrow keys, explodes on hitting a player or ground);",
+            "zh_cn": "- 巡飞弹（60秒冷却，可手动通过方向键控制，碰人或地面后爆炸）；",
+            "zh_tw": "- 巡飛彈（60秒冷卻，可手動通過方向鍵控制，碰人或地面後爆炸）；"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:area_blackout",
+          "linkId": "niaoshoushou_line_item_3",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "text",
+          "duration": 122,
+          "text": {
+            "en_us": "- Area lights out (30-block radius, 2 min cd).",
+            "zh_cn": "- 范围关灯（半径30格，2分钟冷却）。",
+            "zh_tw": "- 範圍關燈（半徑30格，2分鐘冷卻）。"
           },
           "point": [
             3.0,
@@ -322,14 +344,14 @@
         },
         {
           "type": "idle",
-          "duration": 200
+          "duration": 132
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -339,18 +361,18 @@
           "attachKeyFrame": true
         },
         {
-          "type": "set_block",
-          "block": "minecraft:bricks",
+          "type": "highlight_section",
           "blockPos": [
             3,
-            1,
-            4
+            0,
+            3
           ],
-          "blockPos2": [
-            5,
-            2,
-            4
-          ]
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
         },
         {
           "type": "text",

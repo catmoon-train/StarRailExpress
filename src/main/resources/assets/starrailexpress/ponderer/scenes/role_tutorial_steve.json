@@ -124,20 +124,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "highlight_section",
           "blockPos": [
             3,
@@ -241,101 +227,25 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "steve_mine_target",
-            "outline": 16753920
-          }
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.0,
-            1.55,
-            2.1
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:steve_pickaxe",
-          "linkId": "steve_pick",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "steve_main",
-            "item": "noellesroles:steve_pickaxe"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_currency",
-          "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
+            "label": "ponder.starrailexpress.label.skill",
             "lines": [
               {
-                "en_us": "Start with an iron pickaxe: hold left-click to mine task nodes, once per second, 32 times total. Each mining has a 30% chance of no yield; otherwise gain one random virtual plank, iron ingot, gold ingot, or diamond. Materials are shown at the top right, use no inventory space and cannot drop. Even empty mining consumes durability.",
-                "zh_cn": "开局获得一把铁镐：按住左键开采任务点，每 1 秒采一次，共 32 次。每次有30%概率无产出，否则等概率获得一份木板、铁锭、金锭或钻石虚拟材料。材料显示在右上角，不占背包、不能掉落；空挖也消耗耐久。",
-                "zh_tw": "開局獲得一把鐵鎬：按住左鍵開採任務點，每 1 秒采一次，共 32 次。每次有30%概率無產出，否則等概率獲得一份木板、鐵錠、金錠或鑽石虛擬材料。材料顯示在右上角，不占背包、不能掉落；空挖也消耗耐久。"
+                "en_us": "Press the skill key or consume a piston to build a wall lasting 25 seconds, sharing a 45-second cooldown between the two.",
+                "zh_cn": "用技能键或消耗一个活塞可以建造一堵墙，墙体持续 25 秒，两者共享 45 秒冷却。",
+                "zh_tw": "用技能鍵或消耗一個活塞可以建造一堵牆，牆體持續 25 秒，兩者共用 45 秒冷卻。"
               }
             ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Start with an iron pickaxe: hold left-click to mine task nodes, once per second, 32 times total. Each mining has a 30% chance of no yield; otherwise gain one random virtual plank, iron ingot, gold ingot, or diamond. Materials are shown at the top right, use no inventory space and cannot drop. Even empty mining consumes durability.",
-            "zh_cn": "开局获得一把铁镐：按住左键开采任务点，每 1 秒采一次，共 32 次。每次有30%概率无产出，否则等概率获得一份木板、铁锭、金锭或钻石虚拟材料。材料显示在右上角，不占背包、不能掉落；空挖也消耗耐久。",
-            "zh_tw": "開局獲得一把鐵鎬：按住左鍵開採任務點，每 1 秒采一次，共 32 次。每次有30%概率無產出，否則等概率獲得一份木板、鐵錠、金錠或鑽石虛擬材料。材料顯示在右上角，不占背包、不能掉落；空挖也消耗耐久。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -345,153 +255,14 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "steve_main",
-            "item": "noellesroles:steve_pickaxe"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_currency",
-          "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "The shop takes no coins, only materials: boat 5 planks, diamond pickaxe 3 diamonds, diamond sword 2 diamonds, minecart 5 iron ingots, golden apple 8 gold ingots, piston 4 iron ingots.",
-                "zh_cn": "商店不收金币，只收材料：船 5 木板、钻石镐 3 钻石、钻石剑 2 钻石、矿车 5 铁锭、金苹果 8 金锭、活塞 4 铁锭。",
-                "zh_tw": "商店不收金幣，只收材料：船 5 木板、鑽石鎬 3 鑽石、鑽石劍 2 鑽石、礦車 5 鐵錠、金蘋果 8 金錠、活塞 4 鐵錠。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "steve_mine_target",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_shop",
-          "parameters": {
-            "title": {
-              "en_us": "Material shop",
-              "zh_cn": "材料商店",
-              "zh_tw": "材料商店"
-            },
-            "lines": [
-              {
-                "en_us": "The shop takes no coins, only materials: boat 5 planks, diamond pickaxe 3 diamonds, diamond sword 2 diamonds, minecart 5 iron ingots, golden apple 8 gold ingots, piston 4 iron ingots.",
-                "zh_cn": "商店不收金币，只收材料：船 5 木板、钻石镐 3 钻石、钻石剑 2 钻石、矿车 5 铁锭、金苹果 8 金锭、活塞 4 铁锭。",
-                "zh_tw": "商店不收金幣，只收材料：船 5 木板、鑽石鎬 3 鑽石、鑽石劍 2 鑽石、礦車 5 鐵錠、金蘋果 8 金錠、活塞 4 鐵錠。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "The shop takes no coins, only materials: boat 5 planks, diamond pickaxe 3 diamonds, diamond sword 2 diamonds, minecart 5 iron ingots, golden apple 8 gold ingots, piston 4 iron ingots.",
-            "zh_cn": "商店不收金币，只收材料：船 5 木板、钻石镐 3 钻石、钻石剑 2 钻石、矿车 5 铁锭、金苹果 8 金锭、活塞 4 铁锭。",
-            "zh_tw": "商店不收金幣，只收材料：船 5 木板、鑽石鎬 3 鑽石、鑽石劍 2 鑽石、礦車 5 鐵錠、金蘋果 8 金錠、活塞 4 鐵錠。"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "steve_mine_target",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "The diamond sword deals virtual-health damage to players; at zero virtual health they die, durability 12.",
-            "zh_cn": "钻石剑可以对玩家造成虚拟血量伤害，虚拟血量归零时击杀，耐久 12。",
-            "zh_tw": "鑽石劍可以對玩家造成虛擬血量傷害，虛擬血量歸零時擊殺，耐久 12。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "set_block",
-          "block": "minecraft:stone",
+          "type": "highlight_section",
           "blockPos": [
-            4,
-            1,
+            3,
+            0,
             3
           ],
-          "blockPos2": [
-            4,
-            3,
-            3
-          ]
+          "duration": 220,
+          "color": "blue"
         },
         {
           "type": "starrailexpress:role_timer",
@@ -511,6 +282,27 @@
           "attachKeyFrame": true
         },
         {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:steve_piston",
+          "linkId": "steve_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -520,7 +312,7 @@
           },
           "point": [
             3.0,
-            2.64,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,

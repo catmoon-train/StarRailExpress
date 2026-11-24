@@ -270,29 +270,21 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              6.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "metal_monster_rammed",
-            "outline": 16753920
-          }
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "metal_monster_rammed",
-            "pos": [
-              6.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Press the skill key again while rolled up to return to normal, resetting your speed and state and starting a 30-second cooldown.",
+                "zh_cn": "钢卷形态中再次按下技能键即可变回原样，重置速度与状态，并进入30秒冷却。",
+                "zh_tw": "鋼卷形態中再次按下技能鍵即可變回原樣，重置速度與狀態，並進入30秒冷卻。"
+              },
+              {
+                "en_us": "120-second cooldown, and it starts on a 120-second cooldown at the beginning of the round.",
+                "zh_cn": "技能冷却120秒，开局冷却120秒。",
+                "zh_tw": "技能冷卻120秒，開局冷卻120秒。"
+              }
+            ]
           },
           "attachKeyFrame": true
         },
@@ -301,7 +293,7 @@
           "parameters": {
             "point": [
               4.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -309,6 +301,35 @@
             "keyBind": "next_ability",
             "text": "ponder.starrailexpress.ponder.press_next_ability"
           },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            4,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            3.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "metal_monster_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -332,70 +353,25 @@
           "duration": 156
         },
         {
-          "type": "starrailexpress:role_key",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "point": [
-              4.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_scale",
-          "parameters": {
-            "linkId": "metal_monster_main",
-            "scale": 0.55
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_knockback",
-          "parameters": {
-            "linkId": "metal_monster_rammed",
-            "from": [
-              4.0,
-              1.0,
-              3.0
-            ],
-            "to": [
+            "pos": [
               6.0,
               1.0,
               2.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Steel Coil Form: become a rolling steel coil. You start at speed 0.4 and accelerate as long as you hold forward, up to a maximum of 3. Let go and you keep rolling from momentum. You can turn at most 45 degrees at a time and lose speed while turning. Use A/D to steer left or right. Hitting a block wall bounces you back (hitting players does not), and you cannot accelerate during the bounce.",
-            "zh_cn": "钢卷形态：化身滚动的钢卷(期间再次按下技能键恢复原型)，初始速度0.4，按住前进键不断加速，最高使速度加速至3。松开前进键后仍会带着惯性继续滑行。按A/D键控制向左或向右拐弯，最多拐45度并损失一定速度，撞到墙（方块）会反弹，撞到玩家不会反弹。",
-            "zh_tw": "鋼卷形態：化身滾動的鋼卷，初始速度0.4，按住前進鍵不斷加速，最高3。鬆開前進鍵後仍會帶著慣性繼續滑行，按A/D鍵控制向左或向右轉彎，最多拐45度並會損失速度，撞到牆（方塊）會反彈，撞到玩家不會反彈，反彈期間按前進鍵也無法前進。"
-          },
-          "point": [
-            4.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
+            ],
+            "yaw": 180.0,
+            "linkId": "metal_monster_skill_target_1",
+            "outline": -6905686
+          }
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               4.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -405,139 +381,100 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_scale",
+          "type": "starrailexpress:role_vitals",
           "parameters": {
-            "linkId": "metal_monster_main",
-            "scale": 0.55
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_knockback",
-          "parameters": {
-            "linkId": "metal_monster_rammed",
-            "from": [
-              4.0,
-              1.0,
-              3.0
-            ],
-            "to": [
-              6.0,
-              1.0,
-              2.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Press the skill key again while rolled up to return to normal, resetting your speed and state and starting a 30-second cooldown.",
-            "zh_cn": "钢卷形态中再次按下技能键即可变回原样，重置速度与状态，并进入30秒冷却。",
-            "zh_tw": "鋼卷形態中再次按下技能鍵即可變回原樣，重置速度與狀態，並進入30秒冷卻。"
-          },
-          "point": [
-            4.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              4.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_scale",
-          "parameters": {
-            "linkId": "metal_monster_main",
-            "scale": 0.55
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_knockback",
-          "parameters": {
-            "linkId": "metal_monster_rammed",
-            "from": [
-              4.0,
-              1.0,
-              3.0
-            ],
-            "to": [
-              6.0,
-              1.0,
-              2.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Lethal Boost: for the next 2.5 seconds your impacts can cut a player's virtual health to zero and kill them, with the death reason steel coil crush.",
-            "zh_cn": "致命强化：接下来的2.5秒内，钢卷撞击可以把玩家的虚拟血量削到0并致死，死因是钢卷碾压。",
-            "zh_tw": "致命強化：接下來的2.5秒內，鋼卷撞擊可以把玩家的虛擬血量削到0並致死，死因是鋼卷碾壓。"
-          },
-          "point": [
-            4.0,
-            2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              4.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.0
-            ],
-            "lines": [
+            "bars": [
               {
-                "en_us": "120-second cooldown, and it starts on a 120-second cooldown at the beginning of the round.",
-                "zh_cn": "技能冷却120秒，开局冷却120秒。",
-                "zh_tw": "冷卻120秒，開局就需要等待120秒。"
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.35,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
               }
             ]
           },
           "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            6,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 35
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              4.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            4,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              4.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            4,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
         },
         {
           "type": "text",
@@ -545,11 +482,11 @@
           "text": {
             "en_us": "120-second cooldown, and it starts on a 120-second cooldown at the beginning of the round.",
             "zh_cn": "技能冷却120秒，开局冷却120秒。",
-            "zh_tw": "冷卻120秒，開局就需要等待120秒。"
+            "zh_tw": "技能冷卻120秒，開局冷卻120秒。"
           },
           "point": [
             4.0,
-            2.92,
+            2.64,
             3.0
           ],
           "placeNearTarget": true,
@@ -616,7 +553,7 @@
               {
                 "en_us": "Hitting a player deals 1 vanilla damage, knockback and virtual health damage. Below speed 1 there is no virtual health damage; every 0.1 above that adds 1 damage. This damage never cuts virtual health below 1 on its own.",
                 "zh_cn": "撞击玩家会造成击退和虚拟血量伤害；速度低于1时不会扣虚拟血量，之后每快0.1就多造成1点伤害。这种伤害最多把虚拟血量削减至1，不会致死。",
-                "zh_tw": "撞擊玩家會造成1點原版傷害、擊退和虛擬血量傷害；速度低於1時不會扣虛擬血量，之後每快0.1就多造成1點傷害。這種傷害最多把虛擬血量削到1，不會致死。"
+                "zh_tw": "撞擊玩家會造成擊退和虛擬血量傷害；速度低於1時不會扣虛擬血量，之後每快0.1就多造成1點傷害。這種傷害最多把虛擬血量削減至1，不會致死。"
               },
               {
                 "en_us": "Lethal Boost: for the next 2.5 seconds your impacts can cut a player's virtual health to zero and kill them, with the death reason steel coil crush.",
@@ -649,7 +586,7 @@
           "text": {
             "en_us": "Hitting a player deals 1 vanilla damage, knockback and virtual health damage. Below speed 1 there is no virtual health damage; every 0.1 above that adds 1 damage. This damage never cuts virtual health below 1 on its own.",
             "zh_cn": "撞击玩家会造成击退和虚拟血量伤害；速度低于1时不会扣虚拟血量，之后每快0.1就多造成1点伤害。这种伤害最多把虚拟血量削减至1，不会致死。",
-            "zh_tw": "撞擊玩家會造成1點原版傷害、擊退和虛擬血量傷害；速度低於1時不會扣虛擬血量，之後每快0.1就多造成1點傷害。這種傷害最多把虛擬血量削到1，不會致死。"
+            "zh_tw": "撞擊玩家會造成擊退和虛擬血量傷害；速度低於1時不會扣虛擬血量，之後每快0.1就多造成1點傷害。這種傷害最多把虛擬血量削減至1，不會致死。"
           },
           "point": [
             4.0,
@@ -688,22 +625,6 @@
             ],
             "name": "ponder.starrailexpress.label.victim"
           },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Lethal Boost: for the next 2.5 seconds your impacts can cut a player's virtual health to zero and kill them, with the death reason steel coil crush.",
-            "zh_cn": "致命强化：接下来的2.5秒内，钢卷撞击可以把玩家的虚拟血量削到0并致死，死因是钢卷碾压。",
-            "zh_tw": "致命強化：接下來的2.5秒內，鋼卷撞擊可以把玩家的虛擬血量削到0並致死，死因是鋼卷碾壓。"
-          },
-          "point": [
-            4.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
           "attachKeyFrame": true
         },
         {
@@ -762,7 +683,7 @@
               {
                 "en_us": "Steel Coil Form: become a rolling steel coil. You start at speed 0.4 and accelerate as long as you hold forward, up to a maximum of 3. Let go and you keep rolling from momentum. You can turn at most 45 degrees at a time and lose speed while turning. Use A/D to steer left or right. Hitting a block wall bounces you back (hitting players does not), and you cannot accelerate during the bounce.",
                 "zh_cn": "钢卷形态：化身滚动的钢卷(期间再次按下技能键恢复原型)，初始速度0.4，按住前进键不断加速，最高使速度加速至3。松开前进键后仍会带着惯性继续滑行。按A/D键控制向左或向右拐弯，最多拐45度并损失一定速度，撞到墙（方块）会反弹，撞到玩家不会反弹。",
-                "zh_tw": "鋼卷形態：化身滾動的鋼卷，初始速度0.4，按住前進鍵不斷加速，最高3。鬆開前進鍵後仍會帶著慣性繼續滑行，按A/D鍵控制向左或向右轉彎，最多拐45度並會損失速度，撞到牆（方塊）會反彈，撞到玩家不會反彈，反彈期間按前進鍵也無法前進。"
+                "zh_tw": "鋼卷形態：化身滾動的鋼卷(期間再次按下技能鍵恢復原型)，初始速度0.4，按住前進鍵不斷加速，最高使速度加速至3。鬆開前進鍵後仍會帶著慣性繼續滑行。按A/D鍵控制向左或向右拐彎，最多拐45度並損失一定速度，撞到牆（方塊）會反彈，撞到玩家不會反彈。"
               },
               {
                 "en_us": "The coil fits through one-block-wide passages, but its impact covers two blocks.",
@@ -793,7 +714,7 @@
           "text": {
             "en_us": "Steel Coil Form: become a rolling steel coil. You start at speed 0.4 and accelerate as long as you hold forward, up to a maximum of 3. Let go and you keep rolling from momentum. You can turn at most 45 degrees at a time and lose speed while turning. Use A/D to steer left or right. Hitting a block wall bounces you back (hitting players does not), and you cannot accelerate during the bounce.",
             "zh_cn": "钢卷形态：化身滚动的钢卷(期间再次按下技能键恢复原型)，初始速度0.4，按住前进键不断加速，最高使速度加速至3。松开前进键后仍会带着惯性继续滑行。按A/D键控制向左或向右拐弯，最多拐45度并损失一定速度，撞到墙（方块）会反弹，撞到玩家不会反弹。",
-            "zh_tw": "鋼卷形態：化身滾動的鋼卷，初始速度0.4，按住前進鍵不斷加速，最高3。鬆開前進鍵後仍會帶著慣性繼續滑行，按A/D鍵控制向左或向右轉彎，最多拐45度並會損失速度，撞到牆（方塊）會反彈，撞到玩家不會反彈，反彈期間按前進鍵也無法前進。"
+            "zh_tw": "鋼卷形態：化身滾動的鋼卷(期間再次按下技能鍵恢復原型)，初始速度0.4，按住前進鍵不斷加速，最高使速度加速至3。鬆開前進鍵後仍會帶著慣性繼續滑行。按A/D鍵控制向左或向右拐彎，最多拐45度並損失一定速度，撞到牆（方塊）會反彈，撞到玩家不會反彈。"
           },
           "point": [
             4.0,
@@ -955,22 +876,6 @@
           "attachKeyFrame": true
         },
         {
-          "type": "text",
-          "duration": 184,
-          "text": {
-            "en_us": "The coil fits through one-block-wide passages, but its impact covers two blocks.",
-            "zh_cn": "钢卷能从一格宽的道路穿过，但撞击判定有两格宽。",
-            "zh_tw": "鋼卷能從一格寬的道路穿過，但撞擊判定有兩格寬。"
-          },
-          "point": [
-            4.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
           "type": "idle",
           "duration": 194
         },
@@ -980,7 +885,7 @@
           "text": {
             "en_us": "At speed 1.5 you can smash open train doors as well as vanilla wooden and copper doors, without bouncing or losing speed.",
             "zh_cn": "速度达到1.5后可以撞开列车门以及原版的木门和铜门。",
-            "zh_tw": "速度達到1.5後可以撞開列車門以及原版的木門和銅門，撞門不會讓自己反彈或掉速。"
+            "zh_tw": "速度達到1.5後可以撞開列車門以及原版的木門和銅門。"
           },
           "point": [
             4.0,

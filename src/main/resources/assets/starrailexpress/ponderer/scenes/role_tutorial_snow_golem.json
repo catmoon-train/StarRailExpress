@@ -224,66 +224,43 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "snow_golem_snowball_target",
-            "outline": 16753920
-          }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "snow_golem_snowball_target",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "snowball"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
             "lines": [
               {
-                "en_us": "Slowness I-III and knockback",
-                "zh_cn": "缓慢 I~III · 击退",
-                "zh_tw": "緩慢 I~III · 擊退"
+                "en_us": "Off snow / ice blocks the snowball shrinks by 0.1 every 3 seconds, and vanishes once below 0.5.",
+                "zh_cn": "被动·滚雪：在雪块 / 顶层雪上每移动 4 格，可以推出一颗大雪球(基础尺寸为0.5)；之后每在雪上推动4格都会让它的尺寸变大 0.1（上限 10）。",
+                "zh_tw": "被動·滾雪：在雪塊 / 頂層雪上每移動 4 格，可以推出一顆大雪球(基礎尺寸為0.5)；之後每在雪上推動4格都會讓它的尺寸變大 0.1（上限 10）。"
               }
             ]
           },
           "attachKeyFrame": true
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "snow_golem_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "Passive · Roll: every 4 blocks moved on snow blocks / top snow, you push out a big snowball; if you already have one, it grows by 0.1 instead (up to 10).",
-            "zh_cn": "被动·融化：靠近点燃的炉灶 3 格内或身上着火时，每秒失去 1 点虚拟血量；虚拟血量归零时「融化」 而死。你不会刷新取暖任务。",
-            "zh_tw": "被動·融化：靠近點燃的爐灶 3 格內或身上著火時，每秒失去 1 點虛擬血量；虛擬血量歸零時「融化」 而死。你不會刷新取暖任務。"
+            "en_us": "Off snow / ice blocks the snowball shrinks by 0.1 every 3 seconds, and vanishes once below 0.5.",
+            "zh_cn": "被动·滚雪：在雪块 / 顶层雪上每移动 4 格，可以推出一颗大雪球(基础尺寸为0.5)；之后每在雪上推动4格都会让它的尺寸变大 0.1（上限 10）。",
+            "zh_tw": "被動·滾雪：在雪塊 / 頂層雪上每移動 4 格，可以推出一顆大雪球(基礎尺寸為0.5)；之後每在雪上推動4格都會讓它的尺寸變大 0.1（上限 10）。"
           },
           "point": [
             3.0,
@@ -302,7 +279,7 @@
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -312,60 +289,52 @@
           "attachKeyFrame": true
         },
         {
-          "type": "set_block",
-          "block": "minecraft:snow_block",
-          "blockPos": [
-            4,
-            1,
-            3
-          ],
-          "blockPos2": [
-            5,
-            1,
-            3
-          ]
-        },
-        {
-          "type": "starrailexpress:role_scale",
+          "type": "starrailexpress:role_walk",
           "parameters": {
             "linkId": "snow_golem_main",
-            "scale": 1.2
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_knockback",
-          "parameters": {
-            "linkId": "snow_golem_snowball_target",
-            "from": [
-              3.0,
-              1.5,
-              3.0
-            ],
             "to": [
-              5.0,
+              4.1,
               1.0,
               2.0
             ],
-            "duration": 22,
-            "arc": 0.25
+            "duration": 40
           },
           "attachKeyFrame": true
         },
         {
-          "type": "play_sound",
-          "sound": "minecraft:block.snow.place",
-          "soundVolume": 1.0,
-          "pitch": 1.0,
-          "source": "players"
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
         },
         {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "Off snow / ice blocks the snowball shrinks by 0.1 every 3 seconds, and vanishes once below 0.5.",
-            "zh_cn": "被动·滚雪：在雪块 / 顶层雪上每移动 4 格，可以推出一颗大雪球(基础尺寸为0.5)；之后每在雪上推动4格都会让它的尺寸变大 0.1（上限 10）。",
-            "zh_tw": "被動·滾雪：在雪塊 / 頂層雪上每移動 4 格，可以推出一顆大雪球(基礎尺寸為0.5)；之後每在雪上推動4格都會讓它的尺寸變大 0.1（上限 10）。"
+            "en_us": "A launched snowball that hits a player deals 1 vanilla damage + size×2.4 virtual damage (cause «Snowball Crush», killer credited to the rolling Snow Golem), size×1.3 knockback, and Slowness I~III based on size.",
+            "zh_cn": "技能【推出雪球】：把正在推的雪球猛地推出去。大雪球在撞到墙体后会使尺寸 -1 并反弹，雪球滚动期间可以被雪傀儡重新接住。",
+            "zh_tw": "技能【推出雪球】：把正在推的雪球猛地推出去。大雪球在撞到牆體後會使尺寸 -1 並反彈，雪球滾動期間可以被雪傀儡重新接住。"
           },
           "point": [
             3.0,
@@ -380,48 +349,12 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "set_block",
-          "block": "minecraft:snow_block",
-          "blockPos": [
-            4,
-            1,
-            3
-          ],
-          "blockPos2": [
-            5,
-            1,
-            3
-          ]
-        },
-        {
-          "type": "starrailexpress:role_scale",
-          "parameters": {
-            "linkId": "snow_golem_main",
-            "scale": 1.2
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
-          "duration": 190,
+          "duration": 157,
           "text": {
-            "en_us": "Skill [Push Snowball]: shoves the snowball you are rolling. It shrinks by 1 and bounces off walls, and can be caught again.",
-            "zh_cn": "雪球离开雪 / 冰类方块后每 3 秒缩小 0.1，缩到 0.5 以下即消失。",
-            "zh_tw": "雪球離開雪 / 冰類方塊後每 3 秒縮小 0.1，縮到 0.5 以下即消失。"
+            "en_us": "Snowballs block the way, but players cannot stand on top of them.",
+            "zh_cn": "雪球每次被其它玩家撞击会使雪球尺寸缩小 0.5，只有雪傀儡能主动推动大雪球。",
+            "zh_tw": "雪球每次被其他玩家撞擊會使雪球尺寸縮小 0.5，只有雪傀儡能主動推動大雪球。"
           },
           "point": [
             3.0,
@@ -433,309 +366,7 @@
         },
         {
           "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "set_block",
-          "block": "minecraft:snow_block",
-          "blockPos": [
-            4,
-            1,
-            3
-          ],
-          "blockPos2": [
-            5,
-            1,
-            3
-          ]
-        },
-        {
-          "type": "starrailexpress:role_scale",
-          "parameters": {
-            "linkId": "snow_golem_main",
-            "scale": 1.2
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_knockback",
-          "parameters": {
-            "linkId": "snow_golem_snowball_target",
-            "from": [
-              3.0,
-              1.5,
-              3.0
-            ],
-            "to": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "duration": 22,
-            "arc": 0.25
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "play_sound",
-          "sound": "minecraft:block.snow.place",
-          "soundVolume": 1.0,
-          "pitch": 1.0,
-          "source": "players"
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "A launched snowball that hits a player deals 1 vanilla damage + size×2.4 virtual damage (cause «Snowball Crush», killer credited to the rolling Snow Golem), size×1.3 knockback, and Slowness I~III based on size.",
-            "zh_cn": "技能【推出雪球】：把正在推的雪球猛地推出去。大雪球在撞到墙体后会使尺寸 -1 并反弹，雪球滚动期间可以被雪傀儡重新接住。",
-            "zh_tw": "技能【推出雪球】：把正在推的雪球猛地推出去。大雪球在撞到牆體後會使尺寸 -1 並反彈，雪球滾動期間可以被雪傀儡重新接住。"
-          },
-          "point": [
-            3.0,
-            2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "set_block",
-          "block": "minecraft:snow_block",
-          "blockPos": [
-            4,
-            1,
-            3
-          ],
-          "blockPos2": [
-            5,
-            1,
-            3
-          ]
-        },
-        {
-          "type": "starrailexpress:role_scale",
-          "parameters": {
-            "linkId": "snow_golem_main",
-            "scale": 1.2
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_knockback",
-          "parameters": {
-            "linkId": "snow_golem_snowball_target",
-            "from": [
-              3.0,
-              1.5,
-              3.0
-            ],
-            "to": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "duration": 22,
-            "arc": 0.25
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "play_sound",
-          "sound": "minecraft:block.snow.place",
-          "soundVolume": 1.0,
-          "pitch": 1.0,
-          "source": "players"
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "snow_golem_snowball_target",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "snowball"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Slowness I-III and knockback",
-                "zh_cn": "缓慢 I~III · 击退",
-                "zh_tw": "緩慢 I~III · 擊退"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "The snowball rolls up single-block steps by itself; being bumped by another player shrinks it by 0.5. Anyone can push it, but only the Snow Golem can launch it.",
-            "zh_cn": "被推出的雪球命中玩家时：会造成 当前尺寸×2.4 点虚拟血量伤害（若玩家因滚动的雪球致死，则死因为「雪球碾压」）、尺寸×1.3 的击退系数，并按尺寸大小施加缓慢 I~III。",
-            "zh_tw": "被推出的雪球命中玩家時：會造成 當前尺寸×2.4 點虛擬血量傷害（若玩家因滾動的雪球致死，則死因為「雪球碾壓」）、尺寸×1.3 的擊退係數，並按尺寸大小施加緩慢 I~III。"
-          },
-          "point": [
-            3.0,
-            2.92,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "set_block",
-          "block": "minecraft:snow_block",
-          "blockPos": [
-            4,
-            1,
-            3
-          ],
-          "blockPos2": [
-            5,
-            1,
-            3
-          ]
-        },
-        {
-          "type": "starrailexpress:role_scale",
-          "parameters": {
-            "linkId": "snow_golem_main",
-            "scale": 1.2
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 157,
-          "text": {
-            "en_us": "Snowballs block the way, but players cannot stand on top of them.",
-            "zh_cn": "雪球每次被其它玩家撞击会使雪球尺寸缩小 0.5，只有雪傀儡能主动推动大雪球。",
-            "zh_tw": "雪球每次被其他玩家撞擊會使雪球尺寸縮小 0.5，只有雪傀儡能主動推動大雪球。"
-          },
-          "point": [
-            3.0,
-            3.2,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
           "duration": 167
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "set_block",
-          "block": "minecraft:snow_block",
-          "blockPos": [
-            4,
-            1,
-            3
-          ],
-          "blockPos2": [
-            5,
-            1,
-            3
-          ]
-        },
-        {
-          "type": "starrailexpress:role_scale",
-          "parameters": {
-            "linkId": "snow_golem_main",
-            "scale": 1.2
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 99,
-          "text": {
-            "en_us": "You never get the «Warm Up» task.",
-            "zh_cn": "大雪球能够阻挡玩家。",
-            "zh_tw": "大雪球能夠阻擋玩家。"
-          },
-          "point": [
-            3.0,
-            3.48,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 109
         },
         {
           "type": "rotate_camera_y",

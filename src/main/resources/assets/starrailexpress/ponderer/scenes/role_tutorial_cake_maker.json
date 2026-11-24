@@ -138,20 +138,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "create_item_entity",
           "pos": [
             2.2,
@@ -215,20 +201,6 @@
         {
           "type": "idle",
           "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "highlight_section",
@@ -317,184 +289,30 @@
           }
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            1.8,
-            1.55,
-            2.2
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "minecraft:wheat",
-          "linkId": "cake_maker_ing_0",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.02,
-            1.55,
-            2.2
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "minecraft:wheat",
-          "linkId": "cake_maker_ing_1",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.24,
-            1.55,
-            2.2
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "minecraft:wheat",
-          "linkId": "cake_maker_ing_2",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.46,
-            1.55,
-            2.2
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "minecraft:egg",
-          "linkId": "cake_maker_ing_3",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.68,
-            1.55,
-            2.2
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "minecraft:sugar",
-          "linkId": "cake_maker_ing_4",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.9000000000000004,
-            1.55,
-            2.2
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "minecraft:sugar",
-          "linkId": "cake_maker_ing_5",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            3.12,
-            1.55,
-            2.2
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "minecraft:milk_bucket",
-          "linkId": "cake_maker_ing_6",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            3.34,
-            1.55,
-            2.2
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "minecraft:milk_bucket",
-          "linkId": "cake_maker_ing_7",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            3.56,
-            1.55,
-            2.2
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "minecraft:milk_bucket",
-          "linkId": "cake_maker_ing_8",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Starts with cake materials and a storage bag; right-click cake materials (with at least 4 free hotbar slots) to split into 3 wheat, 2 sugar, 1 egg and 3 milk buckets.",
-            "zh_cn": "开局拥有蛋糕材料与收纳袋；蛋糕材料右键会在快捷栏至少有 4 个空位时拆成 3 个小麦、2 个糖、1 个鸡蛋和 3 桶牛奶。",
-            "zh_tw": "開局擁有蛋糕材料與收納袋；蛋糕材料右鍵會在快捷欄至少有 4 個空位時拆成 3 個小麥、2 個糖、1 個雞蛋和 3 桶牛奶。"
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Hold the smoker and press the skill key to deploy one at your feet for 40s, 60s cd.",
+                "zh_cn": "手持烟熏炉按技能键，会在原地部署一个持续 40 秒的烟熏炉，并进入 60 秒冷却。",
+                "zh_tw": "手持煙熏爐按技能鍵，會在原地部署一個持續 40 秒的煙熏爐，並進入 60 秒冷卻。"
+              },
+              {
+                "en_us": "Hold a cake and press the skill key to place it (vanishes after 40s).",
+                "zh_cn": "手持蛋糕按技能键可在原地摆放蛋糕（蛋糕放置后40秒自动消失）。",
+                "zh_tw": "手持蛋糕按技能鍵可在原地擺放蛋糕（蛋糕放置後40秒自動消失）。"
+              }
+            ]
           },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
           "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -504,88 +322,14 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "cake_maker_main",
-            "item": "minecraft:cake"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            3.9,
-            1.55,
-            3.0
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
           ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "minecraft:cake",
-          "linkId": "cake_maker_cake_1",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Shop sells smoker and cake materials (100 coins each); can't buy a smoker if you already hold one.",
-            "zh_cn": "商店出售烟熏炉与蛋糕材料（各 100 金币），快捷栏已有烟熏炉时不能再次购买。",
-            "zh_tw": "商店出售煙熏爐與蛋糕材料（各 100 金幣），快捷欄已有煙熏爐時不能再次購買。"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "cake_maker_main",
-            "item": "minecraft:smoker"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.0,
-            1.55,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "minecraft:smoker",
-          "linkId": "cake_maker_smoker_2",
-          "attachKeyFrame": true
+          "duration": 220,
+          "color": "blue"
         },
         {
           "type": "starrailexpress:role_timer",
@@ -605,6 +349,27 @@
           "attachKeyFrame": true
         },
         {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "minecraft:wheat",
+          "linkId": "cake_maker_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 189,
           "text": {
@@ -614,7 +379,7 @@
           },
           "point": [
             3.0,
-            2.36,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,
@@ -629,7 +394,7 @@
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -639,88 +404,18 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "cake_maker_main",
-            "item": "minecraft:cake"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            3.9,
-            1.55,
-            3.0
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
           ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "minecraft:cake",
-          "linkId": "cake_maker_cake_3",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Right-click in order: 3 wheat, wait 3s, add 1 egg and 2 sugar, wait 3s, add 3 milk buckets, wait 5s and the cake is baked.",
-            "zh_cn": "炉边依次右键放入 3 个小麦，等待 3 秒后放入 1 个鸡蛋和 2 个糖，再等待 3 秒后放入 3 桶牛奶，最后等待 5 秒即可烹饪出蛋糕。",
-            "zh_tw": "爐邊依次右鍵放入 3 個小麥，等待 3 秒後放入 1 個雞蛋和 2 個糖，再等待 3 秒後放入 3 桶牛奶，最後等待 5 秒即可烹飪出蛋糕。"
-          },
-          "point": [
-            3.0,
-            2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
+          "duration": 220,
+          "color": "blue"
         },
         {
           "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "cake_maker_main",
-            "item": "minecraft:cake"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            3.9,
-            1.55,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "minecraft:cake",
-          "linkId": "cake_maker_cake_4",
-          "attachKeyFrame": true
+          "duration": 40
         },
         {
           "type": "text",
@@ -732,7 +427,7 @@
           },
           "point": [
             3.0,
-            2.92,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,
@@ -741,108 +436,6 @@
         {
           "type": "idle",
           "duration": 174
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "cake_maker_eater"
-          }
-        },
-        {
-          "type": "starrailexpress:role_vitals",
-          "parameters": {
-            "bars": [
-              {
-                "label": "ponder.starrailexpress.label.vitals",
-                "before": 0.3,
-                "after": 1.0,
-                "color": -65536
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Others right-click to eat: restores stamina and status bars (warmth/thirst/hunger), restores 30% Sanity, and grants 12s Speed I and infinite stamina.",
-            "zh_cn": "其他玩家右键食用时会将体力和状态栏(保暖值/口渴值/饥饿值)补满、恢复30% san值，并获得 12 秒速度 I 和无限体力。",
-            "zh_tw": "其他玩家右鍵食用時會將體力和狀態欄(保暖值/口渴值/饑餓值)補滿、恢復30% san值，並獲得 12 秒速度 I 和無限體力。"
-          },
-          "point": [
-            3.0,
-            3.2,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "cake_maker_eater"
-          }
-        },
-        {
-          "type": "starrailexpress:role_vitals",
-          "parameters": {
-            "bars": [
-              {
-                "label": "ponder.starrailexpress.label.vitals",
-                "before": 0.3,
-                "after": 1.0,
-                "color": -65536
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 151,
-          "text": {
-            "en_us": "Each player can eat once per 30s; a cake serves up to 7 times.",
-            "zh_cn": "每人 30 秒内仅能食用蛋糕一次，蛋糕最多可食用 7 次。",
-            "zh_tw": "每人 30 秒內僅能食用蛋糕一次，蛋糕最多可食用 7 次。"
-          },
-          "point": [
-            3.0,
-            3.48,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 161
         },
         {
           "type": "rotate_camera_y",
@@ -991,20 +584,6 @@
             "linkId": "cake_maker_skill_target_0",
             "outline": -741951
           }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "indicate_success",

@@ -124,39 +124,25 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "return_traveler_ferry_a",
-            "outline": -8861516
-          }
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              6.2,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "return_traveler_ferry_b",
-            "outline": -8861516
-          }
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Has two switchable skills: Old Ferry and Last Train.",
+                "zh_cn": "拥有两个可切换技能：旧日渡口与末班车。",
+                "zh_tw": "擁有兩個可切換技能：舊日渡口與末班車。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              3.25,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -167,142 +153,32 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.0
-            ],
-            "lines": [
-              {
-                "en_us": "Those in the Other Side can see others in the Other Side (including Nostalgists and Cloth-bag Ghost).",
-                "zh_cn": "里世界的人能看到其它处于里世界的人(包括处于里世界的怀旧者和布袋鬼)。",
-                "zh_tw": "裏世界的人能看到其他處於裏世界的人(包括處於裏世界的懷舊者和布袋鬼)。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "return_traveler_main",
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:reverse_portal",
-          "pos": [
-            3.0,
-            2.0,
-            3.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 16,
-          "duration": 60,
-          "motion": [
+          "type": "indicate_success",
+          "blockPos": [
+            3,
             0,
-            0.04,
-            0
+            3
           ]
         },
         {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "return_traveler_ferry_a",
-            "pos": [
-              4.4,
-              1.0,
-              3.0
-            ]
-          },
-          "attachKeyFrame": true
+          "type": "idle",
+          "duration": 25
         },
         {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "return_traveler_ferry_b",
-            "pos": [
-              1.6,
-              1.0,
-              3.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hide",
-          "parameters": {
-            "linkId": "return_traveler_main",
-            "visible": false
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": []
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_broadcast",
-          "parameters": {
-            "title": {
-              "en_us": "Last Train",
-              "zh_cn": "末班车",
-              "zh_tw": "末班車"
-            },
-            "lines": [
-              {
-                "en_us": "[Old Ferry]: after a 2s windup, pull yourself and the 2 nearest players within 4 blocks into the Other Side for 10s; after, you turn translucent for 15s and can't see/hear others.",
-                "zh_cn": "【旧日渡口】:前摇 2 秒后，将自身与 4 格内最近的 2 名玩家拉入里世界 10 秒，结束后自身进入半透明化状态且无法看到/听到其他人，持续 15 秒。",
-                "zh_tw": "【舊日渡口】:前搖 2 秒後，將自身與 4 格內最近的 2 名玩家拉入裏世界 10 秒，結束後自身進入半透明化狀態且無法看到/聽到其他人，持續 15 秒。"
-              }
-            ],
-            "cost": 0,
-            "duration": 130
-          },
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "return_traveler_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -324,74 +200,6 @@
         {
           "type": "idle",
           "duration": 143
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "[Old Ferry]: after a 2s windup, pull yourself and the 2 nearest players within 4 blocks into the Other Side for 10s; after, you turn translucent for 15s and can't see/hear others.",
-            "zh_cn": "【旧日渡口】:前摇 2 秒后，将自身与 4 格内最近的 2 名玩家拉入里世界 10 秒，结束后自身进入半透明化状态且无法看到/听到其他人，持续 15 秒。",
-            "zh_tw": "【舊日渡口】:前搖 2 秒後，將自身與 4 格內最近的 2 名玩家拉入裏世界 10 秒，結束後自身進入半透明化狀態且無法看到/聽到其他人，持續 15 秒。"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "[Last Train]: once per match, after a 2s windup, pull all players within 12 blocks (except yourself) into the Other Side for 30s, then you become a Civilian.",
-            "zh_cn": "【末班车】:一局限一次，前摇 2 秒后，将 12 格内除自己外的所有玩家拉入里世界 30 秒，随后自身变为平民。",
-            "zh_tw": "【末班車】:一局限一次，前搖 2 秒後，將 12 格內除自己外的所有玩家拉入裏世界 30 秒，隨後自身變為平民。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Those in the Other Side can see others in the Other Side (including Nostalgists and Cloth-bag Ghost).",
-            "zh_cn": "里世界的人能看到其它处于里世界的人(包括处于里世界的怀旧者和布袋鬼)。",
-            "zh_tw": "裏世界的人能看到其他處於裏世界的人(包括處於裏世界的懷舊者和布袋鬼)。"
-          },
-          "point": [
-            3.0,
-            2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
         },
         {
           "type": "rotate_camera_y",

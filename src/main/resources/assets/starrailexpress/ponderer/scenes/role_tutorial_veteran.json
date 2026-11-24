@@ -274,25 +274,25 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "veteran_veteran_target",
-            "outline": -11179217
-          }
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "While holding the knife, press the skill key to dash about 2 blocks forward based on your current movement direction; 60-second cooldown.",
+                "zh_cn": "持刀时按技能键可根据当前移动趋势向前冲刺约2格，冷却60秒。",
+                "zh_tw": "持刀時按技能鍵可根據當前移動趨勢向前衝刺約2格，冷卻60秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -302,75 +302,52 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "veteran_main",
-            "item": "noellesroles:sp_knife"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "veteran_main",
-            "to": [
-              4.6,
-              1.0,
-              3.0
-            ],
-            "duration": 24
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "show_controls",
-          "action": "right",
-          "item": "noellesroles:sp_knife",
-          "duration": 70,
-          "point": [
-            4.2,
-            2.0,
-            3.0
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
           ],
-          "direction": "down",
-          "attachKeyFrame": true
+          "duration": 220,
+          "color": "blue"
         },
         {
           "type": "starrailexpress:role_timer",
           "parameters": {
             "progress": [
-              1.0,
-              0.0
+              0.0,
+              1.0
             ],
             "lines": [
               {
-                "en_us": "When another living player within 14 blocks holds a weapon (except a gun), you gain an initial Machete (once per match) — same effect as the Killer's; it disappears after one use — 60-second cooldown; stabbing a good player incurs cerebellum penalty.",
-                "zh_cn": "当14格范围内有其他存活玩家手持武器（除枪外）时，你会获得一把初始军刀（每局一次），和杀手同效果，使用一次后消失-冷却60秒，刀中好人会有小脑惩罚。",
-                "zh_tw": "當14格範圍內有其他存活玩家手持武器（除槍外）時，你會獲得一把初始軍刀（每局一次），和殺手同效果，使用一次後消失-冷卻60秒，刀中好人會有小腦懲罰。"
+                "en_us": "While holding the knife, press the skill key to dash about 2 blocks forward based on your current movement direction; 60-second cooldown.",
+                "zh_cn": "持刀时按技能键可根据当前移动趋势向前冲刺约2格，冷却60秒。",
+                "zh_tw": "持刀時按技能鍵可根據當前移動趨勢向前衝刺約2格，冷卻60秒。"
               }
             ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "When another living player within 14 blocks holds a weapon (except a gun), you gain an initial Machete (once per match) — same effect as the Killer's; it disappears after one use — 60-second cooldown; stabbing a good player incurs cerebellum penalty.",
-            "zh_cn": "当14格范围内有其他存活玩家手持武器（除枪外）时，你会获得一把初始军刀（每局一次），和杀手同效果，使用一次后消失-冷却60秒，刀中好人会有小脑惩罚。",
-            "zh_tw": "當14格範圍內有其他存活玩家手持武器（除槍外）時，你會獲得一把初始軍刀（每局一次），和殺手同效果，使用一次後消失-冷卻60秒，刀中好人會有小腦懲罰。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
+          "type": "idle",
+          "duration": 40
         },
         {
-          "type": "idle",
-          "duration": 200
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:sp_knife",
+          "linkId": "veteran_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -382,83 +359,7 @@
           },
           "point": [
             3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 178,
-          "text": {
-            "en_us": "Using the knife triggers Jester Rampage but does not consume the knife's use.",
-            "zh_cn": "使用刀会触发小丑的疯狂模式，但不会消耗刀的使用次数。",
-            "zh_tw": "使用刀會觸發小丑的瘋狂模式，但不會消耗刀的使用次數。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 188
-        },
-        {
-          "type": "text",
-          "duration": 113,
-          "text": {
-            "en_us": "The Veteran can buy machetes in the shop.",
-            "zh_cn": "退伍军人可在商店中购买军刀。",
-            "zh_tw": "退伍軍人可在商店中購買軍刀。"
-          },
-          "point": [
-            3.0,
-            2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 123
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "To others the machete has a special material (different from a normal knife) and shows no knife skin.",
-            "zh_cn": "军刀在别人的眼中拥有特殊材质（与普通刀不同）且不会显示刀皮。",
-            "zh_tw": "軍刀在別人的眼中擁有特殊材質（與普通刀不同）且不會顯示刀皮。"
-          },
-          "point": [
-            3.0,
-            2.92,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,
@@ -665,20 +566,6 @@
             "yaw": 180.0,
             "linkId": "veteran_main"
           }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "create_item_entity",

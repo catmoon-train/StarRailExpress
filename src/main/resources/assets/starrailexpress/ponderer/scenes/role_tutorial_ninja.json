@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.ninja",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "trainmurdermystery:lockpick"
   ],
   "title": {
     "en_us": "Ninja",
@@ -124,6 +122,20 @@
           }
         },
         {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "ninja",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
           "type": "create_item_entity",
           "pos": [
             2.2,
@@ -136,7 +148,7 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:lockpick",
+          "item": "trainmurdermystery:lockpick",
           "linkId": "ninja_line_item_0",
           "attachKeyFrame": true
         },
@@ -270,67 +282,52 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "The Ninja's Lights Out has a shorter cooldown and shorter duration.",
+                "zh_cn": "忍者的关灯拥有更短的冷却，更短的时长。",
+                "zh_tw": "忍者的關燈擁有更短的冷卻，更短的時長。"
+              }
+            ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "ninja_main",
-            "item": "trainmurdermystery:lockpick"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 86,
-          "text": {
-            "en_us": "You start with a Lockpick.",
-            "zh_cn": "你初始拥有一把开锁器。",
-            "zh_tw": "你初始擁有一把開鎖器。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
           ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
         },
         {
           "type": "idle",
-          "duration": 96
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
+          "duration": 25
         },
         {
           "type": "create_item_entity",
           "pos": [
-            2.0,
-            1.55,
-            2.1
+            2.2,
+            1.5,
+            3.0
           ],
           "motion": [
             0.0,
@@ -338,51 +335,8 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:kunai",
-          "linkId": "ninja_blade",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 122,
-          "text": {
-            "en_us": "The shop sells Kunai, Shuriken, and Lights Out",
-            "zh_cn": "商店里面可以购买苦无、手里剑、关灯",
-            "zh_tw": "商店裏面可以購買苦無、手裏劍、關燈"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 132
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_ambience",
-          "parameters": {
-            "color": 1118481,
-            "alpha": 0.65,
-            "mode": "blind"
-          },
+          "item": "trainmurdermystery:lockpick",
+          "linkId": "ninja_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -395,7 +349,7 @@
           },
           "point": [
             3.0,
-            2.36,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,
@@ -404,199 +358,6 @@
         {
           "type": "idle",
           "duration": 170
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.0,
-            1.55,
-            2.1
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:kunai",
-          "linkId": "ninja_blade",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 131,
-          "text": {
-            "en_us": "Kunai is a melee weapon with no use sound; one-use.",
-            "zh_cn": "苦无为近战武器，无使用声音，一次性道具。",
-            "zh_tw": "苦無為近戰武器，無使用聲音，一次性道具。"
-          },
-          "point": [
-            3.0,
-            2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 141
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.0,
-            1.55,
-            2.1
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:kunai",
-          "linkId": "ninja_blade",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 139,
-          "text": {
-            "en_us": "Shuriken is a ranged weapon with no use sound; one-use.",
-            "zh_cn": "手里剑为远程武器，无使用声音，一次性道具。",
-            "zh_tw": "手裏劍為遠程武器，無使用聲音，一次性道具。"
-          },
-          "point": [
-            3.0,
-            2.92,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 149
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_ambience",
-          "parameters": {
-            "color": 1118481,
-            "alpha": 0.65,
-            "mode": "blind"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 119,
-          "text": {
-            "en_us": "Killing in darkness grants an extra 100 coin",
-            "zh_cn": "在黑暗环境下杀人会额外获得100金币",
-            "zh_tw": "在黑暗環境下殺人會額外獲得100金幣"
-          },
-          "point": [
-            3.0,
-            3.2,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 129
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_vitals",
-          "parameters": {
-            "bars": [
-              {
-                "label": "shield",
-                "before": 0.0,
-                "after": 1.0,
-                "color": 5636095
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 166,
-          "text": {
-            "en_us": "After raising the block skill, gain 2.5s of shield that blocks one hit",
-            "zh_cn": "开启格挡技能后可以获得2.5s的护盾，可抵挡一次伤害",
-            "zh_tw": "開啟格擋技能後可以獲得2.5s的護盾，可抵擋一次傷害"
-          },
-          "point": [
-            3.0,
-            3.48,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 176
         },
         {
           "type": "rotate_camera_y",
@@ -796,7 +557,7 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "trainmurdermystery:lockpick",
           "linkId": "ninja_line_item_0",
           "attachKeyFrame": true
         },

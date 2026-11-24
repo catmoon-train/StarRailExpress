@@ -124,12 +124,9 @@
           }
         },
         {
-          "type": "starrailexpress:role_timer",
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
+            "label": "ponder.starrailexpress.label.skill",
             "lines": [
               {
                 "en_us": "Passive: Last Stand",
@@ -138,6 +135,77 @@
               }
             ]
           },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "better_vigilante_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "better_vigilante_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -159,104 +227,6 @@
         {
           "type": "idle",
           "duration": 84
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "When only 2 good players remain, you gain a Derringer and a grenade and unlock see-through.",
-                "zh_cn": "当场上只剩下2名好人时，获得一把德林加手枪和手雷，并解锁透视。",
-                "zh_tw": "當場上只剩下2名好人時，獲得一把德林加手槍和手雷，並解鎖透視。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "When only 2 good players remain, you gain a Derringer and a grenade and unlock see-through.",
-            "zh_cn": "当场上只剩下2名好人时，获得一把德林加手枪和手雷，并解锁透视。",
-            "zh_tw": "當場上只剩下2名好人時，獲得一把德林加手槍和手雷，並解鎖透視。"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.0,
-            1.55,
-            2.2
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:derringer",
-          "linkId": "better_vigilante_derringer",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.7,
-            1.55,
-            2.2
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:grenade",
-          "linkId": "better_vigilante_grenade",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "play_sound",
-          "sound": "minecraft:item.trident.thunder",
-          "soundVolume": 1.0,
-          "pitch": 1.0,
-          "source": "players"
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Derringer: only reloads when it hits a player; 2-second cooldown; no cerebellum penalty.",
-            "zh_cn": "德林加手枪：只有在命中玩家时才会恢复子弹，cd为2秒，无小脑惩罚。",
-            "zh_tw": "德林加手槍：只有在命中玩家時才會恢復子彈，cd為2秒，無小腦懲罰。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
         },
         {
           "type": "rotate_camera_y",

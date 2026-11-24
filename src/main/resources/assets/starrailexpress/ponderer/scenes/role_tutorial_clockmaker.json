@@ -122,98 +122,54 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_panel",
-          "parameters": {
-            "title": {
-              "en_us": "Game time",
-              "zh_cn": "游戏时间",
-              "zh_tw": "遊戲時間"
-            },
-            "lines": [
-              {
-                "en_us": "You can see the game time.",
-                "zh_cn": "你可以查看游戏时间。",
-                "zh_tw": "你可以查看遊戲時間。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 28
-        },
-        {
-          "type": "text",
-          "duration": 86,
-          "text": {
-            "en_us": "You can see the game time.",
-            "zh_cn": "你可以查看游戏时间。",
-            "zh_tw": "你可以查看遊戲時間。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 96
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_currency",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.5
-            ],
+            "label": "ponder.starrailexpress.label.skill",
             "lines": [
               {
                 "en_us": "Press the skill key to spend 125 coin and reduce game time by 45 seconds while speeding up world time by 2000 ticks.",
                 "zh_cn": "按下技能键可花费125金币，减少游戏时间45秒并使世界时间加快2000tick。",
                 "zh_tw": "按下技能鍵可花費125金幣，減少遊戲時間45秒並使世界時間加快2000tick。"
+              },
+              {
+                "en_us": "Speeding up game time speeds up everyone's skill cooldowns.",
+                "zh_cn": "加快游戏时间会使所有人的技能冷却加快。",
+                "zh_tw": "加快遊戲時間會使所有人的技能冷卻加快。"
               }
             ]
           },
           "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
         },
         {
           "type": "starrailexpress:role_timer",
           "parameters": {
             "progress": [
-              1.0,
-              0.0
+              0.0,
+              1.0
             ],
             "lines": [
               {
@@ -227,7 +183,24 @@
         },
         {
           "type": "idle",
-          "duration": 28
+          "duration": 40
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:pocket_watch",
+          "linkId": "clockmaker_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -239,7 +212,7 @@
           },
           "point": [
             3.0,
-            2.08,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,
@@ -254,7 +227,7 @@
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -264,55 +237,44 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_currency",
+          "type": "starrailexpress:role_walk",
           "parameters": {
-            "progress": [
+            "linkId": "clockmaker_main",
+            "to": [
+              4.1,
               1.0,
-              0.5
+              2.0
             ],
-            "lines": [
-              {
-                "en_us": "Speeding up game time speeds up everyone's skill cooldowns.",
-                "zh_cn": "加快游戏时间会使所有人的技能冷却加快。",
-                "zh_tw": "加快遊戲時間會使所有人的技能冷卻加快。"
-              }
-            ]
+            "duration": 40
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.0
-            ],
-            "lines": [
-              {
-                "en_us": "Speeding up game time speeds up everyone's skill cooldowns.",
-                "zh_cn": "加快游戏时间会使所有人的技能冷却加快。",
-                "zh_tw": "加快遊戲時間會使所有人的技能冷卻加快。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
         },
         {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "World time accelerates, time stop ignored",
-                "zh_cn": "世界时间加速 · 时停无效",
-                "zh_tw": "世界時間加速 · 時停無效"
-              }
-            ]
-          },
-          "attachKeyFrame": true
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
         },
         {
           "type": "idle",
-          "duration": 28
+          "duration": 25
         },
         {
           "type": "text",
@@ -324,7 +286,7 @@
           },
           "point": [
             3.0,
-            2.36,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,
@@ -333,91 +295,6 @@
         {
           "type": "idle",
           "duration": 156
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_currency",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.5
-            ],
-            "lines": [
-              {
-                "en_us": "Dealing with time, you ignore any time stop effects.",
-                "zh_cn": "善于同时间打交道的你无视任何时停效果。",
-                "zh_tw": "善於同時間打交道的你無視任何時停效果。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.0
-            ],
-            "lines": [
-              {
-                "en_us": "Dealing with time, you ignore any time stop effects.",
-                "zh_cn": "善于同时间打交道的你无视任何时停效果。",
-                "zh_tw": "善於同時間打交道的你無視任何時停效果。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "World time accelerates, time stop ignored",
-                "zh_cn": "世界时间加速 · 时停无效",
-                "zh_tw": "世界時間加速 · 時停無效"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 28
-        },
-        {
-          "type": "text",
-          "duration": 133,
-          "text": {
-            "en_us": "Dealing with time, you ignore any time stop effects.",
-            "zh_cn": "善于同时间打交道的你无视任何时停效果。",
-            "zh_tw": "善於同時間打交道的你無視任何時停效果。"
-          },
-          "point": [
-            3.0,
-            2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 143
         },
         {
           "type": "rotate_camera_y",
@@ -616,20 +493,6 @@
         {
           "type": "idle",
           "duration": 96
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "create_item_entity",

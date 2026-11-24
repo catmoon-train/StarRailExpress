@@ -211,20 +211,22 @@
           }
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.0,
-            1.55,
-            2.1
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:jetpack",
-          "linkId": "shadow_falcon_jetpack",
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "60s starting cooldown; on use you gain creative flight (double-tap space to take off). While airborne during the skill you have 1 temporary shield (it vanishes on landing and does not refill on takeoff); the shield disappears when the skill ends.",
+                "zh_cn": "开局60秒冷却，使用后开启创造飞行能力(双击空格起飞)，技能期间浮空时拥有1层临时护盾(着陆后立刻消失，且重新起飞时不会补充护盾)，临时护盾会在技能结束后立刻消失。",
+                "zh_tw": "開局60秒冷卻，使用後開啟創造飛行能力(雙擊空格起飛)，技能期間浮空時擁有1層臨時護盾(著陸後立刻消失，且重新起飛時不會補充護盾)，臨時護盾會在技能結束後立刻消失。"
+              },
+              {
+                "en_us": "240s cooldown after the skill ends.",
+                "zh_cn": "技能结束后进入240秒冷却。",
+                "zh_tw": "技能結束後進入240秒冷卻。"
+              }
+            ]
+          },
           "attachKeyFrame": true
         },
         {
@@ -232,41 +234,7 @@
           "parameters": {
             "point": [
               3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 175,
-          "text": {
-            "en_us": "You start with a jetpack; using it costs no durability and you push harder.",
-            "zh_cn": "你初始获得一个喷气背包，你使用喷气背包不会消耗耐久且推进能力更强。",
-            "zh_tw": "你初始獲得一個噴氣背包，你使用噴氣背包不會消耗耐久且推進能力更強。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 185
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -284,10 +252,37 @@
           "attachKeyFrame": true
         },
         {
+          "type": "highlight_section",
+          "blockPos": [
+            2,
+            0,
+            2
+          ],
+          "blockPos2": [
+            4,
+            0,
+            4
+          ],
+          "duration": 240,
+          "color": "green"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "shadow_falcon_main",
+            "pose": "standing"
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "create_item_entity",
           "pos": [
-            4.0,
-            1.55,
+            2.2,
+            1.5,
             3.0
           ],
           "motion": [
@@ -297,7 +292,7 @@
           ],
           "count": 1,
           "item": "noellesroles:jetpack",
-          "linkId": "shadow_falcon_dropped",
+          "linkId": "shadow_falcon_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -310,7 +305,7 @@
           },
           "point": [
             3.0,
-            2.08,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,
@@ -325,7 +320,7 @@
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -335,34 +330,44 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_effects",
+          "type": "starrailexpress:role_walk",
           "parameters": {
-            "lines": [
-              {
-                "en_us": "Creative flight, double space to lift off",
-                "zh_cn": "创造飞行 · 双击空格起飞",
-                "zh_tw": "創造飛行 · 雙擊空格起飛"
-              }
-            ]
+            "linkId": "shadow_falcon_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "Active skill - Predation:",
-                "zh_cn": "主动技能-掠食：",
-                "zh_tw": "主動技能-掠食："
-              }
-            ]
-          },
-          "attachKeyFrame": true
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
         },
         {
           "type": "text",
@@ -374,7 +379,7 @@
           },
           "point": [
             3.0,
-            2.36,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,
@@ -385,11 +390,25 @@
           "duration": 95
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "shadow_falcon_skill_target_2",
+            "outline": -13676721
+          }
+        },
+        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -399,33 +418,52 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_effects",
+          "type": "starrailexpress:role_vitals",
           "parameters": {
-            "lines": [
+            "bars": [
               {
-                "en_us": "Creative flight, double space to lift off",
-                "zh_cn": "创造飞行 · 双击空格起飞",
-                "zh_tw": "創造飛行 · 雙擊空格起飛"
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.35,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
               }
             ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "60s starting cooldown; on use you gain creative flight (double-tap space to take off). While airborne during the skill you have 1 temporary shield (it vanishes on landing and does not refill on takeoff); the shield disappears when the skill ends.",
-                "zh_cn": "开局60秒冷却，使用后开启创造飞行能力(双击空格起飞)，技能期间浮空时拥有1层临时护盾(着陆后立刻消失，且重新起飞时不会补充护盾)，临时护盾会在技能结束后立刻消失。",
-                "zh_tw": "開局60秒冷卻，使用後開啟創造飛行能力(雙擊空格起飛)，技能期間浮空時擁有1層臨時護盾(著陸後立刻消失，且重新起飛時不會補充護盾)，臨時護盾會在技能結束後立刻消失。"
-              }
-            ]
-          },
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 35
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:mercenary_guard",
+          "linkId": "shadow_falcon_line_item_2",
           "attachKeyFrame": true
         },
         {
@@ -438,7 +476,7 @@
           },
           "point": [
             3.0,
-            2.64,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,
@@ -453,7 +491,7 @@
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -461,6 +499,20 @@
             "keyBind": "ability"
           },
           "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
         },
         {
           "type": "text",
@@ -472,7 +524,7 @@
           },
           "point": [
             3.0,
-            2.92,
+            2.64,
             3.0
           ],
           "placeNearTarget": true,
@@ -483,60 +535,16 @@
           "duration": 113
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "shadow_falcon_main",
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "corpse": false
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            4.0,
-            1.55,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:jetpack",
-          "linkId": "shadow_falcon_drop",
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
-          "duration": 144,
+          "duration": 74,
           "text": {
-            "en_us": "When Shadow Falcon dies, all living Killers get a jetpack.",
-            "zh_cn": "影隼死亡时，所有存活的杀手将获得一个喷气背包。",
-            "zh_tw": "影隼死亡時，所有存活的殺手將獲得一個噴氣背包。"
+            "en_us": "Passive - Feedback:",
+            "zh_cn": "被动-反哺：",
+            "zh_tw": "被動-反哺："
           },
           "point": [
             3.0,
-            3.2,
+            2.92,
             3.0
           ],
           "placeNearTarget": true,
@@ -544,7 +552,7 @@
         },
         {
           "type": "idle",
-          "duration": 154
+          "duration": 84
         },
         {
           "type": "rotate_camera_y",

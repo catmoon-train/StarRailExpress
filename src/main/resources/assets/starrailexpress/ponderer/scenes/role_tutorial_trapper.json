@@ -111,6 +111,28 @@
           "attachKeyFrame": true
         },
         {
+          "type": "spawn_particles",
+          "particle": "minecraft:electric_spark",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -124,55 +146,9 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "trapper_trap_target",
-            "outline": -4973036
-          }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.45,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "next_ability",
-            "text": "ponder.starrailexpress.ponder.press_next_ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
+            "label": "ponder.starrailexpress.label.skill",
             "lines": [
               {
                 "en_us": "The skill key deploys the current trap (press the skill-switch key, default Y, to switch type); placement has a 1-second wind-up (you cannot move during it); Tripwire and Quagmire have independent cooldowns (35s each); at most 5 of both traps can exist at once.",
@@ -184,67 +160,37 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_walk",
+          "type": "starrailexpress:role_key",
           "parameters": {
-            "linkId": "trapper_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
+            "point": [
+              3.0,
+              2.9,
+              3.0
             ],
-            "duration": 40
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "next_ability",
+            "text": "ponder.starrailexpress.ponder.press_next_ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "spawn_particles",
-          "particle": "minecraft:wax_on",
-          "pos": [
-            5.0,
-            1.4,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 10,
-          "duration": 60,
-          "motion": [
+          "type": "indicate_success",
+          "blockPos": [
+            3,
             0,
-            0.04,
-            0
+            3
           ]
         },
         {
-          "type": "spawn_particles",
-          "particle": "minecraft:electric_spark",
-          "pos": [
-            5.0,
-            1.8,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 10,
-          "duration": 60,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
+          "type": "idle",
+          "duration": 25
         },
         {
           "type": "create_item_entity",
           "pos": [
-            2.0,
-            1.55,
+            2.2,
+            1.5,
             3.0
           ],
           "motion": [
@@ -253,25 +199,8 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:trapper_net_gun",
-          "linkId": "trapper_netgun",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_currency",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.3
-            ],
-            "lines": [
-              {
-                "en_us": "【Ultimate · Net】Costs 130 coin to buy the Net Gun; it can be fired immediately (no initial cooldown), and enters a 150-second cooldown after each shot. Right-click to fire a net; on hitting a player or landing, it entangles players within a 5-block radius for 8 seconds.",
-                "zh_cn": "【大招·捕网】可花费130金币购买捕网枪，每次发射后进入150秒冷却。右键发射捕网，命中玩家或落地后禁锢半径5格内玩家8秒。",
-                "zh_tw": "【大招·捕網】可花費130金幣購買捕網槍，每次發射後進入150秒冷卻。右鍵發射捕網，命中玩家或落地後禁錮半徑5格內玩家8秒。"
-              }
-            ]
-          },
+          "item": "trainmurdermystery:note",
+          "linkId": "trapper_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -285,102 +214,6 @@
           "point": [
             3.0,
             1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "【Tripwire】Place against a wall; the wire extends out along the wall; up to 4 wires; only one within a 2-block radius of a given spot. Players who step on it get Speed -90% for 4 seconds.",
-            "zh_cn": "【绊线】对准墙面放置，绊线沿墙面向外延伸；最多4根，同一位置2格内只能放一根。踩中的玩家速度-90%，持续4秒。",
-            "zh_tw": "【絆線】對準牆面放置，絆線沿牆面向外延伸；最多4根，同一位置2格內只能放一根。踩中的玩家速度-90%，持續4秒。"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Tripwires only disappear when shot. The tripwire laser is visible only to the Killer team and Killer-side neutrals; other players see only the wall anchor marker.",
-            "zh_cn": "拌线只有被枪打掉才会消失。绊线激光仅杀手阵营与杀手方中立可见，其他玩家只能看到墙上的出发点标记。",
-            "zh_tw": "拌線只有被槍打掉才會消失。絆線鐳射僅殺手陣營與殺手方中立可見，其他玩家只能看到牆上的出發點標記。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "【Quagmire】Placed on the ground (visible only to you); costs 25 coin per placement. After a trap is triggered, all players within a 3-block radius cannot move or use items for 6 seconds.",
-            "zh_cn": "【泥沼】放在地面（仅自己可见），每次放置花费25金币。陷阱被踩中后，会使半径3格内的所有玩家6秒内无法移动和使用物品。",
-            "zh_tw": "【泥沼】放在地面（僅自己可見），每次放置花費25金幣。陷阱被踩中後，會使半徑3格內的所有玩家6秒內無法移動和使用物品。"
-          },
-          "point": [
-            3.0,
-            2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "【Ultimate · Net】Costs 130 coin to buy the Net Gun; it can be fired immediately (no initial cooldown), and enters a 150-second cooldown after each shot. Right-click to fire a net; on hitting a player or landing, it entangles players within a 5-block radius for 8 seconds.",
-            "zh_cn": "【大招·捕网】可花费130金币购买捕网枪，每次发射后进入150秒冷却。右键发射捕网，命中玩家或落地后禁锢半径5格内玩家8秒。",
-            "zh_tw": "【大招·捕網】可花費130金幣購買捕網槍，每次發射後進入150秒冷卻。右鍵發射捕網，命中玩家或落地後禁錮半徑5格內玩家8秒。"
-          },
-          "point": [
-            3.0,
-            2.92,
             3.0
           ],
           "placeNearTarget": true,

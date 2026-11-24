@@ -124,66 +124,9 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "kijin_seija_seija_a",
-            "outline": -13556184
-          }
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              6.4,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "kijin_seija_seija_b",
-            "outline": -13556184
-          }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "kijin_seija_seija_a",
-            "color": 16753920
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "kijin_seija_seija_b",
-            "color": 16753920
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
             "lines": [
               {
                 "en_us": "Active skill: give all players within an 8-block radius of you (except yourself) reversed controls for 15 seconds. During the effect, WASD and the mouse left/right buttons are swapped. 90-second cooldown.",
@@ -195,40 +138,79 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_walk",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "linkId": "kijin_seija_seija_a",
-            "to": [
-              4.0,
+            "pos": [
+              5.0,
               1.0,
               2.0
             ],
-            "duration": 45
+            "yaw": 180.0,
+            "linkId": "kijin_seija_skill_target_0",
+            "outline": -13556184
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "kijin_seija_seija_b",
-            "to": [
-              6.4,
-              1.0,
-              3.0
-            ],
-            "duration": 45
-          },
-          "attachKeyFrame": true
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
         },
         {
           "type": "starrailexpress:role_timer",
           "parameters": {
             "progress": [
-              1.0,
-              0.0
+              0.0,
+              1.0
             ],
-            "lines": []
+            "lines": [
+              {
+                "en_us": "Active skill: give all players within an 8-block radius of you (except yourself) reversed controls for 15 seconds. During the effect, WASD and the mouse left/right buttons are swapped. 90-second cooldown.",
+                "zh_cn": "主动技能：使自身半径8格内所有玩家（除自己外）获得操作颠倒效果，持续15秒。效果期间，WASD与鼠标左右键功能互相颠倒。冷却90秒。",
+                "zh_tw": "主動技能：使自身半徑8格內所有玩家（除自己外）獲得操作顛倒效果，持續15秒。效果期間，WASD與滑鼠左右鍵功能互相顛倒。冷卻90秒。"
+              }
+            ]
           },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "kijin_seija_line_item_0",
           "attachKeyFrame": true
         },
         {

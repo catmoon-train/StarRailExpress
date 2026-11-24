@@ -54,7 +54,7 @@
           "text": {
             "en_us": "Civilian team",
             "zh_cn": "平民阵营",
-            "zh_tw": "乘客陣營"
+            "zh_tw": "平民陣營"
           },
           "point": [
             3.0,
@@ -124,11 +124,25 @@
           }
         },
         {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Press the skill key to open the decree vocabulary; click a word or type it exactly as listed. Opening the page costs nothing and starts no cooldown; coins are spent only after a decree is successfully issued. Initial cooldown: 80 seconds; cooldown after each successful decree: 65 seconds. Each decree can be used only once per round.",
+                "zh_cn": "按技能键打开律令词库，可点击词语或手动输入，输入必须与词库完全一致。开局冷却80秒，此后每次成功颁布律令冷却65秒。每条律令每局只能使用一次。",
+                "zh_tw": "按技能鍵打開律令詞庫，可點擊詞語或手動輸入，輸入必須與詞庫完全一致。開局冷卻80秒，此後每次成功頒佈律令冷卻65秒。每條律令每局只能使用一次。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -138,34 +152,14 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_screen",
-          "parameters": {
-            "title": {
-              "en_us": "Decree lexicon",
-              "zh_cn": "律令词库",
-              "zh_tw": "律令詞庫"
-            },
-            "hint": {
-              "en_us": "Click a word or type it exactly",
-              "zh_cn": "点击词语或手动输入",
-              "zh_tw": "點擊詞語或手動輸入"
-            },
-            "columns": 4
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Press the skill key to open the decree vocabulary; click a word or type it exactly as listed. Opening the page costs nothing and starts no cooldown; coins are spent only after a decree is successfully issued. Initial cooldown: 80 seconds; cooldown after each successful decree: 65 seconds. Each decree can be used only once per round.",
-                "zh_cn": "按技能键打开律令词库，可点击词语或手动输入，输入必须与词库完全一致。开局冷却80秒，此后每次成功颁布律令冷却65秒。每条律令每局只能使用一次。",
-                "zh_tw": "按技能鍵打開律令詞庫，可點擊詞語或手動輸入，輸入必須與詞庫完全一致。打開頁面不扣金幣，也不開始冷卻；確認成功後才扣費。開局冷卻80秒，此後每次成功頒布律令冷卻65秒。每條律令每局只能使用一次。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
         },
         {
           "type": "starrailexpress:role_timer",
@@ -176,20 +170,33 @@
             ],
             "lines": [
               {
-                "en_us": "Each decree can be used once per match",
-                "zh_cn": "每条律令每局一次",
-                "zh_tw": "每條律令每局一次"
+                "en_us": "Press the skill key to open the decree vocabulary; click a word or type it exactly as listed. Opening the page costs nothing and starts no cooldown; coins are spent only after a decree is successfully issued. Initial cooldown: 80 seconds; cooldown after each successful decree: 65 seconds. Each decree can be used only once per round.",
+                "zh_cn": "按技能键打开律令词库，可点击词语或手动输入，输入必须与词库完全一致。开局冷却80秒，此后每次成功颁布律令冷却65秒。每条律令每局只能使用一次。",
+                "zh_tw": "按技能鍵打開律令詞庫，可點擊詞語或手動輸入，輸入必須與詞庫完全一致。開局冷卻80秒，此後每次成功頒佈律令冷卻65秒。每條律令每局只能使用一次。"
               }
             ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "decree_mage_decree_target_0",
-            "color": 8421504
-          },
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "decree_mage_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -198,237 +205,11 @@
           "text": {
             "en_us": "Press the skill key to open the decree vocabulary; click a word or type it exactly as listed. Opening the page costs nothing and starts no cooldown; coins are spent only after a decree is successfully issued. Initial cooldown: 80 seconds; cooldown after each successful decree: 65 seconds. Each decree can be used only once per round.",
             "zh_cn": "按技能键打开律令词库，可点击词语或手动输入，输入必须与词库完全一致。开局冷却80秒，此后每次成功颁布律令冷却65秒。每条律令每局只能使用一次。",
-            "zh_tw": "按技能鍵打開律令詞庫，可點擊詞語或手動輸入，輸入必須與詞庫完全一致。打開頁面不扣金幣，也不開始冷卻；確認成功後才扣費。開局冷卻80秒，此後每次成功頒布律令冷卻65秒。每條律令每局只能使用一次。"
+            "zh_tw": "按技能鍵打開律令詞庫，可點擊詞語或手動輸入，輸入必須與詞庫完全一致。開局冷卻80秒，此後每次成功頒佈律令冷卻65秒。每條律令每局只能使用一次。"
           },
           "point": [
             3.0,
             1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_screen",
-          "parameters": {
-            "title": {
-              "en_us": "Decree lexicon",
-              "zh_cn": "律令词库",
-              "zh_tw": "律令詞庫"
-            },
-            "hint": {
-              "en_us": "Click a word or type it exactly",
-              "zh_cn": "点击词语或手动输入",
-              "zh_tw": "點擊詞語或手動輸入"
-            },
-            "columns": 4
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            -12,
-            0,
-            -12
-          ],
-          "blockPos2": [
-            18,
-            5,
-            18
-          ],
-          "duration": 360,
-          "color": "blue"
-        },
-        {
-          "type": "starrailexpress:role_ambience",
-          "parameters": {
-            "color": 6719692,
-            "alpha": 0.35,
-            "mode": "fog"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Others: darkness and blindness",
-                "zh_cn": "场内他人：黑暗 · 失明",
-                "zh_tw": "場內他人：黑暗 · 失明"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "Each decree can be used once per match",
-                "zh_cn": "每条律令每局一次",
-                "zh_tw": "每條律令每局一次"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "decree_mage_decree_target_1",
-            "color": 8421504
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "A decree creates a domain with a 15-block radius centered on you that moves with you, restricting every player inside, including yourself. Only the Light decree spares its own caster. Leaving the range ends that restriction, and domains from different mages can overlap. While inside a domain, you can see its caster's outline.",
-            "zh_cn": "律令会在你周围形成半径15格、并随你移动的领域，约束范围内的所有玩家，也包括你自己；只有“禁止光明”这一条不影响施法者本人。离开范围即不再受该领域约束，不同法师的领域可以互相重叠。身处某一领域内时，你能看到该领域施法者的轮廓。",
-            "zh_tw": "禁止殺人花費275金幣，持續7秒，阻止受約束者立即殺人，但此前留下的中毒、流血或延遲傷害不會因此消失。其餘律令均持續11秒。"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_screen",
-          "parameters": {
-            "title": {
-              "en_us": "Decree lexicon",
-              "zh_cn": "律令词库",
-              "zh_tw": "律令詞庫"
-            },
-            "hint": {
-              "en_us": "Click a word or type it exactly",
-              "zh_cn": "点击词语或手动输入",
-              "zh_tw": "點擊詞語或手動輸入"
-            },
-            "columns": 4
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            -12,
-            0,
-            -12
-          ],
-          "blockPos2": [
-            18,
-            5,
-            18
-          ],
-          "duration": 360,
-          "color": "blue"
-        },
-        {
-          "type": "starrailexpress:role_ambience",
-          "parameters": {
-            "color": 6719692,
-            "alpha": 0.35,
-            "mode": "fog"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Others: darkness and blindness",
-                "zh_cn": "场内他人：黑暗 · 失明",
-                "zh_tw": "場內他人：黑暗 · 失明"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "Each decree can be used once per match",
-                "zh_cn": "每条律令每局一次",
-                "zh_tw": "每條律令每局一次"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "decree_mage_decree_target_2",
-            "color": 8421504
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Forbidding Movement costs 300 coins, applying Slowness IV and preventing jumps. Forbidding Speech costs 100 coins, blocking text chat and voice. Forbidding Teleportation costs 100 coins, blocking the Swapper and Phantom Musician's teleport, including swapping bound targets.",
-            "zh_cn": "律令有以下效果：禁止移动、禁止发言、禁止传送(阻止交换者与幻音者发动传送、阻止范围内玩家被传送)、禁止隐身(让范围内的隐身者在领域内能被看见轮廓)、禁止使用物品(阻止范围内玩家使用物品)、禁止打开背包(使玩家无法打开背包)、禁止使用技能、禁止变身(范围内玩家无法变身)、禁止使用枪械、禁止使用刀具、禁止失明、禁止疾跑、禁止复活(阻止玩家在范围内被复活)。禁止切换物品(阻止切换快捷栏物品)、禁止光明(让范围内除你之外的玩家陷入失明与黑暗)。",
-            "zh_tw": "禁止使用技能花費140金幣，阻止範圍內玩家發動職業技能。禁止變身花費150金幣，阻止範圍內玩家變身。禁止使用槍械花費175金幣，阻止範圍內玩家開槍。禁止使用刀具花費175金幣，阻止範圍內玩家使用刀具攻擊。"
-          },
-          "point": [
-            3.0,
-            2.36,
             3.0
           ],
           "placeNearTarget": true,
@@ -475,11 +256,11 @@
         },
         {
           "type": "text",
-          "duration": 190,
+          "duration": 63,
           "text": {
             "en_us": "Decree Domain",
             "zh_cn": "律令领域",
-            "zh_tw": "律令形成以你為中心、半徑15格的領域，並隨你移動。領域約束範圍內的所有玩家，也包括你；只有禁止光明不影響你本人。離開範圍即不再受該領域約束，不同法師的領域可以重疊。處在領域內時，你能看見施法者的輪廓。"
+            "zh_tw": "律令領域"
           },
           "point": [
             3.0,
@@ -491,7 +272,7 @@
         },
         {
           "type": "idle",
-          "duration": 200
+          "duration": 73
         },
         {
           "type": "rotate_camera_y",
@@ -538,11 +319,11 @@
         },
         {
           "type": "text",
-          "duration": 190,
+          "duration": 83,
           "text": {
             "en_us": "Decree Costs and Effects",
             "zh_cn": "律令花费与效果",
-            "zh_tw": "禁止移動花費300金幣，使範圍內玩家受到緩慢IV並無法跳躍。禁止發言花費100金幣，使範圍內玩家無法發送聊天或使用語音。禁止傳送花費100金幣，阻止交換者與幻音者在範圍內發動傳送，也阻止交換者將受約束者換位。"
+            "zh_tw": "律令花費與效果"
           },
           "point": [
             3.0,
@@ -554,7 +335,7 @@
         },
         {
           "type": "idle",
-          "duration": 200
+          "duration": 93
         },
         {
           "type": "starrailexpress:role_player",
@@ -589,7 +370,7 @@
           "text": {
             "en_us": "Each decree costs coins and lasts a set time. Forbidding Killing costs 275 coins and lasts 7 seconds, stopping those bound from killing outright, though poison, bleeding, and delayed damage already applied are not removed; every other decree lasts 11 seconds.",
             "zh_cn": "律令需花费金币并持续一定时间：禁止杀人持续7秒，会阻止受约束者杀人。若此前玩家已经受到中毒、流血与延迟伤害则死亡不会被阻挡；其余所有律令均持续11秒。",
-            "zh_tw": "禁止隱身花費150金幣，使範圍內的隱身者仍能被領域內的玩家看見輪廓。禁止使用物品花費200金幣，阻止範圍內玩家使用物品。禁止打開背包花費125金幣，關閉已打開的背包與容器，並阻止再次打開。"
+            "zh_tw": "律令需花費金幣並持續一定時間：禁止殺人持續7秒，會阻止受約束者殺人。若此前玩家已經受到中毒、流血與延遲傷害則死亡不會被阻擋；其餘所有律令均持續11秒。"
           },
           "point": [
             3.0,
@@ -661,12 +442,12 @@
               {
                 "en_us": "A decree creates a domain with a 15-block radius centered on you that moves with you, restricting every player inside, including yourself. Only the Light decree spares its own caster. Leaving the range ends that restriction, and domains from different mages can overlap. While inside a domain, you can see its caster's outline.",
                 "zh_cn": "律令会在你周围形成半径15格、并随你移动的领域，约束范围内的所有玩家，也包括你自己；只有“禁止光明”这一条不影响施法者本人。离开范围即不再受该领域约束，不同法师的领域可以互相重叠。身处某一领域内时，你能看到该领域施法者的轮廓。",
-                "zh_tw": "禁止殺人花費275金幣，持續7秒，阻止受約束者立即殺人，但此前留下的中毒、流血或延遲傷害不會因此消失。其餘律令均持續11秒。"
+                "zh_tw": "律令會在你周圍形成半徑15格、並隨你移動的領域，約束範圍內的所有玩家，也包括你自己；只有“禁止光明”這一條不影響施法者本人。離開範圍即不再受該領域約束，不同法師的領域可以互相重疊。身處某一領域內時，你能看到該領域施法者的輪廓。"
               },
               {
                 "en_us": "Forbidding Movement costs 300 coins, applying Slowness IV and preventing jumps. Forbidding Speech costs 100 coins, blocking text chat and voice. Forbidding Teleportation costs 100 coins, blocking the Swapper and Phantom Musician's teleport, including swapping bound targets.",
                 "zh_cn": "律令有以下效果：禁止移动、禁止发言、禁止传送(阻止交换者与幻音者发动传送、阻止范围内玩家被传送)、禁止隐身(让范围内的隐身者在领域内能被看见轮廓)、禁止使用物品(阻止范围内玩家使用物品)、禁止打开背包(使玩家无法打开背包)、禁止使用技能、禁止变身(范围内玩家无法变身)、禁止使用枪械、禁止使用刀具、禁止失明、禁止疾跑、禁止复活(阻止玩家在范围内被复活)。禁止切换物品(阻止切换快捷栏物品)、禁止光明(让范围内除你之外的玩家陷入失明与黑暗)。",
-                "zh_tw": "禁止使用技能花費140金幣，阻止範圍內玩家發動職業技能。禁止變身花費150金幣，阻止範圍內玩家變身。禁止使用槍械花費175金幣，阻止範圍內玩家開槍。禁止使用刀具花費175金幣，阻止範圍內玩家使用刀具攻擊。"
+                "zh_tw": "律令有以下效果：禁止移動、禁止發言、禁止傳送(阻止交換者與幻音者發動傳送、阻止範圍內玩家被傳送)、禁止隱身(讓範圍內的隱身者在領域內能被看見輪廓)、禁止使用物品(阻止範圍內玩家使用物品)、禁止打開背包(使玩家無法打開背包)、禁止使用技能、禁止變身(範圍內玩家無法變身)、禁止使用槍械、禁止使用刀具、禁止失明、禁止疾跑、禁止復活(阻止玩家在範圍內被復活)。禁止切換物品(阻止切換快捷欄物品)、禁止光明(讓範圍內除你之外的玩家陷入失明與黑暗)。"
               }
             ]
           }
@@ -677,7 +458,7 @@
           "text": {
             "en_us": "A decree creates a domain with a 15-block radius centered on you that moves with you, restricting every player inside, including yourself. Only the Light decree spares its own caster. Leaving the range ends that restriction, and domains from different mages can overlap. While inside a domain, you can see its caster's outline.",
             "zh_cn": "律令会在你周围形成半径15格、并随你移动的领域，约束范围内的所有玩家，也包括你自己；只有“禁止光明”这一条不影响施法者本人。离开范围即不再受该领域约束，不同法师的领域可以互相重叠。身处某一领域内时，你能看到该领域施法者的轮廓。",
-            "zh_tw": "禁止殺人花費275金幣，持續7秒，阻止受約束者立即殺人，但此前留下的中毒、流血或延遲傷害不會因此消失。其餘律令均持續11秒。"
+            "zh_tw": "律令會在你周圍形成半徑15格、並隨你移動的領域，約束範圍內的所有玩家，也包括你自己；只有“禁止光明”這一條不影響施法者本人。離開範圍即不再受該領域約束，不同法師的領域可以互相重疊。身處某一領域內時，你能看到該領域施法者的輪廓。"
           },
           "point": [
             3.0,
@@ -697,7 +478,7 @@
           "text": {
             "en_us": "Forbidding Movement costs 300 coins, applying Slowness IV and preventing jumps. Forbidding Speech costs 100 coins, blocking text chat and voice. Forbidding Teleportation costs 100 coins, blocking the Swapper and Phantom Musician's teleport, including swapping bound targets.",
             "zh_cn": "律令有以下效果：禁止移动、禁止发言、禁止传送(阻止交换者与幻音者发动传送、阻止范围内玩家被传送)、禁止隐身(让范围内的隐身者在领域内能被看见轮廓)、禁止使用物品(阻止范围内玩家使用物品)、禁止打开背包(使玩家无法打开背包)、禁止使用技能、禁止变身(范围内玩家无法变身)、禁止使用枪械、禁止使用刀具、禁止失明、禁止疾跑、禁止复活(阻止玩家在范围内被复活)。禁止切换物品(阻止切换快捷栏物品)、禁止光明(让范围内除你之外的玩家陷入失明与黑暗)。",
-            "zh_tw": "禁止使用技能花費140金幣，阻止範圍內玩家發動職業技能。禁止變身花費150金幣，阻止範圍內玩家變身。禁止使用槍械花費175金幣，阻止範圍內玩家開槍。禁止使用刀具花費175金幣，阻止範圍內玩家使用刀具攻擊。"
+            "zh_tw": "律令有以下效果：禁止移動、禁止發言、禁止傳送(阻止交換者與幻音者發動傳送、阻止範圍內玩家被傳送)、禁止隱身(讓範圍內的隱身者在領域內能被看見輪廓)、禁止使用物品(阻止範圍內玩家使用物品)、禁止打開背包(使玩家無法打開背包)、禁止使用技能、禁止變身(範圍內玩家無法變身)、禁止使用槍械、禁止使用刀具、禁止失明、禁止疾跑、禁止復活(阻止玩家在範圍內被復活)。禁止切換物品(阻止切換快捷欄物品)、禁止光明(讓範圍內除你之外的玩家陷入失明與黑暗)。"
           },
           "point": [
             3.0,

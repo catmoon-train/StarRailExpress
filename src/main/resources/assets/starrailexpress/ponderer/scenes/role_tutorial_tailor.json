@@ -173,20 +173,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "highlight_section",
           "blockPos": [
             3,
@@ -272,20 +258,6 @@
             "linkId": "tailor_skill_target_2",
             "outline": -2065776
           }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "highlight_section",
@@ -396,96 +368,28 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "tailor_client",
-            "outline": 8421504
-          }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "When taking damage (not a forced death), the attacker's main-hand item gains 5 extra seconds of cooldown, and there is a 5% chance to block the hit - when the block succeeds the clothes break and disappear.",
+                "zh_cn": "受到攻击（非强制死亡）时，攻击者主手物品进入冷却时额外+5秒，并且有5%的概率抵挡这次伤害——抵挡成功时衣服直接破损消失。",
+                "zh_tw": "受到攻擊（非強制死亡）時，攻擊者主手物品進入冷卻時額外+5秒，並且有5%的概率抵擋這次傷害——抵擋成功時衣服直接破損消失。"
+              }
+            ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "text",
-          "duration": 124,
-          "text": {
-            "en_us": "Starts with a sewing needle and a ball of yarn.",
-            "zh_cn": "开局自带一根缝纫针和一个毛线球。",
-            "zh_tw": "開局自帶一根縫紉針和一個毛線球。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
           ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 134
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.0,
-            1.55,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:sewing_needle",
-          "linkId": "tailor_needle",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "show_controls",
-          "action": "right",
-          "item": "noellesroles:sewing_needle",
-          "duration": 110,
-          "point": [
-            1.6,
-            2.0,
-            2.1
-          ],
-          "direction": "down",
-          "attachKeyFrame": true
+          "duration": 220,
+          "color": "blue"
         },
         {
           "type": "starrailexpress:role_timer",
@@ -496,153 +400,55 @@
             ],
             "lines": [
               {
-                "en_us": "Sewing needle: hold right-click on a player for 5 seconds; if you have a ball of yarn in your hotbar, one ball of yarn is consumed to weave a \"Tailor's Clothes\" for that player.",
-                "zh_cn": "缝纫针：长按右键一名玩家5秒，若此时你的快捷栏里有毛线球，则消耗一个毛线球，为该玩家编织一件「裁缝的衣服」。",
-                "zh_tw": "縫紉針：長按右鍵一名玩家5秒，若此時你的快捷欄裏有毛線球，則消耗一個毛線球，為該玩家編織一件「裁縫的衣服」。"
+                "en_us": "When taking damage (not a forced death), the attacker's main-hand item gains 5 extra seconds of cooldown, and there is a 5% chance to block the hit - when the block succeeds the clothes break and disappear.",
+                "zh_cn": "受到攻击（非强制死亡）时，攻击者主手物品进入冷却时额外+5秒，并且有5%的概率抵挡这次伤害——抵挡成功时衣服直接破损消失。",
+                "zh_tw": "受到攻擊（非強制死亡）時，攻擊者主手物品進入冷卻時額外+5秒，並且有5%的概率抵擋這次傷害——抵擋成功時衣服直接破損消失。"
               }
             ]
           },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "No warmth decay, attacker +5s cooldown, 5% block",
-                "zh_cn": "保暖不降 · 主手冷却 +5 秒 · 5% 抵挡",
-                "zh_tw": "保暖不降 · 主手冷卻 +5 秒 · 5% 抵擋"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Sewing needle: hold right-click on a player for 5 seconds; if you have a ball of yarn in your hotbar, one ball of yarn is consumed to weave a \"Tailor's Clothes\" for that player.",
-            "zh_cn": "缝纫针：长按右键一名玩家5秒，若此时你的快捷栏里有毛线球，则消耗一个毛线球，为该玩家编织一件「裁缝的衣服」。",
-            "zh_tw": "縫紉針：長按右鍵一名玩家5秒，若此時你的快捷欄裏有毛線球，則消耗一個毛線球，為該玩家編織一件「裁縫的衣服」。"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
           "attachKeyFrame": true
         },
         {
           "type": "idle",
-          "duration": 200
+          "duration": 40
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "No warmth decay, attacker +5s cooldown, 5% block",
-                "zh_cn": "保暖不降 · 主手冷却 +5 秒 · 5% 抵挡",
-                "zh_tw": "保暖不降 · 主手冷卻 +5 秒 · 5% 抵擋"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 99,
-          "text": {
-            "en_us": "While wearing \"Tailor's Clothes\":",
-            "zh_cn": "身着「裁缝的衣服」时：",
-            "zh_tw": "身著「裁縫的衣服」時："
-          },
-          "point": [
+          "type": "spawn_particles",
+          "particle": "minecraft:end_rod",
+          "pos": [
             3.0,
-            2.36,
+            1.9,
             3.0
           ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
         },
         {
-          "type": "idle",
-          "duration": 109
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "No warmth decay, attacker +5s cooldown, 5% block",
-                "zh_cn": "保暖不降 · 主手冷却 +5 秒 · 5% 抵挡",
-                "zh_tw": "保暖不降 · 主手冷卻 +5 秒 · 5% 抵擋"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 99,
-          "text": {
-            "en_us": "Warmth no longer drops naturally.",
-            "zh_cn": "保暖值不再自然下降。",
-            "zh_tw": "保暖值不再自然下降。"
-          },
-          "point": [
-            3.0,
-            2.64,
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
             3.0
           ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 109
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:sewing_needle",
+          "linkId": "tailor_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -655,131 +461,7 @@
           },
           "point": [
             3.0,
-            2.92,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.0,
-            1.55,
-            2.2
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:yarn_ball",
-          "linkId": "tailor_yarn",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:end_rod",
-          "pos": [
-            5.0,
             1.8,
-            2.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 8,
-          "duration": 55,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Ball of yarn: right-click to throw it; hitting a player gives them 8 seconds of \"Limp\".",
-            "zh_cn": "毛线球：右键投掷，命中玩家使其获得8秒「腿瘸」。",
-            "zh_tw": "毛線球：右鍵投擲，命中玩家使其獲得8秒「腿瘸」。"
-          },
-          "point": [
-            3.0,
-            3.2,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_currency",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.5
-            ],
-            "lines": [
-              {
-                "en_us": "Shop: Ball of yarn: each purchase costs 50 more coins; Sewing needle: can only be bought when you have no sewing needle in your inventory.",
-                "zh_cn": "商店：毛线球：每次购买+50金币；缝纫针：只有物品栏中没有缝纫针时才能购买。",
-                "zh_tw": "商店：毛線球：每次購買+50金幣；縫紉針：只有物品欄中沒有縫紉針時才能購買。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Shop: Ball of yarn: each purchase costs 50 more coins; Sewing needle: can only be bought when you have no sewing needle in your inventory.",
-            "zh_cn": "商店：毛线球：每次购买+50金币；缝纫针：只有物品栏中没有缝纫针时才能购买。",
-            "zh_tw": "商店：毛線球：每次購買+50金幣；縫紉針：只有物品欄中沒有縫紉針時才能購買。"
-          },
-          "point": [
-            3.0,
-            3.48,
             3.0
           ],
           "placeNearTarget": true,

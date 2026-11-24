@@ -124,6 +124,25 @@
           }
         },
         {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Each time the Party Killer casts, party sound effects play from the cast location 6 seconds later.",
+                "zh_cn": "派对狂每次释放技能会在6秒后从释放技能处播放派对音效。",
+                "zh_tw": "派對狂每次釋放技能會在6秒後從釋放技能處播放派對音效。"
+              },
+              {
+                "en_us": "The helium voice lasts 4 minutes; skill cooldown 35 seconds.",
+                "zh_cn": "氦气变声效果持续4分钟，技能冷却为35秒。",
+                "zh_tw": "氦氣變聲效果持續4分鐘，技能冷卻為35秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -133,33 +152,16 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "party_killer_guest",
+            "linkId": "party_killer_skill_target_0",
             "outline": -38476
           }
-        },
-        {
-          "type": "starrailexpress:role_screen",
-          "parameters": {
-            "title": {
-              "en_us": "Pick a player",
-              "zh_cn": "选择玩家",
-              "zh_tw": "選擇玩家"
-            },
-            "hint": {
-              "en_us": "Click a head to change voice",
-              "zh_cn": "点击头像变声",
-              "zh_tw": "點擊頭像變聲"
-            },
-            "columns": 6
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -169,56 +171,51 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_outline",
+          "type": "starrailexpress:role_walk",
           "parameters": {
-            "linkId": "party_killer_guest",
-            "color": 16753920
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Click a player's avatar to cast the skill and give them the helium voice effect.",
-                "zh_cn": "点击玩家头像释放技能使目标获得氦气变声效果。",
-                "zh_tw": "點擊玩家頭像釋放技能使目標獲得氦氣變聲效果。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
+            "linkId": "party_killer_main",
+            "to": [
+              4.1,
               1.0,
-              0.0
+              2.0
             ],
-            "lines": [
-              {
-                "en_us": "Each time the Party Killer casts, party sound effects play from the cast location 6 seconds later.",
-                "zh_cn": "派对狂每次释放技能会在6秒后从释放技能处播放派对音效。",
-                "zh_tw": "派對狂每次釋放技能會在6秒後從釋放技能處播放派對音效。"
-              }
-            ]
+            "duration": 40
           },
           "attachKeyFrame": true
         },
         {
-          "type": "play_sound",
-          "sound": "noellesroles:party_skill",
-          "soundVolume": 1.0,
-          "pitch": 1.0,
-          "source": "players"
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
         },
         {
           "type": "create_item_entity",
           "pos": [
-            5.0,
             2.2,
-            2.0
+            1.5,
+            3.0
           ],
           "motion": [
             0.0,
@@ -226,55 +223,8 @@
             0.0
           ],
           "count": 1,
-          "item": "minecraft:firework_rocket",
-          "linkId": "party_killer_rocket",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_broadcast",
-          "parameters": {
-            "title": {
-              "en_us": "Party Time",
-              "zh_cn": "派对狂欢",
-              "zh_tw": "派對狂歡"
-            },
-            "lines": [
-              {
-                "en_us": "The helium voice lasts 4 minutes; skill cooldown 35 seconds.",
-                "zh_cn": "氦气变声效果持续4分钟，技能冷却为35秒。",
-                "zh_tw": "氦氣變聲效果持續4分鐘，技能冷卻為35秒。"
-              }
-            ],
-            "cost": 0,
-            "duration": 140
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_currency",
-          "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "Each player voiced adds one to your count; when the count reaches starting players/5 (at least 3), the Party Frenzy begins automatically.",
-                "zh_cn": "每有一人被变声会为派对狂累计一层计数，当计数到达游戏开始时玩家数/5(至少为3)时，会自动进入派对狂欢时刻。",
-                "zh_tw": "每有一人被變聲會為派對狂累計一層計數，當計數到達遊戲開始時玩家數/5(至少為3)時，會自動進入派對狂歡時刻。"
-              },
-              {
-                "en_us": "During Party Frenzy, a firework rocket launches from everyone, instantly refreshing all Killers' item cooldowns",
-                "zh_cn": "进入派对狂欢时所有人的身上会发射一枚烟花火箭，并立即刷新一次所有杀手身上的物品冷却",
-                "zh_tw": "進入派對狂歡時所有人的身上會發射一枚煙花火箭，並立即刷新一次所有殺手身上的物品冷卻"
-              },
-              {
-                "en_us": "Party Frenzy grants 60 coins to every Killer except the Party Killer and 125 coins to the Party Killer.",
-                "zh_cn": "派对狂欢会给予除派对狂以外的所有杀手60金币，给予派对狂125金币。",
-                "zh_tw": "派對狂歡會給予除派對狂以外的所有殺手60金幣，給予派對狂125金幣。"
-              }
-            ]
-          },
+          "item": "trainmurdermystery:note",
+          "linkId": "party_killer_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -298,6 +248,51 @@
           "duration": 194
         },
         {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Each time the Party Killer casts, party sound effects play from the cast location 6 seconds later.",
+                "zh_cn": "派对狂每次释放技能会在6秒后从释放技能处播放派对音效。",
+                "zh_tw": "派對狂每次釋放技能會在6秒後從釋放技能處播放派對音效。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -318,12 +313,32 @@
           "duration": 200
         },
         {
-          "type": "indicate_success",
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
           "blockPos": [
             3,
             0,
             3
-          ]
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
         },
         {
           "type": "text",
@@ -346,12 +361,39 @@
           "duration": 158
         },
         {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "Each player voiced adds one to your count; when the count reaches starting players/5 (at least 3), the Party Frenzy begins automatically.",
-            "zh_cn": "每有一人被变声会为派对狂累计一层计数，当计数到达游戏开始时玩家数/5(至少为3)时，会自动进入派对狂欢时刻。",
-            "zh_tw": "每有一人被變聲會為派對狂累計一層計數，當計數到達遊戲開始時玩家數/5(至少為3)時，會自動進入派對狂歡時刻。"
+            "en_us": "During Party Frenzy, a firework rocket launches from everyone, instantly refreshing all Killers' item cooldowns",
+            "zh_cn": "进入派对狂欢时所有人的身上会发射一枚烟花火箭，并立即刷新一次所有杀手身上的物品冷却",
+            "zh_tw": "進入派對狂歡時所有人的身上會發射一枚煙花火箭，並立即刷新一次所有殺手身上的物品冷卻"
           },
           "point": [
             3.0,
@@ -364,98 +406,6 @@
         {
           "type": "idle",
           "duration": 200
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "During Party Frenzy, a firework rocket launches from everyone, instantly refreshing all Killers' item cooldowns",
-            "zh_cn": "进入派对狂欢时所有人的身上会发射一枚烟花火箭，并立即刷新一次所有杀手身上的物品冷却",
-            "zh_tw": "進入派對狂歡時所有人的身上會發射一枚煙花火箭，並立即刷新一次所有殺手身上的物品冷卻"
-          },
-          "point": [
-            3.0,
-            2.92,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Party Frenzy grants 60 coins to every Killer except the Party Killer and 125 coins to the Party Killer.",
-            "zh_cn": "派对狂欢会给予除派对狂以外的所有杀手60金币，给予派对狂125金币。",
-            "zh_tw": "派對狂歡會給予除派對狂以外的所有殺手60金幣，給予派對狂125金幣。"
-          },
-          "point": [
-            3.0,
-            3.2,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "rotate_camera_y",
-          "degrees": 12.0,
-          "duration": 50,
-          "attachKeyFrame": true
-        }
-      ]
-    },
-    {
-      "id": "screen",
-      "title": {
-        "en_us": "Party Killer",
-        "zh_cn": "派对狂",
-        "zh_tw": "派對狂"
-      },
-      "steps": [
-        {
-          "type": "show_structure",
-          "structure": "starrailexpress:role_tutorial_common",
-          "scale": 1.0,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "party_killer_main"
-          }
-        },
-        {
-          "type": "starrailexpress:role_screen",
-          "attachKeyFrame": true,
-          "parameters": {
-            "title": "ponder.starrailexpress.screen.select_player",
-            "hint": "ponder.starrailexpress.screen.pick_hint",
-            "columns": 6
-          }
         },
         {
           "type": "rotate_camera_y",

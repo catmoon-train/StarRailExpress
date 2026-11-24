@@ -2,9 +2,8 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.dummy_bird",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "noellesroles:fake_knife",
+    "noellesroles:fake_revolver"
   ],
   "title": {
     "en_us": "Dummy Bird",
@@ -149,6 +148,20 @@
             ],
             "yaw": 180.0,
             "linkId": "dummy_bird_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "dummy_bird",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
           }
         },
         {
@@ -377,7 +390,7 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:fake_knife",
           "linkId": "dummy_bird_line_item_0",
           "attachKeyFrame": true
         },

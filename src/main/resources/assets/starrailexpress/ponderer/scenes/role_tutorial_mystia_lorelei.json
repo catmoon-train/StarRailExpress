@@ -124,11 +124,25 @@
           }
         },
         {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Use the skill to open a rhythm game. Different rewards based on the score:",
+                "zh_cn": "可使用技能打开音游。将根据音游分数给予不同奖励：",
+                "zh_tw": "可使用技能打開音遊。將根據音遊分數給予不同獎勵："
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -138,21 +152,60 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_panel",
+          "type": "starrailexpress:role_walk",
           "parameters": {
-            "title": {
-              "en_us": "Rhythm game",
-              "zh_cn": "音游",
-              "zh_tw": "音遊"
-            },
-            "lines": [
-              {
-                "en_us": "Use the skill to open a rhythm game. Different rewards based on the score:",
-                "zh_cn": "可使用技能打开音游。将根据音游分数给予不同奖励：",
-                "zh_tw": "可使用技能打開音遊。將根據音遊分數給予不同獎勵："
-              }
-            ]
+            "linkId": "mystia_lorelei_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
           },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "mystia_lorelei_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -174,304 +227,6 @@
         {
           "type": "idle",
           "duration": 183
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_currency",
-          "parameters": {
-            "progress": [
-              0.1,
-              0.9
-            ],
-            "lines": [
-              {
-                "en_us": "├─ Below 85: no reward",
-                "zh_cn": "├─ 85分以下：无奖励",
-                "zh_tw": "├─ 85分以下：無獎勵"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 79,
-          "text": {
-            "en_us": "├─ Below 85: no reward",
-            "zh_cn": "├─ 85分以下：无奖励",
-            "zh_tw": "├─ 85分以下：無獎勵"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 89
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_currency",
-          "parameters": {
-            "progress": [
-              0.1,
-              0.9
-            ],
-            "lines": [
-              {
-                "en_us": "├─ Above 85: skip a task (25 coin reward)",
-                "zh_cn": "├─ 85分以上：跳过任务（25金币奖励）",
-                "zh_tw": "├─ 85分以上：跳過任務（25金幣獎勵）"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 113,
-          "text": {
-            "en_us": "├─ Above 85: skip a task (25 coin reward)",
-            "zh_cn": "├─ 85分以上：跳过任务（25金币奖励）",
-            "zh_tw": "├─ 85分以上：跳過任務（25金幣獎勵）"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 123
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_currency",
-          "parameters": {
-            "progress": [
-              0.1,
-              0.9
-            ],
-            "lines": [
-              {
-                "en_us": "└─ Above 95: pick randomly from:",
-                "zh_cn": "└─ 95分以上：随机从下面奖励中选择一个：",
-                "zh_tw": "└─ 95分以上：隨機從下麵獎勵中選擇一個："
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 97,
-          "text": {
-            "en_us": "└─ Above 95: pick randomly from:",
-            "zh_cn": "└─ 95分以上：随机从下面奖励中选择一个：",
-            "zh_tw": "└─ 95分以上：隨機從下麵獎勵中選擇一個："
-          },
-          "point": [
-            3.0,
-            2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 107
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.0,
-            1.55,
-            2.1
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "minecraft:cooked_cod",
-          "linkId": "mystia_lorelei_eel",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 155,
-          "text": {
-            "en_us": "├─ 1. Gain a grilled eel, throwable, eating grants Night Vision.",
-            "zh_cn": "├─ 1. 获得一份烤八目海鳗，可丢出，食用可以获得夜视。",
-            "zh_tw": "├─ 1. 獲得一份烤八目海鰻，可丟出，食用可以獲得夜視。"
-          },
-          "point": [
-            3.0,
-            2.92,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 165
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_ambience",
-          "parameters": {
-            "color": 2236962,
-            "alpha": 0.7,
-            "mode": "blind"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "├─ 2. Within 5 blocks of yourself, everyone is continuously blinded and loses see-through (not including yourself) for 10s.",
-            "zh_cn": "├─ 2. 使自身半径5格内持续失明和失去透视（不包括自己），持续10s。",
-            "zh_tw": "├─ 2. 使自身半徑5格內持續失明和失去透視（不包括自己），持續10s。"
-          },
-          "point": [
-            3.0,
-            3.2,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_currency",
-          "parameters": {
-            "progress": [
-              0.1,
-              0.9
-            ],
-            "lines": [
-              {
-                "en_us": "└─ 3. Gain Speed II for 30s.",
-                "zh_cn": "└─ 3. 获得速度2，持续30s。",
-                "zh_tw": "└─ 3. 獲得速度2，持續30s。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 90,
-          "text": {
-            "en_us": "└─ 3. Gain Speed II for 30s.",
-            "zh_cn": "└─ 3. 获得速度2，持续30s。",
-            "zh_tw": "└─ 3. 獲得速度2，持續30s。"
-          },
-          "point": [
-            3.0,
-            3.48,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 100
         },
         {
           "type": "rotate_camera_y",

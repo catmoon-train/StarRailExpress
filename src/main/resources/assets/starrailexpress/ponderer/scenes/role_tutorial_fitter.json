@@ -2,6 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.fitter",
   "items": [
+    "noellesroles:pliers",
     "noellesroles:lightup",
     "noellesroles:monitor_recovery"
   ],
@@ -123,21 +124,18 @@
           }
         },
         {
-          "type": "create_item_entity",
+          "type": "starrailexpress:role_items",
           "attachKeyFrame": true,
-          "pos": [
-            1.6,
-            1.55,
-            1.6
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:lightup",
-          "linkId": "fitter_item"
+          "parameters": {
+            "role": "fitter",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
         },
         {
           "type": "create_item_entity",
@@ -175,20 +173,6 @@
         {
           "type": "idle",
           "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "create_item_entity",
@@ -268,20 +252,6 @@
             "linkId": "fitter_skill_target_2",
             "outline": -12156236
           }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "create_item_entity",

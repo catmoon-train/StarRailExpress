@@ -152,6 +152,20 @@
           }
         },
         {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Skill · Possess (60s cd): aim at a player and press the skill key to ride their head for 20s. During possession you can still use inventory items; the host gets Speed I. Can't possess invisible targets; if the host turns invisible, you dismount instantly.",
+                "zh_cn": "技能·附身（冷却60秒）：对准玩家按下技能键，附身到其头上20秒。附身期间仍可使用物品栏道具；被附身的玩家获得速度I。无法附身隐身目标，若宿主隐身则会立刻取消乘骑。",
+                "zh_tw": "技能·附身（冷卻60秒）：對準玩家按下技能鍵，附身到其頭上20秒。附身期間仍可使用物品欄道具；被附身的玩家獲得速度I。無法附身隱身目標，若宿主隱身則會立刻取消乘騎。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -161,7 +175,7 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "phantom_spirit_host",
+            "linkId": "phantom_spirit_skill_target_0",
             "outline": -10828592
           }
         },
@@ -170,7 +184,7 @@
           "parameters": {
             "point": [
               3.0,
-              3.9,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -180,134 +194,60 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "phantom_spirit_main",
-            "pos": [
-              5.0,
-              2.8,
-              2.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_bond",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "You look like a Poppet, always have no collision and float 1.2 blocks above the ground. Space lets you hop up steps, then sink back. Fixed third-person. You can only communicate (text/voice) when near other players.",
-                "zh_cn": "外形是悦灵，始终获得无碰撞，并悬浮在地面上方1.2格。可用空格跳跃上台阶，跳起后会沉回悬浮高度。固定第三人称视角。靠近其他玩家时才能与玩家交流（文字/语音）。",
-                "zh_tw": "外形是悅靈，始終獲得無碰撞，並懸浮在地面上方1.2格。可用空格跳躍上臺階，跳起後會沉回懸浮高度。固定第三人稱視角。靠近其他玩家時才能與玩家交流（文字/語音）。"
-              }
-            ],
-            "color": 16753920
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_scale",
-          "parameters": {
-            "linkId": "phantom_spirit_main",
-            "scale": 0.75
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "phantom_spirit_host",
-            "to": [
-              6.2,
-              1.0,
-              2.0
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              5.0,
-              3.0,
-              2.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "phantom_spirit_host",
-            "color": 16753920
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "During possession, press the skill key again to see-through all players within 10 blocks for 2s.",
-                "zh_cn": "附身期间可再按一次技能键，使你和宿主透视周围10格内所有玩家2秒。",
-                "zh_tw": "附身期間可再按一次技能鍵，使你和宿主透視周圍10格內所有玩家2秒。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "phantom_spirit_host",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
-          },
-          "attachKeyFrame": true
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
         },
         {
           "type": "starrailexpress:role_timer",
           "parameters": {
             "progress": [
-              1.0,
-              0.0
+              0.0,
+              1.0
             ],
             "lines": [
               {
-                "en_us": "When the possessed player is killed, you die in their place.",
-                "zh_cn": "当被附身的玩家被击杀时，幻灵代替其死亡。",
-                "zh_tw": "當被附身的玩家被擊殺時，幻靈代替其死亡。"
-              },
-              {
-                "en_us": "Killers can't see through an unmounted Phantom, but can see one riding someone.",
-                "zh_cn": "杀手无法透视未骑乘的幻灵，但可以透视骑在别人头上的幻灵。",
-                "zh_tw": "殺手無法透視未騎乘的幻靈，但可以透視騎在別人頭上的幻靈。"
-              },
-              {
-                "en_us": "Killing a good player / being killed by one triggers cerebellum penalty.",
-                "zh_cn": "击杀好人或被好人击杀会触发小脑惩罚。",
-                "zh_tw": "擊殺好人或被好人擊殺會觸發小腦懲罰。"
+                "en_us": "Skill · Possess (60s cd): aim at a player and press the skill key to ride their head for 20s. During possession you can still use inventory items; the host gets Speed I. Can't possess invisible targets; if the host turns invisible, you dismount instantly.",
+                "zh_cn": "技能·附身（冷却60秒）：对准玩家按下技能键，附身到其头上20秒。附身期间仍可使用物品栏道具；被附身的玩家获得速度I。无法附身隐身目标，若宿主隐身则会立刻取消乘骑。",
+                "zh_tw": "技能·附身（冷卻60秒）：對準玩家按下技能鍵，附身到其頭上20秒。附身期間仍可使用物品欄道具；被附身的玩家獲得速度I。無法附身隱身目標，若宿主隱身則會立刻取消乘騎。"
               }
             ]
           },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "phantom_spirit_line_item_0",
           "attachKeyFrame": true
         },
         {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "You look like a Poppet, always have no collision and float 1.2 blocks above the ground. Space lets you hop up steps, then sink back. Fixed third-person. You can only communicate (text/voice) when near other players.",
-            "zh_cn": "外形是悦灵，始终获得无碰撞，并悬浮在地面上方1.2格。可用空格跳跃上台阶，跳起后会沉回悬浮高度。固定第三人称视角。靠近其他玩家时才能与玩家交流（文字/语音）。",
-            "zh_tw": "外形是悅靈，始終獲得無碰撞，並懸浮在地面上方1.2格。可用空格跳躍上臺階，跳起後會沉回懸浮高度。固定第三人稱視角。靠近其他玩家時才能與玩家交流（文字/語音）。"
+            "en_us": "Skill · Possess (60s cd): aim at a player and press the skill key to ride their head for 20s. During possession you can still use inventory items; the host gets Speed I. Can't possess invisible targets; if the host turns invisible, you dismount instantly.",
+            "zh_cn": "技能·附身（冷却60秒）：对准玩家按下技能键，附身到其头上20秒。附身期间仍可使用物品栏道具；被附身的玩家获得速度I。无法附身隐身目标，若宿主隐身则会立刻取消乘骑。",
+            "zh_tw": "技能·附身（冷卻60秒）：對準玩家按下技能鍵，附身到其頭上20秒。附身期間仍可使用物品欄道具；被附身的玩家獲得速度I。無法附身隱身目標，若宿主隱身則會立刻取消乘騎。"
           },
           "point": [
             3.0,
@@ -320,122 +260,6 @@
         {
           "type": "idle",
           "duration": 200
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Skill · Possess (60s cd): aim at a player and press the skill key to ride their head for 20s. During possession you can still use inventory items; the host gets Speed I. Can't possess invisible targets; if the host turns invisible, you dismount instantly.",
-            "zh_cn": "技能·附身（冷却60秒）：对准玩家按下技能键，附身到其头上20秒。附身期间仍可使用物品栏道具；被附身的玩家获得速度I。无法附身隐身目标，若宿主隐身则会立刻取消乘骑。",
-            "zh_tw": "技能·附身（冷卻60秒）：對準玩家按下技能鍵，附身到其頭上20秒。附身期間仍可使用物品欄道具；被附身的玩家獲得速度I。無法附身隱身目標，若宿主隱身則會立刻取消乘騎。"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "During possession, press the skill key again to see-through all players within 10 blocks for 2s.",
-            "zh_cn": "附身期间可再按一次技能键，使你和宿主透视周围10格内所有玩家2秒。",
-            "zh_tw": "附身期間可再按一次技能鍵，使你和宿主透視周圍10格內所有玩家2秒。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "text",
-          "duration": 148,
-          "text": {
-            "en_us": "When the possessed player is killed, you die in their place.",
-            "zh_cn": "当被附身的玩家被击杀时，幻灵代替其死亡。",
-            "zh_tw": "當被附身的玩家被擊殺時，幻靈代替其死亡。"
-          },
-          "point": [
-            3.0,
-            2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 158
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 182,
-          "text": {
-            "en_us": "Killers can't see through an unmounted Phantom, but can see one riding someone.",
-            "zh_cn": "杀手无法透视未骑乘的幻灵，但可以透视骑在别人头上的幻灵。",
-            "zh_tw": "殺手無法透視未騎乘的幻靈，但可以透視騎在別人頭上的幻靈。"
-          },
-          "point": [
-            3.0,
-            2.92,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 192
-        },
-        {
-          "type": "text",
-          "duration": 169,
-          "text": {
-            "en_us": "Killing a good player / being killed by one triggers cerebellum penalty.",
-            "zh_cn": "击杀好人或被好人击杀会触发小脑惩罚。",
-            "zh_tw": "擊殺好人或被好人擊殺會觸發小腦懲罰。"
-          },
-          "point": [
-            3.0,
-            3.2,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 179
         },
         {
           "type": "rotate_camera_y",

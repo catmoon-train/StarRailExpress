@@ -153,22 +153,6 @@
           "attachKeyFrame": true
         },
         {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Starts with 200 coin; can spend 50 coin for a server-wide broadcast; starts with a walkie-talkie.",
-            "zh_cn": "你开局拥有200金币，可以花费50金币进行一次全服广播，开局自带一个对讲机。",
-            "zh_tw": "你開局擁有200金幣，可以花費50金幣進行一次全服廣播，開局自帶一個對講機。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
           "type": "idle",
           "duration": 200
         },
@@ -185,20 +169,6 @@
             "linkId": "broadcaster_skill_target_1",
             "outline": -16711936
           }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "create_item_entity",

@@ -152,39 +152,25 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "koakuma_koma_first",
-            "outline": 16753920
-          }
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              6.4,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "koakuma_koma_second",
-            "outline": -5284269
-          }
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "The skill only works while you are alive.",
+                "zh_cn": "技能仅在你存活期间有效。",
+                "zh_tw": "技能僅在你存活期間有效。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -194,66 +180,69 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_outline",
+          "type": "starrailexpress:role_walk",
           "parameters": {
-            "linkId": "koakuma_koma_first",
-            "color": 16753920
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_screen",
-          "parameters": {
-            "title": {
-              "en_us": "Patchouli's prophecy",
-              "zh_cn": "帕秋莉预言",
-              "zh_tw": "帕秋莉預言"
-            },
-            "hint": {
-              "en_us": "Marked target is fixed",
-              "zh_cn": "标记目标固定",
-              "zh_tw": "標記目標固定"
-            },
-            "columns": 3
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "koakuma_koma_second",
-            "color": 16753920
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "koakuma_koma_first",
-            "color": 8421504
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "koakuma_koma_second",
-            "pos": [
-              6.4,
+            "linkId": "koakuma_main",
+            "to": [
+              4.1,
               1.0,
               2.0
             ],
-            "name": "ponder.starrailexpress.label.victim"
+            "duration": 40
           },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "koakuma_line_item_0",
           "attachKeyFrame": true
         },
         {
           "type": "text",
-          "duration": 190,
+          "duration": 113,
           "text": {
-            "en_us": "Skill · Prank: you can mark one player. The next time Pachuri divines, the result will be fixed to that player.",
-            "zh_cn": "技能 · 恶作剧：你可以标记一个玩家。该玩家被你标记后下一次帕秋莉预言时将固定为该玩家。",
-            "zh_tw": "技能 · 惡作劇：你可以標記一個玩家。該玩家被你標記後下一次帕秋莉預言時將固定為該玩家。"
+            "en_us": "The skill only works while you are alive.",
+            "zh_cn": "技能仅在你存活期间有效。",
+            "zh_tw": "技能僅在你存活期間有效。"
           },
           "point": [
             3.0,
@@ -265,55 +254,7 @@
         },
         {
           "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "text",
-          "duration": 164,
-          "text": {
-            "en_us": "You may mark exactly one player; marking another replaces the target.",
-            "zh_cn": "你可以且仅可以标记一个玩家。标记一个玩家后再次标记另一个玩家将更换标记目标。",
-            "zh_tw": "你可以且僅可以標記一個玩家。標記一個玩家後再次標記另一個玩家將更換標記目標。"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 174
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 148,
-          "text": {
-            "en_us": "If your marked player dies, Pachuri will divine you instead.",
-            "zh_cn": "若你标记的玩家死亡，帕秋莉将会预言到你。",
-            "zh_tw": "若你標記的玩家死亡，帕秋莉將會預言到你。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 158
+          "duration": 123
         },
         {
           "type": "rotate_camera_y",

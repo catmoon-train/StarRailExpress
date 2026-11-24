@@ -124,22 +124,94 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              5.0,
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Everyone starts doing questions. Press the skill key to activate; costs coin. 240s cooldown.",
+                "zh_cn": "全员开始做题。按下技能键激活，需要花费金币。冷却240s。",
+                "zh_tw": "全員開始做題。按下技能鍵啟動，需要花費金幣。冷卻240s。"
+              },
+              {
+                "en_us": "Both skills share one cooldown.",
+                "zh_cn": "两个技能共用一个冷却。",
+                "zh_tw": "兩個技能共用一個冷卻。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "exampler_main",
+            "to": [
+              4.1,
               1.0,
               2.0
             ],
-            "yaw": 180.0,
-            "linkId": "exampler_exam_target",
-            "outline": -2793514
-          }
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
         },
         {
           "type": "idle",
           "duration": 25
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "exampler_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -166,7 +238,7 @@
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -176,152 +248,40 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_screen",
+          "type": "starrailexpress:role_walk",
           "parameters": {
-            "title": {
-              "en_us": "Choose an exam target",
-              "zh_cn": "选择考试目标",
-              "zh_tw": "選擇考試目標"
-            },
-            "hint": {
-              "en_us": "Click a player head in the inventory",
-              "zh_cn": "在物品栏点击玩家头像",
-              "zh_tw": "在物品欄點擊玩家頭像"
-            },
-            "columns": 6
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_currency",
-          "parameters": {
-            "progress": [
+            "linkId": "exampler_main",
+            "to": [
+              4.1,
               1.0,
-              0.5
+              2.0
             ],
-            "lines": [
-              {
-                "en_us": "Spend 100 coins",
-                "zh_cn": "花费 100 金币",
-                "zh_tw": "花費 100 金幣"
-              }
-            ]
+            "duration": 40
           },
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Costs 100 coin; pick a player in the inventory to force them to take the exam. You must also complete the questions.",
-            "zh_cn": "花费100金币，在物品栏选择一名玩家，强制其考试。同时，你也必须完成试题。",
-            "zh_tw": "花費100金幣，在物品欄選擇一名玩家，強制其考試。同時，你也必須完成試題。"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
           ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_vitals",
-          "parameters": {
-            "bars": [
-              {
-                "label": {
-                  "en_us": "Exam",
-                  "zh_cn": "考试",
-                  "zh_tw": "考試"
-                },
-                "before": 0.1,
-                "after": 0.9,
-                "color": -65536
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_currency",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.0
-            ],
-            "lines": [
-              {
-                "en_us": "Target pays 100 coins to survive",
-                "zh_cn": "目标花 100 金币免死",
-                "zh_tw": "目標花 100 金幣免死"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "text",
-          "duration": 126,
-          "text": {
-            "en_us": "Players can spend 100 coin to cancel this death.",
-            "zh_cn": "玩家可以花费100金币抵消这次死亡。",
-            "zh_tw": "玩家可以花費100金幣抵消這次死亡。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
+          "blockPos2": [
+            5,
+            0,
+            2
           ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
+          "duration": 200,
+          "color": "green"
         },
         {
-          "type": "idle",
-          "duration": 136
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "Everyone studies - shared 240s cooldown",
-                "zh_cn": "全员做题 · 共用冷却 240 秒",
-                "zh_tw": "全員做題 · 共用冷卻 240 秒"
-              }
-            ]
-          },
-          "attachKeyFrame": true
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
         },
         {
           "type": "idle",
@@ -337,7 +297,7 @@
           },
           "point": [
             3.0,
-            2.64,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,
@@ -352,7 +312,7 @@
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -360,6 +320,16 @@
             "keyBind": "ability"
           },
           "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
         },
         {
           "type": "starrailexpress:role_timer",
@@ -370,9 +340,9 @@
             ],
             "lines": [
               {
-                "en_us": "Everyone studies - shared 240s cooldown",
-                "zh_cn": "全员做题 · 共用冷却 240 秒",
-                "zh_tw": "全員做題 · 共用冷卻 240 秒"
+                "en_us": "Everyone starts doing questions. Press the skill key to activate; costs coin. 240s cooldown.",
+                "zh_cn": "全员开始做题。按下技能键激活，需要花费金币。冷却240s。",
+                "zh_tw": "全員開始做題。按下技能鍵啟動，需要花費金幣。冷卻240s。"
               }
             ]
           },
@@ -380,7 +350,7 @@
         },
         {
           "type": "idle",
-          "duration": 25
+          "duration": 40
         },
         {
           "type": "text",
@@ -392,7 +362,7 @@
           },
           "point": [
             3.0,
-            2.92,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,
@@ -407,7 +377,7 @@
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -417,21 +387,40 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_timer",
+          "type": "starrailexpress:role_walk",
           "parameters": {
-            "progress": [
-              0.0,
-              1.0
+            "linkId": "exampler_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
             ],
-            "lines": [
-              {
-                "en_us": "Everyone studies - shared 240s cooldown",
-                "zh_cn": "全员做题 · 共用冷却 240 秒",
-                "zh_tw": "全員做題 · 共用冷卻 240 秒"
-              }
-            ]
+            "duration": 40
           },
           "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
         },
         {
           "type": "idle",
@@ -447,7 +436,7 @@
           },
           "point": [
             3.0,
-            3.2,
+            2.64,
             3.0
           ],
           "placeNearTarget": true,
@@ -456,220 +445,6 @@
         {
           "type": "idle",
           "duration": 105
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "exampler_exam_target",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_currency",
-          "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "Exam death grants energy - three for a frenzy ticket",
-                "zh_cn": "考试死亡 +1 能量 · 3 点换狂暴券",
-                "zh_tw": "考試死亡 +1 能量 · 3 點換狂暴券"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "text",
-          "duration": 151,
-          "text": {
-            "en_us": "Each player who dies from the forced exam grants you 1 energy.",
-            "zh_cn": "每一个因强制考试死亡的玩家会给予你1点能量。",
-            "zh_tw": "每一個因強制考試死亡的玩家會給予你1點能量。"
-          },
-          "point": [
-            3.0,
-            3.48,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 161
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "exampler_exam_target",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_currency",
-          "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "Exam death grants energy - three for a frenzy ticket",
-                "zh_cn": "考试死亡 +1 能量 · 3 点换狂暴券",
-                "zh_tw": "考試死亡 +1 能量 · 3 點換狂暴券"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 173,
-          "text": {
-            "en_us": "After reaching 3 energy, you gain a Rampage Voucher and the energy resets.",
-            "zh_cn": "累计获得3能量后，你将会获得狂暴体验券，并清空能量。",
-            "zh_tw": "累計獲得3能量後，你將會獲得狂暴體驗券，並清空能量。"
-          },
-          "point": [
-            3.15,
-            1.8,
-            2.85
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 183
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "exampler_exam_target",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_currency",
-          "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "Exam death grants energy - three for a frenzy ticket",
-                "zh_cn": "考试死亡 +1 能量 · 3 点换狂暴券",
-                "zh_tw": "考試死亡 +1 能量 · 3 點換狂暴券"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "text",
-          "duration": 144,
-          "text": {
-            "en_us": "The Rampage Voucher can activate Rampage mode in the shop.",
-            "zh_cn": "狂暴体验券可以在商店中激活狂暴模式。",
-            "zh_tw": "狂暴體驗券可以在商店中啟動狂暴模式。"
-          },
-          "point": [
-            3.15,
-            2.08,
-            2.85
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 154
-        },
-        {
-          "type": "rotate_camera_y",
-          "degrees": 12.0,
-          "duration": 50,
-          "attachKeyFrame": true
-        }
-      ]
-    },
-    {
-      "id": "screen",
-      "title": {
-        "en_us": "Exam Grinder",
-        "zh_cn": "小镇做题家",
-        "zh_tw": "小鎮做題家"
-      },
-      "steps": [
-        {
-          "type": "show_structure",
-          "structure": "starrailexpress:role_tutorial_common",
-          "scale": 1.0,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "exampler_main"
-          }
-        },
-        {
-          "type": "starrailexpress:role_screen",
-          "attachKeyFrame": true,
-          "parameters": {
-            "title": "ponder.starrailexpress.screen.select_player",
-            "hint": "ponder.starrailexpress.screen.pick_hint",
-            "columns": 6
-          }
         },
         {
           "type": "rotate_camera_y",

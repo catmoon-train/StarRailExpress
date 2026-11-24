@@ -136,20 +136,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "highlight_section",
           "blockPos": [
             3,
@@ -275,6 +261,25 @@
           }
         },
         {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Passive: when you kill a player, the game time is extended by 20 seconds.",
+                "zh_cn": "被动技能：你击杀玩家时时间会额外增加20秒。",
+                "zh_tw": "被動技能：你擊殺玩家時時間會額外增加20秒。"
+              },
+              {
+                "en_us": "Active: press the skill key to spend 75 coin and anchor your current state; the anchor lasts 20 seconds and then automatically rewinds. Taking non-forced damage forces an immediate rewind.",
+                "zh_cn": "主动技能：按技能键消耗 75 金币锚定当前状态，锚点持续 20 秒后自动回溯，受到非强制伤害时会强制回溯。",
+                "zh_tw": "主動技能：按技能鍵消耗 75 金幣錨定當前狀態，錨點持續 20 秒後自動回溯，受到非強制傷害時會強制回溯。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -284,14 +289,67 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "delayer_rewind_victim",
+            "linkId": "delayer_skill_target_0",
             "outline": -10197816
           }
         },
         {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "delayer_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 45
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 15
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:enchant",
+          "pos": [
+            5.0,
+            2.1,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 10,
+          "duration": 30,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
           "type": "starrailexpress:role_death",
           "parameters": {
-            "linkId": "delayer_rewind_victim",
+            "linkId": "delayer_skill_target_0",
             "pos": [
               5.0,
               1.0,
@@ -302,25 +360,55 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.0
-            ],
-            "lines": [
-              {
-                "en_us": "Passive: when you kill a player, the game time is extended by 20 seconds.",
-                "zh_cn": "被动技能：你击杀玩家时时间会额外增加20秒。",
-                "zh_tw": "被動技能：你擊殺玩家時時間會額外增加20秒。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
+          "type": "spawn_particles",
+          "particle": "minecraft:enchant",
+          "pos": [
+            5.0,
+            1.6,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 45,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
         },
         {
           "type": "idle",
-          "duration": 28
+          "duration": 30
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:camera_shears",
+          "linkId": "delayer_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -347,7 +435,7 @@
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -357,11 +445,21 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_currency",
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
           "parameters": {
             "progress": [
-              1.0,
-              0.3
+              0.0,
+              1.0
             ],
             "lines": [
               {
@@ -372,6 +470,10 @@
             ]
           },
           "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
         },
         {
           "type": "spawn_particles",
@@ -387,62 +489,13 @@
             0.6,
             0.35
           ],
-          "count": 12,
-          "duration": 70,
+          "count": 8,
+          "duration": 60,
           "motion": [
             0,
             0.04,
             0
           ]
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "delayer_main",
-            "to": [
-              3.0,
-              1.0,
-              0.0
-            ],
-            "duration": 46
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Greyscale filter, others dazed",
-                "zh_cn": "灰白滤镜 · 他人恍惚",
-                "zh_tw": "灰白濾鏡 · 他人恍惚"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "play_sound",
-          "sound": "minecraft:block.glass.break",
-          "soundVolume": 1.0,
-          "pitch": 1.0,
-          "source": "players"
-        },
-        {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "delayer_main",
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 28
         },
         {
           "type": "text",
@@ -469,7 +522,7 @@
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -479,29 +532,40 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_currency",
+          "type": "starrailexpress:role_walk",
           "parameters": {
-            "progress": [
+            "linkId": "delayer_main",
+            "to": [
+              4.1,
               1.0,
-              0.3
+              2.0
             ],
-            "lines": [
-              {
-                "en_us": "The rewind restores position, coin, and potion effects, but not inventory or item cooldowns.",
-                "zh_cn": "回溯技能可回溯位置、金钱、药水效果，无法回溯物品栏与物品冷却。",
-                "zh_tw": "回溯技能可回溯位置、金錢、藥水效果，無法回溯物品欄與物品冷卻。"
-              }
-            ]
+            "duration": 40
           },
           "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
         },
         {
           "type": "spawn_particles",
           "particle": "minecraft:enchant",
           "pos": [
-            3.0,
+            5.0,
             1.9,
-            3.0
+            2.0
           ],
           "distribution": "box",
           "spread": [
@@ -509,8 +573,8 @@
             0.6,
             0.35
           ],
-          "count": 12,
-          "duration": 70,
+          "count": 6,
+          "duration": 50,
           "motion": [
             0,
             0.04,
@@ -518,53 +582,16 @@
           ]
         },
         {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "delayer_main",
-            "to": [
-              3.0,
-              1.0,
-              0.0
-            ],
-            "duration": 46
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Greyscale filter, others dazed",
-                "zh_cn": "灰白滤镜 · 他人恍惚",
-                "zh_tw": "灰白濾鏡 · 他人恍惚"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "play_sound",
-          "sound": "minecraft:block.glass.break",
-          "soundVolume": 1.0,
-          "pitch": 1.0,
-          "source": "players"
-        },
-        {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "delayer_main",
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ]
-          },
-          "attachKeyFrame": true
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
         },
         {
           "type": "idle",
-          "duration": 28
+          "duration": 25
         },
         {
           "type": "text",
@@ -587,35 +614,32 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_key",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
+            "pos": [
+              5.0,
+              1.0,
+              2.0
             ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
+            "yaw": 180.0,
+            "linkId": "delayer_skill_target_3",
+            "outline": -10197816
+          }
         },
         {
-          "type": "starrailexpress:role_currency",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.3
-            ],
-            "lines": [
-              {
-                "en_us": "During the rewind your screen gets the same gray-white filter as time stop, while other players briefly zone out with a glass-shatter sound. 120-second cooldown.",
-                "zh_cn": "回溯期间你的屏幕会呈现时停同款灰白滤镜，其它玩家则短暂恍惚并响起玻璃破碎声。冷却 120 秒。",
-                "zh_tw": "回溯期間你的螢幕會呈現時停同款灰白濾鏡，其他玩家則短暫恍惚並響起玻璃破碎聲。冷卻 120 秒。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
         },
         {
           "type": "spawn_particles",
@@ -631,62 +655,13 @@
             0.6,
             0.35
           ],
-          "count": 12,
-          "duration": 70,
+          "count": 8,
+          "duration": 60,
           "motion": [
             0,
             0.04,
             0
           ]
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "delayer_main",
-            "to": [
-              3.0,
-              1.0,
-              0.0
-            ],
-            "duration": 46
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Greyscale filter, others dazed",
-                "zh_cn": "灰白滤镜 · 他人恍惚",
-                "zh_tw": "灰白濾鏡 · 他人恍惚"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "play_sound",
-          "sound": "minecraft:block.glass.break",
-          "soundVolume": 1.0,
-          "pitch": 1.0,
-          "source": "players"
-        },
-        {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "delayer_main",
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 28
         },
         {
           "type": "text",
@@ -699,153 +674,6 @@
           "point": [
             3.0,
             2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_currency",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.3
-            ],
-            "lines": [
-              {
-                "en_us": "Note: if you are hit while the anchor is still active (within 15 seconds), you are forced to rewind immediately and collapse to the ground, unable to move for 30 seconds.",
-                "zh_cn": "注意：锚点还在（15 秒内）时若被击中，会被强制立即回溯，且回溯后你会趴倒在地、无法移动 30 秒。",
-                "zh_tw": "注意：錨點還在（15 秒內）時若被擊中，會被強制立即回溯，且回溯後你會趴倒在地、無法移動 30 秒。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:enchant",
-          "pos": [
-            3.0,
-            1.9,
-            3.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 12,
-          "duration": 70,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "delayer_main",
-            "to": [
-              3.0,
-              1.0,
-              0.0
-            ],
-            "duration": 46
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Greyscale filter, others dazed",
-                "zh_cn": "灰白滤镜 · 他人恍惚",
-                "zh_tw": "灰白濾鏡 · 他人恍惚"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "play_sound",
-          "sound": "minecraft:block.glass.break",
-          "soundVolume": 1.0,
-          "pitch": 1.0,
-          "source": "players"
-        },
-        {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "delayer_main",
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_pose",
-          "parameters": {
-            "linkId": "delayer_main",
-            "pose": "sleeping"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.0
-            ],
-            "lines": [
-              {
-                "en_us": "Note: if you are hit while the anchor is still active (within 15 seconds), you are forced to rewind immediately and collapse to the ground, unable to move for 30 seconds.",
-                "zh_cn": "注意：锚点还在（15 秒内）时若被击中，会被强制立即回溯，且回溯后你会趴倒在地、无法移动 30 秒。",
-                "zh_tw": "注意：錨點還在（15 秒內）時若被擊中，會被強制立即回溯，且回溯後你會趴倒在地、無法移動 30 秒。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 28
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Note: if you are hit while the anchor is still active (within 15 seconds), you are forced to rewind immediately and collapse to the ground, unable to move for 30 seconds.",
-            "zh_cn": "注意：锚点还在（15 秒内）时若被击中，会被强制立即回溯，且回溯后你会趴倒在地、无法移动 30 秒。",
-            "zh_tw": "注意：錨點還在（15 秒內）時若被擊中，會被強制立即回溯，且回溯後你會趴倒在地、無法移動 30 秒。"
-          },
-          "point": [
-            3.0,
-            2.92,
             3.0
           ],
           "placeNearTarget": true,

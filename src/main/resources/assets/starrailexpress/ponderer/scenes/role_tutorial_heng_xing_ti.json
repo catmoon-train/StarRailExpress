@@ -152,38 +152,25 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "heng_xing_ti_pulled_1",
-            "outline": -10198016
-          }
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.8,
-              1.0,
-              2.8
-            ],
-            "yaw": 180.0,
-            "linkId": "heng_xing_ti_pulled_2"
-          }
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Permanently glowing. Use the skill to instantly start a 15s Orbit Field: during it you have 2 layers of timed shield, and the 8 nearest Passengers within 10 blocks are indiscriminately teleported around you; 240s cooldown.",
+                "zh_cn": "常态发光。使用技能立即开启15s环绕带：期间你拥有2层限时盾，周围10格内最近的的8名乘客都会无差别的传送至自身一定周围，冷却240s。",
+                "zh_tw": "常態發光。使用技能立即開啟15s環繞帶：期間你擁有2層限時盾，周圍10格內最近的的8名乘客都會無差別的傳送至自身一定周圍，冷卻240s。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -193,11 +180,21 @@
           "attachKeyFrame": true
         },
         {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
           "type": "starrailexpress:role_timer",
           "parameters": {
             "progress": [
-              1.0,
-              0.0
+              0.0,
+              1.0
             ],
             "lines": [
               {
@@ -210,45 +207,24 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_vitals",
-          "parameters": {
-            "bars": [
-              {
-                "label": {
-                  "en_us": "Shield x2",
-                  "zh_cn": "限时盾 ×2",
-                  "zh_tw": "限時盾 ×2"
-                },
-                "before": 0.0,
-                "after": 1.0,
-                "color": -16776961
-              }
-            ]
-          },
-          "attachKeyFrame": true
+          "type": "idle",
+          "duration": 40
         },
         {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "heng_xing_ti_pulled_1",
-            "pos": [
-              4.0,
-              1.0,
-              3.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "heng_xing_ti_pulled_2",
-            "pos": [
-              2.0,
-              1.0,
-              3.0
-            ]
-          },
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "heng_xing_ti_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -272,11 +248,25 @@
           "duration": 200
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "heng_xing_ti_skill_target_1",
+            "outline": -10198016
+          }
+        },
+        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -286,27 +276,44 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_effects",
+          "type": "starrailexpress:role_walk",
           "parameters": {
-            "title": {
-              "en_us": "Restricted",
-              "zh_cn": "禁物品/禁技能/无敌",
-              "zh_tw": "禁物品"
-            },
-            "bars": [
-              {
-                "label": {
-                  "en_us": "Invincible",
-                  "zh_cn": "无敌",
-                  "zh_tw": "無敵"
-                },
-                "before": 0.0,
-                "after": 1.0,
-                "color": 16753920
-              }
-            ]
+            "linkId": "heng_xing_ti_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
           },
           "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
         },
         {
           "type": "text",
@@ -327,42 +334,6 @@
         {
           "type": "idle",
           "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_bond",
-          "parameters": {
-            "title": {
-              "en_us": "Return room",
-              "zh_cn": "返回房间",
-              "zh_tw": "返回房間"
-            },
-            "lines": [
-              {
-                "en_us": "If a player you attract accidentally falls into the void soon after (not by their own action and not caused by others), they return to their room.",
-                "zh_cn": "如果你吸引的玩家在近期意外落入虚空（非主动且非其他人导致）将会返回自己房间。",
-                "zh_tw": "如果你吸引的玩家在近期意外落入虛空（非主動且非其他人導致）將會返回自己房間。"
-              }
-            ],
-            "progress": [
-              0.0,
-              1.0
-            ]
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "text",

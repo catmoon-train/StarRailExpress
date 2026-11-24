@@ -2,7 +2,8 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.conductor",
   "items": [
-    "noellesroles:master_key"
+    "noellesroles:master_key",
+    "minecraft:spyglass"
   ],
   "title": {
     "en_us": "Conductor",
@@ -173,20 +174,6 @@
           "duration": 125
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_pose",
           "parameters": {
             "linkId": "conductor_main",
@@ -294,186 +281,9 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "conductor_conductor_victim",
-            "outline": 8421504
-          }
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "conductor_conductor_victim",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "conductor_main",
-            "item": "noellesroles:telescope"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "conductor_door_viewer",
-            "color": 5636095
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "text",
-          "duration": 115,
-          "text": {
-            "en_us": "Starts with a Skeleton Key and a Spyglass.",
-            "zh_cn": "初始获得一把万能钥匙和一个望远镜。",
-            "zh_tw": "初始獲得一把萬能鑰匙和一個望遠鏡。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 125
-        },
-        {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "conductor_main",
-            "item": "noellesroles:telescope"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "conductor_door_viewer",
-            "color": 5636095
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "text",
-          "duration": 131,
-          "text": {
-            "en_us": "The Spyglass lets you see players' names from afar.",
-            "zh_cn": "望远镜可以从远处观察到玩家的名字。",
-            "zh_tw": "望遠鏡可以從遠處觀察到玩家的名字。"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 141
-        },
-        {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "conductor_main",
-            "item": "noellesroles:telescope"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "conductor_door_viewer",
-            "color": 5636095
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "text",
-          "duration": 121,
-          "text": {
-            "en_us": "Drops the Skeleton Key and Spyglass on death.",
-            "zh_cn": "死亡时身上的万能钥匙和望远镜会掉落。",
-            "zh_tw": "死亡時身上的萬能鑰匙和望遠鏡會掉落。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 131
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "conductor_main",
-            "to": [
-              4.2,
-              1.0,
-              2.2
-            ],
-            "duration": 36
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_currency",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.5
-            ],
+            "label": "ponder.starrailexpress.label.skill",
             "lines": [
               {
                 "en_us": "Skill 【Door Dispatch】: aim at a door, spend 125 coin, and after 5 seconds choose another room door on the map to teleport to a safe spot beside it. 90-second cooldown.",
@@ -483,6 +293,44 @@
             ]
           },
           "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "conductor_skill_target_0",
+            "outline": -4684277
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
         },
         {
           "type": "starrailexpress:role_timer",
@@ -502,44 +350,25 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_screen",
-          "parameters": {
-            "title": {
-              "en_us": "Cabin doors",
-              "zh_cn": "舱门列表",
-              "zh_tw": "艙門列表"
-            },
-            "hint": {
-              "en_us": "Choose another room door",
-              "zh_cn": "选择其他房间门",
-              "zh_tw": "選擇其他房間門"
-            },
-            "columns": 5
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "play_sound",
-          "sound": "minecraft:entity.enderman.teleport",
-          "soundVolume": 1.0,
-          "pitch": 1.0,
-          "source": "players"
-        },
-        {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "conductor_main",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "idle",
-          "duration": 25
+          "duration": 40
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:master_key",
+          "linkId": "conductor_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -551,7 +380,7 @@
           },
           "point": [
             3.0,
-            2.64,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,
@@ -560,108 +389,6 @@
         {
           "type": "idle",
           "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "conductor_main",
-            "to": [
-              4.2,
-              1.0,
-              2.2
-            ],
-            "duration": 36
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_currency",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.5
-            ],
-            "lines": [
-              {
-                "en_us": "If interrupted during the wind-up or door selection, the coin is refunded.",
-                "zh_cn": "前摇或选门时被打断会返还金币。",
-                "zh_tw": "前搖或選門時被打斷會返還金幣。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "If interrupted during the wind-up or door selection, the coin is refunded.",
-                "zh_cn": "前摇或选门时被打断会返还金币。",
-                "zh_tw": "前搖或選門時被打斷會返還金幣。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_currency",
-          "parameters": {
-            "progress": [
-              0.5,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "If interrupted during the wind-up or door selection, the coin is refunded.",
-                "zh_cn": "前摇或选门时被打断会返还金币。",
-                "zh_tw": "前搖或選門時被打斷會返還金幣。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 25
-        },
-        {
-          "type": "text",
-          "duration": 173,
-          "text": {
-            "en_us": "If interrupted during the wind-up or door selection, the coin is refunded.",
-            "zh_cn": "前摇或选门时被打断会返还金币。",
-            "zh_tw": "前搖或選門時被打斷會返還金幣。"
-          },
-          "point": [
-            3.0,
-            2.92,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 183
         },
         {
           "type": "rotate_camera_y",

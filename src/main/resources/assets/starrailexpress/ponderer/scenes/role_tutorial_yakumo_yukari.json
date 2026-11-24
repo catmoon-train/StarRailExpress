@@ -124,25 +124,25 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "yakumo_yukari_yukari_target",
-            "outline": -9617280
-          }
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Each player has a cooldown for using the portal.",
+                "zh_cn": "每个玩家穿越传送门存在冷却。",
+                "zh_tw": "每個玩家穿越傳送門存在冷卻。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -152,86 +152,52 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "yakumo_yukari_yukari_target",
-            "color": 8388736
-          },
-          "attachKeyFrame": true
+          "type": "play_sound",
+          "sound": "minecraft:entity.enderman.teleport",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
         },
         {
           "type": "starrailexpress:role_teleport",
           "parameters": {
             "linkId": "yakumo_yukari_main",
             "pos": [
-              3.0,
+              5.0,
               1.0,
-              3.9
+              2.0
             ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "yakumo_yukari_yukari_target",
-            "pos": [
-              3.0,
-              1.0,
-              2.1
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Toggle the portal on/off with the skill.",
-                "zh_cn": "开启技能启用/关闭传送门。",
-                "zh_tw": "開啟技能啟用/關閉傳送門。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.0
-            ],
-            "lines": [
-              {
-                "en_us": "Can set portal anchors.",
-                "zh_cn": "可以设定传送门锚点。",
-                "zh_tw": "可以設定傳送門錨點。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 81,
-          "text": {
-            "en_us": "Can set portal anchors.",
-            "zh_cn": "可以设定传送门锚点。",
-            "zh_tw": "可以設定傳送門錨點。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
         },
         {
           "type": "idle",
-          "duration": 91
+          "duration": 30
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "yakumo_yukari_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -243,7 +209,7 @@
           },
           "point": [
             3.0,
-            2.08,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,
@@ -254,80 +220,49 @@
           "duration": 122
         },
         {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "yakumo_yukari_skill_target_1",
+            "outline": -9617280
+          }
         },
         {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "The portal lasts 30s. You must close the current portal before setting a new anchor.",
-            "zh_cn": "传送门可存在30s。需要关闭当前传送门后方可继续标记锚点。",
-            "zh_tw": "傳送門可存在30s。需要關閉當前傳送門後方可繼續標記錨點。"
+          "type": "play_sound",
+          "sound": "minecraft:entity.enderman.teleport",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_teleport",
+          "parameters": {
+            "linkId": "yakumo_yukari_main",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ]
           },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
           "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "text",
-          "duration": 153,
-          "text": {
-            "en_us": "Any player can pass through the portal to reach the other side.",
-            "zh_cn": "任何玩家均可通过传送门抵达传送门另一侧。",
-            "zh_tw": "任何玩家均可通過傳送門抵達傳送門另一側。"
-          },
-          "point": [
-            3.0,
-            2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 163
         },
         {
           "type": "indicate_success",
           "blockPos": [
-            3,
+            5,
             0,
-            3
+            2
           ]
         },
         {
-          "type": "text",
-          "duration": 185,
-          "text": {
-            "en_us": "Players who pass through are immune to sourced-less environmental damage for 30s.",
-            "zh_cn": "通过传送门的玩家在30s内免疫无源头环境伤害。",
-            "zh_tw": "通過傳送門的玩家在30s內免疫無源頭環境傷害。"
-          },
-          "point": [
-            3.0,
-            2.92,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
           "type": "idle",
-          "duration": 195
+          "duration": 30
         },
         {
           "type": "text",
@@ -339,7 +274,7 @@
           },
           "point": [
             3.0,
-            3.2,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,
@@ -348,34 +283,6 @@
         {
           "type": "idle",
           "duration": 136
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 167,
-          "text": {
-            "en_us": "The portal is visible only to the Killer team and independent neutrals.",
-            "zh_cn": "传送门仅杀手阵营和独立中立阵营可见。",
-            "zh_tw": "傳送門僅殺手陣營和獨立中立陣營可見。"
-          },
-          "point": [
-            3.0,
-            3.48,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 177
         },
         {
           "type": "rotate_camera_y",

@@ -196,6 +196,20 @@
           }
         },
         {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Passive: after you kill a player, they become your servant (120s cooldown).",
+                "zh_cn": "被动：杀死玩家后，玩家将成为你的仆从（冷却120s）",
+                "zh_tw": "被動：殺死玩家後，玩家將成為你的僕從（冷卻120s）"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -205,14 +219,18 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "remilia_victim",
-            "outline": 16753920
+            "linkId": "remilia_skill_target_0",
+            "outline": -9346439
           }
+        },
+        {
+          "type": "idle",
+          "duration": 15
         },
         {
           "type": "starrailexpress:role_death",
           "parameters": {
-            "linkId": "remilia_victim",
+            "linkId": "remilia_skill_target_0",
             "pos": [
               5.0,
               1.0,
@@ -223,132 +241,33 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_panel",
-          "parameters": {
-            "title": {
-              "en_us": "Change cause",
-              "zh_cn": "更改死因",
-              "zh_tw": "更改死因"
-            },
-            "lines": [
-              {
-                "en_us": "Active: right-click a corpse to change its cause of death.",
-                "zh_cn": "主动：右键尸体可更改其死因。",
-                "zh_tw": "主動：右鍵屍體可更改其死因。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_bond",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Passive: after you kill a player, they become your servant (120s cooldown).",
-                "zh_cn": "被动：杀死玩家后，玩家将成为你的仆从（冷却120s）",
-                "zh_tw": "被動：殺死玩家後，玩家將成為你的僕從（冷卻120s）"
-              }
-            ],
-            "color": 16753920
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "remilia_victim",
-            "pos": [
-              6.0,
-              1.0,
-              2.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "remilia_victim",
-            "color": 16753920
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "remilia_main",
-            "to": [
-              4.0,
-              1.0,
-              4.0
-            ],
-            "duration": 35
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Servants fear sunlight and light, moving very slowly in bright areas.",
-                "zh_cn": "仆从惧怕阳光和灯光，在光比较亮时行动异常缓慢。",
-                "zh_tw": "僕從懼怕陽光和燈光，在光比較亮時行動異常緩慢。"
-              },
-              {
-                "en_us": "Passive: when Pachuri or Furandoru is within 5 blocks of you, you see their highlight color respectively.",
-                "zh_cn": "被动：当帕秋莉、恶魔之妹在你身旁5格内时，你将分别看到她们的高亮的颜色。",
-                "zh_tw": "被動：當帕秋莉、惡魔之妹在你身旁5格內時，你將分別看到她們的高亮的顏色。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.0
-            ],
-            "lines": []
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 144,
-          "text": {
-            "en_us": "Active: right-click a corpse to change its cause of death.",
-            "zh_cn": "主动：右键尸体可更改其死因。",
-            "zh_tw": "主動：右鍵屍體可更改其死因。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
         },
         {
           "type": "idle",
-          "duration": 154
+          "duration": 30
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "remilia_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -360,7 +279,7 @@
           },
           "point": [
             3.0,
-            2.08,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,
@@ -369,82 +288,6 @@
         {
           "type": "idle",
           "duration": 185
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Servants are Neutral-leaning-Killer and last 180s. They cannot tell Killer players apart except you, and fear water: in water they move slowly and cannot use weapons or items.",
-            "zh_cn": "仆从属于中立偏狼阵营，可以存活180s。它们不能区分除了你以外的杀手阵营，且惧怕水。处于水中时行动缓慢且无法使用武器、使用道具。",
-            "zh_tw": "僕從屬於中立偏狼陣營，可以存活180s。它們不能區分除了你以外的殺手陣營，且懼怕水。處於水中時行動緩慢且無法使用武器、使用道具。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "text",
-          "duration": 164,
-          "text": {
-            "en_us": "Servants fear sunlight and light, moving very slowly in bright areas.",
-            "zh_cn": "仆从惧怕阳光和灯光，在光比较亮时行动异常缓慢。",
-            "zh_tw": "僕從懼怕陽光和燈光，在光比較亮時行動異常緩慢。"
-          },
-          "point": [
-            3.0,
-            2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 174
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Passive: when Pachuri or Furandoru is within 5 blocks of you, you see their highlight color respectively.",
-            "zh_cn": "被动：当帕秋莉、恶魔之妹在你身旁5格内时，你将分别看到她们的高亮的颜色。",
-            "zh_tw": "被動：當帕秋莉、惡魔之妹在你身旁5格內時，你將分別看到她們的高亮的顏色。"
-          },
-          "point": [
-            3.0,
-            2.92,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
         },
         {
           "type": "rotate_camera_y",

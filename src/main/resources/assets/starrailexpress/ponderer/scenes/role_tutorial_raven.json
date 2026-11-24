@@ -152,25 +152,30 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "raven_target",
-            "outline": 16753920
-          }
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "When the Loose Moment begins, you're forced back to your body, hunt effects clear, and 1 hunt charge is refunded.",
+                "zh_cn": "狩猎期间按技能键可主动返回本体，返还35%冷却。",
+                "zh_tw": "狩獵期間按技能鍵可主動返回本體，返還35%冷卻。"
+              },
+              {
+                "en_us": "If your body is killed or force-killed, you die immediately.",
+                "zh_cn": "猎杀态结束后刀和开锁器会被清除，并进入 60 秒冷却。",
+                "zh_tw": "獵殺態結束後刀和開鎖器會被清除，並進入 60 秒冷卻。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -180,256 +185,61 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "raven_target",
-            "color": 8421504
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "Players within 8 blocks who restore Sanity charge your hunt; max 5 stacks. Completing a task adds 0.5 charge. Whenever accumulated progress reaches total players/6 - 1.75 (min 1), gain 1 charge. Killing the correct target adds 1 charge (up to max).",
-                "zh_cn": "附近 8 格内的玩家回san时会为你积累狩猎充能，最多 5 层。玩家完成任务时额外增加 0.5 充能进度。",
-                "zh_tw": "附近 8 格內的玩家回san時會為你積累狩獵充能，最多 5 層。玩家完成任務時額外增加 0.5 充能進度。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              1.8,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "raven_body",
-            "outline": 16753920
-          }
-        },
-        {
-          "type": "starrailexpress:role_hide",
-          "parameters": {
-            "linkId": "raven_main",
-            "visible": false
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "raven_target",
-            "color": 16753920
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_walk",
           "parameters": {
             "linkId": "raven_main",
             "to": [
-              4.3,
+              4.1,
               1.0,
               2.0
             ],
-            "duration": 45
+            "duration": 40
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "raven_target",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "raven_body",
-            "pos": [
-              1.8,
-              1.0,
-              3.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "raven_main",
-            "pos": [
-              1.8,
-              1.0,
-              3.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hide",
-          "parameters": {
-            "linkId": "raven_main",
-            "visible": true
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_currency",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.0
-            ],
-            "lines": [
-              {
-                "en_us": "The bottom-right shows the role to kill; killing any matching role counts.",
-                "zh_cn": "亡命时刻开始时会强制返回本体，清除猎杀效果，并返还 1 次狩猎充能。",
-                "zh_tw": "亡命時刻開始時會強制返回本體，清除獵殺效果，並返還 1 次狩獵充能。"
-              },
-              {
-                "en_us": "Killing the wrong role instantly ends the hunt and returns you to your body (the wrong target doesn't die).",
-                "zh_cn": "右下角会显示需要击杀的职业；击杀任意同职业目标均有效。",
-                "zh_tw": "右下角會顯示需要擊殺的職業；擊殺任意同職業目標均有效。"
-              },
-              {
-                "en_us": "After the hunt, knife and lockpick are cleared and a 60s cooldown starts.",
-                "zh_cn": "误杀其他职业会立刻结束猎杀并返回本体(被误杀的人不会死)。",
-                "zh_tw": "誤殺其他職業會立刻結束獵殺並返回本體(被誤殺的人不會死)。"
-              },
-              {
-                "en_us": "If your body is killed or force-killed, you die immediately.",
-                "zh_cn": "猎杀态结束后刀和开锁器会被清除，并进入 60 秒冷却。",
-                "zh_tw": "獵殺態結束後刀和開鎖器會被清除，並進入 60 秒冷卻。"
-              },
-              {
-                "en_us": "Killing (total players/8 + 0.5) rounded up (at least 2) players grants independent victory.",
-                "zh_cn": "本体被杀或被强制击杀时，你会立即死亡。",
-                "zh_tw": "本體被殺或被強制擊殺時，你會立即死亡。"
-              },
-              {
-                "en_us": "击杀数达到(总人数/8 + 0.5)(向上取整)人（至少 2 人）即可独立获胜。",
-                "zh_cn": "击杀数达到(总人数/8 + 0.5)(向上取整)人（至少 2 人）即可独立获胜。",
-                "zh_tw": "擊殺數達到(總人數/8 + 0.5)(向上取整)人（至少 2 人）即可獨立獲勝。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "You can turn on instinct see-through, but while not hunting you can only see within 10 blocks.",
-            "zh_cn": "你可以打开本能透视，但是非狩猎期间仅能透视10格内的玩家。",
-            "zh_tw": "你可以打開本能透視，但是非狩獵期間僅能透視10格內的玩家。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
           ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Players within 8 blocks who restore Sanity charge your hunt; max 5 stacks. Completing a task adds 0.5 charge. Whenever accumulated progress reaches total players/6 - 1.75 (min 1), gain 1 charge. Killing the correct target adds 1 charge (up to max).",
-            "zh_cn": "附近 8 格内的玩家回san时会为你积累狩猎充能，最多 5 层。玩家完成任务时额外增加 0.5 充能进度。",
-            "zh_tw": "附近 8 格內的玩家回san時會為你積累狩獵充能，最多 5 層。玩家完成任務時額外增加 0.5 充能進度。"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
+          "blockPos2": [
+            5,
+            0,
+            2
           ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
+          "duration": 200,
+          "color": "green"
         },
         {
           "type": "indicate_success",
           "blockPos": [
-            3,
+            5,
             0,
-            3
+            2
           ]
         },
         {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Press the skill key to spend a charge, leave your killable body in place, and enter a 120s hunt: gain global instinct see-through, invincibility, black disguise, silence, no collision, a knife and lockpick.",
-            "zh_cn": "每当累计进度达到场上总人数/6 - 1.75（最低为 1）时获得 1 次充能。击杀正确目标时充能次数+1（不超过上限）。",
-            "zh_tw": "每當累計進度達到場上總人數/6 - 1.75（最低為 1）時獲得 1 次充能。擊殺正確目標時充能次數+1（不超過上限）。"
-          },
-          "point": [
-            3.0,
-            2.36,
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
             3.0
           ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "During the hunt, press the skill key to return early to your body, refunding 35% cooldown.",
-            "zh_cn": "按技能键消耗一次充能，在原地留下可被击杀的本体，进入 120 秒猎杀态：获得全场的本能透视、无敌、黑色伪装、禁言、无碰撞、刀和开锁器。",
-            "zh_tw": "按技能鍵消耗一次充能，在原地留下可被擊殺的本體，進入 120 秒獵殺態：獲得全場的本能透視、無敵、黑色偽裝、禁言、無碰撞、刀和開鎖器。"
-          },
-          "point": [
-            3.0,
-            2.64,
-            3.0
+          "motion": [
+            0.0,
+            0.0,
+            0.0
           ],
-          "placeNearTarget": true,
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "raven_line_item_0",
           "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
         },
         {
           "type": "text",
@@ -441,159 +251,67 @@
           },
           "point": [
             3.0,
-            2.92,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "text",
-          "duration": 173,
-          "text": {
-            "en_us": "The bottom-right shows the role to kill; killing any matching role counts.",
-            "zh_cn": "亡命时刻开始时会强制返回本体，清除猎杀效果，并返还 1 次狩猎充能。",
-            "zh_tw": "亡命時刻開始時會強制返回本體，清除獵殺效果，並返還 1 次狩獵充能。"
-          },
-          "point": [
-            3.0,
-            3.2,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 183
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Killing the wrong role instantly ends the hunt and returns you to your body (the wrong target doesn't die).",
-            "zh_cn": "右下角会显示需要击杀的职业；击杀任意同职业目标均有效。",
-            "zh_tw": "右下角會顯示需要擊殺的職業；擊殺任意同職業目標均有效。"
-          },
-          "point": [
-            3.0,
-            3.48,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "text",
-          "duration": 171,
-          "text": {
-            "en_us": "After the hunt, knife and lockpick are cleared and a 60s cooldown starts.",
-            "zh_cn": "误杀其他职业会立刻结束猎杀并返回本体(被误杀的人不会死)。",
-            "zh_tw": "誤殺其他職業會立刻結束獵殺並返回本體(被誤殺的人不會死)。"
-          },
-          "point": [
-            3.15,
             1.8,
-            2.85
+            3.0
           ],
           "placeNearTarget": true,
           "attachKeyFrame": true
         },
         {
           "type": "idle",
-          "duration": 181
+          "duration": 200
         },
         {
-          "type": "indicate_success",
+          "type": "highlight_section",
           "blockPos": [
             3,
             0,
             3
-          ]
+          ],
+          "duration": 220,
+          "color": "blue"
         },
         {
-          "type": "text",
-          "duration": 148,
-          "text": {
-            "en_us": "If your body is killed or force-killed, you die immediately.",
-            "zh_cn": "猎杀态结束后刀和开锁器会被清除，并进入 60 秒冷却。",
-            "zh_tw": "獵殺態結束後刀和開鎖器會被清除，並進入 60 秒冷卻。"
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "If your body is killed or force-killed, you die immediately.",
+                "zh_cn": "猎杀态结束后刀和开锁器会被清除，并进入 60 秒冷却。",
+                "zh_tw": "獵殺態結束後刀和開鎖器會被清除，並進入 60 秒冷卻。"
+              }
+            ]
           },
-          "point": [
-            3.15,
-            2.08,
-            2.85
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
           ],
-          "placeNearTarget": true,
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:lockpick",
+          "linkId": "raven_line_item_1",
           "attachKeyFrame": true
         },
         {
           "type": "idle",
           "duration": 158
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Killing (total players/8 + 0.5) rounded up (at least 2) players grants independent victory.",
-            "zh_cn": "本体被杀或被强制击杀时，你会立即死亡。",
-            "zh_tw": "本體被殺或被強制擊殺時，你會立即死亡。"
-          },
-          "point": [
-            3.15,
-            2.36,
-            2.85
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 112,
-          "text": {
-            "en_us": "击杀数达到(总人数/8 + 0.5)(向上取整)人（至少 2 人）即可独立获胜。",
-            "zh_cn": "击杀数达到(总人数/8 + 0.5)(向上取整)人（至少 2 人）即可独立获胜。",
-            "zh_tw": "擊殺數達到(總人數/8 + 0.5)(向上取整)人（至少 2 人）即可獨立獲勝。"
-          },
-          "point": [
-            3.15,
-            2.64,
-            2.85
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 122
         },
         {
           "type": "rotate_camera_y",

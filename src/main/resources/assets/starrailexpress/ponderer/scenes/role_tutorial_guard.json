@@ -288,182 +288,66 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "guard_baton_target",
-            "outline": -5592406
-          }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "guard_main",
-            "item": "noellesroles:riot_shield"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_vitals",
-          "parameters": {
-            "bars": [
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
               {
-                "label": {
-                  "en_us": "Block",
-                  "zh_cn": "正面格挡",
-                  "zh_tw": "正面格擋"
-                },
-                "before": 1.0,
-                "after": 0.0,
-                "color": 8421504
+                "en_us": "Baton: 4 durability; each hit roots the target for 1 second and knocks them back; the same target hit twice within 4 seconds dies; killing puts the baton on cooldown.",
+                "zh_cn": "警棍：4点耐久，每命中1次目标会使目标定身1秒并击退，同个目标在4秒内受到两次棍击就死亡，击杀目标会使警棍进入冷却。",
+                "zh_tw": "警棍：4點耐久，每命中1次目標會使目標定身1秒並擊退，同個目標在4秒內受到兩次棍擊就死亡，擊殺目標會使警棍進入冷卻。"
               }
             ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "text",
-          "duration": 189,
-          "text": {
-            "en_us": "Starts with a Riot Shield and baton; the shop sells a Remote Surveillance Terminal.",
-            "zh_cn": "自带一个防暴盾牌和警棍，商店可购买远程监控终端。",
-            "zh_tw": "自帶一個防暴盾牌和警棍，商店可購買遠程監控終端。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 199
-        },
-        {
-          "type": "starrailexpress:role_key",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "show_controls",
-          "action": "right",
-          "item": "noellesroles:baton",
-          "duration": 80,
-          "point": [
-            5.6,
-            2.3,
-            2.0
-          ],
-          "direction": "down",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "guard_baton_target",
-            "pos": [
-              7.0,
-              1.0,
-              2.5
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "guard_baton_target",
             "pos": [
               5.0,
               1.0,
               2.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Riot Shield: press the skill key to put the shield in your off-hand (right-click again to stow it); while raised it blocks one frontal hit, then disappears.",
-            "zh_cn": "防暴盾牌：按技能键可以将防暴盾牌放到副手(再次右键放回物品栏),举盾时可以抵挡一次正面的伤害，使用后消失。",
-            "zh_tw": "防暴盾牌：按技能鍵可以將防暴盾牌放到副手(再次右鍵放回物品欄),舉盾時可以抵擋一次正面的傷害，使用後消失。"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
+            ],
+            "yaw": 180.0,
+            "linkId": "guard_skill_target_0",
+            "outline": -5592406
+          }
         },
         {
           "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
+          "duration": 15
         },
         {
           "type": "starrailexpress:role_death",
           "parameters": {
-            "linkId": "guard_main",
+            "linkId": "guard_skill_target_0",
             "pos": [
-              3.0,
+              5.0,
               1.0,
-              3.0
+              2.0
             ],
-            "name": "ponder.starrailexpress.label.victim",
-            "corpse": false
+            "name": "ponder.starrailexpress.label.victim"
           },
           "attachKeyFrame": true
         },
         {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
           "type": "create_item_entity",
           "pos": [
-            3.7,
+            2.2,
             1.5,
             3.0
           ],
@@ -473,100 +357,9 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:revolver",
-          "linkId": "guard_drop",
+          "item": "noellesroles:baton",
+          "linkId": "guard_line_item_0",
           "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "guard_main"
-          }
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "The Riot Shield blocks only: revolver / knife / derringer / bat / bow / arrow / trident / sawed-off shotgun / throwing knife / throwing axe / shuriken / explosive crossbow / iron axe / diamond sword / heavy hammer / katana",
-            "zh_cn": "防暴盾牌仅可以阻挡左轮手枪/刀/德林加手枪/球棒/弓箭/三叉戟/短管霰弹枪/飞刀/飞斧/手里剑/爆炸弩/铁斧/钻石剑/重锤/武士刀",
-            "zh_tw": "防暴盾牌僅可以阻擋左輪手槍/刀/德林加手槍/球棒/弓箭/三叉戟/短管霰彈槍/飛刀/飛斧/手裏劍/爆炸弩/鐵斧/鑽石劍/重錘/武士刀"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "guard_main",
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "name": "ponder.starrailexpress.label.victim",
-            "corpse": false
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            3.7,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:revolver",
-          "linkId": "guard_drop",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "guard_main"
-          }
         },
         {
           "type": "text",
@@ -578,7 +371,7 @@
           },
           "point": [
             3.0,
-            2.64,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,
@@ -587,162 +380,6 @@
         {
           "type": "idle",
           "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "guard_main",
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "name": "ponder.starrailexpress.label.victim",
-            "corpse": false
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            3.7,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:revolver",
-          "linkId": "guard_drop",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "guard_main"
-          }
-        },
-        {
-          "type": "text",
-          "duration": 169,
-          "text": {
-            "en_us": "While holding the baton you cannot pick up the revolver / patrol pistol.",
-            "zh_cn": "当你拥有警棍时，你无法捡起左轮手枪/巡警手枪。",
-            "zh_tw": "當你擁有警棍時，你無法撿起左輪手槍/巡警手槍。"
-          },
-          "point": [
-            3.0,
-            2.92,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 179
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "guard_main",
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "name": "ponder.starrailexpress.label.victim",
-            "corpse": false
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            3.7,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:revolver",
-          "linkId": "guard_drop",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "guard_main"
-          }
-        },
-        {
-          "type": "text",
-          "duration": 110,
-          "text": {
-            "en_us": "On death the baton drops as a revolver.",
-            "zh_cn": "当你死后，警棍会掉落为左轮手枪。",
-            "zh_tw": "當你死後，警棍會掉落為左輪手槍。"
-          },
-          "point": [
-            3.0,
-            3.2,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 120
         },
         {
           "type": "rotate_camera_y",
@@ -937,20 +574,6 @@
               }
             ]
           }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "create_item_entity",

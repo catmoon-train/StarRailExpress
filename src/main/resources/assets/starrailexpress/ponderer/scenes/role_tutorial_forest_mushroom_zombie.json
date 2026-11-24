@@ -124,20 +124,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "create_item_entity",
           "pos": [
             2.2,
@@ -238,113 +224,56 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "next_ability",
-            "text": "ponder.starrailexpress.ponder.press_next_ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "show_controls",
-          "action": "right",
-          "item": "minecraft:air",
-          "duration": 70,
-          "point": [
-            6.2,
-            2.2,
-            2.0
-          ],
-          "direction": "down",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "forest_mushroom_zombie_main",
-            "pos": [
-              3.0,
-              3.4,
-              3.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_vitals",
-          "parameters": {
-            "bars": [
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
               {
-                "label": {
-                  "en_us": "Climb stamina",
-                  "zh_cn": "攀爬体力",
-                  "zh_tw": "攀爬體力"
-                },
-                "before": 1.0,
-                "after": 0.25,
-                "color": 16753920
+                "en_us": "Skill: switch between standing/crawling poses",
+                "zh_cn": "技能：可切换成多种站立 / 匍匐姿态",
+                "zh_tw": "技能：可切換成多種站立 / 匍匐姿態"
               }
             ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Climbing works exactly like the Scout: bare-hand right-click a wall, movement keys cost stamina, holding an item lets go",
-            "zh_cn": "攀爬逻辑与童子军完全相同：空手右键紧贴的墙壁开始攀爬，按移动键改变方向时消耗体力，手上拿着物品会自动松手",
-            "zh_tw": "攀爬邏輯與童子軍完全相同：空手右鍵緊貼的牆壁開始攀爬，按移動鍵改變方向時消耗體力，手上拿著物品會自動鬆手"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
             "duration": 60,
-            "keyBind": "next_ability",
-            "text": "ponder.starrailexpress.ponder.press_next_ability"
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_pose",
+          "type": "starrailexpress:role_hold",
           "parameters": {
             "linkId": "forest_mushroom_zombie_main",
-            "pose": "standing"
+            "item": "trainmurdermystery:note"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_pose",
-          "parameters": {
-            "linkId": "forest_mushroom_zombie_main",
-            "pose": "crouching"
-          },
-          "attachKeyFrame": true
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:note",
+          "duration": 65,
+          "point": [
+            2.2,
+            2.2,
+            3.0
+          ],
+          "direction": "down"
+        },
+        {
+          "type": "idle",
+          "duration": 30
         },
         {
           "type": "text",
@@ -356,7 +285,7 @@
           },
           "point": [
             3.0,
-            2.08,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,

@@ -141,22 +141,6 @@
           "attachKeyFrame": true
         },
         {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Passive - Master of Disguise: the Magician receives the impersonated Killer's starting items, starting potion effects (Invincibility excluded) and shop, but every shop price is higher.",
-            "zh_cn": "被动——伪装大师：魔术师会拥有伪装职业的初始物品、初始药水效果(无敌效果除外)、初始商店。但商店中的商品价格会更加昂贵。",
-            "zh_tw": "被動——偽裝大師：魔術師會擁有偽裝職業的初始物品、初始藥水效果(無敵效果除外)、初始商店。但商店中的商品價格會更加昂貴。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
           "type": "idle",
           "duration": 200
         },
@@ -233,49 +217,6 @@
       ]
     },
     {
-      "id": "shop",
-      "title": {
-        "en_us": "Magician",
-        "zh_cn": "魔术师",
-        "zh_tw": "魔術師"
-      },
-      "steps": [
-        {
-          "type": "show_structure",
-          "structure": "starrailexpress:role_tutorial_room",
-          "scale": 1.0,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "magician_main"
-          }
-        },
-        {
-          "type": "starrailexpress:role_shop",
-          "attachKeyFrame": true,
-          "parameters": {
-            "role": "magician",
-            "columns": 4
-          }
-        },
-        {
-          "type": "rotate_camera_y",
-          "degrees": 12.0,
-          "duration": 50,
-          "attachKeyFrame": true
-        }
-      ]
-    },
-    {
       "id": "mood",
       "title": {
         "en_us": "Magician",
@@ -313,7 +254,7 @@
               {
                 "en_us": "Misfiring on you does not trigger the good-player miskill penalty; killing a passenger yourself kills you.",
                 "zh_cn": "魔术师拥有假心情，无需恢复理智。",
-                "zh_tw": "好人誤殺你不會受到小腦懲罰；你誤殺平民會因誤殺平民而亡。"
+                "zh_tw": "魔術師擁有假心情，無需恢復理智。"
               }
             ]
           }
@@ -341,90 +282,7 @@
           "text": {
             "en_us": "Misfiring on you does not trigger the good-player miskill penalty; killing a passenger yourself kills you.",
             "zh_cn": "魔术师拥有假心情，无需恢复理智。",
-            "zh_tw": "好人誤殺你不會受到小腦懲罰；你誤殺平民會因誤殺平民而亡。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "rotate_camera_y",
-          "degrees": 12.0,
-          "duration": 50,
-          "attachKeyFrame": true
-        }
-      ]
-    },
-    {
-      "id": "bond",
-      "title": {
-        "en_us": "Magician",
-        "zh_cn": "魔术师",
-        "zh_tw": "魔術師"
-      },
-      "steps": [
-        {
-          "type": "show_structure",
-          "structure": "starrailexpress:role_tutorial_room",
-          "scale": 1.0,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "magician_main"
-          }
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "magician_ally",
-            "outline": -23296
-          }
-        },
-        {
-          "type": "starrailexpress:role_bond",
-          "attachKeyFrame": true,
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "The Magician cannot impersonate the Lost Killer, multi-slot Killers, map-exclusive Killers, Killers bound to another role's spawn, or Killers that cannot spawn naturally.",
-                "zh_cn": "魔术师无法扮演迷失杀手/多狼位/地图特色职业/具有绑定生成关系/无法自然刷新的杀手职业。",
-                "zh_tw": "魔術師無法扮演迷失殺手/多狼位/地圖特色職業/具有綁定生成關係/無法自然刷新的殺手職業。"
-              }
-            ],
-            "color": -23296
-          }
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "The Magician cannot impersonate the Lost Killer, multi-slot Killers, map-exclusive Killers, Killers bound to another role's spawn, or Killers that cannot spawn naturally.",
-            "zh_cn": "魔术师无法扮演迷失杀手/多狼位/地图特色职业/具有绑定生成关系/无法自然刷新的杀手职业。",
-            "zh_tw": "魔術師無法扮演迷失殺手/多狼位/地圖特色職業/具有綁定生成關係/無法自然刷新的殺手職業。"
+            "zh_tw": "魔術師擁有假心情，無需恢復理智。"
           },
           "point": [
             3.0,
@@ -509,7 +367,7 @@
               {
                 "en_us": "You can enter manholes / cross the mist.",
                 "zh_cn": "杀手看你的身份是你扮演的杀手身份，报幕时的杀手人数会算上魔术师的数量。",
-                "zh_tw": "你能夠進入井蓋/穿越迷霧。"
+                "zh_tw": "殺手看你的身份是你扮演的殺手身份，報幕時的殺手人數會算上魔術師的數量。"
               },
               {
                 "en_us": "The Magician cannot impersonate the Lost Killer, multi-slot Killers, map-exclusive Killers, Killers bound to another role's spawn, or Killers that cannot spawn naturally.",
@@ -555,7 +413,7 @@
           "text": {
             "en_us": "You can enter manholes / cross the mist.",
             "zh_cn": "杀手看你的身份是你扮演的杀手身份，报幕时的杀手人数会算上魔术师的数量。",
-            "zh_tw": "你能夠進入井蓋/穿越迷霧。"
+            "zh_tw": "殺手看你的身份是你扮演的殺手身份，報幕時的殺手人數會算上魔術師的數量。"
           },
           "point": [
             3.0,
@@ -670,22 +528,6 @@
           "attachKeyFrame": true
         },
         {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Killers mistake you for a fellow Killer; at game start you randomly impersonate a Killer.",
-            "zh_cn": "杀手会误以为你是杀手同伙，你会在游戏开始时随机扮演一名杀手。",
-            "zh_tw": "殺手會誤以為你是殺手同夥，你會在遊戲開始時隨機扮演一名殺手。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
           "type": "idle",
           "duration": 200
         },
@@ -695,7 +537,7 @@
           "text": {
             "en_us": "To Killers you appear as the Killer you impersonated, and the opening announcement's Killer count includes the Magician.",
             "zh_cn": "好人误杀你不会受到小脑惩罚；你误杀平民会因误杀平民而亡。",
-            "zh_tw": "殺手看你的身份是你扮演的殺手身份，報幕時的殺手人數會算上魔術師的數量。"
+            "zh_tw": "好人誤殺你不會受到小腦懲罰；你誤殺平民會因誤殺平民而亡。"
           },
           "point": [
             3.0,
@@ -718,22 +560,6 @@
           ]
         },
         {
-          "type": "text",
-          "duration": 112,
-          "text": {
-            "en_us": "You can enter manholes / cross the mist.",
-            "zh_cn": "杀手看你的身份是你扮演的杀手身份，报幕时的杀手人数会算上魔术师的数量。",
-            "zh_tw": "你能夠進入井蓋/穿越迷霧。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
           "type": "idle",
           "duration": 122
         },
@@ -743,7 +569,7 @@
           "text": {
             "en_us": "The Magician has a fake mood and never needs to restore sanity.",
             "zh_cn": "你能够进入井盖/穿越迷雾。",
-            "zh_tw": "魔術師擁有假心情，無需恢復理智。"
+            "zh_tw": "你能夠進入井蓋/穿越迷霧。"
           },
           "point": [
             3.0,

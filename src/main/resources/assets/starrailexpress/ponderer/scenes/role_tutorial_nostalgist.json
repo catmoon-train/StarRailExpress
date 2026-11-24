@@ -125,327 +125,25 @@
           }
         },
         {
-          "type": "starrailexpress:role_hide",
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "linkId": "nostalgist_main",
-            "visible": false
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 166,
-          "text": {
-            "en_us": "When more than one Killer is on the map, you are in the 【Netherworld】:",
-            "zh_cn": "当场上杀手不止一名时，你处于「里世界」：",
-            "zh_tw": "當場上殺手不止一名時，你處於「裏世界」："
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 176
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_ambience",
-          "parameters": {
-            "color": 12303291,
-            "alpha": 0.55,
-            "mode": "fog"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 90,
-          "text": {
-            "en_us": "· The view turns gray-white.",
-            "zh_cn": "· 视角变为灰白。",
-            "zh_tw": "· 視角變為灰白。"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 100
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 151,
-          "text": {
-            "en_us": "· Invisible to all teams; no one can see, hear, or attack you.",
-            "zh_cn": "· 对所有阵营隐身，任何人都无法看见、听见或攻击你。",
-            "zh_tw": "· 對所有陣營隱身，任何人都無法看見、聽見或攻擊你。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 161
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:reverse_portal",
-          "pos": [
-            3.0,
-            1.9,
-            3.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 12,
-          "duration": 80,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 108,
-          "text": {
-            "en_us": "· Running makes no sound or particles.",
-            "zh_cn": "· 奔跑不会发出任何声音与粒子。",
-            "zh_tw": "· 奔跑不會發出任何聲音與粒子。"
-          },
-          "point": [
-            3.0,
-            2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 118
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "spawn_particles",
-          "particle": "minecraft:reverse_portal",
-          "pos": [
-            3.0,
-            1.9,
-            3.0
-          ],
-          "distribution": "box",
-          "spread": [
-            0.35,
-            0.6,
-            0.35
-          ],
-          "count": 12,
-          "duration": 80,
-          "motion": [
-            0,
-            0.04,
-            0
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 169,
-          "text": {
-            "en_us": "· You see and hear others normally (including their footstep particles).",
-            "zh_cn": "· 你能正常看见与听见其他人（包括他们的脚步粒子）。",
-            "zh_tw": "· 你能正常看見與聽見其他人（包括他們的腳步粒子）。"
-          },
-          "point": [
-            3.0,
-            2.92,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 179
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "· But while in the Netherworld you cannot kill anyone — only sneak, pick locks, and scout.",
-            "zh_cn": "· 但身处里世界时你无法击杀任何人，只能潜行、开锁与侦察。",
-            "zh_tw": "· 但身處裏世界時你無法擊殺任何人，只能潛行、開鎖與偵察。"
-          },
-          "point": [
-            3.0,
-            3.2,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_currency",
-          "parameters": {
-            "progress": [
-              0.2,
-              0.9
-            ],
+            "label": "ponder.starrailexpress.label.skill",
             "lines": [
               {
-                "en_us": "· While in the Netherworld, gain 50 coin every 1 minute.",
-                "zh_cn": "· 身处里世界时，每过 1 分钟获得 50 金币。",
-                "zh_tw": "· 身處裏世界時，每過 1 分鐘獲得 50 金幣。"
+                "en_us": "You can press the skill key at any time to actively collapse the Netherworld and reveal yourself as a normal Killer (it collapses automatically when only you remain as a Killer).",
+                "zh_cn": "你可以随时按下技能键，主动让里世界崩塌并现身为普通杀手（当场上只剩你一位杀手时则强制崩塌）。",
+                "zh_tw": "你可以隨時按下技能鍵，主動讓裏世界崩塌並現身為普通殺手（當場上只剩你一位殺手時則強制崩塌）。"
               }
             ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "text",
-          "duration": 140,
-          "text": {
-            "en_us": "· While in the Netherworld, gain 50 coin every 1 minute.",
-            "zh_cn": "· 身处里世界时，每过 1 分钟获得 50 金币。",
-            "zh_tw": "· 身處裏世界時，每過 1 分鐘獲得 50 金幣。"
-          },
-          "point": [
-            3.0,
-            3.48,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 150
-        },
-        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -455,11 +153,82 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_hide",
+          "type": "starrailexpress:role_walk",
           "parameters": {
             "linkId": "nostalgist_main",
-            "visible": true
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
           },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:reverse_portal",
+          "pos": [
+            5.0,
+            1.9,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 6,
+          "duration": 50,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:revolver",
+          "linkId": "nostalgist_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -471,9 +240,9 @@
             "zh_tw": "你可以隨時按下技能鍵，主動讓裏世界崩塌並現身為普通殺手（當場上只剩你一位殺手時則強制崩塌）。"
           },
           "point": [
-            3.15,
+            3.0,
             1.8,
-            2.85
+            3.0
           ],
           "placeNearTarget": true,
           "attachKeyFrame": true
@@ -481,57 +250,6 @@
         {
           "type": "idle",
           "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_currency",
-          "parameters": {
-            "progress": [
-              0.2,
-              0.9
-            ],
-            "lines": [
-              {
-                "en_us": "Gain 100 coin when leaving the Netherworld.",
-                "zh_cn": "离开里世界时获得 100 金币。",
-                "zh_tw": "離開裏世界時獲得 100 金幣。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 117,
-          "text": {
-            "en_us": "Gain 100 coin when leaving the Netherworld.",
-            "zh_cn": "离开里世界时获得 100 金币。",
-            "zh_tw": "離開裏世界時獲得 100 金幣。"
-          },
-          "point": [
-            3.15,
-            2.08,
-            2.85
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 127
         },
         {
           "type": "rotate_camera_y",

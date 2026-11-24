@@ -196,6 +196,20 @@
           }
         },
         {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "The goggles can be Q-thrown to others; press the skill key to put them on / take them off.",
+                "zh_cn": "夜视仪可以按Q丢给其他人，按技能键可以穿戴/卸下夜视仪。",
+                "zh_tw": "夜視儀可以按Q丟給其他人，按技能鍵可以穿戴/卸下夜視儀。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -205,7 +219,7 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "glitch_robot_glitch_target",
+            "linkId": "glitch_robot_skill_target_0",
             "outline": -2898694
           }
         },
@@ -214,7 +228,7 @@
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -224,108 +238,49 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_timer",
+          "type": "starrailexpress:role_walk",
           "parameters": {
-            "progress": [
-              1.0,
-              0.0
-            ],
-            "lines": [
-              {
-                "en_us": "While the Glitch Robot is present, the Plaguebearer cannot help the Killer team win",
-                "zh_cn": "故障机器人在场时，疫使无法帮助杀手阵营胜利",
-                "zh_tw": "故障機器人在場時，疫使無法幫助殺手陣營勝利"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "title": {
-              "en_us": "Glitch",
-              "zh_cn": "故障定身",
-              "zh_tw": "故障"
-            },
-            "bars": [
-              {
-                "label": {
-                  "en_us": "Slow X",
-                  "zh_cn": "缓慢 X",
-                  "zh_tw": "緩慢 X"
-                },
-                "before": 0.0,
-                "after": 1.0,
-                "color": 8421504
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 189,
-          "text": {
-            "en_us": "While the Glitch Robot is present, the Plaguebearer cannot help the Killer team win",
-            "zh_cn": "故障机器人在场时，疫使无法帮助杀手阵营胜利",
-            "zh_tw": "故障機器人在場時，疫使無法幫助殺手陣營勝利"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 199
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "glitch_robot_glitch_target",
-            "pos": [
-              5.0,
+            "linkId": "glitch_robot_main",
+            "to": [
+              4.1,
               1.0,
               2.0
             ],
-            "name": "ponder.starrailexpress.label.victim"
+            "duration": 40
           },
           "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
         },
         {
           "type": "spawn_particles",
           "particle": "minecraft:effect",
           "pos": [
             5.0,
-            1.6,
+            1.9,
             2.0
           ],
           "distribution": "box",
           "spread": [
-            3.0,
-            0.8,
-            3.0
+            0.35,
+            0.6,
+            0.35
           ],
-          "count": 18,
-          "duration": 100,
+          "count": 6,
+          "duration": 50,
           "motion": [
             0,
             0.04,
@@ -333,126 +288,32 @@
           ]
         },
         {
-          "type": "starrailexpress:role_ambience",
-          "parameters": {
-            "color": 3166288,
-            "alpha": 0.35,
-            "mode": "fog"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 135,
-          "text": {
-            "en_us": "Every 30 seconds it glitches (rooted for 3.5 seconds)",
-            "zh_cn": "每30秒会发生一次故障（定身3.5秒）",
-            "zh_tw": "每30秒會發生一次故障（定身3.5秒）"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
         },
         {
           "type": "idle",
-          "duration": 145
+          "duration": 25
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "title": {
-              "en_us": "Night vision",
-              "zh_cn": "夜视仪",
-              "zh_tw": "夜視儀"
-            },
-            "bars": [
-              {
-                "label": {
-                  "en_us": "Night vision",
-                  "zh_cn": "夜视",
-                  "zh_tw": "夜視"
-                },
-                "before": 0.0,
-                "after": 1.0,
-                "color": 16753920
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 184,
-          "text": {
-            "en_us": "After death it leaves a field of glitch current (players inside get Slowness II)",
-            "zh_cn": "死亡后会留下一片故障电流(电流中的玩家会有缓慢2的效果)",
-            "zh_tw": "死亡後會留下一片故障電流(電流中的玩家會有緩慢2的效果)"
-          },
-          "point": [
-            3.0,
-            2.36,
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
             3.0
           ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 194
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "title": {
-              "en_us": "Night vision",
-              "zh_cn": "夜视仪",
-              "zh_tw": "夜視儀"
-            },
-            "bars": [
-              {
-                "label": {
-                  "en_us": "Night vision",
-                  "zh_cn": "夜视",
-                  "zh_tw": "夜視"
-                },
-                "before": 0.0,
-                "after": 1.0,
-                "color": 16753920
-              }
-            ]
-          },
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:night_vision_glasses",
+          "linkId": "glitch_robot_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -465,7 +326,7 @@
           },
           "point": [
             3.0,
-            2.64,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,
@@ -474,63 +335,6 @@
         {
           "type": "idle",
           "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "title": {
-              "en_us": "Night vision",
-              "zh_cn": "夜视仪",
-              "zh_tw": "夜視儀"
-            },
-            "bars": [
-              {
-                "label": {
-                  "en_us": "Night vision",
-                  "zh_cn": "夜视",
-                  "zh_tw": "夜視"
-                },
-                "before": 0.0,
-                "after": 1.0,
-                "color": 16753920
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 149,
-          "text": {
-            "en_us": "While wearing the goggles, buying Glowstone Dust charges them",
-            "zh_cn": "戴上夜视仪时，购买荧石粉可以为夜视仪充能",
-            "zh_tw": "戴上夜視儀時，購買熒石粉可以為夜視儀充能"
-          },
-          "point": [
-            3.0,
-            2.92,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 159
         },
         {
           "type": "rotate_camera_y",

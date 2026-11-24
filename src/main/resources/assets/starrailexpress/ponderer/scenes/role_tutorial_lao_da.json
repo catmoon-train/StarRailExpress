@@ -124,6 +124,20 @@
           }
         },
         {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Active skill: Elbow Strike, elbowing nearby players away.",
+                "zh_cn": "主动技能：肘击，将周围玩家肘飞。",
+                "zh_tw": "主動技能：肘擊，將周圍玩家肘飛。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -133,21 +147,7 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "lao_da_laoda_a",
-            "outline": -1257144
-          }
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              6.5,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "lao_da_laoda_b",
+            "linkId": "lao_da_skill_target_0",
             "outline": -1257144
           }
         },
@@ -156,7 +156,7 @@
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -166,55 +166,50 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_knockback",
+          "type": "starrailexpress:role_walk",
           "parameters": {
-            "linkId": "lao_da_laoda_a",
-            "from": [
-              5.0,
-              1.0,
-              2.0
-            ],
+            "linkId": "lao_da_main",
             "to": [
-              6.8,
+              4.1,
               1.0,
               2.0
             ],
-            "duration": 14,
-            "arc": 0.4
+            "duration": 40
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_knockback",
-          "parameters": {
-            "linkId": "lao_da_laoda_b",
-            "from": [
-              6.5,
-              1.0,
-              2.0
-            ],
-            "to": [
-              8.3,
-              1.0,
-              2.0
-            ],
-            "duration": 14,
-            "arc": 0.4
-          },
-          "attachKeyFrame": true
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
         },
         {
-          "type": "play_sound",
-          "sound": "minecraft:entity.warden.sonic_boom",
-          "soundVolume": 1.0,
-          "pitch": 1.0,
-          "source": "players"
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
         },
         {
           "type": "create_item_entity",
           "pos": [
-            2.0,
-            1.55,
+            2.2,
+            1.5,
             3.0
           ],
           "motion": [
@@ -223,70 +218,9 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:ice_red_tea",
-          "linkId": "lao_da_tea",
+          "item": "trainmurdermystery:note",
+          "linkId": "lao_da_line_item_0",
           "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_vitals",
-          "parameters": {
-            "bars": [
-              {
-                "label": "ponder.starrailexpress.label.vitals",
-                "before": 0.3,
-                "after": 1.0,
-                "color": 5635925
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "lao_da_main",
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "name": "ponder.starrailexpress.label.victim",
-            "corpse": false
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "lao_da_main"
-          }
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Can buy Iced Tea. Iced Tea grants Speed, Slow Falling, Sanity regen, and fire cooling.",
-            "zh_cn": "可购买冰红茶。冰红茶可加速、缓降、回SAN、清火。",
-            "zh_tw": "可購買冰紅茶。冰紅茶可加速、緩降、回SAN、清火。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
         },
         {
           "type": "text",
@@ -298,7 +232,7 @@
           },
           "point": [
             3.0,
-            2.08,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,
@@ -307,77 +241,6 @@
         {
           "type": "idle",
           "duration": 152
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 119,
-          "text": {
-            "en_us": "After death, plays the tune \"See You Again\".",
-            "zh_cn": "死亡后播放小曲《See You Again》。",
-            "zh_tw": "死亡後播放小曲《See You Again》。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 129
-        },
-        {
-          "type": "rotate_camera_y",
-          "degrees": 12.0,
-          "duration": 50,
-          "attachKeyFrame": true
-        }
-      ]
-    },
-    {
-      "id": "shop",
-      "title": {
-        "en_us": "Lao da",
-        "zh_cn": "牢大",
-        "zh_tw": "牢大"
-      },
-      "steps": [
-        {
-          "type": "show_structure",
-          "structure": "starrailexpress:role_tutorial_common",
-          "scale": 1.0,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "lao_da_main"
-          }
-        },
-        {
-          "type": "starrailexpress:role_shop",
-          "attachKeyFrame": true,
-          "parameters": {
-            "role": "lao_da",
-            "columns": 4
-          }
         },
         {
           "type": "rotate_camera_y",

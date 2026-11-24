@@ -257,178 +257,66 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "konpaku_youmu_youmu_hidden",
-            "outline": 8421504
-          }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hide",
-          "parameters": {
-            "linkId": "konpaku_youmu_main",
-            "visible": false
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "konpaku_youmu_youmu_hidden",
-            "color": 16753920
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "konpaku_youmu_main",
-            "item": "noellesroles:youmu_sword"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_scale",
-          "parameters": {
-            "linkId": "konpaku_youmu_main",
-            "scale": 1.18
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.0
-            ],
+            "label": "ponder.starrailexpress.label.skill",
             "lines": [
               {
-                "en_us": "In ghost form you can only see players in invisible state, and cannot be seen by the Killer team. In this state you cannot use items or open your inventory, but you can be killed.",
-                "zh_cn": "处于幽灵状态时，你只能看到处于隐身状态的玩家，同时你无法被杀手阵营看到。此时你无法使用物品，也无法打开物品栏，但能被杀死。",
-                "zh_tw": "處於幽靈狀態時，你只能看到處於隱身狀態的玩家，同時你無法被殺手陣營看到。此時你無法使用物品，也無法打開物品欄，但能被殺死。"
+                "en_us": "Invisibility lasts 30s and can be turned off manually. 60s cooldown.",
+                "zh_cn": "隐身状态持续30s，可以手动关闭。冷却60s。",
+                "zh_tw": "隱身狀態持續30s，可以手動關閉。冷卻60s。"
               }
             ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.25,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hide",
-          "parameters": {
-            "linkId": "konpaku_youmu_main",
-            "visible": true
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "konpaku_youmu_main",
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "name": "ponder.starrailexpress.label.victim",
-            "corpse": false
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "konpaku_youmu_main"
-          }
-        },
-        {
-          "type": "text",
-          "duration": 86,
-          "text": {
-            "en_us": "You can toggle ghost form.",
-            "zh_cn": "你可以切换幽灵状态。",
-            "zh_tw": "你可以切換幽靈狀態。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 96
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "In ghost form you can only see players in invisible state, and cannot be seen by the Killer team. In this state you cannot use items or open your inventory, but you can be killed.",
-            "zh_cn": "处于幽灵状态时，你只能看到处于隐身状态的玩家，同时你无法被杀手阵营看到。此时你无法使用物品，也无法打开物品栏，但能被杀死。",
-            "zh_tw": "處於幽靈狀態時，你只能看到處於隱身狀態的玩家，同時你無法被殺手陣營看到。此時你無法使用物品，也無法打開物品欄，但能被殺死。"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "indicate_success",
+          "type": "highlight_section",
           "blockPos": [
             3,
             0,
             3
-          ]
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Invisibility lasts 30s and can be turned off manually. 60s cooldown.",
+                "zh_cn": "隐身状态持续30s，可以手动关闭。冷却60s。",
+                "zh_tw": "隱身狀態持續30s，可以手動關閉。冷卻60s。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:youmu_sword",
+          "linkId": "konpaku_youmu_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -440,7 +328,7 @@
           },
           "point": [
             3.0,
-            2.36,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,
@@ -449,26 +337,6 @@
         {
           "type": "idle",
           "duration": 172
-        },
-        {
-          "type": "text",
-          "duration": 122,
-          "text": {
-            "en_us": "When holding a sword, you appear to wield two.",
-            "zh_cn": "当你手持剑时，将会显示双刀。",
-            "zh_tw": "當你手持劍時，將會顯示雙刀。"
-          },
-          "point": [
-            3.0,
-            2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 132
         },
         {
           "type": "rotate_camera_y",
@@ -504,20 +372,6 @@
             "yaw": 180.0,
             "linkId": "konpaku_youmu_main"
           }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_hold",

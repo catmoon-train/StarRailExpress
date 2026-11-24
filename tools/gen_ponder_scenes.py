@@ -613,10 +613,13 @@ def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None
     # 只有明确写了触发方式的句子才演「按键 → 动作」。
     triggered = any(word in zh for word in
                     ("技能", "按下", "按键", "右键", "左键", "按住", "施放", "释放", "切换", "蹲下"))
+    # 键帽只表示技能键：右键 / 左键 / 按住 / 蹲下是道具或鼠标操作，
+    # 已经由 show_controls 表达，不能再叠一个 G 键帽。
+    key_triggered = any(word in zh for word in ("技能", "按下", "按键", "施放", "释放"))
     switched = is_switch_line(zh)
 
     def key():
-        if triggered:
+        if key_triggered:
             steps.append(key_cap(head, switch=switched))
 
     if switched:
@@ -896,6 +899,8 @@ SKIN_JESTER = "starrailexpress:textures/entity/custom_psycho/jester.png"
 SKIN_CAT = "starrailexpress:textures/entity/custom_psycho/cat_killer.png"
 
 ROLE_ITEMS = {
+    # 钓竿是 AnglerRoleData 开局发放的，RoleInitialItems 抽不到；补进 facts 供演示取用。
+    "angler": ["noellesroles:angler_rod"],
     "kafu_chino": ["noellesroles:chino_coffee"],
     "houjuu_nue": ["trainmurdermystery:knife", "trainmurdermystery:revolver",
                    "trainmurdermystery:lockpick", "noellesroles:master_key"],
@@ -921,6 +926,12 @@ ROLE_ITEMS = {
 
 # 这些职业没有主动技能键，不能因为介绍里写了「右键道具」就塞技能键帽和走动。
 NO_SKILL_KEY_ROLES = {"baka"}
+# 这些职业的介绍写的是初始道具用法，没有主动技能；不生成独立的技能幕。
+NO_SKILL_SEGMENT_ROLES = {"angler"}
+
+# 跨幕重复时保留哪一幕：专属演出（变身 / 领域）优先，其次技能，再是普通信息幕。
+SEGMENT_TEXT_PRIORITY = ["form", "domain", "skill", "shop", "items", "panel",
+                         "vision", "mood", "vitals", "bond", "body", "screen", "details"]
 
 # 本能透视颜色必须以 RoleInstinctRegister / InstinctManager / 角色常量为准。
 # 这里只覆盖介绍里明确提到具体颜色、且源码有对应分支的职业；其余沿用职业基础色。
@@ -979,6 +990,28 @@ def item_entity(pos, item, link_id):
 def show_right_click(point, item, duration=70):
     return {"type": "show_controls", "action": "right", "item": item, "duration": duration,
             "point": list(point), "direction": "down", "attachKeyFrame": True}
+
+
+def override_angler_items(builder, ctx):
+    """垂钓者没有技能键：钓竿是开局道具，收竿与乘坐都在初始物品幕演示。"""
+    p, rid = ctx["player_pos"], ctx["rid"]
+    rod = "noellesroles:angler_rod"
+    main = rid + "_main"
+    wanted = ("开局获得耐久", "每次成功收竿", "潜行右键可乘坐钓竿")
+    lines = [line for line in ctx["all_lines"]
+             if any(line.get("zh_cn", "").startswith(prefix) for prefix in wanted)]
+    builder.add(item_entity([p[0] - 1.2, p[1] + 0.55, p[2]], rod, rid + "_rod"))
+    builder.add(custom("role_hold", {"linkId": main, "item": rod}))
+    for index, line in enumerate(lines):
+        if index == 0:
+            builder.add(custom("role_timer", {"progress": [1.0, 0.0], "lines": [line]}))
+        else:
+            control = show_right_click([p[0] - 0.8, p[1] + 1.9, p[2]], rod, 70)
+            if index > 1:
+                # 「潜行右键乘坐钓竿」是 Shift + 右键，不是技能释放键。
+                control["whileSneaking"] = True
+            builder.add(control)
+        builder.say(line)
 
 
 def override_kafu_skill(builder, ctx):
@@ -2125,6 +2158,7 @@ def override_warlock_skill(builder, ctx):
 
 
 ROLE_SEGMENT_OVERRIDES = {
+    ("angler", "items"): override_angler_items,
     ("kafu_chino", "skill"): override_kafu_skill,
     ("noisemaker", "skill"): override_noisemaker_skill,
     ("broadcaster", "skill"): override_broadcaster_skill,
@@ -2190,6 +2224,25 @@ for _module_path in sorted(glob.glob(os.path.join(os.path.dirname(__file__),
     _module_name = os.path.splitext(os.path.basename(_module_path))[0]
     _module = importlib.import_module(_module_name)
     ROLE_SEGMENT_OVERRIDES.update(_module.OVERRIDES)
+
+
+def deduplicate_scene_texts(scenes):
+    """跨幕复用同一句介绍时只留在高优先级幕，多余的段落没有正文就直接删掉。"""
+    rank = {key: index for index, key in enumerate(SEGMENT_TEXT_PRIORITY)}
+    seen = set()
+    for segment in sorted(scenes, key=lambda item: rank.get(item["id"], len(rank))):
+        kept = []
+        for step in segment["steps"]:
+            if step["type"] == "text":
+                zh = step.get("text", {}).get("zh_cn", "")
+                if zh and zh in seen:
+                    continue
+                if zh:
+                    seen.add(zh)
+            kept.append(step)
+        segment["steps"] = kept
+    scenes[:] = [segment for segment in scenes
+                 if any(step["type"] == "text" for step in segment["steps"])]
 
 
 def build_role_scene(rid, facts, intros, names, goals):
@@ -2327,6 +2380,9 @@ def build_role_scene(rid, facts, intros, names, goals):
     # ---- 其余段落 ----
     for key in SEGMENT_ORDER:
         if key == "details" and "details" not in assignment:
+            continue
+        if key == "skill" and rid in NO_SKILL_SEGMENT_ROLES:
+            # 介绍讲的是初始道具的用法，没有主动技能，不单独开技能幕。
             continue
         lines = assignment.get(key)
         # 技能界面：职业在背包里有「选人列表」时一定要演示这个界面，
@@ -2532,6 +2588,7 @@ def build_role_scene(rid, facts, intros, names, goals):
             items.append(candidate)
     if not items:
         items = list(FALLBACK_ITEMS)
+    deduplicate_scene_texts(scenes)
     scene = {
         "formatVersion": 1,
         "id": "starrailexpress:role_tutorial." + rid,

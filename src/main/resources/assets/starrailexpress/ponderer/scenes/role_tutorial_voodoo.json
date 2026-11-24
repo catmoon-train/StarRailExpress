@@ -97,50 +97,6 @@
       ]
     },
     {
-      "id": "screen",
-      "title": {
-        "en_us": "Voodoo",
-        "zh_cn": "巫毒师",
-        "zh_tw": "巫毒師"
-      },
-      "steps": [
-        {
-          "type": "show_structure",
-          "structure": "starrailexpress:role_tutorial_common",
-          "scale": 1.0,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "voodoo_main"
-          }
-        },
-        {
-          "type": "starrailexpress:role_screen",
-          "attachKeyFrame": true,
-          "parameters": {
-            "title": "ponder.starrailexpress.screen.select_player",
-            "hint": "ponder.starrailexpress.screen.pick_hint",
-            "columns": 6
-          }
-        },
-        {
-          "type": "rotate_camera_y",
-          "degrees": 12.0,
-          "duration": 50,
-          "attachKeyFrame": true
-        }
-      ]
-    },
-    {
       "id": "vitals",
       "title": {
         "en_us": "Voodoo",

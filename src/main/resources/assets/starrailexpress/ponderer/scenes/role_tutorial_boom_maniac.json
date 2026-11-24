@@ -196,25 +196,25 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "boom_maniac_splash",
-            "outline": 16753920
-          }
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Using the skill swaps your main-hand item to the off-hand; using it again swaps back",
+                "zh_cn": "释放技能可以将主手物品切换至副手，再次释放技能取回副手上的物品",
+                "zh_tw": "釋放技能可以將主手物品切換至副手，再次釋放技能取回副手上的物品"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -224,101 +224,28 @@
           "attachKeyFrame": true
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.1,
-            1.55,
-            2.1
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "minecraft:firework_rocket",
-          "linkId": "boom_maniac_rocket",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_currency",
+          "type": "starrailexpress:role_hold",
           "parameters": {
-            "progress": [
-              0.7,
-              0.3
-            ],
-            "lines": [
-              {
-                "en_us": "The shop sells Firework Rockets with flight time 3",
-                "zh_cn": "商店中可购买飞行时间为3的烟花火箭",
-                "zh_tw": "商店中可購買飛行時間為3的煙花火箭"
-              }
-            ]
+            "linkId": "boom_maniac_main",
+            "item": "trainmurdermystery:note"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "text",
-          "duration": 130,
-          "text": {
-            "en_us": "The shop sells Firework Rockets with flight time 3",
-            "zh_cn": "商店中可购买飞行时间为3的烟花火箭",
-            "zh_tw": "商店中可購買飛行時間為3的煙花火箭"
-          },
+          "type": "show_controls",
+          "action": "right",
+          "item": "trainmurdermystery:note",
+          "duration": 65,
           "point": [
-            3.0,
-            1.8,
+            2.2,
+            2.2,
             3.0
           ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
+          "direction": "down"
         },
         {
           "type": "idle",
-          "duration": 140
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "boom_maniac_main",
-            "item": "minecraft:crossbow"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Main hand to offhand and back",
-                "zh_cn": "主手 ↔ 副手",
-                "zh_tw": "主手 ↔ 副手"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "boom_maniac_main",
-            "item": "minecraft:firework_rocket"
-          },
-          "attachKeyFrame": true
+          "duration": 30
         },
         {
           "type": "text",
@@ -330,7 +257,7 @@
           },
           "point": [
             3.0,
-            2.08,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,
@@ -339,136 +266,6 @@
         {
           "type": "idle",
           "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "boom_maniac_splash",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_knockback",
-          "parameters": {
-            "linkId": "boom_maniac_splash",
-            "from": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "to": [
-              6.6,
-              1.0,
-              2.8
-            ],
-            "duration": 16,
-            "arc": 0.22
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "The Firework Crossbow kills players on direct hit and deals splash virtual damage to nearby players.",
-            "zh_cn": "烟花弩会使直接命中的玩家致死，并对周围玩家造成溅射性虚拟伤害。",
-            "zh_tw": "煙花弩會使直接命中的玩家致死，並對周圍玩家造成濺射性虛擬傷害。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "boom_maniac_splash",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_knockback",
-          "parameters": {
-            "linkId": "boom_maniac_splash",
-            "from": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "to": [
-              6.6,
-              1.0,
-              2.8
-            ],
-            "duration": 16,
-            "arc": 0.22
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 157,
-          "text": {
-            "en_us": "The Explosive Maniac's Firework Crossbow splash damage is lethal.",
-            "zh_cn": "爆炸狂的烟花弩溅射性伤害会使玩家致死",
-            "zh_tw": "爆炸狂的煙花弩濺射性傷害會使玩家致死"
-          },
-          "point": [
-            3.0,
-            2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 167
         },
         {
           "type": "rotate_camera_y",

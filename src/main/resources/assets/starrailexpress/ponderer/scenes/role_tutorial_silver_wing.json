@@ -298,6 +298,20 @@
           }
         },
         {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "It explodes on touching a player or enemy (2.5-block radius): deals damage and knockback, blinds 3s, blocks items 3s, blocks skills 8s, -30% Sanity, and 75% chance to break a shield stack and deduct 25 coins.",
+                "zh_cn": "碰到玩家或敌人后主动爆炸（半径2.5格）：造成伤害并击退、致盲3秒、无法使用物品3秒、8秒内无法使用技能、理智扣除30%、75%概率破坏一层护盾并扣除25金币。",
+                "zh_tw": "碰到玩家或敵人後主動爆炸（半徑2.5格）：造成傷害並擊退、致盲3秒、無法使用物品3秒、8秒內無法使用技能、理智扣除30%、75%概率破壞一層護盾並扣除25金幣。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -307,8 +321,8 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "silver_wing_emp_target",
-            "outline": 8421504
+            "linkId": "silver_wing_skill_target_0",
+            "outline": -5192482
           }
         },
         {
@@ -316,7 +330,7 @@
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -326,19 +340,43 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_hold",
+          "type": "starrailexpress:role_vitals",
           "parameters": {
-            "linkId": "silver_wing_main",
-            "item": "noellesroles:emp_bomb"
+            "bars": [
+              {
+                "label": "ponder.starrailexpress.label.vitals",
+                "before": 0.35,
+                "after": 1.0,
+                "color": -65536
+              },
+              {
+                "label": "ponder.starrailexpress.label.shield",
+                "before": 0.0,
+                "after": 0.7,
+                "color": -16776961
+              }
+            ]
           },
           "attachKeyFrame": true
         },
         {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 35
+        },
+        {
           "type": "create_item_entity",
           "pos": [
-            2.0,
-            1.55,
-            2.1
+            2.2,
+            1.5,
+            3.0
           ],
           "motion": [
             0.0,
@@ -346,217 +384,8 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:emp_bomb",
-          "linkId": "silver_wing_emp",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "show_controls",
-          "action": "right",
-          "item": "noellesroles:emp_bomb",
-          "duration": 70,
-          "point": [
-            1.6,
-            1.9,
-            1.9
-          ],
-          "direction": "down",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Slowness III and item ban for 4s",
-                "zh_cn": "缓慢 III · 禁用物品 4 秒",
-                "zh_tw": "緩慢 III · 禁用物品 4 秒"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_knockback",
-          "parameters": {
-            "linkId": "silver_wing_emp_target",
-            "from": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "to": [
-              6.4,
-              1.0,
-              2.0
-            ],
-            "duration": 14,
-            "arc": 0.3
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Skill (50s cd): gain an EMP bomb (max 1 held). Right-click to throw it forward; the hit player can't use items for 4s and gets Slowness III for 4s. After using, if the skill isn't on cooldown, it enters a 15s cooldown.",
-            "zh_cn": "技能（冷却50秒）：获得一枚电磁脉冲炸弹，最多同时持有一枚。右键向前掷出，被命中的玩家4秒内无法使用物品，并获得缓慢III 4秒。使用炸弹后，若技能当前没有冷却，则进入15秒冷却。",
-            "zh_tw": "技能（冷卻50秒）：獲得一枚電磁脈衝炸彈，最多同時持有一枚。右鍵向前擲出，被命中的玩家4秒內無法使用物品，並獲得緩慢III 4秒。使用炸彈後，若技能當前沒有冷卻，則進入15秒冷卻。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "Shop: mechanical bird. On use it flies under your control for 25s; sneak and dash forward, exploding after 3s. Targets near the bird get continuous Blindness.",
-                "zh_cn": "商店：机械小鸟。使用后由你控制飞行，存活25秒；蹲下向前冲刺，3秒后爆炸。小鸟附近的目标获得持续失明效果。",
-                "zh_tw": "商店：機械小鳥。使用後由你控制飛行，存活25秒；蹲下向前衝刺，3秒後爆炸。小鳥附近的目標獲得持續失明效果。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_mood",
-          "parameters": {
-            "before": 0.9,
-            "after": 0.5,
-            "lines": [
-              {
-                "en_us": "Shop: mechanical bird. On use it flies under your control for 25s; sneak and dash forward, exploding after 3s. Targets near the bird get continuous Blindness.",
-                "zh_cn": "商店：机械小鸟。使用后由你控制飞行，存活25秒；蹲下向前冲刺，3秒后爆炸。小鸟附近的目标获得持续失明效果。",
-                "zh_tw": "商店：機械小鳥。使用後由你控制飛行，存活25秒；蹲下向前衝刺，3秒後爆炸。小鳥附近的目標獲得持續失明效果。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Shop: mechanical bird. On use it flies under your control for 25s; sneak and dash forward, exploding after 3s. Targets near the bird get continuous Blindness.",
-            "zh_cn": "商店：机械小鸟。使用后由你控制飞行，存活25秒；蹲下向前冲刺，3秒后爆炸。小鸟附近的目标获得持续失明效果。",
-            "zh_tw": "商店：機械小鳥。使用後由你控制飛行，存活25秒；蹲下向前衝刺，3秒後爆炸。小鳥附近的目標獲得持續失明效果。"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Slowness III and item ban for 4s",
-                "zh_cn": "缓慢 III · 禁用物品 4 秒",
-                "zh_tw": "緩慢 III · 禁用物品 4 秒"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_knockback",
-          "parameters": {
-            "linkId": "silver_wing_emp_target",
-            "from": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "to": [
-              6.4,
-              1.0,
-              2.0
-            ],
-            "duration": 14,
-            "arc": 0.3
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              0.0,
-              1.0
-            ],
-            "lines": [
-              {
-                "en_us": "It explodes on touching a player or enemy (2.5-block radius): deals damage and knockback, blinds 3s, blocks items 3s, blocks skills 8s, -30% Sanity, and 75% chance to break a shield stack and deduct 25 coins.",
-                "zh_cn": "碰到玩家或敌人后主动爆炸（半径2.5格）：造成伤害并击退、致盲3秒、无法使用物品3秒、8秒内无法使用技能、理智扣除30%、75%概率破坏一层护盾并扣除25金币。",
-                "zh_tw": "碰到玩家或敵人後主動爆炸（半徑2.5格）：造成傷害並擊退、致盲3秒、無法使用物品3秒、8秒內無法使用技能、理智扣除30%、75%概率破壞一層護盾並扣除25金幣。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_mood",
-          "parameters": {
-            "before": 0.9,
-            "after": 0.5,
-            "lines": [
-              {
-                "en_us": "It explodes on touching a player or enemy (2.5-block radius): deals damage and knockback, blinds 3s, blocks items 3s, blocks skills 8s, -30% Sanity, and 75% chance to break a shield stack and deduct 25 coins.",
-                "zh_cn": "碰到玩家或敌人后主动爆炸（半径2.5格）：造成伤害并击退、致盲3秒、无法使用物品3秒、8秒内无法使用技能、理智扣除30%、75%概率破坏一层护盾并扣除25金币。",
-                "zh_tw": "碰到玩家或敵人後主動爆炸（半徑2.5格）：造成傷害並擊退、致盲3秒、無法使用物品3秒、8秒內無法使用技能、理智扣除30%、75%概率破壞一層護盾並扣除25金幣。"
-              }
-            ]
-          },
+          "item": "noellesroles:lin_family_shield",
+          "linkId": "silver_wing_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -569,7 +398,7 @@
           },
           "point": [
             3.0,
-            2.36,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,

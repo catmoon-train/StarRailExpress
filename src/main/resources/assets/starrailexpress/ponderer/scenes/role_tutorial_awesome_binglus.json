@@ -2,6 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.awesome_binglus",
   "items": [
+    "trainmurdermystery:note",
     "noellesroles:reporter_terminal"
   ],
   "title": {
@@ -241,7 +242,7 @@
           "text": {
             "en_us": "The shop sells various notes and camera helmets.",
             "zh_cn": "商店可购买各种便签与摄像头盔。",
-            "zh_tw": "商店可購買便簽和巨大便簽。"
+            "zh_tw": "商店可購買各種便簽與攝像頭盔。"
           },
           "point": [
             3.0,
@@ -299,12 +300,12 @@
               {
                 "en_us": "Camera Helmet: press Q to drop; pairs with the Reporter Terminal",
                 "zh_cn": "摄像头盔：可按Q键丢出，搭配记者终端使用",
-                "zh_tw": "摄像头盔：可按Q键丢出，搭配记者终端使用"
+                "zh_tw": "攝像頭盔：可按Q鍵丟出，搭配記者終端使用"
               },
               {
                 "en_us": "Reporter Terminal: right-click to view the perspective of a player wearing a camera helmet",
                 "zh_cn": "记者终端：右键可以查看穿戴着摄像头盔玩家的视角",
-                "zh_tw": "记者终端：右键可以查看穿戴着摄像头盔玩家的视角"
+                "zh_tw": "記者終端：右鍵可以查看穿戴著攝像頭盔玩家的視角"
               }
             ]
           }
@@ -332,7 +333,7 @@
           "text": {
             "en_us": "Camera Helmet: press Q to drop; pairs with the Reporter Terminal",
             "zh_cn": "摄像头盔：可按Q键丢出，搭配记者终端使用",
-            "zh_tw": "摄像头盔：可按Q键丢出，搭配记者终端使用"
+            "zh_tw": "攝像頭盔：可按Q鍵丟出，搭配記者終端使用"
           },
           "point": [
             3.0,
@@ -359,20 +360,6 @@
             "linkId": "awesome_binglus_skill_target_1",
             "outline": -6553688
           }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "create_item_entity",
@@ -425,7 +412,7 @@
           "text": {
             "en_us": "Reporter Terminal: right-click to view the perspective of a player wearing a camera helmet",
             "zh_cn": "记者终端：右键可以查看穿戴着摄像头盔玩家的视角",
-            "zh_tw": "记者终端：右键可以查看穿戴着摄像头盔玩家的视角"
+            "zh_tw": "記者終端：右鍵可以查看穿戴著攝像頭盔玩家的視角"
           },
           "point": [
             3.0,
@@ -597,7 +584,7 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:giant_note",
+          "item": "trainmurdermystery:note",
           "linkId": "awesome_binglus_line_item_0",
           "attachKeyFrame": true
         },

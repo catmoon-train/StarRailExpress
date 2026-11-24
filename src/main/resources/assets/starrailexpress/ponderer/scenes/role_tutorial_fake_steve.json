@@ -125,511 +125,6 @@
       ]
     },
     {
-      "id": "skill",
-      "title": {
-        "en_us": "Fake Steve",
-        "zh_cn": "Fake Steve",
-        "zh_tw": "Fake Steve"
-      },
-      "steps": [
-        {
-          "type": "show_structure",
-          "structure": "starrailexpress:role_tutorial_graveyard",
-          "scale": 1.0,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "fake_steve_main"
-          }
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "fake_steve_victim",
-            "outline": -13619152
-          }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hide",
-          "parameters": {
-            "linkId": "fake_steve_victim",
-            "visible": false
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "fake_steve_faceless"
-          }
-        },
-        {
-          "type": "starrailexpress:role_bond",
-          "parameters": {
-            "title": {
-              "en_us": "Possession",
-              "zh_cn": "夺舍",
-              "zh_tw": "奪舍"
-            },
-            "progress": [
-              0.0,
-              0.3333333333333333
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "fake_steve_victim",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim",
-            "corpse": false
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "fake_steve_revived_0"
-          }
-        },
-        {
-          "type": "text",
-          "duration": 133,
-          "text": {
-            "en_us": "Players killed by Fake Steves revive as Fake Steves.",
-            "zh_cn": "成为伪人后，按技能键可控制身体10秒，结束后冷却80秒。",
-            "zh_tw": "成為偽人後，按技能鍵可控制身體10秒，結束後冷卻80秒。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 143
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hide",
-          "parameters": {
-            "linkId": "fake_steve_victim",
-            "visible": false
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "fake_steve_faceless"
-          }
-        },
-        {
-          "type": "starrailexpress:role_bond",
-          "parameters": {
-            "title": {
-              "en_us": "Possession",
-              "zh_cn": "夺舍",
-              "zh_tw": "奪舍"
-            },
-            "progress": [
-              0.3333333333333333,
-              0.6666666666666666
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "fake_steve_victim",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim",
-            "corpse": false
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "fake_steve_revived_1"
-          }
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "When Fake Steves strictly exceed 60% of living players, the final hunt begins. Eliminate all humans to win together.",
-            "zh_cn": "伪人击杀的玩家会复活并成为伪人。",
-            "zh_tw": "偽人擊殺的玩家會復活並成為偽人。"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hide",
-          "parameters": {
-            "linkId": "fake_steve_victim",
-            "visible": false
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "fake_steve_faceless"
-          }
-        },
-        {
-          "type": "starrailexpress:role_bond",
-          "parameters": {
-            "title": {
-              "en_us": "Possession",
-              "zh_cn": "夺舍",
-              "zh_tw": "奪舍"
-            },
-            "progress": [
-              0.6666666666666666,
-              1.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "fake_steve_victim",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim",
-            "corpse": false
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "fake_steve_revived_2"
-          }
-        },
-        {
-          "type": "text",
-          "duration": 140,
-          "text": {
-            "en_us": "伪人事件期间，若玩家死后35秒仍处于死亡状态，则有10%概率在自己房间复活并成为伪人，每名玩家每局仅有一次机会。",
-            "zh_cn": "伪人事件期间，若玩家死后35秒仍处于死亡状态，则有10%概率在自己房间复活并成为伪人，每名玩家每局仅有一次机会。",
-            "zh_tw": "偽人事件期間，若玩家死後35秒仍處於死亡狀態，則有10%概率在自己房間復活並成為偽人，每名玩家每局僅有一次機會。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 150
-        },
-        {
-          "type": "rotate_camera_y",
-          "degrees": 12.0,
-          "duration": 50,
-          "attachKeyFrame": true
-        }
-      ]
-    },
-    {
-      "id": "body",
-      "title": {
-        "en_us": "Fake Steve",
-        "zh_cn": "Fake Steve",
-        "zh_tw": "Fake Steve"
-      },
-      "steps": [
-        {
-          "type": "show_structure",
-          "structure": "starrailexpress:role_tutorial_graveyard",
-          "scale": 1.0,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "fake_steve_main"
-          }
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "fake_steve_victim"
-          }
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "attachKeyFrame": true,
-          "parameters": {
-            "linkId": "fake_steve_victim",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim",
-            "delay": 14
-          }
-        },
-        {
-          "type": "text",
-          "duration": 140,
-          "text": {
-            "en_us": "伪人事件期间，若玩家死后35秒仍处于死亡状态，则有10%概率在自己房间复活并成为伪人，每名玩家每局仅有一次机会。",
-            "zh_cn": "伪人事件期间，若玩家死后35秒仍处于死亡状态，则有10%概率在自己房间复活并成为伪人，每名玩家每局仅有一次机会。",
-            "zh_tw": "偽人事件期間，若玩家死後35秒仍處於死亡狀態，則有10%概率在自己房間復活並成為偽人，每名玩家每局僅有一次機會。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 150
-        },
-        {
-          "type": "rotate_camera_y",
-          "degrees": 12.0,
-          "duration": 50,
-          "attachKeyFrame": true
-        }
-      ]
-    },
-    {
-      "id": "vision",
-      "title": {
-        "en_us": "Fake Steve",
-        "zh_cn": "Fake Steve",
-        "zh_tw": "Fake Steve"
-      },
-      "steps": [
-        {
-          "type": "show_structure",
-          "structure": "starrailexpress:role_tutorial_graveyard",
-          "scale": 1.0,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "fake_steve_main"
-          }
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "fake_steve_target",
-            "outline": -13619152
-          }
-        },
-        {
-          "type": "starrailexpress:role_render",
-          "attachKeyFrame": true,
-          "parameters": {
-            "label": "ponder.starrailexpress.label.vision",
-            "lines": [
-              {
-                "en_us": "Each match may trigger the Fake Steve event. Players near corpses may see a faceless Steve and be replaced when they look away.",
-                "zh_cn": "每局有一定概率启动伪人事件。靠近尸体的玩家可能看到无脸Steve，并在移开视线后被取代。",
-                "zh_tw": "每局有一定概率啟動偽人事件。靠近屍體的玩家可能看到無臉Steve，並在移開視線後被取代。"
-              }
-            ]
-          }
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Each match may trigger the Fake Steve event. Players near corpses may see a faceless Steve and be replaced when they look away.",
-            "zh_cn": "每局有一定概率启动伪人事件。靠近尸体的玩家可能看到无脸Steve，并在移开视线后被取代。",
-            "zh_tw": "每局有一定概率啟動偽人事件。靠近屍體的玩家可能看到無臉Steve，並在移開視線後被取代。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "rotate_camera_y",
-          "degrees": 12.0,
-          "duration": 50,
-          "attachKeyFrame": true
-        }
-      ]
-    },
-    {
       "id": "mood",
       "title": {
         "en_us": "Fake Steve",
@@ -764,7 +259,7 @@
           "parameters": {
             "lines": [
               {
-                "en_us": "Press the ability key to control your body for 10 seconds, followed by an 80-second cooldown.",
+                "en_us": "During the moment, every Fake Steve is controlled by the player themself, never acts on its own, and can't use the original role abilities.",
                 "zh_cn": "小脑队友也可能让你被取代。",
                 "zh_tw": "小腦隊友也可能讓你被取代。"
               }
@@ -776,7 +271,7 @@
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "Press the ability key to control your body for 10 seconds, followed by an 80-second cooldown.",
+            "en_us": "During the moment, every Fake Steve is controlled by the player themself, never acts on its own, and can't use the original role abilities.",
             "zh_cn": "小脑队友也可能让你被取代。",
             "zh_tw": "小腦隊友也可能讓你被取代。"
           },
@@ -791,6 +286,174 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "rotate_camera_y",
+          "degrees": 12.0,
+          "duration": 50,
+          "attachKeyFrame": true
+        }
+      ]
+    },
+    {
+      "id": "form",
+      "title": {
+        "en_us": "Fake Steve",
+        "zh_cn": "Fake Steve",
+        "zh_tw": "Fake Steve"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "starrailexpress:role_tutorial_graveyard",
+          "scale": 1.0,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "fake_steve_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "fake_steve_psycho",
+            "outline": -13619152
+          }
+        },
+        {
+          "type": "starrailexpress:role_disguise",
+          "attachKeyFrame": true,
+          "parameters": {
+            "label": "ponder.starrailexpress.label.psycho",
+            "lines": [
+              {
+                "en_us": "Each match may start a 2-minute Fake Steve moment. Players near corpses may see a faceless Steve and be replaced when they look away.",
+                "zh_cn": "每局有一定概率开启伪人时刻，持续2分钟。靠近尸体的玩家可能看到无脸Steve，并在移开视线后被取代。",
+                "zh_tw": "每局有一定概率開啟偽人時刻，持續2分鐘。靠近屍體的玩家可能看到無臉Steve，並在移開視線後被取代。"
+              },
+              {
+                "en_us": "Players killed by Fake Steves revive as Fake Steves.",
+                "zh_cn": "伪人时刻期间，所有伪人由本人直接操控，不会自动行动，且不能使用原职业技能。",
+                "zh_tw": "偽人時刻期間，所有偽人由本人直接操控，不會自動行動，且不能使用原職業技能。"
+              },
+              {
+                "en_us": "When the 2 minutes end, every Fake Steve dies from \"Cannot reach that place\".",
+                "zh_cn": "伪人时刻期间，若玩家死后35秒仍处于死亡状态，则有10%概率在自己房间复活并成为伪人，每名玩家每局仅有一次机会。",
+                "zh_tw": "偽人時刻期間，若玩家死後35秒仍處於死亡狀態，則有10%概率在自己房間復活並成為偽人，每名玩家每局僅有一次機會。"
+              }
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "Each match may start a 2-minute Fake Steve moment. Players near corpses may see a faceless Steve and be replaced when they look away.",
+            "zh_cn": "每局有一定概率开启伪人时刻，持续2分钟。靠近尸体的玩家可能看到无脸Steve，并在移开视线后被取代。",
+            "zh_tw": "每局有一定概率開啟偽人時刻，持續2分鐘。靠近屍體的玩家可能看到無臉Steve，並在移開視線後被取代。"
+          },
+          "point": [
+            3.0,
+            1.8,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
+          "type": "text",
+          "duration": 133,
+          "text": {
+            "en_us": "Players killed by Fake Steves revive as Fake Steves.",
+            "zh_cn": "伪人时刻期间，所有伪人由本人直接操控，不会自动行动，且不能使用原职业技能。",
+            "zh_tw": "偽人時刻期間，所有偽人由本人直接操控，不會自動行動，且不能使用原職業技能。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 143
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "fake_steve_main",
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "name": "ponder.starrailexpress.label.victim",
+            "corpse": false
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              3.0
+            ],
+            "yaw": 180.0,
+            "linkId": "fake_steve_main"
+          }
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 178,
+          "text": {
+            "en_us": "When the 2 minutes end, every Fake Steve dies from \"Cannot reach that place\".",
+            "zh_cn": "伪人时刻期间，若玩家死后35秒仍处于死亡状态，则有10%概率在自己房间复活并成为伪人，每名玩家每局仅有一次机会。",
+            "zh_tw": "偽人時刻期間，若玩家死後35秒仍處於死亡狀態，則有10%概率在自己房間復活並成為偽人，每名玩家每局僅有一次機會。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 188
         },
         {
           "type": "rotate_camera_y",
@@ -895,7 +558,7 @@
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "During the event, players still dead after 35 seconds have a 10% chance to revive in their own room as a Fake Steve, with one chance per player per round.",
+            "en_us": "During the moment, players still dead after 35 seconds have a 10% chance to revive in their own room as a Fake Steve, with one chance per player per round.",
             "zh_cn": "存活伪人严格超过当前存活人数60%时进入最终狩猎，消灭所有人类后共同获胜。",
             "zh_tw": "存活偽人嚴格超過當前存活人數60%時進入最終狩獵，消滅所有人類後共同獲勝。"
           },
@@ -910,6 +573,61 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "fake_steve_death_target_2",
+            "outline": -13619152
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "fake_steve_death_target_2",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 85,
+          "text": {
+            "en_us": "2分钟结束时，所有伪人会因到达不了那个地方而死亡。",
+            "zh_cn": "2分钟结束时，所有伪人会因到达不了那个地方而死亡。",
+            "zh_tw": "2分鐘結束時，所有偽人會因到達不了那個地方而死亡。"
+          },
+          "point": [
+            3.0,
+            2.36,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 95
         },
         {
           "type": "rotate_camera_y",

@@ -124,20 +124,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "create_item_entity",
           "pos": [
             2.2,
@@ -275,40 +261,9 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "dio_time_stop_target",
-            "outline": -10496
-          }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.0
-            ],
+            "label": "ponder.starrailexpress.label.skill",
             "lines": [
               {
                 "en_us": "During time stop, most players but you cannot move or use items.",
@@ -320,24 +275,90 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_outline",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "linkId": "dio_time_stop_target",
-            "color": 8421504
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dio_skill_target_0",
+            "outline": -10496
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_effects",
+          "type": "starrailexpress:role_walk",
           "parameters": {
-            "lines": [
-              {
-                "en_us": "Others cannot move or use items",
-                "zh_cn": "他人停止移动与使用物品",
-                "zh_tw": "他人停止移動與使用物品"
-              }
-            ]
+            "linkId": "dio_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 45
           },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 15
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "dio_skill_target_0",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "dio_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -361,64 +382,12 @@
           "duration": 165
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.0
-            ],
-            "lines": [
-              {
-                "en_us": "The Clockmaker, Jotaro, and Sakuya can move during time stop.",
-                "zh_cn": "在时间停止期间，除了你以外的大部分玩家将无法移动、无法使用物品。",
-                "zh_tw": "在時間停止期間，除了你以外的大部分玩家將無法移動、無法使用物品。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "dio_time_stop_target",
-            "color": 8421504
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Others cannot move or use items",
-                "zh_cn": "他人停止移动与使用物品",
-                "zh_tw": "他人停止移動與使用物品"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
-          "duration": 149,
+          "duration": 67,
           "text": {
-            "en_us": "The Clockmaker, Jotaro, and Sakuya can move during time stop.",
-            "zh_cn": "在时间停止期间，除了你以外的大部分玩家将无法移动、无法使用物品。",
-            "zh_tw": "在時間停止期間，除了你以外的大部分玩家將無法移動、無法使用物品。"
+            "en_us": "Special Passive",
+            "zh_cn": "特殊被动",
+            "zh_tw": "特殊被動"
           },
           "point": [
             3.0,
@@ -430,251 +399,7 @@
         },
         {
           "type": "idle",
-          "duration": 159
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.0
-            ],
-            "lines": [
-              {
-                "en_us": "You can see through Jotaro within 7 blocks (highlighted in gold, no need to enable instinct).",
-                "zh_cn": "钟表匠、承太郎、女仆长咲夜在时间停止期间可以移动。",
-                "zh_tw": "鐘錶匠、承太郎、女僕長咲夜在時間停止期間可以移動。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "dio_time_stop_target",
-            "color": 8421504
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Others cannot move or use items",
-                "zh_cn": "他人停止移动与使用物品",
-                "zh_tw": "他人停止移動與使用物品"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "You can see through Jotaro within 7 blocks (highlighted in gold, no need to enable instinct).",
-            "zh_cn": "钟表匠、承太郎、女仆长咲夜在时间停止期间可以移动。",
-            "zh_tw": "鐘錶匠、承太郎、女僕長咲夜在時間停止期間可以移動。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_vitals",
-          "parameters": {
-            "bars": [
-              {
-                "label": {
-                  "en_us": "Temporary life",
-                  "zh_cn": "临时生命",
-                  "zh_tw": "臨時生命"
-                },
-                "before": 0.0,
-                "after": 0.6,
-                "color": -65536
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 151,
-          "text": {
-            "en_us": "On being hit, immune to death and gain 30s of temporary health",
-            "zh_cn": "被击中后，免疫死亡，获得30s的临时生命",
-            "zh_tw": "被擊中後，免疫死亡，獲得30s的臨時生命"
-          },
-          "point": [
-            3.0,
-            2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 161
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "dio_main",
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "corpse": false,
-            "name": "ponder.starrailexpress.label.victim"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "dio_main"
-          }
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 121,
-          "text": {
-            "en_us": "During this, one more hit kills you outright.",
-            "zh_cn": "期间被击中一次直接死亡。",
-            "zh_tw": "期間被擊中一次直接死亡。"
-          },
-          "point": [
-            3.0,
-            2.92,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 131
-        },
-        {
-          "type": "starrailexpress:role_vitals",
-          "parameters": {
-            "bars": [
-              {
-                "label": {
-                  "en_us": "Temporary life",
-                  "zh_cn": "临时生命",
-                  "zh_tw": "臨時生命"
-                },
-                "before": 0.0,
-                "after": 0.6,
-                "color": -65536
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 135,
-          "text": {
-            "en_us": "Devouring another corpse adds 30s of temporary health",
-            "zh_cn": "下一次吸食尸体增加30s临时生命",
-            "zh_tw": "下一次吸食屍體增加30s臨時生命"
-          },
-          "point": [
-            3.0,
-            3.2,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 145
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Movement speed +30%",
-                "zh_cn": "移速 +30%",
-                "zh_tw": "移速 +30%"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 83,
-          "text": {
-            "en_us": "During this, Speed +30%.",
-            "zh_cn": "期间速度+30%。",
-            "zh_tw": "期間速度+30%。"
-          },
-          "point": [
-            3.0,
-            3.48,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 93
+          "duration": 77
         },
         {
           "type": "rotate_camera_y",

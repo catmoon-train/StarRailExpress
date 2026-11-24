@@ -222,6 +222,25 @@
           }
         },
         {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Press the skill key to randomly swap the skins of all players on the field and apply a random voice effect to everyone, lasting 30s (150s cd, starts at 150s).",
+                "zh_cn": "【技能一·变身派对】按技能键发动，随机交换场上所有玩家的皮肤并为所有玩家施加随机变声效果，持续30秒（冷却150秒，开局拥有150秒冷却）。",
+                "zh_tw": "【技能一·變身派對】按技能鍵發動，隨機交換場上所有玩家的皮膚並為所有玩家施加隨機變聲效果，持續30秒（冷卻150秒，開局擁有150秒冷卻）。"
+              },
+              {
+                "en_us": "Shop: lockpick.",
+                "zh_cn": "【技能二·调色盘】按技能键发动，以自身为圆心8格半径球形范围内所有玩家与玩家尸体各染上一层随机颜色，持续3分钟（冷却60秒）。",
+                "zh_tw": "【技能二·調色盤】按技能鍵發動，以自身為圓心8格半徑球形範圍內所有玩家與玩家屍體各染上一層隨機顏色，持續3分鐘（冷卻60秒）。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -231,7 +250,7 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "embalmer_party_target",
+            "linkId": "embalmer_skill_target_0",
             "outline": -65536
           }
         },
@@ -240,73 +259,31 @@
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
             "duration": 60,
-            "keyBind": "next_ability",
-            "text": "ponder.starrailexpress.ponder.press_next_ability"
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_hide",
-          "parameters": {
-            "linkId": "embalmer_main",
-            "visible": false
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "embalmer_swapped_main",
-            "skin": "noellesroles:textures/entity/custom_psycho/black_psycho.png"
-          }
-        },
-        {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "embalmer_swapped_main",
-            "color": 16753920
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "embalmer_party_target",
-            "color": 5636095
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Random voice pitch for 30s",
-                "zh_cn": "随机变声 30 秒",
-                "zh_tw": "隨機變聲 30 秒"
-              }
-            ]
-          },
-          "attachKeyFrame": true
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
         },
         {
           "type": "starrailexpress:role_timer",
           "parameters": {
             "progress": [
-              1.0,
-              0.0
+              0.0,
+              1.0
             ],
             "lines": [
               {
@@ -319,19 +296,24 @@
           "attachKeyFrame": true
         },
         {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Press the skill key to randomly swap the skins of all players on the field and apply a random voice effect to everyone, lasting 30s (150s cd, starts at 150s).",
-            "zh_cn": "【技能一·变身派对】按技能键发动，随机交换场上所有玩家的皮肤并为所有玩家施加随机变声效果，持续30秒（冷却150秒，开局拥有150秒冷却）。",
-            "zh_tw": "【技能一·變身派對】按技能鍵發動，隨機交換場上所有玩家的皮膚並為所有玩家施加隨機變聲效果，持續30秒（冷卻150秒，開局擁有150秒冷卻）。"
-          },
-          "point": [
-            3.0,
-            1.8,
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
             3.0
           ],
-          "placeNearTarget": true,
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:lockpick",
+          "linkId": "embalmer_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -339,59 +321,74 @@
           "duration": 200
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "embalmer_skill_target_1",
+            "outline": -65536
+          }
+        },
+        {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
             "duration": 60,
-            "keyBind": "next_ability",
-            "text": "ponder.starrailexpress.ponder.press_next_ability"
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "highlight_section",
-          "blockPos": [
-            -5,
-            0,
-            -5
-          ],
-          "blockPos2": [
-            11,
-            8,
-            11
-          ],
-          "duration": 280,
-          "color": "yellow"
-        },
-        {
-          "type": "starrailexpress:role_outline",
+          "type": "starrailexpress:role_walk",
           "parameters": {
-            "linkId": "embalmer_party_target",
-            "color": 16733610
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
+            "linkId": "embalmer_main",
+            "to": [
+              4.1,
               1.0,
-              0.0
+              2.0
             ],
-            "lines": [
-              {
-                "en_us": "Shop: lockpick.",
-                "zh_cn": "【技能二·调色盘】按技能键发动，以自身为圆心8格半径球形范围内所有玩家与玩家尸体各染上一层随机颜色，持续3分钟（冷却60秒）。",
-                "zh_tw": "【技能二·調色盤】按技能鍵發動，以自身為圓心8格半徑球形範圍內所有玩家與玩家屍體各染上一層隨機顏色，持續3分鐘（冷卻60秒）。"
-              }
-            ]
+            "duration": 45
           },
           "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 15
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "embalmer_skill_target_1",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
         },
         {
           "type": "text",
@@ -418,7 +415,7 @@
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -429,91 +426,16 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_panel",
-          "parameters": {
-            "title": {
-              "en_us": "Voice swap",
-              "zh_cn": "声带互换",
-              "zh_tw": "聲帶互換"
-            },
-            "lines": [
-              {
-                "en_us": "【语音互换】打开背包界面，依次点击两名玩家的头像，即可交换这两名玩家的声带，持续120秒（冷却60秒）。",
-                "zh_cn": "【语音互换】打开背包界面，依次点击两名玩家的头像，即可交换这两名玩家的声带，持续120秒（冷却60秒）。",
-                "zh_tw": "【語音互換】打開背包介面，依次點擊兩名玩家的頭像，即可交換這兩名玩家的聲帶，持續120秒（冷卻60秒）。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.0
-            ],
-            "lines": [
-              {
-                "en_us": "【语音互换】打开背包界面，依次点击两名玩家的头像，即可交换这两名玩家的声带，持续120秒（冷却60秒）。",
-                "zh_cn": "【语音互换】打开背包界面，依次点击两名玩家的头像，即可交换这两名玩家的声带，持续120秒（冷却60秒）。",
-                "zh_tw": "【語音互換】打開背包介面，依次點擊兩名玩家的頭像，即可交換這兩名玩家的聲帶，持續120秒（冷卻60秒）。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 133,
-          "text": {
-            "en_us": "【语音互换】打开背包界面，依次点击两名玩家的头像，即可交换这两名玩家的声带，持续120秒（冷却60秒）。",
-            "zh_cn": "【语音互换】打开背包界面，依次点击两名玩家的头像，即可交换这两名玩家的声带，持续120秒（冷却60秒）。",
-            "zh_tw": "【語音互換】打開背包介面，依次點擊兩名玩家的頭像，即可交換這兩名玩家的聲帶，持續120秒（冷卻60秒）。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
         },
         {
           "type": "idle",
-          "duration": 143
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "next_ability",
-            "text": "ponder.starrailexpress.ponder.press_next_ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.0
-            ],
-            "lines": [
-              {
-                "en_us": "按技能切换键可在两个技能之间切换。",
-                "zh_cn": "按技能切换键可在两个技能之间切换。",
-                "zh_tw": "按技能切換鍵可在兩個技能之間切換。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
+          "duration": 25
         },
         {
           "type": "text",
@@ -525,7 +447,7 @@
           },
           "point": [
             3.0,
-            2.64,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,
@@ -534,50 +456,6 @@
         {
           "type": "idle",
           "duration": 80
-        },
-        {
-          "type": "rotate_camera_y",
-          "degrees": 12.0,
-          "duration": 50,
-          "attachKeyFrame": true
-        }
-      ]
-    },
-    {
-      "id": "screen",
-      "title": {
-        "en_us": "Embalmer",
-        "zh_cn": "嬉命人",
-        "zh_tw": "嬉命人"
-      },
-      "steps": [
-        {
-          "type": "show_structure",
-          "structure": "starrailexpress:role_tutorial_graveyard",
-          "scale": 1.0,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "embalmer_main"
-          }
-        },
-        {
-          "type": "starrailexpress:role_screen",
-          "attachKeyFrame": true,
-          "parameters": {
-            "title": "ponder.starrailexpress.screen.select_player",
-            "hint": "ponder.starrailexpress.screen.pick_hint",
-            "columns": 6
-          }
         },
         {
           "type": "rotate_camera_y",

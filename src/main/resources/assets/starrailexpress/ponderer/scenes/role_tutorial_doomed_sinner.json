@@ -264,6 +264,25 @@
           }
         },
         {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Skill 1 [Oracle of Fate]: aim at a player within 4 blocks and press the skill key to view their last 3 kills. 40s cd.",
+                "zh_cn": "技能 1【命运的启示】：用准星对准 4 格内的玩家并按技能键，查看其最近 3 次的杀人方式，冷却 40 秒。",
+                "zh_tw": "技能 1【命運的啟示】：用準星對準 4 格內的玩家並按技能鍵，查看其最近 3 次的殺人方式，冷卻 40 秒。"
+              },
+              {
+                "en_us": "Skill 2 [Restart] (sneak + skill key): randomly pick a cause of death to die-escape — instantly return to your room, briefly invincible; this escape isn't recorded, doesn't advance progress, and doesn't trigger death checks. 75s cd.",
+                "zh_cn": "技能 2【重启】(潜行+技能键)：随机挑选一种死因进行死亡脱离——立即回到房间并短暂无敌，此次脱离不计入死亡记录、不推进胜利进度、也不会触发死亡判定，冷却 75 秒。",
+                "zh_tw": "技能 2【重啟】(潛行+技能鍵)：隨機挑選一種死因進行死亡脫離——立即回到房間並短暫無敵，此次脫離不計入死亡記錄、不推進勝利進度、也不會觸發死亡判定，冷卻 75 秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -273,170 +292,16 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "doomed_sinner_fate_target",
+            "linkId": "doomed_sinner_skill_target_0",
             "outline": -8510380
           }
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "doomed_sinner_main",
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "corpse": true,
-            "name": "ponder.starrailexpress.label.victim"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "doomed_sinner_main",
-            "outline": -8510380
-          }
-        },
-        {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "doomed_sinner_main",
-            "pos": [
-              6.0,
-              1.0,
-              2.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Brief invulnerability, no death record",
-                "zh_cn": "短暂无敌 · 不计入死亡记录",
-                "zh_tw": "短暫無敵 · 不計入死亡記錄"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 24
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Each (non-final) death revives you in a random room with a random player's skin; the corpse you left vanishes after 15 seconds.",
-            "zh_cn": "每次（非彻底）死亡后，你都会在随机房间复活，并变成随机玩家的皮肤；死亡留下的尸体在 15 秒后消失。",
-            "zh_tw": "每次（非徹底）死亡後，你都會在隨機房間復活，並變成隨機玩家的皮膚；死亡留下的屍體在 15 秒後消失。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "doomed_sinner_main",
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "corpse": true,
-            "name": "ponder.starrailexpress.label.victim"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "doomed_sinner_main",
-            "outline": -8510380
-          }
-        },
-        {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "doomed_sinner_main",
-            "pos": [
-              6.0,
-              1.0,
-              2.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Brief invulnerability, no death record",
-                "zh_cn": "短暂无敌 · 不计入死亡记录",
-                "zh_tw": "短暫無敵 · 不計入死亡記錄"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 24
-        },
-        {
-          "type": "text",
-          "duration": 151,
-          "text": {
-            "en_us": "If you die 3 times from the [same] cause, you die permanently.",
-            "zh_cn": "若你以【同一种】死因死去达到 3 次，则彻底死亡，不再复活。",
-            "zh_tw": "若你以【同一種】死因死去達到 3 次，則徹底死亡，不再復活。"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 161
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -446,26 +311,22 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "doomed_sinner_main",
-            "to": [
-              4.2,
-              1.0,
-              2.0
-            ],
-            "duration": 36
-          },
-          "attachKeyFrame": true
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
         },
         {
-          "type": "starrailexpress:role_panel",
+          "type": "starrailexpress:role_timer",
           "parameters": {
-            "title": {
-              "en_us": "Last three kill methods",
-              "zh_cn": "最近三次死因",
-              "zh_tw": "最近三次死因"
-            },
+            "progress": [
+              0.0,
+              1.0
+            ],
             "lines": [
               {
                 "en_us": "Skill 1 [Oracle of Fate]: aim at a player within 4 blocks and press the skill key to view their last 3 kills. 40s cd.",
@@ -478,7 +339,24 @@
         },
         {
           "type": "idle",
-          "duration": 24
+          "duration": 40
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "minecraft:bundle",
+          "linkId": "doomed_sinner_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -490,7 +368,7 @@
           },
           "point": [
             3.0,
-            2.36,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,
@@ -501,6 +379,20 @@
           "duration": 200
         },
         {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "starrailexpress:role_pose",
           "parameters": {
             "linkId": "doomed_sinner_main",
@@ -509,23 +401,58 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_key",
+          "type": "highlight_section",
+          "blockPos": [
+            2,
+            0,
+            2
+          ],
+          "blockPos2": [
+            4,
+            0,
+            4
+          ],
+          "duration": 240,
+          "color": "green"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "starrailexpress:role_pose",
           "parameters": {
-            "point": [
-              3.0,
-              3.2,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "next_ability",
-            "text": "ponder.starrailexpress.ponder.press_next_ability"
+            "linkId": "doomed_sinner_main",
+            "pose": "standing"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "idle",
-          "duration": 24
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "doomed_sinner_death_target_1",
+            "outline": -8510380
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "doomed_sinner_death_target_1",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -537,89 +464,7 @@
           },
           "point": [
             3.0,
-            2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "rotate_camera_y",
-          "degrees": 12.0,
-          "duration": 50,
-          "attachKeyFrame": true
-        }
-      ]
-    },
-    {
-      "id": "body",
-      "title": {
-        "en_us": "Doomed Sinner",
-        "zh_cn": "宿命的罪人",
-        "zh_tw": "宿命的罪人"
-      },
-      "steps": [
-        {
-          "type": "show_structure",
-          "structure": "starrailexpress:role_tutorial_graveyard",
-          "scale": 1.0,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "doomed_sinner_main"
-          }
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "doomed_sinner_victim"
-          }
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "attachKeyFrame": true,
-          "parameters": {
-            "linkId": "doomed_sinner_victim",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim",
-            "delay": 14
-          }
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Each (non-final) death revives you in a random room with a random player's skin; the corpse you left vanishes after 15 seconds.",
-            "zh_cn": "每次（非彻底）死亡后，你都会在随机房间复活，并变成随机玩家的皮肤；死亡留下的尸体在 15 秒后消失。",
-            "zh_tw": "每次（非徹底）死亡後，你都會在隨機房間復活，並變成隨機玩家的皮膚；死亡留下的屍體在 15 秒後消失。"
-          },
-          "point": [
-            3.0,
-            1.8,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,

@@ -124,20 +124,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_pose",
           "parameters": {
             "linkId": "dream_main",
@@ -267,51 +253,115 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "dream_axe_target",
-            "outline": -16734101
-          }
-        },
-        {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "dream_main",
-            "item": "noellesroles:dream_axe"
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "[Skill · Brew] (90s cd): brew a potion; drinking turns you invisible for 5s, during which you can't attack or be hurt.",
+                "zh_cn": "【技能·制酒】(冷却90秒)：酿一瓶酒，喝下后隐身5秒，期间无法攻击也无法受伤。",
+                "zh_tw": "【技能·制酒】(冷卻90秒)：釀一瓶酒，喝下後隱身5秒，期間無法攻擊也無法受傷。"
+              },
+              {
+                "en_us": "Iron Axe (135 coins, half price second buy): 12 durability; left-click attack requires a full charge. Normal hit 9 damage, jump hit 12; hits knock back and stun 1s (no move/skill/items/inventory + vision impaired); right-click to hop (0.2s cd), no hop above 3 blocks fall and a 1.5s penalty cd.",
+                "zh_cn": "铁斧(135金币，第二次购买半价)：12耐久，蓄力条满才能左键攻击，平A 9伤害、跳劈12伤害，命中造成击退并眩晕1秒（无法移动/技能/物品/背包+视野受限）；右键原地跳跃(0.2秒冷却)，离地超过3格无法跳跃并进入1.5秒惩罚冷却。",
+                "zh_tw": "鐵斧(135金幣，第二次購買半價)：12耐久，蓄力條滿才能左鍵攻擊，平A 9傷害、跳劈12傷害，命中造成擊退並眩暈1秒（無法移動/技能/物品/背包+視野受限）；右鍵原地跳躍(0.2秒冷卻)，離地超過3格無法跳躍並進入1.5秒懲罰冷卻。"
+              }
+            ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_walk",
+          "type": "starrailexpress:role_key",
           "parameters": {
-            "linkId": "dream_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
+            "point": [
+              3.0,
+              2.9,
+              3.0
             ],
-            "duration": 42
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "[Skill · Brew] (90s cd): brew a potion; drinking turns you invisible for 5s, during which you can't attack or be hurt.",
+                "zh_cn": "【技能·制酒】(冷却90秒)：酿一瓶酒，喝下后隐身5秒，期间无法攻击也无法受伤。",
+                "zh_tw": "【技能·制酒】(冷卻90秒)：釀一瓶酒，喝下後隱身5秒，期間無法攻擊也無法受傷。"
+              }
+            ]
           },
           "attachKeyFrame": true
         },
         {
           "type": "idle",
-          "duration": 26
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:dust",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "dream_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "[Trait] To everyone, players default to 20 HP; only your iron axe can chip it. HP shows when hit (aim at a hurt player to see the bar) and slowly recovers 15s after leaving combat. Players at 0 HP die.",
-            "zh_cn": "【特性】在所有人眼中玩家默认都有20滴血，只有你的铁斧能扣除这份血量；受伤时血量才会显示（准星指向受伤玩家可见血条），脱战15秒后缓慢恢复。血量归零的玩家死亡。",
-            "zh_tw": "【特性】在所有人眼中玩家默認都有20滴血，只有你的鐵斧能扣除這份血量；受傷時血量才會顯示（準星指向受傷玩家可見血條），脫戰15秒後緩慢恢復。血量歸零的玩家死亡。"
+            "en_us": "[Skill · Brew] (90s cd): brew a potion; drinking turns you invisible for 5s, during which you can't attack or be hurt.",
+            "zh_cn": "【技能·制酒】(冷却90秒)：酿一瓶酒，喝下后隐身5秒，期间无法攻击也无法受伤。",
+            "zh_tw": "【技能·制酒】(冷卻90秒)：釀一瓶酒，喝下後隱身5秒，期間無法攻擊也無法受傷。"
           },
           "point": [
             3.0,
@@ -330,7 +380,7 @@
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -340,61 +390,48 @@
           "attachKeyFrame": true
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.0,
-            1.55,
-            3.0
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
           ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:dream_wine",
-          "linkId": "dream_wine",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "dream_main",
-            "item": "noellesroles:dream_wine"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "play_sound",
-          "sound": "minecraft:entity.brewing_stand.brew",
-          "soundVolume": 1.0,
-          "pitch": 1.0,
-          "source": "players"
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Invisible 5s, cannot attack or be hurt",
-                "zh_cn": "隐身 5 秒 · 无法攻击或受伤",
-                "zh_tw": "隱身 5 秒 · 無法攻擊或受傷"
-              }
-            ]
-          },
-          "attachKeyFrame": true
+          "duration": 220,
+          "color": "blue"
         },
         {
           "type": "idle",
-          "duration": 26
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:dust",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
         },
         {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "[Skill · Brew] (90s cd): brew a potion; drinking turns you invisible for 5s, during which you can't attack or be hurt.",
-            "zh_cn": "【技能·制酒】(冷却90秒)：酿一瓶酒，喝下后隐身5秒，期间无法攻击也无法受伤。",
-            "zh_tw": "【技能·制酒】(冷卻90秒)：釀一瓶酒，喝下後隱身5秒，期間無法攻擊也無法受傷。"
+            "en_us": "Iron Axe (135 coins, half price second buy): 12 durability; left-click attack requires a full charge. Normal hit 9 damage, jump hit 12; hits knock back and stun 1s (no move/skill/items/inventory + vision impaired); right-click to hop (0.2s cd), no hop above 3 blocks fall and a 1.5s penalty cd.",
+            "zh_cn": "铁斧(135金币，第二次购买半价)：12耐久，蓄力条满才能左键攻击，平A 9伤害、跳劈12伤害，命中造成击退并眩晕1秒（无法移动/技能/物品/背包+视野受限）；右键原地跳跃(0.2秒冷却)，离地超过3格无法跳跃并进入1.5秒惩罚冷却。",
+            "zh_tw": "鐵斧(135金幣，第二次購買半價)：12耐久，蓄力條滿才能左鍵攻擊，平A 9傷害、跳劈12傷害，命中造成擊退並眩暈1秒（無法移動/技能/物品/背包+視野受限）；右鍵原地跳躍(0.2秒冷卻)，離地超過3格無法跳躍並進入1.5秒懲罰冷卻。"
           },
           "point": [
             3.0,
@@ -409,12 +446,40 @@
           "duration": 200
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "dream_skill_target_2",
+            "outline": -16734101
+          }
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
           "type": "spawn_particles",
           "particle": "minecraft:dust",
           "pos": [
-            5.0,
-            2.0,
-            2.0
+            3.0,
+            1.9,
+            3.0
           ],
           "distribution": "box",
           "spread": [
@@ -422,8 +487,8 @@
             0.6,
             0.35
           ],
-          "count": 14,
-          "duration": 50,
+          "count": 8,
+          "duration": 60,
           "motion": [
             0,
             0.04,
@@ -431,85 +496,16 @@
           ]
         },
         {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "dream_axe_target",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "play_sound",
-          "sound": "minecraft:entity.player.hurt_sweet_berry_bush",
-          "soundVolume": 1.0,
-          "pitch": 1.0,
-          "source": "players"
-        },
-        {
-          "type": "idle",
-          "duration": 26
-        },
-        {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "[Kills] When you kill a player, red particles burst and a sweet-berry-bush prickle sound plays; killing Leather Pig grants an extra hundred grand (200 coins).",
-            "zh_cn": "【击杀】你杀死玩家时会喷出红色粒子并发出甜浆果丛刺伤的声音；杀死\"皮革噶的\"额外获得十万美金（200金币）。",
-            "zh_tw": "【擊殺】你殺死玩家時會噴出紅色粒子併發出甜漿果叢刺傷的聲音；殺死\"皮革噶的\"額外獲得十萬美金（200金幣）。"
+            "en_us": "Boat (100 coins): place on the ground to force nearby players aboard; they can't leave until it vanishes (10s); 60s cd.",
+            "zh_cn": "船(100金币)：放在地上强制周围玩家坐上，船消失前无法下船，10秒后消失，冷却60秒。",
+            "zh_tw": "船(100金幣)：放在地上強制周圍玩家坐上，船消失前無法下船，10秒後消失，冷卻60秒。"
           },
           "point": [
             3.0,
             2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "dream_main",
-            "item": "noellesroles:dream_axe"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "dream_main",
-            "to": [
-              4.1,
-              1.0,
-              2.0
-            ],
-            "duration": 42
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 26
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Iron Axe (135 coins, half price second buy): 12 durability; left-click attack requires a full charge. Normal hit 9 damage, jump hit 12; hits knock back and stun 1s (no move/skill/items/inventory + vision impaired); right-click to hop (0.2s cd), no hop above 3 blocks fall and a 1.5s penalty cd.",
-            "zh_cn": "铁斧(135金币，第二次购买半价)：12耐久，蓄力条满才能左键攻击，平A 9伤害、跳劈12伤害，命中造成击退并眩晕1秒（无法移动/技能/物品/背包+视野受限）；右键原地跳跃(0.2秒冷却)，离地超过3格无法跳跃并进入1.5秒惩罚冷却。",
-            "zh_tw": "鐵斧(135金幣，第二次購買半價)：12耐久，蓄力條滿才能左鍵攻擊，平A 9傷害、跳劈12傷害，命中造成擊退並眩暈1秒（無法移動/技能/物品/背包+視野受限）；右鍵原地跳躍(0.2秒冷卻)，離地超過3格無法跳躍並進入1.5秒懲罰冷卻。"
-          },
-          "point": [
-            3.0,
-            2.64,
             3.0
           ],
           "placeNearTarget": true,

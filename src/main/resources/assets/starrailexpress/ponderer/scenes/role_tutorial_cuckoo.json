@@ -152,44 +152,39 @@
           }
         },
         {
-          "type": "starrailexpress:role_effects",
+          "type": "starrailexpress:role_skill",
           "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
             "lines": [
               {
-                "en_us": "Only your own eggs are visible",
-                "zh_cn": "仅透视自己的蛋",
-                "zh_tw": "僅透視自己的蛋"
+                "en_us": "Press the skill key to lay an egg (20s cooldown; may lay up to 2 more than the win target).",
+                "zh_cn": "按下技能键下蛋（20秒冷却，最多可下超过胜利目标2个的蛋）。",
+                "zh_tw": "按下技能鍵下蛋（20秒冷卻，最多可下超過勝利目標2個的蛋）。"
               }
             ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "text",
-          "duration": 184,
-          "text": {
-            "en_us": "You can turn on instinct, but cannot see through players, only the eggs you lay.",
-            "zh_cn": "可以开启直觉，但是无法透视玩家，仅能够透视自己下的蛋。",
-            "zh_tw": "可以開啟直覺，但是無法透視玩家，僅能夠透視自己下的蛋。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 194
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "cuckoo_skill_target_0",
+            "outline": -3626436
+          }
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -199,26 +194,14 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_pose",
-          "parameters": {
-            "linkId": "cuckoo_main",
-            "pose": "crouching"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "set_block",
-          "block": "minecraft:sniffer_egg",
+          "type": "highlight_section",
           "blockPos": [
-            4,
-            1,
+            3,
+            0,
             3
           ],
-          "blockPos2": [
-            4,
-            1,
-            3
-          ]
+          "duration": 220,
+          "color": "blue"
         },
         {
           "type": "starrailexpress:role_timer",
@@ -238,6 +221,27 @@
           "attachKeyFrame": true
         },
         {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "cuckoo_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -247,118 +251,7 @@
           },
           "point": [
             3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "highlight_section",
-          "blockPos": [
-            -6,
-            0,
-            0
-          ],
-          "blockPos2": [
-            14,
-            3,
-            6
-          ],
-          "duration": 300,
-          "color": "green"
-        },
-        {
-          "type": "text",
-          "duration": 157,
-          "text": {
-            "en_us": "No egg may be laid within 10 blocks of another (3 on the Y axis).",
-            "zh_cn": "蛋的10格半径范围内（y轴方向为3格）无法再次下蛋。",
-            "zh_tw": "蛋的10格半徑範圍內（y軸方向為3格）無法再次下蛋。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 167
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "cuckoo_breaker",
-            "to": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "duration": 40
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_pose",
-          "parameters": {
-            "linkId": "cuckoo_breaker",
-            "pose": "crouching"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 182,
-          "text": {
-            "en_us": "Other players can destroy an egg by sneaking and looking at it within 3 blocks.",
-            "zh_cn": "其它玩家可以通过在布谷鸟蛋的三格范围内蹲下看向布谷鸟蛋来破坏它的蛋。",
-            "zh_tw": "其他玩家可以通過在布穀鳥蛋的三格範圍內蹲下看向布穀鳥蛋來破壞它的蛋。"
-          },
-          "point": [
-            3.0,
-            2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 192
-        },
-        {
-          "type": "starrailexpress:role_mood",
-          "parameters": {
-            "before": 0.8,
-            "after": 1.0,
-            "lines": [
-              {
-                "en_us": "If, when the game ends, the number of eggs on the field is at least total players*3/8-1 (min 4), the Cuckoo wins. (Regardless of whether the Cuckoo lives; priority above Arsonist and Nian Beast, below other independent Neutrals.)",
-                "zh_cn": "如果游戏结束时，场上蛋的数量大于等于总人数的3/8-1（最低为4），则布谷鸟胜利。（无论布谷鸟是否存活，优先级大于纵火犯和年兽胜利小于其它独立胜利中立）",
-                "zh_tw": "如果遊戲結束時，場上蛋的數量大於等於總人數的3/8-1（最低為4），則布穀鳥勝利。（無論布穀鳥是否存活，優先順序大於縱火犯和年獸勝利小於其他獨立勝利中立）"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "If, when the game ends, the number of eggs on the field is at least total players*3/8-1 (min 4), the Cuckoo wins. (Regardless of whether the Cuckoo lives; priority above Arsonist and Nian Beast, below other independent Neutrals.)",
-            "zh_cn": "如果游戏结束时，场上蛋的数量大于等于总人数的3/8-1（最低为4），则布谷鸟胜利。（无论布谷鸟是否存活，优先级大于纵火犯和年兽胜利小于其它独立胜利中立）",
-            "zh_tw": "如果遊戲結束時，場上蛋的數量大於等於總人數的3/8-1（最低為4），則布穀鳥勝利。（無論布穀鳥是否存活，優先順序大於縱火犯和年獸勝利小於其他獨立勝利中立）"
-          },
-          "point": [
-            3.0,
-            2.92,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,
@@ -599,20 +492,6 @@
             "linkId": "cuckoo_skill_target_1",
             "outline": -3626436
           }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_pose",

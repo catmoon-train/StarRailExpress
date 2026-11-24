@@ -2,7 +2,8 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.pooler",
   "items": [
-    "noellesroles:moon_blessing"
+    "noellesroles:moon_blessing",
+    "minecraft:trident"
   ],
   "title": {
     "en_us": "祈月者",
@@ -171,20 +172,6 @@
         {
           "type": "idle",
           "duration": 132
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "highlight_section",

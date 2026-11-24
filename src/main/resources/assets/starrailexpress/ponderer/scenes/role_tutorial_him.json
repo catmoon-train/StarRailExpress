@@ -151,6 +151,82 @@
           }
         },
         {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Your skill toggles cloaking, cooldown 15 seconds. While cloaked you are invulnerable except to forced deaths.",
+                "zh_cn": "技能可切换隐身，冷却 15 秒。隐身期间除强制死亡外无敌。",
+                "zh_tw": "技能可切換隱身，冷卻 15 秒。隱身期間除強制死亡外無敵。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Your skill toggles cloaking, cooldown 15 seconds. While cloaked you are invulnerable except to forced deaths.",
+                "zh_cn": "技能可切换隐身，冷却 15 秒。隐身期间除强制死亡外无敌。",
+                "zh_tw": "技能可切換隱身，冷卻 15 秒。隱身期間除強制死亡外無敵。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:him_fireball",
+          "linkId": "him_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -160,101 +236,20 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "him_gazer",
+            "linkId": "him_death_target_0",
             "outline": -14155776
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "him_gazer",
-            "color": 16777215
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_death",
           "parameters": {
-            "linkId": "him_gazer",
+            "linkId": "him_death_target_0",
             "pos": [
               5.0,
               1.0,
               2.0
             ],
             "name": "ponder.starrailexpress.label.victim"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 164,
-          "text": {
-            "en_us": "You can only kill players who are looking at you and are not cloaked.",
-            "zh_cn": "只能杀死正在看着你且没有隐身的人。",
-            "zh_tw": "只能殺死正在看著你且沒有隱身的人。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 174
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hide",
-          "parameters": {
-            "linkId": "him_main",
-            "visible": false
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.0
-            ],
-            "lines": [
-              {
-                "en_us": "Your skill toggles cloaking, cooldown 15 seconds. While cloaked you are invulnerable except to forced deaths.",
-                "zh_cn": "技能可切换隐身，冷却 15 秒。隐身期间除强制死亡外无敌。",
-                "zh_tw": "技能可切換隱身，冷卻 15 秒。隱身期間除強制死亡外無敵。"
-              }
-            ]
           },
           "attachKeyFrame": true
         },
@@ -268,76 +263,7 @@
           },
           "point": [
             3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "him_gazer_2"
-          }
-        },
-        {
-          "type": "starrailexpress:role_bond",
-          "parameters": {
-            "title": {
-              "en_us": "Locked gaze",
-              "zh_cn": "无法移开视线",
-              "zh_tw": "無法移開視線"
-            },
-            "lines": [
-              {
-                "en_us": "While you are not cloaked, every player except him stares at you and cannot move their view.",
-                "zh_cn": "当你处于非隐身状态时，除 him 以外的玩家会盯着你看，且无法挪动视角。",
-                "zh_tw": "當你處於非隱身狀態時，除 him 以外的玩家會盯著你看，且無法挪動視角。"
-              }
-            ],
-            "progress": [
-              0.0,
-              1.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "While you are not cloaked, every player except him stares at you and cannot move their view.",
-            "zh_cn": "当你处于非隐身状态时，除 him 以外的玩家会盯着你看，且无法挪动视角。",
-            "zh_tw": "當你處於非隱身狀態時，除 him 以外的玩家會盯著你看，且無法挪動視角。"
-          },
-          "point": [
-            3.0,
-            2.36,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,

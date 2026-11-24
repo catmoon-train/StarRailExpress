@@ -153,20 +153,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_outline",
           "parameters": {
             "linkId": "coroner_skill_target_0",
@@ -261,72 +247,74 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "coroner_corpse"
-          }
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "coroner_corpse",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Right-click an unobstructed real corpse within 5 blocks to privately reveal its name and role at death in the center of your screen.",
+                "zh_cn": "扫描仪可以在冷却结束后丢弃。开局或本局首次成为验尸官后的150秒内无法丢弃。",
+                "zh_tw": "掃描器可以在冷卻結束後丟棄。開局或本局首次成為驗屍官後的150秒內無法丟棄。"
+              }
+            ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "show_controls",
-          "action": "right",
-          "item": "noellesroles:portable_identity_scanner",
-          "duration": 70,
-          "point": [
-            2.1,
-            2.2,
-            3.0
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
           ],
-          "direction": "down",
-          "attachKeyFrame": true
+          "duration": 220,
+          "color": "blue"
         },
         {
-          "type": "starrailexpress:role_screen",
+          "type": "starrailexpress:role_timer",
           "parameters": {
-            "title": {
-              "en_us": "Victim identity",
-              "zh_cn": "死者身份",
-              "zh_tw": "死者身分"
-            },
-            "hint": {
-              "en_us": "Name and role at death",
-              "zh_cn": "姓名与死亡时职业",
-              "zh_tw": "姓名與死亡時職業"
-            },
-            "columns": 3
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Right-click an unobstructed real corpse within 5 blocks to privately reveal its name and role at death in the center of your screen.",
+                "zh_cn": "扫描仪可以在冷却结束后丢弃。开局或本局首次成为验尸官后的150秒内无法丢弃。",
+                "zh_tw": "掃描器可以在冷卻結束後丟棄。開局或本局首次成為驗屍官後的150秒內無法丟棄。"
+              }
+            ]
           },
           "attachKeyFrame": true
         },
         {
           "type": "idle",
-          "duration": 24
+          "duration": 40
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:portable_identity_scanner",
+          "linkId": "coroner_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "Can see the deceased's info (cause of death, time of death) and can detect fake corpses.",
-            "zh_cn": "可以看到死者的信息(死亡原因、死亡时间)，可以察觉假扮的尸体。",
-            "zh_tw": "可以看到死者的資訊（死亡原因、死亡時間），可以察覺假扮的屍體。"
+            "en_us": "Right-click an unobstructed real corpse within 5 blocks to privately reveal its name and role at death in the center of your screen.",
+            "zh_cn": "扫描仪可以在冷却结束后丢弃。开局或本局首次成为验尸官后的150秒内无法丢弃。",
+            "zh_tw": "掃描器可以在冷卻結束後丟棄。開局或本局首次成為驗屍官後的150秒內無法丟棄。"
           },
           "point": [
             3.0,
@@ -339,157 +327,6 @@
         {
           "type": "idle",
           "duration": 200
-        },
-        {
-          "type": "show_controls",
-          "action": "right",
-          "item": "noellesroles:portable_identity_scanner",
-          "duration": 70,
-          "point": [
-            2.1,
-            2.2,
-            3.0
-          ],
-          "direction": "down",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_panel",
-          "parameters": {
-            "title": {
-              "en_us": "Corpse inventory",
-              "zh_cn": "尸体背包",
-              "zh_tw": "屍體背包"
-            },
-            "lines": [
-              {
-                "en_us": "Right-click a corpse to view the deceased's inventory.",
-                "zh_cn": "右键尸体可以查看死者的背包物品。",
-                "zh_tw": "右鍵屍體可以查看死者的背包物品。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 24
-        },
-        {
-          "type": "text",
-          "duration": 137,
-          "text": {
-            "en_us": "Right-click a corpse to view the deceased's inventory.",
-            "zh_cn": "右键尸体可以查看死者的背包物品。",
-            "zh_tw": "右鍵屍體可以查看死者的背包物品。"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 147
-        },
-        {
-          "type": "show_controls",
-          "action": "right",
-          "item": "noellesroles:portable_identity_scanner",
-          "duration": 70,
-          "point": [
-            2.1,
-            2.2,
-            3.0
-          ],
-          "direction": "down",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.0,
-            1.55,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:portable_identity_scanner",
-          "linkId": "coroner_scanner",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "coroner_main",
-            "item": "noellesroles:portable_identity_scanner"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_screen",
-          "parameters": {
-            "title": {
-              "en_us": "Victim identity",
-              "zh_cn": "死者身份",
-              "zh_tw": "死者身分"
-            },
-            "hint": {
-              "en_us": "Name and role at death",
-              "zh_cn": "姓名与死亡时职业",
-              "zh_tw": "姓名與死亡時職業"
-            },
-            "columns": 3
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.0
-            ],
-            "lines": [
-              {
-                "en_us": "Buy a Portable Identity Scanner for 125 coins.",
-                "zh_cn": "商店可购买随身身份扫描仪，右键瞄准5格内的尸体，会在自己屏幕中央显示死者姓名和死亡时的职业，冷却120秒，冷却期间不可丢弃扫描仪。",
-                "zh_tw": "商店可花125金幣購買隨身身份掃描器，右鍵瞄準5格內無遮擋的真實屍體，會在自己螢幕中央顯示死者姓名和死亡時的職業。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 24
-        },
-        {
-          "type": "text",
-          "duration": 157,
-          "text": {
-            "en_us": "Buy a Portable Identity Scanner for 125 coins.",
-            "zh_cn": "商店可购买随身身份扫描仪，右键瞄准5格内的尸体，会在自己屏幕中央显示死者姓名和死亡时的职业，冷却120秒，冷却期间不可丢弃扫描仪。",
-            "zh_tw": "商店可花125金幣購買隨身身份掃描器，右鍵瞄準5格內無遮擋的真實屍體，會在自己螢幕中央顯示死者姓名和死亡時的職業。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 167
         },
         {
           "type": "rotate_camera_y",
@@ -584,7 +421,7 @@
           "text": {
             "en_us": "Buy a Portable Identity Scanner for 125 coins.",
             "zh_cn": "商店可购买随身身份扫描仪，右键瞄准5格内的尸体，会在自己屏幕中央显示死者姓名和死亡时的职业，冷却120秒，冷却期间不可丢弃扫描仪。",
-            "zh_tw": "商店可花125金幣購買隨身身份掃描器，右鍵瞄準5格內無遮擋的真實屍體，會在自己螢幕中央顯示死者姓名和死亡時的職業。"
+            "zh_tw": "商店可購買隨身身份掃描器，右鍵瞄準5格內的屍體，會在自己螢幕中央顯示死者姓名和死亡時的職業，冷卻120秒，冷卻期間不可丟棄掃描器。"
           },
           "point": [
             3.0,
@@ -738,7 +575,7 @@
               {
                 "en_us": "Can see the deceased's info (cause of death, time of death) and can detect fake corpses.",
                 "zh_cn": "可以看到死者的信息(死亡原因、死亡时间)，可以察觉假扮的尸体。",
-                "zh_tw": "可以看到死者的資訊（死亡原因、死亡時間），可以察覺假扮的屍體。"
+                "zh_tw": "可以看到死者的資訊(死亡原因、死亡時間)，可以察覺假扮的屍體。"
               }
             ]
           }
@@ -776,7 +613,7 @@
           "text": {
             "en_us": "Can see the deceased's info (cause of death, time of death) and can detect fake corpses.",
             "zh_cn": "可以看到死者的信息(死亡原因、死亡时间)，可以察觉假扮的尸体。",
-            "zh_tw": "可以看到死者的資訊（死亡原因、死亡時間），可以察覺假扮的屍體。"
+            "zh_tw": "可以看到死者的資訊(死亡原因、死亡時間)，可以察覺假扮的屍體。"
           },
           "point": [
             3.0,

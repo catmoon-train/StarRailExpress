@@ -193,20 +193,6 @@
           "duration": 200
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "create_item_entity",
           "pos": [
             2.2,
@@ -355,71 +341,10 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              4.0
-            ],
-            "yaw": 180.0,
-            "linkId": "painter_writer",
-            "outline": -18751
-          }
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            1.8,
-            1.55,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "starrailexpress:drawing_board",
-          "linkId": "painter_board",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "show_controls",
-          "action": "right",
-          "item": "starrailexpress:drawing_board",
-          "duration": 70,
-          "point": [
-            4.2,
-            2.0,
-            3.0
-          ],
-          "direction": "down",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "painter_main",
-            "item": "starrailexpress:drawing_board"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_panel",
-          "parameters": {
-            "title": {
-              "en_us": "Canvas",
-              "zh_cn": "绘画",
-              "zh_tw": "繪畫"
-            },
+            "label": "ponder.starrailexpress.label.skill",
             "lines": [
-              {
-                "en_us": "You start with a Canvas; by painting an item's texture on the Canvas you obtain that item.",
-                "zh_cn": "初始拥有一个画板，你可以通过在画板中描绘物品的材质来获取相应的物品。",
-                "zh_tw": "初始擁有一個畫板，你可以通過在畫板中描繪物品的材質來獲取相應的物品。"
-              },
               {
                 "en_us": "Skill 1 - Artistic Spark: gain a Canvas when any of these happen (once each):",
                 "zh_cn": "技能一 - 绘画灵感：触发以下场景时获得画板，每种场景只会给予一次：",
@@ -434,7 +359,7 @@
           "parameters": {
             "point": [
               3.0,
-              3.2,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -444,28 +369,51 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_timer",
+          "type": "starrailexpress:role_walk",
           "parameters": {
-            "progress": [
-              0.0,
-              1.0
+            "linkId": "painter_main",
+            "to": [
+              2.1,
+              1.0,
+              4.0
             ],
-            "lines": [
-              {
-                "en_us": "Skill 2 - Quest: automatically gain a Canvas every 4 minutes.",
-                "zh_cn": "技能二 - 求索：每过4分钟自动获得一个画板。",
-                "zh_tw": "技能二 - 求索：每過4分鐘自動獲得一個畫板。"
-              }
-            ]
+            "duration": 40
           },
           "attachKeyFrame": true
         },
         {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            4
+          ],
+          "blockPos2": [
+            3,
+            0,
+            4
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            4
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
           "type": "create_item_entity",
           "pos": [
-            3.0,
-            1.55,
-            4.0
+            2.2,
+            1.5,
+            3.0
           ],
           "motion": [
             0.0,
@@ -474,55 +422,8 @@
           ],
           "count": 1,
           "item": "starrailexpress:drawing_board",
-          "linkId": "painter_friend_board",
+          "linkId": "painter_line_item_0",
           "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_bond",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Skill 3 - Kindred: when a Painter and Writer coexist, both gain a Canvas.",
-                "zh_cn": "技能三 - 挚友：当场上同时存在画家和作家时，同时给予作家和画家一个画板。",
-                "zh_tw": "技能三 - 摯友：當場上同時存在畫家和作家時，同時給予作家和畫家一個畫板。"
-              }
-            ],
-            "color": 16753920
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Canvas: right-click to open and paint in the area; on confirm the system recognizes the painting. On success you receive the item and consume one Canvas.",
-                "zh_cn": "画板：右键打开，在绘画区域内作画，确定时系统会根据绘画内容进行识别，成功识别出物品后你会获得绘画的物品并消耗1个画板。",
-                "zh_tw": "畫板：右鍵打開，在繪畫區域內作畫，確定時系統會根據繪畫內容進行識別，成功識別出物品後你會獲得繪畫的物品並消耗1個畫板。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "You start with a Canvas; by painting an item's texture on the Canvas you obtain that item.",
-            "zh_cn": "初始拥有一个画板，你可以通过在画板中描绘物品的材质来获取相应的物品。",
-            "zh_tw": "初始擁有一個畫板，你可以通過在畫板中描繪物品的材質來獲取相應的物品。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
         },
         {
           "type": "text",
@@ -534,7 +435,7 @@
           },
           "point": [
             3.0,
-            2.08,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,
@@ -545,12 +446,58 @@
           "duration": 188
         },
         {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "painter_main",
+            "to": [
+              2.1,
+              1.0,
+              4.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            4
+          ],
+          "blockPos2": [
+            3,
+            0,
+            4
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
           "type": "indicate_success",
           "blockPos": [
             3,
             0,
-            3
+            4
           ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
         },
         {
           "type": "text",
@@ -562,7 +509,7 @@
           },
           "point": [
             3.0,
-            2.36,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,
@@ -571,6 +518,60 @@
         {
           "type": "idle",
           "duration": 159
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "painter_main",
+            "to": [
+              2.1,
+              1.0,
+              4.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            4
+          ],
+          "blockPos2": [
+            3,
+            0,
+            4
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            4
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
         },
         {
           "type": "text",
@@ -582,7 +583,7 @@
           },
           "point": [
             3.0,
-            2.64,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,
@@ -591,54 +592,6 @@
         {
           "type": "idle",
           "duration": 181
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Canvas: right-click to open and paint in the area; on confirm the system recognizes the painting. On success you receive the item and consume one Canvas.",
-            "zh_cn": "画板：右键打开，在绘画区域内作画，确定时系统会根据绘画内容进行识别，成功识别出物品后你会获得绘画的物品并消耗1个画板。",
-            "zh_tw": "畫板：右鍵打開，在繪畫區域內作畫，確定時系統會根據繪畫內容進行識別，成功識別出物品後你會獲得繪畫的物品並消耗1個畫板。"
-          },
-          "point": [
-            3.0,
-            2.92,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "text",
-          "duration": 67,
-          "text": {
-            "en_us": "You can obtain:",
-            "zh_cn": "你可以通过画板获取以下物品",
-            "zh_tw": "你可以通過畫板獲取以下物品"
-          },
-          "point": [
-            3.0,
-            3.2,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 77
         },
         {
           "type": "rotate_camera_y",

@@ -151,40 +151,54 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "paper_doll_attacker",
-            "outline": 16753920
-          }
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Skill \"stand-in\": while the skill is ready, non-forced damage or death is delayed by 0.5 seconds. Using the stand-in inside that window cancels the hit and blinks you 4 blocks backwards. Forced deaths cannot be negated.",
+                "zh_cn": "技能替身：技能就绪时，受到非强制伤害或死亡会暂缓结算 0.5 秒。窗口内使用替身可免除此击并向后闪现 4 格。强制死亡无法免疫。",
+                "zh_tw": "技能替身：技能就緒時，受到非強制傷害或死亡會暫緩結算 0.5 秒。窗口內使用替身可免除此擊並向後閃現 4 格。強制死亡無法免疫。"
+              },
+              {
+                "en_us": "Skill \"random turn\": randomly turns the horizontal view of a single unobstructed living player within 8 blocks of your crosshair; cooldown 60 seconds.",
+                "zh_cn": "技能乱向：使准星指向的 8 格内无遮挡单个存活玩家随机水平转向；冷却 60 秒。",
+                "zh_tw": "技能亂向：使準星指向的 8 格內無遮擋單個存活玩家隨機水準轉向；冷卻 60 秒。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              3.25,
+              2.9,
               3.0
             ],
             "direction": "down",
             "duration": 60,
-            "keyBind": "next_ability",
-            "text": "ponder.starrailexpress.ponder.press_next_ability"
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
         },
         {
           "type": "starrailexpress:role_timer",
           "parameters": {
             "progress": [
-              1.0,
-              0.0
+              0.0,
+              1.0
             ],
             "lines": [
               {
@@ -197,23 +211,15 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "paper_doll_main",
-            "pos": [
-              -1.0,
-              1.0,
-              3.0
-            ]
-          },
-          "attachKeyFrame": true
+          "type": "idle",
+          "duration": 40
         },
         {
           "type": "spawn_particles",
           "particle": "minecraft:cloud",
           "pos": [
             3.0,
-            2.0,
+            1.9,
             3.0
           ],
           "distribution": "box",
@@ -222,7 +228,7 @@
             0.6,
             0.35
           ],
-          "count": 16,
+          "count": 8,
           "duration": 60,
           "motion": [
             0,
@@ -231,75 +237,46 @@
           ]
         },
         {
-          "type": "play_sound",
-          "sound": "minecraft:entity.enderman.teleport",
-          "soundVolume": 1.0,
-          "pitch": 1.0,
-          "source": "players"
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:paper_cut",
+          "linkId": "paper_doll_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "paper_doll_death_target_0",
+            "outline": -1252146
+          }
         },
         {
           "type": "starrailexpress:role_death",
           "parameters": {
-            "linkId": "paper_doll_main",
+            "linkId": "paper_doll_death_target_0",
             "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "paper_doll_attacker",
-            "color": 16753920
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "paper_doll_attacker",
-            "to": [
-              5.8,
+              5.0,
               1.0,
               2.0
             ],
-            "duration": 30
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "On success you get 3 seconds of weakness and 2 seconds of glowing; the stand-in has a 32 second cooldown. Being hit again inside the window does not extend the window.",
-                "zh_cn": "成功后获得 3 秒虚弱与 2 秒发光，替身冷却 32 秒。窗口内再次命中不延长时限。",
-                "zh_tw": "成功後獲得 3 秒虛弱與 2 秒發光，替身冷卻 32 秒。窗口內再次命中不延長時限。"
-              },
-              {
-                "en_us": "Skill \"random turn\": randomly turns the horizontal view of a single unobstructed living player within 8 blocks of your crosshair; cooldown 60 seconds.",
-                "zh_cn": "技能乱向：使准星指向的 8 格内无遮挡单个存活玩家随机水平转向；冷却 60 秒。",
-                "zh_tw": "技能亂向：使準星指向的 8 格內無遮擋單個存活玩家隨機水準轉向；冷卻 60 秒。"
-              }
-            ]
+            "name": "ponder.starrailexpress.label.victim"
           },
           "attachKeyFrame": true
         },
@@ -324,12 +301,76 @@
           "duration": 200
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "paper_doll_skill_target_1",
+            "outline": -1252146
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:cloud",
+          "pos": [
+            3.0,
+            1.9,
+            3.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 60,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "On success you get 3 seconds of weakness and 2 seconds of glowing; the stand-in has a 32 second cooldown. Being hit again inside the window does not extend the window.",
-            "zh_cn": "成功后获得 3 秒虚弱与 2 秒发光，替身冷却 32 秒。窗口内再次命中不延长时限。",
-            "zh_tw": "成功後獲得 3 秒虛弱與 2 秒發光，替身冷卻 32 秒。窗口內再次命中不延長時限。"
+            "en_us": "Skill \"random turn\": randomly turns the horizontal view of a single unobstructed living player within 8 blocks of your crosshair; cooldown 60 seconds.",
+            "zh_cn": "技能乱向：使准星指向的 8 格内无遮挡单个存活玩家随机水平转向；冷却 60 秒。",
+            "zh_tw": "技能亂向：使準星指向的 8 格內無遮擋單個存活玩家隨機水準轉向；冷卻 60 秒。"
           },
           "point": [
             3.0,
@@ -344,6 +385,21 @@
           "duration": 200
         },
         {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "next_ability",
+            "text": "ponder.starrailexpress.ponder.press_next_ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "indicate_success",
           "blockPos": [
             3,
@@ -352,24 +408,8 @@
           ]
         },
         {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Skill \"random turn\": randomly turns the horizontal view of a single unobstructed living player within 8 blocks of your crosshair; cooldown 60 seconds.",
-            "zh_cn": "技能乱向：使准星指向的 8 格内无遮挡单个存活玩家随机水平转向；冷却 60 秒。",
-            "zh_tw": "技能亂向：使準星指向的 8 格內無遮擋單個存活玩家隨機水準轉向；冷卻 60 秒。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
           "type": "idle",
-          "duration": 200
+          "duration": 25
         },
         {
           "type": "text",
@@ -381,7 +421,7 @@
           },
           "point": [
             3.0,
-            2.64,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,
@@ -392,12 +432,104 @@
           "duration": 125
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "paper_doll_skill_target_3",
+            "outline": -1252146
+          }
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "paper_doll_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 45
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 15
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:cloud",
+          "pos": [
+            5.0,
+            2.1,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 10,
+          "duration": 30,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "paper_doll_skill_target_3",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "spawn_particles",
+          "particle": "minecraft:cloud",
+          "pos": [
+            5.0,
+            1.6,
+            2.0
+          ],
+          "distribution": "box",
+          "spread": [
+            0.35,
+            0.6,
+            0.35
+          ],
+          "count": 8,
+          "duration": 45,
+          "motion": [
+            0,
+            0.04,
+            0
+          ]
+        },
+        {
           "type": "indicate_success",
           "blockPos": [
-            3,
+            5,
             0,
-            3
+            2
           ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
         },
         {
           "type": "text",
@@ -409,7 +541,7 @@
           },
           "point": [
             3.0,
-            2.92,
+            2.64,
             3.0
           ],
           "placeNearTarget": true,

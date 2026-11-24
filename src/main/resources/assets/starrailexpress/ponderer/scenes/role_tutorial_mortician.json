@@ -196,240 +196,35 @@
           }
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            5.0,
-            1.55,
-            2.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:revolver",
-          "linkId": "mortician_corpse",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_key",
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "mortician_corpse",
-            "color": 16755200
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 110,
-          "text": {
-            "en_us": "You can see item drops within 10 blocks",
-            "zh_cn": "你可以透视十格范围内的物品掉落物",
-            "zh_tw": "你可以透視十格範圍內的物品掉落物"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 120
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_panel",
-          "parameters": {
-            "title": {
-              "en_us": "Corpse inventory",
-              "zh_cn": "尸体物品栏",
-              "zh_tw": "屍體物品欄"
-            },
+            "label": "ponder.starrailexpress.label.skill",
             "lines": [
               {
-                "en_us": "You can open a corpse's inventory and take up to 1 item from it",
-                "zh_cn": "你可以打开尸体的物品栏，并从中拿取至多1个物品",
-                "zh_tw": "你可以打開屍體的物品欄，並從中拿取至多1個物品"
+                "en_us": "120s cooldown",
+                "zh_cn": "冷却120秒",
+                "zh_tw": "冷卻120秒"
               }
             ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "text",
-          "duration": 153,
-          "text": {
-            "en_us": "You can open a corpse's inventory and take up to 1 item from it",
-            "zh_cn": "你可以打开尸体的物品栏，并从中拿取至多1个物品",
-            "zh_tw": "你可以打開屍體的物品欄，並從中拿取至多1個物品"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
           ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 163
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_panel",
-          "parameters": {
-            "title": {
-              "en_us": "Corpse inventory",
-              "zh_cn": "尸体物品栏",
-              "zh_tw": "屍體物品欄"
-            },
-            "lines": [
-              {
-                "en_us": "Cannot take a derringer",
-                "zh_cn": "无法拿取德林加手枪",
-                "zh_tw": "無法拿取德林加手槍"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 81,
-          "text": {
-            "en_us": "Cannot take a derringer",
-            "zh_cn": "无法拿取德林加手枪",
-            "zh_tw": "無法拿取德林加手槍"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 91
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_panel",
-          "parameters": {
-            "title": {
-              "en_us": "Corpse inventory",
-              "zh_cn": "尸体物品栏",
-              "zh_tw": "屍體物品欄"
-            },
-            "lines": [
-              {
-                "en_us": "If you already hold a revolver, you cannot take a revolver or patrol pistol from a corpse",
-                "zh_cn": "如果身上已有左轮手枪，则无法再从尸体中拿取左轮手枪和巡警手枪",
-                "zh_tw": "如果身上已有左輪手槍，則無法再從屍體中拿取左輪手槍和巡警手槍"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "If you already hold a revolver, you cannot take a revolver or patrol pistol from a corpse",
-            "zh_cn": "如果身上已有左轮手枪，则无法再从尸体中拿取左轮手枪和巡警手枪",
-            "zh_tw": "如果身上已有左輪手槍，則無法再從屍體中拿取左輪手槍和巡警手槍"
-          },
-          "point": [
-            3.0,
-            2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
+          "duration": 220,
+          "color": "blue"
         },
         {
           "type": "starrailexpress:role_timer",
           "parameters": {
             "progress": [
-              1.0,
-              0.0
+              0.0,
+              1.0
             ],
             "lines": [
               {
@@ -442,6 +237,27 @@
           "attachKeyFrame": true
         },
         {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "mortician_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 63,
           "text": {
@@ -451,7 +267,7 @@
           },
           "point": [
             3.0,
-            2.92,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,

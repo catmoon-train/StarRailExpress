@@ -17,6 +17,9 @@ VISUAL = {"spawn_particles", "highlight_section", "create_item_entity",
           "create_entity", "show_controls", "indicate_success",
           "indicate_redstone", "set_block"}
 PARTICLE_WORDS = ("粒子", "释放", "投掷", "喷洒", "喷出", "泼洒")
+# 只有明确讲技能/按键介绍时才允许放技能键帽；纯道具右键、冷却时长不算。
+SKILL_INTRO_WORDS = ("技能", "按下", "施放", "释放", "按键", "主动技能", "被動技能",
+                     "切换键", "切換鍵", "技能切换", "技能切換")
 DEATH_WORDS = ("死亡", "死去", "致死", "杀死", "击杀", "击倒", "阵亡", "去世", "丧生", "自尽", "殉")
 IMMUNE_DEATH_WORDS = ("免疫死亡", "不会死亡", "不死亡", "防止死亡", "免除死亡", "抵挡死亡",
                       "阻止死亡", "避免死亡", "无法死亡", "不会因", "不会致死", "免于死亡",
@@ -99,6 +102,7 @@ for path in sorted(glob.glob(os.path.join(SCENES, "*.json"))):
             add(filename, "title missing " + locale)
 
     segment_ids = set()
+    segment_texts = {}
     for segment in scene["scenes"]:
         sid = segment["id"]
         where = filename + "#" + sid
@@ -174,6 +178,11 @@ for path in sorted(glob.glob(os.path.join(SCENES, "*.json"))):
 
         body = "".join(step.get("text", {}).get("zh_cn", "")
                        for step in steps if step["type"] == "text")
+        segment_texts[sid] = {step.get("text", {}).get("zh_cn", "") for step in steps
+                              if step["type"] == "text" and step.get("text", {}).get("zh_cn")}
+        if (sid != "skill" and not any(word in body for word in SKILL_INTRO_WORDS)
+                and any(step["type"] == "starrailexpress:role_key" for step in steps)):
+            add(where, "role_key without skill introduction")
         death_texts = [step.get("text", {}).get("zh_cn", "") for step in steps
                        if step["type"] == "text"
                        and any(w in step.get("text", {}).get("zh_cn", "") for w in DEATH_WORDS)
@@ -202,6 +211,14 @@ for path in sorted(glob.glob(os.path.join(SCENES, "*.json"))):
         if (any(word in body for word in PARTICLE_WORDS)
                 and SOURCE_PARTICLES.get(rid, set()) and not used_particles):
             add(where, "source has particle but scene emitted none")
+
+    segment_names = list(segment_texts)
+    for index, left in enumerate(segment_names):
+        for right in segment_names[index + 1:]:
+            shared = segment_texts[left] & segment_texts[right]
+            if len(shared) >= 2:
+                add(filename + "#" + left, "duplicate content with segment " + right)
+                add(filename + "#" + right, "duplicate content with segment " + left)
 
 print("audited scenes:", len([p for p in glob.glob(os.path.join(SCENES, "*.json"))
                               if os.path.basename(p) not in EXCLUDED]))

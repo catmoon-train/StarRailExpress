@@ -396,22 +396,6 @@
           "duration": 143
         },
         {
-          "type": "text",
-          "duration": 115,
-          "text": {
-            "en_us": "At most 6 telegrams can be sent per match.",
-            "zh_cn": "每局游戏最多可以发送6次电报。",
-            "zh_tw": "每局遊戲最多可以發送6次電報。"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
           "type": "idle",
           "duration": 125
         },
@@ -422,22 +406,6 @@
             0,
             3
           ]
-        },
-        {
-          "type": "text",
-          "duration": 180,
-          "text": {
-            "en_us": "The telegram is voice-broadcast and shown as a title on every player's screen.",
-            "zh_cn": "电报消息会语音播报并以标题的形式显示在所有玩家的屏幕上。",
-            "zh_tw": "電報消息會語音播報並以標題的形式顯示在所有玩家的螢幕上。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
         },
         {
           "type": "idle",

@@ -122,196 +122,35 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "patroller_victim",
-            "outline": 16753920
-          }
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "patroller_victim",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "patroller_main",
-            "to": [
-              4.0,
-              1.0,
-              2.0
-            ],
-            "duration": 35
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "show_controls",
-          "action": "right",
-          "item": "noellesroles:patroller_revolver",
-          "duration": 70,
-          "point": [
-            4.3,
-            2.0,
-            3.0
-          ],
-          "direction": "down",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            3.6,
-            1.55,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:patroller_revolver",
-          "linkId": "patroller_gun",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.4,
-            1.55,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:master_key_p",
-          "linkId": "patroller_key",
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "patroller_main",
-            "item": "noellesroles:master_key_p"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.0
-            ],
+            "label": "ponder.starrailexpress.label.skill",
             "lines": [
               {
                 "en_us": "Patrol Pistol: has its own cooldown and can coexist with a Revolver.",
                 "zh_cn": "巡警手枪：拥有独立的CD，可与左轮手枪同时存在。",
                 "zh_tw": "巡警手槍：擁有獨立的CD，可與左輪手槍同時存在。"
-              },
-              {
-                "en_us": "The Patrol Pistol's cooldown is 1/5 of a normal Revolver's.",
-                "zh_cn": "巡警手枪的CD为普通左轮的1/5。",
-                "zh_tw": "巡警手槍的CD為普通左輪的1/5。"
               }
             ]
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Attendant Key: opens any room door; 5 uses.",
-                "zh_cn": "乘务员钥匙：能够打开任意一扇房间门，可使用5次。",
-                "zh_tw": "乘務員鑰匙：能夠打開任意一扇房間門，可使用5次。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "When someone dies within 30 blocks of your view, you gain a Patrol Pistol and an Attendant Key.",
-            "zh_cn": "当你的视野30格内有人死亡时，你获得一把巡警手枪和一把乘务员钥匙。",
-            "zh_tw": "當你的視野30格內有人死亡時，你獲得一把巡警手槍和一把乘務員鑰匙。"
-          },
-          "point": [
-            3.0,
-            1.8,
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
             3.0
           ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "text",
-          "duration": 85,
-          "text": {
-            "en_us": "The shop sells Revolvers.",
-            "zh_cn": "商店可购买左轮手枪。",
-            "zh_tw": "商店可購買左輪手槍。"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
+          "motion": [
+            0.0,
+            0.0,
+            0.0
           ],
-          "placeNearTarget": true,
+          "count": 1,
+          "item": "trainmurdermystery:revolver",
+          "linkId": "patroller_line_item_0",
           "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 95
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
         },
         {
           "type": "text",
@@ -323,7 +162,7 @@
           },
           "point": [
             3.0,
-            2.36,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,
@@ -332,6 +171,23 @@
         {
           "type": "idle",
           "duration": 172
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:patroller_revolver",
+          "linkId": "patroller_line_item_1",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -343,7 +199,7 @@
           },
           "point": [
             3.0,
-            2.64,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,
@@ -352,34 +208,6 @@
         {
           "type": "idle",
           "duration": 156
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 117,
-          "text": {
-            "en_us": "Attendant Key: opens any room door; 5 uses.",
-            "zh_cn": "乘务员钥匙：能够打开任意一扇房间门，可使用5次。",
-            "zh_tw": "乘務員鑰匙：能夠打開任意一扇房間門，可使用5次。"
-          },
-          "point": [
-            3.0,
-            2.92,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 127
         },
         {
           "type": "rotate_camera_y",

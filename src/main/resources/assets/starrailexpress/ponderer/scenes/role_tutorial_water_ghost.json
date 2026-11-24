@@ -2,6 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.water_ghost",
   "items": [
+    "minecraft:trident",
     "trainmurdermystery:lockpick"
   ],
   "title": {
@@ -122,12 +123,25 @@
           }
         },
         {
-          "type": "create_item_entity",
+          "type": "starrailexpress:role_items",
           "attachKeyFrame": true,
+          "parameters": {
+            "role": "water_ghost",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "create_item_entity",
           "pos": [
-            1.6,
-            1.55,
-            1.6
+            2.2,
+            1.5,
+            3.0
           ],
           "motion": [
             0.0,
@@ -135,8 +149,9 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:lockpick",
-          "linkId": "water_ghost_item"
+          "item": "minecraft:trident",
+          "linkId": "water_ghost_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -214,25 +229,30 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              4.0
-            ],
-            "yaw": 180.0,
-            "linkId": "water_ghost_water_target",
-            "outline": -14785356
-          }
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Skill: press the skill key for 10 seconds of Dolphin's Grace I, 40-second cooldown",
+                "zh_cn": "技能：按下技能键获得10秒海豚的恩惠1，冷却40秒",
+                "zh_tw": "技能：按下技能鍵獲得10秒海豚的恩惠1，冷卻40秒"
+              },
+              {
+                "en_us": "Passive: the Riptide trident enters a 30-second cooldown after killing a player",
+                "zh_cn": "被动：激流三叉戟击杀玩家后进入30秒冷却",
+                "zh_tw": "被動：激流三叉戟擊殺玩家後進入30秒冷卻"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -242,81 +262,21 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "water_ghost_main",
-            "item": "minecraft:trident"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "play_sound",
-          "sound": "minecraft:entity.dolphin.play",
-          "soundVolume": 1.0,
-          "pitch": 1.0,
-          "source": "players"
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Starts with a Riptide II Trident",
-                "zh_cn": "开局拥有一个激流2三叉戟",
-                "zh_tw": "開局擁有一個激流2三叉戟"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "water_ghost_main",
-            "to": [
-              2.2,
-              1.0,
-              4.0
-            ],
-            "duration": 34
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "water_ghost_water_target",
-            "pos": [
-              3.0,
-              1.0,
-              4.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            3.0,
-            1.6,
-            4.0
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
           ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:revolver",
-          "linkId": "water_ghost_revolver",
-          "attachKeyFrame": true
+          "duration": 220,
+          "color": "blue"
         },
         {
           "type": "starrailexpress:role_timer",
           "parameters": {
             "progress": [
-              1.0,
-              0.0
+              0.0,
+              1.0
             ],
             "lines": [
               {
@@ -329,52 +289,25 @@
           "attachKeyFrame": true
         },
         {
-          "type": "text",
-          "duration": 97,
-          "text": {
-            "en_us": "Starts with a Riptide II Trident",
-            "zh_cn": "开局拥有一个激流2三叉戟",
-            "zh_tw": "開局擁有一個激流2三叉戟"
-          },
-          "point": [
-            3.0,
-            1.8,
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
             3.0
           ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 107
-        },
-        {
-          "type": "text",
-          "duration": 112,
-          "text": {
-            "en_us": "Only the trident's dash can kill targets",
-            "zh_cn": "只有使用三叉戟的冲刺才能击杀目标",
-            "zh_tw": "只有使用三叉戟的衝刺才能擊殺目標"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
+          "motion": [
+            0.0,
+            0.0,
+            0.0
           ],
-          "placeNearTarget": true,
+          "count": 1,
+          "item": "minecraft:trident",
+          "linkId": "water_ghost_line_item_0",
           "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 122
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
         },
         {
           "type": "text",
@@ -386,7 +319,7 @@
           },
           "point": [
             3.0,
-            2.36,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,
@@ -395,6 +328,49 @@
         {
           "type": "idle",
           "duration": 197
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              4.0
+            ],
+            "yaw": 180.0,
+            "linkId": "water_ghost_skill_target_1",
+            "outline": -14785356
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 15
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "water_ghost_skill_target_1",
+            "pos": [
+              3.0,
+              1.0,
+              4.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            4
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
         },
         {
           "type": "text",
@@ -406,7 +382,7 @@
           },
           "point": [
             3.0,
-            2.64,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,
@@ -415,14 +391,6 @@
         {
           "type": "idle",
           "duration": 192
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
         },
         {
           "type": "text",
@@ -434,7 +402,7 @@
           },
           "point": [
             3.0,
-            2.92,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,
@@ -443,26 +411,6 @@
         {
           "type": "idle",
           "duration": 174
-        },
-        {
-          "type": "text",
-          "duration": 148,
-          "text": {
-            "en_us": "When the Water Ghost dies, their trident drops as a Revolver",
-            "zh_cn": "水鬼死后，身上的三叉戟会掉落为左轮手枪",
-            "zh_tw": "水鬼死後，身上的三叉戟會掉落為左輪手槍"
-          },
-          "point": [
-            3.0,
-            3.2,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 158
         },
         {
           "type": "rotate_camera_y",
@@ -674,7 +622,7 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:lockpick",
+          "item": "minecraft:trident",
           "linkId": "water_ghost_line_item_0",
           "attachKeyFrame": true
         },

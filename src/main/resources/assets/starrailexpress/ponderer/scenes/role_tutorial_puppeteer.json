@@ -224,6 +224,25 @@
           }
         },
         {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Evolution condition: after collecting a certain number of corpses, becomes Killer team (except the Puppeteer). The number of corpses to collect equals total players divided by six; the corpse-collecting skill has a 10s cooldown.",
+                "zh_cn": "进化条件：搜集一定量尸体之后变为杀手阵营（傀儡师除外）。收集尸体人数数量为游戏总人数除以六，收集尸体技能有10s冷却。",
+                "zh_tw": "進化條件：搜集一定量屍體之後變為殺手陣營（傀儡師除外）。收集屍體人數數量為遊戲總人數除以六，收集屍體技能有10s冷卻。"
+              },
+              {
+                "en_us": "10. Creating a puppet has a cooldown",
+                "zh_cn": "10. 制造傀儡有冷却",
+                "zh_tw": "10. 製造傀儡有冷卻"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -233,29 +252,16 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "puppeteer_corpse",
-            "outline": 16753920
+            "linkId": "puppeteer_skill_target_0",
+            "outline": -7722014
           }
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "puppeteer_corpse",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -269,161 +275,59 @@
           "parameters": {
             "linkId": "puppeteer_main",
             "to": [
-              4.2,
+              4.1,
               1.0,
               2.0
             ],
-            "duration": 35
+            "duration": 45
           },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hide",
-          "parameters": {
-            "linkId": "puppeteer_corpse",
-            "visible": false
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_timer",
-          "parameters": {
-            "progress": [
-              1.0,
-              0.0
-            ],
-            "lines": [
-              {
-                "en_us": "1. Can right-click a corpse to recycle it; the corpse disappears.",
-                "zh_cn": "1. 能够右键一个尸体进行回收，尸体会消失。",
-                "zh_tw": "1. 能夠右鍵一個屍體進行回收，屍體會消失。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_bond",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Evolution condition: after collecting a certain number of corpses, becomes Killer team (except the Puppeteer). The number of corpses to collect equals total players divided by six; the corpse-collecting skill has a 10s cooldown.",
-                "zh_cn": "进化条件：搜集一定量尸体之后变为杀手阵营（傀儡师除外）。收集尸体人数数量为游戏总人数除以六，收集尸体技能有10s冷却。",
-                "zh_tw": "進化條件：搜集一定量屍體之後變為殺手陣營（傀儡師除外）。收集屍體人數數量為遊戲總人數除以六，收集屍體技能有10s冷卻。"
-              }
-            ],
-            "color": 16753920
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              6.2,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "puppeteer_doll",
-            "outline": 16753920
-          }
-        },
-        {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "puppeteer_main",
-            "pos": [
-              6.2,
-              1.0,
-              2.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_panel",
-          "parameters": {
-            "title": {
-              "en_us": "Separate inventory",
-              "zh_cn": "独立物品栏",
-              "zh_tw": "獨立物品欄"
-            },
-            "lines": [
-              {
-                "en_us": "4. If the puppet dies, you do not truly die — you return to the body's view, provided the body is alive.",
-                "zh_cn": "4. 傀儡死亡不会真正死亡，而是回到本体视角，如果本体存活。",
-                "zh_tw": "4. 傀儡死亡不會真正死亡，而是回到本體視角，如果本體存活。"
-              },
-              {
-                "en_us": "5. While controlling a puppet, if the Puppeteer's body dies, the puppet is cleared and the Puppeteer truly dies",
-                "zh_cn": "5. 操控傀儡期间，如果傀儡师本体死亡，会清除傀儡，并且傀儡师会真正死亡",
-                "zh_tw": "5. 操控傀儡期間，如果傀儡師本體死亡，會清除傀儡，並且傀儡師會真正死亡"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "puppeteer_main",
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 58,
-          "text": {
-            "en_us": "- Phase 1:",
-            "zh_cn": "- 一阶段：",
-            "zh_tw": "- 一階段："
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
           "attachKeyFrame": true
         },
         {
           "type": "idle",
-          "duration": 68
+          "duration": 15
         },
         {
-          "type": "text",
-          "duration": 157,
-          "text": {
-            "en_us": "1. Can right-click a corpse to recycle it; the corpse disappears.",
-            "zh_cn": "1. 能够右键一个尸体进行回收，尸体会消失。",
-            "zh_tw": "1. 能夠右鍵一個屍體進行回收，屍體會消失。"
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "puppeteer_skill_target_0",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
           },
-          "point": [
-            3.0,
-            2.08,
-            3.0
-          ],
-          "placeNearTarget": true,
           "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 167
         },
         {
           "type": "indicate_success",
           "blockPos": [
-            3,
+            5,
             0,
-            3
+            2
           ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "puppeteer_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -435,7 +339,7 @@
           },
           "point": [
             3.0,
-            2.36,
+            1.8,
             3.0
           ],
           "placeNearTarget": true,
@@ -446,52 +350,74 @@
           "duration": 200
         },
         {
-          "type": "text",
-          "duration": 56,
-          "text": {
-            "en_us": "- Phase 2",
-            "zh_cn": "- 二阶段",
-            "zh_tw": "- 二階段"
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "puppeteer_skill_target_1",
+            "outline": -7722014
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
           },
-          "point": [
-            3.0,
-            2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "starrailexpress:role_walk",
+          "parameters": {
+            "linkId": "puppeteer_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 45
+          },
           "attachKeyFrame": true
         },
         {
           "type": "idle",
-          "duration": 66
+          "duration": 15
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "puppeteer_skill_target_1",
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "indicate_success",
           "blockPos": [
-            3,
+            5,
             0,
-            3
+            2
           ]
         },
         {
-          "type": "text",
-          "duration": 97,
-          "text": {
-            "en_us": "1. Can no longer recycle corpses",
-            "zh_cn": "1. 无法再回收尸体",
-            "zh_tw": "1. 無法再回收屍體"
-          },
-          "point": [
-            3.0,
-            2.92,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
           "type": "idle",
-          "duration": 107
+          "duration": 30
         },
         {
           "type": "text",
@@ -503,7 +429,7 @@
           },
           "point": [
             3.0,
-            3.2,
+            2.08,
             3.0
           ],
           "placeNearTarget": true,
@@ -514,24 +440,43 @@
           "duration": 200
         },
         {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
           "type": "indicate_success",
           "blockPos": [
-            3,
+            5,
             0,
-            3
+            2
           ]
         },
         {
+          "type": "idle",
+          "duration": 25
+        },
+        {
           "type": "text",
-          "duration": 190,
+          "duration": 104,
           "text": {
-            "en_us": "4. If the puppet dies, you do not truly die — you return to the body's view, provided the body is alive.",
-            "zh_cn": "4. 傀儡死亡不会真正死亡，而是回到本体视角，如果本体存活。",
-            "zh_tw": "4. 傀儡死亡不會真正死亡，而是回到本體視角，如果本體存活。"
+            "en_us": "10. Creating a puppet has a cooldown",
+            "zh_cn": "10. 制造傀儡有冷却",
+            "zh_tw": "10. 製造傀儡有冷卻"
           },
           "point": [
             3.0,
-            3.48,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,
@@ -539,123 +484,7 @@
         },
         {
           "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "5. While controlling a puppet, if the Puppeteer's body dies, the puppet is cleared and the Puppeteer truly dies",
-            "zh_cn": "5. 操控傀儡期间，如果傀儡师本体死亡，会清除傀儡，并且傀儡师会真正死亡",
-            "zh_tw": "5. 操控傀儡期間，如果傀儡師本體死亡，會清除傀儡，並且傀儡師會真正死亡"
-          },
-          "point": [
-            3.15,
-            1.8,
-            2.85
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 158,
-          "text": {
-            "en_us": "6. Controlling a dummy randomly turns it into a random Killer role",
-            "zh_cn": "6. 操控假人会随机更改职业为随机杀手职业",
-            "zh_tw": "6. 操控假人會隨機更改職業為隨機殺手職業"
-          },
-          "point": [
-            3.15,
-            2.08,
-            2.85
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 168
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "7. Puppet control is limited to one minute; after one minute it switches back to phase 2",
-            "zh_cn": "7. 操控傀儡限制一分钟，一分钟之后会切回二阶段",
-            "zh_tw": "7. 操控傀儡限制一分鐘，一分鐘之後會切回二階段"
-          },
-          "point": [
-            3.15,
-            2.36,
-            2.85
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            3,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 144,
-          "text": {
-            "en_us": "8. Switching back to the body resets the role to Puppeteer",
-            "zh_cn": "8. 切回本体重新设置职业为傀儡师",
-            "zh_tw": "8. 切回本體重新設置職業為傀儡師"
-          },
-          "point": [
-            3.15,
-            2.64,
-            2.85
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 154
-        },
-        {
-          "type": "text",
-          "duration": 131,
-          "text": {
-            "en_us": "9. The puppet and body have independent inventories",
-            "zh_cn": "9. 傀儡和本体拥有独立的物品栏",
-            "zh_tw": "9. 傀儡和本體擁有獨立的物品欄"
-          },
-          "point": [
-            3.15,
-            2.92,
-            2.85
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 141
+          "duration": 114
         },
         {
           "type": "rotate_camera_y",

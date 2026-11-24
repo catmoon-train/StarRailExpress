@@ -152,74 +152,15 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "voice_changer_voice_target",
-            "outline": 4287889619
-          }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.45,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "next_ability",
-            "text": "ponder.starrailexpress.ponder.press_next_ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "voice_changer_voice_target",
-            "color": 4287889619
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_bond",
-          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
             "lines": [
               {
                 "en_us": "Crouch + skill key: mark the player under your crosshair (the target gets no notice; can mark multiple; 20-second cooldown per mark).",
                 "zh_cn": "蹲下+技能键：标记准星玩家（对方不会收到任何提示，可同时标记多人，每次标记冷却20秒）。",
                 "zh_tw": "蹲下+技能鍵：標記準星玩家（對方不會收到任何提示，可同時標記多人，每次標記冷卻20秒）。"
-              }
-            ],
-            "color": 4287889619
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
+              },
               {
                 "en_us": "Skill key: apply the currently selected voice-changing effect to all marked players (lasts 60 seconds; 60-second cooldown).",
                 "zh_cn": "技能键：对全部被标记玩家施加当前选择的变声效果（持续60秒，冷却60秒）。",
@@ -230,40 +171,83 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_broadcast",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "title": {
-              "en_us": "Voice notice",
-              "zh_cn": "变声通知",
-              "zh_tw": "變聲通知"
-            },
-            "lines": [
-              {
-                "en_us": "Skill-switch key: switch voice-changing type; crouch + skill-switch key: switch voice-changing level (max level 5).",
-                "zh_cn": "技能切换键：切换变声种类；蹲下+技能切换键：切换变声等级（最高5级）。",
-                "zh_tw": "技能切換鍵：切換變聲種類；蹲下+技能切換鍵：切換變聲等級（最高5級）。"
-              }
+            "pos": [
+              5.0,
+              1.0,
+              2.0
             ],
-            "cost": 0,
-            "duration": 110
+            "yaw": 180.0,
+            "linkId": "voice_changer_skill_target_0",
+            "outline": 4287889619
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_timer",
+          "type": "starrailexpress:role_pose",
           "parameters": {
-            "progress": [
-              1.0,
-              0.0
-            ],
-            "lines": [
-              {
-                "en_us": "The shop sells Lockpicks for 100 coin.",
-                "zh_cn": "商店可花费100金币购买开锁器。",
-                "zh_tw": "商店可花費100金幣購買開鎖器。"
-              }
-            ]
+            "linkId": "voice_changer_main",
+            "pose": "crouching"
           },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            2,
+            0,
+            2
+          ],
+          "blockPos2": [
+            4,
+            0,
+            4
+          ],
+          "duration": 240,
+          "color": "green"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "starrailexpress:role_pose",
+          "parameters": {
+            "linkId": "voice_changer_main",
+            "pose": "standing"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:note",
+          "linkId": "voice_changer_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -287,6 +271,65 @@
           "duration": 200
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              5.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "voice_changer_skill_target_1",
+            "outline": 4287889619
+          }
+        },
+        {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            3,
+            0,
+            3
+          ],
+          "duration": 220,
+          "color": "blue"
+        },
+        {
+          "type": "starrailexpress:role_timer",
+          "parameters": {
+            "progress": [
+              0.0,
+              1.0
+            ],
+            "lines": [
+              {
+                "en_us": "Skill key: apply the currently selected voice-changing effect to all marked players (lasts 60 seconds; 60-second cooldown).",
+                "zh_cn": "技能键：对全部被标记玩家施加当前选择的变声效果（持续60秒，冷却60秒）。",
+                "zh_tw": "技能鍵：對全部被標記玩家施加當前選擇的變聲效果（持續60秒，冷卻60秒）。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -307,12 +350,31 @@
           "duration": 200
         },
         {
+          "type": "starrailexpress:role_key",
+          "parameters": {
+            "point": [
+              3.0,
+              2.9,
+              3.0
+            ],
+            "direction": "down",
+            "duration": 60,
+            "keyBind": "next_ability",
+            "text": "ponder.starrailexpress.ponder.press_next_ability"
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "indicate_success",
           "blockPos": [
             3,
             0,
             3
           ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
         },
         {
           "type": "text",
@@ -333,26 +395,6 @@
         {
           "type": "idle",
           "duration": 200
-        },
-        {
-          "type": "text",
-          "duration": 108,
-          "text": {
-            "en_us": "The shop sells Lockpicks for 100 coin.",
-            "zh_cn": "商店可花费100金币购买开锁器。",
-            "zh_tw": "商店可花費100金幣購買開鎖器。"
-          },
-          "point": [
-            3.0,
-            2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 118
         },
         {
           "type": "rotate_camera_y",

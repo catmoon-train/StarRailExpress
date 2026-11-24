@@ -150,20 +150,6 @@
           }
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              4.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
           "type": "starrailexpress:role_walk",
           "parameters": {
             "linkId": "jojo_main",
@@ -298,25 +284,30 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              6.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "jojo_jojo_target",
-            "outline": -65536
-          }
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Passive: gun cooldown doubled. Immune to time stop like the Clockmaker.",
+                "zh_cn": "白金之星 世界：时停5s，冷却240s。当你在时停时击杀他人后，你也会进入时停状态。",
+                "zh_tw": "白金之星 世界：時停5s，冷卻240s。當你在時停時擊殺他人後，你也會進入時停狀態。"
+              },
+              {
+                "en_us": "ORA Punch: right-click a train door to open it (including iron doors). Right-click to enter an attack: the first target hit is bound to you; this state doesn't end unless you or the target dies. The target cannot move or use items and is fixed in front of you. During this, right-click the target 20 times within 6 seconds to kill them; each hit makes them flinch and swing both arms alternately. On timeout, the attack cancels and items enter half cooldown. While holding, your arm is wrapped in a golden gradient.",
+                "zh_cn": "被动：枪的冷却增加一倍。像钟表匠一样免疫时停。",
+                "zh_tw": "被動：槍的冷卻增加一倍。像鐘錶匠一樣免疫時停。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               4.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -326,93 +317,51 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_timer",
+          "type": "starrailexpress:role_walk",
           "parameters": {
-            "progress": [
-              1.0,
-              0.0
-            ],
-            "lines": [
-              {
-                "en_us": "Passive: gun cooldown doubled. Immune to time stop like the Clockmaker.",
-                "zh_cn": "白金之星 世界：时停5s，冷却240s。当你在时停时击杀他人后，你也会进入时停状态。",
-                "zh_tw": "白金之星 世界：時停5s，冷卻240s。當你在時停時擊殺他人後，你也會進入時停狀態。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_bond",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "ORA Punch: right-click a train door to open it (including iron doors). Right-click to enter an attack: the first target hit is bound to you; this state doesn't end unless you or the target dies. The target cannot move or use items and is fixed in front of you. During this, right-click the target 20 times within 6 seconds to kill them; each hit makes them flinch and swing both arms alternately. On timeout, the attack cancels and items enter half cooldown. While holding, your arm is wrapped in a golden gradient.",
-                "zh_cn": "被动：枪的冷却增加一倍。像钟表匠一样免疫时停。",
-                "zh_tw": "被動：槍的冷卻增加一倍。像鐘錶匠一樣免疫時停。"
-              }
-            ],
-            "color": 16753920
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_knockback",
-          "parameters": {
-            "linkId": "jojo_jojo_target",
-            "from": [
-              6.0,
-              1.0,
-              2.0
-            ],
+            "linkId": "jojo_main",
             "to": [
-              7.2,
+              5.1,
               1.0,
               2.0
             ],
-            "duration": 10,
-            "arc": 0.2
+            "duration": 40
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_knockback",
-          "parameters": {
-            "linkId": "jojo_jojo_target",
-            "from": [
-              6.0,
-              1.0,
-              2.0
-            ],
-            "to": [
-              4.8,
-              1.0,
-              2.0
-            ],
-            "duration": 10,
-            "arc": 0.2
-          },
-          "attachKeyFrame": true
+          "type": "highlight_section",
+          "blockPos": [
+            6,
+            0,
+            2
+          ],
+          "blockPos2": [
+            6,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
         },
         {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "jojo_jojo_target",
-            "pos": [
-              6.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim"
-          },
-          "attachKeyFrame": true
+          "type": "indicate_success",
+          "blockPos": [
+            6,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
         },
         {
           "type": "create_item_entity",
           "pos": [
-            6.0,
-            1.6,
-            2.0
+            3.2,
+            1.5,
+            3.0
           ],
           "motion": [
             0.0,
@@ -420,17 +369,17 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:revolver",
-          "linkId": "jojo_jojo_gun",
+          "item": "noellesroles:bowen_badge",
+          "linkId": "jojo_line_item_0",
           "attachKeyFrame": true
         },
         {
           "type": "text",
-          "duration": 167,
+          "duration": 190,
           "text": {
-            "en_us": "Passive: gun cooldown doubled. Immune to time stop like the Clockmaker.",
-            "zh_cn": "白金之星 世界：时停5s，冷却240s。当你在时停时击杀他人后，你也会进入时停状态。",
-            "zh_tw": "白金之星 世界：時停5s，冷卻240s。當你在時停時擊殺他人後，你也會進入時停狀態。"
+            "en_us": "Star Platinum The World: time stop for 5s, 240s cooldown. If you kill someone during time stop, you also enter time stop.",
+            "zh_cn": "特殊技能",
+            "zh_tw": "特殊技能"
           },
           "point": [
             4.0,
@@ -442,15 +391,58 @@
         },
         {
           "type": "idle",
-          "duration": 177
+          "duration": 200
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "jojo_skill_target_1",
+            "outline": -65536
+          }
+        },
+        {
+          "type": "idle",
+          "duration": 15
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "jojo_skill_target_1",
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            6,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
         },
         {
           "type": "text",
-          "duration": 190,
+          "duration": 167,
           "text": {
-            "en_us": "ORA Punch: right-click a train door to open it (including iron doors). Right-click to enter an attack: the first target hit is bound to you; this state doesn't end unless you or the target dies. The target cannot move or use items and is fixed in front of you. During this, right-click the target 20 times within 6 seconds to kill them; each hit makes them flinch and swing both arms alternately. On timeout, the attack cancels and items enter half cooldown. While holding, your arm is wrapped in a golden gradient.",
-            "zh_cn": "被动：枪的冷却增加一倍。像钟表匠一样免疫时停。",
-            "zh_tw": "被動：槍的冷卻增加一倍。像鐘錶匠一樣免疫時停。"
+            "en_us": "Passive: gun cooldown doubled. Immune to time stop like the Clockmaker.",
+            "zh_cn": "白金之星 世界：时停5s，冷却240s。当你在时停时击杀他人后，你也会进入时停状态。",
+            "zh_tw": "白金之星 世界：時停5s，冷卻240s。當你在時停時擊殺他人後，你也會進入時停狀態。"
           },
           "point": [
             4.0,
@@ -462,23 +454,42 @@
         },
         {
           "type": "idle",
-          "duration": 200
+          "duration": 177
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            6,
+            0,
+            2
+          ],
+          "blockPos2": [
+            6,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
         },
         {
           "type": "indicate_success",
           "blockPos": [
-            4,
+            6,
             0,
-            3
+            2
           ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
         },
         {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "Starts with no gun; time stop cannot override other time stops.",
-            "zh_cn": "欧拉一拳：右键列车门可以将其打开(包括铁门)。右键进入攻击期间，对第一个打到的目标与自身绑定；除非自身或目标死亡，否则该状态不会提前结束。目标无法移动、无法使用物品，并始终被固定在你前方。期间需在6秒内右键攻击目标20次即可击杀，每次攻击都会使目标受击并交替挥动双臂。超时则取消攻击，物品进入一半冷却。持有时手臂会被金色渐变包裹。",
-            "zh_tw": "歐拉一拳：右鍵列車門可以將其打開(包括鐵門)。右鍵進入攻擊期間，對第一個打到的目標與自身綁定；除非自身或目標死亡，否則該狀態不會提前結束。目標無法移動、無法使用物品，並始終被固定在你前方。期間需在6秒內右鍵攻擊目標20次即可擊殺，每次攻擊都會使目標受擊並交替揮動雙臂。超時則取消攻擊，物品進入一半冷卻。持有時手臂會被金色漸變包裹。"
+            "en_us": "ORA Punch: right-click a train door to open it (including iron doors). Right-click to enter an attack: the first target hit is bound to you; this state doesn't end unless you or the target dies. The target cannot move or use items and is fixed in front of you. During this, right-click the target 20 times within 6 seconds to kill them; each hit makes them flinch and swing both arms alternately. On timeout, the attack cancels and items enter half cooldown. While holding, your arm is wrapped in a golden gradient.",
+            "zh_cn": "被动：枪的冷却增加一倍。像钟表匠一样免疫时停。",
+            "zh_tw": "被動：槍的冷卻增加一倍。像鐘錶匠一樣免疫時停。"
           },
           "point": [
             4.0,
@@ -491,102 +502,6 @@
         {
           "type": "idle",
           "duration": 200
-        },
-        {
-          "type": "text",
-          "duration": 158,
-          "text": {
-            "en_us": "If Dio is within 5 blocks of you, Dio is highlighted in your view.",
-            "zh_cn": "初始不自带枪，时停不可覆盖其他时停。",
-            "zh_tw": "初始不自帶槍，時停不可覆蓋其他時停。"
-          },
-          "point": [
-            4.0,
-            2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 168
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            4,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 106,
-          "text": {
-            "en_us": "Drops a Revolver on death.",
-            "zh_cn": "商店可花费50金币购买波纹之力。背包里已有时无法购买，购买冷却1分30秒。",
-            "zh_tw": "商店可花費50金幣購買波紋之力。背包裏已有時無法購買，購買冷卻1分30秒。"
-          },
-          "point": [
-            4.0,
-            2.92,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 116
-        },
-        {
-          "type": "text",
-          "duration": 130,
-          "text": {
-            "en_us": "波纹之力：右键使用，将半径5格内的玩家拉向自己，并使其缓慢I 5秒、理智提高30%。使用冷却1分钟。",
-            "zh_cn": "波纹之力：右键使用，将半径5格内的玩家拉向自己，并使其缓慢I 5秒、理智提高30%。使用冷却1分钟。",
-            "zh_tw": "波紋之力：右鍵使用，將半徑5格內的玩家拉向自己，並使其緩慢I 5秒、理智提高30%。使用冷卻1分鐘。"
-          },
-          "point": [
-            4.0,
-            3.2,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 140
-        },
-        {
-          "type": "indicate_success",
-          "blockPos": [
-            4,
-            0,
-            3
-          ]
-        },
-        {
-          "type": "text",
-          "duration": 58,
-          "text": {
-            "en_us": "死亡后掉落左轮手枪。",
-            "zh_cn": "死亡后掉落左轮手枪。",
-            "zh_tw": "死亡後掉落左輪手槍。"
-          },
-          "point": [
-            4.0,
-            3.48,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 68
         },
         {
           "type": "rotate_camera_y",
@@ -798,20 +713,6 @@
             "linkId": "jojo_skill_target_0",
             "outline": -65536
           }
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              4.0,
-              2.9,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
         },
         {
           "type": "highlight_section",

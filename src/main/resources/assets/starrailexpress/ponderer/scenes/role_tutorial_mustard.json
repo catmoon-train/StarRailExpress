@@ -49,11 +49,11 @@
         },
         {
           "type": "text",
-          "duration": 68,
+          "duration": 59,
           "text": {
             "en_us": "Killer team",
             "zh_cn": "杀手阵营",
-            "zh_tw": "殺手陣營，僅由命令方塊事件產生。"
+            "zh_tw": "殺手陣營"
           },
           "point": [
             4.0,
@@ -65,15 +65,15 @@
         },
         {
           "type": "idle",
-          "duration": 78
+          "duration": 69
         },
         {
           "type": "text",
-          "duration": 176,
+          "duration": 112,
           "text": {
             "en_us": "Created only by the Command Block event.",
             "zh_cn": "仅由命令方块事件产生。",
-            "zh_tw": "出生自帶 1 個傀儡核心。手持核心對屍體使用，將原玩家復活為由其本人操控的鐵傀儡；對自己的傀儡使用則升級一次，每次成功使用消耗 1 個核心，升級無上限。"
+            "zh_tw": "僅由命令方塊事件產生。"
           },
           "point": [
             4.0,
@@ -85,7 +85,7 @@
         },
         {
           "type": "idle",
-          "duration": 186
+          "duration": 122
         },
         {
           "type": "indicate_success",
@@ -173,7 +173,7 @@
           "text": {
             "en_us": "You start with one Puppet Core. Use a core on a corpse to revive its original player as a player-controlled Iron Golem puppet, or on your own puppet to upgrade it. Each successful use consumes one core, and upgrades are unlimited.",
             "zh_cn": "你出生自带1个傀儡核心。手持核心对尸体使用，可将其原玩家复活为由本人操控的铁傀儡；对自己的傀儡使用则升级一次，每次成功使用消耗1个核心，升级没有上限。",
-            "zh_tw": "技能將自己的所有存活傀儡傳送至身邊，隨後 30 秒內受到的第一次傷害由最近的存活傀儡原樣承擔，傀儡不一定死亡。冷卻 120 秒，沒有存活傀儡時不進入冷卻。強制死亡與列車死亡不觸發替傷。"
+            "zh_tw": "你出生自帶1個傀儡核心。手持核心對屍體使用，可將其原玩家復活為由本人操控的鐵傀儡；對自己的傀儡使用則升級一次，每次成功使用消耗1個核心，升級沒有上限。"
           },
           "point": [
             4.0,
@@ -223,25 +223,25 @@
           }
         },
         {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
+          "type": "starrailexpress:role_skill",
           "parameters": {
-            "pos": [
-              6.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "mustard_golem",
-            "outline": 8421504
-          }
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "Puppet Strength",
+                "zh_cn": "若没有存活傀儡则技能不进入冷却。强制死亡与列车死亡不会触发替伤。",
+                "zh_tw": "若沒有存活傀儡則技能不進入冷卻。強制死亡與列車死亡不會觸發替傷。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               4.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -251,20 +251,60 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_hold",
+          "type": "play_sound",
+          "sound": "minecraft:entity.enderman.teleport",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_teleport",
           "parameters": {
             "linkId": "mustard_main",
-            "item": "noellesroles:puppet_core"
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ]
           },
           "attachKeyFrame": true
         },
         {
+          "type": "indicate_success",
+          "blockPos": [
+            6,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            3.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:puppet_hand",
+          "linkId": "mustard_line_item_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
-          "duration": 190,
+          "duration": 88,
           "text": {
-            "en_us": "You start with one Puppet Core. Use a core on a corpse to revive its original player as a player-controlled Iron Golem puppet, or on your own puppet to upgrade it. Each successful use consumes one core, and upgrades are unlimited.",
-            "zh_cn": "你出生自带1个傀儡核心。手持核心对尸体使用，可将其原玩家复活为由本人操控的铁傀儡；对自己的傀儡使用则升级一次，每次成功使用消耗1个核心，升级没有上限。",
-            "zh_tw": "技能將自己的所有存活傀儡傳送至身邊，隨後 30 秒內受到的第一次傷害由最近的存活傀儡原樣承擔，傀儡不一定死亡。冷卻 120 秒，沒有存活傀儡時不進入冷卻。強制死亡與列車死亡不觸發替傷。"
+            "en_us": "Recall and Redirect (skill)",
+            "zh_cn": "召回与替伤（技能）",
+            "zh_tw": "召回與替傷（技能）"
           },
           "point": [
             4.0,
@@ -276,14 +316,14 @@
         },
         {
           "type": "idle",
-          "duration": 200
+          "duration": 98
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               4.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -293,24 +333,79 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_teleport",
+          "type": "starrailexpress:role_walk",
           "parameters": {
-            "linkId": "mustard_golem",
-            "pos": [
-              5.0,
+            "linkId": "mustard_main",
+            "to": [
+              5.1,
               1.0,
-              3.0
-            ]
+              2.0
+            ],
+            "duration": 40
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            6,
+            0,
+            2
+          ],
+          "blockPos2": [
+            6,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            6,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "yaw": 180.0,
+            "linkId": "mustard_death_target_1",
+            "outline": -5331656
+          }
+        },
+        {
+          "type": "starrailexpress:role_death",
+          "parameters": {
+            "linkId": "mustard_death_target_1",
+            "pos": [
+              6.0,
+              1.0,
+              2.0
+            ],
+            "name": "ponder.starrailexpress.label.victim"
           },
           "attachKeyFrame": true
         },
         {
           "type": "text",
-          "duration": 153,
+          "duration": 97,
           "text": {
-            "en_us": "Recall and Redirect (skill)",
-            "zh_cn": "召回与替伤（技能）",
-            "zh_tw": "傀儡每次攻擊造成 5 點虛擬血量傷害，每次升級增加 5 點；升級後攻擊還會令目標僵直 1 秒。芥末死亡時，其所有傀儡也會死亡。"
+            "en_us": "Puppet Strength",
+            "zh_cn": "若没有存活傀儡则技能不进入冷却。强制死亡与列车死亡不会触发替伤。",
+            "zh_tw": "若沒有存活傀儡則技能不進入冷卻。強制死亡與列車死亡不會觸發替傷。"
           },
           "point": [
             4.0,
@@ -322,213 +417,7 @@
         },
         {
           "type": "idle",
-          "duration": 163
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              4.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "mustard_golem",
-            "pos": [
-              5.0,
-              1.0,
-              3.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Teleport all your living puppets to your side, then for 30 seconds the first damage you take is redirected unchanged to the nearest living puppet; the puppet is not necessarily killed. Cooldown: 120 seconds. If you have no living puppet, the skill does not start its cooldown. Forced deaths and train deaths do not trigger this redirect.",
-            "zh_cn": "将自己的所有存活傀儡传送至身边，随后30秒内你受到的第一次伤害会由距离最近的存活傀儡原样承担，傀儡不一定因此死亡。",
-            "zh_tw": "商店：傀儡之手 100 金幣，手持攻擊每次造成 5 點虛擬血量傷害；傀儡核心初始 100 金幣，每次成功購買後漲價 25 金幣。"
-          },
-          "point": [
-            4.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              4.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "mustard_golem",
-            "pos": [
-              5.0,
-              1.0,
-              3.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 97,
-          "text": {
-            "en_us": "Puppet Strength",
-            "zh_cn": "若没有存活傀儡则技能不进入冷却。强制死亡与列车死亡不会触发替伤。",
-            "zh_tw": "若没有存活傀儡则技能不进入冷却。强制死亡与列车死亡不会触发替伤。"
-          },
-          "point": [
-            4.0,
-            2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
           "duration": 107
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              4.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Puppets deal 5 virtual-health damage per attack, plus 5 per upgrade. Upgraded attacks also stun the target for 1 second. When Mustard dies, all of its puppets die with it.",
-            "zh_cn": "傀儡强度",
-            "zh_tw": "傀儡强度"
-          },
-          "point": [
-            4.0,
-            2.92,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              4.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "mustard_golem",
-            "pos": [
-              6.0,
-              1.0,
-              2.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 149,
-          "text": {
-            "en_us": "Shop",
-            "zh_cn": "傀儡每次攻击造成5点虚拟血量伤害，每升级一次增加5点；升级后的攻击还会令目标僵直1秒。芥末死亡时，其所有傀儡也会一同死亡。",
-            "zh_tw": "傀儡每次攻击造成5点虚拟血量伤害，每升级一次增加5点；升级后的攻击还会令目标僵直1秒。芥末死亡时，其所有傀儡也会一同死亡。"
-          },
-          "point": [
-            4.0,
-            3.2,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 159
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              4.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 85,
-          "text": {
-            "en_us": "傀儡之手:手持时每次近战攻击造成5点虚拟血量伤害。",
-            "zh_cn": "傀儡之手:手持时每次近战攻击造成5点虚拟血量伤害。",
-            "zh_tw": "傀儡之手:手持时每次近战攻击造成5点虚拟血量伤害。"
-          },
-          "point": [
-            4.0,
-            3.48,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 95
         },
         {
           "type": "rotate_camera_y",
@@ -667,12 +556,12 @@
               {
                 "en_us": "Shop",
                 "zh_cn": "傀儡每次攻击造成5点虚拟血量伤害，每升级一次增加5点；升级后的攻击还会令目标僵直1秒。芥末死亡时，其所有傀儡也会一同死亡。",
-                "zh_tw": "傀儡每次攻击造成5点虚拟血量伤害，每升级一次增加5点；升级后的攻击还会令目标僵直1秒。芥末死亡时，其所有傀儡也会一同死亡。"
+                "zh_tw": "傀儡每次攻擊造成5點虛擬血量傷害，每升級一次增加5點；升級後的攻擊還會令目標僵直1秒。芥末死亡時，其所有傀儡也會一同死亡。"
               },
               {
                 "en_us": "傀儡之手:手持时每次近战攻击造成5点虚拟血量伤害。",
                 "zh_cn": "傀儡之手:手持时每次近战攻击造成5点虚拟血量伤害。",
-                "zh_tw": "傀儡之手:手持时每次近战攻击造成5点虚拟血量伤害。"
+                "zh_tw": "傀儡之手:手持時每次近戰攻擊造成5點虛擬血量傷害。"
               }
             ]
           }
@@ -727,7 +616,7 @@
           "text": {
             "en_us": "Shop",
             "zh_cn": "傀儡每次攻击造成5点虚拟血量伤害，每升级一次增加5点；升级后的攻击还会令目标僵直1秒。芥末死亡时，其所有傀儡也会一同死亡。",
-            "zh_tw": "傀儡每次攻击造成5点虚拟血量伤害，每升级一次增加5点；升级后的攻击还会令目标僵直1秒。芥末死亡时，其所有傀儡也会一同死亡。"
+            "zh_tw": "傀儡每次攻擊造成5點虛擬血量傷害，每升級一次增加5點；升級後的攻擊還會令目標僵直1秒。芥末死亡時，其所有傀儡也會一同死亡。"
           },
           "point": [
             4.0,
@@ -747,7 +636,7 @@
           "text": {
             "en_us": "傀儡之手:手持时每次近战攻击造成5点虚拟血量伤害。",
             "zh_cn": "傀儡之手:手持时每次近战攻击造成5点虚拟血量伤害。",
-            "zh_tw": "傀儡之手:手持时每次近战攻击造成5点虚拟血量伤害。"
+            "zh_tw": "傀儡之手:手持時每次近戰攻擊造成5點虛擬血量傷害。"
           },
           "point": [
             4.0,
@@ -817,7 +706,7 @@
               {
                 "en_us": "Teleport all your living puppets to your side, then for 30 seconds the first damage you take is redirected unchanged to the nearest living puppet; the puppet is not necessarily killed. Cooldown: 120 seconds. If you have no living puppet, the skill does not start its cooldown. Forced deaths and train deaths do not trigger this redirect.",
                 "zh_cn": "将自己的所有存活傀儡传送至身边，随后30秒内你受到的第一次伤害会由距离最近的存活傀儡原样承担，傀儡不一定因此死亡。",
-                "zh_tw": "商店：傀儡之手 100 金幣，手持攻擊每次造成 5 點虛擬血量傷害；傀儡核心初始 100 金幣，每次成功購買後漲價 25 金幣。"
+                "zh_tw": "將自己的所有存活傀儡傳送至身邊，隨後30秒內你受到的第一次傷害會由距離最近的存活傀儡原樣承擔，傀儡不一定因此死亡。"
               }
             ]
           },
@@ -877,7 +766,7 @@
           "text": {
             "en_us": "Teleport all your living puppets to your side, then for 30 seconds the first damage you take is redirected unchanged to the nearest living puppet; the puppet is not necessarily killed. Cooldown: 120 seconds. If you have no living puppet, the skill does not start its cooldown. Forced deaths and train deaths do not trigger this redirect.",
             "zh_cn": "将自己的所有存活傀儡传送至身边，随后30秒内你受到的第一次伤害会由距离最近的存活傀儡原样承担，傀儡不一定因此死亡。",
-            "zh_tw": "商店：傀儡之手 100 金幣，手持攻擊每次造成 5 點虛擬血量傷害；傀儡核心初始 100 金幣，每次成功購買後漲價 25 金幣。"
+            "zh_tw": "將自己的所有存活傀儡傳送至身邊，隨後30秒內你受到的第一次傷害會由距離最近的存活傀儡原樣承擔，傀儡不一定因此死亡。"
           },
           "point": [
             4.0,
@@ -897,7 +786,7 @@
           "text": {
             "en_us": "Puppets deal 5 virtual-health damage per attack, plus 5 per upgrade. Upgraded attacks also stun the target for 1 second. When Mustard dies, all of its puppets die with it.",
             "zh_cn": "傀儡强度",
-            "zh_tw": "傀儡强度"
+            "zh_tw": "傀儡強度"
           },
           "point": [
             4.0,

@@ -276,32 +276,26 @@ def collect_initial_items():
     for match in re.finditer(r'INITIAL_ITEMS_MAP\.put\(\s*([A-Za-z_][A-Za-z0-9_.]*)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)', text):
         const = match.group(1).split(".")[-1]
         var = match.group(2)
-        # 找到该变量最近的一次声明位置
+        # 找到该变量最近的一次声明位置；窗口内可能含有 lambda / 方法引用 / 嵌套块，
+        # 只认 `.add()` 的旧写法会漏掉 Items.* 和整块 lambda 里的物品。
         decl = None
         for dm in re.finditer(r'\b' + re.escape(var) + r'\s*=\s*new\s+ArrayList', text):
             if dm.start() < match.start():
                 decl = dm.start()
-        if decl is None:
-            items = []
-        else:
+        items = []
+        if decl is not None:
             window = text[decl:match.start()]
-            items = []
-            add_re = re.compile(r'\b' + re.escape(var) + r'\.add\(\s*(?:\(\s*\)\s*->\s*)?'
-                                r'([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)?)')
-            for am in add_re.finditer(window):
-                name = am.group(1).split(".")[-1]
+            for name in re.findall(r'\b[A-Za-z_][A-Za-z0-9_]*\.([A-Z][A-Z0-9_]*)', window):
                 resolved = item_table.get(name)
                 if resolved and resolved not in items:
                     items.append(resolved)
-                elif am.group(1).startswith("Items.") and "." not in name:
-                    pass
-            for am in re.finditer(r'(?<![A-Za-z0-9_.])Items\.([A-Z][A-Z0-9_]*)\s*::', window):
-                resolved = "minecraft:" + am.group(1).lower()
+            # 原版物品不在 item_table 里，单独识别 Items.X。
+            for name in re.findall(r'\bItems\.([A-Z][A-Z0-9_]*)', window):
+                resolved = "minecraft:" + name.lower()
                 if resolved not in items:
                     items.append(resolved)
-        path = globals().get("_PATH_BY_CONST", {}).get(const)
-        if path:
-            result[path] = items
+        path = globals().get("_PATH_BY_CONST", {}).get(const) or const.lower()
+        result[path] = items
     return result
 
 

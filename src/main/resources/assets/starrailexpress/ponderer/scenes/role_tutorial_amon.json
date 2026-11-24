@@ -150,6 +150,20 @@
           }
         },
         {
+          "type": "starrailexpress:role_skill",
+          "parameters": {
+            "label": "ponder.starrailexpress.label.skill",
+            "lines": [
+              {
+                "en_us": "On usurp, the host is killed (leaving an unidentified corpse) and you take their position, skin and name.",
+                "zh_cn": "阿蒙需要在宿主身上停留 60 秒后按潜行+技能键才能夺舍宿主。若宿主死亡，你会回到宿主生前的位置。",
+                "zh_tw": "阿蒙需要在宿主身上停留 60 秒後按潛行+技能鍵才能奪舍宿主。若宿主死亡，你會回到宿主生前的位置。"
+              }
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
           "type": "starrailexpress:role_player",
           "attachKeyFrame": true,
           "parameters": {
@@ -159,33 +173,16 @@
               2.0
             ],
             "yaw": 180.0,
-            "linkId": "amon_host",
-            "outline": 16753920
+            "linkId": "amon_skill_target_0",
+            "outline": 4286082700
           }
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.0,
-            1.55,
-            2.1
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "minecraft:bundle",
-          "linkId": "amon_bundle",
-          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_key",
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -195,25 +192,69 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_effects",
+          "type": "starrailexpress:role_walk",
           "parameters": {
-            "lines": [
-              {
-                "en_us": "To Killers you look like a good player; you carry no weapon and have no Killer shop. You start with 2 storage bags.",
-                "zh_cn": "在杀手本能中显示为好人；不携带任何武器，也没有杀手商店。开局获得 2 个收纳袋。",
-                "zh_tw": "在殺手本能中顯示為好人；不攜帶任何武器，也沒有殺手商店。開局獲得 2 個收納袋。"
-              }
-            ]
+            "linkId": "amon_main",
+            "to": [
+              4.1,
+              1.0,
+              2.0
+            ],
+            "duration": 40
           },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "minecraft:bundle",
+          "linkId": "amon_line_item_0",
           "attachKeyFrame": true
         },
         {
           "type": "text",
           "duration": 190,
           "text": {
-            "en_us": "To Killers you look like a good player; you carry no weapon and have no Killer shop. You start with 2 storage bags.",
-            "zh_cn": "在杀手本能中显示为好人；不携带任何武器，也没有杀手商店。开局获得 2 个收纳袋。",
-            "zh_tw": "在殺手本能中顯示為好人；不攜帶任何武器，也沒有殺手商店。開局獲得 2 個收納袋。"
+            "en_us": "Aim at a player within 4 blocks and press the skill key to plant a [Time Worm] in them — the victim gets no notice. Concurrent worms cap at total players/6.",
+            "zh_cn": "用准星对准 4 格内的玩家并按技能键，可在其体内种下【时之虫】——受害者不会收到提示。同时存在的时之虫上限为 总人数/6。",
+            "zh_tw": "用準星對準 4 格內的玩家並按技能鍵，可在其體內種下【時之蟲】——受害者不會收到提示。同時存在的時之蟲上限為 總人數/6。"
           },
           "point": [
             3.0,
@@ -232,7 +273,7 @@
           "parameters": {
             "point": [
               3.0,
-              3.0,
+              2.9,
               3.0
             ],
             "direction": "down",
@@ -242,282 +283,64 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_walk",
+          "type": "starrailexpress:role_pose",
           "parameters": {
             "linkId": "amon_main",
-            "to": [
-              4.2,
-              1.0,
-              2.0
-            ],
-            "duration": 38
+            "pose": "crouching"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "amon_host",
-            "color": 16753920
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Aim at a player within 4 blocks and press the skill key to plant a [Time Worm] in them — the victim gets no notice. Concurrent worms cap at total players/6.",
-            "zh_cn": "用准星对准 4 格内的玩家并按技能键，可在其体内种下【时之虫】——受害者不会收到提示。同时存在的时之虫上限为 总人数/6。",
-            "zh_tw": "用準星對準 4 格內的玩家並按技能鍵，可在其體內種下【時之蟲】——受害者不會收到提示。同時存在的時之蟲上限為 總人數/6。"
-          },
-          "point": [
-            3.0,
-            2.08,
-            3.0
+          "type": "highlight_section",
+          "blockPos": [
+            2,
+            0,
+            2
           ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
+          "blockPos2": [
+            4,
+            0,
+            4
+          ],
+          "duration": 240,
+          "color": "green"
         },
         {
           "type": "idle",
-          "duration": 200
+          "duration": 40
         },
         {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
+          "type": "starrailexpress:role_pose",
           "parameters": {
             "linkId": "amon_main",
-            "to": [
-              4.2,
-              1.0,
-              2.0
-            ],
-            "duration": 38
+            "pose": "standing"
           },
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_outline",
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
           "parameters": {
-            "linkId": "amon_host",
-            "color": 16753920
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Each worm lurks 75s, then the host is assimilated and can be inhabited by Amon, becoming a mature host.",
-            "zh_cn": "每个时之虫潜伏 75 秒后，该宿主被同化，可被阿蒙寄宿，并成为成熟宿主。",
-            "zh_tw": "每個時之蟲潛伏 75 秒後，該宿主被同化，可被阿蒙寄宿，並成為成熟宿主。"
-          },
-          "point": [
-            3.0,
-            2.36,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_walk",
-          "parameters": {
-            "linkId": "amon_main",
-            "to": [
-              4.2,
-              1.0,
-              2.0
-            ],
-            "duration": 38
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_outline",
-          "parameters": {
-            "linkId": "amon_host",
-            "color": 16753920
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 137,
-          "text": {
-            "en_us": "With instinct on, all worm-marked players glow to you.",
-            "zh_cn": "开启直觉后，所有被时之虫标记的人会在你眼中发光。",
-            "zh_tw": "開啟直覺後，所有被時之蟲標記的人會在你眼中發光。"
-          },
-          "point": [
-            3.0,
-            2.64,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 147
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_scale",
-          "parameters": {
-            "linkId": "amon_main",
-            "scale": 0.4
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hide",
-          "parameters": {
-            "linkId": "amon_main",
-            "visible": false
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "amon_main",
-            "pos": [
-              5.4,
-              1.0,
-              2.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Click a mature host in your inventory to inhabit: you shrink greatly and slip inside them, following along but unable to control them. You must stay on them 60s, then sneak + skill key to usurp them. If the target dies, you return to where you inhabited.",
-            "zh_cn": "在背包中点选成熟宿主进行寄宿：寄宿后你的体型大幅缩小并潜入其体内跟随宿主移动，但你无法操控宿主。",
-            "zh_tw": "在背包中點選成熟宿主進行寄宿：寄宿後你的體型大幅縮小並潛入其體內跟隨宿主移動，但你無法操控宿主。"
-          },
-          "point": [
-            3.0,
-            2.92,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "amon_host",
             "pos": [
               5.0,
               1.0,
               2.0
             ],
-            "corpse": false
-          },
-          "attachKeyFrame": true
+            "yaw": 180.0,
+            "linkId": "amon_death_target_1",
+            "outline": 4286082700
+          }
         },
         {
           "type": "starrailexpress:role_death",
           "parameters": {
-            "linkId": "amon_main",
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hide",
-          "parameters": {
-            "linkId": "amon_main",
-            "visible": true
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_scale",
-          "parameters": {
-            "linkId": "amon_main",
-            "scale": 1.0
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "amon_main",
+            "linkId": "amon_death_target_1",
             "pos": [
               5.0,
               1.0,
               2.0
-            ]
+            ],
+            "name": "ponder.starrailexpress.label.victim"
           },
           "attachKeyFrame": true
         },
@@ -531,189 +354,8 @@
           },
           "point": [
             3.0,
-            3.2,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "amon_host",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "corpse": false
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "parameters": {
-            "linkId": "amon_main",
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hide",
-          "parameters": {
-            "linkId": "amon_main",
-            "visible": true
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_scale",
-          "parameters": {
-            "linkId": "amon_main",
-            "scale": 1.0
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "amon_main",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "When you'd take a lethal hit, as long as any mature host exists you don't die — instead you randomly slip into a mature host (killing it); only with no mature hosts do you truly die.",
-            "zh_cn": "完成夺舍时，该宿主被杀死（留下一具死因不明的尸体），你顶替其位置、皮肤与名字。",
-            "zh_tw": "完成奪舍時，該宿主被殺死（留下一具死因不明的屍體），你頂替其位置、皮膚與名字。"
-          },
-          "point": [
-            3.0,
-            3.48,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Finale: when the game is about to settle, if you're alive with at least 1 backup host, the game doesn't end; an 80-second [Find Amon] finale begins.",
-                "zh_cn": "当你将受到致命伤时，只要存在任一成熟宿主，你便不会死亡，而是随机遁入一名成熟宿主（并使该宿主死亡）；只有在没有成熟宿主时你才会真正死亡。",
-                "zh_tw": "當你將受到致命傷時，只要存在任一成熟宿主，你便不會死亡，而是隨機遁入一名成熟宿主（並使該宿主死亡）；只有在沒有成熟宿主時你才會真正死亡。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Finale: when the game is about to settle, if you're alive with at least 1 backup host, the game doesn't end; an 80-second [Find Amon] finale begins.",
-            "zh_cn": "当你将受到致命伤时，只要存在任一成熟宿主，你便不会死亡，而是随机遁入一名成熟宿主（并使该宿主死亡）；只有在没有成熟宿主时你才会真正死亡。",
-            "zh_tw": "當你將受到致命傷時，只要存在任一成熟宿主，你便不會死亡，而是隨機遁入一名成熟宿主（並使該宿主死亡）；只有在沒有成熟宿主時你才會真正死亡。"
-          },
-          "point": [
-            3.15,
-            1.8,
-            2.85
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_effects",
-          "parameters": {
-            "lines": [
-              {
-                "en_us": "Your inhabited form reverts to a backup ability (consume one on a lethal hit to blink away and briefly turn invincible); you glow throughout for the hunt, while stealing a random item from each player (except keys and letters; guns/revolvers are copied, not taken). If your hotbar can't hold stolen items, they go into a non-full storage bag.",
-                "zh_cn": "终幕：当游戏即将结算时，若你存活且至少有 1 个备选宿主，游戏不会结束，而是进入 80 秒的「寻找阿蒙」终幕。",
-                "zh_tw": "終幕：當遊戲即將結算時，若你存活且至少有 1 個備選宿主，遊戲不會結束，而是進入 80 秒的「尋找阿蒙」終幕。"
-              }
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Your inhabited form reverts to a backup ability (consume one on a lethal hit to blink away and briefly turn invincible); you glow throughout for the hunt, while stealing a random item from each player (except keys and letters; guns/revolvers are copied, not taken). If your hotbar can't hold stolen items, they go into a non-full storage bag.",
-            "zh_cn": "终幕：当游戏即将结算时，若你存活且至少有 1 个备选宿主，游戏不会结束，而是进入 80 秒的「寻找阿蒙」终幕。",
-            "zh_tw": "終幕：當遊戲即將結算時，若你存活且至少有 1 個備選宿主，遊戲不會結束，而是進入 80 秒的「尋找阿蒙」終幕。"
-          },
-          "point": [
-            3.15,
             2.08,
-            2.85
+            3.0
           ],
           "placeNearTarget": true,
           "attachKeyFrame": true
@@ -721,112 +363,6 @@
         {
           "type": "idle",
           "duration": 200
-        },
-        {
-          "type": "starrailexpress:role_key",
-          "parameters": {
-            "point": [
-              3.0,
-              3.0,
-              3.0
-            ],
-            "direction": "down",
-            "duration": 60,
-            "keyBind": "ability"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_scale",
-          "parameters": {
-            "linkId": "amon_main",
-            "scale": 0.4
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hide",
-          "parameters": {
-            "linkId": "amon_main",
-            "visible": false
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_teleport",
-          "parameters": {
-            "linkId": "amon_main",
-            "pos": [
-              5.4,
-              1.0,
-              2.0
-            ]
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "Survive 80 seconds or kill everyone for independent victory; if found and killed, the originally-scheduled side wins.",
-            "zh_cn": "寄宿体回归为备用能力（受致命伤时消耗 1 个瞬移逃脱并短暂无敌），你全程发光供众人追猎，同时窃取每名玩家的随机一件物品（钥匙与信件除外；枪/左轮为复制而非夺走）。若快捷栏无法存放偷来的物品，会自动放入未满的收纳袋。",
-            "zh_tw": "寄宿體回歸為備用能力（受致命傷時消耗 1 個瞬移逃脫並短暫無敵），你全程發光供眾人追獵，同時竊取每名玩家的隨機一件物品（鑰匙與信件除外；槍/左輪為複製而非奪走）。若快捷欄無法存放偷來的物品，會自動放入未滿的收納袋。"
-          },
-          "point": [
-            3.15,
-            2.36,
-            2.85
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "rotate_camera_y",
-          "degrees": 12.0,
-          "duration": 50,
-          "attachKeyFrame": true
-        }
-      ]
-    },
-    {
-      "id": "screen",
-      "title": {
-        "en_us": "Amon",
-        "zh_cn": "阿蒙",
-        "zh_tw": "阿蒙"
-      },
-      "steps": [
-        {
-          "type": "show_structure",
-          "structure": "starrailexpress:role_tutorial_graveyard",
-          "scale": 1.0,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "amon_main"
-          }
-        },
-        {
-          "type": "starrailexpress:role_screen",
-          "attachKeyFrame": true,
-          "parameters": {
-            "title": "ponder.starrailexpress.screen.select_player",
-            "hint": "ponder.starrailexpress.screen.pick_hint",
-            "columns": 6
-          }
         },
         {
           "type": "rotate_camera_y",
@@ -878,88 +414,6 @@
             "en_us": "To Killers you look like a good player; you carry no weapon and have no Killer shop. You start with 2 storage bags.",
             "zh_cn": "在杀手本能中显示为好人；不携带任何武器，也没有杀手商店。开局获得 2 个收纳袋。",
             "zh_tw": "在殺手本能中顯示為好人；不攜帶任何武器，也沒有殺手商店。開局獲得 2 個收納袋。"
-          },
-          "point": [
-            3.0,
-            1.8,
-            3.0
-          ],
-          "placeNearTarget": true,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "idle",
-          "duration": 200
-        },
-        {
-          "type": "rotate_camera_y",
-          "degrees": 12.0,
-          "duration": 50,
-          "attachKeyFrame": true
-        }
-      ]
-    },
-    {
-      "id": "body",
-      "title": {
-        "en_us": "Amon",
-        "zh_cn": "阿蒙",
-        "zh_tw": "阿蒙"
-      },
-      "steps": [
-        {
-          "type": "show_structure",
-          "structure": "starrailexpress:role_tutorial_graveyard",
-          "scale": 1.0,
-          "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              3.0,
-              1.0,
-              3.0
-            ],
-            "yaw": 180.0,
-            "linkId": "amon_main"
-          }
-        },
-        {
-          "type": "starrailexpress:role_player",
-          "attachKeyFrame": true,
-          "parameters": {
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "yaw": 180.0,
-            "linkId": "amon_victim"
-          }
-        },
-        {
-          "type": "starrailexpress:role_death",
-          "attachKeyFrame": true,
-          "parameters": {
-            "linkId": "amon_victim",
-            "pos": [
-              5.0,
-              1.0,
-              2.0
-            ],
-            "name": "ponder.starrailexpress.label.victim",
-            "delay": 14
-          }
-        },
-        {
-          "type": "text",
-          "duration": 190,
-          "text": {
-            "en_us": "When you'd take a lethal hit, as long as any mature host exists you don't die — instead you randomly slip into a mature host (killing it); only with no mature hosts do you truly die.",
-            "zh_cn": "完成夺舍时，该宿主被杀死（留下一具死因不明的尸体），你顶替其位置、皮肤与名字。",
-            "zh_tw": "完成奪舍時，該宿主被殺死（留下一具死因不明的屍體），你頂替其位置、皮膚與名字。"
           },
           "point": [
             3.0,
