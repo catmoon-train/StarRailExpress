@@ -235,8 +235,17 @@ python tools/verify_ponder_structures.py
 ```bat
 python -c "import json,glob; [json.load(open(f,encoding='utf-8-sig')) for f in glob.glob('src/main/resources/assets/starrailexpress/ponderer/**/*.json', recursive=True)]"
 python -c "import gzip,glob; [print(f, b'minecraft:' in gzip.decompress(open(f,'rb').read())) for f in glob.glob('src/main/resources/assets/starrailexpress/ponder/*.nbt')]"
+python tools/extract_ponder_role_facts.py
+python tools/gen_ponder_scenes.py
+python tools/audit_ponder_authoring.py
+python tools/verify_ponder_scenes.py
+python -m py_compile tools/gen_ponder_scenes.py tools/extract_ponder_role_facts.py tools/audit_ponder_authoring.py
 gradlew compileJava --offline
 ```
+
+生成/自检结果应满足：`scenes written: 269`、`content entries: 272`、
+`audited scenes: 269` / `violations: 0`、`scenes checked: 272` / `errors: 0`
+（只剩酒保 / 小丑两条既有自定义文案 warning）。
 
 人工检查：
 - 每个 `text` 对象都有 `en_us`、`zh_cn`、`zh_tw`。
@@ -246,6 +255,21 @@ gradlew compileJava --offline
 - 涉及尸体时使用 `trainmurdermystery:player_body`。
 - 场景没有原版方块搭房；门、铁门、房间门都用本模组门。
 - 启动客户端后检查 `run/logs/latest.log`，必须出现 `loaded N scenes`（N 大于 0），且没有 `scene ... unavailable` 报错。
+- 初始物品必须从代码抽取，不许用 `trainmurdermystery:note` 兜底。抽取覆盖四处：
+  `RoleInitialItems.INITIAL_ITEMS_MAP`、职业实现类的 `getDefaultItems()`（含匿名类）、
+  `ModRolesInitialEventRegister` 的直接发放、`RoleData` 初始化（如垂钓者的钓竿）。
+  全部重跑后 `ponder_role_facts.json` 应为 `withInitialItems: 75`。
+- 便签自检：生成结果里只剩 `awesome_binglus` 可以出现 `trainmurdermystery:note`
+  （代码里真实开局发 4 张便签）。其余职业的 `items` 字段与步骤都不该有便签；
+  确实没有初始物品的职业用 `starrailexpress:role_ponder_<职业 id>` 虚拟组件占位。
+- 跨幕重复：同一句介绍只能出现在一幕。保留顺序是
+  `form` / `domain` > `skill` > `shop` / `items` > `panel` / `details`；
+  重复幕若被去重后没有正文就整段删除。`audit_ponder_authoring.py` 会检查重复正文。
+- 技能键只放在真正讲技能、按键、施放或切换键的地方。右键 / 左键 / 按住 / 蹲下是道具
+  或鼠标操作，用 `show_controls` 表达，不能叠 `role_key`；审计脚本会报
+  `role_key without skill introduction`。
+- 垂钓者场景只有 `faction` / `items` / `details` 三幕，`items` 幕用
+  `noellesroles:angler_rod` 演示收竿与潜行右键乘坐，没有便签、没有 `role_key`。
 
 ## 12. 现有示例
 
