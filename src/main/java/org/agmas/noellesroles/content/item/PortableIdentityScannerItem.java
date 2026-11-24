@@ -49,5 +49,6 @@ public final class PortableIdentityScannerItem extends Item {
     }
     @Override public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         tooltip.add(Component.translatable("item.noellesroles.portable_identity_scanner.desc"));
+        tooltip.add(Component.translatable("item.noellesroles.portable_identity_scanner.desc2"));
     }
 }

@@ -75,8 +75,7 @@ public final class VillageShopScreen extends Screen {
             int barY = top + scroll * (view - thumb) / Math.max(1, content - view);
             g.fill(x + w - 5, barY, x + w - 2, barY + thumb, GOLD);
         }
-        g.drawString(font, font.plainSubstrByWidth(Component.translatable("halloween.village.shop_hint").getString(), w - 20), x + 10, y + h - 29, MUTED, false);
-        g.drawString(font, font.plainSubstrByWidth(Component.translatable("halloween.village.knock_hint").getString(), w - 20), x + 10, y + h - 16, MUTED, false);
+        g.drawString(font, font.plainSubstrByWidth(Component.translatable("halloween.village.shop_hint").getString(), w - 20), x + 10, y + h - 16, MUTED, false);
     }
 
     private int rowAt(double mouseX, double mouseY) {
