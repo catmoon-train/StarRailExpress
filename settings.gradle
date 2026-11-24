@@ -8,17 +8,20 @@ pluginManagement {
     }
 }
 
-include 'sre-native'
-include 'sre-pack-compat'
-include 'sre-performance'
-include 'sre-pokemon-compat'
-include 'sre-server-optimizer'
-include 'sre-startup'
-project(':sre-native').projectDir = file('../sre-native')
-project(':sre-pack-compat').projectDir = file('../sre-pack-compat')
-project(':sre-performance').projectDir = file('../sre-performance')
-project(':sre-pokemon-compat').projectDir = file('../sre-pokemon-compat')
-project(':sre-server-optimizer').projectDir = file('../sre-server-optimizer')
-project(':sre-startup').projectDir = file('../sre-startup')
-include 'cy-dungeon'
-project(':cy-dungeon').projectDir = file('../cy-dungeon')
+// 这些兄弟仓库是可选的：Gradle 9 起 include 不存在的目录会在配置阶段直接失败，
+// 因此只在实际检出时才纳入构建。
+[
+        'sre-native'           : '../sre-native',
+        'sre-pack-compat'      : '../sre-pack-compat',
+        'sre-performance'      : '../sre-performance',
+        'sre-pokemon-compat'   : '../sre-pokemon-compat',
+        'sre-server-optimizer' : '../sre-server-optimizer',
+        'sre-startup'          : '../sre-startup',
+        'cy-dungeon'           : '../cy-dungeon',
+].each { name, path ->
+    def moduleDir = file(path)
+    if (moduleDir.isDirectory()) {
+        include name
+        project(":${name}").projectDir = moduleDir
+    }
+}

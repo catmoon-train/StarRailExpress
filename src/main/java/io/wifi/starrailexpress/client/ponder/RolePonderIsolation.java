@@ -1,9 +1,13 @@
 package io.wifi.starrailexpress.client.ponder;
 
 import com.nododiiiii.ponderer.application.api.RuntimeAccess;
+import com.nododiiiii.ponderer.runtime.api.CompilationResult;
+import com.nododiiiii.ponderer.runtime.api.CompileRequest;
+import com.nododiiiii.ponderer.runtime.api.PlaybackSession;
 import com.nododiiiii.ponderer.runtime.api.SceneCatalog;
 import com.nododiiiii.ponderer.runtime.mixin.PonderUIAccessor;
 import com.nododiiiii.ponderer.scene.DslScene;
+import com.nododiiiii.ponderer.scene.SceneSnapshot;
 import net.createmod.ponder.foundation.PonderScene;
 import net.createmod.ponder.foundation.ui.PonderUI;
 import net.minecraft.client.Minecraft;
@@ -11,6 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -89,8 +94,8 @@ public final class RolePonderIsolation {
             PonderUIAccessor accessor = (PonderUIAccessor) ui;
             List<PonderScene> ponderScenes = accessor.ponderer$getScenes();
             if (ponderScenes == null || ponderScenes.isEmpty()) {
-                LOGGER.warn("职业思索场景 {} 没有已注册的 Ponder 分段", scene.id);
-                return false;
+                LOGGER.info("虚拟组件 {} 没有注册到 Ponder 分段，改用直接编译打开 {}", component, scene.id);
+                return openDirect(scene, sceneIndex);
             }
 
             int target = 0;
@@ -109,8 +114,82 @@ public final class RolePonderIsolation {
             Minecraft.getInstance().setScreen(ui);
             return true;
         } catch (Throwable error) {
-            LOGGER.warn("打开职业思索场景 {} 失败：{}", scene.id, error.toString());
+            LOGGER.info("通过虚拟组件打开职业思索 {} 失败，改用直接编译：{}", scene.id, error.toString());
+            return openDirect(scene, sceneIndex);
+        }
+    }
+
+    /**
+     * 不走 Ponder 注册表，直接把职业场景的每个分段编译成 PonderScene 后打开。
+     *
+     * <p>隔离后虚拟组件未必能被 Ponder 的场景索引查到，但场景定义本身仍然可用。
+     * 这里用 Ponderer 的公开编译 API 重建分段，行为和 Ponderer 自己的草稿入口一致，
+     * 只是在退出界面时关闭每一个编译产生的播放会话。</p>
+     */
+    private static boolean openDirect(DslScene scene, int sceneIndex) {
+        try {
+            List<DslScene.SceneSegment> segments = scene.scenes == null ? List.of() : scene.scenes;
+            List<PonderScene> ponderScenes = new ArrayList<>();
+            List<PlaybackSession> sessions = new ArrayList<>();
+            int target = 0;
+            for (int i = 0; i < segments.size(); i++) {
+                DslScene.SceneSegment segment = segments.get(i);
+                if (segment == null || segment.steps == null || segment.steps.isEmpty()) {
+                    continue;
+                }
+                CompilationResult compiled = RuntimeAccess.engineFor(scene)
+                        .compile(new CompileRequest(SceneSnapshot.of(scene), i));
+                if (compiled == null || compiled.scene() == null) {
+                    continue;
+                }
+                if (i == sceneIndex) {
+                    target = ponderScenes.size();
+                }
+                ponderScenes.add(compiled.scene());
+                if (compiled.playback() != null) {
+                    sessions.add(compiled.playback());
+                }
+            }
+            if (ponderScenes.isEmpty()) {
+                LOGGER.warn("职业思索场景 {} 直接编译后没有任何分段", scene.id);
+                return false;
+            }
+
+            RolePonderUI ui = new RolePonderUI(ponderScenes, sessions);
+            PonderUIAccessor accessor = (PonderUIAccessor) ui;
+            accessor.ponderer$setIndex(target);
+            accessor.ponderer$getLazyIndex().startWithValue(target);
+            ponderScenes.get(target).begin();
+            Minecraft.getInstance().setScreen(ui);
+            return true;
+        } catch (Throwable error) {
+            LOGGER.warn("直接编译打开职业思索场景 {} 失败：{}", scene.id, error.toString());
             return false;
+        }
+    }
+
+    /** 持有编译产生的播放会话，关闭界面时一并释放。 */
+    private static final class RolePonderUI extends PonderUI {
+        private final List<PlaybackSession> sessions;
+
+        private RolePonderUI(List<PonderScene> scenes, List<PlaybackSession> sessions) {
+            super(scenes);
+            this.sessions = sessions;
+        }
+
+        @Override
+        public void removed() {
+            try {
+                super.removed();
+            } finally {
+                for (PlaybackSession session : sessions) {
+                    try {
+                        session.close();
+                    } catch (Throwable ignored) {
+                        // 会话释放失败不影响界面关闭
+                    }
+                }
+            }
         }
     }
 }

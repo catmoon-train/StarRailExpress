@@ -1064,3 +1064,16 @@ indicate_success [2,0,4] + idle 80 + rotate_camera_y
 > 需要在兄弟目录齐备的环境里编译，并确认日志出现 `loaded N scenes` 且无
 > `scene ... unavailable`，尤其要看新增的电报 / 广播 / 击退覆盖层是否正常显示。
 
+## 27. 隔离物品绑定后「俺寻思」按钮打不开（2026-11-24）
+
+- 现象：把职业思索注册到虚拟组件 `starrailexpress:role_ponder_<职业>` 之后，职业介绍页点击
+  「俺寻思」没有任何反应，只弹出提示。
+- 根因：`RolePonderIsolation.open()` 仍用 `PonderUI.of(虚拟组件)` 去 Ponder 注册表查找分段；
+  隔离后这个虚拟组件未必能在索引里查到，查不到就直接返回 false。
+- 修复：查不到（或查找抛异常）时不再返回 false，改用 Ponderer 公开的编译 API
+  `RuntimeAccess.engineFor(scene).compile(new CompileRequest(SceneSnapshot.of(scene), i))`
+  把该职业的所有分段直接编译成 `PonderScene` 后打开；退出界面时关闭各分段的播放会话。
+  这是一条兜底路径，虚拟组件能正常查到时仍走原来的官方 UI。
+- 验证：点击任意职业的「俺寻思」能进入该职业的 Ponder 界面并保留分段切换；
+  日志里若出现「改用直接编译打开」说明走了兜底，不应再出现「未能打开职业思索场景」。
+
