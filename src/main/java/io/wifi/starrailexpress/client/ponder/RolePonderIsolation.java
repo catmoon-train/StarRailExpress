@@ -169,7 +169,7 @@ public final class RolePonderIsolation {
     }
 
     /** 持有编译产生的播放会话，关闭界面时一并释放。 */
-    private static final class RolePonderUI extends PonderUI {
+    private static class RolePonderUI extends PonderUI {
         private final List<PlaybackSession> sessions;
 
         private RolePonderUI(List<PonderScene> scenes, List<PlaybackSession> sessions) {
