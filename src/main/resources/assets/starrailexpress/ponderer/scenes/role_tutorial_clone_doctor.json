@@ -2,9 +2,10 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.clone_doctor",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "trainmurdermystery:poison_vial",
+    "trainmurdermystery:lockpick",
+    "noellesroles:area_blackout",
+    "noellesroles:slime_grenade"
   ],
   "title": {
     "en_us": "Clone Doctor",
@@ -125,10 +126,11 @@
         },
         {
           "type": "create_item_entity",
+          "attachKeyFrame": true,
           "pos": [
-            2.2,
-            1.5,
-            3.0
+            1.6,
+            1.55,
+            1.6
           ],
           "motion": [
             0.0,
@@ -136,9 +138,8 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "clone_doctor_line_item_0",
-          "attachKeyFrame": true
+          "item": "trainmurdermystery:poison_vial",
+          "linkId": "clone_doctor_item"
         },
         {
           "type": "text",
@@ -306,7 +307,7 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "trainmurdermystery:poison_vial",
           "linkId": "clone_doctor_line_item_0",
           "attachKeyFrame": true
         },
@@ -468,6 +469,23 @@
           }
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:poison_vial",
+          "linkId": "clone_doctor_shop_line_0",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -486,6 +504,23 @@
         {
           "type": "idle",
           "duration": 200
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            2.35,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:poison_vial",
+          "linkId": "clone_doctor_shop_line_1",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -690,7 +725,7 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "trainmurdermystery:poison_vial",
           "linkId": "clone_doctor_line_item_0",
           "attachKeyFrame": true
         },

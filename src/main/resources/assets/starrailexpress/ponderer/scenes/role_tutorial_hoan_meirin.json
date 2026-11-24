@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.hoan_meirin",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_hoan_meirin"
   ],
   "title": {
     "en_us": "Hoan meirin",
@@ -124,23 +122,6 @@
           }
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "hoan_meirin_line_item_0",
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
           "duration": 108,
           "text": {
@@ -253,23 +234,6 @@
         {
           "type": "idle",
           "duration": 40
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "hoan_meirin_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -448,23 +412,6 @@
           }
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "hoan_meirin_line_item_0",
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
           "duration": 81,
           "text": {
@@ -505,34 +452,6 @@
           "duration": 100
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "hoan_meirin_skill_item_2"
-        },
-        {
-          "type": "show_controls",
-          "action": "left",
-          "item": "trainmurdermystery:note",
-          "duration": 70,
-          "point": [
-            2.2,
-            2.2,
-            3.0
-          ],
-          "direction": "down"
-        },
-        {
           "type": "starrailexpress:role_walk",
           "parameters": {
             "linkId": "hoan_meirin_main",
@@ -541,9 +460,32 @@
               1.0,
               2.0
             ],
-            "duration": 35
+            "duration": 40
           },
           "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
         },
         {
           "type": "idle",

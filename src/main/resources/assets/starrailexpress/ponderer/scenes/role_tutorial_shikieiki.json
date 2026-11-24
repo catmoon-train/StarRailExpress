@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.shikieiki",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "trainmurdermystery:derringer"
   ],
   "title": {
     "en_us": "Shikieiki",
@@ -121,6 +119,20 @@
             ],
             "yaw": 180.0,
             "linkId": "shikieiki_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "shikieiki",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
           }
         },
         {

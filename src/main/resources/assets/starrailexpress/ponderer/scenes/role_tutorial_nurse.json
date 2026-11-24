@@ -2,8 +2,8 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.nurse",
   "items": [
-    "noellesroles:recovery_pill",
-    "noellesroles:recovery_reagent"
+    "noellesroles:recovery_reagent",
+    "noellesroles:recovery_pill"
   ],
   "title": {
     "en_us": "Nurse",
@@ -123,12 +123,25 @@
           }
         },
         {
-          "type": "create_item_entity",
+          "type": "starrailexpress:role_items",
           "attachKeyFrame": true,
+          "parameters": {
+            "role": "nurse",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "create_item_entity",
           "pos": [
-            1.6,
-            1.55,
-            1.6
+            2.2,
+            1.5,
+            3.0
           ],
           "motion": [
             0.0,
@@ -137,7 +150,8 @@
           ],
           "count": 1,
           "item": "noellesroles:recovery_reagent",
-          "linkId": "nurse_item"
+          "linkId": "nurse_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -382,7 +396,7 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:recovery_pill",
+          "item": "noellesroles:recovery_reagent",
           "linkId": "nurse_line_item_0",
           "attachKeyFrame": true
         },
@@ -455,6 +469,23 @@
           "duration": 200
         },
         {
+          "type": "create_item_entity",
+          "pos": [
+            2.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:recovery_pill",
+          "linkId": "nurse_line_item_3",
+          "attachKeyFrame": true
+        },
+        {
           "type": "text",
           "duration": 185,
           "text": {
@@ -473,23 +504,6 @@
         {
           "type": "idle",
           "duration": 195
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "noellesroles:recovery_reagent",
-          "linkId": "nurse_line_item_4",
-          "attachKeyFrame": true
         },
         {
           "type": "text",

@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.boom_maniac",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "minecraft:crossbow"
   ],
   "title": {
     "en_us": "Explosive Maniac",
@@ -124,6 +122,20 @@
           }
         },
         {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "boom_maniac",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
           "type": "create_item_entity",
           "pos": [
             2.2,
@@ -136,7 +148,7 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "minecraft:crossbow",
           "linkId": "boom_maniac_line_item_0",
           "attachKeyFrame": true
         },
@@ -227,14 +239,14 @@
           "type": "starrailexpress:role_hold",
           "parameters": {
             "linkId": "boom_maniac_main",
-            "item": "trainmurdermystery:note"
+            "item": "minecraft:crossbow"
           },
           "attachKeyFrame": true
         },
         {
           "type": "show_controls",
           "action": "right",
-          "item": "trainmurdermystery:note",
+          "item": "minecraft:crossbow",
           "duration": 65,
           "point": [
             2.2,
@@ -461,7 +473,7 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "minecraft:crossbow",
           "linkId": "boom_maniac_line_item_0",
           "attachKeyFrame": true
         },

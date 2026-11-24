@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.agent",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_agent"
   ],
   "title": {
     "en_us": "Agent",

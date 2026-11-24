@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.leather_pig",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_leather_pig"
   ],
   "title": {
     "en_us": "Leather Pig",
@@ -140,23 +138,6 @@
               }
             ]
           },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "leather_pig_line_item_0",
           "attachKeyFrame": true
         },
         {

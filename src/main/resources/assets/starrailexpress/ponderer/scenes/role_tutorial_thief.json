@@ -2,9 +2,9 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.thief",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "noellesroles:fake_revolver",
+    "noellesroles:fake_knife",
+    "minecraft:bundle"
   ],
   "title": {
     "en_us": "Thief",
@@ -152,6 +152,20 @@
           }
         },
         {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "thief",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
           "type": "create_item_entity",
           "pos": [
             2.2,
@@ -201,7 +215,7 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:fake_revolver",
           "linkId": "thief_line_item_1",
           "attachKeyFrame": true
         },
@@ -487,7 +501,7 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:fake_revolver",
           "linkId": "thief_stolen_2",
           "attachKeyFrame": true
         },

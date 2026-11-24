@@ -2,7 +2,8 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.recorder",
   "items": [
-    "noellesroles:written_note"
+    "noellesroles:written_note",
+    "minecraft:candle"
   ],
   "title": {
     "en_us": "Recorder",

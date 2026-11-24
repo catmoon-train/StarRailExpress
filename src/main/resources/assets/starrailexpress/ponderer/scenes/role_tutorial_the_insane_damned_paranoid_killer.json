@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.the_insane_damned_paranoid_killer",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_the_insane_damned_paranoid_killer"
   ],
   "title": {
     "en_us": "Dead Whisperer",

@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.abnormal",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_abnormal"
   ],
   "title": {
     "en_us": "异常",
@@ -122,23 +120,6 @@
             "yaw": 180.0,
             "linkId": "abnormal_main"
           }
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "abnormal_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",

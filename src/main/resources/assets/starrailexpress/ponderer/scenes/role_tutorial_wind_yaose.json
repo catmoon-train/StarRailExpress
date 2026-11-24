@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.wind_yaose",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_wind_yaose"
   ],
   "title": {
     "en_us": "Wind Sprite",
@@ -234,23 +232,6 @@
           "duration": 25
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "wind_yaose_line_item_0",
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
           "duration": 139,
           "text": {
@@ -450,23 +431,6 @@
             "yaw": 180.0,
             "linkId": "wind_yaose_main"
           }
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "wind_yaose_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",

@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.doremy_sweet",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_doremy_sweet"
   ],
   "title": {
     "en_us": "Doremy sweet",
@@ -238,23 +236,6 @@
           "attachKeyFrame": true
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "doremy_sweet_line_item_0",
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
           "duration": 70,
           "text": {
@@ -418,23 +399,6 @@
             "yaw": 180.0,
             "linkId": "doremy_sweet_main"
           }
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "doremy_sweet_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",

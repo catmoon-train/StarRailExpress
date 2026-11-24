@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.amnesiac",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_amnesiac"
   ],
   "title": {
     "en_us": "Amnesiac",
@@ -305,23 +303,6 @@
           }
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "amnesiac_line_item_0",
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
           "duration": 158,
           "text": {
@@ -458,23 +439,6 @@
             "yaw": 180.0,
             "linkId": "amnesiac_main"
           }
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "amnesiac_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",

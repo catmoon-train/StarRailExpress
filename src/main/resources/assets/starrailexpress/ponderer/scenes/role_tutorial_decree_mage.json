@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.decree_mage",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_decree_mage"
   ],
   "title": {
     "en_us": "Decree Mage",
@@ -181,23 +179,6 @@
         {
           "type": "idle",
           "duration": 40
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "decree_mage_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",

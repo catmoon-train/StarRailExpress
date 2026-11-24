@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.swordsman",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "noellesroles:katana"
   ],
   "title": {
     "en_us": "Swordsman",
@@ -121,6 +119,20 @@
             ],
             "yaw": 180.0,
             "linkId": "swordsman_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "swordsman",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
           }
         },
         {
@@ -346,7 +358,7 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:katana",
           "linkId": "swordsman_line_item_0",
           "attachKeyFrame": true
         },
@@ -863,7 +875,7 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:katana",
           "linkId": "swordsman_line_item_0",
           "attachKeyFrame": true
         },
@@ -928,13 +940,13 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:katana",
           "linkId": "swordsman_skill_item_1"
         },
         {
           "type": "show_controls",
           "action": "left",
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:katana",
           "duration": 70,
           "point": [
             2.2,

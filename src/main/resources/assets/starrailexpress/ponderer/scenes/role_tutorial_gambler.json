@@ -2,6 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.gambler",
   "items": [
+    "minecraft:candle",
     "noellesroles:once_revolver"
   ],
   "title": {
@@ -230,7 +231,7 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:once_revolver",
+          "item": "minecraft:candle",
           "linkId": "gambler_line_item_0",
           "attachKeyFrame": true
         },
@@ -450,7 +451,7 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:once_revolver",
+          "item": "minecraft:candle",
           "linkId": "gambler_line_item_0",
           "attachKeyFrame": true
         },

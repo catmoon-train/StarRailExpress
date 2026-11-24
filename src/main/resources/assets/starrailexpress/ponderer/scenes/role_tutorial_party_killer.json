@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.party_killer",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_party_killer"
   ],
   "title": {
     "en_us": "Party Killer",
@@ -209,23 +207,6 @@
         {
           "type": "idle",
           "duration": 25
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "party_killer_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",

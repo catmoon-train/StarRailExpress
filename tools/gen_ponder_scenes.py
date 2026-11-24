@@ -178,10 +178,6 @@ RELATION_MARKERS = [
 # 一条介绍最多引用多少句（超过部分只留在介绍页，规划文档第 9 节）。
 MAX_QUOTED_LINES = 12
 
-# 兜底物品：场景的 items 字段不能为空。
-FALLBACK_ITEMS = ["trainmurdermystery:note", "trainmurdermystery:bat",
-                  "trainmurdermystery:knife"]
-
 COLOR_RE = re.compile(r"§[0-9a-fk-orA-FK-OR]")
 
 
@@ -428,7 +424,8 @@ def parse_coins(text):
     return int(values[0]) if values else None
 
 
-def pick_item(facts, fallback="trainmurdermystery:note"):
+def pick_item(facts, fallback=None):
+    """找不到真实物品时返回 None，不再拿便签当万能道具。"""
     for key in ("initialItems", "shopItems"):
         items = facts.get(key) or []
         if items:
@@ -730,12 +727,13 @@ def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None
     if any(word in zh for word in ("中毒", "下毒", "毒药", "剧毒")):
         add_target()
         key()
-        steps.append({"type": "create_item_entity", "pos": [px - 0.8, py + 0.5, pz],
-                      "motion": [0.0, 0.0, 0.0], "count": 1, "item": item,
-                      "linkId": item_link})
-        steps.append({"type": "show_controls", "action": "right", "item": item,
-                      "duration": 70, "point": controls,
-                      "direction": "down"})
+        if item:
+            steps.append({"type": "create_item_entity", "pos": [px - 0.8, py + 0.5, pz],
+                          "motion": [0.0, 0.0, 0.0], "count": 1, "item": item,
+                          "linkId": item_link})
+            steps.append({"type": "show_controls", "action": "right", "item": item,
+                          "duration": 70, "point": controls,
+                          "direction": "down"})
         walk_to([tx - 0.9, ty, tz], 40)
         emit(particle_for_role(zh, rid), [tx, ty + 0.8, tz], count=8, duration=80)
         steps.append({"type": "idle", "duration": 35})
@@ -781,9 +779,10 @@ def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None
     coins = parse_coins(zh)
     if coins is not None:
         key()
-        steps.append({"type": "create_item_entity", "pos": [px + 0.9, py + 0.5, pz],
-                      "motion": [0.0, 0.0, 0.0], "count": 1, "item": item,
-                      "linkId": item_link})
+        if item:
+            steps.append({"type": "create_item_entity", "pos": [px + 0.9, py + 0.5, pz],
+                          "motion": [0.0, 0.0, 0.0], "count": 1, "item": item,
+                          "linkId": item_link})
         steps.append(custom("role_currency", {"progress": [1.0, 0.5],
                                               "lines": [overlay_line]}))
         panel = True
@@ -804,13 +803,14 @@ def build_skill_act(zh, rid, facts, base, target, outline, suffix="0", line=None
 
     if any(word in zh for word in ("切换", "更换")):
         key()
-        steps.append(custom("role_hold", {"linkId": link, "item": item}))
-        steps.append({"type": "show_controls", "action": "right", "item": item,
-                      "duration": 65, "point": controls, "direction": "down"})
+        if item:
+            steps.append(custom("role_hold", {"linkId": link, "item": item}))
+            steps.append({"type": "show_controls", "action": "right", "item": item,
+                          "duration": 65, "point": controls, "direction": "down"})
         steps.append({"type": "idle", "duration": 30})
         return steps, panel
 
-    if "右键" in zh or "左键" in zh:
+    if ("右键" in zh or "左键" in zh) and item:
         key()
         steps.append({"type": "create_item_entity", "pos": [px - 0.8, py + 0.5, pz],
                       "motion": [0.0, 0.0, 0.0], "count": 1, "item": item,
@@ -1598,8 +1598,6 @@ def override_kasen_shop(builder, ctx):
     rid = ctx["rid"]
     builder.add({"type": "starrailexpress:role_shop", "attachKeyFrame": True,
                  "parameters": {"role": rid, "columns": 4}})
-    builder.add(item_entity([p[0] - 1.0, p[1] + 0.55, p[2] - 1.0],
-                            "trainmurdermystery:note", rid + "_wolf_shop"))
     for line in ctx["lines"]:
         if "狼狗" in line.get("zh_cn", ""):
             builder.add(mob_entity("minecraft:wolf", t, rid + "_wolf"))
@@ -1711,7 +1709,7 @@ def override_thief_skill(builder, ctx):
     modes = [
         ("偷钱", "noellesroles:passbook", 0.6, 1.0),
         ("偷物品", "noellesroles:master_key", 1.0, 1.0),
-        ("卖物品", "trainmurdermystery:note", 1.0, 0.5),
+        ("卖物品", (ctx["facts"].get("initialItems") or [None])[0], 1.0, 0.5),
     ]
     for index, (name, item, after, coins) in enumerate(modes):
         builder.add(key_cap([p[0], p[1] + 2.0, p[2]], switch=(index == 0)))
@@ -1719,8 +1717,9 @@ def override_thief_skill(builder, ctx):
                                           "lines": ["当前模式：" + name]}))
         builder.add(custom("role_walk", {"linkId": main,
                                          "to": [t[0] - 0.9, t[1], t[2]], "duration": 36}))
-        builder.add(item_entity([t[0] - 1.0, t[1] + 0.55, t[2]], item,
-                                rid + "_stolen_" + str(index)))
+        if item:
+            builder.add(item_entity([t[0] - 1.0, t[1] + 0.55, t[2]], item,
+                                    rid + "_stolen_" + str(index)))
         builder.add(custom("role_currency", {"progress": [1.0, coins],
                                              "lines": ["目标金币 -> 小偷金币"]}))
         builder.add({"type": "indicate_success", "blockPos": [int(t[0]), 0, int(t[2])]})
@@ -2066,8 +2065,9 @@ def override_necromancer_skill(builder, ctx):
                 "lines": [tr(("冷却 3 分钟", "3-minute cooldown", "冷卻 3 分鐘"))]}))
         elif "开锁器" in zh:
             shown = item_for_line(ctx["facts"], zh)
-            builder.add(item_entity([p[0] - 1.0, p[1] + 0.55, p[2]], shown, rid + "_lockpick"))
-            builder.add(custom("role_hold", {"linkId": main, "item": shown}))
+            if shown:
+                builder.add(item_entity([p[0] - 1.0, p[1] + 0.55, p[2]], shown, rid + "_lockpick"))
+                builder.add(custom("role_hold", {"linkId": main, "item": shown}))
         elif "图腾音效" in zh:
             builder.add(scene_sound("minecraft:totem_use"))
             builder.add(custom("role_panel", {
@@ -2555,7 +2555,7 @@ def build_role_scene(rid, facts, intros, names, goals):
                         shown_ids.add(step.get("item"))
                     elif step["type"] == "starrailexpress:role_hold":
                         shown_ids.add(step.get("parameters", {}).get("item"))
-                if shown not in shown_ids:
+                if shown and shown not in shown_ids:
                     builder.add(item_entity(
                         [player_pos[0] - 0.8, player_pos[1] + 0.5, player_pos[2]], shown,
                         rid + "_line_item_" + str(index)))
@@ -2587,7 +2587,8 @@ def build_role_scene(rid, facts, intros, names, goals):
         if candidate not in items:
             items.append(candidate)
     if not items:
-        items = list(FALLBACK_ITEMS)
+        # 没有真实物品的职业挂到专属虚拟组件上，不再用便签占用物品索引。
+        items = ["starrailexpress:role_ponder_" + rid]
     deduplicate_scene_texts(scenes)
     scene = {
         "formatVersion": 1,
@@ -2712,7 +2713,7 @@ def event_scene(rid, facts, intros, names, goals):
     scene = {
         "formatVersion": 1,
         "id": "starrailexpress:role_tutorial." + rid,
-        "items": ["trainmurdermystery:note"],
+        "items": ["starrailexpress:role_ponder_" + rid],
         "title": title,
         "structures": ["starrailexpress:" + nbt],
         "tags": [],

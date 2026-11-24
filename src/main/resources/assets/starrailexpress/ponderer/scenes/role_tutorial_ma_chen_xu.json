@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.ma_chen_xu",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_ma_chen_xu"
   ],
   "title": {
     "en_us": "Sack Ghost",
@@ -124,23 +122,6 @@
           }
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "ma_chen_xu_line_item_0",
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -229,34 +210,6 @@
           "duration": 200
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "ma_chen_xu_skill_item_4"
-        },
-        {
-          "type": "show_controls",
-          "action": "right",
-          "item": "trainmurdermystery:note",
-          "duration": 70,
-          "point": [
-            2.2,
-            2.2,
-            3.0
-          ],
-          "direction": "down"
-        },
-        {
           "type": "starrailexpress:role_walk",
           "parameters": {
             "linkId": "ma_chen_xu_main",
@@ -265,9 +218,32 @@
               1.0,
               2.0
             ],
-            "duration": 35
+            "duration": 40
           },
           "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
         },
         {
           "type": "idle",
@@ -400,23 +376,6 @@
         {
           "type": "idle",
           "duration": 25
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "ma_chen_xu_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",

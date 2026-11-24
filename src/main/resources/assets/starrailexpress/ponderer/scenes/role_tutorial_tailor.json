@@ -2,7 +2,8 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.tailor",
   "items": [
-    "noellesroles:sewing_needle"
+    "noellesroles:sewing_needle",
+    "noellesroles:yarn_ball"
   ],
   "title": {
     "en_us": "裁缝",
@@ -122,12 +123,25 @@
           }
         },
         {
-          "type": "create_item_entity",
+          "type": "starrailexpress:role_items",
           "attachKeyFrame": true,
+          "parameters": {
+            "role": "tailor",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "create_item_entity",
           "pos": [
-            1.6,
-            1.55,
-            1.6
+            2.2,
+            1.5,
+            3.0
           ],
           "motion": [
             0.0,
@@ -136,7 +150,8 @@
           ],
           "count": 1,
           "item": "noellesroles:sewing_needle",
-          "linkId": "tailor_item"
+          "linkId": "tailor_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -527,7 +542,7 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:sewing_needle",
+          "item": "noellesroles:yarn_ball",
           "linkId": "tailor_shop_line_0",
           "attachKeyFrame": true
         },

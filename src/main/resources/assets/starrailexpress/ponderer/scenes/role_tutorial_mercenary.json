@@ -2,7 +2,9 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.mercenary",
   "items": [
-    "trainmurdermystery:revolver"
+    "trainmurdermystery:revolver",
+    "noellesroles:fake_revolver",
+    "noellesroles:fake_knife"
   ],
   "title": {
     "en_us": "Mercenary",

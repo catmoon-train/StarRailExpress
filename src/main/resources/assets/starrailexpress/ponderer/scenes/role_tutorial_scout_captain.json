@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.scout_captain",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_scout_captain"
   ],
   "title": {
     "en_us": "Scout Captain",
@@ -124,34 +122,6 @@
           }
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "scout_captain_skill_item_0"
-        },
-        {
-          "type": "show_controls",
-          "action": "right",
-          "item": "trainmurdermystery:note",
-          "duration": 70,
-          "point": [
-            2.2,
-            2.2,
-            3.0
-          ],
-          "direction": "down"
-        },
-        {
           "type": "starrailexpress:role_walk",
           "parameters": {
             "linkId": "scout_captain_main",
@@ -160,9 +130,32 @@
               1.0,
               2.0
             ],
-            "duration": 35
+            "duration": 40
           },
           "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
         },
         {
           "type": "idle",
@@ -252,26 +245,6 @@
           "attachKeyFrame": true
         },
         {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "scout_captain_main",
-            "item": "trainmurdermystery:note"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "show_controls",
-          "action": "right",
-          "item": "trainmurdermystery:note",
-          "duration": 65,
-          "point": [
-            2.2,
-            2.2,
-            3.0
-          ],
-          "direction": "down"
-        },
-        {
           "type": "idle",
           "duration": 30
         },
@@ -329,23 +302,6 @@
             "yaw": 180.0,
             "linkId": "scout_captain_main"
           }
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "scout_captain_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",

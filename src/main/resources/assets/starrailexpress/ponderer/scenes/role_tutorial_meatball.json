@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.meatball",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_meatball"
   ],
   "title": {
     "en_us": "Gravy",
@@ -318,23 +316,6 @@
           }
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "meatball_line_item_0",
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
           "duration": 85,
           "text": {
@@ -408,23 +389,6 @@
             "yaw": 180.0,
             "linkId": "meatball_main"
           }
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "meatball_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_player",

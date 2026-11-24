@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.leader",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_leader"
   ],
   "title": {
     "en_us": "Leader",
@@ -186,23 +184,6 @@
         {
           "type": "idle",
           "duration": 40
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "leader_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -447,34 +428,6 @@
             "keyBind": "ability"
           },
           "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "leader_skill_item_4"
-        },
-        {
-          "type": "show_controls",
-          "action": "right",
-          "item": "trainmurdermystery:note",
-          "duration": 70,
-          "point": [
-            2.2,
-            2.2,
-            3.0
-          ],
-          "direction": "down"
         },
         {
           "type": "starrailexpress:role_walk",

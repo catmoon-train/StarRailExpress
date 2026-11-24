@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.pumpkin_spirit",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_pumpkin_spirit"
   ],
   "title": {
     "en_us": "Pumpkin Spirit",
@@ -152,23 +150,6 @@
           }
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "pumpkin_spirit_line_item_0",
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -286,23 +267,6 @@
         {
           "type": "idle",
           "duration": 40
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "pumpkin_spirit_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -567,23 +531,6 @@
             "yaw": 180.0,
             "linkId": "pumpkin_spirit_main"
           }
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "pumpkin_spirit_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",

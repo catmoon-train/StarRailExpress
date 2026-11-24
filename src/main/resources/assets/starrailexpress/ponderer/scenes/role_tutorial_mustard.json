@@ -2,8 +2,8 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.mustard",
   "items": [
-    "noellesroles:puppet_hand",
-    "noellesroles:puppet_core"
+    "noellesroles:puppet_core",
+    "noellesroles:puppet_hand"
   ],
   "title": {
     "en_us": "Mustard",
@@ -151,12 +151,25 @@
           }
         },
         {
-          "type": "create_item_entity",
+          "type": "starrailexpress:role_items",
           "attachKeyFrame": true,
+          "parameters": {
+            "role": "mustard",
+            "origin": [
+              2.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
+          }
+        },
+        {
+          "type": "create_item_entity",
           "pos": [
-            2.6,
-            1.55,
-            1.6
+            3.2,
+            1.5,
+            3.0
           ],
           "motion": [
             0.0,
@@ -165,7 +178,8 @@
           ],
           "count": 1,
           "item": "noellesroles:puppet_core",
-          "linkId": "mustard_item"
+          "linkId": "mustard_line_item_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -294,7 +308,7 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:puppet_hand",
+          "item": "noellesroles:puppet_core",
           "linkId": "mustard_line_item_0",
           "attachKeyFrame": true
         },
@@ -475,7 +489,7 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:puppet_hand",
+          "item": "noellesroles:puppet_core",
           "linkId": "mustard_shop_line_0",
           "attachKeyFrame": true
         },
@@ -579,7 +593,7 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:puppet_hand",
+          "item": "noellesroles:puppet_core",
           "linkId": "mustard_line_item_0",
           "attachKeyFrame": true
         },
@@ -629,6 +643,23 @@
         {
           "type": "idle",
           "duration": 159
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            3.2,
+            1.5,
+            3.0
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "noellesroles:puppet_hand",
+          "linkId": "mustard_line_item_1",
+          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -729,7 +760,7 @@
             0.0
           ],
           "count": 1,
-          "item": "noellesroles:puppet_hand",
+          "item": "noellesroles:puppet_core",
           "linkId": "mustard_line_item_0",
           "attachKeyFrame": true
         },

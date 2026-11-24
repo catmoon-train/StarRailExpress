@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.echo_listener",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_echo_listener"
   ],
   "title": {
     "en_us": "Echo Listener",
@@ -223,23 +221,6 @@
         {
           "type": "idle",
           "duration": 40
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "echo_listener_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -506,23 +487,6 @@
           }
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "echo_listener_line_item_0",
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -576,23 +540,6 @@
             "yaw": 180.0,
             "linkId": "echo_listener_main"
           }
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "echo_listener_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_player",

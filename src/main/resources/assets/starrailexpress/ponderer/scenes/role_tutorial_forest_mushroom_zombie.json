@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.forest_mushroom_zombie",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_forest_mushroom_zombie"
   ],
   "title": {
     "en_us": "Forest Mushroom Zombie",
@@ -124,34 +122,6 @@
           }
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "forest_mushroom_zombie_skill_item_0"
-        },
-        {
-          "type": "show_controls",
-          "action": "right",
-          "item": "trainmurdermystery:note",
-          "duration": 70,
-          "point": [
-            2.2,
-            2.2,
-            3.0
-          ],
-          "direction": "down"
-        },
-        {
           "type": "starrailexpress:role_walk",
           "parameters": {
             "linkId": "forest_mushroom_zombie_main",
@@ -160,9 +130,32 @@
               1.0,
               2.0
             ],
-            "duration": 35
+            "duration": 40
           },
           "attachKeyFrame": true
+        },
+        {
+          "type": "highlight_section",
+          "blockPos": [
+            5,
+            0,
+            2
+          ],
+          "blockPos2": [
+            5,
+            0,
+            2
+          ],
+          "duration": 200,
+          "color": "green"
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            5,
+            0,
+            2
+          ]
         },
         {
           "type": "idle",
@@ -250,26 +243,6 @@
             "keyBind": "ability"
           },
           "attachKeyFrame": true
-        },
-        {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "forest_mushroom_zombie_main",
-            "item": "trainmurdermystery:note"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "show_controls",
-          "action": "right",
-          "item": "trainmurdermystery:note",
-          "duration": 65,
-          "point": [
-            2.2,
-            2.2,
-            3.0
-          ],
-          "direction": "down"
         },
         {
           "type": "idle",
@@ -475,23 +448,6 @@
             "yaw": 180.0,
             "linkId": "forest_mushroom_zombie_main"
           }
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "forest_mushroom_zombie_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",

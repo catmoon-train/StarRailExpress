@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.licensed_villain",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_licensed_villain"
   ],
   "title": {
     "en_us": "Dirty Cop",
@@ -422,23 +420,6 @@
         {
           "type": "idle",
           "duration": 122
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "licensed_villain_line_item_2",
-          "attachKeyFrame": true
         },
         {
           "type": "text",

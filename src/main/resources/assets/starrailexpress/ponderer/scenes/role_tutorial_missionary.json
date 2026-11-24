@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.missionary",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_missionary"
   ],
   "title": {
     "en_us": "Missionary",
@@ -197,23 +195,6 @@
           "duration": 40
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "missionary_line_item_0",
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -267,23 +248,6 @@
             "yaw": 180.0,
             "linkId": "missionary_main"
           }
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "missionary_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -340,28 +304,16 @@
           }
         },
         {
-          "type": "starrailexpress:role_hold",
-          "parameters": {
-            "linkId": "missionary_main",
-            "item": "trainmurdermystery:note"
-          },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "show_controls",
-          "action": "right",
-          "item": "trainmurdermystery:note",
-          "duration": 65,
-          "point": [
-            2.2,
-            2.2,
-            3.0
-          ],
-          "direction": "down"
-        },
-        {
           "type": "idle",
           "duration": 30
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
         },
         {
           "type": "text",

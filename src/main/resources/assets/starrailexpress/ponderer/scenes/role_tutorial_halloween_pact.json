@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.halloween_pact",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_halloween_pact"
   ],
   "title": {
     "en_us": "魂契亡灵",
@@ -122,23 +120,6 @@
             "yaw": 180.0,
             "linkId": "halloween_pact_main"
           }
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "halloween_pact_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -262,23 +243,6 @@
         {
           "type": "idle",
           "duration": 25
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "halloween_pact_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -537,23 +501,6 @@
         {
           "type": "idle",
           "duration": 200
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "halloween_pact_line_item_1",
-          "attachKeyFrame": true
         },
         {
           "type": "text",

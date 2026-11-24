@@ -35,6 +35,9 @@ OTHER_MODE = [
 ]
 PLACEHOLDER = ["error404_puppet", "example_neutral", "null", "unknown"]
 EVENTS = ["command_block", "night_event", "halloween_event"]
+# RoleData 的 init 里发放、没有走 getDefaultItems 的初始物品。
+# AnglerRoleData.java:38 -> AnglerCatchHandler.giveStartingRod -> noellesroles:angler_rod
+DATA_INIT_ITEMS = {"angler": ["noellesroles:angler_rod"]}
 
 ROLE_FILES = [
     "io/wifi/starrailexpress/api/TMMRoles.java",
@@ -325,8 +328,10 @@ def collect_class_to_path(registrations):
             stmt = text[match.start():end]
             path = path_of_role_expr(stmt, const + "_ID")
             if not path:
-                continue
-            for cm in re.finditer(r'new\s+([A-Za-z0-9_]+)\s*[\(\{]', stmt):
+                # 事件职业（雾客 / 史蒂夫等）注册语句里不一定写 id("...")，
+                # 常量名本身就是角色 id 的大写形式。
+                path = (const[:-3] if const.endswith("_ID") else const).lower()
+            for cm in re.finditer(r'new\s+(?:[A-Za-z_][\w]*\.)*([A-Za-z0-9_]+)\s*[\(\{]', stmt):
                 table.setdefault(cm.group(1), path)
     return table
 
@@ -377,25 +382,100 @@ def collect_shop_items():
     return result
 
 
+def collect_default_items(class_to_path):
+    """扫职业实现类的 getDefaultItems() 覆写。
+
+    RoleInitialItems 没有登记的角色会走 SRERole#getDefaultItems() 兜底，
+    弩手 / 义警 / 剑士等开局物品都在这里，旧版抽取器完全没读这个方法。
+    """
+    item_table = collect_item_constants()
+    result = {}
+    for base, _dirs, names in os.walk(JAVA):
+        for name in names:
+            if not name.endswith(".java"):
+                continue
+            full = os.path.join(base, name)
+            raw = io.open(full, encoding="utf-8", errors="ignore").read()
+            if "getDefaultItems" not in raw:
+                continue
+            text = strip_comments(raw)
+            for method in re.finditer(r'\bgetDefaultItems\s*\([^)]*\)\s*\{', text):
+                cls = None
+                for cm in re.finditer(r'\bclass\s+([A-Za-z0-9_]+)', text[:method.start()]):
+                    cls = cm.group(1)
+                path = class_to_path.get(cls) if cls else None
+                if not path:
+                    # 匿名 EggRole/NormalRole 覆写 getDefaultItems() 时没有类名可用，
+                    # 用最近的 registerRole 常量名回推角色 id（如 LIN_FAMILY）。
+                    field = None
+                    for fm in re.finditer(r'\b([A-Z][A-Z0-9_]*)\s*=\s*(?:TMMRoles\.)?registerRole\s*\(',
+                                          text[:method.start()]):
+                        field = fm.group(1)
+                    if field:
+                        const = field[:-3] if field.endswith("_ID") else field
+                        path = globals().get("_PATH_BY_CONST", {}).get(const) or const.lower()
+                if not path:
+                    continue
+                depth, index = 1, method.end()
+                while index < len(text) and depth > 0:
+                    if text[index] == "{":
+                        depth += 1
+                    elif text[index] == "}":
+                        depth -= 1
+                    index += 1
+                body = text[method.end():index - 1]
+                items = []
+                for item_name in re.findall(r'\b[A-Za-z_][\w]*\.([A-Z][A-Z0-9_]*)', body):
+                    item_id = item_table.get(item_name)
+                    if item_id and item_id not in items:
+                        items.append(item_id)
+                for item_name in re.findall(r'\bItems\.([A-Z][A-Z0-9_]*)', body):
+                    item_id = "minecraft:" + item_name.lower()
+                    if item_id not in items:
+                        items.append(item_id)
+                if items:
+                    result.setdefault(path, [])
+                    for item_id in items:
+                        if item_id not in result[path]:
+                            result[path].append(item_id)
+    return result
+
+
 def collect_extra_initial_items():
-    """补扫 ModRolesInitialEventRegister：纵火犯等职业在这里直接 addItem。"""
+    """补扫 ModRolesInitialEventRegister 里直接发放的初始物品。"""
     text = strip_comments(read_java("org/agmas/noellesroles/init/ModRolesInitialEventRegister.java"))
     if not text:
         return {}
     item_table = collect_item_constants()
     id_table = collect_id_constants()
     result = {}
-    # 这些初始化块里有嵌套花括号，用固定窗口取到下一个 if 之前即可覆盖 addItem。
-    for match in re.finditer(r'if\s*\(\s*role\.equals\(\s*([A-Za-z_][\w.]*)\s*\)\s*\)', text):
-        const = match.group(1).split(".")[-1]
-        # 外部模组（stupid_express）的角色常量不一定能被 collect_id_constants 扫到，
-        # 但这类注册用的常量名就是角色 id 的大写形式。
+    # 分支头有 role.equals / role.identifier().equals / RoleUtils.compareRole 三种写法。
+    branch_re = re.compile(
+        r'if\s*\(\s*(?:role\.equals\s*\(\s*|role\.identifier\(\)\.equals\s*\(\s*'
+        r'|RoleUtils\.compareRole\s*\([^,]+,\s*)([A-Za-z_][\w.]*)')
+    add_re = re.compile(
+        r'(?:player\.addItem\s*\(\s*|(?:RoleUtils|MCItemsUtils|SREItemUtils)'
+        r'\.insertStackInFreeSlot\s*\(\s*player\s*,\s*|new\s+ItemStack\s*\(\s*)'
+        r'([A-Za-z_][\w.]*)')
+    for match in branch_re.finditer(text):
+        const = match.group(1).replace(".identifier", "").split(".")[-1]
+        # 外部模组常量不一定能被 collect_id_constants 扫到，常量名一般就是大写角色 id。
         path = id_table.get(const) or const.lower()
-        window = text[match.end():match.end() + 900]
+        end = min(match.end() + 1400, len(text))
+        # 分支通常以 return; 结束，截断窗口避免把下一个职业发放的物品混进来。
+        stop = text.find("return;", match.end(), end)
+        if stop != -1:
+            end = stop
+        window = text[match.end():end]
         items = []
-        for add in re.finditer(r'player\.addItem\(\s*([A-Za-z_][\w.]*)\.getDefaultInstance', window):
-            const = add.group(1).split(".")[-1]
-            item_id = item_table.get(const)
+        for add in add_re.finditer(window):
+            expr = add.group(1)
+            if expr.endswith(".getDefaultInstance"):
+                expr = expr[:-len(".getDefaultInstance")]
+            name = expr.split(".")[-1]
+            item_id = item_table.get(name)
+            if not item_id and expr.startswith("Items."):
+                item_id = "minecraft:" + name.lower()
             if item_id and item_id not in items:
                 items.append(item_id)
         if items:
@@ -487,6 +567,7 @@ def main():
     for const, path in _ID_CONST_TABLE.items():
         _PATH_BY_CONST.setdefault(const, path)
         _PATH_BY_CONST.setdefault(const[:-3] if const.endswith("_ID") else const, path)
+    globals()["_PATH_BY_CONST"] = _PATH_BY_CONST
 
     initial_items = collect_initial_items()
     for path, items in collect_extra_initial_items().items():
@@ -495,6 +576,16 @@ def main():
             if item_id not in existing:
                 existing.append(item_id)
     globals()["_CLASS_TO_PATH"] = collect_class_to_path(registrations)
+    for path, items in collect_default_items(globals()["_CLASS_TO_PATH"]).items():
+        existing = initial_items.setdefault(path, [])
+        for item_id in items:
+            if item_id not in existing:
+                existing.append(item_id)
+    for path, items in DATA_INIT_ITEMS.items():
+        existing = initial_items.setdefault(path, [])
+        for item_id in items:
+            if item_id not in existing:
+                existing.append(item_id)
     shop_items = collect_shop_items()
     for path, items in collect_handler_shop_items().items():
         existing = shop_items.setdefault(path, [])

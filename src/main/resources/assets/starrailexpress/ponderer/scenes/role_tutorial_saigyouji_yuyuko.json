@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.saigyouji_yuyuko",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_saigyouji_yuyuko"
   ],
   "title": {
     "en_us": "Saigyouji yuyuko",
@@ -315,23 +313,6 @@
             "yaw": 180.0,
             "linkId": "saigyouji_yuyuko_main"
           }
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "saigyouji_yuyuko_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",

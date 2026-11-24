@@ -2,9 +2,9 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.fog_guest",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "noellesroles:fog_blade",
+    "trainmurdermystery:lockpick",
+    "noellesroles:fog_bell"
   ],
   "title": {
     "en_us": "fog_guest",
@@ -176,6 +176,20 @@
             ],
             "yaw": 180.0,
             "linkId": "fog_guest_main"
+          }
+        },
+        {
+          "type": "starrailexpress:role_items",
+          "attachKeyFrame": true,
+          "parameters": {
+            "role": "fog_guest",
+            "origin": [
+              1.6,
+              1.55,
+              1.6
+            ],
+            "spacing": 0.7,
+            "max": 4
           }
         },
         {
@@ -397,7 +411,7 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "noellesroles:fog_blade",
           "linkId": "fog_guest_line_item_0",
           "attachKeyFrame": true
         },
@@ -511,6 +525,23 @@
             "role": "fog_guest",
             "columns": 4
           }
+        },
+        {
+          "type": "create_item_entity",
+          "pos": [
+            1.6,
+            1.55,
+            1.8
+          ],
+          "motion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "item": "trainmurdermystery:lockpick",
+          "linkId": "fog_guest_shop_line_0",
+          "attachKeyFrame": true
         },
         {
           "type": "text",

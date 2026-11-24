@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.alchemist",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_alchemist"
   ],
   "title": {
     "en_us": "Alchemist",
@@ -163,23 +161,6 @@
         {
           "type": "idle",
           "duration": 25
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "alchemist_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -626,23 +607,6 @@
           "duration": 161
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "alchemist_line_item_1",
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
           "duration": 133,
           "text": {
@@ -661,6 +625,14 @@
         {
           "type": "idle",
           "duration": 143
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
         },
         {
           "type": "text",

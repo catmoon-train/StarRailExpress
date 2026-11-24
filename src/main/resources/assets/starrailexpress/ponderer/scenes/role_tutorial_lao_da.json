@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.lao_da",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_lao_da"
   ],
   "title": {
     "en_us": "Lao da",
@@ -206,23 +204,6 @@
           "duration": 25
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "lao_da_line_item_0",
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
           "duration": 142,
           "text": {
@@ -364,23 +345,6 @@
             "yaw": 180.0,
             "linkId": "lao_da_main"
           }
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "lao_da_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "starrailexpress:role_death",

@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.musician_phantom",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_musician_phantom"
   ],
   "title": {
     "en_us": "Phantom Musician",
@@ -236,23 +234,6 @@
             0.04,
             0
           ]
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "musician_phantom_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",

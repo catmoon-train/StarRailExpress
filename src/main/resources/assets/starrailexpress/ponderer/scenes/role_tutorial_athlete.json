@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.athlete",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_athlete"
   ],
   "title": {
     "en_us": "Athlete",
@@ -183,23 +181,6 @@
           "duration": 40
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "athlete_line_item_0",
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
           "duration": 131,
           "text": {
@@ -316,23 +297,6 @@
             "yaw": 180.0,
             "linkId": "athlete_main"
           }
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "athlete_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",

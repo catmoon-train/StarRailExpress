@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.kawashiro_nitori",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_kawashiro_nitori"
   ],
   "title": {
     "en_us": "Kawashiro nitori",
@@ -217,22 +215,6 @@
           "attachKeyFrame": true
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            3.9,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "kawashiro_nitori_skill_item_1"
-        },
-        {
           "type": "starrailexpress:role_currency",
           "parameters": {
             "progress": [
@@ -370,23 +352,6 @@
             "yaw": 180.0,
             "linkId": "kawashiro_nitori_main"
           }
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "kawashiro_nitori_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",

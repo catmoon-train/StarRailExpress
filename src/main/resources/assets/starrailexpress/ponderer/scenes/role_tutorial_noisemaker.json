@@ -2,7 +2,8 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.noisemaker",
   "items": [
-    "noellesroles:radio"
+    "noellesroles:radio",
+    "minecraft:candle"
   ],
   "title": {
     "en_us": "Noisemaker",

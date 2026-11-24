@@ -2,8 +2,6 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.killer",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
     "trainmurdermystery:knife"
   ],
   "title": {
@@ -199,7 +197,7 @@
             0.0
           ],
           "count": 1,
-          "item": "trainmurdermystery:note",
+          "item": "trainmurdermystery:knife",
           "linkId": "killer_line_item_0",
           "attachKeyFrame": true
         },

@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.net_cop",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_net_cop"
   ],
   "title": {
     "en_us": "Net Cop",
@@ -124,23 +122,6 @@
           }
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "net_cop_line_item_0",
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
           "duration": 160,
           "text": {
@@ -207,23 +188,6 @@
               }
             ]
           },
-          "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "net_cop_line_item_0",
           "attachKeyFrame": true
         },
         {
@@ -600,23 +564,6 @@
           }
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "net_cop_line_item_0",
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
           "duration": 190,
           "text": {
@@ -702,23 +649,6 @@
               }
             ]
           }
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "net_cop_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -820,23 +750,6 @@
             "yaw": 180.0,
             "linkId": "net_cop_main"
           }
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "net_cop_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",

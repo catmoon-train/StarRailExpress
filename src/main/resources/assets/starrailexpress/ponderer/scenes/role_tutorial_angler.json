@@ -201,7 +201,7 @@
           "duration": 190,
           "text": {
             "en_us": "Each successful reel-in or rod ride costs 1 durability; an empty cast costs nothing. You reel up all kinds of items.",
-            "zh_cn": "每次成功收竿或乘坐钓竿会消耗钓鱼竿1点耐久；空竿不耗。会钓上来各式各样的物品。",
+            "zh_cn": "每次成功收竿或乘坐钓竿会消耗钓鱼竿1点耐久；空竿不消耗耐久。钓鱼竿会钓上来各式各样的物品。",
             "zh_tw": "每次成功收竿或乘坐釣竿消耗1點耐久；空竿不耗。會釣上來各式各樣的物品。"
           },
           "point": [
@@ -235,7 +235,7 @@
           "duration": 190,
           "text": {
             "en_us": "Sneak + right-click to ride the rod and glide horizontally for up to 6 seconds, then a 30-second cooldown after dismounting. If you clip into a block, the rod disappears and you are teleported to the last safe position on the path.",
-            "zh_cn": "潜行右键可乘坐钓竿水平平移，最多6秒，下来后30秒冷却。卡进方块后钓竿消失，并将玩家传送到路径上最后的安全位置。",
+            "zh_cn": "潜行右键可乘坐钓竿水平平移，最多6秒，下来后钓竿会进入30秒冷却。",
             "zh_tw": "潛行右鍵可乘坐釣竿水準平移，最多6秒，下來後30秒冷卻。卡進方塊後釣竿消失，傳送到路徑上最後的安全位置。"
           },
           "point": [
@@ -323,6 +323,71 @@
           "duration": 105
         },
         {
+          "type": "starrailexpress:role_player",
+          "attachKeyFrame": true,
+          "parameters": {
+            "pos": [
+              3.0,
+              1.0,
+              4.0
+            ],
+            "yaw": 180.0,
+            "linkId": "angler_skill_target_1",
+            "outline": -14661546
+          }
+        },
+        {
+          "type": "play_sound",
+          "sound": "minecraft:entity.enderman.teleport",
+          "soundVolume": 1.0,
+          "pitch": 1.0,
+          "source": "players"
+        },
+        {
+          "type": "starrailexpress:role_teleport",
+          "parameters": {
+            "linkId": "angler_main",
+            "pos": [
+              3.0,
+              1.0,
+              4.0
+            ]
+          },
+          "attachKeyFrame": true
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            4
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "text",
+          "duration": 190,
+          "text": {
+            "en_us": "When the rod runs out or the Angler dies, a faceless version of you sits at the old fishing spot. Approach within 5 seconds to pick up a rod that shouldn't exist.",
+            "zh_cn": "卡进方块后钓竿消失，并将玩家传送到路径上最后的安全位置。",
+            "zh_tw": "釣竿耗盡或垂釣者死亡後，無臉的你會坐在舊釣點。5秒內靠近可撿到不該存在的釣竿。"
+          },
+          "point": [
+            3.0,
+            2.08,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 200
+        },
+        {
           "type": "starrailexpress:role_death",
           "parameters": {
             "linkId": "angler_main",
@@ -351,15 +416,15 @@
         },
         {
           "type": "text",
-          "duration": 190,
+          "duration": 81,
           "text": {
-            "en_us": "When the rod runs out or the Angler dies, a faceless version of you sits at the old fishing spot. Approach within 5 seconds to pick up a rod that shouldn't exist.",
-            "zh_cn": "钓竿耗尽或垂钓者死亡后，无脸的你会坐在旧钓点。5秒内靠近可捡到不该存在的钓竿。",
-            "zh_tw": "釣竿耗盡或垂釣者死亡後，無臉的你會坐在舊釣點。5秒內靠近可撿到不該存在的釣竿。"
+            "en_us": "钓竿耗尽或垂钓者死亡后，无脸的你会坐在旧钓点。",
+            "zh_cn": "钓竿耗尽或垂钓者死亡后，无脸的你会坐在旧钓点。",
+            "zh_tw": "钓竿耗尽或垂钓者死亡后，无脸的你会坐在旧钓点。"
           },
           "point": [
             3.0,
-            2.08,
+            2.36,
             3.0
           ],
           "placeNearTarget": true,
@@ -367,7 +432,35 @@
         },
         {
           "type": "idle",
-          "duration": 200
+          "duration": 91
+        },
+        {
+          "type": "indicate_success",
+          "blockPos": [
+            3,
+            0,
+            3
+          ]
+        },
+        {
+          "type": "text",
+          "duration": 70,
+          "text": {
+            "en_us": "其它玩家靠近可捡到不该存在的钓竿。",
+            "zh_cn": "其它玩家靠近可捡到不该存在的钓竿。",
+            "zh_tw": "其它玩家靠近可捡到不该存在的钓竿。"
+          },
+          "point": [
+            3.0,
+            2.64,
+            3.0
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
         },
         {
           "type": "rotate_camera_y",

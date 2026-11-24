@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.admirer",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_admirer"
   ],
   "title": {
     "en_us": "Admirer",
@@ -258,23 +256,6 @@
             "yaw": 180.0,
             "linkId": "admirer_main"
           }
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "admirer_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",

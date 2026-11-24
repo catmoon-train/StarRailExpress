@@ -328,7 +328,9 @@
    "neutrals": false,
    "psychoSkin": null,
    "inventoryScreen": false,
-   "initialItems": [],
+   "initialItems": [
+    "trainmurdermystery:knife"
+   ],
    "shopItems": [],
    "source": "io/wifi/starrailexpress/api/TMMRoles.java",
    "const": "KILLER"
@@ -617,7 +619,9 @@
    "neutrals": false,
    "psychoSkin": null,
    "inventoryScreen": false,
-   "initialItems": [],
+   "initialItems": [
+    "trainmurdermystery:revolver"
+   ],
    "shopItems": [],
    "source": "io/wifi/starrailexpress/api/TMMRoles.java",
    "const": "VIGILANTE"
@@ -868,7 +872,9 @@
    "neutrals": false,
    "psychoSkin": null,
    "inventoryScreen": false,
-   "initialItems": [],
+   "initialItems": [
+    "noellesroles:recovery_reagent"
+   ],
    "shopItems": [
     "noellesroles:recovery_pill",
     "noellesroles:recovery_reagent"
@@ -928,7 +934,9 @@
    "neutrals": false,
    "psychoSkin": null,
    "inventoryScreen": false,
-   "initialItems": [],
+   "initialItems": [
+    "minecraft:crossbow"
+   ],
    "shopItems": [],
    "source": "org/agmas/noellesroles/role/ModRoles.java",
    "const": "BOOM_MANIAC"
@@ -2818,7 +2826,9 @@
    "neutrals": false,
    "psychoSkin": null,
    "inventoryScreen": false,
-   "initialItems": [],
+   "initialItems": [
+    "noellesroles:reimu_gohei"
+   ],
    "shopItems": [],
    "source": "org/agmas/noellesroles/role/bouns/BounsRoles.java",
    "const": "WITCH_MAIDEN"
@@ -3037,7 +3047,9 @@
    "neutrals": false,
    "psychoSkin": null,
    "inventoryScreen": false,
-   "initialItems": [],
+   "initialItems": [
+    "noellesroles:angler_rod"
+   ],
    "shopItems": [],
    "source": "org/agmas/noellesroles/role/bouns/BounsRoles.java",
    "const": "ANGLER"
@@ -3465,7 +3477,8 @@
    "psychoSkin": null,
    "inventoryScreen": false,
    "initialItems": [
-    "noellesroles:radio"
+    "noellesroles:radio",
+    "minecraft:candle"
    ],
    "shopItems": [],
    "source": "org/agmas/noellesroles/role/ModRoles.java",
@@ -3942,7 +3955,9 @@
    "neutrals": true,
    "psychoSkin": null,
    "inventoryScreen": false,
-   "initialItems": [],
+   "initialItems": [
+    "minecraft:candle"
+   ],
    "shopItems": [
     "noellesroles:once_revolver"
    ],
@@ -4597,7 +4612,11 @@
    "neutrals": true,
    "psychoSkin": null,
    "inventoryScreen": false,
-   "initialItems": [],
+   "initialItems": [
+    "noellesroles:fake_revolver",
+    "noellesroles:fake_knife",
+    "minecraft:bundle"
+   ],
    "shopItems": [],
    "source": "org/agmas/noellesroles/role/ModRoles.java",
    "const": "THIEF"
@@ -5236,7 +5255,8 @@
    "psychoSkin": null,
    "inventoryScreen": false,
    "initialItems": [
-    "noellesroles:written_note"
+    "noellesroles:written_note",
+    "minecraft:candle"
    ],
    "shopItems": [],
    "source": "org/agmas/noellesroles/role/ModRoles.java",
@@ -5618,7 +5638,9 @@
    "psychoSkin": null,
    "inventoryScreen": false,
    "initialItems": [
-    "trainmurdermystery:revolver"
+    "trainmurdermystery:revolver",
+    "noellesroles:fake_revolver",
+    "noellesroles:fake_knife"
    ],
    "shopItems": [],
    "source": "org/agmas/noellesroles/role/ModRoles.java",
@@ -8589,7 +8611,9 @@
    "neutrals": false,
    "psychoSkin": null,
    "inventoryScreen": true,
-   "initialItems": [],
+   "initialItems": [
+    "trainmurdermystery:derringer"
+   ],
    "shopItems": [],
    "source": "org/agmas/noellesroles/role/touhou/THMiscRoles.java",
    "const": "SHIKIEIKI"
@@ -9515,7 +9539,9 @@
    "neutrals": false,
    "psychoSkin": null,
    "inventoryScreen": false,
-   "initialItems": [],
+   "initialItems": [
+    "noellesroles:reimu_gohei"
+   ],
    "shopItems": [
     "noellesroles:fake_revolver",
     "trainmurdermystery:revolver",
@@ -9636,7 +9662,9 @@
    "neutrals": false,
    "psychoSkin": null,
    "inventoryScreen": false,
-   "initialItems": [],
+   "initialItems": [
+    "noellesroles:scarlet_perception_sword"
+   ],
    "shopItems": [],
    "source": "org/agmas/noellesroles/role/touhou/THMiscRoles.java",
    "const": "TENSHI"
@@ -10363,8 +10391,14 @@
    "neutrals": false,
    "psychoSkin": null,
    "inventoryScreen": false,
-   "initialItems": [],
-   "shopItems": [],
+   "initialItems": [
+    "noellesroles:executioner_gun"
+   ],
+   "shopItems": [
+    "noellesroles:honored_note",
+    "noellesroles:spirit_cloak",
+    "noellesroles:zero_one_five_gun"
+   ],
    "source": "org/agmas/noellesroles/role/ModRoles.java",
    "const": "THE_FOOL"
   },
@@ -10977,7 +11011,10 @@
    "neutrals": false,
    "psychoSkin": null,
    "inventoryScreen": false,
-   "initialItems": [],
+   "initialItems": [
+    "noellesroles:sewing_needle",
+    "noellesroles:yarn_ball"
+   ],
    "shopItems": [
     "noellesroles:sewing_needle"
    ],
@@ -13102,7 +13139,9 @@
    "neutrals": true,
    "psychoSkin": null,
    "inventoryScreen": false,
-   "initialItems": [],
+   "initialItems": [
+    "minecraft:bundle"
+   ],
    "shopItems": [],
    "source": "org/agmas/noellesroles/role/ModRoles.java",
    "const": "LIN_FAMILY"
@@ -14554,7 +14593,9 @@
    "neutrals": false,
    "psychoSkin": null,
    "inventoryScreen": false,
-   "initialItems": [],
+   "initialItems": [
+    "minecraft:bow"
+   ],
    "shopItems": [],
    "source": "org/agmas/noellesroles/role/ModRoles.java",
    "const": "TARTAGLIA"
@@ -15006,7 +15047,9 @@
    "neutrals": false,
    "psychoSkin": null,
    "inventoryScreen": false,
-   "initialItems": [],
+   "initialItems": [
+    "noellesroles:katana"
+   ],
    "shopItems": [],
    "source": "org/agmas/noellesroles/role/ModRoles.java",
    "const": "SWORDSMAN"
@@ -15463,7 +15506,9 @@
    "neutrals": false,
    "psychoSkin": null,
    "inventoryScreen": false,
-   "initialItems": [],
+   "initialItems": [
+    "noellesroles:apprentice_wand"
+   ],
    "shopItems": [],
    "source": "org/agmas/noellesroles/role/ModRoles.java",
    "const": "MAGIC_APPRENTICE"
@@ -15590,7 +15635,9 @@
    "neutrals": false,
    "psychoSkin": null,
    "inventoryScreen": false,
-   "initialItems": [],
+   "initialItems": [
+    "noellesroles:mushroom_sample"
+   ],
    "shopItems": [
     "noellesroles:mushroom_sample"
    ],
@@ -15784,8 +15831,12 @@
    "neutrals": false,
    "psychoSkin": null,
    "inventoryScreen": false,
-   "initialItems": [],
-   "shopItems": [],
+   "initialItems": [
+    "trainmurdermystery:revolver"
+   ],
+   "shopItems": [
+    "noellesroles:dictator_book"
+   ],
    "source": "org/agmas/noellesroles/role/ModRoles.java",
    "const": "DICTATOR"
   },
@@ -15910,7 +15961,9 @@
    "neutrals": false,
    "psychoSkin": null,
    "inventoryScreen": false,
-   "initialItems": [],
+   "initialItems": [
+    "noellesroles:stone_spear"
+   ],
    "shopItems": [
     "noellesroles:inferior_lockpick",
     "noellesroles:throw_stone",
@@ -16040,7 +16093,9 @@
    "neutrals": false,
    "psychoSkin": null,
    "inventoryScreen": false,
-   "initialItems": [],
+   "initialItems": [
+    "noellesroles:error_terminal"
+   ],
    "shopItems": [
     "noellesroles:error_terminal",
     "noellesroles:error_detonator",
@@ -16327,7 +16382,10 @@
    "neutrals": false,
    "psychoSkin": null,
    "inventoryScreen": true,
-   "initialItems": [],
+   "initialItems": [
+    "noellesroles:thread_spool",
+    "noellesroles:thread_blade"
+   ],
    "shopItems": [
     "trainmurdermystery:lockpick",
     "noellesroles:thread_ball"
@@ -16441,7 +16499,9 @@
    "neutrals": false,
    "psychoSkin": null,
    "inventoryScreen": false,
-   "initialItems": [],
+   "initialItems": [
+    "noellesroles:second_needle"
+   ],
    "shopItems": [
     "trainmurdermystery:lockpick",
     "noellesroles:minute_needle",
@@ -16499,8 +16559,13 @@
    "neutrals": false,
    "psychoSkin": null,
    "inventoryScreen": false,
-   "initialItems": [],
-   "shopItems": [],
+   "initialItems": [
+    "noellesroles:fog_blade"
+   ],
+   "shopItems": [
+    "trainmurdermystery:lockpick",
+    "noellesroles:fog_bell"
+   ],
    "source": "",
    "const": ""
   },
@@ -16729,7 +16794,9 @@
    "neutrals": false,
    "psychoSkin": null,
    "inventoryScreen": false,
-   "initialItems": [],
+   "initialItems": [
+    "noellesroles:steve_pickaxe"
+   ],
    "shopItems": [],
    "source": "org/agmas/noellesroles/role/ModRoles.java",
    "const": "STEVE"
@@ -17160,7 +17227,12 @@
    "psychoSkin": null,
    "inventoryScreen": false,
    "initialItems": [],
-   "shopItems": [],
+   "shopItems": [
+    "trainmurdermystery:poison_vial",
+    "trainmurdermystery:lockpick",
+    "noellesroles:area_blackout",
+    "noellesroles:slime_grenade"
+   ],
    "source": "",
    "const": ""
   },
@@ -17299,7 +17371,9 @@
    "neutrals": false,
    "psychoSkin": null,
    "inventoryScreen": false,
-   "initialItems": [],
+   "initialItems": [
+    "noellesroles:puppet_core"
+   ],
    "shopItems": [
     "noellesroles:puppet_hand",
     "noellesroles:puppet_core"
@@ -17643,8 +17717,8 @@
  "notes": {
   "total": 283,
   "registered": 257,
-  "withInitialItems": 49,
-  "withShop": 75,
+  "withInitialItems": 75,
+  "withShop": 79,
   "withPsychoSkin": 2,
   "otherMode": 11,
   "placeholder": []

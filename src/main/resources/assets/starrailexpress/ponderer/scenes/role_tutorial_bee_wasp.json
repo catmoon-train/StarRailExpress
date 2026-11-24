@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.bee_wasp",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_bee_wasp"
   ],
   "title": {
     "en_us": "Wasp",
@@ -124,23 +122,6 @@
           }
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "bee_wasp_line_item_0",
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
           "duration": 99,
           "text": {
@@ -236,34 +217,6 @@
             "keyBind": "ability"
           },
           "attachKeyFrame": true
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "bee_wasp_skill_item_0"
-        },
-        {
-          "type": "show_controls",
-          "action": "right",
-          "item": "trainmurdermystery:note",
-          "duration": 70,
-          "point": [
-            2.2,
-            2.2,
-            3.0
-          ],
-          "direction": "down"
         },
         {
           "type": "starrailexpress:role_walk",
@@ -363,23 +316,6 @@
             "yaw": 180.0,
             "linkId": "bee_wasp_main"
           }
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "bee_wasp_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",

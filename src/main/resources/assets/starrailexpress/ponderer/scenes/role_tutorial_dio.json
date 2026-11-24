@@ -2,9 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.dio",
   "items": [
-    "trainmurdermystery:note",
-    "trainmurdermystery:bat",
-    "trainmurdermystery:knife"
+    "starrailexpress:role_ponder_dio"
   ],
   "title": {
     "en_us": "Dio",
@@ -189,23 +187,6 @@
           "duration": 200
         },
         {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "dio_line_item_1",
-          "attachKeyFrame": true
-        },
-        {
           "type": "text",
           "duration": 149,
           "text": {
@@ -343,23 +324,6 @@
         {
           "type": "idle",
           "duration": 30
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "dio_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",
@@ -766,23 +730,6 @@
             "yaw": 180.0,
             "linkId": "dio_main"
           }
-        },
-        {
-          "type": "create_item_entity",
-          "pos": [
-            2.2,
-            1.5,
-            3.0
-          ],
-          "motion": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "count": 1,
-          "item": "trainmurdermystery:note",
-          "linkId": "dio_line_item_0",
-          "attachKeyFrame": true
         },
         {
           "type": "text",

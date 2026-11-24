@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "id": "starrailexpress:role_tutorial.halloween_event",
   "items": [
-    "trainmurdermystery:note"
+    "starrailexpress:role_ponder_halloween_event"
   ],
   "title": {
     "en_us": "Halloween Event",
