@@ -23,6 +23,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 
 import org.agmas.noellesroles.packet.PostmanC2SPacket;
 import org.agmas.noellesroles.role_data.innocence.AyayayaRoleData;
@@ -107,14 +108,20 @@ public class PostmanHandledScreen extends AbstractContainerScreen<PostmanScreenH
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
         
-        // 每次渲染时重新获取组件，确保读取最新数据
+        // 每次渲染时重新获取组件，确保读取最新数据。
+        // 非果果快递 / 文文新闻玩家使用的是服务端临时会话，同步包可能晚于页面到达，
+        // 不能以本地组件为空为由关闭页面——那会让页面一闪而过。
         this.postmanComponent = AyayayaRoleData.resolve(minecraft.player);
-        
-        if (postmanComponent == null || !postmanComponent.isDeliveryActive()) {
-            this.onClose();
-            return;
-        }
-        
+
+        UUID otherUuid = otherUuid();
+        String targetName = otherName(otherUuid);
+        boolean isReceiver = postmanComponent != null && postmanComponent.isViewerReceiver(minecraft.player);
+        boolean myConfirmed = postmanComponent != null
+                && (isReceiver ? postmanComponent.targetConfirmed : postmanComponent.senderConfirmed);
+        boolean otherConfirmed = postmanComponent != null
+                && (isReceiver ? postmanComponent.senderConfirmed : postmanComponent.targetConfirmed);
+        boolean bothConfirmed = postmanComponent != null && postmanComponent.isBothConfirmed();
+
         // 绘制标题
         Component title = Component.translatable("screen.noellesroles.postman.title")
             .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
@@ -123,7 +130,6 @@ public class PostmanHandledScreen extends AbstractContainerScreen<PostmanScreenH
             this.topPos + 6, 0xFFFFFF, true);
         
         // 绘制目标玩家名称
-        String targetName = postmanComponent.displayNameFor(minecraft.player);
         Component targetText = Component.translatable("screen.noellesroles.postman.trade_with",Component.literal(targetName).withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.GRAY);
         context.drawString(font, targetText,
             this.leftPos + this.imageWidth / 2 - font.width(targetText) / 2,
@@ -134,11 +140,6 @@ public class PostmanHandledScreen extends AbstractContainerScreen<PostmanScreenH
         context.drawString(font, slotLabel,
             this.leftPos + 80 + 8 - font.width(slotLabel) / 2,
             this.topPos + 55, 0xAAAAAA, true);
-        
-        // 绘制确认状态 - 直接读取组件中的最新值
-        boolean isReceiver = postmanComponent.isViewerReceiver(minecraft.player);
-        boolean myConfirmed = isReceiver ? postmanComponent.targetConfirmed : postmanComponent.senderConfirmed;
-        boolean otherConfirmed = isReceiver ? postmanComponent.senderConfirmed : postmanComponent.targetConfirmed;
         
         // 显示双方确认状态
         Component myStatus = myConfirmed ?
@@ -155,7 +156,7 @@ public class PostmanHandledScreen extends AbstractContainerScreen<PostmanScreenH
         
         // 绘制提示信息 - 在快捷栏下方
         Component hint;
-        if (postmanComponent.isBothConfirmed()) {
+        if (bothConfirmed) {
             hint = Component.translatable("screen.noellesroles.postman.exchanging")
                 .withStyle(ChatFormatting.GREEN);
         } else {
@@ -176,15 +177,16 @@ public class PostmanHandledScreen extends AbstractContainerScreen<PostmanScreenH
      * 更新按钮状态
      */
     private void updateButtonState() {
-        if (postmanComponent == null || confirmButton == null) return;
-        
-        boolean isReceiver = postmanComponent.isViewerReceiver(minecraft.player);
-        boolean myConfirmed = isReceiver ? postmanComponent.targetConfirmed : postmanComponent.senderConfirmed;
-        boolean bothConfirmed = postmanComponent.isBothConfirmed();
-        
+        if (confirmButton == null) return;
+
+        boolean isReceiver = postmanComponent != null && postmanComponent.isViewerReceiver(minecraft.player);
+        boolean myConfirmed = postmanComponent != null
+                && (isReceiver ? postmanComponent.targetConfirmed : postmanComponent.senderConfirmed);
+        boolean bothConfirmed = postmanComponent != null && postmanComponent.isBothConfirmed();
+
         // 如果已经确认或双方都确认，禁用确认按钮
         confirmButton.active = !myConfirmed && !bothConfirmed;
-        
+
         // 更新按钮文字
         if (myConfirmed) {
             confirmButton.setMessage(Component.translatable("screen.noellesroles.postman.confirmed").withStyle(ChatFormatting.GRAY));
@@ -192,27 +194,43 @@ public class PostmanHandledScreen extends AbstractContainerScreen<PostmanScreenH
             confirmButton.setMessage(Component.translatable("screen.noellesroles.postman.confirm"));
         }
     }
-    
+
+    /** 交换对方的 UUID：通用会话在客户端没有 player 对象，需要用同步过来的发起者 UUID。 */
+    private UUID otherUuid() {
+        UUID fallback = menu.getTargetPlayerUuid();
+        if (postmanComponent == null) {
+            return fallback;
+        }
+        if (postmanComponent.isViewerReceiver(minecraft.player)) {
+            return postmanComponent.senderUuid != null ? postmanComponent.senderUuid : fallback;
+        }
+        return postmanComponent.deliveryTarget != null ? postmanComponent.deliveryTarget : fallback;
+    }
+
+    /** 对方名字：同步包尚未到达时直接从世界里的玩家实体取。 */
+    private String otherName(UUID otherUuid) {
+        if (otherUuid == null) {
+            return "";
+        }
+        if (postmanComponent != null && postmanComponent.isDeliveryActive()) {
+            String name = postmanComponent.displayNameFor(minecraft.player);
+            if (name != null && !name.isEmpty()) {
+                return name;
+            }
+        }
+        Player other = minecraft.level != null ? minecraft.level.getPlayerByUUID(otherUuid) : null;
+        return other != null ? other.getName().getString() : String.valueOf(otherUuid);
+    }
+
     /**
      * 确认交换
      */
     private void onConfirm() {
-        // 使用组件中的目标玩家 UUID（更可靠）
-        if (postmanComponent != null && postmanComponent.deliveryTarget != null) {
-            UUID other = postmanComponent.isViewerReceiver(minecraft.player)
-                    ? postmanComponent.getPlayer().getUUID()
-                    : postmanComponent.deliveryTarget;
-            if (other != null) {
-                ClientPlayNetworking.send(new PostmanC2SPacket(
-                    PostmanC2SPacket.Action.CONFIRM,
-                    other
-                ));
-            }
-        } else if (menu.getTargetPlayerUuid() != null) {
-            // 回退使用 handler 中的 UUID
+        UUID other = otherUuid();
+        if (other != null) {
             ClientPlayNetworking.send(new PostmanC2SPacket(
                 PostmanC2SPacket.Action.CONFIRM,
-                menu.getTargetPlayerUuid()
+                other
             ));
         }
         updateButtonState();

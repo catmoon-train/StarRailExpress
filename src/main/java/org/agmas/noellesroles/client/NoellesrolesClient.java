@@ -626,6 +626,9 @@ public class NoellesrolesClient implements ClientModInitializer {
                 (payload, context) -> context.client().execute(() ->
                         org.agmas.noellesroles.client.sound.SpeakerClientSounds
                                 .apply(payload.playerId(), payload.trackId(), payload.playing(), payload.volume())));
+        ClientPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.PostmanDeliveryStateS2CPacket.ID,
+                (payload, context) -> context.client().execute(() ->
+                        org.agmas.noellesroles.role_data.innocence.AyayayaRoleData.applyClientState(payload)));
         // 反重力方块状态同步（S2C）：维护客户端反重力集合，供本地物理预测 / 模型倒立 / 相机翻转读取
         ClientPlayNetworking.registerGlobalReceiver(GravityFlipS2CPacket.ID,
                 (payload, context) -> context.client().execute(() ->

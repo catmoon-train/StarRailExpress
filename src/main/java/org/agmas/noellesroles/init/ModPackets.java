@@ -496,5 +496,10 @@ public class ModPackets {
         PayloadTypeRegistry.playC2S().register(
                 org.agmas.noellesroles.packet.CameraViewLookC2SPacket.ID,
                 org.agmas.noellesroles.packet.CameraViewLookC2SPacket.CODEC);
+
+        // 传递盒：非果果快递 / 文文新闻玩家的通用会话状态同步
+        // （这类玩家没有 AyayayaRoleData，走不了 CCA 的 RoleData 同步）
+        PayloadTypeRegistry.playS2C().register(PostmanDeliveryStateS2CPacket.ID,
+                PostmanDeliveryStateS2CPacket.CODEC);
     }
 }
