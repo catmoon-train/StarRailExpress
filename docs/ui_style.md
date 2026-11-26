@@ -5,6 +5,8 @@
 > 游戏介绍屏（`org.agmas.noellesroles.client.screen.RoleIntroduceScreen`）、
 > 地图介绍屏（`io.wifi.starrailexpress.client.gui.screen.MapIntroduceScreen`）、
 > 轮选模式屏（`io.wifi.starrailexpress.client.gui.screen.gamemode.role_rotation.RoleRotationScreen`）。
+> 想统一**已有**的 HUD / Screen / 结算画面（而不只是新写一个界面）时，先读
+> `docs/ui_unified_style_plan.md`：令牌 → 布局 → 控件原语的分层做法、迁移清单与验收判据。
 
 ---
 
