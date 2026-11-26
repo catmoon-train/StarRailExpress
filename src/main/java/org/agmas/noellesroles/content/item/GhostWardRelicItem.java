@@ -34,6 +34,5 @@ public final class GhostWardRelicItem extends Item {
 
     @Override public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         tooltip.add(Component.translatable(getDescriptionId() + ".desc").withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.translatable("item.noellesroles.ghost_ward_relic.transfer").withStyle(ChatFormatting.DARK_GREEN));
     }
 }
