@@ -1313,6 +1313,145 @@ public class RoleIntroduceScreen extends Screen {
     }
 
     /**
+     * 技能栏位：把「职业本体介绍」和「技能介绍」分开显示。
+     * <p>
+     * 技能文案放在独立语言文件夹 {@code assets/skill_intro/lang}（与 item_intro / effect_intro 同级）：
+     * <ul>
+     * <li>单个技能：{@code <技能名键>.desc}，例如 {@code skill.noellesroles.phantom.invisibility.desc}</li>
+     * <li>整个职业：{@code skill.intro.role.<职业路径>}，没有该键时退回
+     * {@code skill.intro.role.<职业路径>.simple}</li>
+     * </ul>
+     * 技能列表本身直接来自 {@link RoleSkill} / {@link RolePassive} 的注册结果（名称、冷却、充能、触发方式），
+     * 即使没有写文案也会显示；两者都没有的职业不显示此栏位。
+     */
+    private class SkillIntroTab extends AbstractTextTab {
+        /** 换行用的内容区宽度，{@link #prepareLines()} 里按面板宽度算好。 */
+        private int contentWidth;
+
+        @Override
+        public Component getTitle() {
+            return Component.translatable("screen.roleintroduce.detail.skill");
+        }
+
+        @Override
+        public boolean isVisible() {
+            return selectedRole instanceof SRERole role && hasAnySkillContent(role);
+        }
+
+        @Override
+        protected void prepareLines() {
+            lines.clear();
+            if (!(selectedRole instanceof SRERole role))
+                return;
+            contentWidth = rightW - PANEL_PAD * 2 - SCROLL_W - 4;
+            int dashCount = contentWidth / Math.max(1, font.width("─"));
+            Component dashes = Component.literal("─".repeat(dashCount)).withStyle(ChatFormatting.DARK_GRAY);
+
+            String textKey = roleSkillTextKey(role);
+            if (textKey != null) {
+                lines.addAll(
+                        font.split(Component.translatable(textKey).withStyle(ChatFormatting.WHITE), contentWidth));
+            }
+
+            List<RoleSkill.Definition> actives = RoleSkill.getDefinitions(role);
+            if (!actives.isEmpty()) {
+                lines.add(FormattedCharSequence.EMPTY);
+                lines.addAll(font.split(Component.translatable("screen.roleintroduce.skill.active")
+                        .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD), contentWidth));
+                lines.addAll(font.split(dashes, contentWidth));
+                for (RoleSkill.Definition def : actives)
+                    appendActiveSkill(def);
+            }
+
+            List<RolePassive.Definition> passives = RolePassive.getDefinitions(role);
+            if (!passives.isEmpty()) {
+                lines.add(FormattedCharSequence.EMPTY);
+                lines.addAll(font.split(Component.translatable("screen.roleintroduce.skill.passive")
+                        .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD), contentWidth));
+                lines.addAll(font.split(dashes, contentWidth));
+                for (RolePassive.Definition def : passives) {
+                    appendSkillTitle(def.nameKey());
+                    lines.addAll(font.split(
+                            Component.translatable("screen.roleintroduce.skill.passive").copy()
+                                    .withStyle(ChatFormatting.GRAY),
+                            contentWidth));
+                    appendSkillDescription(def.nameKey());
+                }
+            }
+        }
+
+        private void appendActiveSkill(RoleSkill.Definition def) {
+            appendSkillTitle(def.nameKey());
+            List<Component> info = new ArrayList<>();
+            Component trigger = Component
+                    .translatable(def.continuous() ? "screen.roleintroduce.skill.hold"
+                            : "screen.roleintroduce.skill.press");
+            if (def.shifted())
+                trigger = Component.translatable("screen.roleintroduce.skill.shift", trigger);
+            info.add(trigger);
+            if (def.withTarget())
+                info.add(Component.translatable("screen.roleintroduce.skill.target"));
+            if (def.cooldownTicks() > 0)
+                info.add(Component.translatable("screen.roleintroduce.skill.cooldown", def.cooldownTicks() / 20));
+            if (def.initialCooldownTicks() > 0)
+                info.add(Component.translatable("screen.roleintroduce.skill.initial_cooldown",
+                        def.initialCooldownTicks() / 20));
+            if (def.maxCharges() > 1)
+                info.add(Component.translatable("screen.roleintroduce.skill.charges", def.maxCharges()));
+            if (def.toggleable())
+                info.add(Component.translatable("screen.roleintroduce.skill.toggle"));
+            if (def.modeSwitch())
+                info.add(Component.translatable("screen.roleintroduce.skill.mode_switch"));
+
+            MutableComponent infoLine = Component.empty();
+            for (int i = 0; i < info.size(); i++) {
+                if (i > 0)
+                    infoLine.append(Component.literal(" · "));
+                infoLine.append(info.get(i));
+            }
+            lines.addAll(font.split(infoLine.withStyle(ChatFormatting.GRAY), contentWidth));
+            appendSkillDescription(def.nameKey());
+        }
+
+        private void appendSkillTitle(String nameKey) {
+            lines.addAll(font.split(Component.literal("· ").append(
+                    Component.translatable(nameKey).withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD)),
+                    contentWidth));
+        }
+
+        /** 单个技能的文案：{@code <技能名键>.desc}，没写就不显示。 */
+        private void appendSkillDescription(String nameKey) {
+            String descKey = nameKey + ".desc";
+            if (!Language.getInstance().has(descKey))
+                return;
+            lines.addAll(font.split(Component.translatable(descKey).withStyle(ChatFormatting.WHITE), contentWidth));
+        }
+    }
+
+    /** 职业整体技能文案：skill.intro.role.<路径>，没有时退回 .simple。 */
+    private static String roleSkillTextKey(SRERole role) {
+        String base = "skill.intro.role." + role.identifier().getPath();
+        if (Language.getInstance().has(base))
+            return base;
+        if (Language.getInstance().has(base + ".simple"))
+            return base + ".simple";
+        return null;
+    }
+
+    /** 该职业是否有技能文案或已注册技能，决定「技能」栏位是否显示。 */
+    private static boolean hasAnySkillContent(SRERole role) {
+        if (roleSkillTextKey(role) != null)
+            return true;
+        for (RoleSkill.Definition def : RoleSkill.getDefinitions(role))
+            if (Language.getInstance().has(def.nameKey() + ".desc"))
+                return true;
+        for (RolePassive.Definition def : RolePassive.getDefinitions(role))
+            if (Language.getInstance().has(def.nameKey() + ".desc"))
+                return true;
+        return !RoleSkill.getDefinitions(role).isEmpty() || !RolePassive.getDefinitions(role).isEmpty();
+    }
+
+    /**
      * 导航到一个子项目（可返回上级）
      * 
      * @param item
@@ -1700,6 +1839,9 @@ public class RoleIntroduceScreen extends Screen {
                 }
             }
         });
+
+        // 技能（技能文案与职业本体介绍分开，见 SkillIntroTab）
+        tabs.add(new SkillIntroTab());
 
         // 详细介绍
         tabs.add(new AbstractTextTab() {
