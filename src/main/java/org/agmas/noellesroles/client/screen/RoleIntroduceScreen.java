@@ -1313,9 +1313,10 @@ public class RoleIntroduceScreen extends Screen {
     }
 
     /**
-     * 技能栏位：把「职业本体介绍」和「技能介绍」分开显示。
+     * 技能栏位：显示职业的技能介绍。
      * <p>
-     * 技能文案放在独立语言文件夹 {@code assets/skill_intro/lang}（与 item_intro / effect_intro 同级）：
+     * 职业本体介绍（{@code assets/role_modifier_intro/lang}）里同样会写技能介绍；
+     * 本栏位只是把职业的技能介绍在独立语言文件夹 {@code assets/skill_intro/lang}（与 item_intro / effect_intro 同级）里再写一遍：
      * <ul>
      * <li>单个技能：{@code <技能名键>.desc}，例如 {@code skill.noellesroles.phantom.invisibility.desc}</li>
      * <li>整个职业：{@code skill.intro.role.<职业路径>}，没有该键时退回
