@@ -287,17 +287,23 @@ public class InstinctManager {
         }
         if (self_role == null || target_role == null)
             return TrueFalseAndCustomResult.pass();
+        // 布袋鬼·里世界：杀手直觉只保留「杀手阵营 / 中立杀手阵营」，平民与中立一律看不到。
+        if (SREClient.gameComponent.isRole(self, ModRoles.MA_CHEN_XU)) {
+            MaChenXuRoleData macComp = RoleData.getNullable(MaChenXuRoleData.class, self);
+            if (macComp != null && macComp.otherworldActive) {
+                if (SREClient.gameComponent.isKillerTeam(target_player)) {
+                    if (target_role.canUseKiller()) {
+                        return TrueFalseAndCustomResult.custom(Color.RED.getRGB());
+                    }
+                    return TrueFalseAndCustomResult.custom(Color.ORANGE.getRGB());
+                }
+                return TrueFalseAndCustomResult.disallow();
+            }
+        }
         // 默认杀手本能按实际阵营识别克隆队友，不把复制的平民职业画成敌人。
         if (SREClient.gameComponent.getAllegianceRole(target_player)
                 != SREClient.gameComponent.getRole(target_player)) {
             target_role = SREClient.gameComponent.getAllegianceRole(target_player);
-        }
-        // 布袋鬼：里世界期间无杀手直觉
-        if (SREClient.gameComponent.isRole(self, ModRoles.MA_CHEN_XU)) {
-            MaChenXuRoleData macComp = RoleData.getNullable(MaChenXuRoleData.class, self);
-            if (macComp != null && macComp.otherworldActive) {
-                return TrueFalseAndCustomResult.disallow();
-            }
         }
         // 强盗直觉：只能透视半径10格内的玩家，透视杀手队友无距离限制
         if (SREClient.gameComponent.isRole(self, ModRoles.BANDIT)) {
