@@ -1,7 +1,7 @@
 # AI 创建新职业攻略（StarRailExpress / noellesroles）
 
 > 面向「下次再来新建职业的 AI / 人类」的实操攻略。目标是**照着抄就能跑通**，并且**改动都集中在少数几个文件里**，方便后续调试与修改。
-> 配套阅读：`AGENT.md`、`ai_doc.md`、`docs/角色开发指南.md`（概念）、`docs/api.md`（API 清单，可能过时，以源码为准）。
+> 配套阅读：`AGENT.md`、`ai_doc.md`、`docs/AI必读/角色开发指南.md`（概念）、`docs/AI必读/api.md`（API 清单，可能过时，以源码为准）。
 >
 > 本文所有路径与写法都来自本仓库真实代码，示例取自最近的「程序员（programmer）」职业实现，可直接搜同名文件对照。
 
@@ -139,7 +139,7 @@ public static SRERole PROGRAMMER = TMMRoles.registerRole(new ProgrammerRole(
 | `setTaskReward(int, int, ItemStack...)` / `setKillExtraCoinAwards(int)` | 任务奖励 / 击杀额外金币 |
 | `setPassiveIncome(int)` / `setCanAutoAddMoney(boolean)` / `setInitialCoinCount(int)` | 收入相关 |
 | `setSpecialMapRolesCondition(Predicate<Set<MapSpecialFeatures>>)` | 只在特定地图刷新（如 UNDERWATER / LAB） |
-| `setEventEnableChance(掷骰回调, 局末回调, 概率)` / `setEventEnableChance(概率)` / `setEventEnableChance(IntSupplier)` / `setRoundEventEndHandler(局末回调)` | **每局开局掷一次**的职业专属事件：概率 + 地图限制 + 禁用状态，还带管理员「强制下一局」。掷骰回调每次开局都调用（未掷中收到 `false`），局末回调只在本局掷中过时调用、也可单独挂。**不要**为它自己注册 `OnGameTrueStarted` / `OnGameEnd`，详见 `docs/api.md` §职业随机事件 |
+| `setEventEnableChance(掷骰回调, 局末回调, 概率)` / `setEventEnableChance(概率)` / `setEventEnableChance(IntSupplier)` / `setRoundEventEndHandler(局末回调)` | **每局开局掷一次**的职业专属事件：概率 + 地图限制 + 禁用状态，还带管理员「强制下一局」。掷骰回调每次开局都调用（未掷中收到 `false`），局末回调只在本局掷中过时调用、也可单独挂。**不要**为它自己注册 `OnGameTrueStarted` / `OnGameEnd`，详见 `docs/AI必读/api.md` §职业随机事件 |
 | `setOtherModeRole(true)` / `setHiddenForRoleRotation(true)` | 特殊模式专用 / **轮抽界面隐藏真名**（显示为「随机」并抑制技能播报）。注意它**不会**把职业排除出轮抽候选池，职业仍可能被抽到 |
 | `addRelatedRole(...)` / `addOpposingRole(...)` / `addBothRelatedRole(...)` | 关系（供侦探/任务等系统用） |
 
@@ -493,7 +493,7 @@ public class MyScreen extends Screen {
 - `super.render(...)` 一定要放在「自绘底板之后、需要显示的控件之前」，否则面板会盖住输入框。
 - 屏幕若还画了别的自绘内容，注意顺序：`renderBackground` → 自绘 → `super.render` → 文字。
 
-### 7.4 三条网络铁律（`docs/角色开发指南.md` §9）
+### 7.4 三条网络铁律（`docs/AI必读/角色开发指南.md` §9）
 
 - 服务端类**不要 import 客户端类**（`Screen` / `Minecraft` / `ClientPlayNetworking` 都算）；要用就在客户端入口 `client/NoellesrolesClient` / `client/ClientOpenScreenManager` 里做。
 - 客户端 receiver 不要写在 payload 类里（payload 只放 `record` + `ID` + `CODEC`）。
@@ -571,7 +571,7 @@ ServerPlayNetworking.registerGlobalReceiver(XxxC2SPacket.ID,
 | 回自己房间 | `GameUtils.teleportBackToRoom(player)`（映射表 `GameUtils.roomToPlayer`，**先判断 `containsKey`**，没分配房间时该方法会静默失败/把人变旁观） |
 | 独立胜利 | `RoleUtils.customWinnerWin(serverLevel, GameUtils.WinStatus.CUSTOM, roleId.getPath(), OptionalInt.of(role.color()))` + `CustomWinnerClass.registerCustomWinners()` 加分支 |
 | 死亡事件 | `io.wifi.starrailexpress.event.*`：`AllowPlayerDeath(WithKiller)`（可否决）、`OnPlayerDeath(WithKiller)`（已定局） |
-| 每局开局随机的职业事件 | `.setEventEnableChance(掷骰回调, 局末回调, 概率)` 声明一次即可（例：假史蒂夫、紫怪）；开局掷骰 / 局末收尾由核心统一派发，掷骰回调未掷中时也会收到 `false`，局末回调只在本局掷中过时调用；状态**维度通用**，想按需查询用 `.isEventEnabled()`。详见 `docs/api.md` §职业随机事件 —— **不要**自己注册 `OnGameTrueStarted` 来掷骰 |
+| 每局开局随机的职业事件 | `.setEventEnableChance(掷骰回调, 局末回调, 概率)` 声明一次即可（例：假史蒂夫、紫怪）；开局掷骰 / 局末收尾由核心统一派发，掷骰回调未掷中时也会收到 `false`，局末回调只在本局掷中过时调用；状态**维度通用**，想按需查询用 `.isEventEnabled()`。详见 `docs/AI必读/api.md` §职业随机事件 —— **不要**自己注册 `OnGameTrueStarted` 来掷骰 |
 | 背包界面选人列表 | `client/rolescreen/*` + `SRERole.setInventoryScreenExtensionFactory(...)`（**不要 mixin** `LimitedInventoryScreen`） |
 | HUD 自绘（进度条类） | `RoleHudRenderCallback.EVENT.register(roleId, ...)`（冷却显示用 `showOnHud(true)` 就够） |
 
@@ -712,7 +712,7 @@ public class MyNeutralRole extends CustomWinnerRole {
 }
 ```
 
-配套规则（`docs/角色开发指南.md` §5 / §14，务必遵守）：
+配套规则（`docs/AI必读/角色开发指南.md` §5 / §14，务必遵守）：
 - `winnerId` 用**该职业自己的** `identifier().getPath()`；一律通过 `RoleUtils.customWinnerWin(serverLevel, WinStatus.CUSTOM, path, OptionalInt.of(color))` 结算。
 - **不要**给 `WinStatus` 加枚举项，也**不要**直接调 `GameUtils.stopGame(...)`（会绕过统计）。
 - 若条件可能在常规结算前达成，还要在 `CustomWinnerClass.registerCustomWinners()` 里加/复核分支（那里的 if 顺序 = 优先级）。

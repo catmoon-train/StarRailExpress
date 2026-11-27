@@ -107,7 +107,7 @@ Preliminary, albeit non-rigorous, tests show a significant reduction in packet c
 
 ## For development
 
-Full developer API documentation is available at: **[docs/api.md](docs/api.md)**
+Full developer API documentation is available at: **[docs/AI必读/api.md](docs/AI必读/api.md)**
 
 Topics covered: role registration, event system, skill system, shop system, CCA components, HUD rendering, game modes, replay system, and more.
 

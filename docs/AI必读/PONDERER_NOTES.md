@@ -13,7 +13,7 @@
   - 文本三语解析顺序：当前语言 → `en_us` → 首个可用
   - 玩家模型：`create_entity` 接受 `player` / `minecraft:player`
   - `PonderPlayerSupport.addPlayer(...)` / `PonderPlayerElement.profile(...)` 可创建带身份的玩家模型
-- 本项目整理的编写准则：`docs/PONDERER_SCENE_AUTHORING.md`
+- 本项目整理的编写准则：`docs/AI必读/PONDERER_SCENE_AUTHORING.md`
   - 整理自 Ponderer 自带 AI 提示词 `assets/ponderer/ai/prompts/*.txt`
   - 重点是时间轴规则（`text` 的 duration 不是停顿）、场景契约、修改场景的最小改动原则与验收方式
 - Ponderer 源码仓库 `Common/runtime/.../runtime/spi/AssetStructureSource.java`
@@ -74,7 +74,7 @@ does not have member field 'int field_22790'
 - 动画感来自 `idle` 停顿、`rotate_camera_y` 镜头转动、`indicate_success` / `indicate_redstone` 指示块。
 - **同一段落的多条 `text` 必须用 `idle` 错开**：`text` 的 `duration` 只是显示存活时间，不推进时间轴，
   紧随其后的 `idle` 必须 ≥ 上一条的 `duration`（再多留 10 tick），否则文字会重叠成一片。
-  自检方法与踩坑实例见 `docs/PONDERER_SCENE_AUTHORING.md` 第 3 节。
+  自检方法与踩坑实例见 `docs/AI必读/PONDERER_SCENE_AUTHORING.md` 第 3 节。
 - 只要介绍或源码里涉及物品释放、技能释放、物品使用等会产生粒子特效的，演示中也必须补上对应的粒子特效，
   用 Ponderer 的 `spawn_particles` 步骤实现。优先使用游戏内真实粒子 id：下毒是 `wathe:poison`、
   护盾试剂入盘是 `minecraft:effect`；其它粒子先查对应物品/技能/方块实体源码，不要自行编造。
@@ -827,7 +827,7 @@ indicate_success [2,0,4] + idle 80 + rotate_camera_y
 
 ## 21. 按编写准则的全量核查（2026-11-21）
 
-对照 `docs/PONDERER_SCENE_AUTHORING.md` 逐条核查了 269 个普通职业场景
+对照 `docs/AI必读/PONDERER_SCENE_AUTHORING.md` 逐条核查了 269 个普通职业场景
 （酒保、小丑、召回者按要求排除）。新增 `tools/audit_ponder_authoring.py` 做静态审计，
 检查：场景 id 与文件名、标题 / 段落标题三语、首步 `show_structure`、文本 point
 是否指向主角、时间轴间隔（相邻文本至少 10 tick、末条文本后有足够 `idle`）、

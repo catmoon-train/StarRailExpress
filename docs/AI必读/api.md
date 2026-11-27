@@ -25,7 +25,7 @@
 > | `rightClickEntity/leftClickEntity` 返回 `void` | 返回 `InteractionResult` |
 > | `onAbilityUse(Player)` | `boolean onAbilityUse(ServerPlayer)` |
 > | `MorphApi.resolveDisplayedOwnerUuid/getDisplayedName/getDisplayedPlushStack` | 在客户端类 `MorphApiClient` 上 |
-> | `RoundEndComponent.CustomWinnerID` / `GameUtils.CustomWinnersPredicates` | `SREGameRoundEndComponent.CustomWinnerID`；**没有 `CustomWinnersPredicates`**，独立胜利用 `RoleUtils.customWinnerWin(...)`（见 `docs/AI创建新职业攻略.md` §12） |
+> | `RoundEndComponent.CustomWinnerID` / `GameUtils.CustomWinnersPredicates` | `SREGameRoundEndComponent.CustomWinnerID`；**没有 `CustomWinnersPredicates`**，独立胜利用 `RoleUtils.customWinnerWin(...)`（见 `docs/AI必读/AI创建新职业攻略.md` §12） |
 > | `GameConstants.DeathReasons.KNIFE_STAB` | `DeathReasons.KNIFE`（值仍是 `sre:knife_stab`） |
 > | `GameUtils.addItemCooldowns(level)` | `addItemCooldowns(ServerLevel, int time)` |
 > | `GameUtils.isPlayerSplitPersonalityAndSurvive` | `GameUtils.isPlayerReallyAliveOrDead`（`SPAliveResult`：`ALIVE`/`DEAD`/`NOT`） |
@@ -43,7 +43,7 @@
 > | `AreasSettings.meetingX/Y/Z`、`meetingChairScanRadius` | `meetingPosition: {x,y,z}`、`meetingChairScanBox: {minX..maxZ}` |
 >
 > 注：**RoleData / ShopEntry / 商店 / 背包扩展 / TimeRewind / ui_style 等章节经核对基本正确**，可以放心参考；职业相关的最新最全流程请优先看 [`角色开发指南.md`](角色开发指南.md) 与 [`AI创建新职业攻略.md`](AI创建新职业攻略.md)。
-> 时间回溯的原版 NBT 捕获/恢复生命周期与区域掉落物过滤，见 [`time_rewind_api.md`](time_rewind_api.md)「原版状态生命周期与物品过滤」；注册入口为 `TimeRewindEvents`，用于保全不可回溯复制的实物和排除临时领域增益。
+> 时间回溯的原版 NBT 捕获/恢复生命周期与区域掉落物过滤，见 [`time_rewind_api.md`](../time_rewind_api.md)「原版状态生命周期与物品过滤」；注册入口为 `TimeRewindEvents`，用于保全不可回溯复制的实物和排除临时领域增益。
 
 ## 目录 / Table of Contents
 
@@ -2382,7 +2382,7 @@ GameUtils.limitPlayerToBox(serverPlayer, new AABB(minX,minY,minZ, maxX,maxY,maxZ
 RoleUtils.customWinnerWin(serverLevel, GameUtils.WinStatus.CUSTOM, ModRoles.MY_ROLE_ID.getPath(),
         OptionalInt.of(ModRoles.MY_ROLE.color()));
 // 3) 必要时在 CustomWinnerClass.registerCustomWinners() 里加分支（顺序 = 优先级）
-// 详见 docs/角色开发指南.md §5 / §14 与 docs/AI创建新职业攻略.md §12
+// 详见 docs/AI必读/角色开发指南.md §5 / §14 与 docs/AI必读/AI创建新职业攻略.md §12
 ```
 
 ---
@@ -2680,7 +2680,7 @@ helper.attachSearchBox(screen);   // 挂载搜索框
 helper.onRender(graphics, screen);// 画提示文字 + 页码
 ```
 
-完整可抄的职业示例见 `docs/角色开发指南.md`。
+完整可抄的职业示例见 `docs/AI必读/角色开发指南.md`。
 
 ---
 
@@ -2784,5 +2784,5 @@ CustomParticleHandlers.register(SHOCK_WAVE, (level, origin, durationTicks, param
 - 皮肤管理：`src/main/java/io/wifi/starrailexpress/util/ItemSkinManager.java`
 - 粒子/特效：`src/main/java/io/wifi/starrailexpress/util/ParticleFx.java` · `src/main/java/io/wifi/starrailexpress/client/particle/CustomParticleHandlers.java` · `src/main/java/io/wifi/starrailexpress/network/packet/CustomParticleS2CPayload.java` · `src/main/java/org/agmas/noellesroles/scene/SceneParticles.java`
 - 工具类：`src/main/java/io/wifi/starrailexpress/util/SREItemUtils.java` · `src/main/java/org/agmas/noellesroles/utils/RoleUtils.java`
-- 创建扩展指南：[`CreateExtention.md`](../CreateExtention.md)
-- 中文 README：[`README.zh.md`](../README.zh.md)
+- 创建扩展指南：[`CreateExtention.md`](../../CreateExtention.md)
+- 中文 README：[`README.zh.md`](../../README.zh.md)

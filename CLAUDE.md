@@ -1,7 +1,7 @@
 # 注意事项
-在你写代码之前，请阅读 `AGENT.md` / `docs/*.md`
+在你写代码之前，请阅读 `AGENT.md` / `docs/AI必读/*.md` / `docs/*.md`
 
-`docs/*.md` 中的 API 可能已过时。以实际为准。
+`docs/AI必读/*.md` 与 `docs/*.md` 中的 API 可能已过时。以实际为准。
 
 文件中的AI提示词与注释十分重要，你不能忽视。
 
@@ -86,7 +86,7 @@ ParticleFx.sendCustom(level, ResourceLocation.fromNamespaceAndPath("mymod", "sho
 CustomParticleHandlers.register(id, (level, origin, durationTicks, params) -> { /* 逐点摆形状 */ });
 ```
 
-约束：单包最多 64 条、每条最多 8 个 float 参数，广播半径 64 格，未知 id 客户端静默忽略，同 id 重复注册会抛错。详见 `AGENT.md` 与 `docs/api.md` 的「粒子与特效」。
+约束：单包最多 64 条、每条最多 8 个 float 参数，广播半径 64 格，未知 id 客户端静默忽略，同 id 重复注册会抛错。详见 `AGENT.md` 与 `docs/AI必读/api.md` 的「粒子与特效」。
 
 # 测试/调试
 必须完成一个功能块再一次性进行test

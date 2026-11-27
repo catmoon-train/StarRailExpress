@@ -162,8 +162,8 @@
 
 ## 开发
 
-- **[docs/创建模组.md](docs/创建模组.md)** — 从零创建扩展模组：环境准备、项目搭建、依赖配置、构建命令。
-- **[docs/api.md](docs/api.md)** — 完整开发者 API 参考：角色注册、事件系统、技能系统、商店系统、CCA 组件、HUD 渲染、游戏模式、Replay 系统等。
+- **[docs/AI必读/创建模组.md](docs/AI必读/创建模组.md)** — 从零创建扩展模组：环境准备、项目搭建、依赖配置、构建命令。
+- **[docs/AI必读/api.md](docs/AI必读/api.md)** — 完整开发者 API 参考：角色注册、事件系统、技能系统、商店系统、CCA 组件、HUD 渲染、游戏模式、Replay 系统等。
 - **[CreateExtention.md](CreateExtention.md)** — 快速参考：在现有代码库中注册角色、物品、实体、商店、网络包、GUI 及 Mixin。
 
 > **重要提醒：** 不要引用 Wathe 的库，它会导致崩溃（未初始化）。

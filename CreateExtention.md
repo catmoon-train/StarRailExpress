@@ -1,8 +1,8 @@
 # 如何创建扩展
 
 > 本文档为**在现有代码库中**注册新内容的快速参考。  
-> 如果你要创建一个**独立的扩展模组**（新 Gradle 项目），请先阅读 **[docs/创建模组.md](docs/创建模组.md)**。  
-> 如果你要**新增或修改职业（角色）**，请先阅读 **[docs/角色开发指南.md](docs/角色开发指南.md)**（职业注册、组件、技能、事件、文案、商店速查）。
+> 如果你要创建一个**独立的扩展模组**（新 Gradle 项目），请先阅读 **[docs/AI必读/创建模组.md](docs/AI必读/创建模组.md)**。  
+> 如果你要**新增或修改职业（角色）**，请先阅读 **[docs/AI必读/角色开发指南.md](docs/AI必读/角色开发指南.md)**（职业注册、组件、技能、事件、文案、商店速查）。
 
 ## 项目构建
 
@@ -28,7 +28,7 @@
 
 ## 注册新角色/职业
 
-> **动手前先看 [`docs/AI创建新职业攻略.md`](docs/AI创建新职业攻略.md)**：可直接抄的角色/物品/商店/技能/网络包/GUI 模板、翻译键位置对照表与踩坑清单（核心原则：职业相关逻辑集中在 `SRERole` 子类与 `RoleData` 里）。
+> **动手前先看 [`docs/AI必读/AI创建新职业攻略.md`](docs/AI必读/AI创建新职业攻略.md)**：可直接抄的角色/物品/商店/技能/网络包/GUI 模板、翻译键位置对照表与踩坑清单（核心原则：职业相关逻辑集中在 `SRERole` 子类与 `RoleData` 里）。
 
 ### 注册方式：
 
@@ -291,7 +291,7 @@ data.ifPresent(d -> d.addRage(10));
 集中在 `org/agmas/noellesroles/init/RoleShopHandler.java`（由 `Noellesroles` 初始化时调用 `RoleShopHandler.shopRegister()`）：
 
 - 在 `shopRegister()` 里声明并填充 `ArrayList<ShopEntry>`（或专用的 `initializeXxxShop()` 方法）
-- 用 `ShopContent.customEntries.put(roleId, 列表)` 为角色注册商店；**更推荐**直接在职业类里覆写 `SRERole.getShopEntries()`（逻辑跟着职业走，见 `docs/AI创建新职业攻略.md` §5）
+- 用 `ShopContent.customEntries.put(roleId, 列表)` 为角色注册商店；**更推荐**直接在职业类里覆写 `SRERole.getShopEntries()`（逻辑跟着职业走，见 `docs/AI必读/AI创建新职业攻略.md` §5）
 
 ## 注册网络包
 
