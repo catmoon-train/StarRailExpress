@@ -36,6 +36,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.network.RoleRosterSyncPayload;
 import net.exmo.sre.sync.MysqlPlayerDataStore;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -66,12 +67,20 @@ public final class RoleRosterManager {
     private static volatile RoleRosterState state = RoleRosterState.createDefault();
     private static volatile MinecraftServer server;
 
+    /**
+     * 职业池是临时名单：一次投票只覆盖一局，这里保存应用池子之前的名单，
+     * 对局结束后恢复。快照只在内存里，不写回文件/数据库。
+     */
+    private static volatile RoleRosterState stateBeforePool = null;
+    private static volatile boolean poolActive = false;
+
     private RoleRosterManager() {
     }
 
     public static void registerEvents() {
         ServerLifecycleEvents.SERVER_STARTED.register(RoleRosterManager::onServerStarted);
         ServerLifecycleEvents.SERVER_STOPPING.register(s -> flushBlocking());
+        OnGameEnd.EVENT.register((serverLevel, gameWorldComponent) -> restoreAfterPoolGame());
         ServerLifecycleEvents.SERVER_STOPPED.register(s -> server = null);
         ServerPlayConnectionEvents.JOIN.register((handler, sender, srv) -> {
             if (SREConfig.instance().enableRoster)
@@ -223,6 +232,10 @@ public final class RoleRosterManager {
             SRE.LOGGER.warn("[RoleRoster] enableRoster 已关闭，职业池不会生效（配置 config/starrailexpress.json）");
             return;
         }
+        if (!poolActive) {
+            stateBeforePool = state.copy();
+        }
+        poolActive = true;
         state.roleCounts.clear();
         state.modifierCounts.clear();
         for (SRERole role : roles) {
@@ -236,15 +249,43 @@ public final class RoleRosterManager {
             }
         }
         state.enabled = true;
-        afterMutated();
+        afterMutated(false);
+    }
+
+    /**
+     * 一局结束后清掉职业池，恢复应用池子之前的名单，使一次投票只覆盖一局。
+     *
+     * <p>没有池子落地过时什么都不做；快照只在内存中，不写回文件/数据库，
+     * 所以文件/数据库里始终是管理员手动维护的名单，服务重启也不会残留限制。
+     */
+    public static void restoreAfterPoolGame() {
+        if (!poolActive) {
+            return;
+        }
+        poolActive = false;
+        state = stateBeforePool != null ? stateBeforePool.copy() : RoleRosterState.createDefault();
+        stateBeforePool = null;
+        afterMutated(false);
+        SRE.LOGGER.info("[RoleRoster] 职业池已随上一局结束清除，名单恢复为应用池子前的状态");
     }
 
     private static void afterMutated() {
+        afterMutated(true);
+    }
+
+    private static void afterMutated(boolean persist) {
+        if (persist) {
+            // 管理员手动改动名单时，旧的职业池快照不再有意义
+            poolActive = false;
+            stateBeforePool = null;
+        }
         state.version = Math.max(System.currentTimeMillis(), state.version + 1L);
         state.normalized();
-        writeLocalFile();
-        if (!SREConfig.instance().ignoreMysqlRosterConfig) {
-            saveToDatabase();
+        if (persist) {
+            writeLocalFile();
+            if (!SREConfig.instance().ignoreMysqlRosterConfig) {
+                saveToDatabase();
+            }
         }
         broadcast();
     }
@@ -302,7 +343,9 @@ public final class RoleRosterManager {
     }
 
     private static void flushBlocking() {
-        writeLocalFile();
+        // 停服时若职业池仍在生效，持久化的是池子之前的名单，避免下次开服残留限制
+        RoleRosterState toPersist = poolActive && stateBeforePool != null ? stateBeforePool : state;
+        writeLocalFile(toPersist);
         if (!isDatabaseEnabled()) {
             return;
         }
@@ -310,8 +353,8 @@ public final class RoleRosterManager {
         if (SREConfig.instance().ignoreMysqlRosterConfig) {
             return;
         }
-        MysqlPlayerDataStore.saveBatchBlocking(CONFIG_UUID, Map.of(PART, toJson(state)),
-                Math.max(1L, state.version), SAVE_TIMEOUT_MS);
+        MysqlPlayerDataStore.saveBatchBlocking(CONFIG_UUID, Map.of(PART, toJson(toPersist)),
+                Math.max(1L, toPersist.version), SAVE_TIMEOUT_MS);
     }
 
     private static RoleRosterState readLocalFile() {
@@ -328,9 +371,13 @@ public final class RoleRosterManager {
     }
 
     private static void writeLocalFile() {
+        writeLocalFile(state);
+    }
+
+    private static void writeLocalFile(RoleRosterState value) {
         try {
             Files.createDirectories(LOCAL_FILE.getParent());
-            Files.writeString(LOCAL_FILE, toJson(state), StandardCharsets.UTF_8);
+            Files.writeString(LOCAL_FILE, toJson(value), StandardCharsets.UTF_8);
         } catch (Exception exception) {
             SRE.LOGGER.warn("[RoleRoster] 写入本地职业轮换配置失败", exception);
         }

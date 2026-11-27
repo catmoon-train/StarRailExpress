@@ -24,6 +24,7 @@ import io.wifi.starrailexpress.content.command.argument.GameModeArgumentType;
 import io.wifi.starrailexpress.content.vote.RolePoolVote;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.voting.MapVotingManager;
+import io.wifi.starrailexpress.roster.RoleRosterManager;
 import io.wifi.starrailexpress.roster.pool.RolePool;
 import io.wifi.starrailexpress.roster.pool.RolePoolRegistry;
 import net.minecraft.commands.CommandSourceStack;
@@ -227,6 +228,8 @@ public class MapVoteCommand {
     }
 
     votingManager.stopVoting();
+    // 投票被中止说明这一局不会照常走完投票流程，丢掉可能已落地的临时职业池
+    RoleRosterManager.restoreAfterPoolGame();
     source.sendSuccess(() -> Component.literal("Vote Stop!!"), true);
     return 1;
   }

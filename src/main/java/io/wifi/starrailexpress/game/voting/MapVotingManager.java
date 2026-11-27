@@ -25,6 +25,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.data.MapConfig;
 import io.wifi.starrailexpress.game.data.ServerMapConfig;
 import io.wifi.starrailexpress.network.ShowSelectedMapUIPayload;
+import io.wifi.starrailexpress.roster.RoleRosterManager;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
@@ -73,6 +74,8 @@ public class MapVotingManager {
                 && RolePoolVote.start(votingTimeSeconds, () -> beginMapVoting(votingTimeSeconds))) {
             return;
         }
+        // 本次流程没有职业池投票：丢弃上一次可能还没被一局游戏消费掉的临时池子
+        RoleRosterManager.restoreAfterPoolGame();
         beginMapVoting(votingTimeSeconds);
     }
 
@@ -81,6 +84,7 @@ public class MapVotingManager {
         if (!canStartVoting()) {
             return;
         }
+        RoleRosterManager.restoreAfterPoolGame();
         beginMapVoting(votingTimeSeconds);
     }
 
