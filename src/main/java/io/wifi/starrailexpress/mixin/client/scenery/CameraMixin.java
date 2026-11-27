@@ -101,5 +101,11 @@ public class CameraMixin {
             camera.setRotation(camera.getYRot() + jitter.yaw(), camera.getXRot() + jitter.pitch());
             camera.setPosition(camera.getPosition().add(jitter.x(), jitter.y(), jitter.z()));
         }
+        if (org.agmas.noellesroles.client.CommandBlockImpactClient.isTremorActive()) {
+            Camera camera = (Camera) (Object) this;
+            var jitter = org.agmas.noellesroles.client.CommandBlockImpactClient.computeCamera(tickDelta);
+            camera.setRotation(camera.getYRot() + jitter.yaw(), camera.getXRot() + jitter.pitch());
+            camera.setPosition(camera.getPosition().add(jitter.x(), jitter.y(), 0.0D));
+        }
     }
 }

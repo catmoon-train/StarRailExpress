@@ -50,6 +50,7 @@ import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modded_murder.ForceTeamInfo.ForceTeamType;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.utils.RoleUtils;
+import io.wifi.starrailexpress.game.RoundOverrides;
 
 /**
  * 职业轮抽单选模式 - 玩家按顺序逐一选择职业。
@@ -260,8 +261,8 @@ public class SRERoleRotationSingleSelectGameMode extends SREMurderGameMode {
                 RoleUtils.sendWelcomeAnnouncement(p);
                 if (role.canUseKiller()) {
                     SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(p);
-                    if (shop.balance < GameConstants.getMoneyStart()) {
-                        shop.setBalance(GameConstants.getMoneyStart());
+                    if (shop.balance < RoundOverrides.startingMoney()) {
+                        shop.setBalance(RoundOverrides.startingMoney());
                     }
                 }
                 ModdedRoleAssigned.EVENT.invoker().assignModdedRole(p, role);

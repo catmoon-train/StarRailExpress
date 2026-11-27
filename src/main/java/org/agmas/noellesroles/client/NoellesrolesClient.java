@@ -352,6 +352,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         // 金属怪：钢卷输入上报、滚动角与第三人称
         org.agmas.noellesroles.client.SteelCoilClientHandler.register();
         org.agmas.noellesroles.client.CommandBlockProgressClient.register();
+        org.agmas.noellesroles.client.CommandBlockImpactClient.register();
         org.agmas.noellesroles.client.hud.roles.PaperDollHud.register();
         org.agmas.noellesroles.client.CommandBlockAmbientSound.register();
         org.agmas.noellesroles.content.item.LetterItem.clientReplacementOpener =

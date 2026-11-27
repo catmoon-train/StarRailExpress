@@ -111,10 +111,13 @@ public final class ManageCatalog {
         /** 本页自己（作为子界面的 parent）。 */
         Screen self();
 
-        /** 「开始游戏」用的补充时长（分钟，0 = 用服务端默认）。 */
+        /**
+         * 「开始游戏」时补在指令后面的时长（分钟）；0 = 不补，用服务端默认。
+         *
+         * <p>
+         * 这是给「本局时长还没同步到」时的兜底：真正的时长设置走 `/tmm:round time`。
+         */
         int startMinutes();
-
-        void setStartMinutes(int minutes);
     }
 
     /** 职业分组顺序：与名单界面（{@code RoleRosterEditScreen}）保持一致。 */
@@ -194,15 +197,25 @@ public final class ManageCatalog {
 
     private static void buildGame(List<ManageEntry> out, Context ctx) {
         out.add(label("screen.game_manage.section.start", SRETheme.BLUE));
+        // 本局时长：值来自服务端下发的本局覆盖（-1 = 跟随模式默认），改动下发给 /tmm:round time
         out.add(new ManageEntry.Counter(tr("screen.game_manage.row.minutes"), SRETheme.TEXT,
-                ctx::startMinutes, () -> 0, ctx::setStartMinutes, null, 0, 180,
+                () -> RoleManageConfigUI.roundMinutes, () -> 0,
+                n -> ctx.command("tmm:round time " + n),
+                () -> ctx.command("tmm:round time -1"), 1, 180,
                 tr("screen.game_manage.unit.minute")));
+        // 初始金币：本局覆盖（0 = 跟随配置里的初始金币）
+        out.add(new ManageEntry.Counter(tr("screen.game_manage.row.starting_money"), SRETheme.GOLD,
+                () -> RoleManageConfigUI.roundStartingMoney, () -> RoleManageConfigUI.defaultStartingMoney,
+                n -> ctx.command("tmm:round money " + n),
+                () -> ctx.command("tmm:round money -1"), 0, 5000,
+                tr("screen.game_manage.unit.coin")));
         for (ResourceLocation mode : new ArrayList<>(SREGameModes.GAME_MODES.keySet())) {
             if (mode.equals(TrainingGameMode.ID)) {
                 continue;
             }
             int minutes = ctx.startMinutes();
-            // 时长 > 0 时补在指令后面（/tmm:start <mode> [minutes]）
+            // 时长只在「界面里显式设过」时才补参数：本局覆盖（/tmm:round time）由服务端在开局时解析，
+            // 这里再传一遍反而会让 /tmm:round time 的语义看起来不一致。
             String command = "tmm:start " + mode + (minutes > 0 ? " " + minutes : "");
             out.add(new ManageEntry.Command(MapVoteCommand.getLocalizedGameModeName(mode.getPath()), command));
         }
@@ -232,13 +245,13 @@ public final class ManageCatalog {
 
     private static void buildRoles(List<ManageEntry> out, Context ctx) {
         out.add(label("screen.game_manage.section.role_counts", SRETheme.GOLD));
-        out.add(counter("screen.game_manage.row.killer_count", RoleTeam.KILLER.color(), ctx,
+        out.add(counter("screen.game_manage.row.killer_count", "killer", RoleTeam.KILLER.color(), ctx,
                 () -> RoleManageConfigUI.forcedKillerCount, () -> RoleManageConfigUI.autoKillerCount,
                 n -> ctx.command("setRoleCount killer " + n)));
-        out.add(counter("screen.game_manage.row.vigilante_count", RoleTeam.SHERIFF.color(), ctx,
+        out.add(counter("screen.game_manage.row.vigilante_count", "vigilante", RoleTeam.SHERIFF.color(), ctx,
                 () -> RoleManageConfigUI.forcedVigilanteCount, () -> RoleManageConfigUI.autoVigilanteCount,
                 n -> ctx.command("setRoleCount vigilante " + n)));
-        out.add(counter("screen.game_manage.row.neutral_count", RoleTeam.NEUTRAL.color(), ctx,
+        out.add(counter("screen.game_manage.row.neutral_count", "neutral", RoleTeam.NEUTRAL.color(), ctx,
                 () -> RoleManageConfigUI.forcedNeutralCount, () -> RoleManageConfigUI.autoNeutralCount,
                 n -> ctx.command("setRoleCount neutral " + n)));
 
@@ -416,11 +429,18 @@ public final class ManageCatalog {
         return Component.translatable(key);
     }
 
-    /** 人数行：值取服务端同步下来的数字，{@code -1} = 自动。 */
-    private static ManageEntry.Counter counter(String labelKey, int color, Context ctx,
-            java.util.function.IntSupplier forced, java.util.function.IntSupplier auto, java.util.function.IntConsumer apply) {
+    /**
+     * 人数行：值取服务端同步下来的数字，{@code -1} = 自动。
+     *
+     * @param kind {@code killer} / {@code vigilante} / {@code neutral}；「自动」按钮只重置这一种
+     *             （{@code /setRoleCount <kind> -1}）—— 无参的 {@code reset} 会把三种一起清掉
+     */
+    private static ManageEntry.Counter counter(String labelKey, String kind, int color, Context ctx,
+            java.util.function.IntSupplier forced, java.util.function.IntSupplier auto,
+            java.util.function.IntConsumer apply) {
         return new ManageEntry.Counter(tr(labelKey), color, forced, auto, apply,
-                () -> ctx.command("setRoleCount reset"), 0, 99, tr("screen.game_manage.unit.player"));
+                () -> ctx.command("setRoleCount " + kind + " -1"), 0, 99,
+                tr("screen.game_manage.unit.player"));
     }
 
     /** 职业开关：状态来自客户端镜像（未同步 = 三态中间态），点一下下发 {@code setEnabledRole}。 */
@@ -467,16 +487,53 @@ public final class ManageCatalog {
         return new CustomRoleManageScreen(() -> new CustomRoleScreen());
     }
 
+    /**
+     * 可开关的职业（过滤口径与名单界面 {@code RoleRosterEditScreen} 一致）。
+     *
+     * <p>
+     * 必须排除「其它模式职业」（回响、亡灵之主、训练场等）：它们不参与正常对局的职业池，
+     * 全列出来会让职业页多出几百条噪音行，也会让玩家误以为可以在这里开关它们。
+     * 名单界面的同名过滤是包私有的，无法直接复用，所以这里保持同一口径（字段含义见那边的注释）。
+     */
     private static List<SRERole> sortedRoles() {
-        List<SRERole> roles = new ArrayList<>(TMMRoles.ROLES.values());
+        List<SRERole> roles = new ArrayList<>();
+        for (SRERole role : TMMRoles.ROLES.values()) {
+            if (role == null) {
+                continue;
+            }
+            try {
+                // 注意：不要用 canBeRandomed() 过滤 —— 它表示「能否进入其它职业的随机池」，与能否开关无关
+                if (role.isOtherModeRole()) {
+                    continue;
+                }
+            } catch (Throwable ignored) {
+                // 单个职业读取失败时跳过它，而不是让整页崩掉
+                continue;
+            }
+            roles.add(role);
+        }
         Collator collator = Collator.getInstance();
         roles.sort(Comparator.comparing(role -> role.getName().getString(), collator));
         return roles;
     }
 
+    /** 可开关的修饰符（同样排除其它模式的）。 */
     private static List<SREModifier> sortedModifiers() {
         // 取快照再排序：MODIFIERS 在运行期可能被其它模组的注册流程改写
-        List<SREModifier> modifiers = new ArrayList<>(HMLModifiers.MODIFIERS);
+        List<SREModifier> modifiers = new ArrayList<>();
+        for (SREModifier modifier : new ArrayList<>(HMLModifiers.MODIFIERS)) {
+            if (modifier == null) {
+                continue;
+            }
+            try {
+                if (modifier.isOtherModeRole()) {
+                    continue;
+                }
+            } catch (Throwable ignored) {
+                continue;
+            }
+            modifiers.add(modifier);
+        }
         Collator collator = Collator.getInstance();
         modifiers.sort(Comparator.comparing(modifier -> RoleUtils.getModifierName(modifier).getString(), collator));
         return modifiers;

@@ -40,6 +40,7 @@
     "item.PotionItemMixin",
     "item.StewNoBowlMixin",
     "item.ItemPickupProgressionMixin",
+    "item.ItemPickupToastMixin",
     "item.ItemSkinMixin",
     "item.ItemConstructorMixin",
     "item.ItemStackMixin",

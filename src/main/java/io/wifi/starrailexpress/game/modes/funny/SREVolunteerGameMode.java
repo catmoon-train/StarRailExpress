@@ -49,6 +49,7 @@ import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.*;
+import io.wifi.starrailexpress.game.RoundOverrides;
 
 public class SREVolunteerGameMode extends SREMurderGameMode {
 
@@ -280,8 +281,8 @@ public class SREVolunteerGameMode extends SREMurderGameMode {
                 RoleUtils.sendWelcomeAnnouncement(p);
                 if (role.canUseKiller()) {
                     SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(p);
-                    if (shop.balance < GameConstants.getMoneyStart()) {
-                        shop.setBalance(GameConstants.getMoneyStart());
+                    if (shop.balance < RoundOverrides.startingMoney()) {
+                        shop.setBalance(RoundOverrides.startingMoney());
                     }
                 }
                 ModdedRoleAssigned.EVENT.invoker().assignModdedRole(p, role);

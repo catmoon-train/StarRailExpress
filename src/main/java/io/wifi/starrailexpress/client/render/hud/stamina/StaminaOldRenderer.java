@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.api.ChargeableItemRegistry;
+import io.wifi.starrailexpress.client.hud.TrainBottomHudLayout;
 import io.wifi.starrailexpress.client.render.hud.stamina.utils.RedScreenRenderer;
 import io.wifi.starrailexpress.util.ProgressProvider;
 import net.minecraft.client.Minecraft;
@@ -89,7 +90,8 @@ public class StaminaOldRenderer {
 
         // 渲染体力条 - 移动到物品栏上方
         context.pose().pushPose();
-        context.pose().translate(context.guiWidth() / 2f, context.guiHeight() - 35, 0); // 在物品栏上方显示
+        context.pose().translate(context.guiWidth() / 2f,
+                TrainBottomHudLayout.barCenterY(context, TrainBottomHudLayout.staminaBarSlot()), 0);
 
         // 蓄力武器：应用"前慢后快"缓动曲线，并做逐帧平滑过渡
         if (isChargingWeapon) {
@@ -179,41 +181,30 @@ public class StaminaOldRenderer {
 
         public void render(@NotNull GuiGraphics context, int colour, float delta) {
             float value = Mth.lerp(delta, this.lastValue, this.currentValue);
-
-            // 体力条参数 - 更现代、更扁平的设计
-            int barWidth = 120; // 总宽度增加
-            int barHeight = 2; // 高度减小变得更扁平
-            int halfWidth = barWidth / 2;
-
-            // 绘制背景（更现代化的半透明黑色）
-            int backgroundColor = 0x66000000; // 更透明的背景
-            context.fill(-halfWidth, -barHeight / 2, halfWidth, barHeight / 2, backgroundColor);
-
-            // 计算当前体力条宽度 - 从左锚定，向右延伸
-            int currentWidth = Math.round(barWidth * value);
-
-            if (currentWidth > 0) {
-                // 绘制体力条，居中
-                context.fill(-currentWidth / 2, -barHeight / 2, currentWidth / 2, barHeight / 2, colour);
-            }
+            drawCenteredBar(context, colour, value);
         }
 
         public void renderWithoutSmoothing(@NotNull GuiGraphics context, int colour, float value) {
-            // 体力条参数 - 更现代、更扁平的设计
-            int barWidth = 120; // 总宽度增加
-            int barHeight = 2; // 高度减小变得更扁平
+            drawCenteredBar(context, colour, value);
+        }
+
+        /**
+         * 旧款用的是“从中线向两侧同时伸长”的居中填充，保留这个观感，
+         * 只是宽高改成统一排版常量，避免和其它 bar 尺寸不一致。
+         */
+        private static void drawCenteredBar(@NotNull GuiGraphics context, int colour, float value) {
+            int barWidth = TrainBottomHudLayout.BAR_WIDTH;
             int halfWidth = barWidth / 2;
+            int top = -(TrainBottomHudLayout.BAR_HEIGHT / 2);
+            int bottom = top + TrainBottomHudLayout.BAR_HEIGHT;
 
             // 绘制背景（更现代化的半透明黑色）
-            int backgroundColor = 0x66000000; // 更透明的背景
-            context.fill(-halfWidth, -barHeight / 2, halfWidth, barHeight / 2, backgroundColor);
+            context.fill(-halfWidth, top, halfWidth, bottom, 0x66000000);
 
-            // 计算当前体力条宽度 - 从左锚定，向右延伸
-            int currentWidth = Math.round(barWidth * value);
-
+            // 计算当前体力条宽度 - 从中线向两侧延伸
+            int currentWidth = Math.round(barWidth * Mth.clamp(value, 0f, 1f));
             if (currentWidth > 0) {
-                // 绘制体力条（左侧固定，右侧随体力伸缩）
-                context.fill(-currentWidth / 2, -barHeight / 2, currentWidth / 2, barHeight / 2, colour);
+                context.fill(-currentWidth / 2, top, currentWidth / 2, bottom, colour);
             }
         }
 

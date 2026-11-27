@@ -61,6 +61,11 @@ public final class SponsorManager {
 
     /** 赞助者名（规范化为小写）。有注册 plush 的优先发注册玩偶，其余发自定义玩家玩偶。 */
     private static volatile List<String> sponsorPlushNames = List.of();
+    /**
+     * 赞助者显示名（保留云端名单里的原始大小写，用于界面展示与头像解析）。
+     * 与 {@link #sponsorPlushNames} 一一对应，顺序即名单顺序。
+     */
+    private static volatile List<String> sponsorDisplayNames = List.of();
 
     private SponsorManager() {
     }
@@ -73,6 +78,15 @@ public final class SponsorManager {
     /** 返回当前赞助者 plush 名的快照副本。 */
     public static List<String> getSponsorPlushNames() {
         return new ArrayList<>(sponsorPlushNames);
+    }
+
+    /**
+     * 返回当前赞助者显示名的快照副本（保留原始大小写，顺序与名单一致）。
+     * <p>
+     * 界面的「赞助者」栏目与头像解析都用这份名字，避免小写化导致按名查档案失败。
+     */
+    public static List<String> getSponsorDisplayNames() {
+        return new ArrayList<>(sponsorDisplayNames);
     }
 
     /**
@@ -102,9 +116,10 @@ public final class SponsorManager {
         });
     }
 
-    /** 把原始名单解析为去重后的小写名字列表，更新缓存并同步。 */
+    /** 把原始名单解析为去重后的名字列表，更新缓存并同步。 */
     private static void apply(MinecraftServer server, List<String> rawNames) {
         List<String> sponsors = new ArrayList<>();
+        List<String> displayNames = new ArrayList<>();
         int registered = 0;
         for (String raw : rawNames) {
             String name = normalize(raw);
@@ -112,11 +127,14 @@ public final class SponsorManager {
                 continue;
             }
             sponsors.add(name);
+            // 显示名保留原始写法，去掉末尾可能带的赞助者图标
+            displayNames.add(stripSupporterIcon(raw.trim()));
             if (PlushApi.hasPlush(name)) {
                 registered++;
             }
         }
         sponsorPlushNames = List.copyOf(sponsors);
+        sponsorDisplayNames = List.copyOf(displayNames);
         if (rawNames.isEmpty()) {
             return;
         }
@@ -125,6 +143,14 @@ public final class SponsorManager {
         if (server != null) {
             syncToAll(server);
         }
+    }
+
+    /** 去掉名字末尾的赞助者图标字符。 */
+    private static String stripSupporterIcon(String name) {
+        if (!name.isEmpty() && name.charAt(name.length() - 1) == SUPPORTER_ICON) {
+            return name.substring(0, name.length() - 1).trim();
+        }
+        return name;
     }
 
     /** 解析文本：按行拆分，去掉空行与 {@code #} 注释行。 */
@@ -207,14 +233,20 @@ public final class SponsorManager {
         return stack;
     }
 
-    /** 把当前名单同步给单个玩家。 */
-    public static void syncTo(ServerPlayer player) {
-        ServerPlayNetworking.send(player, new SponsorListPayload(getSponsorPlushNames()));
+    /** 当前配置里的赞助页链接；未配置时为空串。 */
+    public static String getSponsorPageUrl() {
+        String url = SREConfig.instance().sponsorPageUrl;
+        return url == null ? "" : url.trim();
     }
 
-    /** 把当前名单同步给所有在线玩家。 */
+    /** 把当前名单与赞助页链接同步给单个玩家。 */
+    public static void syncTo(ServerPlayer player) {
+        ServerPlayNetworking.send(player, new SponsorListPayload(getSponsorDisplayNames(), getSponsorPageUrl()));
+    }
+
+    /** 把当前名单与赞助页链接同步给所有在线玩家。 */
     public static void syncToAll(MinecraftServer server) {
-        SponsorListPayload payload = new SponsorListPayload(getSponsorPlushNames());
+        SponsorListPayload payload = new SponsorListPayload(getSponsorDisplayNames(), getSponsorPageUrl());
         for (ServerPlayer p : server.getPlayerList().getPlayers()) {
             ServerPlayNetworking.send(p, payload);
         }

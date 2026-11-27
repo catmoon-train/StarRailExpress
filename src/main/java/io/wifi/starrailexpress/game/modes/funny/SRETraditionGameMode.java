@@ -33,6 +33,7 @@ import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import io.wifi.starrailexpress.game.RoundOverrides;
 
 /**
  * 传统模式 (starrailexpress:tradition)
@@ -91,8 +92,8 @@ public class SRETraditionGameMode extends SREMurderGameMode {
             gameWorldComponent.addRole(player, TMMRoles.KILLER, false);
             // 给杀手发放起始金钱
             SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(player);
-            if (playerShopComponent.balance < GameConstants.getMoneyStart())
-                playerShopComponent.setBalance(GameConstants.getMoneyStart());
+            if (playerShopComponent.balance < RoundOverrides.startingMoney())
+                playerShopComponent.setBalance(RoundOverrides.startingMoney());
         }
 
         // 分配警长（TMMRoles.VIGILANTE）

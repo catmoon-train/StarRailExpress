@@ -38,6 +38,7 @@ import org.agmas.noellesroles.game.modes.fourthroom.game.FourthRoomGameManager;
 
 import java.util.List;
 import java.util.UUID;
+import io.wifi.starrailexpress.game.RoundOverrides;
 
 public class StartCommand {
   public static LiteralCommandNode<CommandSourceStack> START_COMMAND_NODE;
@@ -128,7 +129,9 @@ public class StartCommand {
     }
     if (gameMode == SREGameModes.LOOSE_ENDS) {
       GameUtils.startGame(source.getLevel(), gameMode,
-          GameConstants.getInTicks(resolvedStartMinutes >= 0 ? resolvedStartMinutes : gameMode.defaultStartTime, 0));
+          resolvedStartMinutes >= 0
+          ? GameConstants.getInTicks(resolvedStartMinutes, 0)
+          : RoundOverrides.resolveStartTicks(gameMode.defaultStartTime));
       source.sendSuccess(
           () -> Component.translatable("commands.sre.start", gameMode.toString(), resolvedStartMinutes)
               .withStyle(style -> style.withColor(0x00FF00)),
@@ -136,7 +139,9 @@ public class StartCommand {
       return 1;
     } else {
       GameUtils.startGame(source.getLevel(), gameMode,
-          GameConstants.getInTicks(resolvedStartMinutes >= 0 ? resolvedStartMinutes : gameMode.defaultStartTime, 0));
+          resolvedStartMinutes >= 0
+          ? GameConstants.getInTicks(resolvedStartMinutes, 0)
+          : RoundOverrides.resolveStartTicks(gameMode.defaultStartTime));
       source.sendSuccess(
           () -> Component.translatable("commands.sre.start", gameMode.toString(), resolvedStartMinutes)
               .withStyle(style -> style.withColor(0x00FF00)),

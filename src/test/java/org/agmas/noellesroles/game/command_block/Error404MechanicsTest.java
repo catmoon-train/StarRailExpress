@@ -85,9 +85,10 @@ class Error404MechanicsTest {
         assertFalse(chase.contains("puppet.swing("));
         int detonation = source.indexOf("private static boolean remoteDetonate(");
         String explosion = source.substring(detonation, start);
-        assertTrue(explosion.contains("findItem(actor, ModItems.ERROR_DETONATOR)"));
-        assertTrue(explosion.contains("detonator.isEmpty()"));
-        assertTrue(explosion.contains("detonator.shrink(1)"));
+        // 引爆改成终端里直接扣金币，不再消耗引爆器道具
+        assertTrue(explosion.contains("MoneyUtils.cost(actor, DETONATE_COST)"));
+        assertFalse(explosion.contains("ERROR_DETONATOR"));
+        assertFalse(explosion.contains("detonator.shrink"));
     }
 
     @Test void countdownUsesCeilingAndNeverGoesNegative() {

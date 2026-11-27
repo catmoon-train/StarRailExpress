@@ -41,6 +41,8 @@ public final class Error404Client {
                 org.agmas.noellesroles.init.ModEntities.ERROR404_PUPPET,
                 org.agmas.noellesroles.client.renderer.Error404PuppetRenderer::new);
         CommonHudRenderCallback.EVENT.register((graphics, delta) -> renderHud(graphics));
+        net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.END_CLIENT_TICK
+                .register(Error404Client::tickPuppetAmbience);
     }
 
     public static boolean isHigh() {
@@ -90,5 +92,36 @@ public final class Error404Client {
         int x = (graphics.guiWidth() - client.font.width(hint)) / 2;
         int y = graphics.guiHeight() - 58;
         graphics.drawString(client.font, hint, x, y, 0xFFC9A0E8, true);
+    }
+
+    /**
+     * 错误傀儡的周围黑紫粒子与持续僵尸低吼。
+     *
+     * <p>粒子直接 {@code addParticle} 到客户端世界，不进网络；声音用
+     * {@code playNotifySound} 只播给 24 格内的本地玩家。两者都由
+     * {@link ClientTickEvents} 统一驱动，公共实体类不引用任何客户端类型。</p>
+     */
+    static void tickPuppetAmbience(Minecraft client) {
+        if (client.level == null || client.player == null) {
+            return;
+        }
+        for (net.minecraft.world.entity.Entity entity : client.level.entitiesForRendering()) {
+            if (!(entity instanceof org.agmas.noellesroles.content.entity.Error404PuppetEntity puppet)) {
+                continue;
+            }
+            var random = puppet.getRandom();
+            double x = puppet.getX() + (random.nextDouble() - 0.5D) * 0.8D;
+            double y = puppet.getY() + random.nextDouble() * 1.85D;
+            double z = puppet.getZ() + (random.nextDouble() - 0.5D) * 0.8D;
+            client.level.addParticle(net.minecraft.core.particles.ParticleTypes.SMOKE, x, y, z, 0, 0.012D, 0);
+            if (random.nextInt(3) == 0) {
+                client.level.addParticle(net.minecraft.core.particles.ParticleTypes.SQUID_INK, x, y, z, 0, -0.01D, 0);
+            }
+            if (puppet.tickCount % 70 == 0
+                    && client.player.distanceToSqr(puppet) <= 24.0D * 24.0D) {
+                client.player.playNotifySound(net.minecraft.sounds.SoundEvents.ZOMBIE_AMBIENT,
+                        net.minecraft.sounds.SoundSource.HOSTILE, 0.5F, 0.72F);
+            }
+        }
     }
 }

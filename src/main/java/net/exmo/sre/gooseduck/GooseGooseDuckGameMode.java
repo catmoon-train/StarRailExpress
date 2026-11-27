@@ -38,6 +38,7 @@ import org.agmas.noellesroles.init.ModEffects;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import io.wifi.starrailexpress.game.RoundOverrides;
 
 /**
  * 鹅鸭杀游戏模式（Goose Goose Duck / Among Us 式）。
@@ -113,8 +114,8 @@ public class GooseGooseDuckGameMode extends SREMurderGameMode {
             gameWorldComponent.addRole(player, role, false);
             if (role.canUseKiller()) {
                 SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
-                if (shop.balance < GameConstants.getMoneyStart()) {
-                    shop.setBalance(GameConstants.getMoneyStart());
+                if (shop.balance < RoundOverrides.startingMoney()) {
+                    shop.setBalance(RoundOverrides.startingMoney());
                 }
             }
             ServerPlayNetworking.send(player, new AnnounceWelcomePayload(role.getIdentifier().toString(),

@@ -30,6 +30,7 @@ import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import org.ladysnake.cca.api.v3.component.tick.CommonTickingComponent;
+import io.wifi.starrailexpress.game.RoundOverrides;
 
 public class AutoStartComponent implements AutoSyncedComponent, CommonTickingComponent {
     public static final ComponentKey<AutoStartComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("autostart"),
@@ -65,7 +66,7 @@ public class AutoStartComponent implements AutoSyncedComponent, CommonTickingCom
                 if (gameWorldComponent.getGameStatus() == SREGameWorldComponent.GameStatus.INACTIVE) {
                     GameMode gameMode = SREGameModes.MURDER;
                     GameUtils.startGame(serverWorld, gameMode,
-                            GameConstants.getInTicks(gameMode.defaultStartTime, 0));
+                            RoundOverrides.resolveStartTicks(gameMode.defaultStartTime));
                     return;
                 }
             }

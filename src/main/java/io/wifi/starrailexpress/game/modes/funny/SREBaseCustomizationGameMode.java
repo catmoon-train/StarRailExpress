@@ -37,6 +37,7 @@ import org.agmas.noellesroles.utils.RoleUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
+import io.wifi.starrailexpress.game.RoundOverrides;
 
 public class SREBaseCustomizationGameMode extends GameMode {
     /** 共有物品 */
@@ -78,8 +79,8 @@ public class SREBaseCustomizationGameMode extends GameMode {
             if (role != null) {
                 if (role.canUseKiller()) {
                     SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(player);
-                    if (playerShopComponent.balance < GameConstants.getMoneyStart())
-                        playerShopComponent.setBalance(GameConstants.getMoneyStart());
+                    if (playerShopComponent.balance < RoundOverrides.startingMoney())
+                        playerShopComponent.setBalance(RoundOverrides.startingMoney());
                 }
                 ModdedRoleAssigned.EVENT.invoker().assignModdedRole(player, role);
             }

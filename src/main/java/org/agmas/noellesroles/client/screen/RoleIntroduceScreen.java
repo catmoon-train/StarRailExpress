@@ -35,6 +35,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.PlayerFaceRenderer;
+import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -1624,6 +1626,232 @@ public class RoleIntroduceScreen extends Screen {
         }
     }
 
+    /**
+     * 「赞助者」栏目：列出当前名单里的玩家，头像是按名字在客户端异步解析的皮肤；
+     * 另外提供赞助入口与赞助相关说明（仅用于服务器维护、未成年人请勿赞助、感谢、免责声明）。
+     * <p>
+     * 名单来自服务端同步的 {@code SponsorListPayload}（见 {@code ClientSponsorCache}），
+     * 顺序即名单顺序，界面文案里也写明排名不分前后。
+     */
+    private class SponsorTab implements DetailTab {
+        private static final int AVATAR_SIZE = 16;
+        private static final int CELL_H = 22;
+        private static final int LINK_H = 16;
+        private static final int GAP = 4;
+
+        private int scrollOffset = 0;
+        private int maxScroll = 0;
+        private int contentHeight = 0;
+
+        private final List<String> names = new ArrayList<>();
+        private final List<FormattedCharSequence> aboutLines = new ArrayList<>();
+        private int columns = 3;
+        private int cellW = 150;
+        private int titleTop, orderTop, sepTop, gridTop, aboutTitleTop, aboutTop, linkTop;
+        private int linkW;
+        private boolean hasLink;
+
+        @Override
+        public Component getTitle() {
+            return Component.translatable("screen.roleintroduce.detail.sponsors");
+        }
+
+        @Override
+        public boolean isVisible() {
+            // 赞助与具体条目无关：即使左侧没有选中任何条目，本栏目也始终可进入
+            return true;
+        }
+
+        @Override
+        public int getColor() {
+            return 0xFFE08AB0;
+        }
+
+        @Override
+        public void onSwitchTo() {
+            scrollOffset = 0;
+            layout(rightW - PANEL_PAD * 2 - SCROLL_W - 4);
+        }
+
+        private int cachedWidth = -1;
+        private List<String> cachedNames;
+        private String cachedUrl;
+
+        /** 按当前面板宽度排一次版：所有 Y 都是「相对内容区顶部」的位置。 */
+        private void layout(int w) {
+            List<String> current = io.wifi.starrailexpress.client.data.ClientSponsorCache.getSponsorNames();
+            String url = io.wifi.starrailexpress.client.data.ClientSponsorCache.getSponsorPageUrl();
+            if (w == cachedWidth && current == cachedNames && java.util.Objects.equals(url, cachedUrl)) {
+                return;
+            }
+            cachedWidth = w;
+            cachedNames = current;
+            cachedUrl = url;
+
+            names.clear();
+            names.addAll(current);
+            columns = Mth.clamp(w / 150, 1, 4);
+            cellW = Math.max(1, w / columns);
+
+            int y = 0;
+            titleTop = y;
+            y += font.lineHeight;
+            orderTop = y;
+            y += font.lineHeight + 2;
+            sepTop = y;
+            y += font.lineHeight + GAP;
+            gridTop = y;
+            int rows = names.isEmpty() ? 1 : (names.size() + columns - 1) / columns;
+            y += rows * CELL_H;
+            y += GAP;
+            aboutTitleTop = y;
+            y += font.lineHeight + 2;
+            aboutTop = y;
+            aboutLines.clear();
+            aboutLines.addAll(font.split(
+                    Component.translatable("screen.roleintroduce.sponsors.about.body")
+                            .withStyle(ChatFormatting.WHITE),
+                    w));
+            y += aboutLines.size() * (font.lineHeight + 2) + GAP;
+            linkTop = y;
+            hasLink = url != null && !url.isBlank();
+            linkW = font.width(Component.translatable("screen.roleintroduce.sponsors.link")) + 18;
+            y += (hasLink ? LINK_H : font.lineHeight) + GAP;
+            contentHeight = y;
+        }
+
+        @Override
+        public void render(GuiGraphics g, int x, int y, int w, int h, int mouseX, int mouseY, float partialTick) {
+            layout(w);
+            maxScroll = Math.max(0, contentHeight - h);
+            scrollOffset = Mth.clamp(scrollOffset, 0, maxScroll);
+            g.enableScissor(x, y, x + w, y + h);
+            int top = y - scrollOffset;
+
+            g.drawString(font, Component.translatable("screen.roleintroduce.sponsors.title")
+                    .withStyle(ChatFormatting.BOLD), x, top + titleTop, SRETheme.GOLD);
+            g.drawString(font, Component.translatable("screen.roleintroduce.sponsors.order")
+                    .withStyle(ChatFormatting.GRAY), x, top + orderTop, SRETheme.MUTED);
+
+            int dashCount = Math.max(1, w / Math.max(1, font.width("─")));
+            Component dashes = Component.literal("─".repeat(dashCount)).withStyle(ChatFormatting.DARK_GRAY);
+            g.drawString(font, dashes, x, top + sepTop, SRETheme.CARD_BORDER);
+
+            if (names.isEmpty()) {
+                g.drawString(font, Component.translatable("screen.roleintroduce.sponsors.empty")
+                        .withStyle(ChatFormatting.GRAY), x + 2, top + gridTop + (CELL_H - font.lineHeight) / 2,
+                        SRETheme.MUTED);
+            } else {
+                renderSponsorGrid(g, x, top, w, h, mouseX, mouseY);
+            }
+
+            g.drawString(font, dashes, x, top + aboutTitleTop - GAP, SRETheme.CARD_BORDER);
+            g.drawString(font, Component.translatable("screen.roleintroduce.sponsors.about")
+                    .withStyle(ChatFormatting.BOLD), x, top + aboutTitleTop, SRETheme.GOLD);
+            int lineY = top + aboutTop;
+            for (FormattedCharSequence line : aboutLines) {
+                if (lineY + font.lineHeight > y && lineY < y + h) {
+                    g.drawString(font, line, x, lineY, SRETheme.BODY);
+                }
+                lineY += font.lineHeight + 2;
+            }
+
+            if (hasLink) {
+                int btnY = top + linkTop;
+                if (btnY + LINK_H > y && btnY < y + h) {
+                    boolean hovered = isInRect(mouseX, mouseY, x, btnY, linkW, LINK_H);
+                    g.fillGradient(x, btnY, x + linkW, btnY + LINK_H,
+                            hovered ? SRETheme.BORDER : 0xFF3A2A16, hovered ? 0xFF6B502A : 0xFF241A0F);
+                    g.renderOutline(x, btnY, linkW, LINK_H, SRETheme.GOLD_DIM);
+                    g.fill(x, btnY + LINK_H - 2, x + linkW, btnY + LINK_H, SRETheme.GOLD_DIM);
+                    g.drawCenteredString(font, Component.translatable("screen.roleintroduce.sponsors.link"),
+                            x + linkW / 2, btnY + (LINK_H - font.lineHeight) / 2,
+                            hovered ? SRETheme.TITLE : SRETheme.TEXT);
+                }
+            } else {
+                g.drawString(font, Component.translatable("screen.roleintroduce.sponsors.link.none")
+                        .withStyle(ChatFormatting.GRAY), x, top + linkTop, SRETheme.MUTED);
+            }
+            g.disableScissor();
+        }
+
+        /** 画头像网格：头像 + 名字，悬停显示完整名字。 */
+        private void renderSponsorGrid(GuiGraphics g, int x, int contentTop, int w, int h, int mouseX, int mouseY) {
+            int hovered = -1;
+            for (int i = 0; i < names.size(); i++) {
+                int col = i % columns, row = i / columns;
+                int cellX = x + col * cellW;
+                int cellY = contentTop + gridTop + row * CELL_H;
+                if (cellY + CELL_H < contentTop || cellY > contentTop + h) {
+                    continue;
+                }
+                boolean hover = isInRect(mouseX, mouseY, cellX, cellY, cellW - 2, CELL_H);
+                if (hover) {
+                    hovered = i;
+                    g.fill(cellX, cellY, cellX + cellW - 2, cellY + CELL_H, 0x22D9A441);
+                }
+                int faceX = cellX + 2, faceY = cellY + (CELL_H - AVATAR_SIZE) / 2;
+                g.fill(faceX, faceY, faceX + AVATAR_SIZE, faceY + AVATAR_SIZE, 0xFF141414);
+                String name = names.get(i);
+                ResourceLocation texture = io.wifi.starrailexpress.client.util.SponsorAvatarCache.get(name);
+                if (texture != null) {
+                    PlayerFaceRenderer.draw(g, texture, faceX, faceY, AVATAR_SIZE);
+                } else {
+                    // 还没解析出来（在线档案查询 / 皮肤下载中）：先画名字首字占位
+                    String initial = name.isEmpty() ? "?" : name.substring(0, 1).toUpperCase(Locale.ROOT);
+                    g.drawCenteredString(font, Component.literal(initial), faceX + AVATAR_SIZE / 2,
+                            faceY + (AVATAR_SIZE - font.lineHeight) / 2, SRETheme.MUTED);
+                }
+                g.renderOutline(faceX, faceY, AVATAR_SIZE, AVATAR_SIZE, SRETheme.CARD_BORDER);
+                int textX = faceX + AVATAR_SIZE + 4;
+                int textW = Math.max(4, cellX + cellW - 4 - textX);
+                g.drawString(font, font.plainSubstrByWidth(name, textW), textX,
+                        cellY + (CELL_H - font.lineHeight) / 2, hover ? SRETheme.TITLE : SRETheme.TEXT);
+            }
+            if (hovered >= 0) {
+                g.renderTooltip(font, Component.literal(names.get(hovered)), mouseX, mouseY);
+            }
+        }
+
+        @Override
+        public boolean mouseClicked(double mouseX, double mouseY, int button,
+                int contentX, int contentY, int contentW, int contentH) {
+            if (button != 0 || !hasLink) {
+                return false;
+            }
+            int btnY = contentY + linkTop - scrollOffset;
+            if (isInRect((int) mouseX, (int) mouseY, contentX, btnY, linkW, LINK_H)) {
+                minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
+                String url = io.wifi.starrailexpress.client.data.ClientSponsorCache.getSponsorPageUrl();
+                if (url != null && !url.isBlank()) {
+                    ConfirmLinkScreen.confirmLinkNow(RoleIntroduceScreen.this, url);
+                }
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public int getScrollOffset() {
+            return scrollOffset;
+        }
+
+        @Override
+        public int getMaxScroll() {
+            return maxScroll;
+        }
+
+        @Override
+        public void setScrollOffset(int offset) {
+            this.scrollOffset = Mth.clamp(offset, 0, maxScroll);
+        }
+
+        @Override
+        public int getContentHeight() {
+            return contentHeight;
+        }
+    }
+
     public class AreasSettingsDescriptionTab extends AbstractTextTab {
 
         @Override
@@ -1757,8 +1985,11 @@ public class RoleIntroduceScreen extends Screen {
 
     private void buildTabs() {
         tabs.clear();
-        if (selectedRole == null)
+        if (selectedRole == null) {
+            // 没有选中条目时只保留「赞助者」栏目：它与具体条目无关，玩家仍可查看名单与赞助入口
+            tabs.add(new SponsorTab());
             return;
+        }
         int textW = rightW - PANEL_PAD * 2 - SCROLL_W - 4;
         // 简介
         tabs.add(new AbstractTextTab() {
@@ -1984,9 +2215,11 @@ public class RoleIntroduceScreen extends Screen {
                                 .withStyle(ChatFormatting.WHITE), textW));
             }
         });
-
         // 地图介绍
         tabs.add(new AreasSettingsDescriptionTab());
+
+        // 赞助者：与具体条目无关，排在最后，供玩家查看名单与赞助入口
+        tabs.add(new SponsorTab());
 
     }
 
@@ -2400,9 +2633,23 @@ public class RoleIntroduceScreen extends Screen {
         drawPanelBg(g, rightX, panelY, rightW, panelH);
 
         if (selectedRole == null) {
-            g.drawCenteredString(font,
-                    Component.translatable("screen.roleintroduce.select_hint").withStyle(ChatFormatting.GRAY),
-                    rightX + rightW / 2, panelY + panelH / 2, SRETheme.MUTED);
+            // 没有选中条目时仍然允许进入「赞助者」栏目（该栏目与具体条目无关）
+            if (activeTabIndex >= 0 && activeTabIndex < tabs.size() && tabs.get(activeTabIndex).isVisible()) {
+                renderDetailTabBar(g, mouseX, mouseY, rightX + PANEL_PAD, getDetailTabBarTop(),
+                        rightW - PANEL_PAD * 2, DETAIL_TAB_H);
+                DetailTab currentTab = tabs.get(activeTabIndex);
+                int contentY = getRightContentTop();
+                int contentH = getRightContentHeight();
+                int contentWidth = rightW - PANEL_PAD * 2 - SCROLL_W - 2;
+                currentTab.render(g, rightX + PANEL_PAD, contentY, contentWidth, contentH, mouseX, mouseY, 0);
+                int sbX = rightX + rightW - PANEL_PAD - SCROLL_W;
+                renderVScrollbar(g, sbX, contentY, contentH, currentTab.getScrollOffset(), currentTab.getMaxScroll(),
+                        currentTab.getContentHeight(), mouseX, mouseY, isDraggingDetailScroll);
+            } else {
+                g.drawCenteredString(font,
+                        Component.translatable("screen.roleintroduce.select_hint").withStyle(ChatFormatting.GRAY),
+                        rightX + rightW / 2, panelY + panelH / 2, SRETheme.MUTED);
+            }
             return;
         }
 
@@ -2668,7 +2915,7 @@ public class RoleIntroduceScreen extends Screen {
                 return true;
             }
 
-            if (selectedRole != null) {
+            {
                 int tabBarY = getDetailTabBarTop(), tabBarH = DETAIL_TAB_H;
                 int tabXStart = rightX + PANEL_PAD, tabWTotal = rightW - PANEL_PAD * 2;
                 int visibleCount = (int) tabs.stream().filter(DetailTab::isVisible).count();
@@ -2727,7 +2974,7 @@ public class RoleIntroduceScreen extends Screen {
                 return true;
             }
 
-            if (selectedRole != null && activeTabIndex >= 0 && activeTabIndex < tabs.size()) {
+            if (activeTabIndex >= 0 && activeTabIndex < tabs.size() && tabs.get(activeTabIndex).isVisible()) {
                 int contentY = getRightContentTop();
                 int contentH = getRightContentHeight();
                 int rsbX = rightX + rightW - PANEL_PAD - SCROLL_W;
@@ -2744,7 +2991,7 @@ public class RoleIntroduceScreen extends Screen {
             if (isInRect((int) mx, (int) my, leftX, topBarY, leftW - 2, TOP_BAR_H))
                 setFocusArea(FocusArea.SEARCH);
 
-            if (selectedRole != null && activeTabIndex >= 0 && activeTabIndex < tabs.size()) {
+            if (activeTabIndex >= 0 && activeTabIndex < tabs.size() && tabs.get(activeTabIndex).isVisible()) {
                 DetailTab tab = tabs.get(activeTabIndex);
                 int contentX = rightX + PANEL_PAD;
                 int contentY = getRightContentTop();

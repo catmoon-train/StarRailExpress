@@ -22,6 +22,8 @@ import org.agmas.noellesroles.utils.RoleUtils;
 import org.agmas.noellesroles.utils.MoneyUtils;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.packet.CommandBlockProgressS2CPacket;
+import org.agmas.noellesroles.packet.CommandBlockImpactS2CPacket;
+import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import net.exmo.sre.subtitle.SubtitleS2CPayload;
 import io.wifi.starrailexpress.SRE;
@@ -85,6 +87,7 @@ import net.minecraft.world.phys.Vec3;
 import net.exmo.sre.camera.AdvancedCameraCommand;
 import org.agmas.noellesroles.content.entity.CommandBlockMarkerEntity;
 import org.agmas.noellesroles.init.ModEntities;
+import io.wifi.starrailexpress.game.RoundOverrides;
 
 /**
  * 命令方块不是玩家职业。它占满杀手名额，把平民标成异常，再按分钟改写成池内杀手。
@@ -93,6 +96,10 @@ public final class CommandBlockDirector {
     private static final int CONVERT_INTERVAL = 60 * 20;
     private static final int EVENT_INTERVAL = 120 * 20;
     private static final int COIN_REWARD = 25;
+    /** 「杀手阵营」在 PlayerRoleWeightManager 里的扮演类型编号（见 getRoleType 的 4 号分支）。 */
+    private static final int KILLER_ROLE_TYPE = 4;
+    /** 邪恶方（杀手阵营 / 异常 / 带异常修饰符的玩家）全灭后，多久复活一名。 */
+    private static final int REVIVE_DELAY = 60 * 20;
     private static boolean registered;
     private static boolean occupySlots;
     private static boolean suppressOfficialRoll;
@@ -164,11 +171,20 @@ public final class CommandBlockDirector {
         });
         // 破坏进度只在真正死亡时结算：OnKillPlayerTriggered 早于护盾、闪避、石头人无敌的否决，
         // 被挡下的命中也会走到那里，所以改听死亡通知。只认命令方块杀手（异常改写池）的死亡，
-        // 异常、平民和中立死亡不扣血。
+        // 改写池杀手、以及带异常修饰符的玩家真正死亡时结算破坏进度（后者只有半值）。
         OnPlayerDeathWithKiller.EVENT.register((victim, killer, reason) -> {
-            if (victim instanceof ServerPlayer dead && CommandBlockRules.isPoolRole(
-                    SREGameWorldComponent.KEY.get(dead.level()).getRole(dead))) {
+            if (!(victim instanceof ServerPlayer dead) || session == null) {
+                return;
+            }
+            SRERole role = SREGameWorldComponent.KEY.get(dead.level()).getRole(dead);
+            if (CommandBlockRules.isPoolRole(role)) {
+                // 改写池杀手真正死亡：一次满值破坏。
                 addDestruction(dead.serverLevel());
+                return;
+            }
+            // 带异常修饰符的玩家死亡只计正常杀手死亡的一半，并可能触发邪恶方全灭复活。
+            if (WorldModifierComponent.getInstance(dead).isModifier(dead, NRModifiers.ABNORMAL)) {
+                addMarkedDestruction(dead.serverLevel());
             }
         });
         // 尸体已实际生成后再清除：不会把护盾、免死等被否决的命中算成抹除。
@@ -280,20 +296,21 @@ public final class CommandBlockDirector {
         remindMarkedAbnormals(level);
     }
 
-    /** 安全时间结束后，提醒仍挂着异常修饰符的玩家。 */
+    /**
+     * 安全时间结束后的提醒：异常修饰符在开局（{@link #markAbnormals}）就已经发到手，
+     * 这里只负责把「你现在带上了它」再敲一次给本人看，不补发、不移除。
+     */
     private static void remindMarkedAbnormals(ServerLevel level) {
         if (session == null || session.ended || !session.levelKey.equals(level.dimension().location())) {
             return;
         }
-        Component text = Component.translatable("message.noellesroles.command_block.abnormal_marked")
-                .withStyle(ChatFormatting.LIGHT_PURPLE);
         for (ServerPlayer player : level.players()) {
             if (GameUtils.isPlayerAliveAndSurvival(player)
                     && WorldModifierComponent.getInstance(player).isModifier(player, NRModifiers.ABNORMAL)) {
-                player.displayClientMessage(text, false);
-                SRENetworkMessageUtils.sendTitleTime(player, 10, 80, 20);
-                SRENetworkMessageUtils.sendSubtitle(player, Component.empty());
-                SRENetworkMessageUtils.sendTitle(player, text);
+                PacketTracker.sendToClient(player, new SubtitleS2CPayload(
+                        Component.translatable("message.noellesroles.command_block.abnormal_marked"),
+                        Component.translatable("message.noellesroles.command_block.abnormal_marked.sub"),
+                        100, 0xFFC08BFF, false, SubtitleS2CPayload.POS_TOP, false));
             }
         }
     }
@@ -416,7 +433,8 @@ public final class CommandBlockDirector {
         }
         session.active = true;
         occupySlots = true;
-        session.quota = CommandBlockRules.destructionQuota(session.originalKillers);
+        session.destructionQuota = CommandBlockRules.destructionQuota(session.originalKillers);
+        session.quotaHalves = CommandBlockRules.destructionQuotaHalves(session.originalKillers);
         markAbnormals(level);
         assignSteve(level);
         scheduleNextConversion(level, session.tick);
@@ -460,6 +478,7 @@ public final class CommandBlockDirector {
         tickEvents(level, now);
         tickPendingKills(level, now);
         SteveBuilder.tick(level);
+        tickRevive(level, now);
         CommandBlockCombat.tick(level);
         if (session.jumpRestoreAt > 0 && now >= session.jumpRestoreAt) {
             session.jumpRestoreAt = 0;
@@ -559,12 +578,20 @@ public final class CommandBlockDirector {
         session.nextRole = role;
         session.previewed = true;
         session.nextWarnAt = 0;
+        boolean wasMarked = WorldModifierComponent.getInstance(player).isModifier(player, NRModifiers.ABNORMAL);
         RoleUtils.changeRole(player, ModRoles.ABNORMAL, false, false, false, false, true);
         // 变成异常（中立空壳）时清掉只适用于旧阵营的修饰符，避免平民专属修饰符跟到中立身上
         RoleUtils.removeInapplicableModifiers(player, ModRoles.ABNORMAL);
         RoleUtils.addModifier(player, NRModifiers.ABNORMAL);
         // 变成异常职业后给玩家发送欢迎报幕
         RoleUtils.sendWelcomeAnnouncement(player);
+        // 带异常修饰符的玩家变成异常时，额外用 SubtitleHUD 播报一次（只给本人看）
+        if (wasMarked) {
+            PacketTracker.sendToClient(player, new SubtitleS2CPayload(
+                    Component.translatable("message.noellesroles.command_block.became_abnormal"),
+                    Component.translatable("message.noellesroles.command_block.became_abnormal.sub"),
+                    100, 0xFFB44DFF, false, SubtitleS2CPayload.POS_TOP, false));
+        }
         PacketTracker.sendToClient(player,
                 new SubtitleS2CPayload(Component.translatable("message.noellesroles.command_block.preview",
                         role.getName()), Component.empty(), 80, 0xFFE7D4FF, false,
@@ -612,8 +639,8 @@ public final class CommandBlockDirector {
         RoleUtils.changeRoleAndSendWelcome(player, role);
         session.roleUses.merge(role, 1, Integer::sum);
         SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
-        if (shop.balance < GameConstants.getMoneyStart()) {
-            shop.setBalance(GameConstants.getMoneyStart());
+        if (shop.balance < RoundOverrides.startingMoney()) {
+            shop.setBalance(RoundOverrides.startingMoney());
         }
         player.displayClientMessage(Component.translatable("message.noellesroles.command_block.converted",
                 role.getName()), false);
@@ -791,6 +818,13 @@ public final class CommandBlockDirector {
         return values[level.random.nextInt(values.length)];
     }
 
+    /**
+     * 开局就把异常修饰符发给被标的人。
+     *
+     * <p>抽谁带修饰符按「杀手阵营概率 + 杀手阵营卡」加权（{@link CommandBlockRules#abnormalWeight}）：
+     * 本局更容易被抽成杀手的平民，也更容易先被标成异常。修饰符开局可见，
+     * 安全时间结束后再由 {@link #remindMarkedAbnormals} 提醒一次。</p>
+     */
     private static void markAbnormals(ServerLevel level) {
         List<ServerPlayer> civilians = new ArrayList<>();
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(level);
@@ -807,14 +841,52 @@ public final class CommandBlockDirector {
                 civilians.add(player);
             }
         }
-        Collections.shuffle(civilians, new java.util.Random(level.getGameTime()));
         // 血量（破坏配额）比异常人数多 2，标记异常的人数仍按原杀手数量的 1.5 倍算。
         int n = Math.min(CommandBlockRules.markedCount(session.originalKillers), civilians.size());
-        for (int i = 0; i < n; i++) {
-            session.abnormals.add(civilians.get(i).getUUID());
-            session.queue.add(civilians.get(i).getUUID());
-            RoleUtils.addModifier(civilians.get(i), NRModifiers.ABNORMAL);
+        for (ServerPlayer chosen : pickMarked(level, civilians, n)) {
+            session.abnormals.add(chosen.getUUID());
+            session.queue.add(chosen.getUUID());
+            RoleUtils.addModifier(chosen, NRModifiers.ABNORMAL);
         }
+    }
+
+    /**
+     * 按杀手阵营概率加权抽出 {@code count} 名平民。
+     *
+     * <p>权重口径：本局抽到杀手阵营的权重百分比（{@code PlayerRoleWeightManager#getRoleWeightPercent}，
+     * 含连续同阵营惩罚与阵营卡加成）再乘阵营卡的抽取倍率；没有卡也不会掉到 0，
+     * 所以「杀手概率高 / 持杀手阵营卡」的玩家明显更容易被抽中，其余人仍有可能。</p>
+     */
+    private static List<ServerPlayer> pickMarked(ServerLevel level, List<ServerPlayer> civilians, int count) {
+        List<ServerPlayer> pool = new ArrayList<>(civilians);
+        List<ServerPlayer> picked = new ArrayList<>();
+        for (int i = 0; i < count && !pool.isEmpty(); i++) {
+            double total = 0.0D;
+            double[] weights = new double[pool.size()];
+            for (int j = 0; j < pool.size(); j++) {
+                ServerPlayer candidate = pool.get(j);
+                double killerPercent = PlayerRoleWeightManager.getRoleWeightPercent(candidate.getUUID(),
+                        KILLER_ROLE_TYPE);
+                double cardBoost = PlayerRoleWeightManager.getCardFactionBoost(candidate.getUUID(),
+                        KILLER_ROLE_TYPE);
+                weights[j] = CommandBlockRules.abnormalWeight(killerPercent, cardBoost);
+                total += weights[j];
+            }
+            int hit = -1;
+            if (total > 0.0D) {
+                double roll = level.random.nextDouble() * total;
+                double running = 0.0D;
+                for (int j = 0; j < weights.length; j++) {
+                    running += weights[j];
+                    if (roll < running) {
+                        hit = j;
+                        break;
+                    }
+                }
+            }
+            picked.add(pool.remove(hit < 0 ? pool.size() - 1 : hit));
+        }
+        return picked;
     }
 
     /**
@@ -832,14 +904,42 @@ public final class CommandBlockDirector {
         }
     }
 
+    /** 一次满值破坏：改写池杀手真正死亡、或好人击碎一道裂缝。 */
     public static void addDestruction(ServerLevel level) {
-        if (!isActive(level) || session.ended) {
+        addDestructionHalves(level, CommandBlockRules.KILLER_DEATH_HALVES);
+    }
+
+    /** 挂异常修饰符的玩家死亡只扣正常杀手死亡的一半。 */
+    public static void addMarkedDestruction(ServerLevel level) {
+        addDestructionHalves(level, CommandBlockRules.MARKED_DEATH_HALVES);
+    }
+
+    /**
+     * 破坏进度的唯一入口，以半点为单位累计。
+     *
+     * <p>每次推进都会让全场听到玻璃破碎声并震一下屏幕（见 {@code CommandBlockImpactS2CPacket}），
+     * 打满时换成更强的「彻底破坏」反馈，再结算乘客胜利。</p>
+     */
+    private static void addDestructionHalves(ServerLevel level, int halves) {
+        if (!isActive(level) || session.ended || halves <= 0) {
             return;
         }
-        session.killerDeaths++;
+        session.destructionHalves += halves;
         syncProgress(level);
-        if (session.killerDeaths >= session.quota) {
+        if (session.destructionHalves >= session.quotaHalves) {
+            sendImpact(level, 2);
             endByDestruction(level);
+            return;
+        }
+        sendImpact(level, 1);
+        checkWipeOut(level);
+    }
+
+    /** 玻璃破碎声 + 一次屏幕震动，全场同一条包。 */
+    private static void sendImpact(ServerLevel level, int strength) {
+        CommandBlockImpactS2CPacket packet = new CommandBlockImpactS2CPacket(strength);
+        for (ServerPlayer player : level.players()) {
+            PacketTracker.sendToClient(player, packet);
         }
     }
 
@@ -850,8 +950,9 @@ public final class CommandBlockDirector {
         boolean show = session != null && !session.ended
                 && session.levelKey.equals(level.dimension().location())
                 && (session.active || session.introPlayed);
-        int progress = session == null ? 0 : session.killerDeaths;
-        int goal = show ? Math.max(1, session.quota) : 0;
+        // HUD 仍按「整次破坏」显示百分比，半点只在内部累计。
+        int progress = session == null ? 0 : session.destructionHalves / CommandBlockRules.KILLER_DEATH_HALVES;
+        int goal = show ? Math.max(1, session.destructionQuota) : 0;
         int eventRemaining = 0;
         int eventTotal = 0;
         if (show && session.nextEventAt > 0L) {
@@ -864,6 +965,120 @@ public final class CommandBlockDirector {
         for (ServerPlayer player : level.players()) {
             ServerPlayNetworking.send(player, packet);
         }
+    }
+
+    /**
+     * 邪恶方（杀手阵营 / 异常 / 带异常修饰符的玩家）全灭时挂上复活计时。
+     *
+     * <p>只有破坏进度还没打满才走这条路：打满就是对局结算。计时挂在会话 tick 上，
+     * 会议（时间冻结）期间一并停表。</p>
+     */
+    private static void checkWipeOut(ServerLevel level) {
+        if (session == null || session.ended || session.reviveAt > 0) {
+            return;
+        }
+        if (session.destructionHalves >= session.quotaHalves) {
+            return;
+        }
+        if (!evilSideAllDead(level)) {
+            return;
+        }
+        session.reviveAt = session.tick + REVIVE_DELAY;
+        Component text = Component.translatable("message.noellesroles.command_block.revive_soon")
+                .withStyle(ChatFormatting.DARK_PURPLE);
+        for (ServerPlayer player : level.players()) {
+            SRENetworkMessageUtils.sendBroadcast(player, text);
+        }
+    }
+
+    /** 场上是否已经没有杀手阵营、异常、带异常修饰符的存活玩家。 */
+    private static boolean evilSideAllDead(ServerLevel level) {
+        SREGameWorldComponent game = SREGameWorldComponent.KEY.get(level);
+        for (ServerPlayer player : level.players()) {
+            if (!GameUtils.isPlayerAliveAndSurvival(player)) {
+                continue;
+            }
+            SRERole role = game.getRole(player);
+            if (role == null) {
+                continue;
+            }
+            if (role.isKiller() || role == ModRoles.ABNORMAL
+                    || WorldModifierComponent.getInstance(player).isModifier(player, NRModifiers.ABNORMAL)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** 复活计时到点：从已死的邪恶方里随机挑一名复活，并立刻变成随机杀手。 */
+    private static void tickRevive(ServerLevel level, long now) {
+        if (session.reviveAt <= 0L) {
+            // 没人死亡时也要能发现「全灭」：每 20 tick 复查一次。
+            if (now % 20L == 0L) {
+                checkWipeOut(level);
+            }
+            return;
+        }
+        if (now < session.reviveAt) {
+            return;
+        }
+        session.reviveAt = 0L;
+        if (session.ended || session.destructionHalves >= session.quotaHalves) {
+            return;
+        }
+        reviveOne(level);
+    }
+
+    private static void reviveOne(ServerLevel level) {
+        List<ServerPlayer> candidates = new ArrayList<>();
+        SREGameWorldComponent game = SREGameWorldComponent.KEY.get(level);
+        for (ServerPlayer player : level.players()) {
+            if (GameUtils.isPlayerAliveAndSurvival(player)) {
+                continue;
+            }
+            SRERole role = game.getRole(player);
+            if (role == null) {
+                continue;
+            }
+            if (role.isKiller() || role == ModRoles.ABNORMAL || session.abnormals.contains(player.getUUID())) {
+                candidates.add(player);
+            }
+        }
+        if (candidates.isEmpty()) {
+            return;
+        }
+        ServerPlayer revived = candidates.get(level.random.nextInt(candidates.size()));
+        SRERole oldRole = game.getRole(revived);
+        Vec3 spawn = GameUtils.getPlayerRoomSpawnPos(revived);
+        if (spawn == null) {
+            spawn = revived.position();
+        }
+        GameUtils.revivePlayer(revived, spawn.x, spawn.y, spawn.z);
+        if (!GameUtils.isPlayerAliveAndSurvival(revived)) {
+            return;
+        }
+        SRERole role = oldRole;
+        // 异常 / 带异常修饰符的玩家立即转成随机杀手；原本就是杀手阵营的保持原职业。
+        boolean wasAbnormal = oldRole == null || oldRole == ModRoles.ABNORMAL
+                || WorldModifierComponent.getInstance(revived).isModifier(revived, NRModifiers.ABNORMAL);
+        if (wasAbnormal) {
+            SRERole converted = pickConversionRole(level);
+            if (converted != null) {
+                RoleUtils.removeModifier(revived, NRModifiers.ABNORMAL, true, true);
+                RoleUtils.changeRoleAndSendWelcome(revived, converted);
+                session.roleUses.merge(converted, 1, Integer::sum);
+                role = converted;
+            }
+        }
+        SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(revived);
+        if (shop.balance < RoundOverrides.startingMoney()) {
+            shop.setBalance(RoundOverrides.startingMoney());
+        }
+        if (role != null) {
+            announceBirth(level, role);
+        }
+        revived.displayClientMessage(Component.translatable("message.noellesroles.command_block.revived",
+                role == null ? Component.empty() : role.getName()).withStyle(ChatFormatting.LIGHT_PURPLE), false);
     }
 
     private static void endByDestruction(ServerLevel level) {
@@ -907,7 +1122,7 @@ public final class CommandBlockDirector {
         level.getChunk(BlockPos.containing(center));
         CommandBlockMarkerEntity marker = new CommandBlockMarkerEntity(ModEntities.COMMAND_BLOCK_MARKER, level);
         marker.setPos(center.x, center.y, center.z);
-        marker.setStage(CommandBlockRules.destructionStage(session.killerDeaths, session.quota));
+        marker.setStage(destructionStage());
         level.addFreshEntity(marker);
         session.markerId = marker.getId();
     }
@@ -920,10 +1135,19 @@ public final class CommandBlockDirector {
         if (!(level.getEntity(session.markerId) instanceof CommandBlockMarkerEntity marker)) {
             return;
         }
-        int stage = CommandBlockRules.destructionStage(session.killerDeaths, session.quota);
+        int stage = destructionStage();
         if (marker.getStage() != stage) {
             marker.setStage(stage);
         }
+    }
+
+    /** 当前破坏外观阶段（0~3）；按半点进度换算，和客户端 HUD 的百分比同一口径。 */
+    private static int destructionStage() {
+        if (session == null) {
+            return 0;
+        }
+        return CommandBlockRules.destructionStage(
+                session.destructionHalves / CommandBlockRules.KILLER_DEATH_HALVES, session.destructionQuota);
     }
 
 
@@ -1086,8 +1310,14 @@ public final class CommandBlockDirector {
         private boolean active;
         private boolean ended;
         private boolean introPlayed;
-        private int quota;
-        private int killerDeaths;
+        /** 破坏配额（整次数），HUD 与外观阶段用。 */
+        private int destructionQuota;
+        /** 破坏配额（半点刻度），实际累计与判定用。 */
+        private int quotaHalves;
+        /** 已累计的破坏半点数。 */
+        private int destructionHalves;
+        /** 邪恶方全灭后，到这个会话 tick 复活一名。0 表示没在等。 */
+        private long reviveAt;
         private int markerId = -1;
         private long nextConvertAt;
         private long nextWarnAt;

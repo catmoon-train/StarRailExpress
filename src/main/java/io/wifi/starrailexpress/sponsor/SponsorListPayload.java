@@ -24,16 +24,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 服务端 -> 客户端：同步当前赞助者 plush 名单（每个名字对应一个 {@code <name>_plush}）。
- * 客户端据此在游戏介绍 GUI 中列出赞助者 plush。
+ * 服务端 -> 客户端：同步当前赞助者名单（每个名字对应一个 {@code <name>_plush}）与赞助页链接。
+ * 客户端据此在游戏介绍 GUI 的「赞助者」栏目列出名单、渲染头像、提供赞助入口。
+ * <p>
+ * {@code pageUrl} 允许为空：此时客户端只显示名单，不显示可点击的赞助入口。
  */
-public record SponsorListPayload(List<String> names) implements CustomPacketPayload {
+public record SponsorListPayload(List<String> names, String pageUrl) implements CustomPacketPayload {
     public static final Type<SponsorListPayload> ID = new Type<>(SRE.id("sponsor_list_sync"));
     public static final StreamCodec<FriendlyByteBuf, SponsorListPayload> CODEC =
             CustomPacketPayload.codec(SponsorListPayload::write, SponsorListPayload::new);
 
+    public SponsorListPayload(List<String> names) {
+        this(names, "");
+    }
+
     private SponsorListPayload(FriendlyByteBuf buffer) {
-        this(read(buffer));
+        this(read(buffer), buffer.readUtf());
     }
 
     private static List<String> read(FriendlyByteBuf buffer) {
@@ -50,6 +56,7 @@ public record SponsorListPayload(List<String> names) implements CustomPacketPayl
         for (String name : names) {
             buffer.writeUtf(name);
         }
+        buffer.writeUtf(pageUrl == null ? "" : pageUrl);
     }
 
     @Override

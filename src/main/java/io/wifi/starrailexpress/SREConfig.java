@@ -527,6 +527,10 @@ public class SREConfig implements ConfigData {
     @Tooltip(count = 2)
     public String sponsorListUrl = "";
 
+    @ConfigEntry.Category(value = "sponsor")
+    @Tooltip(count = 2)
+    public String sponsorPageUrl = "https://mktea.scarefree.cn/products/cyyy";
+
     @ConfigEntry.Category(value = "progression")
     public boolean enableProgressionSystem = false;
     @ConfigEntry.Category(value = "progression")

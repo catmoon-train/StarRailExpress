@@ -48,6 +48,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import io.wifi.starrailexpress.game.RoundOverrides;
 
 public class HornBlock extends BaseEntityBlock {
     private static final MapCodec<HornBlock> CODEC = simpleCodec(HornBlock::new);
@@ -84,7 +85,7 @@ public class HornBlock extends BaseEntityBlock {
                 // start game
                 if (isOp && !SREGameWorldComponent.KEY.get(serverWorld).isRunning()) {
                     GameMode gameMode = SREGameModes.MURDER;
-                    GameUtils.startGame(serverWorld, gameMode, GameConstants.getInTicks(gameMode.defaultStartTime, 0));
+                    GameUtils.startGame(serverWorld, gameMode, RoundOverrides.resolveStartTicks(gameMode.defaultStartTime));
                 }
 
                 hornBlockEntity.pull(1);

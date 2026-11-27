@@ -23,6 +23,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import io.wifi.starrailexpress.client.hud.TrainBottomHudLayout;
 import org.agmas.noellesroles.Noellesroles;
 
 public final class MapStatusBarHudRenderer {
@@ -32,10 +33,7 @@ public final class MapStatusBarHudRenderer {
             "hud/food_full");
     private static final ResourceLocation POLLUTION_ICON = Noellesroles.id("stamina/pollution_icon");
 
-    private static final int BAR_WIDTH = 120;
-    private static final int BAR_HEIGHT = 2;
-    private static final int ICON_SIZE = 9;
-    private static final int ICON_GAP = 4;
+    // 条宽 / 条高 / 图标尺寸统一由 TrainBottomHudLayout 提供，保证与体力条同一套尺寸
 
     /** 低于此比例触发屏幕边框效果（保暖/口渴/饥饿） */
     private static final float LOW_THRESHOLD = 0.35f;
@@ -62,26 +60,37 @@ public final class MapStatusBarHudRenderer {
     private MapStatusBarHudRenderer() {
     }
 
-    public static void render(GuiGraphics graphics) {
+    /**
+     * 本帧地图状态条（污染值等）是否会出现。
+     *
+     * <p>
+     * 排版（{@link TrainBottomHudLayout}）需要先知道这一点，才能决定体力条
+     * 和状态条谁占最下面一格、以及文字信息区从哪往上排。
+     */
+    public static boolean isVisible() {
+        return resolveType() != MapStatusBarType.NONE;
+    }
+
+    /** 当前地图状态条类型（已考虑区域设置覆盖），无则返回 {@link MapStatusBarType#NONE}。 */
+    private static MapStatusBarType resolveType() {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null || client.level == null || client.options.hideGui) {
-            return;
+            return MapStatusBarType.NONE;
         }
         SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(client.player.level());
         if (gameComponent == null || !gameComponent.isRunning()) {
-            return;
+            return MapStatusBarType.NONE;
         }
         // 自由相机/观战状态下不渲染，和体力条一致
         if (!SREClient.isPlayerAliveAndInSurvival()) {
-            return;
+            return MapStatusBarType.NONE;
         }
-        MapStatusBarType type = MapStatusBarClientState.type();
-        if (type == MapStatusBarType.NONE) {
-            return;
-        }
-        if (SREClient.areaComponent != null) {
-            type = SREClient.areaComponent.areasSettings.mapStatusBar;
-        }
+        return MapStatusBarClientState.effectiveType();
+    }
+
+    public static void render(GuiGraphics graphics) {
+        Minecraft client = Minecraft.getInstance();
+        MapStatusBarType type = resolveType();
         if (type == MapStatusBarType.NONE) {
             return;
         }
@@ -161,21 +170,27 @@ public final class MapStatusBarHudRenderer {
             warningVisible = true;
         }
 
-        int barX = graphics.guiWidth() / 2 - BAR_WIDTH / 2;
-        int barY = graphics.guiHeight() - 28;
-        int iconX = barX - ICON_SIZE - ICON_GAP;
-        int iconY = barY - ICON_SIZE / 2 + BAR_HEIGHT / 2;
+        // 位置交给统一排版：有体力条时让到上面一格，两根条保持固定间距，不显拥挤
+        int slot = TrainBottomHudLayout.statusBarSlot();
+        int barX = graphics.guiWidth() / 2 - TrainBottomHudLayout.BAR_WIDTH / 2;
+        int barY = TrainBottomHudLayout.barY(graphics, slot);
 
-        // 绘制图标——默认常驻显示
-        graphics.blitSprite(icon(type), iconX, iconY, ICON_SIZE, ICON_SIZE);
+        // 绘制图标——默认隐藏，按住 Shift 才显示（与体力条一致）
+        if (TrainBottomHudLayout.showBarIcons()) {
+            graphics.blitSprite(icon(type), TrainBottomHudLayout.barIconX(graphics),
+                    TrainBottomHudLayout.barIconY(graphics, slot),
+                    TrainBottomHudLayout.BAR_ICON_SIZE, TrainBottomHudLayout.BAR_ICON_SIZE);
+        }
 
         // 绘制背景条
-        graphics.fill(barX, barY, barX + BAR_WIDTH, barY + BAR_HEIGHT, 0x66000000);
+        graphics.fill(barX, barY, barX + TrainBottomHudLayout.BAR_WIDTH,
+                barY + TrainBottomHudLayout.BAR_HEIGHT, 0x66000000);
 
         // 绘制填充条
-        int fillWidth = Math.round(BAR_WIDTH * value);
+        int fillWidth = Math.round(TrainBottomHudLayout.BAR_WIDTH * value);
         if (fillWidth > 0) {
-            graphics.fill(barX, barY, barX + fillWidth, barY + BAR_HEIGHT, color(type, value));
+            graphics.fill(barX, barY, barX + fillWidth, barY + TrainBottomHudLayout.BAR_HEIGHT,
+                    color(type, value));
         }
     }
 

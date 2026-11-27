@@ -34,19 +34,30 @@ public class RoleCountManager {
     public static int forcedVigilanteCount = -1; // -1表示使用自动计算
     public static int forcedNeutralCount = -1; // -1表示使用自动计算
 
+    /**
+     * 「自动」的哨兵值：{@code /setRoleCount <kind> -1} 让该种类回到「按人数自动算」。
+     *
+     * <p>
+     * 下面三个 get*Count 都按 {@code >= 0} 判断是否强制，所以 -1 天然表示自动。
+     */
+    public static final int AUTO = -1;
+
     public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("setRoleCount")
                 .requires(serverCommandSource -> serverCommandSource
                         .hasPermission(SREConfig.instance().modifyEnableStatusRequiredPermission))
                 .then(Commands.literal("killer")
-                        .then(Commands.argument("count", IntegerArgumentType.integer(0))
+                        .then(Commands.argument("count", IntegerArgumentType.integer(AUTO))
                                 .executes(RoleCountManager::setKillerCount)))
                 .then(Commands.literal("vigilante")
-                        .then(Commands.argument("count", IntegerArgumentType.integer(0))
+                        .then(Commands.argument("count", IntegerArgumentType.integer(AUTO))
                                 .executes(RoleCountManager::setVigilanteCount)))
                 .then(Commands.literal("neutral")
-                        .then(Commands.argument("count", IntegerArgumentType.integer(0))
+                        .then(Commands.argument("count", IntegerArgumentType.integer(AUTO))
                                 .executes(RoleCountManager::setNeutralCount)))
+                // 单个种类恢复自动：/setRoleCount killer|vigilante|neutral -1
+                // 设置页三个人数行各有一个「自动」按钮，点它不能把另外两种也一起重置，
+                // 所以这里必须支持按种类恢复；下面的 reset 保留原语义（三种一起清空）。
                 .then(Commands.literal("reset")
                         .executes(RoleCountManager::resetCounts))
                 .executes(RoleCountManager::resetCounts));

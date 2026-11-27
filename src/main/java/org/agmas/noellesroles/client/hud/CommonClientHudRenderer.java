@@ -274,6 +274,7 @@ public class CommonClientHudRenderer {
     MurderTimeHud.register();
     io.wifi.starrailexpress.client.hud.ProgressionQuestToastHud.register();
     io.wifi.starrailexpress.client.hud.SkillCastAnnounceHud.register();
+    io.wifi.starrailexpress.client.hud.ItemPickupToastHud.register();
     org.agmas.noellesroles.client.hud.roles.TomatoSauceHud.register();
     registerSons();
     OtherRolesHudRegister.registerSons();

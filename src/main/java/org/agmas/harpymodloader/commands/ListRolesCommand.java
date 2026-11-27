@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import io.wifi.starrailexpress.game.RoundOverrides;
 
 public class ListRolesCommand {
     public static String roleDetailsCommandRoot = "roleDetails";
@@ -171,6 +172,8 @@ public class ListRolesCommand {
         info.autoKillerCount = RoleCountManager.autoKillerCount(playerCount);
         info.autoVigilanteCount = RoleCountManager.autoVigilanteCount(playerCount);
         info.autoNeutralCount = RoleCountManager.autoNeutralCount(playerCount);
+        // 本局覆盖（时长 / 初始金币）也一起带上：设置页本来就在等这份快照
+        RoundOverrides.fill(info);
         return new RoleEnableInfoPacket(info, openUI);
     }
 

@@ -349,6 +349,8 @@ public class SREClient implements ClientModInitializer {
                     io.wifi.starrailexpress.client.hat.ClientHatEquipmentCache.clear();
                     io.wifi.starrailexpress.client.morph.ClientMorphCache.clear();
                     io.wifi.starrailexpress.client.plush.ClientPlushEquipmentCache.clear();
+                    io.wifi.starrailexpress.client.data.ClientSponsorCache.clear();
+                    io.wifi.starrailexpress.client.util.SponsorAvatarCache.clear();
                 });
         io.wifi.starrailexpress.client.mirror.MirrorReflectionManager.init();
         ClientConfigEvents.register();
@@ -694,6 +696,8 @@ public class SREClient implements ClientModInitializer {
                 HudStoreRenderer.tick();
                 TimeRenderer.tick();
                 StaminaRenderer.tick();
+                // 手持物品提示的计时器 / 缓存失效（纯 tick 逻辑，不参与渲染）
+                io.wifi.starrailexpress.client.hud.HeldItemTooltipHud.tick(Minecraft.getInstance());
             }
 
             // // 全息展示方块客户端tick
@@ -942,6 +946,10 @@ public class SREClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.network.ProgressionQuestToastPayload.ID,
                 (payload, context) -> context.client().execute(
                         () -> io.wifi.starrailexpress.client.hud.ProgressionQuestToastHud.push(payload)));
+        // 拾取物品提示（左下角）：服务端只发给拾取者本人
+        ClientPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.network.ItemPickupToastPayload.ID,
+                (payload, context) -> context.client().execute(
+                        () -> io.wifi.starrailexpress.client.hud.ItemPickupToastHud.push(payload)));
         ClientPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.network.SkillCastAnnouncePayload.ID,
                 (payload, context) -> context.client().execute(
                         () -> io.wifi.starrailexpress.client.hud.SkillCastAnnounceHud.push(payload)));
@@ -971,6 +979,7 @@ public class SREClient implements ClientModInitializer {
             MapStatusBarClientState.set(MapStatusBarType.NONE, 20, 20);
             io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.clear();
             io.wifi.starrailexpress.client.gui.MobRiotHudRenderer.reset();
+            io.wifi.starrailexpress.client.hud.ItemPickupToastHud.reset();
             context.client().execute(WaypointHUD::resetForNewGame);
             OnGameFinishedClient.EVENT.invoker().gameFinished();
         });
@@ -1045,7 +1054,8 @@ public class SREClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.network.RoleRosterSyncPayload.ID,
                 (payload, context) -> io.wifi.starrailexpress.client.data.ClientRoleRosterCache.update(payload.json()));
         ClientPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.sponsor.SponsorListPayload.ID,
-                (payload, context) -> io.wifi.starrailexpress.client.data.ClientSponsorCache.update(payload.names()));
+                (payload, context) -> io.wifi.starrailexpress.client.data.ClientSponsorCache
+                        .update(payload.names(), payload.pageUrl()));
         ClientPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.network.OpenRoleRosterScreenPayload.ID,
                 (payload, context) -> context.client().execute(() -> context.client().setScreen(payload.admin()
                         ? new io.wifi.starrailexpress.client.gui.screen.roster.RoleRosterEditScreen()
@@ -1248,6 +1258,8 @@ public class SREClient implements ClientModInitializer {
                 io.wifi.starrailexpress.client.hud.TimedGrenadeHUD.render(guiGraphics,
                         deltaTick.getRealtimeDeltaTicks());
             }
+            // 准心右侧的方块交互提示（内部已含镜头 / 准心 / 开场演出等隐藏条件）
+            io.wifi.starrailexpress.client.hud.BlockInteractionHintHud.render(guiGraphics);
         });
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
             if (io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.isRulesVisible()) {

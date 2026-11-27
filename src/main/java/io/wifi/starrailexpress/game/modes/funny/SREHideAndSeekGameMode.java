@@ -67,6 +67,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import io.wifi.starrailexpress.game.RoundOverrides;
 
 public class SREHideAndSeekGameMode extends SREMurderGameMode {
 
@@ -188,8 +189,8 @@ public class SREHideAndSeekGameMode extends SREMurderGameMode {
                 Harpymodloader.LOGGER.debug("Assigned role " + value.getIdentifier() + " to " + key.getName());
                 if (value.canUseKiller()) {
                     SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(key);
-                    if (playerShopComponent.balance < GameConstants.getMoneyStart())
-                        playerShopComponent.setBalance(GameConstants.getMoneyStart());
+                    if (playerShopComponent.balance < RoundOverrides.startingMoney())
+                        playerShopComponent.setBalance(RoundOverrides.startingMoney());
                 }
             } else {
                 // 如果没有分配角色，则分配默认平民角色

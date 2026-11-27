@@ -44,6 +44,17 @@ public class HotbarCooldownRenderer {
 
     private static final int SLOT_WIDTH = 20; // 每个快捷栏槽位宽度
 
+    /** 本帧是否会画出主手冷却百分比（排版据此多留一行）。 */
+    public static boolean isMainHandCooldownTextVisible() {
+        Minecraft minecraft = Minecraft.getInstance();
+        LocalPlayer player = minecraft == null ? null : minecraft.player;
+        if (player == null) {
+            return false;
+        }
+        return player.getCooldowns().getCooldownPercent(cooldownKeyOf(player.getMainHandItem()), 0f) > 0;
+    }
+
+    /** 快捷栏各槽位冷却秒数：固定画在快捷栏正上方，属于最下面一行，不参与竖列排版。 */
     public static void render(GuiGraphics context, float delta) {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
@@ -57,7 +68,6 @@ public class HotbarCooldownRenderer {
 
         // 快捷栏中心 X 坐标，槽位从 -4 到 +4
         int centerX = screenWidth / 2;
-
         for (int slot = 0; slot < 9; slot++) {
             ItemStack stack = player.getInventory().getItem(slot);
             if (stack.isEmpty()) continue;
@@ -135,11 +145,10 @@ public class HotbarCooldownRenderer {
         // 如果物品在冷却中，显示冷却百分比
         if (cooldown > 0) {
             int screenWidth = context.guiWidth();
-            int screenHeight = context.guiHeight();
 
-            // 在屏幕中心稍上方显示冷却文字
+            // 在屏幕中心，排在状态条竖列之下、快捷栏冷却秒数之上，避免和体力 / 污染值条叠字
             int x = screenWidth / 2;
-            int y = screenHeight - 48; // 物品栏上方
+            int y = io.wifi.starrailexpress.client.hud.TrainBottomHudLayout.mainHandCooldownTextY(context);
 
             String cooldownText = String.format("%d%%", (int) (cooldown * 100));
 

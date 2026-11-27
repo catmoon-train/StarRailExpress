@@ -134,8 +134,14 @@ class SteveRoleTest {
         assertTrue(bodyHook.contains("killer != victim"));
         assertTrue(bodyHook.contains("ModRoles.ENTITY_NULL"));
         assertTrue(bodyHook.contains("body.discard()"));
-        assertTrue(Files.readString(root.resolve("Error404Role.java"))
-                .contains("ERROR_DETONATOR.getDefaultInstance(), 50, ShopEntry.Type.TOOL"));
+        // 引爆与加速改成终端里直接扣金币，商店不再卖引爆器/加速芯片
+        String error404 = Files.readString(root.resolve("Error404Role.java"));
+        assertTrue(error404.contains("public static final int DETONATE_COST = 50"));
+        assertTrue(error404.contains("public static final int ACCELERATE_COST = 80"));
+        assertTrue(error404.contains("MoneyUtils.cost(actor, DETONATE_COST)"));
+        assertTrue(error404.contains("MoneyUtils.cost(actor, ACCELERATE_COST)"));
+        assertFalse(error404.contains("ERROR_DETONATOR.getDefaultInstance()"));
+        assertFalse(error404.contains("ERROR_ACCELERATOR.getDefaultInstance()"));
     }
 
     private JsonObject json(String relative) throws Exception {

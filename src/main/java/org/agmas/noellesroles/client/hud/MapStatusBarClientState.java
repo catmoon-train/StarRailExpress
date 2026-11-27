@@ -35,6 +35,23 @@ public final class MapStatusBarClientState {
         return type;
     }
 
+    /**
+     * 实际生效的状态条类型：服务端同步来的类型为主，地图区域设置可以覆盖它。
+     *
+     * <p>
+     * HUD 渲染与排版判断都走这里，确保「这根条到底会不会画出来」只有一处结论。
+     */
+    public static MapStatusBarType effectiveType() {
+        if (type == MapStatusBarType.NONE) {
+            return MapStatusBarType.NONE;
+        }
+        var areas = io.wifi.starrailexpress.client.SREClient.areaComponent;
+        if (areas != null && areas.areasSettings != null && areas.areasSettings.mapStatusBar != null) {
+            return areas.areasSettings.mapStatusBar;
+        }
+        return type;
+    }
+
     public static int value() {
         return value;
     }

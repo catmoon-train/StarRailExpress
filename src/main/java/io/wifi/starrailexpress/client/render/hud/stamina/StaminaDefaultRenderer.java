@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.api.ChargeableItemRegistry;
+import io.wifi.starrailexpress.client.hud.TrainBottomHudLayout;
 import io.wifi.starrailexpress.client.render.hud.stamina.utils.RedScreenRenderer;
 import io.wifi.starrailexpress.util.ProgressProvider;
 import net.minecraft.client.Minecraft;
@@ -36,9 +37,7 @@ public class StaminaDefaultRenderer {
     public static float offsetDelta = 0f;
 
     private static final ResourceLocation STAMINA_ICON = Noellesroles.id("stamina/stamina_icon");
-    private static final int BAR_WIDTH = 120;
-    private static final int ICON_SIZE = 9;
-    private static final int ICON_GAP = 4;
+    // 条宽 / 高度 / 图标尺寸统一由 TrainBottomHudLayout 提供，这里不再各写一份
 
     private static final long FLASH_DURATION_MS = 250L; // 闪光持续时间（毫秒）
 
@@ -81,9 +80,10 @@ public class StaminaDefaultRenderer {
                 ? Mth.color(1f, 0.2f, 0.2f) | 0xFF000000 // 红色
                 : Mth.color(1f, 0.85f, 0.1f) | 0xFF000000; // 黄色
 
-        // 渲染体力条 - 移动到物品栏上方
+        // 渲染体力条 - 位置由统一排版给出（物品栏上方，与地图状态条共用一根竖列）
         context.pose().pushPose();
-        context.pose().translate(context.guiWidth() / 2f, context.guiHeight() - 35, 0); // 在物品栏上方显示
+        context.pose().translate(context.guiWidth() / 2f,
+                TrainBottomHudLayout.barCenterY(context, TrainBottomHudLayout.staminaBarSlot()), 0);
 
         // 蓄力武器：应用"前慢后快"缓动曲线，并做逐帧平滑过渡
         if (isChargingWeapon) {
@@ -117,12 +117,13 @@ public class StaminaDefaultRenderer {
 
         context.pose().popPose();
 
-        // 绘制体力图标
-        if (!isChargingWeapon) {
-            int barCenterY = context.guiHeight() - 35;
-            int iconX = context.guiWidth() / 2 - BAR_WIDTH / 2 - ICON_SIZE - ICON_GAP;
-            int iconY = barCenterY - ICON_SIZE / 2;
-            context.blitSprite(STAMINA_ICON, iconX, iconY, ICON_SIZE, ICON_SIZE);
+        // 绘制体力图标：默认只留 bar，按住 Shift 才显示图标
+        if (!isChargingWeapon && TrainBottomHudLayout.showBarIcons()) {
+            int iconX = context.guiWidth() / 2 - TrainBottomHudLayout.BAR_WIDTH / 2
+                    - TrainBottomHudLayout.BAR_ICON_SIZE - TrainBottomHudLayout.BAR_ICON_GAP;
+            int iconY = TrainBottomHudLayout.barIconY(context, TrainBottomHudLayout.staminaBarSlot());
+            context.blitSprite(STAMINA_ICON, iconX, iconY, TrainBottomHudLayout.BAR_ICON_SIZE,
+                    TrainBottomHudLayout.BAR_ICON_SIZE);
         }
     }
 
@@ -197,41 +198,28 @@ public class StaminaDefaultRenderer {
 
         public void render(@NotNull GuiGraphics context, int colour, float delta) {
             float value = Mth.lerp(delta, this.lastValue, this.currentValue);
-
-            // 体力条参数 - 更现代、更扁平的设计
-            int barWidth = 120; // 总宽度增加
-            int barHeight = 2; // 高度减小变得更扁平
-            int halfWidth = barWidth / 2;
-
-            // 绘制背景（更现代化的半透明黑色）
-            int backgroundColor = 0x66000000; // 更透明的背景
-            context.fill(-halfWidth, -barHeight / 2, halfWidth, barHeight / 2, backgroundColor);
-
-            // 计算当前体力条宽度 - 从左锚定，向右延伸
-            int currentWidth = Math.round(barWidth * value);
-
-            if (currentWidth > 0) {
-                // 绘制体力条（左侧固定，右侧随体力伸缩）
-                context.fill(-halfWidth, -barHeight / 2, -halfWidth + currentWidth, barHeight / 2, colour);
-            }
+            drawBar(context, colour, value);
         }
 
         public void renderWithoutSmoothing(@NotNull GuiGraphics context, int colour, float value) {
-            // 体力条参数 - 更现代、更扁平的设计
-            int barWidth = 120; // 总宽度增加
-            int barHeight = 2; // 高度减小变得更扁平
+            drawBar(context, colour, value);
+        }
+
+        /** 背景 + 从左锚定向右延伸的填充，尺寸统一取 {@link TrainBottomHudLayout}。 */
+        private static void drawBar(@NotNull GuiGraphics context, int colour, float value) {
+            int barWidth = TrainBottomHudLayout.BAR_WIDTH;
             int halfWidth = barWidth / 2;
+            // 以中心线对齐：高度 3 时上 1px、下 2px，视觉上压在垫方正中
+            int top = -(TrainBottomHudLayout.BAR_HEIGHT / 2);
+            int bottom = top + TrainBottomHudLayout.BAR_HEIGHT;
 
             // 绘制背景（更现代化的半透明黑色）
-            int backgroundColor = 0x66000000; // 更透明的背景
-            context.fill(-halfWidth, -barHeight / 2, halfWidth, barHeight / 2, backgroundColor);
+            context.fill(-halfWidth, top, halfWidth, bottom, 0x66000000);
 
             // 计算当前体力条宽度 - 从左锚定，向右延伸
-            int currentWidth = Math.round(barWidth * value);
-
+            int currentWidth = Math.round(barWidth * Mth.clamp(value, 0f, 1f));
             if (currentWidth > 0) {
-                // 绘制体力条（左侧固定，右侧随体力伸缩）
-                context.fill(-halfWidth, -barHeight / 2, -halfWidth + currentWidth, barHeight / 2, colour);
+                context.fill(-halfWidth, top, -halfWidth + currentWidth, bottom, colour);
             }
         }
 

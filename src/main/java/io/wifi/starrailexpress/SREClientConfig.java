@@ -98,6 +98,10 @@ public class SREClientConfig implements ConfigData {
 
     @Category("style")
     @ConfigEntry.Gui.Tooltip
+    public boolean showItemPickupHud = true; // 拾取物品时在左下角显示图标 + 名字 + 数量（同名折叠）
+
+    @Category("style")
+    @ConfigEntry.Gui.Tooltip
     public boolean useLegacyMapSelector = false; // 使用旧版地图投票界面（卡片墙）
 
     @Category("style")
@@ -125,6 +129,38 @@ public class SREClientConfig implements ConfigData {
     public boolean enableRandomSkinForStreaming = false;
 
     public boolean disableStaminaBarSmoothing = false;
+
+    // ==================== 状态条 / 手持物品提示 ====================
+    @Category("style")
+    @ConfigEntry.Gui.Tooltip
+    public boolean statusBarIconsOnShiftOnly = true; // 状态条默认只显示 bar，按住 Shift 才补上图标
+
+    @Category("style")
+    @ConfigEntry.Gui.Tooltip
+    public boolean heldItemTooltip = true; // 快捷栏上方显示手持物品名称与多行说明
+
+    @Category("style")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 400)
+    public int heldItemTooltipTicks = 40; // 手持物品提示停留 tick 数，0 = 只要手持就一直显示
+
+    @Category("style")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 12)
+    public int heldItemTooltipMaxLines = 4; // 手持物品提示最多显示几行
+
+    @Category("style")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 200)
+    public int heldItemTooltipUpdateInterval = 4; // 手持物品提示重建间隔（tick）
+
+    @Category("style")
+    @ConfigEntry.Gui.Tooltip
+    public boolean heldItemTooltipMoreLinesHint = true; // 行数不够时用「还有 N 行」占末行
+
+    @Category("style")
+    @ConfigEntry.Gui.Tooltip
+    public boolean blockInteractionHint = true; // 准心右侧显示本模组可交互方块的右键提示
 
     public boolean enableSecurityCameraHUD = true; // 启用安全摄像头HUD显示
     public boolean welcome_voice = false;

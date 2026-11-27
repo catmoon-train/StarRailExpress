@@ -35,17 +35,22 @@ public class ClientConfigEvents {
         ClientPlayNetworking.registerGlobalReceiver(RoleEnableInfoPacket.ID, (payload, context) -> {
             var packet = payload.packetInfo();
             boolean openUI = payload.openUI();
-            RoleManageConfigUI.setRoleInfo(packet.roleInfo);
-            RoleManageConfigUI.setModifierInfo(packet.modifierInfo);
-            // 人数快照：设置页要用它显示「自动 (N)」还是具体的强制值
-            RoleManageConfigUI.setRoleCounts(packet.forcedKillerCount, packet.forcedVigilanteCount,
-                    packet.forcedNeutralCount, packet.autoKillerCount, packet.autoVigilanteCount,
-                    packet.autoNeutralCount);
-            if (openUI) {
-                context.client().execute(() -> {
+            // 快照会被界面在渲染线程逐帧读取，所以写入也放到客户端线程：
+            // 直接在网络线程 clear() + putAll() 会让界面读到「空快照」（开关短暂变成未设置）。
+            context.client().execute(() -> {
+                RoleManageConfigUI.setRoleInfo(packet.roleInfo);
+                RoleManageConfigUI.setModifierInfo(packet.modifierInfo);
+                // 人数快照：设置页要用它显示「自动 (N)」还是具体的强制值
+                RoleManageConfigUI.setRoleCounts(packet.forcedKillerCount, packet.forcedVigilanteCount,
+                        packet.forcedNeutralCount, packet.autoKillerCount, packet.autoVigilanteCount,
+                        packet.autoNeutralCount);
+                // 本局覆盖（时长 / 初始金币）
+                RoleManageConfigUI.setRoundOverrides(packet.roundMinutes, packet.roundStartingMoney,
+                        packet.defaultStartingMoney);
+                if (openUI) {
                     context.client().setScreen(RoleManageConfigUI.getScreen(context.client().screen));
-                });
-            }
+                }
+            });
             SRE.LOGGER.info("Recieved role and modifer disabled infomation. [Size: {}, openUI: {}]",
                     packet.roleInfo.size() + packet.modifierInfo.size(), (openUI ? "Yes" : "No"));
         });

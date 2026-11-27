@@ -12,6 +12,31 @@ import org.agmas.noellesroles.role.ModRoles;
  * 不碰世界，方便对照数值。
  */
 public final class CommandBlockRules {
+
+    /** 一名改写池杀手真正死亡计入的破坏点（半点刻度：一次正常死亡 = 2 个半点）。 */
+    public static final int KILLER_DEATH_HALVES = 2;
+    /** 挂异常修饰符的玩家死亡只计正常杀手死亡的一半。 */
+    public static final int MARKED_DEATH_HALVES = 1;
+
+    /** 破坏配额的半点刻度，等价于 {@link #destructionQuota(int)} 换单位。 */
+    public static int destructionQuotaHalves(int originalKillerCount) {
+        return destructionQuota(originalKillerCount) * KILLER_DEATH_HALVES;
+    }
+
+    /**
+     * 分配异常修饰符时单个平民的权重：抽到杀手阵营的权重越高越容易被标成异常。
+     *
+     * <p>纯函数，方便对照数值：杀手概率为 0 时权重 0.5，概率拉满时 2.5；
+     * 持有杀手阵营卡再乘上抽取倍率（{@code FactionCardForcing.PICK_BOOST_MULTIPLIER}）。
+     * 概率口径与 {@code PlayerRoleWeightManager#getRoleWeightPercent} 一致（0~1）。</p>
+     *
+     * @param killerPercent 本局抽到杀手阵营的权重百分比
+     * @param cardBoost     阵营卡抽取倍率，没有卡时为 1
+     */
+    public static double abnormalWeight(double killerPercent, double cardBoost) {
+        double percent = Math.max(0.0D, Math.min(1.0D, killerPercent));
+        return (0.5D + 2.0D * percent) * Math.max(1.0D, cardBoost);
+    }
     private CommandBlockRules() {
     }
 

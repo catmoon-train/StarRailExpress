@@ -155,6 +155,9 @@ public class ModPackets {
                 PurpleMonsterProgressS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(org.agmas.noellesroles.packet.CommandBlockProgressS2CPacket.ID,
                 org.agmas.noellesroles.packet.CommandBlockProgressS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(
+                org.agmas.noellesroles.packet.CommandBlockImpactS2CPacket.ID,
+                org.agmas.noellesroles.packet.CommandBlockImpactS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(PurpleMonsterEventC2SPacket.ID,
                 PurpleMonsterEventC2SPacket.CODEC);
         // PayloadTypeRegistry.playS2C().register(FakeSteveHuntS2CPacket.ID,

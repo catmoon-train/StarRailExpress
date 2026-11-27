@@ -49,6 +49,7 @@ import org.jetbrains.annotations.Nullable;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 
 import java.util.*;
+import io.wifi.starrailexpress.game.RoundOverrides;
 
 /**
  * 职业变换模式 (haiman:class_change)
@@ -388,7 +389,7 @@ public class SREClassChangeGameMode extends SREMurderGameMode {
 
             // 扒手的默认基础金币数为0
             int initialCoin = newRole.getInitialCoinCount();
-            int killerBaseGold = initialCoin >= 0 ? initialCoin : GameConstants.getMoneyStart();
+            int killerBaseGold = initialCoin >= 0 ? initialCoin : RoundOverrides.startingMoney();
 
             if (isCivilianOrVigilanteFaction(oldRoleType) && isKillerFaction(newRoleType)) {
                 // 平民/中立 → 杀手：杀手基础金币 + 旧金币*20%
@@ -602,7 +603,7 @@ public class SREClassChangeGameMode extends SREMurderGameMode {
         int newGold;
         int newRoleType = getFactionType(newRole);
         int initialCoin = newRole.getInitialCoinCount();
-        int killerBaseGold = initialCoin >= 0 ? initialCoin : GameConstants.getMoneyStart();
+        int killerBaseGold = initialCoin >= 0 ? initialCoin : RoundOverrides.startingMoney();
 
         if (isCivilianOrVigilanteFaction(oldRoleType) && isKillerFaction(newRoleType)) {
             newGold = killerBaseGold + (int) (oldGold * 0.2);

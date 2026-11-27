@@ -69,11 +69,16 @@ public final class Error404PuppetEntity extends PathfinderMob {
         setDeltaMovement(Vec3.ZERO);
         super.tick();
         fallDistance = 0;
-        if (!level().isClientSide) Error404Role.tickPuppet(this);
+        // 黑色粒子与僵尸低吼由客户端入口播放（见 Error404Client#tickPuppetAmbience），
+        // 公共实体类不能引用客户端类，否则专用服务器会崩。
+        if (!level().isClientSide) {
+            Error404Role.tickPuppet(this);
+        }
     }
 
     @Override public boolean isPushable() { return false; }
     @Override public boolean isPushedByFluid() { return false; }
     @Override public boolean isInWall() { return false; }
     @Override public boolean removeWhenFarAway(double distance) { return false; }
+
 }

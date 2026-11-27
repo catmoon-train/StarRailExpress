@@ -262,12 +262,6 @@ public class GameManagementScreen extends Screen implements ManageCatalog.Contex
         return startMinutes;
     }
 
-    @Override
-    public void setStartMinutes(int minutes) {
-        startMinutes = Mth.clamp(minutes, 0, 180);
-        rebuildEntries();
-    }
-
     /** 静默同步：服务端收到后回一份职业 / 修饰符开关 + 人数的快照（不会弹界面）。 */
     private void requestRoleStateSync() {
         command("manageRolesUI silent");
@@ -313,6 +307,8 @@ public class GameManagementScreen extends Screen implements ManageCatalog.Contex
         int stepY = y + (h - STEP_H) / 2;
         int plusX = x + w - 6 - STEP_W;
         int minusX = plusX - VALUE_W - STEP_W - 4;
+        // 「自动」按钮只在「当前是手动值」时出现：forced >= 0 表示手动，
+        // 金币行的手动值同样 >= 0（-1 = 跟随配置），所以这个判断对两行都成立
         boolean hasAuto = entry.reset() != null && entry.forced().getAsInt() >= 0;
         int autoX = hasAuto ? minusX - 6 - AUTO_W : minusX;
         return new CounterBox(stepY, autoX, minusX, minusX + STEP_W + 2, VALUE_W, plusX, hasAuto);

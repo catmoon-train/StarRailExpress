@@ -27,6 +27,7 @@ import io.wifi.starrailexpress.client.StaminaRenderer;
 import io.wifi.starrailexpress.client.StatusBarHUD;
 import io.wifi.starrailexpress.client.gui.CrosshairRenderer;
 import io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator;
+import io.wifi.starrailexpress.client.hud.HeldItemTooltipHud;
 import io.wifi.starrailexpress.game.GameConstants;
 import net.exmo.sre.camera.client.AdvancedCameraDirector;
 import net.minecraft.client.DeltaTracker;
@@ -75,10 +76,29 @@ public class InGameHudMixin {
         // Font renderer = Minecraft.getInstance().font;
 
         StatusBarHUD.getInstance().render(trueContext, tickCounter.getRealtimeDeltaTicks());
+        // 状态条与文字信息共用一套底部排版（TrainBottomHudLayout）：
+        // 先画条，再往上排手持物品提示，两者不会互相压字。
         MapStatusBarHudRenderer.render(trueContext);
         StaminaRenderer.renderHud(player, trueContext, tickCounter.getGameTimeDeltaPartialTick(true));
+        HeldItemTooltipHud.render(trueContext);
         SansRenderer.instance.tick(player, trueContext, tickCounter.getGameTimeDeltaPartialTick(true));
     }
+
+    /**
+     * 列车 HUD 接管「选中物品名」：原版那一行会固定画在 {@code guiHeight - 59}，
+     * 正好压在状态条 / 体力条上，这里改由 {@link HeldItemTooltipHud} 统一排版。
+     */
+    @Inject(method = "renderSelectedItemName", at = @At("HEAD"), cancellable = true)
+    private void tmm$replaceSelectedItemName(GuiGraphics context, CallbackInfo ci) {
+        if (!HeldItemTooltipHud.replacesVanillaSelectedItemName()) {
+            return;
+        }
+        if (this.minecraft.player == null || this.minecraft.player.isSpectator()) {
+            return;
+        }
+        ci.cancel();
+    }
+
 
     @WrapMethod(method = "renderHotbarAndDecorations")
     private void tmm$hideHotbarDuringCinematic(GuiGraphics context, DeltaTracker tickCounter,

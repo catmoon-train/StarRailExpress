@@ -127,6 +127,7 @@ public class SRECommandRegister {
             net.exmo.sre.dummy.DummyCommand.register(dispatcher);
             // io.wifi.starrailexpress.contents.command.UnlockAllRolesCommand.register(dispatcher);
             StartCommand.register(dispatcher);
+            io.wifi.starrailexpress.content.command.RoundSettingsCommand.register(dispatcher);
             StopCommand.register(dispatcher);
             GameUtilsCommand.register(dispatcher, registryAccess);
         }));

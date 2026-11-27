@@ -27,6 +27,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.util.ParticleFx;
 import io.wifi.starrailexpress.util.ShopEntry;
+import org.agmas.noellesroles.utils.MoneyUtils;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -59,6 +60,10 @@ public class Error404Role extends NormalRole {
     public static final int SKILL_COOLDOWN = 20;
     public static final int VOID_RADIUS = 3;
     public static final ResourceLocation VOID_DEATH = Noellesroles.id("error_void");
+    /** 终端「引爆」一次的金币费用，不再需要购买引爆器。 */
+    public static final int DETONATE_COST = 50;
+    /** 终端「加速同化」一次的金币费用，不再需要购买加速芯片。 */
+    public static final int ACCELERATE_COST = 80;
     private static final Map<UUID, Assimilation> ASSIMILATIONS = new HashMap<>();
     private static final Map<UUID, Error404PuppetEntity> PUPPETS = new HashMap<>();
     private static final List<VoidZone> ZONES = new ArrayList<>();
@@ -393,22 +398,33 @@ public class Error404Role extends NormalRole {
         return accelerate(actor, selected);
     }
 
+    /**
+     * 「加速同化」：直接扣金币（{@link #ACCELERATE_COST}），不再需要购买加速芯片。
+     *
+     * <p>只在真的缩短了同化时间时才扣钱：没有可加速的目标或目标不存在都不扣。</p>
+     */
     private static boolean accelerate(ServerPlayer actor, UUID id) {
         Assimilation pending = ASSIMILATIONS.get(id);
-        ItemStack chip = findItem(actor, ModItems.ERROR_ACCELERATOR);
         long now = actor.level().getGameTime();
         if (!isHunter(actor) || pending == null || pending.level != actor.serverLevel()
-                || !actor.getUUID().equals(pending.owner) || pending.doneAt <= now || chip.isEmpty()) {
+                || !actor.getUUID().equals(pending.owner) || pending.doneAt <= now) {
             message(actor, "accelerator_failed");
             return false;
         }
+        if (!MoneyUtils.cost(actor, ACCELERATE_COST)) {
+            message(actor, "accelerator_no_money");
+            return false;
+        }
         pending.doneAt = Math.max(now, pending.doneAt - 5 * 20);
-        chip.shrink(1);
-        actor.getInventory().setChanged();
         message(actor, "accelerated");
         return true;
     }
 
+    /**
+     * 终端「引爆」：直接扣金币（{@link #DETONATE_COST}），不再需要购买引爆器。
+     *
+     * @return 是否真的引爆了一只属于自己的存活傀儡
+     */
     public static boolean useDetonator(ServerPlayer actor) {
         Error404RoleData data = data(actor);
         if (!isHighDimension(actor) || data == null || data.selected == null) {
@@ -420,11 +436,15 @@ public class Error404Role extends NormalRole {
     }
 
     private static boolean remoteDetonate(ServerPlayer actor, Error404PuppetEntity target) {
-        ItemStack detonator = findItem(actor, ModItems.ERROR_DETONATOR);
         if (!isHighDimension(actor) || target.level() != actor.level() || !target.isAlive()
-                || !actor.getUUID().equals(target.ownerId()) || detonator.isEmpty()
+                || !actor.getUUID().equals(target.ownerId())
                 || PUPPETS.get(target.getUUID()) != target) {
             message(actor, "detonator_failed");
+            return false;
+        }
+        // 引爆不再要道具：直接从金币里扣，扣不动就不炸。
+        if (!MoneyUtils.cost(actor, DETONATE_COST)) {
+            message(actor, "detonator_no_money");
             return false;
         }
         ServerLevel level = actor.serverLevel();
@@ -436,8 +456,6 @@ public class Error404Role extends NormalRole {
         PUPPETS.remove(target.getUUID());
         target.discard();
         data(actor).selected = null;
-        detonator.shrink(1);
-        actor.getInventory().setChanged();
         ParticleFx.sphere(level, ParticleTypes.EXPLOSION_EMITTER, center, 1, 0, 0);
         LegendFx.ring(level, center, VOID_RADIUS, LegendFx.RIFT);
         level.playSound(null, center.x, center.y, center.z, SoundEvents.GENERIC_EXPLODE,
@@ -593,14 +611,19 @@ public class Error404Role extends NormalRole {
         if (saved.isEmpty()) ERASED.remove(zone.level);
     }
 
+    /**
+     * 商店里只剩终端（免费补领）。
+     *
+     * <p>引爆与加速改成在控制面板里直接花金币操作（{@link #DETONATE_COST} / {@link #ACCELERATE_COST}），
+     * 不再需要预先购买引爆器和加速芯片。</p>
+     */
     @Override
     public List<ShopEntry> getShopEntries() {
         return List.of(new ShopEntry(ModItems.ERROR_TERMINAL.getDefaultInstance(), 0, ShopEntry.Type.TOOL) {
             @Override public boolean canBuy(Player player) {
                 return super.canBuy(player) && findItem(player, ModItems.ERROR_TERMINAL).isEmpty();
             }
-        }, new ShopEntry(ModItems.ERROR_DETONATOR.getDefaultInstance(), 50, ShopEntry.Type.TOOL),
-                new ShopEntry(ModItems.ERROR_ACCELERATOR.getDefaultInstance(), 80, ShopEntry.Type.TOOL));
+        });
     }
 
     @Override public List<ItemStack> getDefaultItems() { return List.of(ModItems.ERROR_TERMINAL.getDefaultInstance()); }

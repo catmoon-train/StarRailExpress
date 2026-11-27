@@ -65,6 +65,21 @@ public class RoleManageConfigUI {
         autoNeutralCount = autoNeutral;
     }
 
+    // ── 本局覆盖（设置页可改，直接影响下一局）────────────────────────────
+    /** 本局时长覆盖（分钟）；{@code -1} = 跟随模式默认。 */
+    public static int roundMinutes = -1;
+    /** 本局初始金币覆盖；{@code -1} = 跟随配置，{@code 0} = 真的不发钱。 */
+    public static int roundStartingMoney = -1;
+    /** 配置里的初始金币（「自动」时显示它）。 */
+    public static int defaultStartingMoney;
+
+    /** 收到服务端快照时更新本局覆盖。 */
+    public static void setRoundOverrides(int minutes, int startingMoney, int defaultMoney) {
+        roundMinutes = minutes;
+        roundStartingMoney = startingMoney;
+        defaultStartingMoney = defaultMoney;
+    }
+
     public static class RoleAndModifierSyncInfo {
         public HashMap<String, Boolean> roleInfo;
         public HashMap<String, Boolean> modifierInfo;
@@ -82,6 +97,13 @@ public class RoleManageConfigUI {
         public int autoKillerCount;
         public int autoVigilanteCount;
         public int autoNeutralCount;
+
+        /** 本局时长覆盖（分钟）；-1 = 跟随模式默认。 */
+        public int roundMinutes = -1;
+        /** 本局初始金币覆盖；-1 = 跟随配置，0 = 真的不发钱。 */
+        public int roundStartingMoney = -1;
+        /** 配置里的初始金币（设置页显示「自动 (N)」用）。 */
+        public int defaultStartingMoney;
 
         public RoleAndModifierSyncInfo() {
             this(new HashMap<>(), new HashMap<>());

@@ -28,12 +28,37 @@ import io.wifi.starrailexpress.util.ProgressProvider;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class StaminaRenderer {
 	public static SREClientConfig CLIENT_CONFIG = SREClientConfig.instance();
 	// 默认的体力条提供者
 	public static final StaminaProvider staminaProvider = new StaminaProvider();
 
+	/**
+	 * 本帧是否会画出体力 / 蓄力条。
+	 *
+	 * <p>
+	 * 排版（{@link io.wifi.starrailexpress.client.hud.TrainBottomHudLayout}）需要先知道
+	 * 有没有体力条，才能决定地图状态条（污染值等）要不要让到上面一格。
+	 * 这里只做与 {@link #renderHud} 相同的廉价判断，不参与任何渲染。
+	 */
+	public static boolean willRenderBar(@Nullable LocalPlayer player) {
+		if (player == null || staminaProvider == null || player.isSpectator()) {
+			return false;
+		}
+		if (CLIENT_CONFIG == null) {
+			CLIENT_CONFIG = SREClientConfig.instance();
+		}
+		if (CLIENT_CONFIG != null && CLIENT_CONFIG.staminaStyle == SREClientConfig.StaminaStyle.NONE) {
+			return false;
+		}
+		if (ChargeableItemRegistry.isChargeableStack(player.getMainHandItem())) {
+			return ChargeableItemRegistry.getChargeInfo(player.getMainHandItem(), player) != null;
+		}
+		float maxStamina = staminaProvider.getMaxStamina(player);
+		return maxStamina > 0 && maxStamina < Integer.MAX_VALUE;
+	}
 	public static void renderHud(@NotNull LocalPlayer player, @NotNull GuiGraphics context, float delta) {
 		if (staminaProvider == null)
 			return;

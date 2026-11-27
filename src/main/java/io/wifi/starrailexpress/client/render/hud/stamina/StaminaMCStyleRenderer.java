@@ -22,6 +22,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.api.ChargeableItemRegistry;
+import io.wifi.starrailexpress.client.hud.TrainBottomHudLayout;
 import io.wifi.starrailexpress.client.render.hud.stamina.utils.RedScreenRenderer;
 import io.wifi.starrailexpress.client.render.hud.stamina.utils.StaminaIconRenderer;
 import io.wifi.starrailexpress.util.ProgressProvider;
@@ -65,20 +66,18 @@ public class StaminaMCStyleRenderer {
             staminaPercent = staminaProvider.getPercent();
         }
         if (staminaPercent >= 0) {
-            // 渲染体力条 - 移动到物品栏上方
             // 1. 更新状态（每帧都传当前体力值）
             StaminaIconRenderer.update(staminaPercent);
-            int heartX = context.guiWidth() / 2 - 91; // 第一颗心的 X 坐标
-            int heartY = context.guiHeight() - 36; // 心的 Y 坐标（距底部 49 像素）
-            // 2. 将坐标系平移到您想要的左上角位置（例如 x=10, y=20）
-            context.pose().pushPose();
-            context.pose().translate(heartX, heartY, 0);
-
-            // 3. 在 (0,0) 处绘制图标
-            StaminaIconRenderer.render(context, staminaPercent);
-
-            context.pose().popPose();
-
+            // 2. 这一款没有 bar，纯图标：默认隐藏，按住 Shift 才显示（与其它状态条一致）
+            if (TrainBottomHudLayout.showBarIcons()) {
+                int heartX = context.guiWidth() / 2 - 91; // 第一颗心的 X 坐标
+                // 与统一排版对齐，避免图标行压在体力 / 污染值条上
+                int heartY = TrainBottomHudLayout.barIconY(context, TrainBottomHudLayout.staminaBarSlot());
+                context.pose().pushPose();
+                context.pose().translate(heartX, heartY, 0);
+                StaminaIconRenderer.render(context, staminaPercent);
+                context.pose().popPose();
+            }
         }
 
         // 渲染主手物品冷却提示

@@ -53,6 +53,7 @@ import pro.fazeclan.river.stupid_express.role.avaricious.AvariciousGoldHandler;
 import java.util.*;
 
 import static io.wifi.starrailexpress.game.GameUtils.addItemCooldowns;
+import io.wifi.starrailexpress.game.RoundOverrides;
 
 public class SRECustomRoleGameMode extends SREMurderGameMode {
     public SRECustomRoleGameMode(ResourceLocation identifier) {
@@ -262,8 +263,8 @@ public class SRECustomRoleGameMode extends SREMurderGameMode {
                 RoleUtils.sendWelcomeAnnouncement(p);
                 if (role.canUseKiller()) {
                     SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(p);
-                    if (playerShopComponent.balance < GameConstants.getMoneyStart())
-                        playerShopComponent.setBalance(GameConstants.getMoneyStart());
+                    if (playerShopComponent.balance < RoundOverrides.startingMoney())
+                        playerShopComponent.setBalance(RoundOverrides.startingMoney());
                 }
                 ModdedRoleAssigned.EVENT.invoker().assignModdedRole(p, role);
             }
