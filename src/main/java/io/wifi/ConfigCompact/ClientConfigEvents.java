@@ -37,6 +37,10 @@ public class ClientConfigEvents {
             boolean openUI = payload.openUI();
             RoleManageConfigUI.setRoleInfo(packet.roleInfo);
             RoleManageConfigUI.setModifierInfo(packet.modifierInfo);
+            // 人数快照：设置页要用它显示「自动 (N)」还是具体的强制值
+            RoleManageConfigUI.setRoleCounts(packet.forcedKillerCount, packet.forcedVigilanteCount,
+                    packet.forcedNeutralCount, packet.autoKillerCount, packet.autoVigilanteCount,
+                    packet.autoNeutralCount);
             if (openUI) {
                 context.client().execute(() -> {
                     context.client().setScreen(RoleManageConfigUI.getScreen(context.client().screen));

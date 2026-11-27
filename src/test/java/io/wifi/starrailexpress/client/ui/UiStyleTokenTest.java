@@ -171,20 +171,21 @@ class UiStyleTokenTest {
 
     @Test
     void themeMatchesUiStyleDoc() {
-        // docs/ui_style.md §2.1
-        assertEquals(0xD81A1008, SRETheme.SURFACE_TOP, "面板背景（上）");
-        assertEquals(0xD820140A, SRETheme.SURFACE_BOTTOM, "面板背景（下）");
-        assertEquals(0xD80B1722, SRETheme.SURFACE_BOTTOM_ALT, "面板背景（下，偏蓝棕黑）");
-        assertEquals(0xF018120A, SRETheme.SCREEN_TOP, "全屏背景（上）");
-        assertEquals(0xF0061018, SRETheme.SCREEN_BOTTOM, "全屏背景（下）");
-        assertEquals(0xFF8B6914, SRETheme.BORDER, "面板边框");
-        assertEquals(0x33FFE8C0, SRETheme.DECOR_LINE, "顶部装饰线");
-        assertEquals(0xFFD4AF37, SRETheme.GOLD, "亮金色");
-        assertEquals(0xFFC9A84C, SRETheme.GOLD_DIM, "棕金色");
-        assertEquals(0xFFFFF4DC, SRETheme.TEXT, "主文字");
-        assertEquals(0xFFF5E8C8, SRETheme.TITLE, "标题文字");
-        assertEquals(0xFF9E8B6E, SRETheme.MUTED, "次要文字");
-        assertEquals(0xFFC8B898, SRETheme.BODY, "暗米色正文");
+        // docs/ui_style.md §2.1（黄铜 HUD 主题：深灰黑底 + 深炭灰卡片 + 暗铜描边 + 明亮黄铜）
+        assertEquals(0xFF1A1A1A, SRETheme.SURFACE_TOP, "底色 / 面板底（#1A1A1A）");
+        assertEquals(0xFF242424, SRETheme.SURFACE_BOTTOM, "卡片底（#242424）");
+        assertEquals(0xFF1F1F1F, SRETheme.SURFACE_BOTTOM_ALT, "分区底（比卡片暗一档）");
+        assertEquals(0xFF1A1A1A, SRETheme.SCREEN_TOP, "全屏背景（上）");
+        assertEquals(0xFF141414, SRETheme.SCREEN_BOTTOM, "全屏背景（下）");
+        assertEquals(0xFF4A3B2A, SRETheme.BORDER, "暗铜色 1px 描边");
+        assertEquals(0x00000000, SRETheme.DECOR_LINE, "扁平主题不再有顶部装饰线");
+        assertEquals(0xFFD9A441, SRETheme.GOLD, "明亮黄铜");
+        assertEquals(0xFF8A7346, SRETheme.GOLD_DIM, "做旧暗黄铜");
+        assertEquals(0xFFF0C878, SRETheme.BRASS_BRIGHT, "高亮黄铜");
+        assertEquals(0xFFD9A441, SRETheme.TEXT, "主文字 = 明亮黄铜");
+        assertEquals(0xFFF0C878, SRETheme.TITLE, "标题 = 高亮黄铜");
+        assertEquals(0xFF8A7346, SRETheme.MUTED, "次要文字 = 做旧暗铜");
+        assertEquals(0xFFC09A5A, SRETheme.BODY, "正文 = 暗一档暖金");
         assertEquals(0xFF5EB7D8, SRETheme.BLUE, "功能蓝");
         assertEquals(0xFF72C17B, SRETheme.GREEN, "功能绿");
         assertEquals(0xFFE06B65, SRETheme.RED, "功能红");
@@ -193,19 +194,40 @@ class UiStyleTokenTest {
         assertEquals(0xFF000000, SRETheme.BLACK, "纯黑");
         assertEquals(0x00000000, SRETheme.TRANSPARENT, "全透明");
         assertEquals(0x00FFFFFF, SRETheme.RGB, "RGB 掩码");
-        // §2.3
-        assertEquals(0x22FFFFFF, SRETheme.ROW_HOVER, "hover 高亮背景");
-        assertEquals(0x20FFFFFF, SRETheme.ROW_SEPARATOR, "行分隔线");
-        assertEquals(0xFF5A4530, SRETheme.CARD_BORDER, "非活跃卡片边框");
+        // §2.3 交互状态（hover / 分隔线都改成黄铜叠色，不再用白色）
+        assertEquals(0x24D9A441, SRETheme.ROW_HOVER, "hover 高亮背景（黄铜 14%）");
+        assertEquals(0x1AD9A441, SRETheme.ROW_SEPARATOR, "行分隔线（黄铜 10%）");
+        assertEquals(0xFF352A1E, SRETheme.CARD_BORDER, "非活跃卡片边框");
+        assertEquals(0xFF0A0A0A, SRETheme.INK, "文字硬阴影");
+    }
+
+    /**
+     * 胶囊开关的色板（{@code docs/ui_style.md} §2.4）。
+     *
+     * <p>
+     * 开关是「所有布尔设置」的唯一表达方式，它的开/关两态与滑块色被写进了文档，
+     * 所以在这里钉住：开 = 明亮黄铜、关 = 暗哑青铜灰、滑块 = 银白。
+     */
+    @Test
+    void switchTokensMatchUiStyleDoc() {
+        assertEquals(SRETheme.GOLD, SRETheme.SWITCH_TRACK_ON, "开态轨道 = 明亮黄铜");
+        assertEquals(0xFFF0C878, SRETheme.SWITCH_TRACK_ON_HOVER, "开态轨道 hover");
+        assertEquals(0xFF4A4438, SRETheme.SWITCH_TRACK_OFF, "关态轨道 = 暗哑青铜灰");
+        assertEquals(0xFFEDEDED, SRETheme.SWITCH_KNOB, "滑块 = 金属亮银白");
+        assertEquals(0xFF141414, SRETheme.SWITCH_KNOB_EDGE, "滑块暗边");
     }
 
     @Test
     void placeholdersAndSelectedRowsKeepTheirDocumentedDerivation() {
         // HINT 就是 MUTED：EditBox 画 hint 用输入框文字色，不同色用户会以为框里已有内容
         assertEquals(SRETheme.MUTED, SRETheme.HINT, "占位提示色必须等于 MUTED");
-        // 选中行按 §2.3 与 GOLD_DIM 混色得到
-        assertEquals(SRETheme.blendColors(0xFF1A1008, SRETheme.GOLD_DIM, 0.32F), SRETheme.SELECTED_TOP);
-        assertEquals(SRETheme.blendColors(0xFF120A04, SRETheme.GOLD_DIM, 0.18F), SRETheme.SELECTED_BOTTOM);
+        // 别名（新代码用 BRASS / COPPER / CARD_BG 这些语义名，值必须完全一致）
+        assertEquals(SRETheme.GOLD, SRETheme.BRASS, "BRASS 是 GOLD 的语义别名");
+        assertEquals(SRETheme.BORDER, SRETheme.COPPER, "COPPER 是 BORDER 的语义别名");
+        assertEquals(SRETheme.SURFACE_BOTTOM, SRETheme.CARD_BG, "CARD_BG 是卡片底色别名");
+        // 选中行按 §2.3 与 GOLD_DIM 混色得到；扁平主题下上下同色
+        assertEquals(SRETheme.blendColors(0xFF242424, SRETheme.GOLD_DIM, 0.30F), SRETheme.SELECTED_TOP);
+        assertEquals(SRETheme.SELECTED_TOP, SRETheme.SELECTED_BOTTOM, "扁平主题：选中行不再做上下渐变");
     }
 
     // ==================== 4. 工具函数 ====================

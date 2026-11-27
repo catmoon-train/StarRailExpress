@@ -187,6 +187,7 @@
   "sre.pass.faction.vigilante": "警長陣營卡",
   "sre.pass.faction.neutral": "中立陣營卡",
   "sre.pass.faction.neutral_for_killer": "殺手中立陣營卡",
+  "sre.pass.faction.custom": "自訂陣營卡",
   "cmd.stupid_express.progression.open.self": "已為你打開進度系統。",
   "cmd.stupid_express.progression.open.other": "已為 %s 打開進度系統。",
   "cmd.stupid_express.progression.open.offline": "玩家不線上：%s",

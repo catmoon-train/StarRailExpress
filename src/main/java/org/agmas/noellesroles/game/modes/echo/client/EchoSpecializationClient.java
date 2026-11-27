@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.game.modes.echo.client;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -97,17 +98,17 @@ public final class EchoSpecializationClient {
         float alpha = Math.min(1F, Math.min((REVEAL_TICKS - reveal) / 10F, reveal / 15F));
         if (alpha <= 0F) return;
         int accent = factionColor(view.faction());
-        g.fillGradient(px, py, px + pw, py + 88, EchoAnim.fade(0xF01A1008, alpha), EchoAnim.fade(0xF020140A, alpha));
-        g.renderOutline(px, py, pw, 88, EchoAnim.fade(0xFFD4AF37, alpha));
+        g.fillGradient(px, py, px + pw, py + 88, EchoAnim.fade(SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xF0), alpha), EchoAnim.fade(SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM, 0xF0), alpha));
+        g.renderOutline(px, py, pw, 88, EchoAnim.fade(SRETheme.GOLD, alpha));
         g.fill(px + 1, py + 1, px + pw - 1, py + 3, EchoAnim.fade(accent, alpha));
         var font = client.font;
         String factionName = Component.translatable("echo.faction." + view.faction().name().toLowerCase(Locale.ROOT)).getString();
         g.drawString(font, factionName, px + 10, py + 10, EchoAnim.fade(accent, alpha), false);
         if (!view.contract().isEmpty()) {
             String contract = Component.translatable("echo.contract." + view.contract().toLowerCase(Locale.ROOT) + ".name").getString();
-            g.drawString(font, contract, px + 10, py + 24, EchoAnim.fade(0xFFD4AF37, alpha), false);
+            g.drawString(font, contract, px + 10, py + 24, EchoAnim.fade(SRETheme.GOLD, alpha), false);
         }
-        g.drawString(font, Component.translatable("echo.spec.reveal_hint").getString(), px + 10, py + 42, EchoAnim.fade(0xFFFFF4DC, alpha), false);
+        g.drawString(font, Component.translatable("echo.spec.reveal_hint").getString(), px + 10, py + 42, EchoAnim.fade(SRETheme.TEXT, alpha), false);
         int progress = Math.max(0, Math.min(pw - 20, (pw - 20) * (REVEAL_TICKS - reveal) / REVEAL_TICKS));
         g.fill(px + 10, py + 66, px + pw - 10, py + 70, EchoAnim.fade(0xD8382A1B, alpha));
         g.fill(px + 10, py + 66, px + 10 + progress, py + 70, EchoAnim.fade(accent, alpha));

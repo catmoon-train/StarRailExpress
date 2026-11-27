@@ -31,12 +31,11 @@ import org.agmas.noellesroles.utils.RoleUtils;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.backpack.FactionCardForcing;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.game.utils.RoleInstance;
-import io.wifi.starrailexpress.progression.ProgressionDataManager;
-import io.wifi.starrailexpress.progression.ProgressionState.FactionCardType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -270,13 +269,7 @@ public class LightningDraftState {
                 ServerPlayer sp = allPlayers.stream().filter(p -> p.getUUID().equals(uid)).findFirst().orElse(null);
                 if (sp != null) {
                     if (info.type() == ForceTeamType.CARD) {
-
-                        FactionCardType cardType = FactionCardType.fromRoleType(type);
-                        if (cardType != FactionCardType.NONE) {
-                            ProgressionDataManager.addFactionCard(sp, cardType, 1);
-                            sp.displayClientMessage(Component.translatable("message.sre.role_rotation.card_limit")
-                                    .withStyle(ChatFormatting.RED), true);
-                        }
+                        FactionCardForcing.refund(uid, info.roleType(), sp, "message.sre.role_rotation.card_limit");
                     } else {
                         sp.displayClientMessage(Component.translatable("message.sre.role_rotation.no_force_team")
                                 .withStyle(ChatFormatting.RED), true);
@@ -442,12 +435,7 @@ public class LightningDraftState {
                 ServerPlayer sp = world.getServer().getPlayerList().getPlayer(playerId);
                 if (sp != null) {
                     if (t.type() == ForceTeamType.CARD) {
-                        FactionCardType cardType = FactionCardType.fromRoleType(type);
-                        if (cardType != FactionCardType.NONE) {
-                            ProgressionDataManager.addFactionCard(sp, cardType, 1);
-                            sp.displayClientMessage(Component.translatable("message.sre.role_rotation.card_limit")
-                                    .withStyle(ChatFormatting.RED), false);
-                        }
+                        FactionCardForcing.refund(playerId, t.roleType(), sp, "message.sre.role_rotation.card_limit");
                     } else {
                         sp.displayClientMessage(Component.translatable("message.sre.role_rotation.no_force_team")
                                 .withStyle(ChatFormatting.RED), true);

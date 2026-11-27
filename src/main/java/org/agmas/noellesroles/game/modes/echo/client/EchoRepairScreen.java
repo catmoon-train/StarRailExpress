@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.game.modes.echo.client;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -52,7 +53,7 @@ public final class EchoRepairScreen extends Screen {
         int px = (int) Math.round(cx + Math.cos(angle) * (RING_RADIUS + RING_THICK + 4));
         int py = (int) Math.round(cy + Math.sin(angle) * (RING_RADIUS + RING_THICK + 4));
         g.fill(px - 3, py - 3, px + 3, py + 3, 0xFFFFF176);
-        g.fill(cx - 2, cy - 2, cx + 2, cy + 2, 0xFFD4AF37);
+        g.fill(cx - 2, cy - 2, cx + 2, cy + 2, SRETheme.GOLD);
 
         g.drawCenteredString(font, Component.translatable("echo.repair.hint").withStyle(ChatFormatting.GRAY),
                 cx, cy + RING_RADIUS + 26, 0xFFB0B8C0);

@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.event.OnGameTrueStarted;
 import io.wifi.starrailexpress.network.PlayerDataPartSyncPayload;
 import io.wifi.starrailexpress.progression.ProgressionDataManager;
 import io.wifi.starrailexpress.progression.ProgressionState;
@@ -41,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 场外背包数据管理器（MySQL 分区 {@code data_key="backpack"}）。
@@ -65,7 +67,12 @@ public final class BackpackManager {
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> onDisconnect(handler.getPlayer()));
         ServerTickEvents.END_SERVER_TICK.register(BackpackManager::tick);
         ServerLifecycleEvents.SERVER_STOPPING.register(BackpackManager::flushAllBlocking);
-        ServerLifecycleEvents.SERVER_STOPPED.register(server -> ENTRIES.clear());
+        ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
+            ENTRIES.clear();
+            FactionCardForcing.clearAll();
+        });
+        // 阵营卡统一结算的安全网：正式开局时职业已分完，任何模式漏掉的待生效卡都按实际职业兑现或退款
+        OnGameTrueStarted.EVENT.register(FactionCardForcing::settlePending);
     }
 
     // ====================== 公开服务端 API ======================
@@ -92,32 +99,56 @@ public final class BackpackManager {
         SUCCESS,
         INVALID,
         ALREADY_ACTIVE,
-        ON_COOLDOWN
+        ON_COOLDOWN,
+        /** 自定义卡必须带上目标阵营（命令里漏参数或传了非法阵营）。 */
+        NEEDS_TARGET
     }
 
-    /** 逐字复刻 {@code ProgressionDataManager.activateFactionCard}：卡库写改为背包。 */
+    /** 固定目标阵营卡：目标就是卡自己的阵营。 */
     public static boolean activateCard(ServerPlayer player, FactionCardType type) {
-        return activateCardResult(player, type) == ActivateResult.SUCCESS;
+        return activateCardResult(player, type, type) == ActivateResult.SUCCESS;
     }
 
     public static ActivateResult activateCardResult(ServerPlayer player, FactionCardType type) {
+        return activateCardResult(player, type, type);
+    }
+
+    /**
+     * 统一的「使用一张卡」入口：{@code consumed} 是被扣掉的那张卡，{@code target} 是本局要强制的目标阵营。
+     *
+     * <p>
+     * 固定阵营卡两者相同；自定义卡传 {@code consumed = }{@link FactionCardType#CUSTOM}、
+     * {@code target} 为玩家选中的阵营。目标阵营同时决定硬强制（{@code ForcePlayerTeam}）与选人加成，
+     * 而分不到时退还的始终是 {@code consumed}（见 {@link FactionCardForcing}）。
+     */
+    public static ActivateResult activateCardResult(ServerPlayer player, FactionCardType consumed,
+            FactionCardType target) {
         Entry entry = getEntry(player.getUUID());
-        int current = entry.state.cards.getOrDefault(type, 0);
-        if (type == FactionCardType.NONE || current < 1) {
+        int current = consumed == null ? 0 : entry.state.cards.getOrDefault(consumed, 0);
+        if (consumed == null || consumed == FactionCardType.NONE || current < 1) {
             return ActivateResult.INVALID;
+        }
+        if (target == null || !target.isSelectableTarget()) {
+            return ActivateResult.NEEDS_TARGET;
         }
         if (PlayerRoleWeightManager.ForcePlayerTeam.containsKey(player.getUUID())) {
             return ActivateResult.ALREADY_ACTIVE;
         }
-        if (FactionCardCooldown.isOnCooldown(entry.state, type)) {
+        if (FactionCardCooldown.isOnCooldown(entry.state, consumed)) {
             return ActivateResult.ON_COOLDOWN;
         }
-        PlayerRoleWeightManager.ForcePlayerTeam.put(player.getUUID(), new ForceTeamInfo(type.getTypeRoleId(), ForceTeamType.CARD));
-        entry.state.cards.put(type, current - 1);
-        entry.state.markUsed(type, System.currentTimeMillis());
+        int roleType = target.getTypeRoleId();
+        PlayerRoleWeightManager.ForcePlayerTeam.put(player.getUUID(), new ForceTeamInfo(roleType, ForceTeamType.CARD));
+        FactionCardForcing.register(player.getUUID(), consumed, roleType);
+        entry.state.cards.put(consumed, current - 1);
+        entry.state.markUsed(consumed, System.currentTimeMillis());
         markDirty(player, entry);
-        Component message = Component.translatable("message.sre.progression.faction_card_activated",
-                Component.translatable(type.displayName));
+        sendPendingCard(player);
+        Component message = consumed == FactionCardType.CUSTOM
+                ? Component.translatable("message.sre.progression.custom_card_activated",
+                        Component.translatable(target.displayName))
+                : Component.translatable("message.sre.progression.faction_card_activated",
+                        Component.translatable(consumed.displayName));
         player.sendSystemMessage(message);
         player.displayClientMessage(message, true);
         return ActivateResult.SUCCESS;
@@ -125,6 +156,29 @@ public final class BackpackManager {
 
     public static long remainingCooldownMs(ServerPlayer player, FactionCardType type) {
         return FactionCardCooldown.remainingMs(getEntry(player.getUUID()).state, type);
+    }
+
+    // ====================== 待生效卡（客户端镜像） ======================
+
+    /** 背包分区之外的第二个分区：本局待兑现的阵营卡，只给界面显示「本局已生效」用。 */
+    public static final String CARD_PART = "card_force";
+
+    private static final AtomicLong CARD_PART_STAMP = new AtomicLong();
+
+    /** 客户端缓存按 updatedAt 丢弃旧包，所以这里保证时间戳单调递增。 */
+    private static long nextCardPartStamp() {
+        return CARD_PART_STAMP.updateAndGet(previous -> Math.max(previous + 1L, System.currentTimeMillis()));
+    }
+
+    /** 把「本局待兑现的卡」推给客户端；没有待生效卡时推空状态。 */
+    static void sendPendingCard(ServerPlayer player) {
+        FactionCardForcing.Pending pending = FactionCardForcing.pending(player.getUUID());
+        long stamp = nextCardPartStamp();
+        PendingCardState state = pending == null
+                ? PendingCardState.none(stamp)
+                : PendingCardState.of(pending.card(), FactionCardType.fromRoleType(pending.targetRoleType()), stamp);
+        ServerPlayNetworking.send(player,
+                new PlayerDataPartSyncPayload(player.getUUID(), CARD_PART, GSON.toJson(state), stamp));
     }
 
     /** 命令开屏前可调用以保证客户端数据新鲜。 */
@@ -216,6 +270,7 @@ public final class BackpackManager {
         Entry entry = getEntry(player.getUUID());
         entry.online = true;
         send(player, entry);
+        sendPendingCard(player);
         if (!isDatabaseEnabled()) {
             entry.loaded = true;
             migrateIfNeeded(player);

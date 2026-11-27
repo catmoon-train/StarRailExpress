@@ -23,6 +23,7 @@ import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.backpack.FactionCardForcing;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.event.AllowPlayerWin;
@@ -32,7 +33,6 @@ import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import io.wifi.starrailexpress.game.utils.RoleInstance;
 import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
 import io.wifi.starrailexpress.progression.ProgressionDataManager;
-import io.wifi.starrailexpress.progression.ProgressionState.FactionCardType;
 import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.impl.util.log.Log;
@@ -65,7 +65,6 @@ import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.ModifierOpposingHelper;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.CustomWinnerClass;
-import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.role_data.neutral.MercenaryRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 import io.wifi.starrailexpress.event.GameplayExtensionEvents;
@@ -174,7 +173,7 @@ public class SREMurderGameMode extends GameMode {
 
         Harpymodloader.FORCED_MODDED_ROLE.clear();
         Harpymodloader.FORCED_MODDED_MODIFIER.clear();
-        PlayerRoleWeightManager.ForcePlayerTeam.clear();
+        FactionCardForcing.settleRound(serverWorld);
     }
 
     // 执行指定函数的辅助方法
@@ -776,25 +775,9 @@ public class SREMurderGameMode extends GameMode {
                                 playerUid, selectedRole.getIdentifier().toString(),
                                 roleType);
                     } else {
-                        PlayerRoleWeightManager.boostKillerSideAfterForceFailure(playerUid);
-                        Harpymodloader.LOGGER.warn(
-                                "Couldn't force player [{}]'s role to {} because there are no roles available for him.",
-                                playerUid,
-                                roleType);
-                        FactionCardType cardType = FactionCardType.fromRoleType(roleType);
-                        if (cardType != FactionCardType.NONE) {
-                            if (forceTeamInfo.type() == ForceTeamType.CARD) {
-
-                                ProgressionDataManager.addFactionCard((ServerPlayer) selectedPlayer, cardType, 1);
-                                BroadcastCommand.BroadcastMessage(selectedPlayer,
-                                        Component.translatable("message.sre.pass.faction.assign_failed")
-                                                .withStyle(ChatFormatting.RED));
-                            } else {
-                                BroadcastCommand.BroadcastMessage(selectedPlayer,
-                                        Component.translatable("message.sre.force_team.assign_failed")
-                                                .withStyle(ChatFormatting.RED));
-                            }
-                        }
+                        // 阵营卡统一处理：退卡 / 提示都在 FactionCardForcing，模式不再各写一份
+                        FactionCardForcing.handleForceFailure(selectedPlayer, playerUid, roleType,
+                                forceTeamInfo.type());
                     }
                 }
             }

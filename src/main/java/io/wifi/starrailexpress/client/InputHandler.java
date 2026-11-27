@@ -26,6 +26,7 @@ import io.wifi.starrailexpress.client.gui.screen.ingame.FourthRoomPeekDeckScreen
 import io.wifi.starrailexpress.content.item.SniperRifleItem;
 import io.wifi.starrailexpress.content.vote.client.ClientVoteCache;
 import io.wifi.starrailexpress.content.vote.client.GameModeVoteScreen;
+import io.wifi.starrailexpress.content.vote.client.RolePoolVoteScreen;
 import io.wifi.starrailexpress.content.vote.client.VoteScreen;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.RequestOpenClueArchivePayload;
@@ -86,13 +87,17 @@ public class InputHandler {
         return openClueArchiveKeybind;
     }
 
-    /** 按投票类型选界面：模式投票用专用界面，其余用通用投票界面。 */
+    /** 按投票类型选界面：模式 / 职业池投票用专用界面，其余用通用投票界面。 */
     private static Screen createVoteScreen() {
+        if (ClientVoteCache.isRolePoolVote()) {
+            return new RolePoolVoteScreen();
+        }
         return ClientVoteCache.isGameModeVote() ? new GameModeVoteScreen() : new VoteScreen();
     }
 
     private static boolean isVoteScreenOpen(Screen screen) {
-        return screen instanceof VoteScreen || screen instanceof GameModeVoteScreen;
+        return screen instanceof VoteScreen || screen instanceof GameModeVoteScreen
+                || screen instanceof RolePoolVoteScreen;
     }
 
     private static boolean canOpenFourthRoomTableUi(Minecraft client) {

@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client.widget;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import java.util.List;
 
 import org.agmas.noellesroles.client.CloneDoctorClient;
@@ -34,8 +35,8 @@ public final class CloneDoctorPlayerWidget extends Button {
     protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
         super.renderWidget(graphics, mouseX, mouseY, delta);
         active = CloneDoctorClient.canSelectTarget(target.getProfile().getId());
-        graphics.fill(getX() - 2, getY() - 2, getX() + 18, getY() + 18, 0xD81A1008);
-        graphics.renderOutline(getX() - 2, getY() - 2, 20, 20, isHovered() ? 0xFFD4AF37 : 0xFF8B6914);
+        graphics.fill(getX() - 2, getY() - 2, getX() + 18, getY() + 18, SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xD8));
+        graphics.renderOutline(getX() - 2, getY() - 2, 20, 20, isHovered() ? SRETheme.GOLD : SRETheme.BORDER);
         PlayerFaceRenderer.draw(graphics, target.getSkin().texture(), getX(), getY(), 16);
         if (!active) {
             graphics.fill(getX(), getY(), getX() + 16, getY() + 16, 0x99000000);

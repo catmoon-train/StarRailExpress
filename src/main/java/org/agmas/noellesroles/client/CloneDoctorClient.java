@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import java.util.UUID;
 
 import org.agmas.noellesroles.client.rolescreen.CloneDoctorRoleScreenExtension;
@@ -190,7 +191,7 @@ public final class CloneDoctorClient {
             graphics.drawString(client.font, line, 10, textY, 0xFF9FF4D6, true);
             textY += lineHeight;
         }
-        graphics.drawString(client.font, timer, 10, textY, 0xFFFFF4DC, true);
+        graphics.drawString(client.font, timer, 10, textY, SRETheme.TEXT, true);
         return y - 4 + height + 4;
     }
 
@@ -214,7 +215,7 @@ public final class CloneDoctorClient {
         Component text = ticks <= 0
                 ? Component.translatable(KEY + key.replace("_cooldown", "_ready"))
                 : Component.translatable(KEY + key, ticks / 20 + (ticks % 20 > 0 ? 1 : 0));
-        graphics.drawString(font, text, 6, y, ticks <= 0 ? 0xFF9FF4D6 : 0xFFFFF4DC, true);
+        graphics.drawString(font, text, 6, y, ticks <= 0 ? 0xFF9FF4D6 : SRETheme.TEXT, true);
         return y + font.lineHeight + 2;
     }
 

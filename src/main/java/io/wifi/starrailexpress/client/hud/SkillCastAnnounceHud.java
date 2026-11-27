@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client.hud;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.network.SkillCastAnnouncePayload;
@@ -45,7 +46,7 @@ public final class SkillCastAnnounceHud {
     private static final int ROW_H = 14;
     private static final int GAP = 3;
     private static final int MARGIN_X = 8;
-    private static final int TEXT = 0xFFFFF4DC;
+    private static final int TEXT = SRETheme.TEXT;
 
     private static final List<Toast> TOASTS = new ArrayList<>();
 

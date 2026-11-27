@@ -15,6 +15,8 @@
 
 package io.wifi.starrailexpress.content.vote.client;
 
+import io.wifi.starrailexpress.content.vote.RolePoolVote;
+
 import io.wifi.starrailexpress.content.vote.VoteOption;
 import io.wifi.starrailexpress.content.vote.network.VoteSyncS2CPacket;
 import net.minecraft.client.Minecraft;
@@ -120,6 +122,11 @@ public class ClientVoteCache {
     /** 当前投票是否为"模式投票"（地图投票前的游戏模式投票）。 */
     public static boolean isGameModeVote() {
         return active && "game_mode".equals(typeId);
+    }
+
+    /** 当前投票是否为"职业池投票"（地图投票前的那一步）。 */
+    public static boolean isRolePoolVote() {
+        return active && RolePoolVote.TYPE_ID.equals(typeId);
     }
 
     public static int getRemainingSeconds() {

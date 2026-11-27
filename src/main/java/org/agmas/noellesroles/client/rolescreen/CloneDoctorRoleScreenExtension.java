@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client.rolescreen;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import java.awt.Point;
 import java.util.List;
 
@@ -47,9 +48,9 @@ public final class CloneDoctorRoleScreenExtension extends PlayerListRoleScreenEx
     private void drawHint(GuiGraphics graphics, Point center) {
         var font = Minecraft.getInstance().font;
         graphics.drawCenteredString(font, Component.translatable("hud.noellesroles.clone_doctor.select"),
-                center.x, center.y + 40, 0xFFD4AF37);
+                center.x, center.y + 40, SRETheme.GOLD);
         graphics.drawCenteredString(font,
                 Component.translatable("hud.noellesroles.clone_doctor.cost", CloneDoctorClient.COPY_COST),
-                center.x, center.y + 40 - font.lineHeight - 2, 0xFFFFF4DC);
+                center.x, center.y + 40 - font.lineHeight - 2, SRETheme.TEXT);
     }
 }

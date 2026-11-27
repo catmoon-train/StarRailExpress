@@ -15,6 +15,7 @@
 
 package net.exmo.sre.meeting.client;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -50,8 +51,8 @@ import java.util.UUID;
 public final class MeetingReportClientHandler {
 
     // 配色对齐 MeetingHud 的复古车票风格
-    private static final int TEXT = 0xFFFFF4DC;
-    private static final int MUTED = 0xFF9E8B6E;
+    private static final int TEXT = SRETheme.TEXT;
+    private static final int MUTED = SRETheme.MUTED;
 
     /** 会议间冷却结束的世界 gameTime（服务端散会时下发），0 表示无冷却。 */
     private static long bellCooldownUntilTick;

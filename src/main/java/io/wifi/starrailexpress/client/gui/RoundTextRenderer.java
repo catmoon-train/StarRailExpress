@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client.gui;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -177,7 +178,7 @@ public class RoundTextRenderer {
             cachedGoalText = isLooseEnds ? Component.translatable("announcement.star.loose_ends.goal")
                     : roleTexts.goalText.apply(targets);
             cachedWelcomeText = cachedWelcomeText.copy().withColor(VoteFlowFrame.TEXT & 0xFFFFFF);
-            cachedPremiseText = cachedPremiseText.copy().withColor(0xC8B898);
+            cachedPremiseText = cachedPremiseText.copy().withColor(SRETheme.BODY);
             cachedGoalText = cachedGoalText.copy().withColor(VoteFlowFrame.TEXT & 0xFFFFFF);
             lastKillers = killers;
             lastTargets = targets;
@@ -222,7 +223,7 @@ public class RoundTextRenderer {
             g.fill(-2, ruleY - 1, 2, ruleY + 3, withAlpha(accent, titleAlpha));
         }
         drawWelcomeLines(g, renderer, premises, layout.premiseY() + (1 - premiseIn) * 6,
-                bodyScale, bodyLine, withAlpha(0xFFC8B898, Math.round(255 * premiseIn * exit)));
+                bodyScale, bodyLine, withAlpha(SRETheme.BODY, Math.round(255 * premiseIn * exit)));
         drawWelcomeLines(g, renderer, goals, layout.goalY() + (1 - goalIn) * 6,
                 bodyScale, bodyLine, withAlpha(text, Math.round(255 * goalIn * exit)));
         g.pose().popPose();
@@ -232,7 +233,7 @@ public class RoundTextRenderer {
             g.pose().pushPose();
             g.pose().translate(g.guiWidth() / 2.0F, g.guiHeight() - 22, 0);
             drawWelcomeLine(g, renderer, copyright.getVisualOrderText(), 0, 0.8F,
-                    withAlpha(0xFF9E8B6E, footerAlpha));
+                    withAlpha(SRETheme.MUTED, footerAlpha));
             g.pose().popPose();
         }
         g.flush();

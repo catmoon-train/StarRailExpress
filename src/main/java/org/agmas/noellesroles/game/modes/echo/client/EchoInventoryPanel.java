@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.game.modes.echo.client;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.client.gui.widget.SreButton;
 import net.minecraft.client.Minecraft;
@@ -16,7 +17,7 @@ import java.util.*;
 
 /** LimitedInventoryScreen 内嵌页；没有独立背包、客户端可写库存或原版搬运操作。 */
 public final class EchoInventoryPanel {
-    private static final int GOLD = 0xFFD4AF37, TEXT = 0xFFFFF4DC, MUTED = 0xFF9E8B6E;
+    private static final int GOLD = SRETheme.GOLD, TEXT = SRETheme.TEXT, MUTED = SRETheme.MUTED;
     private final LimitedInventoryScreen screen;
     private final Minecraft client = Minecraft.getInstance();
     private final List<UUID> selected = new ArrayList<>();
@@ -212,16 +213,16 @@ public final class EchoInventoryPanel {
             int mx = layout.modalX(), my = layout.modalY(), mw = layout.modalWidth(), mh = layout.modalHeight();
             g.fillGradient(mx, my, mx + mw, my + mh, 0xFF2B2013, 0xFF100D09);
             g.renderOutline(mx, my, mw, mh, GOLD);
-            g.renderOutline(mx + 2, my + 2, mw - 4, mh - 4, 0xFF8B6914);
-            g.fill(mx + 4, my + 4, mx + mw - 4, my + 5, 0x55FFE8C0);
+            g.renderOutline(mx + 2, my + 2, mw - 4, mh - 4, SRETheme.BORDER);
+            g.fill(mx + 4, my + 4, mx + mw - 4, my + 5, SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x55));
             return;
         }
         if (state != null && offered(state)) g.fill(0, 0, screen.width, screen.height, 0xB0000000);
         int x = layout.x(), y = layout.y(), w = layout.width(), h = layout.height();
-        g.fillGradient(x, y, x + w, y + h, 0xF01A1008, 0xF00F1417);
-        g.renderOutline(x, y, w, h, 0xFF8B6914);
-        g.fill(x + 1, y + 1, x + w - 1, y + 2, 0x33FFE8C0);
-        g.fill(x + 8, y + 21, x + w - 8, y + 22, 0x408B6914);
+        g.fillGradient(x, y, x + w, y + h, SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xF0), 0xF00F1417);
+        g.renderOutline(x, y, w, h, SRETheme.BORDER);
+        g.fill(x + 1, y + 1, x + w - 1, y + 2, SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x33));
+        g.fill(x + 8, y + 21, x + w - 8, y + 22, SRETheme.withAlpha(SRETheme.BORDER, 0x40));
         var d = data();
         if (d == null || d.bag() == null) return;
         if (offered(d)) {
@@ -233,7 +234,7 @@ public final class EchoInventoryPanel {
             }
         } else {
             g.fillGradient(x + 8, layout.contentY(), x + w - 8, layout.detailBottom(), 0xA0261D12, 0x90120D08);
-            g.renderOutline(x + 8, layout.contentY(), w - 16, layout.detailBottom() - layout.contentY(), 0xFF5A4530);
+            g.renderOutline(x + 8, layout.contentY(), w - 16, layout.detailBottom() - layout.contentY(), SRETheme.CARD_BORDER);
         }
     }
     public void render(GuiGraphics g, int mouseX, int mouseY) {
@@ -260,14 +261,14 @@ public final class EchoInventoryPanel {
                 hint = error(d);
                 g.fill(x + 6, layout.hintY() - 1, x + w - 6, layout.hintY() + 11, 0xB04A1610);
             }
-            text(g, hint, x + 8, layout.hintY(), w - 16, 10, error(d) == null ? GOLD : 0xFFE06B65);
+            text(g, hint, x + 8, layout.hintY(), w - 16, 10, error(d) == null ? GOLD : SRETheme.RED);
         }
         text(g, tr("tools"), layout.toolsX(), layout.labelY(), 3 * layout.slotStep() - 3, 10, GOLD);
-        text(g, tr("resources"), layout.resourcesX(), layout.labelY(), 6 * layout.slotStep() - 3, 10, 0xFF5EB7D8);
+        text(g, tr("resources"), layout.resourcesX(), layout.labelY(), 6 * layout.slotStep() - 3, 10, SRETheme.BLUE);
         Component failure = error(d);
         Component status = failure != null ? failure : EchoBagClient.waiting() ? Component.translatable("echo.ui.waiting")
                 : tr("close_help", client.options.keyInventory.getTranslatedKeyMessage());
-        text(g, status, x + 8, y + layout.height() - 13, w - 16, 10, failure == null ? MUTED : 0xFFE06B65);
+        text(g, status, x + 8, y + layout.height() - 13, w - 16, 10, failure == null ? MUTED : SRETheme.RED);
         if (failure != null && mouseY >= y + layout.height() - 15 && mouseY < y + layout.height())
             g.renderTooltip(client.font, client.font.split(failure, Math.max(100, w - 24)), mouseX, mouseY);
     }
@@ -309,7 +310,7 @@ public final class EchoInventoryPanel {
             scrollText(g, body, x, y + 99, w, Math.max(10, layout.actionsY() - y - 107), choiceScroll[n], TEXT);
         }
         text(g, Component.translatable("echo.ui.choice_timeout", Math.max(0, (d.draft().deadline() - d.projectedTick() + 19) / 20)),
-                layout.x() + 8, layout.hintY(), layout.width() - 16, 10, d.draft().deadline() - d.projectedTick() <= 100 ? 0xFFE06B65 : GOLD);
+                layout.x() + 8, layout.hintY(), layout.width() - 16, 10, d.draft().deadline() - d.projectedTick() <= 100 ? SRETheme.RED : GOLD);
     }
     private Component toolName(int slot) { return tr("tool." + slot); }
     private Component name(EchoResourceInstance item) {
@@ -379,10 +380,10 @@ public final class EchoInventoryPanel {
         int progress = (int) Math.max(0, Math.min(1000, (total - remaining) * 1000 / total));
         text(g, pack == null ? tr("draft.requesting") : name(pack), x + 58, y + 36, w - 74, 20, TEXT);
         text(g, tr(EchoBagClient.beginning() ? "draft.requesting" : "draft.progress", progress / 10, String.format(Locale.ROOT, "%.1f", remaining / 20D)),
-                x + 58, y + 59, w - 74, 12, 0xFF5EB7D8);
+                x + 58, y + 59, w - 74, 12, SRETheme.BLUE);
         g.fill(x + 16, y + 84, x + w - 16, y + 92, 0xFF49341E);
         g.fill(x + 16, y + 84, x + 16 + (w - 32) * progress / 1000, y + 92, GOLD);
-        text(g, error(d) == null ? tr("draft.cancel_help") : error(d), x + 16, y + 100, w - 32, 20, error(d) == null ? MUTED : 0xFFE06B65);
+        text(g, error(d) == null ? tr("draft.cancel_help") : error(d), x + 16, y + 100, w - 32, 20, error(d) == null ? MUTED : SRETheme.RED);
     }
     public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
         var d = data(); if (d == null || d.bag() == null) return false;
@@ -422,7 +423,7 @@ public final class EchoInventoryPanel {
             int x = getX(), y = getY(), size = getWidth();
             var slot = hotbar >= 3 ? d.bag().slots().get(hotbar - 3) : null;
             boolean chosen = hotbar < 3 ? tool == hotbar : slot.items().stream().anyMatch(i -> selected.contains(i.instanceId()));
-            int border = chosen ? GOLD : isHoveredOrFocused() ? TEXT : hotbar < 3 ? 0xFF8B6914 : 0xFF42616B;
+            int border = chosen ? GOLD : isHoveredOrFocused() ? TEXT : hotbar < 3 ? SRETheme.BORDER : 0xFF42616B;
             g.fillGradient(x, y, x + size, y + size, chosen ? 0xFF3A2A13 : 0xFF241A10, 0xFF100D09);
             g.renderOutline(x, y, size, size, border);
             int iconSize = Math.min(20, size - 8), ix = x + (size - iconSize) / 2, iy = y + (size - iconSize) / 2 + 2;
@@ -434,7 +435,7 @@ public final class EchoInventoryPanel {
             else if (!slot.items().isEmpty()) {
                 drawResource(g, slot.items().getFirst(), ix, iy, iconSize);
                 if (slot.items().size() > 1) g.drawString(client.font, "×" + slot.items().size(), x + size - 15, y + size - 9, TEXT, true);
-                if (slot.items().stream().anyMatch(i -> d.bag().locks().containsKey(i.instanceId()))) g.fill(x + size - 5, y + 3, x + size - 2, y + 6, 0xFFE06B65);
+                if (slot.items().stream().anyMatch(i -> d.bag().locks().containsKey(i.instanceId()))) g.fill(x + size - 5, y + 3, x + size - 2, y + 6, SRETheme.RED);
             }
             g.drawString(client.font, String.valueOf(hotbar + 1), x + 2, y + 1, chosen ? GOLD : MUTED, false);
         }

@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client.decree;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -197,7 +198,7 @@ public final class DecreeClient {
             text = client.font.plainSubstrByWidth(text, cell - 16);
             if (alpha > 4) {
                 g.drawString(client.font, text, x + (cell - client.font.width(text)) / 2, y,
-                        alpha << 24 | 0xFFF4DC, false);
+                        alpha << 24 | SRETheme.TEXT, false);
                 String time = Component.translatable("hud.noellesroles.decree.remaining",
                         Math.max(0, (field.remaining + 19) / 20)).getString();
                 g.drawString(client.font, time, x + (cell - client.font.width(time)) / 2, y + 10,

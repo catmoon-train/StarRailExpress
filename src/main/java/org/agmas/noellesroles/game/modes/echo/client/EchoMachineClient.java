@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.game.modes.echo.client;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -59,7 +60,7 @@ public final class EchoMachineClient {
             pose.pushPose(); pose.translate(pos.x - camera.x, pos.y - camera.y, pos.z - camera.z);
             pose.mulPose(client.getEntityRenderDispatcher().cameraOrientation()); pose.scale(-scale, -scale, scale);
             client.font.drawInBatch(text, -client.font.width(text) / 2F, 0, color(machine), false,
-                    pose.last().pose(), BUFFER, Font.DisplayMode.NORMAL, 0xC01A1008, LightTexture.FULL_BRIGHT);
+                    pose.last().pose(), BUFFER, Font.DisplayMode.NORMAL, SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xC0), LightTexture.FULL_BRIGHT);
             pose.popPose(); BUFFER.endBatch();
         });
     }
@@ -128,15 +129,15 @@ public final class EchoMachineClient {
         // 回调只在脏 tick 执行；必须入帧缓存，直接使用真实 GuiGraphics 会在中间帧消失。
         var g = graphics;
         int accent = color(machine);
-        g.fillGradient(x, y, x + width, y + 29, 0xEB1A1008, 0xEB20140A);
-        g.renderOutline(x, y, width, 29, 0xFF8B6914);
-        g.fill(x + 1, y + 1, x + width - 1, y + 2, 0x33FFE8C0);
+        g.fillGradient(x, y, x + width, y + 29, SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xEB), SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM, 0xEB));
+        g.renderOutline(x, y, width, 29, SRETheme.BORDER);
+        g.fill(x + 1, y + 1, x + width - 1, y + 2, SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x33));
         g.fill(x + 1, y + 2, x + 3, y + 28, accent);
         var item = BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath("noellesroles", machine.type().path()));
         g.renderItem(new ItemStack(item), x + 5, y + 5);
         Component title = Component.translatable(machine.type().nameKey());
         if (machine.required() > 0) title = Component.translatable("echo.machine.beacon", title, machine.amount(), machine.required(), machine.progress() / 10);
-        fit(g, title, x + 25, y + 5, width - 30, 0xFFD4AF37);
+        fit(g, title, x + 25, y + 5, width - 30, SRETheme.GOLD);
         fit(g, instruction(machine), x + 25, y + 16, width - 30, accent);
         if (machine.required() > 0) {
             g.fill(x + 4, y + 26, x + width - 3, y + 28, 0xFF49341E);
@@ -146,11 +147,11 @@ public final class EchoMachineClient {
     }
 
     private static int color(EchoMachineView machine) {
-        return machine.status().actionable() || machine.status() == EchoMachineView.Status.ACTIVE ? 0xFF72C17B
+        return machine.status().actionable() || machine.status() == EchoMachineView.Status.ACTIVE ? SRETheme.GREEN
                 : switch (machine.status()) {
-                    case CHARGING, CORE_OPEN -> 0xFF5EB7D8;
-                    case COOLDOWN, EMPTY, EVAC_WAIT, RETIRE_WAIT, UNCONFIGURED -> 0xFFC8B898;
-                    default -> 0xFFE0AD5B;
+                    case CHARGING, CORE_OPEN -> SRETheme.BLUE;
+                    case COOLDOWN, EMPTY, EVAC_WAIT, RETIRE_WAIT, UNCONFIGURED -> SRETheme.BODY;
+                    default -> SRETheme.AMBER;
                 };
     }
     private static void fit(FakeGuiGraphics g, Component text, int x, int y, int width, int color) {

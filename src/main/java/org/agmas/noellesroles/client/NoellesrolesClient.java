@@ -174,7 +174,8 @@ public class NoellesrolesClient implements ClientModInitializer {
     public static boolean isTaskInstinctEnabled = false;
     // 记录被触发启用透视的任务路标位置
     public static Set<BlockPos> enabledTaskMarkerPositions = new HashSet<>();
-    public static boolean isShowHelpDisplay = true;
+    /** 右上角信息行是否展开；默认折叠，只显示常驻行，按 H 展开完整信息（物品栏界面不受此状态影响）。 */
+    public static boolean isShowHelpDisplay = false;
     private static boolean foolMeetingPauseHandled = false;
     /** 操纵师附身期间，本地相机是否已绑定到被操控目标 */
     public static boolean manipulatorCameraBound = false;

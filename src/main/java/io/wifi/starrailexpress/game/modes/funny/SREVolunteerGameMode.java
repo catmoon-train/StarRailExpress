@@ -302,6 +302,7 @@ public class SREVolunteerGameMode extends SREMurderGameMode {
             mood.sync();
         });
         SREGameTimeComponent.KEY.get(world).setTimeFrozen(false);
+        io.wifi.starrailexpress.backpack.FactionCardForcing.settleRound(world);
         OnGameTrueStarted.EVENT.invoker().onGameTrueStarted(world);
     }
 

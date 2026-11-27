@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client.gui.screen;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.client.gui.anim.GuiAnim;
 import io.wifi.starrailexpress.client.gui.SREPanelStyle;
@@ -111,15 +112,15 @@ public class SkinManagementScreen extends Screen {
     }
 
     // ─── 主题色（遵循 ui_style.md 复古列车配色） ──────────────────────────
-    private static final int ACCENT = 0xFFD4AF37;        // GOLD 强调色
-    private static final int BG_TOP = 0xD81A1008;        // 深棕红（面板上）
-    private static final int BG_BOTTOM = 0xD820140A;     // 棕黑（面板下）
-    private static final int SCREEN_BG_TOP = 0xF018120A;  // 全屏背景上
-    private static final int SCREEN_BG_BOTTOM = 0xF0061018; // 全屏背景下
-    private static final int PANEL_BORDER = 0xFF8B6914;  // 棕褐色描边
-    private static final int DECOR_LINE = 0x33FFE8C0;    // 顶部装饰线
-    private static final int TEXT_TITLE = 0xFFF5E8C8;    // 标题文字 浅米色
-    private static final int TEXT_DIM = 0xFF9E8B6E;      // 次要文字 土褐色
+    private static final int ACCENT = SRETheme.GOLD;        // GOLD 强调色
+    private static final int BG_TOP = SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xD8);        // 深棕红（面板上）
+    private static final int BG_BOTTOM = SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM, 0xD8);     // 棕黑（面板下）
+    private static final int SCREEN_BG_TOP = SRETheme.withAlpha(SRETheme.SCREEN_TOP, 0xF0);  // 全屏背景上
+    private static final int SCREEN_BG_BOTTOM = SRETheme.withAlpha(SRETheme.SCREEN_BOTTOM, 0xF0); // 全屏背景下
+    private static final int PANEL_BORDER = SRETheme.BORDER;  // 棕褐色描边
+    private static final int DECOR_LINE = SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x33);    // 顶部装饰线
+    private static final int TEXT_TITLE = SRETheme.TITLE;    // 标题文字 浅米色
+    private static final int TEXT_DIM = SRETheme.MUTED;      // 次要文字 土褐色
     private static final int NAME_TAG_COLOR = 0xFFF5DFA8; // 称号色
 
     private static final int MODEL_SCALE_DIVISOR = 3;
@@ -575,7 +576,7 @@ public class SkinManagementScreen extends Screen {
             float y = height / 2f + (float) Math.sin(time * 0.0008 + i * 1.7) * (height * 0.45f);
             float twinkle = 0.5f + 0.5f * (float) Math.sin(time * 0.0012 + i * 2.3);
             int alpha = (int) (15 + 45 * twinkle);
-            graphics.fill((int) x, (int) y, (int) x + 2, (int) y + 2, GuiAnim.withAlpha(0xD4AF37, alpha));
+            graphics.fill((int) x, (int) y, (int) x + 2, (int) y + 2, GuiAnim.withAlpha(SRETheme.GOLD, alpha));
         }
         // 顶部金色氛围光
         graphics.fillGradient(0, 0, width, 60, 0x252A1A08, 0x002A1A08);
@@ -604,7 +605,7 @@ public class SkinManagementScreen extends Screen {
         g.fill(x + w - 1, y, x + w, y + h, borderColor);
         // 顶部装饰线
         int decorAlpha = Math.min(0x33, GuiAnim.alphaOf(alpha));
-        g.fill(x + 1, y + 1, x + w - 1, y + 2, decorAlpha | 0x00FFE8C0);
+        g.fill(x + 1, y + 1, x + w - 1, y + 2, decorAlpha | SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x00));
     }
 
     private void renderTitle(GuiGraphics graphics, float openProgress) {
@@ -631,7 +632,7 @@ public class SkinManagementScreen extends Screen {
         graphics.fill(titleX + titleW - 1, titleY, titleX + titleW, titleY + titleHeight, borderColor);
         // 顶部装饰线
         int decorAlpha = Math.min(0x33, GuiAnim.alphaOf(openProgress));
-        graphics.fill(titleX + 1, titleY + 1, titleX + titleW - 1, titleY + 2, decorAlpha | 0x00FFE8C0);
+        graphics.fill(titleX + 1, titleY + 1, titleX + titleW - 1, titleY + 2, decorAlpha | SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x00));
 
         graphics.drawCenteredString(font, this.title,
                 width / 2, titleY + (titleHeight - 8) / 2,
@@ -835,13 +836,13 @@ public class SkinManagementScreen extends Screen {
         private float selectAnim = 0f;
 
         // 复古主题分类按钮色
-        private static final int TAB_BG = 0x991A1008;
+        private static final int TAB_BG = SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0x99);
         private static final int TAB_BG_HOVER = 0x992A1A08;
         private static final int TAB_BG_SELECT = 0x99302010;
-        private static final int TAB_BORDER = 0x558B6914;
-        private static final int TAB_BORDER_ACTIVE = 0xFFD4AF37;
-        private static final int TAB_TEXT = 0xFFC8B898;
-        private static final int TAB_TEXT_ACTIVE = 0xFFFFF4DC;
+        private static final int TAB_BORDER = SRETheme.withAlpha(SRETheme.BORDER, 0x55);
+        private static final int TAB_BORDER_ACTIVE = SRETheme.GOLD;
+        private static final int TAB_TEXT = SRETheme.BODY;
+        private static final int TAB_TEXT_ACTIVE = SRETheme.TEXT;
 
         CategoryButton(int x, int y, int width, int height, Component label, Item item,
                 OnPress onPress, boolean selected) {
@@ -921,12 +922,12 @@ public class SkinManagementScreen extends Screen {
         private final java.util.function.Consumer<Boolean> onToggle;
         private float hoverAnim = 0f;
 
-        private static final int BG_OFF = 0x991A1008;
+        private static final int BG_OFF = SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0x99);
         private static final int BG_ON = 0x992A2010;
         private static final int BG_HOVER = 0x992A1A08;
-        private static final int BORDER = 0x558B6914;
-        private static final int BORDER_ACTIVE = 0xFFD4AF37;
-        private static final int CHECK_ON = 0xFFD4AF37;
+        private static final int BORDER = SRETheme.withAlpha(SRETheme.BORDER, 0x55);
+        private static final int BORDER_ACTIVE = SRETheme.GOLD;
+        private static final int CHECK_ON = SRETheme.GOLD;
 
         ToggleCheckbox(int x, int y, int width, int height, Component label, boolean initial,
                 java.util.function.Consumer<Boolean> onToggle) {
@@ -943,7 +944,7 @@ public class SkinManagementScreen extends Screen {
 
             int bg = GuiAnim.blend(toggled ? BG_ON : BG_OFF, BG_HOVER, hoverAnim);
             int border = GuiAnim.blend(BORDER,
-                    toggled ? BORDER_ACTIVE : GuiAnim.blend(0x558B6914, 0xFFC9A84C, hoverAnim),
+                    toggled ? BORDER_ACTIVE : GuiAnim.blend(SRETheme.withAlpha(SRETheme.BORDER, 0x55), SRETheme.GOLD_DIM, hoverAnim),
                     Math.max(toggled ? 1f : 0f, hoverAnim * 0.5f));
 
             // 背景
@@ -959,19 +960,19 @@ public class SkinManagementScreen extends Screen {
             int boxX = getX() + 3;
             int boxY = getY() + (height - boxSize) / 2;
             g.fill(boxX, boxY, boxX + boxSize, boxY + boxSize, toggled ? CHECK_ON : 0x553A3020);
-            g.fill(boxX, boxY, boxX + boxSize, boxY + 1, 0x558B6914);
-            g.fill(boxX + boxSize - 1, boxY, boxX + boxSize, boxY + boxSize, 0x558B6914);
-            g.fill(boxX, boxY, boxX + 1, boxY + boxSize, 0x558B6914);
-            g.fill(boxX, boxY + boxSize - 1, boxX + boxSize, boxY + boxSize, 0x558B6914);
+            g.fill(boxX, boxY, boxX + boxSize, boxY + 1, SRETheme.withAlpha(SRETheme.BORDER, 0x55));
+            g.fill(boxX + boxSize - 1, boxY, boxX + boxSize, boxY + boxSize, SRETheme.withAlpha(SRETheme.BORDER, 0x55));
+            g.fill(boxX, boxY, boxX + 1, boxY + boxSize, SRETheme.withAlpha(SRETheme.BORDER, 0x55));
+            g.fill(boxX, boxY + boxSize - 1, boxX + boxSize, boxY + boxSize, SRETheme.withAlpha(SRETheme.BORDER, 0x55));
 
             // 勾号
             if (toggled) {
                 var font = Minecraft.getInstance().font;
-                g.drawString(font, "\u2713", boxX + 1, boxY - 1, 0xFF1A1008, false);
+                g.drawString(font, "\u2713", boxX + 1, boxY - 1, SRETheme.SURFACE_TOP_SOFT, false);
             }
 
             // 标签
-            int textColor = GuiAnim.blend(0xFF9E8B6E, 0xFFFFF4DC, Math.max(toggled ? 0.6f : 0f, hoverAnim));
+            int textColor = GuiAnim.blend(SRETheme.MUTED, SRETheme.TEXT, Math.max(toggled ? 0.6f : 0f, hoverAnim));
             var font = Minecraft.getInstance().font;
             String clipped = font.plainSubstrByWidth(label.getString(), width - boxSize - 8);
             g.drawString(font, clipped, boxX + boxSize + 5, getY() + (height - 8) / 2, textColor, false);
@@ -1009,14 +1010,14 @@ public class SkinManagementScreen extends Screen {
         private boolean draggingScrollbar = false;
 
         // 复古主题色
-        private static final int BG_COLOR = 0x801A1008;
-        private static final int BORDER_COLOR = 0x558B6914;
-        private static final int ENTRY_BG = 0x991A1008;
+        private static final int BG_COLOR = SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0x80);
+        private static final int BORDER_COLOR = SRETheme.withAlpha(SRETheme.BORDER, 0x55);
+        private static final int ENTRY_BG = SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0x99);
         private static final int ENTRY_BG_HOVER = 0x992A1A08;
         private static final int ENTRY_BG_SELECTED = 0xB0302010;
-        private static final int TEXT_COLOR = 0xFFC8B898;
-        private static final int TEXT_SELECTED = 0xFFF5E8C8;
-        private static final int SELECTED_MARKER = 0xFFD4AF37;
+        private static final int TEXT_COLOR = SRETheme.BODY;
+        private static final int TEXT_SELECTED = SRETheme.TITLE;
+        private static final int SELECTED_MARKER = SRETheme.GOLD;
 
         public NameTagList(SkinManagementScreen parentScreen, Minecraft mc,
                 int x, int width, int height, int y, String searchFilter) {
@@ -1125,7 +1126,7 @@ public class SkinManagementScreen extends Screen {
             int y0 = top;
             int y1 = top + h;
             g.fillGradient(getX() + 2, y0, getX() + getRowWidth(), y1,
-                    0x401A1008, 0x4020140A);
+                    SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0x40), SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM, 0x40));
             // 左侧金色标记
             g.fill(getX() + 2, y0 + 2, getX() + 5, y1 - 2, SELECTED_MARKER);
         }
@@ -1150,7 +1151,7 @@ public class SkinManagementScreen extends Screen {
                 if ("__empty__".equals(tagId)) {
                     g.drawCenteredString(Minecraft.getInstance().font,
                             Component.translatable("screen.sre.skins.no_title"),
-                            x + entryWidth / 2, y + entryHeight / 2 - 4, 0xFF9E8B6E);
+                            x + entryWidth / 2, y + entryHeight / 2 - 4, SRETheme.MUTED);
                     return;
                 }
 
@@ -1160,8 +1161,8 @@ public class SkinManagementScreen extends Screen {
                 g.fill(x + 2, y + 2, x + entryWidth - 4, y + entryHeight - 2, bg);
 
                 // 边框
-                int border = GuiAnim.blend(0x308B6914, 0xFFD4AF37, hoverAnim);
-                if (isCurrent) border = GuiAnim.blend(border, 0xFFD4AF37, 0.6f);
+                int border = GuiAnim.blend(SRETheme.withAlpha(SRETheme.BORDER, 0x30), SRETheme.GOLD, hoverAnim);
+                if (isCurrent) border = GuiAnim.blend(border, SRETheme.GOLD, 0.6f);
                 g.fill(x + 2, y + 2, x + entryWidth - 4, y + 3, border);
                 g.fill(x + 2, y + entryHeight - 3, x + entryWidth - 4, y + entryHeight - 2, border);
                 g.fill(x + 2, y + 2, x + 3, y + entryHeight - 2, border);
@@ -1175,7 +1176,7 @@ public class SkinManagementScreen extends Screen {
                 // 文字
                 Component display = parentScreen.getNameTagDisplayText(tagId);
                 int textColor = isCurrent ? TEXT_SELECTED
-                        : (int) GuiAnim.blend(0xFF9E8B6E, 0xFFFFF4DC, hoverAnim);
+                        : (int) GuiAnim.blend(SRETheme.MUTED, SRETheme.TEXT, hoverAnim);
                 var font = Minecraft.getInstance().font;
                 g.drawString(font, font.plainSubstrByWidth(display.getString(), entryWidth - 30),
                         x + (isCurrent ? 14 : 6), y + (entryHeight - 8) / 2, textColor, false);

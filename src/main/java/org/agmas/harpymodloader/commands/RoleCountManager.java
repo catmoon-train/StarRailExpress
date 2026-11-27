@@ -115,7 +115,7 @@ public class RoleCountManager {
         if (forcedKillerCount >= 0) {
             return Math.min(forcedKillerCount, playerCount); // 确保不超过玩家总数
         } else {
-            return playerCount / 6;
+            return autoKillerCount(playerCount);
         }
     }
 
@@ -127,21 +127,47 @@ public class RoleCountManager {
         if (forcedVigilanteCount >= 0) {
             return Math.min(forcedVigilanteCount, playerCount); // 确保不超过玩家总数
         } else {
-            return playerCount / 6;
+            return autoVigilanteCount(playerCount);
 
         }
     }
 
     public static int getNeutralCount(int playerCount) {
-        HarpyModLoaderConfig config = HarpyModLoaderConfig.HANDLER.instance();
-        int minPlayer = config.neutralMinPlayerCount;
-
         if (forcedNeutralCount >= 0) {
             return Math.min(forcedNeutralCount, playerCount);
-        } else {
-            if (playerCount <= minPlayer)
-                return 0;
-            return Math.max(1, playerCount / 6);
         }
+        return autoNeutralCount(playerCount);
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // 自动公式（唯一实现）
+    //
+    // 设置页要显示「强制值是多少 / 自动会是多少」，所以把公式单独暴露出来：
+    // 上面三个 get*Count 与设置页的快照包的都走这里，公式只有一份。
+    // ══════════════════════════════════════════════════════════════════
+
+    /** 自动公式下的杀手数量：{@code 玩家数 / 6}。 */
+    public static int autoKillerCount(int playerCount) {
+        return playerCount / 6;
+    }
+
+    /**
+     * 自动公式下的义警（侦探）数量：{@code 玩家数 / 6}。
+     *
+     * <p>
+     * 与杀手同式但<b>刻意不共用</b>一个方法：命令方块事件局会把杀手压到 0（见
+     * {@link #getKillerCount}），而义警仍按人数正常分配，两者口径不同。
+     */
+    public static int autoVigilanteCount(int playerCount) {
+        return playerCount / 6;
+    }
+
+    /** 自动公式下的中立数量：玩家数不到阈值就是 0，否则至少 1。 */
+    public static int autoNeutralCount(int playerCount) {
+        int minPlayer = HarpyModLoaderConfig.HANDLER.instance().neutralMinPlayerCount;
+        if (playerCount <= minPlayer) {
+            return 0;
+        }
+        return Math.max(1, playerCount / 6);
     }
 }

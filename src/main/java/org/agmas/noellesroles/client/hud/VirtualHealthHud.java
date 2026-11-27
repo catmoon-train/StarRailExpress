@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client.hud;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -65,13 +66,13 @@ public final class VirtualHealthHud {
         int x = (width - barWidth) / 2;
         int y = Math.max(4, height - 88);
         boolean flash = STATE.flashing();
-        g.fillGradient(x - 4, y - 4, x + barWidth + 4, y + 19, 0xD81A1008, 0xD820140A);
-        g.renderOutline(x - 4, y - 4, barWidth + 8, 23, flash ? 0xFFFFF4DC : 0xFF8B6914);
-        g.fill(x - 3, y - 3, x + barWidth + 3, y - 2, 0x33FFE8C0);
-        g.drawCenteredString(client.font, label, width / 2, y, flash ? 0xFFFFFFFF : 0xFFFFF4DC);
+        g.fillGradient(x - 4, y - 4, x + barWidth + 4, y + 19, SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xD8), SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM, 0xD8));
+        g.renderOutline(x - 4, y - 4, barWidth + 8, 23, flash ? SRETheme.TEXT : SRETheme.BORDER);
+        g.fill(x - 3, y - 3, x + barWidth + 3, y - 2, SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x33));
+        g.drawCenteredString(client.font, label, width / 2, y, flash ? 0xFFFFFFFF : SRETheme.TEXT);
         g.fill(x, y + 11, x + barWidth, y + 15, 0xAA000000);
         int fill = Mth.ceil(barWidth * Mth.clamp(current / (float) max, 0F, 1F));
-        g.fill(x, y + 11, x + fill, y + 15, flash ? 0xFFFFF4DC : 0xFFE06B65);
+        g.fill(x, y + 11, x + fill, y + 15, flash ? SRETheme.TEXT : SRETheme.RED);
     }
 
     /** 分层矩形环由外向内变淡，中心保持透明，不修改原版暗角或后处理状态。 */

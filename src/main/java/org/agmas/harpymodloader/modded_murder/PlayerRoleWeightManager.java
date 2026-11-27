@@ -474,6 +474,53 @@ public class PlayerRoleWeightManager {
         weightManager.incrementKillerSideFailureBoost();
     }
 
+    // ==================== 阵营卡「选人」加成 ====================
+
+    /**
+     * 阵营卡在本局「选人」阶段的加成：UUID → 目标扮演类型与倍率。
+     *
+     * <p>
+     * 只参与 {@link PlayerRoleAssigner} 的加权抽取（决定谁被抽中去扮演该阵营的角色），
+     * <b>不写进</b> {@link WeightInfo}，因此既不会污染历史权重记账，也不会改变指令里显示的百分比。
+     * 登记与清除都由 {@code io.wifi.starrailexpress.backpack.FactionCardForcing} 统一负责：
+     * 使用卡时登记、局末结算（兑现或退款）时清除。
+     */
+    private static final HashMap<UUID, CardFactionBoost> CARD_FACTION_BOOSTS = new HashMap<>();
+
+    /** 阵营卡加成：目标扮演类型 + 抽取倍率。 */
+    public record CardFactionBoost(int roleType, float multiplier) {
+    }
+
+    /** 登记阵营卡加成；倍率不大于 1 视为「没有加成」。 */
+    public static void setCardFactionBoost(UUID player, int roleType, float multiplier) {
+        if (player == null || roleType <= 0 || multiplier <= 1F) {
+            return;
+        }
+        CARD_FACTION_BOOSTS.put(player, new CardFactionBoost(roleType, multiplier));
+    }
+
+    public static void clearCardFactionBoost(UUID player) {
+        if (player != null) {
+            CARD_FACTION_BOOSTS.remove(player);
+        }
+    }
+
+    public static void clearAllCardFactionBoosts() {
+        CARD_FACTION_BOOSTS.clear();
+    }
+
+    /** 该玩家抽取 {@code roleType} 类型角色时的加成倍率；没有阵营卡时为 1（乘上去等于没变）。 */
+    public static float getCardFactionBoost(UUID player, int roleType) {
+        if (player == null) {
+            return 1F;
+        }
+        CardFactionBoost boost = CARD_FACTION_BOOSTS.get(player);
+        if (boost == null || boost.roleType() != roleType) {
+            return 1F;
+        }
+        return boost.multiplier();
+    }
+
     public static double getMaxWeight(ServerPlayer player) {
         double weight = 0;
         for (int i = 1; i <= 5; i++) {

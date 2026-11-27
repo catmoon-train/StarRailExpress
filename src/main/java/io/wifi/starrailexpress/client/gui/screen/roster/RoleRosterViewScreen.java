@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client.gui.screen.roster;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.client.data.ClientRoleRosterCache;
 import io.wifi.starrailexpress.roster.RoleRosterState;
@@ -85,7 +86,7 @@ public class RoleRosterViewScreen extends net.minecraft.client.gui.screens.Scree
                     io.wifi.starrailexpress.api.RoleTeam.KILLER.color(),
                     r -> io.wifi.starrailexpress.api.RoleTeam.KILLER.matches(r)),
             // 兜底：未归类的职业
-            new GroupDef("display.type.role", 0xFFC9A84C, r -> true),
+            new GroupDef("display.type.role", SRETheme.GOLD_DIM, r -> true),
     };
 
     /** 列表条目：职业或修饰符（职业 mod 为 null，修饰符 role 为 null）。 */
@@ -404,10 +405,10 @@ public class RoleRosterViewScreen extends net.minecraft.client.gui.screens.Scree
         if (contentHeight <= viewport)
             return;
         int barX = panelX + panelW - 1 - SCROLLBAR_W;
-        g.fill(barX, listTop, barX + SCROLLBAR_W - 1, listBottom, 0x40FFE8C0);
+        g.fill(barX, listTop, barX + SCROLLBAR_W - 1, listBottom, SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x40));
         int thumbH = Math.max(20, (int) ((float) viewport / contentHeight * viewport));
         int maxScroll = contentHeight - viewport;
         int thumbY = listTop + (int) ((scroll / maxScroll) * (viewport - thumbH));
-        g.fill(barX, thumbY, barX + SCROLLBAR_W - 1, thumbY + thumbH, 0x88C9A84C);
+        g.fill(barX, thumbY, barX + SCROLLBAR_W - 1, thumbY + thumbH, SRETheme.withAlpha(SRETheme.GOLD_DIM, 0x88));
     }
 }

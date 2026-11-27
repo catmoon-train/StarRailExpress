@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client.screen;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -30,12 +31,12 @@ public class Error404CommandScreen extends Screen {
     private static final int GRID_MAJOR = 0x556E4A92;
     private static final int TEXT = 0xFFF4E8FF;
     private static final int MUTED = 0xFF9A86AE;
-    private static final int GOLD = 0xFFD4AF37;
+    private static final int GOLD = SRETheme.GOLD;
     private static final int PUPPET = 0xFFC45CFF;
     private static final int ASSIMILATING = 0xFFE07AD4;
     private static final int PLAYER = 0xFF8EE7FF;
-    private static final int DANGER = 0xFFE06B65;
-    private static final int OK = 0xFF72C17B;
+    private static final int DANGER = SRETheme.RED;
+    private static final int OK = SRETheme.GREEN;
     private static final double MIN_SCALE = 0.02D;
     private static final double MAX_SCALE = 18.0D;
 
@@ -420,7 +421,7 @@ public class Error404CommandScreen extends Screen {
     private void drawSide(GuiGraphics graphics, int mouseX, int mouseY) {
         graphics.fill(sideX, mapY, sideX + sideW, mapY + mapH, PANEL);
         graphics.renderOutline(sideX, mapY, sideW, mapH, PANEL_EDGE);
-        graphics.fill(sideX + 1, mapY + 1, sideX + sideW - 1, mapY + 2, 0x33FFE8C0);
+        graphics.fill(sideX + 1, mapY + 1, sideX + sideW - 1, mapY + 2, SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x33));
         graphics.drawString(this.font, Component.translatable("screen.noellesroles.error404.slots"), sideX + 8,
                 mapY + 8, GOLD, false);
 
@@ -467,7 +468,7 @@ public class Error404CommandScreen extends Screen {
     private void drawButton(GuiGraphics graphics, int mouseX, int mouseY, int y, int height, String key, boolean danger) {
         boolean hover = hit(mouseX, mouseY, sideX + 6, y, sideW - 12, height);
         graphics.fill(sideX + 6, y, sideX + sideW - 6, y + height,
-                danger ? 0x66E06B65 : hover ? 0x443C2458 : 0x33180E24);
+                danger ? SRETheme.withAlpha(SRETheme.RED, 0x66) : hover ? 0x443C2458 : 0x33180E24);
         graphics.renderOutline(sideX + 6, y, sideW - 12, height, danger ? DANGER : hover ? GOLD : PANEL_EDGE);
         graphics.drawCenteredString(this.font, Component.translatable(key), sideX + sideW / 2, y + (height - 8) / 2,
                 danger ? 0xFFFFD0CC : TEXT);

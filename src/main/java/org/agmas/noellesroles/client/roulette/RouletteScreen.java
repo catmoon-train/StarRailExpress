@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client.roulette;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -81,7 +82,7 @@ public final class RouletteScreen extends Screen {
     }
 
     @Override public void renderBackground(GuiGraphics g,int mouseX,int mouseY,float partial) {
-        layout(); g.fillGradient(0,0,width,height,0xA018120A,0xA0061018); panel(g,x,y,w,h);
+        layout(); g.fillGradient(0,0,width,height,SRETheme.withAlpha(SRETheme.SCREEN_TOP, 0xA0),SRETheme.withAlpha(SRETheme.SCREEN_BOTTOM, 0xA0)); panel(g,x,y,w,h);
     }
 
     @Override public void render(GuiGraphics g,int mouseX,int mouseY,float partial) {
@@ -101,8 +102,8 @@ public final class RouletteScreen extends Screen {
             if (yy+row.height()<top || yy>bottom) continue;
             int i=row.index(); boolean over=mouseX>=x+10&&mouseX<x+w-12&&mouseY>=Math.max(top,yy)&&mouseY<Math.min(bottom,yy+row.height());
             hover[i]+=(over?1-hover[i]:-hover[i])*.22F;
-            g.fillGradient(x+10,yy,x+w-12,yy+row.height(),0xE022170D+(int)(hover[i]*20)*0x00010100,0xE0120A04);
-            g.renderOutline(x+10,yy,w-22,row.height(),over?GOLD:0xFF5A4530);
+            g.fillGradient(x+10,yy,x+w-12,yy+row.height(),0xE022170D+(int)(hover[i]*20)*0x00010100,SRETheme.withAlpha(SRETheme.SCROLL_TRACK, 0xE0));
+            g.renderOutline(x+10,yy,w-22,row.height(),over?GOLD:SRETheme.CARD_BORDER);
             RouletteItem kind=token==null?RouletteItem.values()[i]:choices.get(i).kind();
             g.renderItem(RouletteItems.stack(kind),x+17,yy+9);
             fitted(g,Component.translatable(kind.titleKey()),x+42,yy+7,w-90,TEXT);
@@ -112,7 +113,7 @@ public final class RouletteScreen extends Screen {
             }
             int textY=yy+21;
             for (var line:font.split(Component.translatable(kind.descriptionKey()),Math.max(30,w-64))) {
-                g.drawString(font,line,x+42,textY,0xFFC8B898,false); textY+=11;
+                g.drawString(font,line,x+42,textY,SRETheme.BODY,false); textY+=11;
             }
         }
         if (rows.isEmpty()) g.drawString(font,Component.translatable("roulette.hint.no_choices"),x+14,top+8,MUTED,false);

@@ -6,6 +6,7 @@
  */
 package io.wifi.starrailexpress.client.gui.screen;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.cca.MapVotingComponent;
 import io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator;
@@ -144,7 +145,8 @@ public class MapVoteScreen extends Screen {
         routePosition = MapUiGraphics.approach(routePosition, focusIndex, dt, 13);
         var l = MapVoteLayout.of(width, height);
         super.render(g, mouseX, mouseY, partialTick);
-        VoteFlowFrame.renderProgress(g, font, l.board(), isShowingResult() ? 2 : 1, modeName(),
+        VoteFlowFrame.renderProgress(g, font, l.board(),
+                isShowingResult() ? VoteFlowFrame.STEP_START : VoteFlowFrame.STEP_MAP, modeName(),
                 isShowingResult() ? -1 : remainingSeconds());
         renderDestination(g, l);
         float result = resultProgress();
@@ -306,7 +308,7 @@ public class MapVoteScreen extends Screen {
             g.fill(x, top, x + l.stationWidth(), top + 1,
                     VoteFlowFrame.withAlpha(focused ? VoteFlowFrame.GOLD : VoteFlowFrame.MUTED,
                             Math.round(a * (focused ? 1 : 0.25F))));
-            int color = !row.info.canSelect() ? VoteFlowFrame.MUTED : focused ? VoteFlowFrame.TEXT : 0xFFC8B898;
+            int color = !row.info.canSelect() ? VoteFlowFrame.MUTED : focused ? VoteFlowFrame.TEXT : SRETheme.BODY;
             if (voted) g.fill(x + 7, top + 9, x + 10, top + 12, VoteFlowFrame.withAlpha(VoteFlowFrame.GOLD, a));
             String name = MapUiGraphics.clip(font, row.name(), l.stationWidth() - 22);
             drawScaled(g, Component.literal(name), x + 8 + (voted ? 6 : 0), top + 8, 1,

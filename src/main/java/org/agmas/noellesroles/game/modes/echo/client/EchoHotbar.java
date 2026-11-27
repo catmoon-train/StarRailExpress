@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.game.modes.echo.client;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -41,7 +42,7 @@ public final class EchoHotbar {
             int x = resource < 0 ? left + slot * (SLOT + GAP) : resourcesLeft + resource * (SLOT + GAP);
             boolean chosen = slot == inventory.selected;
             graphics.fillGradient(x, top, x + SLOT, top + SLOT, chosen ? 0xE0342410 : 0xC020160C, chosen ? 0xE01C1207 : 0xB0140D06);
-            graphics.renderOutline(x, top, SLOT, SLOT, chosen ? 0xFFFFF4DC : 0xFF6B5232);
+            graphics.renderOutline(x, top, SLOT, SLOT, chosen ? SRETheme.TEXT : 0xFF6B5232);
             ItemStack stack = inventory.getItem(slot);
             var value = resource >= 0 && data.bag() != null ? data.bag().slots().get(resource) : null;
             if (value != null) stack = EchoResourceItem.project(value);
@@ -51,19 +52,19 @@ public final class EchoHotbar {
                         value != null && !value.items().isEmpty() ? Integer.toString(value.items().size()) : null);
             }
             // 绑定提示跟随用户原有数字栏绑定，不额外注册按键。
-            small(graphics, client.options.keyHotbarSlots[slot].getTranslatedKeyMessage(), x + 1, top + 1, 0xFFFFF4DC);
+            small(graphics, client.options.keyHotbarSlots[slot].getTranslatedKeyMessage(), x + 1, top + 1, SRETheme.TEXT);
             if (value != null && value.reservation() != null) {
-                small(graphics, Component.translatable("echo_hotbar.reserved_short"), x + 11, top + 11, 0xFFD4AF37);
+                small(graphics, Component.translatable("echo_hotbar.reserved_short"), x + 11, top + 11, SRETheme.GOLD);
             } else if (value != null && value.items().stream().anyMatch(i -> data.bag().locks().containsKey(i.instanceId()))) {
-                small(graphics, Component.translatable("echo_hotbar.locked"), x + 1, top + 11, 0xFFE06B65);
+                small(graphics, Component.translatable("echo_hotbar.locked"), x + 1, top + 11, SRETheme.RED);
             }
         }
         return true;
     }
     private static void panel(GuiGraphics g, int x, int y, int width) {
-        g.fillGradient(x - 2, y - 2, x + width + 2, y + SLOT + 2, 0xD81A1008, 0xD820140A);
-        g.renderOutline(x - 2, y - 2, width + 4, SLOT + 4, 0xFF8B6914);
-        g.fill(x - 1, y - 1, x + width + 1, y, 0x33FFE8C0);
+        g.fillGradient(x - 2, y - 2, x + width + 2, y + SLOT + 2, SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xD8), SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM, 0xD8));
+        g.renderOutline(x - 2, y - 2, width + 4, SLOT + 4, SRETheme.BORDER);
+        g.fill(x - 1, y - 1, x + width + 1, y, SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x33));
     }
     private static void small(GuiGraphics g, Component text, int x, int y, int color) {
         var font = Minecraft.getInstance().font;

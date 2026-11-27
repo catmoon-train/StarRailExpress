@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.settlement.client;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.ModelPart;
@@ -12,7 +13,7 @@ final class SettlementCrown {
     private static final int[][] FACES = {
             {0,4,6,2}, {1,3,7,5}, {0,1,5,4}, {2,6,7,3}, {0,2,3,1}, {4,5,7,6}
     };
-    private static final int[] GOLD = {0xFF9D6B1F,0xFFE9BB4F,0xFF80551C,0xFFFFE6A1,0xFFD4AF37,0xFFBE8B2D};
+    private static final int[] GOLD = {0xFF9D6B1F,0xFFE9BB4F,0xFF80551C,0xFFFFE6A1,SRETheme.GOLD,0xFFBE8B2D};
 
     static void render(PoseStack pose, MultiBufferSource buffers, ModelPart head) {
         pose.pushPose();

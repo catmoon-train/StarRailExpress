@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.game.modes.echo.client;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.client.gui.widget.SreButton;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -56,19 +57,19 @@ public final class EchoSpecializationScreen extends Screen {
 
     @Override public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         float p = EchoAnim.openProgress(openedAt, 180);
-        g.fillGradient(0, 0, width, height, EchoAnim.fade(0xF018120A, p), EchoAnim.fade(0xF0061018, p));
-        g.fill(x, y, x + w, y + h, EchoAnim.fade(0xF01A1008, p));
-        g.renderOutline(x, y, w, h, EchoAnim.fade(0xFF8B6914, p));
-        g.fill(x + 1, y + 1, x + w - 1, y + 3, EchoAnim.fade(0x33FFE8C0, p));
+        g.fillGradient(0, 0, width, height, EchoAnim.fade(SRETheme.withAlpha(SRETheme.SCREEN_TOP, 0xF0), p), EchoAnim.fade(SRETheme.withAlpha(SRETheme.SCREEN_BOTTOM, 0xF0), p));
+        g.fill(x, y, x + w, y + h, EchoAnim.fade(SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xF0), p));
+        g.renderOutline(x, y, w, h, EchoAnim.fade(SRETheme.BORDER, p));
+        g.fill(x + 1, y + 1, x + w - 1, y + 3, EchoAnim.fade(SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x33), p));
     }
 
     @Override public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         super.render(g, mouseX, mouseY, partialTick);
         var view = EchoSpecializationClient.view();
         float p = EchoAnim.openProgress(openedAt, 180);
-        g.drawString(font, title, x + 8, y + 8, EchoAnim.fade(0xFFD4AF37, p), false);
+        g.drawString(font, title, x + 8, y + 8, EchoAnim.fade(SRETheme.GOLD, p), false);
         if (view == null) {
-            g.drawString(font, Component.translatable("echo.ui.waiting"), x + 8, y + 30, EchoAnim.fade(0xFF9E8B6E, p), false);
+            g.drawString(font, Component.translatable("echo.ui.waiting"), x + 8, y + 30, EchoAnim.fade(SRETheme.MUTED, p), false);
             return;
         }
         var data = EchoBagClient.data();
@@ -78,7 +79,7 @@ public final class EchoSpecializationScreen extends Screen {
         float urgency = view.locked() ? 0F : EchoAnim.urgency(remainingMs, 5000);
         Component status = view.locked() ? Component.translatable("echo.spec.locked")
                 : Component.translatable("echo.spec.timer", seconds);
-        int statusColor = view.locked() ? 0xFF9E8B6E : EchoAnim.blend(0xFF5EB7D8, 0xFFE06B65, urgency);
+        int statusColor = view.locked() ? SRETheme.MUTED : EchoAnim.blend(SRETheme.BLUE, SRETheme.RED, urgency);
         g.drawString(font, status, x + 8, y + 22, EchoAnim.fade(statusColor, p), false);
         int accent = EchoSpecializationClient.factionColor(view.faction());
         boolean narrow = w < 420;
@@ -89,22 +90,22 @@ public final class EchoSpecializationScreen extends Screen {
             boolean active = n == selected;
             boolean hover = mouseX >= cx && mouseX <= cx + cardW && mouseY >= cy && mouseY <= cy + cardH;
             int fill = active ? 0xF03A2A12 : hover ? 0xF0302216 : 0xE0241810;
-            int border = active ? 0xFFD4AF37 : hover ? 0xFFC9A84C : 0xFF5A4530;
+            int border = active ? SRETheme.GOLD : hover ? SRETheme.GOLD_DIM : SRETheme.CARD_BORDER;
             g.fill(cx, cy, cx + cardW, cy + cardH, EchoAnim.fade(fill, p));
             g.renderOutline(cx, cy, cardW, cardH, EchoAnim.fade(border, p));
             g.fill(cx + 1, cy + 1, cx + cardW - 1, cy + 3, EchoAnim.fade(accent, p));
-            g.drawString(font, Component.translatable(option.nameKey()), cx + 6, cy + 8, EchoAnim.fade(active ? 0xFFD4AF37 : 0xFFFFF4DC, p), false);
+            g.drawString(font, Component.translatable(option.nameKey()), cx + 6, cy + 8, EchoAnim.fade(active ? SRETheme.GOLD : SRETheme.TEXT, p), false);
             int line = cy + 22;
             for (var part : font.split(Component.translatable(option.descKey()), Math.max(20, cardW - 12))) {
                 if (line > cy + cardH - 10) break;
-                g.drawString(font, part, cx + 6, line, 0xFFC8B898, false);
+                g.drawString(font, part, cx + 6, line, SRETheme.BODY, false);
                 line += 10;
             }
         }
         if (data != null) {
             int py = narrow ? cardY + 2 * (cardH + 6) : cardY + cardH + 8;
             g.drawString(font, Component.translatable("echo.spec.current", data.capacity(),
-                    String.format(Locale.ROOT, "%.0f", data.cargoPenalty() * 100)), x + 8, py, 0xFF9E8B6E, false);
+                    String.format(Locale.ROOT, "%.0f", data.cargoPenalty() * 100)), x + 8, py, SRETheme.MUTED, false);
         }
     }
 

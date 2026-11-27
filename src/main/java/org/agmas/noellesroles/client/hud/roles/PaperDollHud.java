@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import java.util.Locale;
 
 import org.agmas.noellesroles.client.NoellesrolesClient;
@@ -43,19 +44,19 @@ public final class PaperDollHud {
             int y = graphics.guiHeight() / 2 - 50;
             float scale = Math.min(3.0F, (graphics.guiWidth() - 24.0F) / Math.max(1, font.width(warning)));
             int height = (int) Math.ceil(font.lineHeight * scale);
-            graphics.fill(8, y - 8, graphics.guiWidth() - 8, y + height + 26, 0xD81A1008);
-            graphics.fill(8, y - 8, graphics.guiWidth() - 8, y - 6, 0xFFE06B65);
+            graphics.fill(8, y - 8, graphics.guiWidth() - 8, y + height + 26, SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xD8));
+            graphics.fill(8, y - 8, graphics.guiWidth() - 8, y - 6, SRETheme.RED);
             graphics.pose().pushPose();
             graphics.pose().translate(center, y, 0.0F);
             graphics.pose().scale(scale, scale, 1.0F);
-            graphics.drawString(font, warning, -font.width(warning) / 2, 0, 0xFFFFE8C0, true);
+            graphics.drawString(font, warning, -font.width(warning) / 2, 0, SRETheme.BRASS_BRIGHT, true);
             graphics.pose().popPose();
             graphics.drawCenteredString(font, timer, center, y + height + 4, 0xFFFF8A80);
             int width = Math.min(220, graphics.guiWidth() - 40);
             int barY = y + height + 18;
             graphics.fill(center - width / 2, barY, center + width / 2, barY + 3, 0xFF48201D);
             graphics.fill(center - width / 2, barY,
-                    center - width / 2 + width * left / PaperDollRoleData.REACTION_TICKS, barY + 3, 0xFFE06B65);
+                    center - width / 2 + width * left / PaperDollRoleData.REACTION_TICKS, barY + 3, SRETheme.RED);
         });
     }
 }

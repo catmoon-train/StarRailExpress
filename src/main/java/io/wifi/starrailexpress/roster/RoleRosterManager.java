@@ -207,6 +207,38 @@ public final class RoleRosterManager {
         afterMutated();
     }
 
+    /**
+     * 用一份完整的职业 / 修饰符集合覆盖名单并启用，供职业池（{@code RolePoolRegistry}）落地使用。
+     *
+     * <p>
+     * 名单只表达「启用 / 禁用」：池内职业全部写入（值为 1），池外职业与修饰符一律禁用。
+     * 数量与概率不在这里决定，仍走各职业注册时的 {@code defaultMaxCount} 等配置。
+     *
+     * @param roles     参与本局的职业；会被去重（按职业 id）
+     * @param modifiers 参与本局的修饰符；会被去重（按修饰符 id）
+     */
+    public static void applyAsPool(java.util.Collection<SRERole> roles,
+            java.util.Collection<SREModifier> modifiers) {
+        if (!SREConfig.instance().enableRoster) {
+            SRE.LOGGER.warn("[RoleRoster] enableRoster 已关闭，职业池不会生效（配置 config/starrailexpress.json）");
+            return;
+        }
+        state.roleCounts.clear();
+        state.modifierCounts.clear();
+        for (SRERole role : roles) {
+            if (role != null) {
+                state.roleCounts.put(role.identifier().toString(), 1);
+            }
+        }
+        for (SREModifier modifier : modifiers) {
+            if (modifier != null) {
+                state.modifierCounts.put(modifier.identifier().toString(), 1);
+            }
+        }
+        state.enabled = true;
+        afterMutated();
+    }
+
     private static void afterMutated() {
         state.version = Math.max(System.currentTimeMillis(), state.version + 1L);
         state.normalized();

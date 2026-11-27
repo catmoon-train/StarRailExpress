@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client.roulette;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
@@ -12,8 +13,8 @@ import net.minecraft.resources.ResourceLocation;
 
 /** 使用原版图集的实体立方体部件，不依赖枪械物品模型或持有者。 */
 final class RouletteGeometry {
-    static final int METAL = 0xFF42464B, WOOD = 0xFF79502F, GOLD = 0xFFD4AF37;
-    static final int RED = 0xFFE06B65, BLUE = 0xFF5EB7D8, DARK = 0xFF211B18;
+    static final int METAL = 0xFF42464B, WOOD = 0xFF79502F, GOLD = SRETheme.GOLD;
+    static final int RED = SRETheme.RED, BLUE = SRETheme.BLUE, DARK = 0xFF211B18;
     private RouletteGeometry() {}
 
     static void box(PoseStack p, MultiBufferSource buffers, int light, int color,

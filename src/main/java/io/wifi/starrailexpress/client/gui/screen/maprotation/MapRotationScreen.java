@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client.gui.screen.maprotation;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapBackdropRenderer;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapUiGraphics;
@@ -58,17 +59,17 @@ import static io.wifi.starrailexpress.client.gui.screen.mapui.MapUiGraphics.with
  */
 public class MapRotationScreen extends Screen {
 
-    // ---- 配色（与 MapVoteScreen 一致：冷灰基调 + 暗红强调） ----
-    private static final int TEXT = 0xFFE4E8EE;
-    private static final int TEXT_DIM = 0xFF8B939F;
-    private static final int TEXT_FAINT = 0xFF5C636D;
-    private static final int ACCENT = 0xFF9E2B2B;
-    private static final int ACCENT_BRIGHT = 0xFFC0392B;
-    private static final int GREEN = 0xFF72C17B;
-    private static final int PANEL = 0x99141820;
-    private static final int PANEL_DARK = 0xB30D1016;
-    private static final int DIVIDER = 0x20FFFFFF;
-    private static final int SELECT_BORDER = 0xFFF2F5F8;
+    // ---- 配色（黄铜 HUD 主题，见 docs/ui_style.md §2；一行都不要就地写色值） ----
+    private static final int TEXT = SRETheme.TEXT;
+    private static final int TEXT_DIM = SRETheme.BODY;
+    private static final int TEXT_FAINT = SRETheme.MUTED;
+    private static final int ACCENT = SRETheme.BRASS;
+    private static final int ACCENT_BRIGHT = SRETheme.BRASS_BRIGHT;
+    private static final int GREEN = SRETheme.GREEN;
+    private static final int PANEL = SRETheme.withAlpha(SRETheme.SURFACE_TOP, 0x99);
+    private static final int PANEL_DARK = SRETheme.withAlpha(SRETheme.SURFACE_TOP, 0xB3);
+    private static final int DIVIDER = SRETheme.ROW_SEPARATOR;
+    private static final int SELECT_BORDER = SRETheme.BRASS_BRIGHT;
 
     // ---- 布局 ----
     private static final int PAD = 24;
@@ -505,7 +506,7 @@ public class MapRotationScreen extends Screen {
 
         g.fillGradient(detailX, top, detailX + detailW, top + h, PANEL, PANEL_DARK);
         drawRectBorder(g, detailX, top, detailW, h, 1, withAlpha(mix(PANEL_DARK, ACCENT, 0.5f), 220));
-        g.fill(detailX + 1, top + 1, detailX + detailW - 1, top + 2, 0x22FFE8C0);
+        g.fill(detailX + 1, top + 1, detailX + detailW - 1, top + 2, SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x22));
 
         if (selectedRow == null) {
             g.drawString(font, Component.translatable("gui.sre.map_rotation.detail_placeholder"),

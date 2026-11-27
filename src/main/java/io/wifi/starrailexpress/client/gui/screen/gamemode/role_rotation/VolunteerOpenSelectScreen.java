@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client.gui.screen.gamemode.role_rotation;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -516,14 +517,14 @@ public class VolunteerOpenSelectScreen extends Screen {
                 hoveredPlayerIndex = i;
             }
             boolean inGroup = groupMembers.contains(uuid);
-            int bg = inGroup ? 0x552A5A42 : 0x331A1008;
-            int bgBottom = 0x33120A04;
+            int bg = inGroup ? 0x552A5A42 : SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0x33);
+            int bgBottom = SRETheme.withAlpha(SRETheme.SCROLL_TRACK, 0x33);
             if (rowHover) {
                 bg = 0x553A2E12;
                 bgBottom = 0x44302010;
             }
             g.fillGradient(x, rowY, x + w, rowY + PLAYER_ROW_H - 3, bg, bgBottom);
-            g.renderOutline(x, rowY, w, PLAYER_ROW_H - 3, rowHover ? GOLD : (inGroup ? GREEN : 0x665A4530));
+            g.renderOutline(x, rowY, w, PLAYER_ROW_H - 3, rowHover ? GOLD : (inGroup ? GREEN : SRETheme.withAlpha(SRETheme.CARD_BORDER, 0x66)));
             if (rowHover) {
                 g.fill(x, rowY + 1, x + 3, rowY + PLAYER_ROW_H - 3, GOLD);
             }
@@ -550,7 +551,7 @@ public class VolunteerOpenSelectScreen extends Screen {
             int barH = scrollBarH();
             int thumbH = thumbHeight();
             int thumbY = thumbTopY();
-            g.fill(barX, barY, barX + 3, barY + barH, 0x661A1008);
+            g.fill(barX, barY, barX + 3, barY + barH, SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0x66));
             g.fill(barX, thumbY, barX + 3, thumbY + thumbH, GOLD);
         }
     }
@@ -648,8 +649,8 @@ public class VolunteerOpenSelectScreen extends Screen {
                 hoveredRoleIndex = i;
             }
             int border = isMine ? GOLD : (hover ? GOLD : CARD_BORDER);
-            g.fillGradient(x, y, x + volCellW, y + volCellH, hover ? 0xFF2B2112 : 0xFF1A1008,
-                    hover ? 0xFF112536 : 0xFF0B1722);
+            g.fillGradient(x, y, x + volCellW, y + volCellH, hover ? 0xFF2B2112 : SRETheme.SURFACE_TOP_SOFT,
+                    hover ? 0xFF112536 : SRETheme.SURFACE_BOTTOM_ALT);
             g.renderOutline(x, y, volCellW, volCellH, border);
             int color = isMine ? GOLD : factionColor(role);
             g.drawCenteredString(font, trim(RoleUtils.getRoleName(role).getString(), volCellW - 8),
@@ -665,7 +666,7 @@ public class VolunteerOpenSelectScreen extends Screen {
             int thumbH = Math.max(18, volListH * volListH / Math.max(volListH, contentH));
             int thumbY = volListY + (int) ((volListH - thumbH)
                     * (volScroll / (double) Math.max(1, maxVolScroll)));
-            g.fill(barX, volListY, barX + 3, volListY + volListH, 0x661A1008);
+            g.fill(barX, volListY, barX + 3, volListY + volListH, SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0x66));
             g.fill(barX, thumbY, barX + 3, thumbY + thumbH, GOLD);
         }
 
@@ -677,7 +678,7 @@ public class VolunteerOpenSelectScreen extends Screen {
         }
 
         // 下方：介绍
-        SREPanelStyle.drawPanel(g, volDetailX, volDetailY, volDetailW, volDetailH, 0xAA1A1008, 0xAA0B1722);
+        SREPanelStyle.drawPanel(g, volDetailX, volDetailY, volDetailW, volDetailH, SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xAA), SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM_ALT, 0xAA));
         SRERole shown = null;
         if (hoveredRoleIndex >= 0 && hoveredRoleIndex < filteredRoles.size()) {
             shown = filteredRoles.get(hoveredRoleIndex);
@@ -724,7 +725,7 @@ public class VolunteerOpenSelectScreen extends Screen {
 
         if (!isRoleDetailHidden()) {
             // 底部：介绍
-            SREPanelStyle.drawPanel(g, detailX, detailY, detailW, detailH, 0xAA1A1008, 0xAA0B1722);
+            SREPanelStyle.drawPanel(g, detailX, detailY, detailW, detailH, SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xAA), SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM_ALT, 0xAA));
             int shownIndex = hoveredPoolIndex >= 0 ? hoveredPoolIndex : VolunteerOpenCache.getMyPickIndex();
             drawRoleDetail(g, roleAtPoolIndex(shownIndex), detailX, detailY, detailW, detailH);
         }
@@ -732,7 +733,7 @@ public class VolunteerOpenSelectScreen extends Screen {
 
     private void drawPoolCell(GuiGraphics g, int index, int x, int y, int w, int h, boolean hover) {
         int border = poolCellBorder(index, hover);
-        g.fillGradient(x, y, x + w, y + h, hover ? 0xFF2B2112 : 0xFF1A1008, hover ? 0xFF112536 : 0xFF0B1722);
+        g.fillGradient(x, y, x + w, y + h, hover ? 0xFF2B2112 : SRETheme.SURFACE_TOP_SOFT, hover ? 0xFF112536 : SRETheme.SURFACE_BOTTOM_ALT);
         g.renderOutline(x, y, w, h, border);
 
         if (index == VolunteerOpenCache.getMyPickIndex()) {
@@ -892,9 +893,9 @@ public class VolunteerOpenSelectScreen extends Screen {
         boolean enabled = SREClientConfig.instance().roleRotationAutoScroll;
         boolean hover = inside(mouseX, mouseY, autoToggleX, autoToggleY, autoToggleW, AUTO_TOGGLE_H);
         g.fillGradient(autoToggleX, autoToggleY, autoToggleX + autoToggleW, autoToggleY + AUTO_TOGGLE_H,
-                hover ? 0x553A2E12 : 0x331A1008, hover ? 0x44112536 : 0x220B1722);
+                hover ? 0x553A2E12 : SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0x33), hover ? 0x44112536 : SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM_ALT, 0x22));
         g.renderOutline(autoToggleX, autoToggleY, autoToggleW, AUTO_TOGGLE_H,
-                hover ? GOLD : (enabled ? 0x665A4530 : 0x443B2F1E));
+                hover ? GOLD : (enabled ? SRETheme.withAlpha(SRETheme.CARD_BORDER, 0x66) : 0x443B2F1E));
         Component label = Component.translatable(enabled
                 ? "gui.sre.volunteer_open.auto_scroll_on"
                 : "gui.sre.volunteer_open.auto_scroll_off");
@@ -995,11 +996,11 @@ public class VolunteerOpenSelectScreen extends Screen {
         boolean confirmed = VolunteerOpenCache.isLocalPlayerConfirmed();
         boolean hover = !confirmed && inside(mouseX, mouseY, confirmX, confirmY, CONFIRM_W, CONFIRM_H);
         g.fillGradient(confirmX, confirmY, confirmX + CONFIRM_W, confirmY + CONFIRM_H,
-                hover ? 0xFF3A2E12 : 0xE01A1008, hover ? 0xFF112536 : 0xE00B1722);
+                hover ? 0xFF3A2E12 : SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xE0), hover ? 0xFF112536 : SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM_ALT, 0xE0));
         g.renderOutline(confirmX, confirmY, CONFIRM_W, CONFIRM_H,
-                hover ? GOLD : (confirmed ? 0x665A4530 : BORDER));
+                hover ? GOLD : (confirmed ? SRETheme.withAlpha(SRETheme.CARD_BORDER, 0x66) : BORDER));
         g.fill(confirmX + 1, confirmY + 1, confirmX + CONFIRM_W - 1, confirmY + 3,
-                hover ? GOLD : 0x33FFE8C0);
+                hover ? GOLD : SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x33));
         Component label = Component.translatable(confirmed
                 ? "gui.sre.volunteer_open.confirm_waiting"
                 : "gui.sre.volunteer_open.confirm_ready");

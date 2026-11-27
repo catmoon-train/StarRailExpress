@@ -16,21 +16,23 @@
 package io.wifi.starrailexpress.client.gui;
 
 import io.wifi.starrailexpress.client.ui.SRETheme;
+import io.wifi.starrailexpress.client.ui.UiSurface;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphics;
 
 /**
- * {@code docs/ui_style.md} 指定的界面风格：复古列车 / 老式车票质感
- * ——深棕黑打底 + 米色文字 + 金色点缀。
+ * {@code docs/ui_style.md} 指定的界面风格：<b>黄铜 HUD</b>
+ * ——深灰黑底（{@code #1A1A1A}）+ 深炭灰卡片（{@code #242424}）+ 1px 暗铜色描边 + 明亮黄铜文字。
  *
  * <p>
- * 面板一律按文档第 3 节的顺序绘制：上下渐变 → 棕褐描边 → 上边缘内侧一条浅米装饰线。
+ * 面板一律走 {@link UiSurface#card}：<b>纯色填充 → 1px 圆角描边</b>，没有外阴影、没有渐变、
+ * 没有上边缘装饰线（旧主题那三步已经按扁平主题收敛成两步）。
  *
  * <h2>色值已全部合并到 {@link SRETheme}</h2>
  * 这里的每个颜色常量都只是 {@link SRETheme} 的转发
  * （{@code static final int = SRETheme.X} 仍是编译期常量，运行时零开销、与直接写数字等价）。
- * 新代码请<b>直接用 {@link SRETheme}</b>；本类保留只是为了不打断已有的
+ * 新代码请<b>直接用 {@link SRETheme} 与 {@link UiSurface}</b>；本类保留只是为了不打断已有的
  * 「{@code SREPanelStyle.PANEL_BG_TOP}」这类调用面，以及它手里那套面板绘制方法。
  */
 @Environment(EnvType.CLIENT)
@@ -90,8 +92,8 @@ public final class SREPanelStyle {
 
     // ==================== 滚动条 ====================
 
-    /** 滚动条宽（文档第 4 节：3~7px）。 */
-    public static final int SCROLL_WIDTH = 7;
+    /** 滚动条宽（文档第 4 节：3~7px；唯一实现在 {@link UiSurface#SCROLL_WIDTH}）。 */
+    public static final int SCROLL_WIDTH = UiSurface.SCROLL_WIDTH;
     /** 滚动条槽底色。 */
     public static final int SCROLL_TRACK = SRETheme.SCROLL_TRACK;
     /** 滚动条槽内侧。 */
@@ -109,21 +111,26 @@ public final class SREPanelStyle {
 
     // ==================== 面板绘制（文档第 3 节）====================
 
-    /** 三步画一个面板：上下渐变 + 棕褐描边 + 上边缘内侧浅米装饰线。 */
+    /** 画一个面板：纯色底 + 1px 圆角暗铜描边（扁平，无渐变/无装饰线）。 */
     public static void drawPanel(GuiGraphics g, int x, int y, int w, int h) {
-        drawPanel(g, x, y, w, h, PANEL_BG_TOP, PANEL_BG_BOTTOM);
+        UiSurface.panel(g, x, y, w, h);
     }
 
-    /** 三步画一个面板（自定义上下背景色，用于需要偏蓝棕黑的分区）。 */
+    /**
+     * 画一个面板（自定义底色）。
+     *
+     * <p>
+     * 旧签名收「上/下两个颜色」是为了做渐变；扁平主题里底色不再做渐变，
+     * 所以<b>只取 {@code top} 当纯色底</b>，{@code bottom} 仅为兼容旧调用保留
+     * （两边在旧主题里本来就是同族的深浅两档，换成纯色后观感一致）。
+     */
     public static void drawPanel(GuiGraphics g, int x, int y, int w, int h, int top, int bottom) {
-        g.fillGradient(x, y, x + w, y + h, top, bottom);
-        g.renderOutline(x, y, w, h, BORDER);
-        g.fill(x + 1, y + 1, x + w - 1, y + 2, TOP_LINE);
+        UiSurface.card(g, x, y, w, h, top, BORDER);
     }
 
     /** 只画一条页脚分隔线（用于已经画好背景的确认/取消这类页脚条）。 */
     public static void drawFooterLine(GuiGraphics g, int x, int y, int w) {
-        g.fill(x, y, x + w, y + 1, BORDER);
+        UiSurface.divider(g, x, y, w);
     }
 
     // ==================== 滚动条绘制 ====================
@@ -131,16 +138,14 @@ public final class SREPanelStyle {
     /**
      * 画滚动条（槽 + thumb）。
      *
+     * <p>
+     * 实现在 {@link UiSurface#scrollbar}：扁平槽 + 黄铜 thumb（hover 提亮）。
+     *
      * @param thumbY thumb 顶端（由调用方按自己的滚动几何算出）
      * @param thumbH thumb 高度（调用方保证 ≥ {@link #SCROLL_MIN_THUMB}）
      */
     public static void drawScrollbar(GuiGraphics g, int x, int y, int height, int thumbY, int thumbH, boolean hover) {
-        g.fill(x, y, x + SCROLL_WIDTH, y + height, SCROLL_TRACK);
-        g.fill(x + 1, y + 1, x + SCROLL_WIDTH - 1, y + height - 1, SCROLL_TRACK_INNER);
-        g.fill(x, thumbY, x + SCROLL_WIDTH, thumbY + thumbH,
-                hover ? SCROLL_THUMB_HOVER : SCROLL_THUMB);
-        g.fill(x + 1, thumbY + 1, x + SCROLL_WIDTH - 1, thumbY + thumbH - 1,
-                hover ? SCROLL_THUMB_HOVER_LIGHT : SCROLL_THUMB_LIGHT);
+        UiSurface.scrollbar(g, x, y, height, thumbY, thumbH, hover);
     }
 
     // ==================== 工具函数（文档第 6 节）====================

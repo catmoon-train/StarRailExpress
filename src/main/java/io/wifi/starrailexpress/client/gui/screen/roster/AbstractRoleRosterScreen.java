@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client.gui.screen.roster;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.wifi.starrailexpress.api.SRERole;
@@ -283,11 +284,11 @@ abstract class AbstractRoleRosterScreen extends Screen {
             return;
         }
         int barX = panelX + panelW - 5;
-        g.fill(barX, listTop, barX + 3, listBottom, 0x40FFE8C0);
+        g.fill(barX, listTop, barX + 3, listBottom, SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x40));
         int thumbH = Math.max(20, (int) ((float) viewport / content * viewport));
         int maxScroll = content - viewport;
         int thumbY = listTop + (int) ((scroll / maxScroll) * (viewport - thumbH));
-        g.fill(barX, thumbY, barX + 3, thumbY + thumbH, 0x88C9A84C);
+        g.fill(barX, thumbY, barX + 3, thumbY + thumbH, SRETheme.withAlpha(SRETheme.GOLD_DIM, 0x88));
     }
 
     @Override

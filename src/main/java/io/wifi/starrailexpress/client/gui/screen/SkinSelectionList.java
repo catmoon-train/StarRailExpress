@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client.gui.screen;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.content.item.SkinableItem;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
@@ -57,16 +58,16 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
     private final Consumer<String> onSkinSelected;
 
     // 复古列车主题色
-    private static final int BACKGROUND_COLOR = 0x801A1008;
-    private static final int BORDER_COLOR = 0x558B6914;
-    private static final int ENTRY_BG = 0x991A1008;
+    private static final int BACKGROUND_COLOR = SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0x80);
+    private static final int BORDER_COLOR = SRETheme.withAlpha(SRETheme.BORDER, 0x55);
+    private static final int ENTRY_BG = SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0x99);
     private static final int ENTRY_BG_HOVER = 0x992A1A08;
     private static final int ENTRY_BG_SELECTED = 0xB0202010;
-    private static final int ENTRY_BORDER = 0x408B6914;
-    private static final int ENTRY_BORDER_HOVER = 0xFFD4AF37;
-    private static final int TEXT_COLOR = 0xFFC8B898;
-    private static final int TEXT_SELECTED = 0xFFFFF4DC;
-    private static final int TEXT_SECONDARY_COLOR = 0xFF9E8B6E;
+    private static final int ENTRY_BORDER = SRETheme.withAlpha(SRETheme.BORDER, 0x40);
+    private static final int ENTRY_BORDER_HOVER = SRETheme.GOLD;
+    private static final int TEXT_COLOR = SRETheme.BODY;
+    private static final int TEXT_SELECTED = SRETheme.TEXT;
+    private static final int TEXT_SECONDARY_COLOR = SRETheme.MUTED;
     private static final int TEXT_LOCKED = 0xFF5A5340;
 
     private boolean draggingScrollbar = false;
@@ -391,7 +392,7 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
             int sskinColor = java.awt.Color.WHITE.getRGB();
             if (ItemSkinManager.isRandomSkin(skinName)) {
                 // 「随机」用金色区别于「未装备」
-                sskinColor = 0xFFD4AF37;
+                sskinColor = SRETheme.GOLD;
             } else {
                 // 支持不能继承 SkinableItem 的原版物品（弓、弩）
                 String skinType = ItemSkinManager.getItemSkinType(itemType.getItem());
@@ -438,7 +439,7 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
             g.fill(x + 2, y + 2, x + width - 6, y + height - 2, backgroundColor);
 
             int borderColor = !isUnlocked ? 0x40302010
-                    : (isCurrent ? 0xFFD4AF37 : ENTRY_BORDER);
+                    : (isCurrent ? SRETheme.GOLD : ENTRY_BORDER);
             if (hoverAnimation > 0 && isUnlocked) {
                 borderColor = blendColors(borderColor, ENTRY_BORDER_HOVER, hoverAnimation);
             }
@@ -453,7 +454,7 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
                 int glowAlpha = (int) (hoverAnimation * 25) << 24;
                 for (int i = 1; i <= 2; i++) {
                     g.fill(x - i + 2, y - i + 2, x + width + i - 6, y + height + i - 2,
-                            glowAlpha | 0xD4AF37);
+                            glowAlpha | SRETheme.GOLD);
                 }
             }
         }
@@ -465,7 +466,7 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
 
             int iconBgColor = skinColor;
             if (isCurrent)
-                iconBgColor = blendColors(iconBgColor, 0xFFD4AF37, 0.25f);
+                iconBgColor = blendColors(iconBgColor, SRETheme.GOLD, 0.25f);
 
             drawRoundedRect(g, iconX, iconY, iconSize, iconSize, 0, iconBgColor);
 
@@ -480,10 +481,10 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
             // 「随机」叠一个问号，避免和「未装备」图标一模一样
             if (ItemSkinManager.isRandomSkin(this.skinName)) {
                 var font = Minecraft.getInstance().font;
-                g.drawCenteredString(font, Component.literal("?"), textX + 8, textY + 4, 0xFFFFF4DC);
+                g.drawCenteredString(font, Component.literal("?"), textX + 8, textY + 4, SRETheme.TEXT);
             }
 
-            int borderColor = isCurrent ? 0xFFD4AF37 : 0x80FFFFFF;
+            int borderColor = isCurrent ? SRETheme.GOLD : 0x80FFFFFF;
             drawRoundedRectBorder(g, iconX, iconY, iconSize, iconSize, 0, borderColor);
         }
 
@@ -544,7 +545,7 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
             if (!isUnlocked) {
                 int buttonColor = 0x802A1A08;
                 drawRoundedRect(g, buttonX, buttonY, buttonWidth, buttonHeight, 0, buttonColor);
-                drawRoundedRectBorder(g, buttonX, buttonY, buttonWidth, buttonHeight, 0, 0xFF5A4530);
+                drawRoundedRectBorder(g, buttonX, buttonY, buttonWidth, buttonHeight, 0, SRETheme.CARD_BORDER);
 
                 Component buttonText = Component.translatable("screen.sre.skins.locked_short");
                 int textColor = 0xFF8B7B5A;
@@ -555,7 +556,7 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
                 int lockSize = 10;
                 int lockX = buttonX - lockSize - 5;
                 int lockY = buttonY + (buttonHeight - lockSize) / 2;
-                g.fill(lockX, lockY, lockX + lockSize, lockY + lockSize, 0xFF5A4530);
+                g.fill(lockX, lockY, lockX + lockSize, lockY + lockSize, SRETheme.CARD_BORDER);
                 var lockIcon = Component.literal("\uD83D\uDD12").withStyle(ChatFormatting.GRAY);
                 var font = Minecraft.getInstance().font;
                 g.drawCenteredString(font, lockIcon,
@@ -563,18 +564,18 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
                 return;
             }
 
-            int buttonColor = isCurrent ? 0x802A1A08 : 0x801A1008;
+            int buttonColor = isCurrent ? 0x802A1A08 : SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0x80);
             if (hovered && !isCurrent) buttonColor = 0x80302010;
             drawRoundedRect(g, buttonX, buttonY, buttonWidth, buttonHeight, 0, buttonColor);
 
-            int borderColor = isCurrent ? 0xFFD4AF37
-                    : (hovered && !isCurrent ? 0xFFC9A84C : 0xFF5A4530);
+            int borderColor = isCurrent ? SRETheme.GOLD
+                    : (hovered && !isCurrent ? SRETheme.GOLD_DIM : SRETheme.CARD_BORDER);
             drawRoundedRectBorder(g, buttonX, buttonY, buttonWidth, buttonHeight, 0, borderColor);
 
             Component buttonText = isCurrent
                     ? Component.translatable("screen.sre.skins.equipped")
                     : Component.translatable("screen.sre.skins.equip");
-            int textColor = isCurrent ? 0xFFD4AF37 : 0xFFFFF4DC;
+            int textColor = isCurrent ? SRETheme.GOLD : SRETheme.TEXT;
             int textX = buttonX + buttonWidth / 2 - Minecraft.getInstance().font.width(buttonText) / 2;
             int textY = buttonY + (buttonHeight - 8) / 2;
             g.drawString(Minecraft.getInstance().font, buttonText, textX, textY, textColor, false);
@@ -583,11 +584,11 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
                 int checkSize = 10;
                 int checkX = buttonX - checkSize - 5;
                 int checkY = buttonY + (buttonHeight - checkSize) / 2;
-                g.fill(checkX, checkY, checkX + checkSize, checkY + checkSize, 0xFFD4AF37);
+                g.fill(checkX, checkY, checkX + checkSize, checkY + checkSize, SRETheme.GOLD);
                 var bingo = Component.literal("\u2714").withStyle(ChatFormatting.WHITE);
                 var font = Minecraft.getInstance().font;
                 g.drawCenteredString(font, bingo,
-                        checkX + checkSize / 2, checkY + checkSize / 2 - font.lineHeight / 2, 0xFFFFF4DC);
+                        checkX + checkSize / 2, checkY + checkSize / 2 - font.lineHeight / 2, SRETheme.TEXT);
             }
         }
 

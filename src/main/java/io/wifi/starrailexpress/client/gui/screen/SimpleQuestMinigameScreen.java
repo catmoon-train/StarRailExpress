@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client.gui.screen;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -2834,7 +2835,7 @@ public class SimpleQuestMinigameScreen extends Screen {
     }
     private void renderCatchEggs(GuiGraphics g,int left,int top){
         for(Egg e:eggs){int col=e.type==0?0xFFF5DEB3:e.type==1?0xFFCD853F:e.type==2?GREEN:RED;drawCircle(g,Math.round(e.x+16),Math.round(e.y+16),16,col);}
-        MinigameUI.roundRect(g,(int)basketX,top+PANEL_H-30,(int)basketX+50,top+PANEL_H-14,4,0xFF8B6914);
+        MinigameUI.roundRect(g,(int)basketX,top+PANEL_H-30,(int)basketX+50,top+PANEL_H-14,4,SRETheme.BORDER);
         g.drawCenteredString(font,tr("common.hits",eggsCaught,5),width/2,top+8,WHITE);
     }
 

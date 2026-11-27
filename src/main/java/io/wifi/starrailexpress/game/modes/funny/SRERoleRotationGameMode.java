@@ -277,7 +277,7 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
         SREGameTimeComponent.KEY.get(world).setTimeFrozen(false);
         Harpymodloader.FORCED_MODDED_ROLE.clear();
         Harpymodloader.FORCED_MODDED_MODIFIER.clear();
-        PlayerRoleWeightManager.ForcePlayerTeam.clear();
+        io.wifi.starrailexpress.backpack.FactionCardForcing.settleRound(world);
     }
 
     private void completeRoleSelection(ServerLevel world, SREGameWorldComponent gameComp,

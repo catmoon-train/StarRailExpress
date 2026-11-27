@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.game.modes.echo.client;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.client.gui.widget.SreButton;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.*;
@@ -37,13 +38,13 @@ public final class EchoContractScreen extends Screen {
     @Override public void onClose() { minecraft.setScreen(parent); }
     @Override public void renderBackground(GuiGraphics g,int mx,int my,float partial) {
         float p=EchoAnim.openProgress(openedAt,180);
-        g.fillGradient(0,0,width,height,EchoAnim.fade(0xE0081018,p),EchoAnim.fade(0xE018120A,p));
-        g.fill(x,y,x+w,y+h,EchoAnim.fade(0xF01A1008,p)); g.renderOutline(x,y,w,h,EchoAnim.fade(0xFF8B6914,p));
+        g.fillGradient(0,0,width,height,EchoAnim.fade(0xE0081018,p),EchoAnim.fade(SRETheme.withAlpha(SRETheme.SCREEN_TOP, 0xE0),p));
+        g.fill(x,y,x+w,y+h,EchoAnim.fade(SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xF0),p)); g.renderOutline(x,y,w,h,EchoAnim.fade(SRETheme.BORDER,p));
     }
     @Override public void render(GuiGraphics g,int mx,int my,float partial) {
         super.render(g,mx,my,partial);
         float fade=EchoAnim.openProgress(openedAt,180);
-        g.drawString(font,title,x+8,y+8,EchoAnim.fade(0xFFD4AF37,fade),false);
+        g.drawString(font,title,x+8,y+8,EchoAnim.fade(SRETheme.GOLD,fade),false);
         var d=EchoBagClient.data(); if(d==null || d.contract()==null || d.contractProgress()==null) return;
         var p=d.contractProgress(); var id=d.contract().name().toLowerCase(Locale.ROOT);
         var content=Component.translatable("echo.contract."+id+".name").copy().append("\n\n").append(Component.translatable("echo.contract."+id+".desc"))
@@ -51,8 +52,8 @@ public final class EchoContractScreen extends Screen {
         if(!p.dropoff().isEmpty()) content.append("\n").append(Component.translatable("echo.contract.dropoff",p.dropoff()));
         content.append("\n\n").append(Component.translatable("echo.contract.retire_help"));
         g.enableScissor(x+8,y+28,x+w-8,y+h-58); int n=0;
-        for(var line:font.split(content,w-16)) g.drawString(font,line,x+8,y+28+10*n++,0xFFFFF4DC,false);
+        for(var line:font.split(content,w-16)) g.drawString(font,line,x+8,y+28+10*n++,SRETheme.TEXT,false);
         g.disableScissor();
-        if(EchoBagClient.waiting() || !d.requestError().isEmpty()) g.drawString(font,Component.translatable(EchoBagClient.waiting()?"echo.ui.waiting":"echo.error."+d.requestError().toLowerCase(Locale.ROOT)),x+8,y+h-21,0xFFE06B65,false);
+        if(EchoBagClient.waiting() || !d.requestError().isEmpty()) g.drawString(font,Component.translatable(EchoBagClient.waiting()?"echo.ui.waiting":"echo.error."+d.requestError().toLowerCase(Locale.ROOT)),x+8,y+h-21,SRETheme.RED,false);
     }
 }

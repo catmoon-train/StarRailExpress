@@ -19,6 +19,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.client.ui.SRETheme;
+import io.wifi.starrailexpress.client.ui.UiSurface;
 import net.exmo.sre.loading.texture.ConfigTexture;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -32,9 +33,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
 /**
- * 复古列车 / 车票 UI 公共绘制（docs/ui_style.md）。
+ * <b>黄铜 HUD</b> 公共绘制（{@code docs/ui_style.md}）：深灰黑底 + 深炭灰卡片 + 1px 暗铜描边 + 明亮黄铜文字。
  * <p>
  * 供资源加载、进世界、多人加入与连接中界面复用同一套配色、面板范式与入场动画。
+ * 形状一律走 {@link UiSurface}，本类只管「背景 + 面板 + 这几个页面的排版」。
  */
 @Environment(EnvType.CLIENT)
 public final class SreUiStyle {
@@ -162,16 +164,16 @@ public final class SreUiStyle {
 
     // ── 面板（ui_style.md §3）──────────────────────────────────────────
 
+    /**
+     * 面板：纯色底 + 1px 圆角暗铜描边（扁平，无渐变 / 无装饰线），按 {@code alpha} 淡入。
+     */
     public static void drawPanel(GuiGraphics g, int x, int y, int w, int h, float alpha) {
         if (w <= 0 || h <= 0 || alpha <= 0.01F) {
             return;
         }
-        int top = LoadingFx.lerpArgb(alpha, SRETheme.withAlpha(SRETheme.SURFACE_TOP, 0), PANEL_BG_TOP);
-        int bot = LoadingFx.lerpArgb(alpha, SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM, 0), PANEL_BG_BOTTOM);
-        g.fillGradient(x, y, x + w, y + h, top, bot);
+        int fill = LoadingFx.lerpArgb(alpha, SRETheme.withAlpha(SRETheme.SURFACE_TOP, 0), PANEL_BG_TOP);
         int border = LoadingFx.lerpArgb(alpha, SRETheme.withAlpha(SRETheme.BORDER, 0), BORDER);
-        g.renderOutline(x, y, w, h, border);
-        g.fill(x + 1, y + 1, x + w - 1, y + 2, LoadingFx.lerpArgb(alpha, SRETheme.withAlpha(SRETheme.DECOR_LINE, 0), DECOR));
+        UiSurface.card(g, x, y, w, h, fill, border);
     }
 
     public static void drawTitleUnderline(GuiGraphics g, int cx, int y, int halfWidth, float alpha) {
@@ -205,9 +207,9 @@ public final class SreUiStyle {
         Component sub = Component.translatable("screen.sre.join.subtitle");
         int titleY = 6;
         g.drawString(font, title, (w - font.width(title)) / 2, titleY,
-                LoadingFx.withAlpha(0xF5E8C8, headerAlpha), false);
+                LoadingFx.withAlpha(SRETheme.TITLE, headerAlpha), true);
         g.drawString(font, sub, (w - font.width(sub)) / 2, titleY + 12,
-                LoadingFx.withAlpha(0x9E8B6E, headerAlpha * 0.95F), false);
+                LoadingFx.withAlpha(SRETheme.MUTED, headerAlpha * 0.95F), true);
         drawTitleUnderline(g, w / 2, JOIN_HEADER_H - 3, Math.min(90, w / 5), headerAlpha);
         g.pose().popPose();
     }
@@ -234,13 +236,13 @@ public final class SreUiStyle {
         Component title = Component.translatable("screen.sre.connect.title").withStyle(ChatFormatting.BOLD);
         int titleY = h / 2 - 72 + (int) ((1.0F - enter) * -8.0F);
         g.drawString(font, title, (w - font.width(title)) / 2, titleY,
-                LoadingFx.withAlpha(0xF5E8C8, enter), false);
+                LoadingFx.withAlpha(SRETheme.TITLE, enter), true);
         drawTitleUnderline(g, w / 2, titleY + 12, 36, enter);
         g.drawString(font, status, (w - font.width(status)) / 2, h / 2 - 44,
-                LoadingFx.withAlpha(0xFFF4DC, enter * pulse), false);
+                LoadingFx.withAlpha(SRETheme.TEXT, enter * pulse), true);
         Component hint = Component.translatable("screen.sre.connect.hint");
         g.drawString(font, hint, (w - font.width(hint)) / 2, h / 2 - 28,
-                LoadingFx.withAlpha(0x9E8B6E, enter * 0.9F), false);
+                LoadingFx.withAlpha(SRETheme.MUTED, enter * 0.9F), true);
     }
 
     public static int blend(int c1, int c2, float t) {

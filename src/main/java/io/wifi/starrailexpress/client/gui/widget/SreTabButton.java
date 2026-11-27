@@ -15,6 +15,9 @@
 
 package io.wifi.starrailexpress.client.gui.widget;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
+import io.wifi.starrailexpress.client.ui.UiSurface;
+import io.wifi.starrailexpress.client.ui.UiText;
 import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.client.gui.screen.EditorLayout;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapUiGraphics;
@@ -32,7 +35,8 @@ import net.minecraft.network.chat.Component;
  *
  * <p>
  * 宽度由调用方按文字实测排好（放不下时 {@link EditorLayout} 会折行），文字这里再裁一次省略号，
- * 所以长译文不会溢出到相邻页签上；活跃页签金色粗体 + 底部金线 + 淡色底，hover 有过渡（文档 §6）。
+ * 宽度由调用方按文字实测排好（放不下时 {@link EditorLayout} 会折行），文字这里再裁一次省略号，
+ * 所以长译文不会溢出到相邻页签上；活跃页签 = 黄铜描边 + 底部黄铜基线 + 高亮黄铜文字，hover 有过渡（文档 §6）。
  */
 @Environment(EnvType.CLIENT)
 public class SreTabButton extends AbstractWidget {
@@ -53,6 +57,13 @@ public class SreTabButton extends AbstractWidget {
         }
     }
 
+    /**
+     * 页签（扁平）：活跃 = 深炭灰底 + 黄铜描边 + 底部 2px 黄铜基线；hover = 黄铜 14% 底。
+     *
+     * <p>
+     * 底色一律走 {@link UiSurface#card}，不再自己 {@code fill} 一堆半透明块 —— 页签与卡片
+     * 圆角、描边粗细从此是同一套。
+     */
     @Override
     protected void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         if (selected) {
@@ -60,22 +71,23 @@ public class SreTabButton extends AbstractWidget {
         } else {
             hoverAnim += ((isHovered() ? 1F : 0F) - hoverAnim) * 0.22F;
         }
-        int alpha = (int) (0x33 * hoverAnim) << 24;
-        g.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(),
-                (alpha & 0xFF000000) | (SREPanelStyle.GOLD & 0x00FFFFFF));
-        g.fill(getX(), getY(), getX() + 1, getY() + getHeight(),
-                selected ? SREPanelStyle.GOLD : SREPanelStyle.CARD_BORDER);
-        g.fill(getX() + getWidth() - 1, getY(), getX() + getWidth(), getY() + getHeight(),
-                selected ? SREPanelStyle.GOLD : SREPanelStyle.CARD_BORDER);
+        int x = getX();
+        int y = getY();
+        int w = getWidth();
+        int h = getHeight();
         if (selected) {
-            g.fill(getX(), getY() + getHeight() - 2, getX() + getWidth(), getY() + getHeight(),
-                    SREPanelStyle.GOLD);
+            UiSurface.card(g, x, y, w, h, SRETheme.SURFACE_BOTTOM, SRETheme.BRASS, UiSurface.RADIUS_ROW);
+            // 活跃页签的「基线」：底部 2px 黄铜，扁平但有指示性
+            g.fill(x + 1, y + h - 2, x + w - 1, y + h, SRETheme.BRASS);
+        } else if (hoverAnim > 0.01F) {
+            int alpha = (int) (((SRETheme.ROW_HOVER >>> 24) & 0xFF) * hoverAnim);
+            UiSurface.card(g, x, y, w, h, SRETheme.withAlpha(SRETheme.ROW_HOVER, alpha),
+                    SRETheme.withAlpha(SRETheme.CARD_BORDER, (int) (0xFF * hoverAnim)), UiSurface.RADIUS_ROW);
         }
 
-        int color = selected ? SREPanelStyle.GOLD : (isHovered() ? SREPanelStyle.TEXT : SREPanelStyle.MUTED);
-        String shown = MapUiGraphics.clip(font, getMessage().getString(), Math.max(8, getWidth() - 8));
-        g.drawCenteredString(font, Component.literal(shown), getX() + getWidth() / 2,
-                getY() + (getHeight() - 8) / 2, color);
+        int color = selected ? SRETheme.BRASS_BRIGHT : (isHovered() ? SRETheme.TEXT : SRETheme.MUTED);
+        String shown = MapUiGraphics.clip(font, getMessage().getString(), Math.max(8, w - 8));
+        UiText.drawCentered(g, font, Component.literal(shown), x + w / 2, y + (h - 8) / 2, color);
     }
 
     @Override

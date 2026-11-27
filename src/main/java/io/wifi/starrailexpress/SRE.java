@@ -124,6 +124,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         ProgressionDataManager.registerEvents();
         io.wifi.starrailexpress.backpack.BackpackManager.registerEvents();
         io.wifi.starrailexpress.roster.RoleRosterManager.registerEvents();
+        io.wifi.starrailexpress.content.vote.RolePoolVote.registerEvents();
         PayloadBootstrap.registerAll();
         SREReceiverRegister.registerGlobalReceivers();
         SREEventRegister.registerPlayerCopyEvent();

@@ -588,6 +588,14 @@ public class SREConfig implements ConfigData {
 
     public boolean enableRoster = true;
 
+    /** 地图投票前是否先开一次「职业池」投票（选中后写入职业轮换名单）。 */
+    @ConfigSync(shouldSync = true)
+    public boolean enableRolePoolVote = true;
+
+    /** 职业池投票每人可选几个池子（默认 4 选 2）；结果取票数最高的这么多个池子合并生效。 */
+    @ConfigSync(shouldSync = true)
+    public int rolePoolVoteSelectCount = 2;
+
     // 技能释放通告 HUD（服务端控制，默认关闭）
     @ConfigEntry.Category(value = "hud")
     @ConfigSync(shouldSync = true)

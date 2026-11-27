@@ -17,16 +17,22 @@ package io.wifi.starrailexpress.content.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.command.argument.GameModeArgumentType;
+import io.wifi.starrailexpress.content.vote.RolePoolVote;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.voting.MapVotingManager;
+import io.wifi.starrailexpress.roster.pool.RolePool;
+import io.wifi.starrailexpress.roster.pool.RolePoolRegistry;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class MapVoteCommand {
@@ -35,6 +41,16 @@ public class MapVoteCommand {
         Commands.literal("tmm:votemap")
             .requires(source -> source.hasPermission(2))
             .executes(context -> startVoting(context.getSource(), 20 * 20)) // 默认20秒
+            // 只开职业池投票，不接地图投票（管理员单独定池子用）
+            .then(Commands.literal("pool")
+                .executes(context -> startPoolVote(context.getSource(), 20 * 20)))
+            // 跳过职业池阶段，直接开地图投票
+            .then(Commands.literal("nopool")
+                .executes(context -> startVotingDirect(context.getSource(), 20 * 20))
+                .then(Commands.argument("time",
+                    IntegerArgumentType.integer(2 * 20, 300 * 20))
+                    .executes(context -> startVotingDirect(context.getSource(),
+                        IntegerArgumentType.getInteger(context, "time")))))
             .then(Commands.argument("time",
                 IntegerArgumentType.integer(2 * 20, 300 * 20)) // 时间范围10-300秒
                 .executes(context -> startVoting(context.getSource(),
@@ -55,6 +71,78 @@ public class MapVoteCommand {
                           net.minecraft.resources.ResourceLocation.class);
                       return setPresetGameMode(context.getSource(), modeId.getPath());
                     }))));
+
+    dispatcher.register(
+        Commands.literal("tmm:rolepool")
+            .requires(source -> source.hasPermission(2))
+            .then(Commands.literal("list")
+                .executes(context -> listPools(context.getSource())))
+            .then(Commands.literal("apply")
+                .then(Commands.argument("pool", StringArgumentType.word())
+                    .suggests((context, builder) -> SharedSuggestionProvider
+                        .suggest(RolePoolRegistry.all().stream().map(RolePool::id).toList(), builder))
+                    .executes(context -> applyPool(context.getSource(),
+                        StringArgumentType.getString(context, "pool")))))
+            .then(Commands.literal("vote")
+                .executes(context -> startPoolVote(context.getSource(), 20 * 20))));
+  }
+
+  /** 职业池投票阶段（结束后自动接地图投票）。 */
+  private static int startPoolVote(CommandSourceStack source, int time) {
+    if (RolePoolVote.isRunning()) {
+      source.sendFailure(Component.translatable("command.sre.rolepool.vote_running"));
+      return 0;
+    }
+    if (RolePoolVote.start(time, null)) {
+      source.sendSuccess(() -> Component.translatable("command.sre.rolepool.vote_started"), true);
+      return 1;
+    }
+    source.sendFailure(Component.translatable("command.sre.rolepool.vote_failed"));
+    return 0;
+  }
+
+  /** 直接开地图投票（不经过职业池投票）。 */
+  private static int startVotingDirect(CommandSourceStack source, int time) {
+    if (AutoShutdownWhenNotRunningCommand.autoShutdownWhenGameNotRunning || GameUtils.isStartingGame) {
+      source.sendFailure(Component.literal("Game is starting! You cannot open map voting screen!"));
+      return 0;
+    }
+    SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(source.getLevel());
+    if (gameWorldComponent.isRunning()) {
+      source.sendFailure(Component.literal("Game has started! You cannot open map voting screen!"));
+      return 0;
+    }
+    MapVotingManager.getInstance().startVotingDirect(time);
+    source.sendSuccess(() -> Component.translatable("command.sre.votemap.success"), false);
+    return 1;
+  }
+
+  /** 列出全部职业池。 */
+  private static int listPools(CommandSourceStack source) {
+    List<RolePool> pools = RolePoolRegistry.all();
+    if (pools.isEmpty()) {
+      source.sendFailure(Component.translatable("command.sre.rolepool.empty"));
+      return 0;
+    }
+    for (RolePool pool : pools) {
+      int count = RolePoolRegistry.rolesOf(pool).size();
+      source.sendSuccess(() -> Component.translatable("command.sre.rolepool.list_entry",
+          pool.id(), pool.displayName(), count), false);
+    }
+    return pools.size();
+  }
+
+  /** 直接把某个池子写进职业轮换名单（不投票）。 */
+  private static int applyPool(CommandSourceStack source, String poolId) {
+    RolePool pool = RolePoolRegistry.byId(poolId);
+    if (pool == null) {
+      source.sendFailure(Component.translatable("command.sre.rolepool.unknown", poolId));
+      return 0;
+    }
+    int count = RolePoolRegistry.applyToRoster(List.of(pool));
+    source.sendSuccess(() -> Component.translatable("command.sre.rolepool.applied",
+        pool.displayName(), count), true);
+    return 1;
   }
 
   private static int startVoting(CommandSourceStack source, int time) {
@@ -71,6 +159,11 @@ public class MapVoteCommand {
 
     if (votingManager.isVotingActive()) {
       source.sendFailure(Component.translatable("command.sre.votemap.already_running"));
+      return 0;
+    }
+
+    if (RolePoolVote.isRunning()) {
+      source.sendFailure(Component.translatable("command.sre.rolepool.vote_running"));
       return 0;
     }
 

@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.screen;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.client.SREClient;
 import net.exmo.sre.loading.SreUiStyle;
 import net.fabricmc.api.EnvType;
@@ -74,7 +75,7 @@ public class MediumAnswerScreen extends Screen {
             return;
         }
         int remainingSeconds = (int) ((remainingTicks + 19) / 20);
-        int timerColor = remainingSeconds <= 5 ? 0xFFE06B65 : 0xFF5EB7D8;
+        int timerColor = remainingSeconds <= 5 ? SRETheme.RED : SRETheme.BLUE;
 
         g.drawCenteredString(this.font,
                 Component.translatable("screen.noellesroles.medium.title").withStyle(ChatFormatting.BOLD),
@@ -90,8 +91,8 @@ public class MediumAnswerScreen extends Screen {
             int[] box = cardBox(i);
             boolean hovered = isInRect(mouseX, mouseY, box[0], box[1], CARD_W, CARD_H);
             this.hoverAnim[i] += ((hovered ? 1.0F : 0.0F) - this.hoverAnim[i]) * 0.22F;
-            int bg = SreUiStyle.blend(0xFF1A1008, 0xFFC9A84C, 0.12F + 0.20F * this.hoverAnim[i]);
-            int border = this.hoverAnim[i] > 0.5F ? SreUiStyle.GOLD : 0xFF5A4530;
+            int bg = SreUiStyle.blend(SRETheme.SURFACE_TOP_SOFT, SRETheme.GOLD_DIM, 0.12F + 0.20F * this.hoverAnim[i]);
+            int border = this.hoverAnim[i] > 0.5F ? SreUiStyle.GOLD : SRETheme.CARD_BORDER;
             g.fill(box[0], box[1], box[0] + CARD_W, box[1] + CARD_H, bg);
             g.renderOutline(box[0], box[1], CARD_W, CARD_H, border);
             g.drawCenteredString(this.font, answerLabel(i),

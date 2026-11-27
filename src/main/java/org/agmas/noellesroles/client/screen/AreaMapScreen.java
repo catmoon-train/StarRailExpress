@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.screen;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
@@ -51,16 +52,16 @@ import java.util.Map;
 public class AreaMapScreen extends Screen {
 
     // ui_style 色板
-    private static final int BG_TOP = 0xF018120A;
-    private static final int BG_BOTTOM = 0xF0061018;
-    private static final int PANEL_TOP = 0xD81A1008;
-    private static final int PANEL_BOTTOM = 0xD820140A;
+    private static final int BG_TOP = SRETheme.withAlpha(SRETheme.SCREEN_TOP, 0xF0);
+    private static final int BG_BOTTOM = SRETheme.withAlpha(SRETheme.SCREEN_BOTTOM, 0xF0);
+    private static final int PANEL_TOP = SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xD8);
+    private static final int PANEL_BOTTOM = SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM, 0xD8);
     // 地图使用中性底色，避免透明边缘被棕色面板染脏；右侧仍遵循车票风格。
     private static final int MAP_BACKGROUND = 0xFF141B21;
-    private static final int BORDER = 0xFF8B6914;
-    private static final int GOLD = 0xFFD4AF37;
-    private static final int TEXT = 0xFFFFF4DC;
-    private static final int MUTED = 0xFF9E8B6E;
+    private static final int BORDER = SRETheme.BORDER;
+    private static final int GOLD = SRETheme.GOLD;
+    private static final int TEXT = SRETheme.TEXT;
+    private static final int MUTED = SRETheme.MUTED;
 
     /** 3D 视图的纵向压扁系数（斜二测）。 */
     private static final float ISO_SQUASH = 0.55f;
@@ -166,11 +167,11 @@ public class AreaMapScreen extends Screen {
         // 画布面板
         g.fill(canvasX0, canvasY0, canvasX1, canvasY1, MAP_BACKGROUND);
         g.renderOutline(canvasX0, canvasY0, canvasX1 - canvasX0, canvasY1 - canvasY0, BORDER);
-        g.fill(canvasX0 + 1, canvasY0 + 1, canvasX1 - 1, canvasY0 + 2, 0x33FFE8C0);
+        g.fill(canvasX0 + 1, canvasY0 + 1, canvasX1 - 1, canvasY0 + 2, SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x33));
         // 右侧面板
         g.fillGradient(sideX0, sideY0, sideX1, sideY1, PANEL_TOP, PANEL_BOTTOM);
         g.renderOutline(sideX0, sideY0, sideX1 - sideX0, sideY1 - sideY0, BORDER);
-        g.fill(sideX0 + 1, sideY0 + 1, sideX1 - 1, sideY0 + 2, 0x33FFE8C0);
+        g.fill(sideX0 + 1, sideY0 + 1, sideX1 - 1, sideY0 + 2, SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x33));
     }
 
     @Override
@@ -427,7 +428,7 @@ public class AreaMapScreen extends Screen {
             // 勾选框
             int boxX = x;
             int boxY = rowY + 2;
-            g.renderOutline(boxX, boxY, 9, 9, enabled ? GOLD : 0xFF5A4530);
+            g.renderOutline(boxX, boxY, 9, 9, enabled ? GOLD : SRETheme.CARD_BORDER);
             if (enabled) {
                 g.fill(boxX + 2, boxY + 2, boxX + 7, boxY + 7, cat.color());
             }
@@ -449,7 +450,7 @@ public class AreaMapScreen extends Screen {
             int trackH = listH;
             int thumbH = Math.max(18, (int) (trackH * (listH / (double) contentH)));
             int thumbY = catListY0 + (int) ((trackH - thumbH) * (catScroll / maxScroll));
-            g.fill(sideX1 - 4, catListY0, sideX1 - 2, catListY1, 0x22FFE8C0);
+            g.fill(sideX1 - 4, catListY0, sideX1 - 2, catListY1, SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x22));
             g.fill(sideX1 - 4, thumbY, sideX1 - 2, thumbY + thumbH, GOLD);
         }
     }
@@ -457,10 +458,10 @@ public class AreaMapScreen extends Screen {
     private void drawToggleButton(GuiGraphics g, int x, int y, int w, int h, Component label,
             boolean active, int mouseX, int mouseY) {
         boolean hover = isInRect(mouseX, mouseY, x, y, w, h);
-        int bg = active ? blendColors(0xFF1A1008, 0xFFC9A84C, 0.32f)
+        int bg = active ? blendColors(SRETheme.SURFACE_TOP_SOFT, SRETheme.GOLD_DIM, 0.32f)
                 : hover ? 0x33FFFFFF : 0x22000000;
         g.fill(x, y, x + w, y + h, bg);
-        g.renderOutline(x, y, w, h, active || hover ? GOLD : 0xFF5A4530);
+        g.renderOutline(x, y, w, h, active || hover ? GOLD : SRETheme.CARD_BORDER);
         g.drawCenteredString(font, label, x + w / 2, y + (h - 8) / 2, active ? TEXT : MUTED);
     }
 

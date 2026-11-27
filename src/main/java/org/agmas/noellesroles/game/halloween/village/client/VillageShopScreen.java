@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.game.halloween.village.client;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -18,7 +19,7 @@ import org.agmas.noellesroles.game.halloween.village.VillagePackets;
 /** 老式车票风格商店；价格来自服务端，客户端不做扣费或发物品。 */
 @Environment(EnvType.CLIENT)
 public final class VillageShopScreen extends Screen {
-    private static final int TEXT = 0xFFFFF4DC, GOLD = 0xFFD4AF37, MUTED = 0xFF9E8B6E;
+    private static final int TEXT = SRETheme.TEXT, GOLD = SRETheme.GOLD, MUTED = SRETheme.MUTED;
     private final VillagePackets.Open shop;
     private int x, y, w, h, scroll;
     private boolean pending;
@@ -36,9 +37,9 @@ public final class VillageShopScreen extends Screen {
     @Override public boolean isPauseScreen() { return false; }
 
     @Override public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        g.fillGradient(x, y, x + w, y + h, 0xD81A1008, 0xD820140A);
-        g.renderOutline(x, y, w, h, 0xFF8B6914);
-        g.fill(x + 1, y + 1, x + w - 1, y + 2, 0x33FFE8C0);
+        g.fillGradient(x, y, x + w, y + h, SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xD8), SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM, 0xD8));
+        g.renderOutline(x, y, w, h, SRETheme.BORDER);
+        g.fill(x + 1, y + 1, x + w - 1, y + 2, SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x33));
     }
 
     @Override public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
@@ -59,8 +60,8 @@ public final class VillageShopScreen extends Screen {
             var offer = shop.offers().get(i);
             ItemStack stack = new ItemStack(BuiltInRegistries.ITEM.get(offer.item()));
             boolean active = hovered == i && !pending;
-            g.fill(x + 7, rowY, x + w - 7, rowY + 39, active ? ((int) (hover * 45) << 24) | 0xC9A84C : 0x331A1008);
-            g.renderOutline(x + 7, rowY, w - 14, 39, active ? GOLD : 0xFF5A4530);
+            g.fill(x + 7, rowY, x + w - 7, rowY + 39, active ? ((int) (hover * 45) << 24) | SRETheme.GOLD_DIM : SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0x33));
+            g.renderOutline(x + 7, rowY, w - 14, 39, active ? GOLD : SRETheme.CARD_BORDER);
             g.renderItem(stack, x + 13, rowY + 10);
             g.drawString(font, font.plainSubstrByWidth(Component.translatable("halloween.village.product", stack.getHoverName(), offer.count()).getString(), w - 114),
                     x + 36, rowY + 7, TEXT, false);

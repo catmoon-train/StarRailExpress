@@ -15,6 +15,7 @@
 
 package net.exmo.mixin.client;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.SREClientConfig;
 import net.exmo.sre.loading.SreUiStyle;
 import net.minecraft.client.gui.GuiGraphics;
@@ -70,7 +71,7 @@ public abstract class AbstractSelectionListMixin {
         int x1 = list.getX() + (list.getWidth() + w) / 2;
         g.fill(x0, y - 2, x1, y + h + 2, SreUiStyle.GOLD);
         g.fillGradient(x0 + 1, y - 1, x1 - 1, y + h + 1,
-                SreUiStyle.blend(0xFF1A1008, 0xFFC9A84C, 0.32F),
-                SreUiStyle.blend(0xFF120A04, 0xFFC9A84C, 0.18F));
+                SreUiStyle.blend(SRETheme.SURFACE_TOP_SOFT, SRETheme.GOLD_DIM, 0.32F),
+                SreUiStyle.blend(SRETheme.SCROLL_TRACK, SRETheme.GOLD_DIM, 0.18F));
     }
 }

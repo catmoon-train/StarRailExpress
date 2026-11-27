@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.screen;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -377,8 +378,8 @@ public class SupplyCrateGui extends Screen {
         int sh = listAreaH;
 
         // 轨道背景
-        g.fill(sx, sy, sx + SCROLL_W, sy + sh, 0xFF1A1008);
-        g.fill(sx + 1, sy + 1, sx + SCROLL_W - 1, sy + sh - 1, 0x558B6914);
+        g.fill(sx, sy, sx + SCROLL_W, sy + sh, SRETheme.SURFACE_TOP_SOFT);
+        g.fill(sx + 1, sy + 1, sx + SCROLL_W - 1, sy + sh - 1, SRETheme.withAlpha(SRETheme.BORDER, 0x55));
 
         // 滑块
         float ratio = Math.min(1f, (float) ITEM_ROWS_VISIBLE / totalRows);
@@ -387,9 +388,9 @@ public class SupplyCrateGui extends Screen {
         boolean hovered = isDraggingScroll || isInRect(mouseX, mouseY, sx, thumbY, SCROLL_W, thumbH);
 
         g.fill(sx, thumbY, sx + SCROLL_W, thumbY + thumbH,
-                hovered ? 0xFFC9A84C : 0xFF8B6914);
+                hovered ? SRETheme.GOLD_DIM : SRETheme.BORDER);
         g.fill(sx + 1, thumbY + 1, sx + SCROLL_W - 1, thumbY + thumbH - 1,
-                hovered ? 0xFFD4AF37 : 0xFFB8960C);
+                hovered ? SRETheme.GOLD : 0xFFB8960C);
         g.fill(sx + 1, thumbY + 1, sx + SCROLL_W - 1, thumbY + 3, 0x44FFFFFF);
     }
 

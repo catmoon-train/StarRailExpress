@@ -15,45 +15,47 @@
 
 package io.wifi.starrailexpress.client.gui.screen.roster;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
+import io.wifi.starrailexpress.client.ui.UiSurface;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.Mth;
 
 /**
- * 复用 exmo 标题界面风格的渲染辅助：暖色面板、金色描边、渐变背景与缓动 / 颜色插值。
+ * 名单界面（职业轮选 / 预览 / 随机）共用的渲染辅助：黄铜 HUD 的面板、行底、缓动与颜色插值。
+ *
+ * <p>
+ * 颜色全部取 {@link SRETheme}，面板画法交给 {@link UiSurface}（1px 圆角暗铜描边 + 微圆角），
+ * 与设置中心、编辑器是同一套观感；本类只剩「名单这几个界面自己需要的半透明叠加」。
  */
 final class RoleRosterStyle {
-    // 颜色（与 StarRailExpressTitleScreen 保持一致的暖色调）
-    static final int PANEL_BG = 0x5A1A1008;
-    static final int PANEL_BORDER = 0xAA8B6914;
-    static final int ROW_BG = 0x52120A04;
-    static final int ROW_BG_HOVER = 0x7A1A1008;
-    static final int ROW_BORDER = 0xA020140A;
-    static final int TITLE = 0xE8D8B0;
-    static final int SUBTITLE = 0x9E8B6E;
-    static final int TEXT = 0xE8D5A8;
-    static final int TEXT_HOVER = 0xFFF4DC;
-    static final int ACCENT = 0xC9A84C;
-    static final int ACCENT_HOVER = 0xD4AF37;
-    static final int MUTED = 0xC8B898;
-    static final int ENABLED_GREEN = 0x8FE0A0;
-    static final int DISABLED_RED = 0xE08F8F;
+    // 颜色（黄铜 HUD，见 docs/ui_style.md §2）
+    static final int PANEL_BG = SRETheme.withAlpha(SRETheme.SURFACE_TOP, 0xE6);
+    static final int PANEL_BORDER = SRETheme.BORDER;
+    static final int ROW_BG = SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM, 0x8C);
+    static final int ROW_BG_HOVER = SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM_ALT, 0xE6);
+    static final int ROW_BORDER = SRETheme.CARD_BORDER;
+    static final int TITLE = SRETheme.TITLE;
+    static final int SUBTITLE = SRETheme.MUTED;
+    static final int TEXT = SRETheme.TEXT;
+    static final int TEXT_HOVER = SRETheme.BRASS_BRIGHT;
+    static final int ACCENT = SRETheme.GOLD_DIM;
+    static final int ACCENT_HOVER = SRETheme.GOLD;
+    static final int MUTED = SRETheme.BODY;
+    static final int ENABLED_GREEN = SRETheme.GREEN;
+    static final int DISABLED_RED = SRETheme.RED;
 
     private RoleRosterStyle() {
     }
 
-    /** 暖色渐变背景叠加，铺在原版模糊背景之上。 */
+    /** 全屏底：原版模糊背景之上压一层深灰黑，名单界面照旧能看见身后的场景。 */
     static void renderBackdrop(GuiGraphics g, int width, int height) {
-        g.fillGradient(0, 0, width, height, 0x66000000, 0xAA000010);
-        g.fillGradient(0, height / 4, width, height, 0x00000000, 0x228B6914);
+        g.fillGradient(0, 0, width, height,
+                SRETheme.withAlpha(SRETheme.SURFACE_TOP, 0x66), SRETheme.withAlpha(SRETheme.SURFACE_TOP, 0xB3));
     }
 
-    /** 带四边描边的面板。 */
+    /** 面板：纯色底 + 1px 圆角暗铜描边（唯一实现在 {@link UiSurface}）。 */
     static void drawPanel(GuiGraphics g, int x, int y, int w, int h, int bg, int border) {
-        g.fill(x, y, x + w, y + h, bg);
-        g.fill(x, y, x + w, y + 1, border);
-        g.fill(x, y + h - 1, x + w, y + h, border);
-        g.fill(x, y, x + 1, y + h, border);
-        g.fill(x + w - 1, y, x + w, y + h, border);
+        UiSurface.card(g, x, y, w, h, bg, border);
     }
 
     static float easeOutCubic(float t) {

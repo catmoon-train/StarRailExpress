@@ -28,11 +28,19 @@ public class VoteClientReceiver {
                 if (packet.active()) {
                     if (client.screen instanceof GameModeVoteScreen screen) {
                         screen.updateData(packet);
+                    } else if (client.screen instanceof RolePoolVoteScreen screen) {
+                        screen.updateData(packet);
                     } else if (client.screen instanceof VoteScreen screen) {
                         // 更新屏幕数据
                         screen.updateData(packet);
                     } else if (packet.hasOptions()) {
-                        if (ClientVoteCache.isGameModeVote()) {
+                        if (ClientVoteCache.isRolePoolVote()) {
+                            // 模式投票 → 职业池投票：切换时播放过场
+                            if (client.screen instanceof GameModeVoteScreen) {
+                                VoteFlowTransition.armModeToPool();
+                            }
+                            client.setScreen(new RolePoolVoteScreen());
+                        } else if (ClientVoteCache.isGameModeVote()) {
                             client.setScreen(new GameModeVoteScreen());
                         } else {
                             client.setScreen(new VoteScreen()); // 无参构造
@@ -40,10 +48,13 @@ public class VoteClientReceiver {
                     }
                 } else {
                     // 投票结束，关闭屏幕
-                    if (client.screen instanceof GameModeVoteScreen) {
-                        VoteFlowTransition.armModeToMap();
+                    if (client.screen instanceof RolePoolVoteScreen) {
+                        VoteFlowTransition.armPoolToMap();
                         client.screen.onClose();
                     } else if (client.screen instanceof VoteScreen) {
+                        client.screen.onClose();
+                    } else if (client.screen instanceof GameModeVoteScreen) {
+                        // 后面若是职业池投票，会由上面 role_pool 分支重新装填过场文案
                         client.screen.onClose();
                     }
                 }

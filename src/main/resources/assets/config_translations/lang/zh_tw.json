@@ -1,4 +1,5 @@
 {
+  "text.autoconfig.starrailexpress.option.enableRolePoolVote": "地圖投票前先進行職業池投票",
   "text.autoconfig.starrailexpress.option.pokmen": "啟用方塊寶可夢（服務端）",
   "text.autoconfig.starrailexpress.option.pokmen.@Tooltip": "由伺服器同步給客戶端。關閉時停止寶可夢玩法與新區域生成，並隱藏相關按鍵和介面；原版互動保持正常，已有寶可夢、建築和玩家資料不會被刪除。預設關閉。",
 
@@ -88,6 +89,7 @@
   "text.autoconfig.starrailexpress-client.option.disableCustomTitleScreen": "禁用自定義列車主頁（即使用原版菜單）",
   "text.autoconfig.starrailexpress-client.option.disableCustomLoadingScreen": "禁用自定義遊戲加載介面（即使用原版加載介面）",
   "=== SRE ===": "",
+  "text.autoconfig.starrailexpress.option.rolePoolVoteSelectCount": "職業池投票每人可選數量",
   "text.autoconfig.starrailexpress.title": "StarRailExpress 通用設置",
   "text.autoconfig.starrailexpress.option.logGameEvent": "在控制臺輸出遊戲事件",
   "text.autoconfig.starrailexpress.option.savePlayerBodyItems": "是否允許玩家屍體保存玩家的物品欄資訊",

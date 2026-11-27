@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client.gui.screen;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.client.gui.anim.GuiAnim;
 import io.wifi.starrailexpress.util.ItemSkinManager;
@@ -58,21 +59,21 @@ public class HatSkinGridPanel extends AbstractWidget {
     private static final String HAT_ITEM_NAMESPACE = "hats";
 
     // 复古列车主题色
-    private static final int PANEL_BG = 0x801A1008;
-    private static final int PANEL_BORDER = 0x558B6914;
-    private static final int CARD_BG = 0xB01A1008;
+    private static final int PANEL_BG = SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0x80);
+    private static final int PANEL_BORDER = SRETheme.withAlpha(SRETheme.BORDER, 0x55);
+    private static final int CARD_BG = SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xB0);
     private static final int CARD_BG_HOVER = 0xB02A1A08;
     private static final int CARD_BG_EQUIPPED = 0xB02A2010;
     private static final int CARD_BG_LOCKED = 0xB0140E08;
     private static final int CARD_BORDER_LOCKED = 0xFF3A3020;
     private static final int TEXT_NAME = 0xFFE8C88A;
-    private static final int TEXT_EQUIPPED = 0xFFD4AF37;
-    private static final int TEXT_EQUIP = 0xFFC9A84C;
+    private static final int TEXT_EQUIPPED = SRETheme.GOLD;
+    private static final int TEXT_EQUIP = SRETheme.GOLD_DIM;
     private static final int TEXT_LOCKED = 0xFF5A5340;
-    private static final int TEXT_EMPTY = 0xFF9E8B6E;
-    private static final int SCROLL_TRACK = 0x331A1008;
-    private static final int SCROLL_THUMB = 0xAA8B6914;
-    private static final int SCROLL_THUMB_HL = 0xAAD4AF37;
+    private static final int TEXT_EMPTY = SRETheme.MUTED;
+    private static final int SCROLL_TRACK = SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0x33);
+    private static final int SCROLL_THUMB = SRETheme.withAlpha(SRETheme.BORDER, 0xAA);
+    private static final int SCROLL_THUMB_HL = SRETheme.withAlpha(SRETheme.GOLD, 0xAA);
 
     private final SREPlayerSkinsComponent skinsComponent;
     private final String skinType;
@@ -160,7 +161,7 @@ public class HatSkinGridPanel extends AbstractWidget {
         // SREPlayerSkinsComponent#rollAllRandomSkins）。以前只有列表式
         // SkinSelectionList 有这个条目，网格式的帽子 / 饰品 / 音乐盒 /
         // 随从 / MVP 因此无法选随机，这里补齐，让所有皮肤类型都支持。
-        cards.add(new HatCard(ItemSkinManager.RANDOM_SKIN, null, 0xFFD4AF37, true));
+        cards.add(new HatCard(ItemSkinManager.RANDOM_SKIN, null, SRETheme.GOLD, true));
 
         Map<String, ItemSkinManager.Skin> hatSkins = ItemSkinManager.getSkins(skinType);
         List<Map.Entry<String, ItemSkinManager.Skin>> sorted = new ArrayList<>(hatSkins.entrySet());

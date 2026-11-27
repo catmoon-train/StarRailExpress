@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client.gui.widget;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.client.util.PinYinUtils;
 import io.wifi.starrailexpress.client.util.SafeNames;
 import net.minecraft.client.Minecraft;
@@ -46,8 +47,8 @@ public class ItemGridWidget extends AbstractWidget {
     private static final int CELL = 18;
     private static final int COLOR_GRID_BG = 0x66000000;
     private static final int COLOR_HOVER = 0x33FFFFFF;
-    private static final int COLOR_SELECTION = 0x88D4AF37;
-    private static final int COLOR_BORDER = 0xFF5A4530;
+    private static final int COLOR_SELECTION = SRETheme.withAlpha(SRETheme.GOLD, 0x88);
+    private static final int COLOR_BORDER = SRETheme.CARD_BORDER;
 
     /** 缓存：全量方块表 / 全量物品表都只建一次（注册表在运行期不变）。 */
     private static List<Entry> blockEntries;
@@ -156,7 +157,7 @@ public class ItemGridWidget extends AbstractWidget {
             return;
         }
         graphics.drawString(font, Component.translatable("gui.display_block.item_search.empty"),
-                this.getX() + 4, this.getY() + 4, 0xFF9E8B6E, false);
+                this.getX() + 4, this.getY() + 4, SRETheme.MUTED, false);
     }
 
     private int rowCount() {

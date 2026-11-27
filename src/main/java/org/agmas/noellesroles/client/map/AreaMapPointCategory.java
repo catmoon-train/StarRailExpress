@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.map;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import net.minecraft.network.chat.Component;
 
 import java.util.HashMap;
@@ -36,12 +37,12 @@ public enum AreaMapPointCategory {
     BED(0xFF00FFDC, 4),
     EXERCISE(0xFFFFF200, 5, 22),
     READ(0xFFFF7F27, 6),
-    DOOR(0xFFC9A84C),
+    DOOR(SRETheme.GOLD_DIM),
     TOILET(0xFFFFAEC9, 8),
     CHAIR(0xFF7EFFE4, 9),
     NOTE(0xFF7994FF, 10),
     SHOP(0xFFFF66AA, 11, 12, 23),
-    MINIGAME(0xFFE0AD5B, 14, 15),
+    MINIGAME(SRETheme.AMBER, 14, 15),
     SCENE(0xFFB18AE6, 16, 17, 18, 19, 20, 21),
     BELL(0xFFFFD700, 24);
 

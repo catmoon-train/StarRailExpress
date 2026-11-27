@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.commands.RoleCountManager;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
+import org.agmas.harpymodloader.modded_murder.ForceTeamInfo;
+import org.agmas.harpymodloader.modded_murder.ForceTeamInfo.ForceTeamType;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentPool;
 import org.agmas.noellesroles.role.ModRoles;
@@ -28,6 +30,7 @@ import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.backpack.FactionCardForcing;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import io.wifi.starrailexpress.game.utils.RoleInstance;
@@ -140,11 +143,19 @@ public class SingleSelectDraftState {
             }
         }
 
-        initializeCardTracking();
+        initializeCardTracking(world);
     }
 
     // ---------- 卡片追踪 ----------
-    private void initializeCardTracking() {
+    /**
+     * 同类型阵营卡的使用上限：超出上限的持有者按「不生效」处理，并把卡退回去。
+     *
+     * <p>
+     * 旧实现里 {@code byType} 从没被填过，整支循环是死代码——超限的玩家既没被剔除，也没退卡。
+     * 现在按 {@link PlayerRoleWeightManager#ForcePlayerTeam} 的实际登记分组，退款统一走
+     * {@link FactionCardForcing#refund}。
+     */
+    private void initializeCardTracking(ServerLevel world) {
         cardUsedCount.clear();
         cardMaxPerType.clear();
 
@@ -154,15 +165,34 @@ public class SingleSelectDraftState {
         cardMaxPerType.put(1, limit);
 
         Map<Integer, List<UUID>> byType = new HashMap<>();
+        for (UUID uuid : playerOrder.keySet()) {
+            ForceTeamInfo info = PlayerRoleWeightManager.ForcePlayerTeam.get(uuid);
+            if (info != null) {
+                byType.computeIfAbsent(normalizeCardType(info.roleType()), ignored -> new ArrayList<>()).add(uuid);
+            }
+        }
         for (Map.Entry<Integer, List<UUID>> entry : byType.entrySet()) {
             int type = entry.getKey();
             List<UUID> uuids = entry.getValue();
-            int max = cardMaxPerType.getOrDefault(type, 0);
+            int max = cardMaxPerType.getOrDefault(type, uuids.size());
             cardUsedCount.put(type, Math.min(uuids.size(), max));
             for (int i = max; i < uuids.size(); i++) {
-                PlayerRoleWeightManager.ForcePlayerTeam.remove(uuids.get(i));
+                UUID uid = uuids.get(i);
+                ForceTeamInfo info = PlayerRoleWeightManager.ForcePlayerTeam.remove(uid);
+                if (info == null || info.type() != ForceTeamType.CARD) {
+                    continue;
+                }
+                ServerPlayer sp = world.getServer().getPlayerList().getPlayer(uid);
+                if (sp != null) {
+                    FactionCardForcing.refund(uid, info.roleType(), sp, "message.sre.role_rotation.card_limit");
+                }
             }
         }
+    }
+
+    /** 阵营卡口径的扮演类型：警长（5）按平民卡（1）计。 */
+    private static int normalizeCardType(int rawType) {
+        return rawType == 5 ? 1 : rawType;
     }
 
     // ---------- 玩家顺序 ----------

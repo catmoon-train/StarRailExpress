@@ -79,5 +79,6 @@
     "commands.listroles.no.entries": "No available roles or modifiers!",
     "commands.setrolecount.set": "Set forced refresh count for %s to %s!",
     "commands.setrolecount.reset": "Reset! Refresh will now be based on player count (auto-calculated)!",
-    "commands.setrolecount.auto": "Set forced refresh count for %s to auto-calculated!"
+    "commands.setrolecount.auto": "Set forced refresh count for %s to auto-calculated!",
+    "commands.managerolesui.synced": "Role / modifier toggle state synced"
 }

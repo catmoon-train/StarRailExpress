@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.game.modes.echo.client;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -71,12 +72,12 @@ public final class EchoFacilityMapClient {
     }
     public static int color(EchoMachineView.Type type) {
         return switch (type) {
-            case BEACON, CORE_BEACON -> 0xFF72C17B;
-            case CRYSTAL, ALTAR -> 0xFF5EB7D8;
-            case SUPPLY, BLACK_MARKET -> 0xFFD4AF37;
+            case BEACON, CORE_BEACON -> SRETheme.GREEN;
+            case CRYSTAL, ALTAR -> SRETheme.BLUE;
+            case SUPPLY, BLACK_MARKET -> SRETheme.GOLD;
             case BLACK_NODE, BLACK_DROPOFF -> 0xFFB18AE6;
-            case CORE_CONSOLE, FREE_EXIT -> 0xFFE0AD5B;
-            case EVACUATION_CONSOLE, BROKER_EXIT -> 0xFFE06B65;
+            case CORE_CONSOLE, FREE_EXIT -> SRETheme.AMBER;
+            case EVACUATION_CONSOLE, BROKER_EXIT -> SRETheme.RED;
         };
     }
     public static String symbol(EchoMachineView.Type type) {

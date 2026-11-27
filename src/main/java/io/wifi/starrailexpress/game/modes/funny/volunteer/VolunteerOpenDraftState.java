@@ -21,7 +21,7 @@ import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.ParticipationComponent;
 import io.wifi.starrailexpress.game.modes.funny.rotation.LightningDraftState;
 import io.wifi.starrailexpress.game.utils.RoleInstance;
-import io.wifi.starrailexpress.progression.ProgressionDataManager;
+import io.wifi.starrailexpress.backpack.FactionCardForcing;
 import io.wifi.starrailexpress.progression.ProgressionState.FactionCardType;
 import org.agmas.harpymodloader.Harpymodloader;
 import net.minecraft.ChatFormatting;
@@ -420,13 +420,7 @@ public class VolunteerOpenDraftState {
                 PlayerRoleWeightManager.ForcePlayerTeam.remove(id);
                 ServerPlayer sp = world.getServer().getPlayerList().getPlayer(id);
                 if (sp != null) {
-                    if (cardType != FactionCardType.NONE) {
-                        ProgressionDataManager.addFactionCard(sp, cardType, 1);
-                    }
-                    sp.displayClientMessage(
-                            Component.translatable("message.sre.role_rotation.card_limit")
-                                    .withStyle(ChatFormatting.RED),
-                            true);
+                    FactionCardForcing.refund(id, rawType, sp, "message.sre.role_rotation.card_limit");
                 }
                 continue;
             }

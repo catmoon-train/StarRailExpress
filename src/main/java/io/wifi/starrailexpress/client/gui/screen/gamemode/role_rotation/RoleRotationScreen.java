@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client.gui.screen.gamemode.role_rotation;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -55,17 +56,17 @@ public class RoleRotationScreen extends Screen {
     private static final int CONFIRM_W = 220; // 手动确认按钮宽度
     private static final int CONFIRM_H = 24; // 手动确认按钮高度
 
-    private static final int BG_TOP = 0xF018120A;
-    private static final int BG_BOTTOM = 0xF0061018;
-    private static final int PANEL_BG_TOP = 0xD81A1008;
-    private static final int PANEL_BG_BOTTOM = 0xD80B1722;
-    private static final int BORDER = 0xFF8B6914;
-    private static final int GOLD = 0xFFD4AF37;
-    private static final int TEXT = 0xFFFFF4DC;
-    private static final int MUTED = 0xFF9E8B6E;
-    private static final int BLUE = 0xFF5EB7D8;
-    private static final int GREEN = 0xFF72C17B;
-    private static final int RED = 0xFFE06B65;
+    private static final int BG_TOP = SRETheme.withAlpha(SRETheme.SCREEN_TOP, 0xF0);
+    private static final int BG_BOTTOM = SRETheme.withAlpha(SRETheme.SCREEN_BOTTOM, 0xF0);
+    private static final int PANEL_BG_TOP = SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xD8);
+    private static final int PANEL_BG_BOTTOM = SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM_ALT, 0xD8);
+    private static final int BORDER = SRETheme.BORDER;
+    private static final int GOLD = SRETheme.GOLD;
+    private static final int TEXT = SRETheme.TEXT;
+    private static final int MUTED = SRETheme.MUTED;
+    private static final int BLUE = SRETheme.BLUE;
+    private static final int GREEN = SRETheme.GREEN;
+    private static final int RED = SRETheme.RED;
 
     private int leftX, leftY, leftW, panelH;
     private int rightX, rightY, rightW, cardW, cardY;
@@ -250,7 +251,7 @@ public class RoleRotationScreen extends Screen {
     private void drawPanel(GuiGraphics g, int x, int y, int w, int h) {
         g.fillGradient(x, y, x + w, y + h, PANEL_BG_TOP, PANEL_BG_BOTTOM);
         g.renderOutline(x, y, w, h, BORDER);
-        g.fill(x + 1, y + 1, x + w - 1, y + 2, 0x33FFE8C0);
+        g.fill(x + 1, y + 1, x + w - 1, y + 2, SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x33));
     }
 
     private void drawPlayerList(GuiGraphics g, int mouseX, int mouseY) {
@@ -284,14 +285,14 @@ public class RoleRotationScreen extends Screen {
             }
             // 高亮：该玩家正在本轮选择中
             boolean inThisRound = roundPlayers.contains(uuid);
-            int bg = inThisRound ? 0x552A5A42 : 0x331A1008;
-            int bgBottom = 0x33120A04;
+            int bg = inThisRound ? 0x552A5A42 : SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0x33);
+            int bgBottom = SRETheme.withAlpha(SRETheme.SCROLL_TRACK, 0x33);
             if (rowHover) {
                 bg = 0x553A2E12;
                 bgBottom = 0x44302010;
             }
             g.fillGradient(x, rowY, x + w, rowY + PLAYER_ROW_H - 3, bg, bgBottom);
-            g.renderOutline(x, rowY, w, PLAYER_ROW_H - 3, rowHover ? GOLD : (inThisRound ? GREEN : 0x665A4530));
+            g.renderOutline(x, rowY, w, PLAYER_ROW_H - 3, rowHover ? GOLD : (inThisRound ? GREEN : SRETheme.withAlpha(SRETheme.CARD_BORDER, 0x66)));
             if (rowHover) {
                 g.fill(x, rowY + 1, x + 3, rowY + PLAYER_ROW_H - 3, GOLD);
             }
@@ -319,7 +320,7 @@ public class RoleRotationScreen extends Screen {
             int barH = scrollBarH();
             int thumbH = thumbHeight();
             int thumbY = thumbTopY();
-            g.fill(barX, barY, barX + 3, barY + barH, 0x661A1008);
+            g.fill(barX, barY, barX + 3, barY + barH, SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0x66));
             g.fill(barX, thumbY, barX + 3, thumbY + thumbH, GOLD);
         }
     }
@@ -466,12 +467,12 @@ public class RoleRotationScreen extends Screen {
 
     private void drawRoleCard(GuiGraphics g, int x, int y, int w, int h, int index, List<String> candidates,
             boolean hover, boolean enabled) {
-        int border = hover ? GOLD : 0xFF5A4530;
-        int top = hover ? 0xFF2B2112 : 0xFF1A1008;
-        int bottom = hover ? 0xFF112536 : 0xFF0B1722;
+        int border = hover ? GOLD : SRETheme.CARD_BORDER;
+        int top = hover ? 0xFF2B2112 : SRETheme.SURFACE_TOP_SOFT;
+        int bottom = hover ? 0xFF112536 : SRETheme.SURFACE_BOTTOM_ALT;
         g.fillGradient(x, y, x + w, y + h, top, bottom);
         g.renderOutline(x, y, w, h, border);
-        g.fill(x + 1, y + 1, x + w - 1, y + 3, hover ? GOLD : 0x33FFE8C0);
+        g.fill(x + 1, y + 1, x + w - 1, y + 3, hover ? GOLD : SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x33));
 
         if (index == 3) {
             drawRandomCard(g, x, y, w, h, enabled);
@@ -501,7 +502,7 @@ public class RoleRotationScreen extends Screen {
     }
 
     private void drawRandomCard(GuiGraphics g, int x, int y, int w, int h, boolean enabled) {
-        g.fill(x + 8, y + 14, x + w - 8, y + 34, 0x55D4AF37);
+        g.fill(x + 8, y + 14, x + w - 8, y + 34, SRETheme.withAlpha(SRETheme.GOLD, 0x55));
         g.drawCenteredString(font, Component.translatable("gui.sre.role_rotation.random"), x + w / 2, y + 20, GOLD);
         g.drawCenteredString(font, "?", x + w / 2, y + 49, GOLD);
         Component hint = Component.translatable("gui.sre.role_rotation.click_to_random");
@@ -514,8 +515,8 @@ public class RoleRotationScreen extends Screen {
     }
 
     private void drawDetail(GuiGraphics g, String selectedPath, List<String> candidates) {
-        g.fillGradient(detailX, detailY, detailX + detailW, detailY + detailH, 0xAA1A1008, 0xAA0B1722);
-        g.renderOutline(detailX, detailY, detailW, detailH, 0xFF5A4530);
+        g.fillGradient(detailX, detailY, detailX + detailW, detailY + detailH, SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xAA), SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM_ALT, 0xAA));
+        g.renderOutline(detailX, detailY, detailW, detailH, SRETheme.CARD_BORDER);
 
         SRERole role = null;
         if (hoveredDetailIndex >= 0 && hoveredDetailIndex < 3 && hoveredDetailIndex < candidates.size()) {
@@ -573,9 +574,9 @@ public class RoleRotationScreen extends Screen {
         boolean enabled = SREClientConfig.instance().roleRotationAutoScroll;
         boolean hover = inside(mouseX, mouseY, autoToggleX, autoToggleY, autoToggleW, AUTO_TOGGLE_H);
         g.fillGradient(autoToggleX, autoToggleY, autoToggleX + autoToggleW, autoToggleY + AUTO_TOGGLE_H,
-                hover ? 0x553A2E12 : 0x331A1008, hover ? 0x44112536 : 0x220B1722);
+                hover ? 0x553A2E12 : SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0x33), hover ? 0x44112536 : SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM_ALT, 0x22));
         g.renderOutline(autoToggleX, autoToggleY, autoToggleW, AUTO_TOGGLE_H,
-                hover ? GOLD : (enabled ? 0x665A4530 : 0x443B2F1E));
+                hover ? GOLD : (enabled ? SRETheme.withAlpha(SRETheme.CARD_BORDER, 0x66) : 0x443B2F1E));
         Component label = Component.translatable(enabled
                 ? "gui.sre.role_rotation.auto_scroll_on"
                 : "gui.sre.role_rotation.auto_scroll_off");
@@ -611,11 +612,11 @@ public class RoleRotationScreen extends Screen {
         boolean confirmed = RoleRotationCache.isLocalPlayerConfirmed();
         boolean hover = !confirmed && inside(mouseX, mouseY, confirmX, confirmY, CONFIRM_W, CONFIRM_H);
         g.fillGradient(confirmX, confirmY, confirmX + CONFIRM_W, confirmY + CONFIRM_H,
-                hover ? 0xFF3A2E12 : 0xE01A1008, hover ? 0xFF112536 : 0xE00B1722);
+                hover ? 0xFF3A2E12 : SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xE0), hover ? 0xFF112536 : SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM_ALT, 0xE0));
         g.renderOutline(confirmX, confirmY, CONFIRM_W, CONFIRM_H,
-                hover ? GOLD : (confirmed ? 0x665A4530 : BORDER));
+                hover ? GOLD : (confirmed ? SRETheme.withAlpha(SRETheme.CARD_BORDER, 0x66) : BORDER));
         g.fill(confirmX + 1, confirmY + 1, confirmX + CONFIRM_W - 1, confirmY + 3,
-                hover ? GOLD : 0x33FFE8C0);
+                hover ? GOLD : SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x33));
         Component label = Component.translatable(confirmed
                 ? "gui.sre.role_rotation.confirm_waiting"
                 : "gui.sre.role_rotation.confirm_ready");

@@ -17,6 +17,8 @@ package io.wifi.starrailexpress.client.gui.widget;
 
 import io.wifi.starrailexpress.client.gui.screen.EditorLayout;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapUiGraphics;
+import io.wifi.starrailexpress.client.ui.SRETheme;
+import io.wifi.starrailexpress.client.ui.UiText;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -179,6 +181,13 @@ public class SreButton extends Button {
         super.renderWidget(g, mouseX, mouseY, partialTick);
     }
 
+    /**
+     * 按钮文字：黄铜色 + 黑色硬阴影（扁平主题，见 {@code docs/ui_style.md} §5）。
+     *
+     * <p>
+     * 悬停时提亮到 {@link SRETheme#BRASS_BRIGHT}，不可用时降到 {@link SRETheme#MUTED}；
+     * 底色与描边交给模组替换过的原版按钮贴图，这里不重复画面。
+     */
     @Override
     public void renderString(GuiGraphics g, Font font, int color) {
         Component full = fullText();
@@ -186,8 +195,10 @@ public class SreButton extends Button {
             return;
         }
         String shown = MapUiGraphics.clip(font, full.getString(), textLimit());
-        g.drawCenteredString(font, Component.literal(shown), getX() + getWidth() / 2,
-                getY() + (getHeight() - 8) / 2, color);
+        int textColor = !isActive() ? SRETheme.MUTED
+                : (isHoveredOrFocused() ? SRETheme.BRASS_BRIGHT : SRETheme.TEXT);
+        UiText.drawCentered(g, font, Component.literal(shown), getX() + getWidth() / 2,
+                getY() + (getHeight() - 8) / 2, textColor);
     }
 
     // ══════════════════════════════════════════════════════════════════

@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.screen;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
@@ -174,9 +175,9 @@ public class SpeakerScreen extends Screen {
         g.fillGradient(0, 0, this.width, this.height, SREPanelStyle.SCREEN_BG_TOP, SREPanelStyle.SCREEN_BG_BOTTOM);
         SREPanelStyle.drawPanel(g, panelX, panelY, panelW, panelH);
         SREPanelStyle.drawPanel(g, leftX - 2, panelY + TITLE_H, leftW + 4, panelH - TITLE_H - PAD,
-                0xAA1A1008, 0xAA120A04);
+                SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xAA), SRETheme.withAlpha(SRETheme.SCROLL_TRACK, 0xAA));
         SREPanelStyle.drawPanel(g, rightX - 2, panelY + TITLE_H, rightW + 4, panelH - TITLE_H - PAD,
-                0xAA1A1008, 0xAA0B1722);
+                SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xAA), SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM_ALT, 0xAA));
     }
 
     @Override
@@ -277,7 +278,7 @@ public class SpeakerScreen extends Screen {
         int barY = volumeY;
         int barH = VOLUME_H;
         boolean hover = inside(mouseX, mouseY, volumeX, barY, volumeW, barH);
-        g.fill(volumeX, barY, volumeX + volumeW, barY + barH, 0xFF120A04);
+        g.fill(volumeX, barY, volumeX + volumeW, barY + barH, SRETheme.SCROLL_TRACK);
         g.renderOutline(volumeX, barY, volumeW, barH, hover || draggingVolume ? SREPanelStyle.GOLD : SREPanelStyle.CARD_BORDER);
         int fill = Math.round((volumeW - 2) * (volume / 100.0F));
         if (fill > 0) {

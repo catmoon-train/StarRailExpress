@@ -1,4 +1,5 @@
 {
+  "text.autoconfig.starrailexpress.option.enableRolePoolVote": "地图投票前先进行职业池投票",
   "text.autoconfig.starrailexpress.option.pokmen": "启用方块宝可梦（服务端）",
   "text.autoconfig.starrailexpress.option.pokmen.@Tooltip": "由服务器同步给客户端。关闭时停止宝可梦玩法与新区域生成，并隐藏相关按键和界面；原版交互保持正常，已有宝可梦、建筑和玩家数据不会被删除。默认关闭。",
 
@@ -88,6 +89,7 @@
   "text.autoconfig.starrailexpress-client.option.disableCustomTitleScreen": "禁用自定义列车主页（即使用原版菜单）",
   "text.autoconfig.starrailexpress-client.option.disableCustomLoadingScreen": "禁用自定义游戏加载界面（即使用原版加载界面）",
   "=== SRE ===": "",
+  "text.autoconfig.starrailexpress.option.rolePoolVoteSelectCount": "职业池投票每人可选数量",
   "text.autoconfig.starrailexpress.title": "StarRailExpress 通用设置",
   "text.autoconfig.starrailexpress.option.logGameEvent": "在控制台输出游戏事件",
   "text.autoconfig.starrailexpress.option.savePlayerBodyItems": "是否允许玩家尸体保存玩家的物品栏信息",

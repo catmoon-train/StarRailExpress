@@ -14,6 +14,8 @@
  */
 
 package io.wifi.starrailexpress.client.gui.screen;
+
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapIntroClientCache;
 import io.wifi.starrailexpress.network.MapIntroRequestPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -65,19 +67,19 @@ public class MapIntroduceScreen extends Screen {
     private static final int PANEL_PAD = PAD;
 
     // 颜色方案
-    private static final int TEXT = 0xFFFFF4DC;
-    private static final int MUTED = 0xFF9E8B6E;
-    private static final int PANEL_OUTLINE = 0xFF8B6914;
-    private static final int PANEL_BG_TOP = 0xD81A1008;
-    private static final int PANEL_BG_BOTTOM = 0xD820140A;
-    private static final int PANEL_HIGHLIGHT = 0x22FFE8C0;
-    private static final int CARD_BORDER = 0xFF5A4530;
-    private static final int CARD_BG_LEFT = 0xFF1A1008;
-    private static final int CARD_BG_RIGHT = 0xFF120A04;
+    private static final int TEXT = SRETheme.TEXT;
+    private static final int MUTED = SRETheme.MUTED;
+    private static final int PANEL_OUTLINE = SRETheme.BORDER;
+    private static final int PANEL_BG_TOP = SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xD8);
+    private static final int PANEL_BG_BOTTOM = SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM, 0xD8);
+    private static final int PANEL_HIGHLIGHT = SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x22);
+    private static final int CARD_BORDER = SRETheme.CARD_BORDER;
+    private static final int CARD_BG_LEFT = SRETheme.SURFACE_TOP_SOFT;
+    private static final int CARD_BG_RIGHT = SRETheme.SCROLL_TRACK;
     private static final int CARD_HOVER_GLOW = 0x25FFFFFF;
-    private static final int SCROLL_TRACK = 0xFF1A1008;
-    private static final int SCROLL_THUMB = 0xFF8B6914;
-    private static final int SCROLL_THUMB_HL = 0xFFC9A84C;
+    private static final int SCROLL_TRACK = SRETheme.SURFACE_TOP_SOFT;
+    private static final int SCROLL_THUMB = SRETheme.BORDER;
+    private static final int SCROLL_THUMB_HL = SRETheme.GOLD_DIM;
 
     // ---------- 数据 ----------
     private final List<MapEntry> maps = new ArrayList<>();
@@ -85,9 +87,9 @@ public class MapIntroduceScreen extends Screen {
     private final List<FormattedCharSequence> detailLines = new ArrayList<>();
 
     private static final List<TabInfo> TABS = List.of(
-            new TabInfo(Tab.MAP_PROPERTIES, "map_intro.tab.map_properties", 0xFF5EB7D8),
-            new TabInfo(Tab.SCENE_BLOCKS, "map_intro.tab.scene_blocks", 0xFF72C17B),
-            new TabInfo(Tab.QUEST_BLOCKS, "map_intro.tab.quest_blocks", 0xFFE0AD5B),
+            new TabInfo(Tab.MAP_PROPERTIES, "map_intro.tab.map_properties", SRETheme.BLUE),
+            new TabInfo(Tab.SCENE_BLOCKS, "map_intro.tab.scene_blocks", SRETheme.GREEN),
+            new TabInfo(Tab.QUEST_BLOCKS, "map_intro.tab.quest_blocks", SRETheme.AMBER),
             new TabInfo(Tab.MECHANICS, "map_intro.tab.mechanics", 0xFFB18AE6));
 
     // ---------- 界面状态 ----------
@@ -197,12 +199,12 @@ public class MapIntroduceScreen extends Screen {
         boolean hovered = inside(mouseX, mouseY, labelX - 2, boxY - 3, labelW + boxSize + 8, boxSize + 6);
 
         g.fill(boxX, boxY, boxX + boxSize, boxY + boxSize, 0xC0100A06);
-        g.renderOutline(boxX, boxY, boxSize, boxSize, hovered ? 0xFFF5E8C8 : 0xFF8B6914);
+        g.renderOutline(boxX, boxY, boxSize, boxSize, hovered ? SRETheme.TITLE : SRETheme.BORDER);
         if (checked) {
             g.fill(boxX + 2, boxY + 2, boxX + boxSize - 2, boxY + boxSize - 2, 0xFF3AF07A);
         }
         g.drawString(font, Component.translatable("map_intro.show_all_maps"), labelX, boxY + 1,
-                hovered ? 0xFFF5E8C8 : MUTED, false);
+                hovered ? SRETheme.TITLE : MUTED, false);
     }
 
     private boolean handleShowAllToggleClick(double mx, double my) {
@@ -390,12 +392,12 @@ public class MapIntroduceScreen extends Screen {
         float slideY = openSlideY();
         int localMouseY = Math.round(mouseY - slideY);
 
-        graphics.fillGradient(0, 0, width, height, 0xF018120A, 0xF0061018);
+        graphics.fillGradient(0, 0, width, height, SRETheme.withAlpha(SRETheme.SCREEN_TOP, 0xF0), SRETheme.withAlpha(SRETheme.SCREEN_BOTTOM, 0xF0));
         graphics.pose().pushPose();
         graphics.pose().translate(0.0f, slideY, 0.0f);
         super.render(graphics, mouseX, localMouseY, delta);
         graphics.fillGradient(0, 0, width, panelY - 4, 0xBB000000, 0x00000000);
-        graphics.drawCenteredString(font, title, width / 2, 8, 0xF5E8C8);
+        graphics.drawCenteredString(font, title, width / 2, 8, SRETheme.TITLE);
 
         if (intro > 0.08f) {
             renderCategoryBar(graphics, mouseX, localMouseY);
@@ -439,7 +441,7 @@ public class MapIntroduceScreen extends Screen {
 
             if (active) {
                 g.fillGradient(curX, categoryBarY, curX + tw, categoryBarY + CATEGORY_BAR_H,
-                        blendColors(0xFF1A1008, baseColor, 0.55f), blendColors(0xFF120A04, baseColor, 0.30f));
+                        blendColors(SRETheme.SURFACE_TOP_SOFT, baseColor, 0.55f), blendColors(SRETheme.SCROLL_TRACK, baseColor, 0.30f));
                 g.fill(curX, categoryBarY + CATEGORY_BAR_H - 2, curX + tw, categoryBarY + CATEGORY_BAR_H, baseColor);
                 g.fill(curX, categoryBarY, curX + 1, categoryBarY + CATEGORY_BAR_H,
                         (baseColor & 0x00FFFFFF) | 0xAA000000);
@@ -447,11 +449,11 @@ public class MapIntroduceScreen extends Screen {
                         (baseColor & 0x00FFFFFF) | 0xAA000000);
             } else if (hovered) {
                 g.fillGradient(curX, categoryBarY, curX + tw, categoryBarY + CATEGORY_BAR_H,
-                        blendColors(0xFF1A1008, baseColor, 0.25f), blendColors(0xFF120A04, baseColor, 0.12f));
+                        blendColors(SRETheme.SURFACE_TOP_SOFT, baseColor, 0.25f), blendColors(SRETheme.SCROLL_TRACK, baseColor, 0.12f));
                 g.renderOutline(curX, categoryBarY, tw, CATEGORY_BAR_H, (baseColor & 0x00FFFFFF) | 0x44000000);
             } else {
-                g.fill(curX, categoryBarY, curX + tw, categoryBarY + CATEGORY_BAR_H, 0x331A1008);
-                g.renderOutline(curX, categoryBarY, tw, CATEGORY_BAR_H, 0x338B6914);
+                g.fill(curX, categoryBarY, curX + tw, categoryBarY + CATEGORY_BAR_H, SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0x33));
+                g.renderOutline(curX, categoryBarY, tw, CATEGORY_BAR_H, SRETheme.withAlpha(SRETheme.BORDER, 0x33));
             }
 
             String label = Component.translatable(TABS.get(i).labelKey).getString();
@@ -488,13 +490,13 @@ public class MapIntroduceScreen extends Screen {
 
     private void renderCard(GuiGraphics g, Entry entry, int x, int y, int w, int h, boolean active, boolean hovered) {
         int rawColor = getEntryColor(entry);
-        int borderColor = active ? 0xFFD4AF37 : (hovered ? blendColors(CARD_BORDER, 0xFFC9A84C, 0.5f) : CARD_BORDER);
+        int borderColor = active ? SRETheme.GOLD : (hovered ? blendColors(CARD_BORDER, SRETheme.GOLD_DIM, 0.5f) : CARD_BORDER);
         g.fill(x, y, x + w, y + h, borderColor);
 
         int bgL = active ? 0xFF5A4520 : (hovered ? blendColors(CARD_BG_LEFT, 0xFF5A4520, 0.6f) : CARD_BG_LEFT);
         int bgR = active ? 0xFF3A2A10 : (hovered ? blendColors(CARD_BG_RIGHT, 0xFF3A2A10, 0.6f) : CARD_BG_RIGHT);
         g.fillGradient(x + 1, y + 1, x + w - 1, y + h - 1, bgL, bgR);
-        g.fill(x + 1, y + 1, x + w - 1, y + 2, active ? 0x44FFE8C0 : (hovered ? CARD_HOVER_GLOW : 0x10FFFFFF));
+        g.fill(x + 1, y + 1, x + w - 1, y + 2, active ? SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x44) : (hovered ? CARD_HOVER_GLOW : 0x10FFFFFF));
 
         // 左侧竖线
         int barW = 3;
@@ -504,7 +506,7 @@ public class MapIntroduceScreen extends Screen {
         int iconX = x + 1 + barW + 5;
         int iconY = y + (h - ICON_SIZE) / 2;
         g.fill(iconX, iconY, iconX + ICON_SIZE, iconY + ICON_SIZE,
-                blendColors(0xFF120A04, rawColor | 0xFF000000, 0.25f));
+                blendColors(SRETheme.SCROLL_TRACK, rawColor | 0xFF000000, 0.25f));
         if (entry.item != null) {
             g.renderItem(new ItemStack(entry.item), iconX + 5, iconY + 5);
         } else {
@@ -521,7 +523,7 @@ public class MapIntroduceScreen extends Screen {
         String name = entry.name.getString();
         String id = entry.id;
         g.drawString(font, font.plainSubstrByWidth(name, textMaxW), textX, y + 5,
-                active ? 0xFFD4AF37 : (hovered ? TEXT : 0xFFE8D8B0), false);
+                active ? SRETheme.GOLD : (hovered ? TEXT : 0xFFE8D8B0), false);
         g.drawString(font, font.plainSubstrByWidth(id, textMaxW), textX, y + 5 + font.lineHeight + 1,
                 MUTED, false);
 
@@ -533,12 +535,12 @@ public class MapIntroduceScreen extends Screen {
 
     private int getEntryColor(Entry entry) {
         if (entry.map != null)
-            return 0xFF5EB7D8; // 地图蓝
+            return SRETheme.BLUE; // 地图蓝
         if (entry.item != null) {
             return switch (currentTab) {
-                case SCENE_BLOCKS -> 0xFF72C17B;
-                case QUEST_BLOCKS -> 0xFFE0AD5B;
-                default -> 0xFF9E8B6E;
+                case SCENE_BLOCKS -> SRETheme.GREEN;
+                case QUEST_BLOCKS -> SRETheme.AMBER;
+                default -> SRETheme.MUTED;
             };
         }
         return 0xFFB18AE6; // 机制紫
@@ -559,7 +561,7 @@ public class MapIntroduceScreen extends Screen {
             int iconSize = BANNER_H - 6;
             int iconX = rightX + PANEL_PAD, iconY = panelY + 3;
             g.fill(iconX, iconY, iconX + iconSize, iconY + iconSize,
-                    blendColors(0xFF120A04, rawColor | 0xFF000000, 0.3f));
+                    blendColors(SRETheme.SCROLL_TRACK, rawColor | 0xFF000000, 0.3f));
             Item iconItem = selected.item != null ? selected.item
                     : (selected.map != null ? Items.FILLED_MAP : Items.BOOK);
             g.renderItem(new ItemStack(iconItem), iconX + (iconSize - 16) / 2, iconY + (iconSize - 16) / 2);
@@ -595,7 +597,7 @@ public class MapIntroduceScreen extends Screen {
     private void renderVScrollbar(GuiGraphics g, int x, int y, int h, int scroll, int maxScroll, int totalContentH,
             int mouseX, int mouseY, boolean dragging) {
         g.fill(x, y, x + SCROLL_W, y + h, SCROLL_TRACK);
-        g.fill(x + 1, y + 1, x + SCROLL_W - 1, y + h - 1, 0x558B6914);
+        g.fill(x + 1, y + 1, x + SCROLL_W - 1, y + h - 1, SRETheme.withAlpha(SRETheme.BORDER, 0x55));
         if (maxScroll <= 0)
             return;
         float ratio = Math.min(1f, (float) h / Math.max(1, totalContentH));
@@ -603,7 +605,7 @@ public class MapIntroduceScreen extends Screen {
         int thumbY = y + (int) ((h - thumbH) * ((float) scroll / maxScroll));
         boolean hl = dragging || inside(mouseX, mouseY, x, thumbY, SCROLL_W, thumbH);
         g.fill(x, thumbY, x + SCROLL_W, thumbY + thumbH, hl ? SCROLL_THUMB_HL : SCROLL_THUMB);
-        g.fill(x + 1, thumbY + 1, x + SCROLL_W - 1, thumbY + thumbH - 1, hl ? 0xFFD4AF37 : 0xFFB8960C);
+        g.fill(x + 1, thumbY + 1, x + SCROLL_W - 1, thumbY + thumbH - 1, hl ? SRETheme.GOLD : 0xFFB8960C);
         g.fill(x + 1, thumbY + 1, x + SCROLL_W - 1, thumbY + 3, 0x44FFFFFF);
     }
 

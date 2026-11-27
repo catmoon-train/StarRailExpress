@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.game.modes.echo.client;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import io.wifi.starrailexpress.event.client.OnRenderRoleName;
@@ -91,7 +92,7 @@ public final class EchoSceneClient {
             var data=EchoBagClient.data();
             if(!echoObserver(self,data) || target==null || target.isSpectator()) return TrueFalseAndCustomResult.pass();
             boolean masked=data.signals().stream().anyMatch(s -> (s.kind().equals("mask") || s.kind().equals("ally")) && target.getUUID().equals(s.target()) && data.projectedTick()<s.until());
-            int color=masked?switch(data.faction()) { case CARRIER -> 0x68BA87; case INTERCEPTOR -> 0xDC6B65; case BROKER -> 0xD4AF37; }:0xE8DCC5;
+            int color=masked?switch(data.faction()) { case CARRIER -> 0x68BA87; case INTERCEPTOR -> 0xDC6B65; case BROKER -> SRETheme.GOLD; }:0xE8DCC5;
             return TrueFalseAndCustomResult.custom(target.getDisplayName().copy().withStyle(style -> style.withColor(color)));
         });
         OnRenderRoleName.RenderPlayerNameInterface hide=(self,target,context,delta,font) -> echoObserver(self,EchoBagClient.data())?TrueFalseAndCustomResult.disallow():TrueFalseAndCustomResult.pass();

@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
@@ -50,7 +51,7 @@ public final class MediumHud {
                                 answer.translatable());
                         drawY -= client.font.wordWrapHeight(last, 999999);
                         context.drawString(client.font, last,
-                                context.guiWidth() - client.font.width(last), drawY, 0xFFD4AF37);
+                                context.guiWidth() - client.font.width(last), drawY, SRETheme.GOLD);
                     }
                 }
             } else {

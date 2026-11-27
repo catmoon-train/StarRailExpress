@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client.roulette;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import net.exmo.sre.camera.client.AdvancedCameraDirector;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -12,7 +13,7 @@ import org.agmas.noellesroles.game.minigame.roulette.*;
 
 /** 屏幕下部仅保留对局核心信息，详细规则与道具说明通过桌面帮助查看。 */
 final class RouletteHud {
-    static final int TEXT=0xFFFFF4DC, GOLD=0xFFD4AF37, MUTED=0xFF9E8B6E, RED=0xFFE06B65, BLUE=0xFF5EB7D8;
+    static final int TEXT=SRETheme.TEXT, GOLD=SRETheme.GOLD, MUTED=SRETheme.MUTED, RED=SRETheme.RED, BLUE=SRETheme.BLUE;
     private RouletteHud() {}
 
     static void render(GuiGraphics g, DeltaTracker tracker) {
@@ -34,8 +35,8 @@ final class RouletteHud {
         var box=RouletteHudLayout.bottom(g.guiWidth(),g.guiHeight(),(myTurn?1:0)+(secret==null?0:1)+(hasStatus?1:0));
         int x=box.x(), y=box.y(), w=box.width();
         if (w<100) return;
-        g.fillGradient(x,y,x+w,y+box.height(),0xB01A1008,0xB00E0905);
-        g.renderOutline(x,y,w,box.height(),0xAA8B6914);
+        g.fillGradient(x,y,x+w,y+box.height(),SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xB0),0xB00E0905);
+        g.renderOutline(x,y,w,box.height(),SRETheme.withAlpha(SRETheme.BORDER, 0xAA));
         Component phase=v.phase()==RoulettePhase.READY
                 ? Component.translatable(myTurn?"roulette.hud.your_turn":"roulette.hud.other_turn")
                 : Component.translatable(v.phase().titleKey());
@@ -94,9 +95,9 @@ final class RouletteHud {
     }
 
     static void panel(GuiGraphics g,int x,int y,int w,int h) {
-        g.fillGradient(x,y,x+w,y+h,0xD81A1008,0xD820140A);
-        g.renderOutline(x,y,w,h,0xFF8B6914);
-        g.fill(x+1,y+1,x+w-1,y+2,0x33FFE8C0);
+        g.fillGradient(x,y,x+w,y+h,SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xD8),SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM, 0xD8));
+        g.renderOutline(x,y,w,h,SRETheme.BORDER);
+        g.fill(x+1,y+1,x+w-1,y+2,SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x33));
     }
 
     static void fitted(GuiGraphics g,Component text,int x,int y,int width,int color) {

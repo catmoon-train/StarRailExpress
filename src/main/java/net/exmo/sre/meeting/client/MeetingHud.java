@@ -15,6 +15,7 @@
 
 package net.exmo.sre.meeting.client;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import net.exmo.sre.meeting.MeetingManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -42,15 +43,15 @@ import java.util.UUID;
 @Environment(EnvType.CLIENT)
 public final class MeetingHud {
 
-    private static final int PANEL_TOP = 0xD81A1008;
-    private static final int PANEL_BOTTOM = 0xD820140A;
-    private static final int BORDER = 0xFF8B6914;
-    private static final int DECO = 0x33FFE8C0;
-    private static final int GOLD = 0xFFD4AF37;
-    private static final int TEXT = 0xFFFFF4DC;
-    private static final int MUTED = 0xFF9E8B6E;
-    private static final int RED = 0xFFE06B65;
-    private static final int GREEN = 0xFF72C17B;
+    private static final int PANEL_TOP = SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xD8);
+    private static final int PANEL_BOTTOM = SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM, 0xD8);
+    private static final int BORDER = SRETheme.BORDER;
+    private static final int DECO = SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x33);
+    private static final int GOLD = SRETheme.GOLD;
+    private static final int TEXT = SRETheme.TEXT;
+    private static final int MUTED = SRETheme.MUTED;
+    private static final int RED = SRETheme.RED;
+    private static final int GREEN = SRETheme.GREEN;
 
     private static final long INTRO_TITLE_MS = 650;
     private static final long FADE_OUT_MS = 400;
@@ -98,8 +99,8 @@ public final class MeetingHud {
         g.fillGradient(0, 0, w, barH, 0xF0100A05, 0xC0100A05);
         g.fillGradient(0, h - barH, w, h, 0xC0100A05, 0xF0100A05);
         if (barH > 2) {
-            g.fill(0, barH - 1, w, barH, 0x66D4AF37);
-            g.fill(0, h - barH, w, h - barH + 1, 0x66D4AF37);
+            g.fill(0, barH - 1, w, barH, SRETheme.withAlpha(SRETheme.GOLD, 0x66));
+            g.fill(0, h - barH, w, h - barH + 1, SRETheme.withAlpha(SRETheme.GOLD, 0x66));
         }
 
         boolean bodyFound = !MeetingClientHandler.victimName.isEmpty();
@@ -139,7 +140,7 @@ public final class MeetingHud {
             int lineHalf = (int) (w * 0.18F * lineT);
             int ly = (int) (h * 0.36F) + 18;
             g.fill(w / 2 - lineHalf, ly, w / 2 + lineHalf, ly + 1, GOLD);
-            g.fill(w / 2 - lineHalf / 2, ly + 3, w / 2 + lineHalf / 2, ly + 4, 0x88D4AF37);
+            g.fill(w / 2 - lineHalf / 2, ly + 3, w / 2 + lineHalf / 2, ly + 4, SRETheme.withAlpha(SRETheme.GOLD, 0x88));
         }
 
         // 副标题渐显

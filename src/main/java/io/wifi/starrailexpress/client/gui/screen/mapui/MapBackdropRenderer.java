@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client.gui.screen.mapui;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
@@ -54,8 +55,8 @@ public final class MapBackdropRenderer {
     /** 没有专用全屏背景时退回到缩略图。 */
     private static final String THUMBNAIL_PATH = "textures/gui/maps/%s.png";
 
-    private static final int ACCENT = 0xFF8B6914;
-    private static final int ACCENT_BRIGHT = 0xFFC9A84C;
+    private static final int ACCENT = SRETheme.BORDER;
+    private static final int ACCENT_BRIGHT = SRETheme.GOLD_DIM;
     private static final int VEIL = 0x05070B;
 
     // 全屏背景：按地图 id 解析并缓存（含"没有图"这个结果），切换时交叉淡入

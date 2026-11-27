@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
@@ -36,13 +37,13 @@ public final class SteveMaterialsHud {
             }
             int x = Math.max(8, graphics.guiWidth() - width - 8);
             int y = client.player.getActiveEffects().stream().anyMatch(MobEffectInstance::showIcon) ? 56 : 8;
-            graphics.fill(x, y, x + width, y + 24 + materials.length * 18, 0xC81A1008);
-            graphics.fill(x, y, x + width, y + 1, 0xFFD4AF37);
-            graphics.drawString(client.font, title, x + 8, y + 7, 0xFFD4AF37);
+            graphics.fill(x, y, x + width, y + 24 + materials.length * 18, SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xC8));
+            graphics.fill(x, y, x + width, y + 1, SRETheme.GOLD);
+            graphics.drawString(client.font, title, x + 8, y + 7, SRETheme.GOLD);
             for (int i = 0; i < materials.length; i++) {
                 int rowY = y + 22 + i * 18;
                 graphics.renderItem(icons[i], x + 7, rowY);
-                graphics.drawString(client.font, rows[i], x + 28, rowY + 4, 0xFFFFF4DC);
+                graphics.drawString(client.font, rows[i], x + 28, rowY + 4, SRETheme.TEXT);
             }
         });
     }

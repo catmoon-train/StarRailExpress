@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client.gui.screen;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.client.gui.HintText;
 import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapUiGraphics;
@@ -1271,7 +1272,7 @@ public abstract class CustomEditorScreen extends Screen {
             }
             if (contains) {
                 int y = row.y - textOffset;
-                g.fill(layout.contentX(), y - 1, layout.contentRight(), y + row.height - 2, 0x14D4AF37);
+                g.fill(layout.contentX(), y - 1, layout.contentRight(), y + row.height - 2, SRETheme.withAlpha(SRETheme.GOLD, 0x14));
                 return;
             }
         }
@@ -1303,7 +1304,7 @@ public abstract class CustomEditorScreen extends Screen {
 
         // 边框 + 占位棋盘：没配材质时也能看清预览的位置
         g.fill(x - 2, y - 2, x + size + 2, y + size + 2, SREPanelStyle.BORDER);
-        g.fill(x, y, x + size, y + size, 0xFF120A04);
+        g.fill(x, y, x + size, y + size, SRETheme.SCROLL_TRACK);
         int cell = Math.max(4, size / 7);
         for (int cy = 0; cy * cell < size; cy++) {
             for (int cx = 0; cx * cell < size; cx++) {

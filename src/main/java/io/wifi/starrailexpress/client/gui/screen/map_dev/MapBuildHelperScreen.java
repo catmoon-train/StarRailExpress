@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client.gui.screen.map_dev;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.scenery.client.SceneAssetClient;
 import io.wifi.starrailexpress.client.api.InvNoMoveScreen;
 import io.wifi.starrailexpress.client.gui.SREPanelStyle;
@@ -472,7 +473,7 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext, InvNo
 
         // 深棕渐变 + 棕褐描边 + 顶部装饰线（docs/ui_style.md 第 3 节；面板本身保持不透明以便读文字）
         SREPanelStyle.drawPanel(g, layout.panelX(), layout.panelY(), layout.panelW(), layout.panelH(),
-                0xF018120A, 0xF0061018);
+                SRETheme.withAlpha(SRETheme.SCREEN_TOP, 0xF0), SRETheme.withAlpha(SRETheme.SCREEN_BOTTOM, 0xF0));
         drawHeader(g);
 
         // 1. 固定控件（头部偏移行 + 页签栏 + 模块自己的头部行）

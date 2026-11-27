@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.map;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -60,19 +61,19 @@ public final class AreaMapHud {
         int size = echo ? rect.width() : SIZE;
         int x = g.guiWidth() - size - 8;
         int y = echo ? rect.y() : (g.guiHeight() - size) / 2;
-        g.fillGradient(x - 3, y - 3, x + size + 3, y + size + 3, 0xD81A1008, 0xD820140A);
-        g.renderOutline(x - 3, y - 3, size + 6, size + 6, 0xFF8B6914);
-        g.fill(x - 2, y - 2, x + size + 2, y - 1, 0x33FFE8C0);
+        g.fillGradient(x - 3, y - 3, x + size + 3, y + size + 3, SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xD8), SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM, 0xD8));
+        g.renderOutline(x - 3, y - 3, size + 6, size + 6, SRETheme.BORDER);
+        g.fill(x - 2, y - 2, x + size + 2, y - 1, SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x33));
         g.fill(x, y, x + size, y + size, 0xFF141B21);
         if (echo) {
             var hint = EchoFacilityMapClient.tr("open_hint", io.wifi.starrailexpress.client.InputHandler.getOpenVotingScreenKeybind().getTranslatedKeyMessage());
             g.enableScissor(x - 3, y + size + 4, x + size + 4, y + size + 15);
-            g.drawCenteredString(mc.font, hint, x + size / 2, y + size + 5, 0xFFD4AF37);
+            g.drawCenteredString(mc.font, hint, x + size / 2, y + size + 5, SRETheme.GOLD);
             g.disableScissor();
         }
         if (!AreaMapManager.hasData()) {
             Component text = Component.translatable("gui.noellesroles.area_map.scanning");
-            g.drawCenteredString(mc.font, text, x + size / 2, y + size / 2 - 4, 0xFF9E8B6E);
+            g.drawCenteredString(mc.font, text, x + size / 2, y + size / 2 - 4, SRETheme.MUTED);
             return;
         }
         int step = AreaMapManager.getStep();
@@ -114,7 +115,7 @@ public final class AreaMapHud {
         int nx = cx + (int) Math.round(-Math.sin(yawRad) * 4), ny = cy + (int) Math.round(Math.cos(yawRad) * 4);
         g.fill(nx - 1, ny - 1, nx + 1, ny + 1, 0xFFFFD700);
         g.disableScissor();
-        g.drawCenteredString(mc.font, echo ? EchoFacilityMapClient.tr("north") : Component.literal("N"), x + size / 2, y + 1, 0xFFD4AF37);
+        g.drawCenteredString(mc.font, echo ? EchoFacilityMapClient.tr("north") : Component.literal("N"), x + size / 2, y + 1, SRETheme.GOLD);
     }
 
     private static void drawPoint(FakeGuiGraphics g, int x, int y, double pcx, double pcz,

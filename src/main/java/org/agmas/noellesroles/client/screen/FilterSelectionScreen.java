@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.screen;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import io.wifi.starrailexpress.client.util.PinYinUtils;
 import net.minecraft.client.KeyMapping;
@@ -395,13 +396,13 @@ public class FilterSelectionScreen extends Screen {
         super.render(g, mouseX, mouseY, partialTick);
 
         int titleY = panelY + 4;
-        g.drawCenteredString(font, titleComp, width / 2, titleY, 0xF5E8C8);
+        g.drawCenteredString(font, titleComp, width / 2, titleY, SRETheme.TITLE);
 
         int subX = panelX + PANEL_PAD + 4;
         int subY = titleY + TITLE_HEIGHT + SUBTITLE_TOP_OFFSET;
         int subMaxW = usableWidth - PANEL_PAD * 2 - 8;
         for (FormattedCharSequence line : font.split(subtitleComp, subMaxW)) {
-            g.drawString(font, line, subX, subY, 0x9E8B6E);
+            g.drawString(font, line, subX, subY, SRETheme.MUTED);
             subY += font.lineHeight + 2;
         }
 
@@ -446,13 +447,13 @@ public class FilterSelectionScreen extends Screen {
         else if (hovered)
             bgColor = 0xFF2A2A15;
         else
-            bgColor = 0xFF1A1008;
+            bgColor = SRETheme.SURFACE_TOP_SOFT;
 
         g.fill(listX, y, listX + listW, y + ROW_HEIGHT, bgColor);
-        g.fill(listX, y + ROW_HEIGHT - 1, listX + listW, y + ROW_HEIGHT, 0x228B6914);
+        g.fill(listX, y + ROW_HEIGHT - 1, listX + listW, y + ROW_HEIGHT, SRETheme.withAlpha(SRETheme.BORDER, 0x22));
 
         if (highlighted || hovered) {
-            g.renderOutline(listX, y, listW, ROW_HEIGHT, excluded ? 0xCCE06B65 : 0xCCD4AF37);
+            g.renderOutline(listX, y, listW, ROW_HEIGHT, excluded ? SRETheme.withAlpha(SRETheme.RED, 0xCC) : SRETheme.withAlpha(SRETheme.GOLD, 0xCC));
         }
 
         int checkX = listX + 4;
@@ -467,9 +468,9 @@ public class FilterSelectionScreen extends Screen {
         if (excluded)
             textColor = hovered ? 0xFFFFC8C0 : 0xFFE08B80;
         else if (selected)
-            textColor = 0xFFF5E8C8;
+            textColor = SRETheme.TITLE;
         else if (highlighted || hovered)
-            textColor = 0xFFFFF4DC;
+            textColor = SRETheme.TEXT;
         else
             textColor = 0xFFC8B78A;
         g.drawString(font, display, textX, y + (ROW_HEIGHT - font.lineHeight) / 2, textColor);
@@ -480,14 +481,14 @@ public class FilterSelectionScreen extends Screen {
         g.fill(x, y, x + size, y + size, 0xFF2A1A0A);
         if (excluded) {
             g.drawCenteredString(font, Component.literal("✕"), x + size / 2, y + size / 2 - font.lineHeight / 2,
-                    0xFFE06B65);
-            g.renderOutline(x, y, size, size, 0xFFE06B65);
+                    SRETheme.RED);
+            g.renderOutline(x, y, size, size, SRETheme.RED);
         } else if (checked) {
             g.drawCenteredString(font, Component.literal("✔"), x + size / 2, y + size / 2 - font.lineHeight / 2,
                     0xFFB8960C);
             g.renderOutline(x, y, size, size, 0xFFB8960C);
         } else {
-            g.renderOutline(x, y, size, size, 0xFF8B6914);
+            g.renderOutline(x, y, size, size, SRETheme.BORDER);
         }
     }
 
@@ -575,16 +576,16 @@ public class FilterSelectionScreen extends Screen {
     }
 
     private void drawPanelBg(GuiGraphics g, int x, int y, int w, int h) {
-        g.fillGradient(x, y, x + w, y + h, 0xD81A1008, 0xD820140A);
-        g.renderOutline(x, y, w, h, 0xFF8B6914);
-        g.fill(x + 1, y + 1, x + w - 1, y + 2, 0x22FFE8C0);
+        g.fillGradient(x, y, x + w, y + h, SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xD8), SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM, 0xD8));
+        g.renderOutline(x, y, w, h, SRETheme.BORDER);
+        g.fill(x + 1, y + 1, x + w - 1, y + 2, SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x22));
     }
 
     private void renderVScrollbar(GuiGraphics g, int x, int y, int h,
             int scroll, int maxScroll, int totalContentH,
             int mouseX, int mouseY, boolean dragging) {
-        g.fill(x, y, x + SCROLL_W, y + h, 0xFF1A1008);
-        g.fill(x + 1, y + 1, x + SCROLL_W - 1, y + h - 1, 0x558B6914);
+        g.fill(x, y, x + SCROLL_W, y + h, SRETheme.SURFACE_TOP_SOFT);
+        g.fill(x + 1, y + 1, x + SCROLL_W - 1, y + h - 1, SRETheme.withAlpha(SRETheme.BORDER, 0x55));
         if (maxScroll <= 0)
             return;
 
@@ -593,8 +594,8 @@ public class FilterSelectionScreen extends Screen {
         int thumbY = y + (int) ((h - thumbH) * ((float) scroll / maxScroll));
         boolean hl = dragging || isInRect(mouseX, mouseY, x, thumbY, SCROLL_W, thumbH);
 
-        g.fill(x, thumbY, x + SCROLL_W, thumbY + thumbH, hl ? 0xFFC9A84C : 0xFF8B6914);
-        g.fill(x + 1, thumbY + 1, x + SCROLL_W - 1, thumbY + thumbH - 1, hl ? 0xFFD4AF37 : 0xFFB8960C);
+        g.fill(x, thumbY, x + SCROLL_W, thumbY + thumbH, hl ? SRETheme.GOLD_DIM : SRETheme.BORDER);
+        g.fill(x + 1, thumbY + 1, x + SCROLL_W - 1, thumbY + thumbH - 1, hl ? SRETheme.GOLD : 0xFFB8960C);
         g.fill(x + 1, thumbY + 1, x + SCROLL_W - 1, thumbY + 3, 0x44FFFFFF);
     }
 
@@ -612,13 +613,13 @@ public class FilterSelectionScreen extends Screen {
         public void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
             boolean hovered = active && isMouseOver(mouseX, mouseY);
             boolean focused = isFocused();
-            int bg = active ? (hovered ? 0xFF5A4520 : (focused ? 0xFF4A3A20 : 0xFF3A2A10)) : 0xFF1A1008;
-            int textColor = active ? (hovered ? 0xFFFFF4DC : (focused ? 0xFFFFF4DC : 0xFFC8B78A)) : 0x666666;
+            int bg = active ? (hovered ? 0xFF5A4520 : (focused ? 0xFF4A3A20 : 0xFF3A2A10)) : SRETheme.SURFACE_TOP_SOFT;
+            int textColor = active ? (hovered ? SRETheme.TEXT : (focused ? SRETheme.TEXT : 0xFFC8B78A)) : 0x666666;
             g.fill(getX(), getY(), getX() + width, getY() + height, bg);
             if (focused) {
-                g.renderOutline(getX(), getY(), width, height, 0xCCD4AF37);
+                g.renderOutline(getX(), getY(), width, height, SRETheme.withAlpha(SRETheme.GOLD, 0xCC));
             } else {
-                g.renderOutline(getX(), getY(), width, height, active ? 0xFF8B6914 : 0xFF5A4530);
+                g.renderOutline(getX(), getY(), width, height, active ? SRETheme.BORDER : SRETheme.CARD_BORDER);
             }
             g.drawCenteredString(font, getMessage(), getX() + width / 2, getY() + (height - font.lineHeight) / 2,
                     textColor);

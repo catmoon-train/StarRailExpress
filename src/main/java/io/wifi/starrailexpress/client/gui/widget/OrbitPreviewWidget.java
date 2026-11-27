@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client.gui.widget;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
@@ -85,13 +86,13 @@ public class OrbitPreviewWidget extends AbstractWidget {
     private static final float LABEL_Z = 300.0F;
 
     private static final int COLOR_BACKDROP = 0x66000000;
-    private static final int COLOR_BORDER = 0xFF5A4530;
+    private static final int COLOR_BORDER = SRETheme.CARD_BORDER;
     private static final int COLOR_GROUND = 0x33FFFFFF;
     private static final int COLOR_GROUND_EDGE = 0x77FFFFFF;
     private static final int COLOR_AXIS_X = 0xFFFF5555;
     private static final int COLOR_AXIS_Y = 0xFF55FF55;
     private static final int COLOR_AXIS_Z = 0xFF5555FF;
-    private static final int COLOR_HINT = 0xFF9E8B6E;
+    private static final int COLOR_HINT = SRETheme.MUTED;
 
     /** 长方体 6 个面，用角点索引（bit0=x, bit1=y, bit2=z）表示；无剔面所以只要求围成环。 */
     private static final int[][] BOX_FACES = {

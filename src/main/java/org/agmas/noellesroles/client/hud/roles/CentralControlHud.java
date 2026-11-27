@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.game.roles.innocence.central_control.CentralControlRole;
@@ -36,12 +37,12 @@ import net.minecraft.network.chat.Component;
 public final class CentralControlHud {
 
     // 配色取自 docs/ui_style.md：金色强调、米色正文、土褐色次要
-    private static final int GOLD = 0xFFD4AF37;
-    private static final int TEXT = 0xFFFFF4DC;
-    private static final int MUTED = 0xFF9E8B6E;
-    private static final int GREEN = 0xFF72C17B;
-    private static final int RED = 0xFFE06B65;
-    private static final int BLUE = 0xFF5EB7D8;
+    private static final int GOLD = SRETheme.GOLD;
+    private static final int TEXT = SRETheme.TEXT;
+    private static final int MUTED = SRETheme.MUTED;
+    private static final int GREEN = SRETheme.GREEN;
+    private static final int RED = SRETheme.RED;
+    private static final int BLUE = SRETheme.BLUE;
 
     /** 三个技能的固定展示顺序（技能 id 的后缀，也是翻译键的最后一段）。 */
     private static final String[] SKILL_KEYS = {

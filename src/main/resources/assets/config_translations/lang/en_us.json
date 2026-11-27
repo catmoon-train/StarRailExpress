@@ -1,4 +1,5 @@
 {
+  "text.autoconfig.starrailexpress.option.enableRolePoolVote": "Run a role pool vote before the map vote",
     "text.autoconfig.starrailexpress.option.pokmen": "Enable Cobblemon (server)",
     "text.autoconfig.starrailexpress.option.pokmen.@Tooltip": "Synced by the server. Disabling stops Cobblemon gameplay and generation in new areas, and hides related keys and interfaces. Vanilla interactions remain available. Existing Pokemon, buildings and player data are retained. Disabled by default.",
     "=== SODIUM-EXTRA 补充===": "",
@@ -87,6 +88,7 @@
     "text.autoconfig.starrailexpress-client.option.disableCustomTitleScreen": "Disable the custom train main menu (use the vanilla menu instead)",
     "text.autoconfig.starrailexpress-client.option.disableCustomLoadingScreen": "Disable the custom game loading screen (use the vanilla loading screen instead)",
     "=== SRE ===": "",
+  "text.autoconfig.starrailexpress.option.rolePoolVoteSelectCount": "Picks per player in the role pool vote",
     "text.autoconfig.starrailexpress.title": "StarRailExpress general settings",
     "text.autoconfig.starrailexpress.option.logGameEvent": "Log game events to the console",
     "text.autoconfig.starrailexpress.option.savePlayerBodyItems": "Allow player corpses to save the player's inventory info",

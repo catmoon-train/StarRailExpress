@@ -55,7 +55,8 @@ public class ListRolesCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("manageRolesUI")
                 .requires(source -> source.hasPermission(SREConfig.instance().modifyEnableStatusRequiredPermission))
-                .executes((ListRolesCommand::executeManage)));
+                .executes((ListRolesCommand::executeManage))
+                .then(Commands.literal("silent").executes(ListRolesCommand::executeManageSilent)));
         dispatcher.register(Commands.literal(roleDetailsCommandRoot)
                 .then(Commands.literal("role")
                         .then(Commands.argument("role", RoleArgumentType.create())
@@ -138,7 +139,14 @@ public class ListRolesCommand {
         return RoleUtils.getRoleGoal(role);
     }
 
-    public static RoleEnableInfoPacket getRoleAndModifierEnableInfoPacket(boolean openUI) {
+    /**
+     * 组装角色 / 修饰符开关快照。
+     *
+     * <p>
+     * {@code playerCount} 只用于算「自动人数」（{@code /setRoleCount} 的默认公式）：
+     * 设置页要显示「自动会是多少人」，而公式住在服务端，所以随快照一起下发。
+     */
+    public static RoleEnableInfoPacket getRoleAndModifierEnableInfoPacket(boolean openUI, int playerCount) {
         HashMap<ResourceLocation, Boolean> roleInfos = new HashMap<>();
         HashMap<ResourceLocation, Boolean> modifierInfos = new HashMap<>();
         for (var info : TMMRoles.ROLES.keySet()) {
@@ -156,15 +164,20 @@ public class ListRolesCommand {
                 modifierInfos.put(info.identifier(), true);
             }
         }
-        return new RoleEnableInfoPacket(
-                new RoleManageConfigUI.RoleAndModifierSyncInfo(roleInfos, modifierInfos),
-                openUI);
+        var info = new RoleManageConfigUI.RoleAndModifierSyncInfo(roleInfos, modifierInfos);
+        info.forcedKillerCount = RoleCountManager.forcedKillerCount;
+        info.forcedVigilanteCount = RoleCountManager.forcedVigilanteCount;
+        info.forcedNeutralCount = RoleCountManager.forcedNeutralCount;
+        info.autoKillerCount = RoleCountManager.autoKillerCount(playerCount);
+        info.autoVigilanteCount = RoleCountManager.autoVigilanteCount(playerCount);
+        info.autoNeutralCount = RoleCountManager.autoNeutralCount(playerCount);
+        return new RoleEnableInfoPacket(info, openUI);
     }
 
+    /** 把一个玩家的开关快照发过去（{@code openUI=true} 时客户端会顺带打开原版配置界面）。 */
     public static void sendRoleDisableInfoToPlayer(ServerPlayer player, boolean openUI) {
-        var packet = getRoleAndModifierEnableInfoPacket(openUI);
-        ServerPlayNetworking.send(player,
-                packet);
+        var packet = getRoleAndModifierEnableInfoPacket(openUI, player.server.getPlayerList().getPlayerCount());
+        ServerPlayNetworking.send(player, packet);
     }
 
     private static int executeManage(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
@@ -174,6 +187,20 @@ public class ListRolesCommand {
                 () -> Component.translatable("Try to open Role Manage UI for %s", player.getName()),
                 true);
         sendRoleDisableInfoToPlayer(player, true);
+        return 1;
+    }
+
+    /**
+     * {@code /manageRolesUI silent}：只把快照发回去，<b>不</b>打开原版配置界面。
+     *
+     * <p>
+     * 给游戏设置中心用：职业 / 修饰符开关的状态只有服务端知道，界面每次切进去都要问一次；
+     * 用原版指令会把子界面直接顶到玩家脸上，所以另开一个静默入口。
+     */
+    private static int executeManageSilent(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        var player = context.getSource().getPlayerOrException();
+        sendRoleDisableInfoToPlayer(player, false);
+        context.getSource().sendSuccess(() -> Component.translatable("commands.managerolesui.synced"), false);
         return 1;
     }
 

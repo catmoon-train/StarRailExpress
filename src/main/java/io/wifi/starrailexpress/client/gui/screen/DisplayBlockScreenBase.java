@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client.gui.screen;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Transformation;
 import io.netty.buffer.Unpooled;
@@ -64,18 +65,18 @@ import java.util.function.Consumer;
 public abstract class DisplayBlockScreenBase extends Screen {
 
     // ───────── docs/ui_style.md 的色板 ─────────
-    protected static final int PANEL_BG_TOP = 0xD81A1008;
-    protected static final int PANEL_BG_BOTTOM = 0xD820140A;
-    protected static final int PANEL_OUTLINE = 0xFF8B6914;
-    protected static final int DECOR_LINE = 0x33FFE8C0;
-    protected static final int COLOR_TEXT = 0xFFFFF4DC;
-    protected static final int COLOR_MUTED = 0xFF9E8B6E;
-    protected static final int COLOR_GOLD = 0xFFD4AF37;
-    protected static final int COLOR_BLUE = 0xFF5EB7D8;
-    protected static final int COLOR_GREEN = 0xFF72C17B;
-    protected static final int COLOR_RED = 0xFFE06B65;
-    protected static final int CARD_BORDER = 0xFF5A4530;
-    protected static final int CARD_BG = 0x88120A04;
+    protected static final int PANEL_BG_TOP = SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xD8);
+    protected static final int PANEL_BG_BOTTOM = SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM, 0xD8);
+    protected static final int PANEL_OUTLINE = SRETheme.BORDER;
+    protected static final int DECOR_LINE = SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x33);
+    protected static final int COLOR_TEXT = SRETheme.TEXT;
+    protected static final int COLOR_MUTED = SRETheme.MUTED;
+    protected static final int COLOR_GOLD = SRETheme.GOLD;
+    protected static final int COLOR_BLUE = SRETheme.BLUE;
+    protected static final int COLOR_GREEN = SRETheme.GREEN;
+    protected static final int COLOR_RED = SRETheme.RED;
+    protected static final int CARD_BORDER = SRETheme.CARD_BORDER;
+    protected static final int CARD_BG = SRETheme.withAlpha(SRETheme.SCROLL_TRACK, 0x88);
     protected static final int ROW_SEPARATOR = 0x20FFFFFF;
 
     protected static final int PAD = 8;

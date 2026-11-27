@@ -79,5 +79,6 @@
   "commands.listroles.no.entries": "没有可用的职业或修饰符！",
   "commands.setrolecount.set":"已设置 %s 的强制刷新数量为 %s！",
   "commands.setrolecount.reset":"已重置！现在刷新将根据玩家数量刷新（自动计算）！",
-  "commands.setrolecount.auto":"已设置 %s 的强制刷新数量为自动计算！"
+  "commands.setrolecount.auto":"已设置 %s 的强制刷新数量为自动计算！",
+  "commands.managerolesui.synced":"已同步职业 / 修饰符开关状态"
 }

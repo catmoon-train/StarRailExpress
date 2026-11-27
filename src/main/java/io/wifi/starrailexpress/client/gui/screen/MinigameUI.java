@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client.gui.screen;
 
+import io.wifi.starrailexpress.client.ui.UiSurface;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.Mth;
 
@@ -44,45 +45,20 @@ public final class MinigameUI {
         g.fillGradient(0, 0, width, height, 0xD00B0E15, 0xD0121B33);
     }
 
-    /** 圆角实心矩形（通过逐行内缩近似圆角）。 */
+    /**
+     * 圆角实心矩形（通过逐行内缩近似圆角）。
+     *
+     * <p>
+     * 唯一实现在 {@link UiSurface#roundRect}：小游戏与 HUD 共用同一套圆角算法，
+     * 不再各自写一份（两边半径算得不一样时，并排看就会像两套 UI）。
+     */
     public static void roundRect(GuiGraphics g, int x1, int y1, int x2, int y2, int r, int color) {
-        int h = y2 - y1;
-        if (r <= 0 || h <= 0) {
-            g.fill(x1, y1, x2, y2, color);
-            return;
-        }
-        r = Math.min(r, h / 2);
-        for (int row = 0; row < h; row++) {
-            int edge = Math.min(row, h - 1 - row);
-            int inset = 0;
-            if (edge < r) {
-                int d = r - edge;
-                inset = r - (int) Math.floor(Math.sqrt((double) r * r - (double) d * d));
-            }
-            g.fill(x1 + inset, y1 + row, x2 - inset, y1 + row + 1, color);
-        }
+        UiSurface.roundRect(g, x1, y1, x2, y2, r, color);
     }
 
-    /** 圆角描边（仅绘制周边一圈，不覆盖内部）。 */
+    /** 圆角描边（仅绘制周边一圈，不覆盖内部）。唯一实现在 {@link UiSurface#roundBorder}。 */
     public static void roundBorder(GuiGraphics g, int x1, int y1, int x2, int y2, int r, int thickness, int color) {
-        int h = y2 - y1;
-        if (h <= 0) return;
-        r = Math.min(r, h / 2);
-        for (int row = 0; row < h; row++) {
-            int edge = Math.min(row, h - 1 - row);
-            int inset = 0;
-            if (edge < r) {
-                int d = r - edge;
-                inset = r - (int) Math.floor(Math.sqrt((double) r * r - (double) d * d));
-            }
-            int yy = y1 + row;
-            if (edge < thickness) {
-                g.fill(x1 + inset, yy, x2 - inset, yy + 1, color);
-            } else {
-                g.fill(x1 + inset, yy, x1 + inset + thickness, yy + 1, color);
-                g.fill(x2 - inset - thickness, yy, x2 - inset, yy + 1, color);
-            }
-        }
+        UiSurface.roundBorder(g, x1, y1, x2, y2, r, thickness, color);
     }
 
     /** 面板柔和投影。 */

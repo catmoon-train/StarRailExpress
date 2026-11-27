@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client.roulette;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
@@ -48,7 +49,7 @@ public final class RouletteTableRenderer implements BlockEntityRenderer<DevilRou
         action(table,v,age,p,b,light,overlay);
         if (v.phase() == RoulettePhase.WAITING) {
             text(p,b,Component.translatable("roulette.ui.title"),0,.04,0,0,GOLD,.007F);
-            text(p,b,Component.translatable("roulette.hint.sit"),0,.04,.18,0,0xFFFFF4DC,.0045F);
+            text(p,b,Component.translatable("roulette.hint.sit"),0,.04,.18,0,SRETheme.TEXT,.0045F);
         } else if (v.phase() == RoulettePhase.ENDING) {
             text(p,b,Component.translatable("roulette.ui.winner", v.winner().equals(RouletteView.NONE)
                     ? Component.translatable("roulette.ui.draw") : Component.literal(v.name(v.winner()))),0,.08,0,0,GOLD,.007F);
@@ -71,14 +72,14 @@ public final class RouletteTableRenderer implements BlockEntityRenderer<DevilRou
             UUID affected=v.target();
             boolean pulse = v.phase().impact()>=0 && v.delta()!=0 && age>=v.phase().impact()
                     && age<v.phase().impact()+9 && player.equals(affected);
-            if (pulse && i<lit) color = v.delta()>0 ? 0xFF72C17B : RED;
+            if (pulse && i<lit) color = v.delta()>0 ? SRETheme.GREEN : RED;
             boolean lost=pulse && v.delta()<0 && i>=lit && i<lit-v.delta() && ((int)age%4)<2;
             if (lost) color=RED;
             box(p,b,light,METAL,healthStart+i*.21,.003,1.045,.14,.025,.10);
             box(p,b,i<lit||lost?LightTexture.FULL_BRIGHT:light,color,healthStart+.015+i*.21,.029,1.06,.11,.025,.07);
         }
         Component name = player.equals(RouletteView.NONE) ? Component.translatable("roulette.ui.empty_seat") : Component.literal(v.name(player));
-        text(p,b,name,0,.035,1.42,0,player.equals(v.operator())?GOLD:0xFFFFF4DC,.005F);
+        text(p,b,name,0,.035,1.42,0,player.equals(v.operator())?GOLD:SRETheme.TEXT,.005F);
         List<Integer> items = side == 0 ? v.frontItems() : v.backItems();
         double now = table.getLevel().getGameTime()+partial;
         for (int i=0;i<8;i++) {
@@ -103,7 +104,7 @@ public final class RouletteTableRenderer implements BlockEntityRenderer<DevilRou
             double x = (i-1)*.88;
             box(p,b,zone==i?LightTexture.FULL_BRIGHT:light,zone==i?GOLD:DARK,x-.39,.003,1.195,.78,.012,.17);
             text(p,b,Component.translatable(i==0?"roulette.ui.self":i==1?"roulette.ui.item_help":"roulette.ui.opponent"),
-                    x,.022,1.28,0,zone==i?GOLD:0xFFC8B898,.0045F);
+                    x,.022,1.28,0,zone==i?GOLD:SRETheme.BODY,.0045F);
         }
         if (!player.equals(RouletteView.NONE) && player.equals(v.cuffed())) {
             p.pushPose(); p.translate(.78,.12,1.05);
@@ -115,7 +116,7 @@ public final class RouletteTableRenderer implements BlockEntityRenderer<DevilRou
             drawItem(table,RouletteItem.HANDCUFFS,.23F*(1-age/12),p,b,light,overlay); p.popPose();
         }
         if (v.phase()!=RoulettePhase.WAITING) text(p,b,Component.translatable("roulette.hud.ammo_remaining",v.remaining()),
-                0,.025,.37,0,0xFFC8B898,.004F);
+                0,.025,.37,0,SRETheme.BODY,.004F);
         p.popPose();
     }
 

@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client.gui.screen.gamemode.volunteer;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -53,17 +54,17 @@ public class VolunteerDraftScreen extends Screen {
     private static final int VIEWPORT_TOP = 64;
     private static final int VIEWPORT_BOTTOM_RESERVE = 50;
 
-    private static final int BG_TOP = 0xF018120A;
-    private static final int BG_BOTTOM = 0xF0061018;
-    private static final int PANEL_BG_TOP = 0xD81A1008;
-    private static final int PANEL_BG_BOTTOM = 0xD80B1722;
-    private static final int BORDER = 0xFF8B6914;
-    private static final int GOLD = 0xFFD4AF37;
-    private static final int TEXT = 0xFFFFF4DC;
-    private static final int MUTED = 0xFF9E8B6E;
-    private static final int BLUE = 0xFF5EB7D8;
-    private static final int GREEN = 0xFF72C17B;
-    private static final int RED = 0xFFE06B65;
+    private static final int BG_TOP = SRETheme.withAlpha(SRETheme.SCREEN_TOP, 0xF0);
+    private static final int BG_BOTTOM = SRETheme.withAlpha(SRETheme.SCREEN_BOTTOM, 0xF0);
+    private static final int PANEL_BG_TOP = SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xD8);
+    private static final int PANEL_BG_BOTTOM = SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM_ALT, 0xD8);
+    private static final int BORDER = SRETheme.BORDER;
+    private static final int GOLD = SRETheme.GOLD;
+    private static final int TEXT = SRETheme.TEXT;
+    private static final int MUTED = SRETheme.MUTED;
+    private static final int BLUE = SRETheme.BLUE;
+    private static final int GREEN = SRETheme.GREEN;
+    private static final int RED = SRETheme.RED;
 
     private List<String> currentOrder;
     private int volunteerCount;
@@ -264,13 +265,13 @@ public class VolunteerDraftScreen extends Screen {
     }
 
     private void drawCard(GuiGraphics g, int x, int y, int w, int h, int index, boolean hover, boolean ghost) {
-        int border = ghost ? 0x88FFFFFF : (hover ? GOLD : 0xFF5A4530);
-        int bgTop = ghost ? 0x442B2112 : (hover ? 0xFF2B2112 : 0xFF1A1008);
-        int bgBottom = ghost ? 0x44112536 : (hover ? 0xFF112536 : 0xFF0B1722);
+        int border = ghost ? 0x88FFFFFF : (hover ? GOLD : SRETheme.CARD_BORDER);
+        int bgTop = ghost ? 0x442B2112 : (hover ? 0xFF2B2112 : SRETheme.SURFACE_TOP_SOFT);
+        int bgBottom = ghost ? 0x44112536 : (hover ? 0xFF112536 : SRETheme.SURFACE_BOTTOM_ALT);
         g.fillGradient(x, y, x + w, y + h, bgTop, bgBottom);
         g.renderOutline(x, y, w, h, border);
         if (!ghost) {
-            g.fill(x + 1, y + 1, x + w - 1, y + 3, hover ? GOLD : 0x33FFE8C0);
+            g.fill(x + 1, y + 1, x + w - 1, y + 3, hover ? GOLD : SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x33));
         }
 
         String roleId = currentOrder.get(index);
@@ -300,7 +301,7 @@ public class VolunteerDraftScreen extends Screen {
     private void drawArrowButton(GuiGraphics g, int x, int y, boolean up, boolean hover) {
         int color = hover ? GOLD : MUTED;
         int size = ARROW_BTN_SIZE;
-        g.fill(x, y, x + size, y + size, hover ? 0x552A5A42 : 0x331A1008);
+        g.fill(x, y, x + size, y + size, hover ? 0x552A5A42 : SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0x33));
         g.renderOutline(x, y, size, size, color);
         String arrow = up ? "▲" : "▼";
         g.drawCenteredString(font, arrow, x + size / 2, y + size / 2 - 4, color);
@@ -309,7 +310,7 @@ public class VolunteerDraftScreen extends Screen {
     private void drawRandomButton(GuiGraphics g, int x, int y, boolean hover) {
         int color = hover ? GOLD : MUTED;
         int size = RANDOM_BTN_SIZE;
-        g.fill(x, y, x + size, y + size, hover ? 0x552A5A42 : 0x331A1008);
+        g.fill(x, y, x + size, y + size, hover ? 0x552A5A42 : SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0x33));
         g.renderOutline(x, y, size, size, color);
         g.drawCenteredString(font, "?", x + size / 2, y + size / 2 - 4, color);
     }
@@ -328,7 +329,7 @@ public class VolunteerDraftScreen extends Screen {
         int barH = height - VIEWPORT_TOP - VIEWPORT_BOTTOM_RESERVE;
         int thumbH = Math.max(20, (int) (barH * barH / (double) (maxScrollY + barH)));
         int thumbY = barY + (int) ((barH - thumbH) * (scrollY / maxScrollY));
-        g.fill(barX, barY, barX + SCROLL_BAR_WIDTH, barY + barH, 0x661A1008);
+        g.fill(barX, barY, barX + SCROLL_BAR_WIDTH, barY + barH, SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0x66));
         g.fill(barX, thumbY, barX + SCROLL_BAR_WIDTH, thumbY + thumbH, GOLD);
     }
 

@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.widget.custom_button;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapUiGraphics;
 import net.minecraft.client.Minecraft;
@@ -210,19 +211,19 @@ public class ModernButton extends net.minecraft.client.gui.components.Button {
         // ── 2. 渐变背景 ──────────────────────────────────────────────
         int bgL, bgR;
         if (!isActive()) {
-            bgL = bgR = 0xFF120A04;
+            bgL = bgR = SRETheme.SCROLL_TRACK;
         } else if (pressed) {
             bgL = blendColors(0xFF2B2112, 0xFF3A2A14, hoverAnim);
-            bgR = blendColors(0xFF1A1008, 0xFF241708, hoverAnim);
+            bgR = blendColors(SRETheme.SURFACE_TOP_SOFT, 0xFF241708, hoverAnim);
         } else {
-            bgL = blendColors(0xFF1A1008, 0xFF2B2112, hoverAnim);
-            bgR = blendColors(0xFF120A04, 0xFF1A1008, hoverAnim);
+            bgL = blendColors(SRETheme.SURFACE_TOP_SOFT, 0xFF2B2112, hoverAnim);
+            bgR = blendColors(SRETheme.SCROLL_TRACK, SRETheme.SURFACE_TOP_SOFT, hoverAnim);
         }
         g.fillGradient(x + 1, y + 1, x + w - 1, y + h - 1, bgL, bgR);
 
         // ── 3. 顶部高光条（文档的顶部装饰线色）─────────────────────
         int topAlpha = pressed ? 0x44 : (int) (0x11 + (0x33 - 0x11) * hoverAnim);
-        g.fill(x + 1, y + 1, x + w - 1, y + 2, (topAlpha << 24) | 0x00FFE8C0);
+        g.fill(x + 1, y + 1, x + w - 1, y + 2, (topAlpha << 24) | SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x00));
 
         // ── 4. 色条（叠加在背景上，按各自方向绘制）──────────────────
         if (isActive() && !accentSides.isEmpty() && showAccent) {
@@ -238,7 +239,7 @@ public class ModernButton extends net.minecraft.client.gui.components.Button {
         } else if (pressed) {
             textColor = SREPanelStyle.GOLD;
         } else {
-            textColor = blendColors(SREPanelStyle.TEXT, 0xFFFFE8C0, hoverAnim);
+            textColor = blendColors(SREPanelStyle.TEXT, SRETheme.BRASS_BRIGHT, hoverAnim);
         }
         int[] tc = getTextCenter(x, y, w, h);
         // 超宽就裁成省略号（原版会把文字画到按钮外面压住相邻控件）；

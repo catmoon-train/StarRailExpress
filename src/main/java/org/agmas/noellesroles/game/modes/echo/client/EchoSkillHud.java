@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.game.modes.echo.client;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -19,7 +20,7 @@ public final class EchoSkillHud {
         int x = rect.x() + rect.width() / 2, y = rect.y(), width = rect.width() / 2;
         boolean usable = data.life().standing() && EchoHud.view().state().phase().acceptsActions() && !EchoHud.view().state().paused();
         long remaining = data.skillRemaining();
-        int color = !usable ? 0xFF9E8B6E : remaining > 0 ? 0xFF5EB7D8 : 0xFF72C17B;
+        int color = !usable ? SRETheme.MUTED : remaining > 0 ? SRETheme.BLUE : SRETheme.GREEN;
         g.blit(ResourceLocation.parse(data.skill().icon()), x, y, 12, 12, 0F, 0F, 32, 32, 32, 32);
         Component status = !usable ? EchoHud.tr("compact.unavailable") : remaining > 0
                 ? EchoHud.tr("compact.cooldown", (remaining + 19) / 20) : EchoHud.tr("compact.ready");

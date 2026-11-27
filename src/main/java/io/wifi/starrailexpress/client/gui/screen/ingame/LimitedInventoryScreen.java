@@ -753,7 +753,7 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
         this.drawMouseoverTooltip(context, mouseX, mouseY);
         StoreRenderer.renderHud(this.font, this.player, context, delta);
 
-        // 金币下方的信息行：开启配置后只在本界面显示（HUD 上不再绘制），位置与 HUD 上一致
+        // 金币下方的信息行：本界面始终绘制完整信息（不看 HUD 的折叠状态），位置与 HUD 上一致
         if (SREClientConfig.instance().showInfoLinesInInventory && this.minecraft != null) {
             if (fakeGraphics == null || fakeGraphics.getDefaultGuiGraphics() != context) {
                 fakeGraphics = new FakeGuiGraphics(context, true);

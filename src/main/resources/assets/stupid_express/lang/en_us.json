@@ -187,6 +187,7 @@
   "sre.pass.faction.vigilante": "Sheriff team card",
   "sre.pass.faction.neutral": "Neutral team card",
   "sre.pass.faction.neutral_for_killer": "Killer-Neutral team card",
+  "sre.pass.faction.custom": "Custom team card",
   "cmd.stupid_express.progression.open.self": "Opened the progression system for you.",
   "cmd.stupid_express.progression.open.other": "Opened the progression system for %s.",
   "cmd.stupid_express.progression.open.offline": "Player is offline: %s",

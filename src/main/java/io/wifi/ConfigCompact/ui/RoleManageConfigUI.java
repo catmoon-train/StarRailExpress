@@ -38,9 +38,50 @@ public class RoleManageConfigUI {
     public static HashMap<String, Boolean> RoleEnableStatus = new HashMap<>();
     public static HashMap<String, Boolean> ModifierEnableStatus = new HashMap<>();
 
+    // ── 人数快照（设置页显示用）────────────────────────────────────────
+    // 服务端在回角色 / 修饰符开关快照时一起带上：forced* = 强制值（-1 = 用自动公式），
+    // auto* = 服务端按当前人数算出的自动值。设置页据此显示「自动 (N)」还是具体数字。
+    /** 强制杀手人数（-1 = 自动）。 */
+    public static int forcedKillerCount = -1;
+    /** 强制义警人数（-1 = 自动）。 */
+    public static int forcedVigilanteCount = -1;
+    /** 强制中立人数（-1 = 自动）。 */
+    public static int forcedNeutralCount = -1;
+    /** 按当前人数算出的自动杀手人数。 */
+    public static int autoKillerCount;
+    /** 按当前人数算出的自动义警人数。 */
+    public static int autoVigilanteCount;
+    /** 按当前人数算出的自动中立人数。 */
+    public static int autoNeutralCount;
+
+    /** 收到服务端快照时更新人数（{@code RoleEnableInfoPacket}）。 */
+    public static void setRoleCounts(int killer, int vigilante, int neutral,
+            int autoKiller, int autoVigilante, int autoNeutral) {
+        forcedKillerCount = killer;
+        forcedVigilanteCount = vigilante;
+        forcedNeutralCount = neutral;
+        autoKillerCount = autoKiller;
+        autoVigilanteCount = autoVigilante;
+        autoNeutralCount = autoNeutral;
+    }
+
     public static class RoleAndModifierSyncInfo {
         public HashMap<String, Boolean> roleInfo;
         public HashMap<String, Boolean> modifierInfo;
+        /**
+         * 服务端强制人数（-1 = 用自动公式）。
+         *
+         * <p>
+         * 字段带初始值是有意的：老服务端发来的 JSON 里没有这些字段时，Gson 会走无参构造，
+         * 于是 forced* 保持 -1（= 自动）而不是 0（= 一人都不要），不会把界面显示成错的数字。
+         */
+        public int forcedKillerCount = -1;
+        public int forcedVigilanteCount = -1;
+        public int forcedNeutralCount = -1;
+        /** 服务端按当前人数算出的自动值。 */
+        public int autoKillerCount;
+        public int autoVigilanteCount;
+        public int autoNeutralCount;
 
         public RoleAndModifierSyncInfo() {
             this(new HashMap<>(), new HashMap<>());

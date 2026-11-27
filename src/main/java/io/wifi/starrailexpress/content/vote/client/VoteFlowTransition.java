@@ -20,15 +20,28 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 
-/** Cross-screen rail sweep joining the mode and map stages. */
+/** Cross-screen rail sweep joining the mode, pool and map stages. */
 public final class VoteFlowTransition {
     private static boolean armed;
+    /** 过场文案翻译键（随「下一站」变化）。 */
+    private static String labelKey = "gui.sre.vote_flow.next_stop";
     private static long startedAt;
 
     private VoteFlowTransition() {}
 
-    public static void armModeToMap() {
+    /** 过场文案：模式投票 → 职业池投票。 */
+    public static void armModeToPool() {
+        arm("gui.sre.vote_flow.next_stop_pool");
+    }
+
+    /** 过场文案：职业池投票 → 地图投票。 */
+    public static void armPoolToMap() {
+        arm("gui.sre.vote_flow.next_stop");
+    }
+
+    private static void arm(String nextStopKey) {
         armed = true;
+        labelKey = nextStopKey;
     }
 
     public static void beginIfArmed() {
@@ -57,7 +70,7 @@ public final class VoteFlowTransition {
         g.fill(echoX, 0, echoX + 1, height,
                 VoteFlowFrame.withAlpha(VoteFlowFrame.GOLD_DIM, (int) (100 * (1.0F - t))));
         if (t < 0.58F) {
-            Component next = Component.translatable("gui.sre.vote_flow.next_stop");
+            Component next = Component.translatable(labelKey);
             int textY = height / 2 - 4 + Math.round((1.0F - VoteFlowFrame.ease(t / 0.58F)) * 10.0F);
             g.drawCenteredString(Minecraft.getInstance().font, next, width / 2, textY,
                     VoteFlowFrame.withAlpha(VoteFlowFrame.TEXT, (int) (255 * (1.0F - t / 0.58F))));

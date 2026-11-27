@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.content.vote.client;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.content.vote.VoteOption;
 import io.wifi.starrailexpress.content.vote.network.VoteCastC2SPacket;
 import io.wifi.starrailexpress.content.vote.network.VoteSyncS2CPacket;
@@ -73,7 +74,8 @@ public final class GameModeVoteScreen extends Screen {
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         super.render(g, mouseX, mouseY, partialTick);
         VoteFlowFrame.Bounds b = VoteFlowFrame.layout(width, height);
-        VoteFlowFrame.renderProgress(g, font, b, 0, null, ClientVoteCache.getRemainingSeconds());
+        VoteFlowFrame.renderProgress(g, font, b, VoteFlowFrame.STEP_MODE, null,
+                ClientVoteCache.getRemainingSeconds());
 
         float intro = VoteFlowFrame.ease((System.currentTimeMillis() - openedAt) / 360.0F);
         int contentY = b.y() + 58;
@@ -85,7 +87,7 @@ public final class GameModeVoteScreen extends Screen {
             if (!options.isEmpty()) {
                 var option = options.get(Mth.clamp(focusIndex, 0, options.size() - 1));
                 int textY = contentY + contentH - 39;
-                g.fill(b.x() + 10, textY - 6, b.x() + b.w() - 10, textY - 5, 0x338B6914);
+                g.fill(b.x() + 10, textY - 6, b.x() + b.w() - 10, textY - 5, SRETheme.withAlpha(SRETheme.BORDER, 0x33));
                 g.drawString(font, MapUiGraphics.clip(font, VoteModePresentation.name(option).getString(), b.w() - 24),
                         b.x() + 12, textY, VoteFlowFrame.GOLD_DIM, false);
                 var lines = font.split(VoteModePresentation.description(option), b.w() - 24);
@@ -115,7 +117,7 @@ public final class GameModeVoteScreen extends Screen {
                 x + 11, y + 10, VoteFlowFrame.TEXT, false);
         g.drawString(font, Component.translatable("gui.sre.vote_flow.votes"), x + w - 52, y + 10,
                 VoteFlowFrame.MUTED, false);
-        g.fill(x + 9, y + headerH - 1, x + w - 9, y + headerH, 0x338B6914);
+        g.fill(x + 9, y + headerH - 1, x + w - 9, y + headerH, SRETheme.withAlpha(SRETheme.BORDER, 0x33));
 
         int viewportY = y + headerH;
         int viewportH = h - headerH - 8;
@@ -144,9 +146,9 @@ public final class GameModeVoteScreen extends Screen {
                 g.fill(x + 5 + rowShift, rowY + 2, x + w - 5, rowY + ROW_H - 2,
                         VoteFlowFrame.withAlpha(0xFFFFFFFF, Math.min(rowAlpha, 34)));
             }
-            int nodeColor = selected ? VoteFlowFrame.GOLD : focused ? VoteFlowFrame.GOLD_DIM : 0xFF5A4530;
+            int nodeColor = selected ? VoteFlowFrame.GOLD : focused ? VoteFlowFrame.GOLD_DIM : SRETheme.CARD_BORDER;
             g.fill(x + 15 + rowShift, rowY, x + 16 + rowShift, rowY + ROW_H,
-                    VoteFlowFrame.withAlpha(selected ? 0xFFD4AF37 : 0xFF5A4530,
+                    VoteFlowFrame.withAlpha(selected ? SRETheme.GOLD : SRETheme.CARD_BORDER,
                             Math.min(rowAlpha, selected ? 153 : 51)));
             g.fill(x + 12 + rowShift, rowY + 11, x + 19 + rowShift, rowY + 18,
                     VoteFlowFrame.withAlpha(nodeColor, rowAlpha));
@@ -195,7 +197,7 @@ public final class GameModeVoteScreen extends Screen {
         for (var line : font.split(description, w - 36)) {
             if (lineY + font.lineHeight > y + h - 34) break;
             g.drawString(font, line, x + 18 + detailShift, lineY,
-                    VoteFlowFrame.withAlpha(0xFFC8B898, detailAlpha), false);
+                    VoteFlowFrame.withAlpha(SRETheme.BODY, detailAlpha), false);
             lineY += 14;
         }
         boolean selected = ClientVoteCache.getSelectedIndices().contains(focusIndex);

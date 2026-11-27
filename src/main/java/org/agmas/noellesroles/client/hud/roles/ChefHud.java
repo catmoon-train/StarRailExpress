@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.api.data.RoleData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -34,7 +35,7 @@ public class ChefHud {
             int y = client.getWindow().getGuiScaledHeight() - 59;
 
             Component modeText = ChefRoleData.modeDisplayName(data.trayMode);
-            int modeColor = data.isDrinkMode() ? 0xFF5EB7D8 : CommonColors.GREEN;
+            int modeColor = data.isDrinkMode() ? SRETheme.BLUE : CommonColors.GREEN;
             context.drawString(textRenderer, modeText, x - textRenderer.width(modeText), y, modeColor);
 
             Component hintText = Component.translatable("hud.noellesroles.chef.mode.hint",

@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.game.modes.echo.client;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -78,26 +79,26 @@ public final class EchoEditorClient {
         int pw = Math.min(240, g.guiWidth() - 16);
         int px = 8, py = 60;
         int height = lines * 10 + 8;
-        g.fillGradient(px, py, px + pw, py + height, 0xE01A1008, 0xE020140A);
-        g.renderOutline(px, py, pw, height, 0xFF8B6914);
-        g.fill(px + 1, py + 1, px + pw - 1, py + 3, EchoAnim.fade(0xFFD4AF37, 0.85F));
+        g.fillGradient(px, py, px + pw, py + height, SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xE0), SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM, 0xE0));
+        g.renderOutline(px, py, pw, height, SRETheme.BORDER);
+        g.fill(px + 1, py + 1, px + pw - 1, py + 3, EchoAnim.fade(SRETheme.GOLD, 0.85F));
         int y = py + 5;
-        y = row(g, Component.translatable("echo.editor.hud.title"), px + 5, y, pw - 10, 0xFFD4AF37);
-        y = row(g, Component.translatable("echo.editor.machine.hud_hint"), px + 5, y, pw - 10, 0xFF9E8B6E);
+        y = row(g, Component.translatable("echo.editor.hud.title"), px + 5, y, pw - 10, SRETheme.GOLD);
+        y = row(g, Component.translatable("echo.editor.machine.hud_hint"), px + 5, y, pw - 10, SRETheme.MUTED);
         y = row(g, Component.translatable("echo.editor.hud.map",
                 state.mapName().isEmpty() ? Component.translatable("echo.editor.none") : Component.literal(state.mapName()),
                 state.mapId().isEmpty() ? Component.translatable("echo.editor.none") : Component.literal(state.mapId()),
-                state.revision()), px + 5, y, pw - 10, 0xFFFFF4DC);
+                state.revision()), px + 5, y, pw - 10, SRETheme.TEXT);
         y = row(g, Component.translatable(state.declared() ? "echo.editor.hud.gate_on" : "echo.editor.hud.gate_off"),
-                px + 5, y, pw - 10, state.declared() ? 0xFF72C17B : 0xFFE06B65);
+                px + 5, y, pw - 10, state.declared() ? SRETheme.GREEN : SRETheme.RED);
         y = row(g, Component.translatable("echo.editor.hud.session",
                 state.session() ? Component.translatable("echo.editor.hud.active") : Component.translatable("echo.editor.hud.idle"),
-                state.cornerA() ? "A" : "-", state.cornerB() ? "B" : "-"), px + 5, y, pw - 10, 0xFFC8B898);
+                state.cornerA() ? "A" : "-", state.cornerB() ? "B" : "-"), px + 5, y, pw - 10, SRETheme.BODY);
         for (var section : state.sections()) {
             y = row(g, Component.literal(String.format(Locale.ROOT, "%s %d", section.field(), section.count())),
-                    px + 5, y, pw - 10, 0xFF9E8B6E);
+                    px + 5, y, pw - 10, SRETheme.MUTED);
         }
-        for (var issue : state.issues()) y = row(g, Component.literal(issue), px + 5, y, pw - 10, 0xFFE06B65);
+        for (var issue : state.issues()) y = row(g, Component.literal(issue), px + 5, y, pw - 10, SRETheme.RED);
         Component message = message();
         if (!message.getString().isEmpty()) row(g, message, px + 5, y, pw - 10, 0xFFFFA080);
     }

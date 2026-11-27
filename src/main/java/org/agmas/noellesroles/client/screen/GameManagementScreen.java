@@ -15,8 +15,12 @@
 
 package org.agmas.noellesroles.client.screen;
 
-import io.wifi.starrailexpress.api.SREGameModes;
-import io.wifi.starrailexpress.content.command.MapVoteCommand;
+import io.wifi.starrailexpress.client.gui.screen.mapui.MapUiGraphics;
+import io.wifi.starrailexpress.client.gui.widget.SreTabButton;
+import io.wifi.starrailexpress.client.gui.widget.SwitchState;
+import io.wifi.starrailexpress.client.ui.SRETheme;
+import io.wifi.starrailexpress.client.ui.UiSurface;
+import io.wifi.starrailexpress.client.ui.UiText;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -24,406 +28,294 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
-import org.agmas.noellesroles.commands.GameUtilsCommand;
+import org.agmas.noellesroles.client.screen.manage.ManageCatalog;
+import org.agmas.noellesroles.client.screen.manage.ManageEntry;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
+import java.util.function.Supplier;
 
-public class GameManagementScreen extends Screen {
-
-    Screen parent;
-
-    // ══════════════════════════════════════════════════════════════════
-    // 条目类型
-    // ══════════════════════════════════════════════════════════════════
-
-    public enum EntryType {
-        LABEL, BUTTON, SEPARATOR
-    }
-
-    public static class Entry {
-        public final EntryType type;
-        public final Component text;
-        /**
-         * 点击执行的指令（不含 /）；LABEL / SEPARATOR 为 null
-         */
-        public final String command;
-        /**
-         * 主题色
-         */
-        public final int color;
-
-        private Entry(EntryType type, Component text, String command, int color) {
-            this.type = type;
-            this.text = text;
-            this.command = command;
-            this.color = color;
-        }
-
-        // ── 工厂方法 ───────────────────────────────────────────────
-
-        /**
-         * 小节标题（黄色粗体，使用翻译键）
-         */
-        public static Entry label(String key) {
-            return new Entry(EntryType.LABEL,
-                    Component.translatable(key).withStyle(ChatFormatting.YELLOW,
-                            ChatFormatting.BOLD),
-                    null, 0xFFCCAA22);
-        }
-
-        /**
-         * 小节标题（自定义颜色，使用翻译键）
-         */
-        public static Entry label(String key, int color) {
-            return new Entry(EntryType.LABEL,
-                    Component.translatable(key).withStyle(ChatFormatting.BOLD),
-                    null, color);
-        }
-
-        /**
-         * 小节标题（完全自定义 Component）
-         */
-        public static Entry label(Component text, int color) {
-            return new Entry(EntryType.LABEL, text, null, color);
-        }
-
-        /**
-         * 按钮（翻译键 + 指令，默认蓝色）
-         */
-        public static Entry button(String key, String command) {
-            return new Entry(EntryType.BUTTON,
-                    Component.translatable(key), command, 0xFF5577CC);
-        }
-
-        /**
-         * 按钮（翻译键 + 指令 + 主题色）
-         */
-        public static Entry button(String key, String command, int color) {
-            return new Entry(EntryType.BUTTON,
-                    Component.translatable(key), command, color);
-        }
-
-        /**
-         * 按钮（自定义 Component + 指令 + 主题色）
-         */
-        public static Entry button(Component text, String command, int color) {
-            return new Entry(EntryType.BUTTON, text, command, color);
-        }
-
-        /**
-         * 分隔线
-         */
-        public static Entry separator() {
-            return new Entry(EntryType.SEPARATOR, Component.empty(), null, 0xFF334466);
-        }
-    }
+/**
+ * <b>游戏设置中心</b>（{@code docs/ui_style.md} §8.7）：把原来散在各处的局设置收在一页。
+ *
+ * <h2>页面结构</h2>
+ * 顶部分类页签（{@link SreTabButton}，与编辑器里的页签是同一个控件）+ 一个可滚动的行列表。
+ * 行只有五种：分组标题、指令、导航（打开别的界面）、胶囊开关、数字步进器 —— 见 {@link ManageEntry}，
+ * 具体有哪些行在 {@link ManageCatalog} 里声明，本类不写死任何一条设置。
+ *
+ * <h2>样式</h2>
+ * 面板走 {@code UiSurface.panel}（纯色 + 1px 圆角暗铜描边），行是 {@code UiSurface.card}，
+ * hover 只把描边换成黄铜；文字走 {@code UiText}（默认带硬阴影）。开关一律是胶囊开关
+ * （{@code UiSurface.switchTrack}），不要再出现「文字 + [✓]」这种状态写法。
+ *
+ * <h2>与现成界面的关系（重要）</h2>
+ * 职业轮选名单、地图轮换、自定义内容管理都是现成的界面，本页只做<b>入口</b>（{@link ManageEntry.Nav}）；
+ * 真正的编辑逻辑留在它们自己那里，避免「两套界面各改一半」。
+ *
+ * <h2>状态从哪来</h2>
+ * 职业 / 修饰符开关状态来自服务端同步下来的客户端镜像（{@code /manageRolesUI silent}），
+ * 没同步到时显示胶囊开关的中间态而不是猜一个值；人数取服务端算好的「手动值 / 自动值」。
+ */
+public class GameManagementScreen extends Screen implements ManageCatalog.Context {
 
     // ══════════════════════════════════════════════════════════════════
-    // 分类
+    // 布局常量（全部落在 4px 栅格上）
     // ══════════════════════════════════════════════════════════════════
 
-    public static class Category {
-        public final String labelKey;
-        public final int color;
-        public final List<Entry> entries = new ArrayList<>();
-
-        public Category(String labelKey, int color) {
-            this.labelKey = labelKey;
-            this.color = color;
-        }
-
-        /**
-         * 追加任意条目，支持链式调用
-         */
-        public Category add(Entry e) {
-            entries.add(e);
-            return this;
-        }
-
-        /**
-         * 快捷添加一个小节。
-         * 自动写入：小节标题（Entry.label）+ 分隔线（Entry.separator）。
-         * 后续条目用 .add(...) 链式追加。
-         */
-        public Category section(String titleKey) {
-            return section(titleKey, color);
-        }
-
-        public Category section(String titleKey, int titleColor) {
-            entries.add(Entry.label(titleKey, titleColor));
-            entries.add(Entry.separator());
-            return this;
-        }
-    }
-
-    // ══════════════════════════════════════════════════════════════════
-    // 【数据定义】在这里追加分类 / 小节 / 按钮，无需改动其他代码。
-    // 所有翻译键以 screen.game_manage. 开头。
-    // ══════════════════════════════════════════════════════════════════
-    public static final Random random = new Random();
-
-    public static final List<Category> CATEGORIES = initializeCategories();
-
-    private static List<Category> initializeCategories() {
-        List<Category> categories = new ArrayList<>();
-
-        // ── 分类：游戏流程 ──────────────────────────────────────────
-        Category game = new Category("screen.game_manage.category.game", 0xFF5577CC);
-
-        {
-            var section = game.section("screen.game_manage.section.start", 0xFF5577CC);
-            for (var gameMode : SREGameModes.GAME_MODES.keySet()) {
-                if (gameMode.equals(io.wifi.starrailexpress.training.TrainingGameMode.ID)) continue;
-                section.add(Entry.button(MapVoteCommand.getLocalizedGameModeName(gameMode.getPath()),
-                        "tmm:start " + gameMode.toString(),
-                        0xFF440000 | random.nextInt(0, 128) | random.nextInt(0, 128) << 8));
-            }
-        }
-        {
-            var section = game.section("screen.game_manage.section.win", 0xFF7755BB);
-            for (var status : GameUtilsCommand.WinStatusSuggestions.allWinStatus) {
-                var statusName = status.toString().toLowerCase();
-                section.add(Entry.button(
-                        Component.translatable("announcement.star.win." + statusName)
-                                .append(Component.literal(" " + statusName).withStyle(ChatFormatting.GRAY)),
-                        "tmm:game win " + statusName,
-                        new java.awt.Color(random.nextInt(0, 256), random.nextInt(0, 256), random.nextInt(0, 256))
-                                .getRGB()));
-            }
-        }
-
-        game.section("screen.game_manage.section.stop", 0xFF7755BB)
-                .add(Entry.button("screen.game_manage.btn.stop", "tmm:stop", 0xFFEEBB33))
-                .add(Entry.button("screen.game_manage.btn.stop_force", "tmm:stop force", 0xFF334488));
-
-        game.section("screen.game_manage.section.vote", 0xFF7755BB)
-                .add(Entry.button("screen.game_manage.btn.vote_10s", "tmm:votemap 200", 0xFF44BB66))
-                .add(Entry.button("screen.game_manage.btn.vote_20s", "tmm:votemap 400", 0xFF44BB66))
-                .add(Entry.button("screen.game_manage.btn.vote_30s", "tmm:votemap 600", 0xFF44BB66));
-
-        categories.add(game);
-
-        // ── 分类：游戏效果管理 ──────────────────────────────────────────
-        Category effects = new Category("screen.game_manage.category.effects", 0xFF44BB88);
-
-        effects.section("screen.game_manage.section.blackout", 0xFF44BB88)
-                .add(Entry.button("screen.game_manage.btn.trigger_blackout",
-                        "tmm:game blackout", 0xFF22BBCC))
-                .add(Entry.button("screen.game_manage.btn.stop_blackout",
-                        "tmm:game blackout stop", 0xFF88CC44));
-
-        effects.section("screen.game_manage.section.psycho", 0xFFBB5533)
-                .add(Entry.button("screen.game_manage.btn.trigger_psycho",
-                        "tmm:game psycho", 0xFFBB5533))
-                .add(Entry.button("screen.game_manage.btn.stop_psycho",
-                        "tmm:game psycho stop", 0xFF5577CC));
-        effects.section("screen.game_manage.section.timestop", 0xFFBB5533)
-                .add(Entry.button("screen.game_manage.btn.trigger_timestop_5s",
-                        "tmm:game timestop 100 \"5s Time Stop\"", 0xFFBB5533))
-                .add(Entry.button("screen.game_manage.btn.trigger_timestop_10s",
-                        "tmm:game timestop 200 \"10s Time Stop\"", 0xFFBB5533))
-                .add(Entry.button("screen.game_manage.btn.trigger_timestop_20s",
-                        "tmm:game timestop 400 \"20s Time Stop\"", 0xFFBB5533))
-                .add(Entry.button("screen.game_manage.btn.trigger_timestop_30s",
-                        "tmm:game timestop 600 \"30s Time Stop\"", 0xFFBB5533))
-                .add(Entry.button("screen.game_manage.btn.stop_timestop",
-                        "tmm:game timestop stop", 0xFF5577CC));
-        categories.add(effects);
-
-        // ── 分类：地图 ──────────────────────────────────────────
-        Category world = new Category("screen.game_manage.category.world", 0xFFEEBB33);
-
-        world.section("screen.game_manage.section.time", 0xFFEEBB33)
-                .add(Entry.button("screen.game_manage.btn.time_day", "time set day", 0xFFEEBB33))
-                .add(Entry.button("screen.game_manage.btn.time_noon", "time set noon", 0xFFFFCC44))
-                .add(Entry.button("screen.game_manage.btn.time_night", "time set night", 0xFF334488))
-                .add(Entry.button("screen.game_manage.btn.time_midnight", "time set midnight", 0xFF223366));
-
-        world.section("screen.game_manage.section.weather", 0xFF55AADD)
-                .add(Entry.button("screen.game_manage.btn.weather_clear", "weather clear", 0xFF55AADD))
-                .add(Entry.button("screen.game_manage.btn.weather_rain", "weather rain", 0xFF334477))
-                .add(Entry.button("screen.game_manage.btn.weather_thunder", "weather thunder", 0xFFAA8833));
-        categories.add(world);
-
-        // ── 分类：地图配置 ──────────────────────────────────────────
-        Category maps = new Category("screen.game_manage.category.maps", 0xFFAA44CC);
-
-        maps.section("screen.game_manage.section.switchmap", 0xFFAA44CC)
-                .add(Entry.button("screen.game_manage.btn.switchmap_info",
-                        "tmm:switchmap", 0xFF8844CC))
-                .add(Entry.button("screen.game_manage.btn.switchmap_list",
-                        "tmm:switchmap list", 0xFFCC2233))
-                .add(Entry.button("screen.game_manage.btn.switchmap_random",
-                        "tmm:switchmap random", 0xFF22BBCC));
-
-        maps.section("screen.game_manage.section.reset_map", 0xFF6644AA)
-                .add(Entry.button("screen.game_manage.btn.simple_reset_map",
-                        "tmm:game reset blocks simple", 0xFF6644AA))
-                .add(Entry.button("screen.game_manage.btn.full_reset_map",
-                        "tmm:game reset blocks copy", 0xFF5566BB));
-        maps.section("screen.game_manage.section.map_scanner", 0xFFAA4422)
-                .add(Entry.button("screen.game_manage.section.scan_reset",
-                        "tmm:game scan reset_points", 0xFF6644AA))
-                .add(Entry.button("screen.game_manage.section.scan_task",
-                        "tmm:game scan task_points", 0xFF5566BB));
-        categories.add(maps);
-
-        // ── 分类：调试工具 ──────────────────────────────────────────
-        Category misc = new Category("screen.game_manage.category.misc", 0xFF778899);
-
-        misc.section("screen.game_manage.section.infos", 0xFF778899)
-
-                .add(Entry.button("screen.game_manage.btn.list_roles",
-                        "listRoles", 0xFF667788))
-                .add(Entry.button("screen.game_manage.btn.list_game_roles",
-                        "listGameRoles", 0xFF778899))
-                .add(Entry.button("screen.game_manage.btn.list_rooms",
-                        "room", 0xFF556677))
-                .add(Entry.button("screen.game_manage.btn.show_game_time",
-                        "tmm:game time", 0xFF556677))
-                .add(Entry.button("screen.game_manage.btn.list_tasks",
-                        "tmm:game tasks list", 0xFF526677));
-
-        misc.section("screen.game_manage.section.misc", 0xFF5577BB)
-                .add(Entry.button("screen.game_manage.btn.reload_config",
-                        "tmm:config reload", 0xFF5577CC))
-                .add(Entry.button("screen.game_manage.btn.role_management",
-                        "manageRolesUI", 0xFF26f5fC));
-
-        categories.add(misc);
-        return categories;
-    }
-
-
-    // ══════════════════════════════════════════════════════════════════
-    // 布局常量
-    // ══════════════════════════════════════════════════════════════════
-
-    private static final int MAX_USABLE_WIDTH = 520;
-    private static final float USABLE_RATIO = 0.65f;
-
-    private static final int PANEL_PAD = 8;
-    private static final int SCROLL_W = 7;
-    private static final int SCROLL_MIN_THUMB = 20;
-    private static final int BANNER_H = 28;
-
-    private static final int BUTTON_H = 26;
-    private static final int LABEL_H = 18;
-    private static final int SEPARATOR_H = 8;
-    private static final int ENTRY_SPACING = 3;
-
-    /** 分类标签栏高度 */
-    private static final int TAB_BAR_H = 20;
-    /** 相邻标签间距 */
+    private static final int PAD = 8;
+    private static final int HEADER_H = 20;
     private static final int TAB_GAP = 2;
+    private static final int SCROLL_W = UiSurface.SCROLL_WIDTH;
+    private static final int SCROLL_MIN_THUMB = 20;
+    private static final int ROW_GAP = 2;
+    /** 开关行的胶囊尺寸（与 {@code UiSurface.SWITCH_H} 一致）。 */
+    private static final int SWITCH_W = 18;
+    private static final int SWITCH_H = UiSurface.SWITCH_H;
+    /** 数字行的 [+] / [-] 方块。 */
+    private static final int STEP_W = 13;
+    private static final int STEP_H = 14;
+    private static final int VALUE_W = 36;
+    private static final int AUTO_W = 34;
 
-    // ══════════════════════════════════════════════════════════════════
-    // 运行时状态
-    // ══════════════════════════════════════════════════════════════════
+    private final Screen parent;
+    private final List<ManageEntry> entries = new ArrayList<>();
 
-    // 布局缓存
-    private int panelX, panelY, panelW, panelH;
-    private int contentX, contentY, contentW, contentH;
+    private int panelX;
+    private int panelY;
+    private int panelW;
+    private int panelH;
     private int tabBarY;
+    private int contentX;
+    private int contentY;
+    private int contentW;
+    private int contentH;
 
-    // 分类
-    private int selectedCatIdx = 0;
-    private final int[] tabX = new int[32];
-    private final int[] tabW = new int[32];
+    private int selectedCatIdx;
+    private int scrollOffset;
+    private int maxScroll;
+    private boolean draggingScrollbar;
+    private double dragStartY;
+    private int dragStartOffset;
 
-    // 当前分类的条目快照（refreshEntries 更新）
-    private final List<Entry> currentEntries = new ArrayList<>();
-
-    // 悬停动画（每条目一个进度值 [0,1]）
-    private final float[] hoverAnims = new float[256];
-
-    // 滚动
-    private int scrollOffset = 0;
-    private int maxScroll = 0;
-    private boolean isDraggingScroll = false;
-    private double dragStartY = 0;
-    private int dragStartOffset = 0;
-
-    // ══════════════════════════════════════════════════════════════════
-    // 构造
-    // ══════════════════════════════════════════════════════════════════
+    /** 搜索词：直接键入即可过滤当前分类的行（空串 = 不过滤）。 */
+    private String filter = "";
+    /** 只在本页实例首次打开时自动同步一次（窗口缩放会重新 init，不重复发指令）。 */
+    private boolean syncedOnce;
+    /**
+     * 需要重建页签控件（延迟到 render 开头执行）。
+     *
+     * <p>
+     * 点页签时正处在 {@code children()} 的遍历里，此时 {@code clearWidgets()} 会当场改动那个列表；
+     * 所以状态的变更与控件的重建分两步：回调里只置位，帧开始再重建。
+     */
+    private boolean tabsNeedRebuild;
+    /** 「开始游戏」用的补充时长（分钟，0 = 用服务端默认）。 */
+    private int startMinutes;
+    /** 悬停动画（每条目一个进度值）。 */
+    private final float[] hoverAnims = new float[1024];
 
     public GameManagementScreen() {
-        super(Component.translatable("screen.game_manage.title"));
+        this(null);
     }
 
     public GameManagementScreen(Screen parent) {
-        this();
+        super(Component.translatable("screen.game_manage.title"));
         this.parent = parent;
     }
 
     @Override
     public void onClose() {
-        this.minecraft.setScreen(parent);
+        if (this.minecraft != null) {
+            this.minecraft.setScreen(parent);
+        }
     }
 
     // ══════════════════════════════════════════════════════════════════
-    // 初始化
+    // 初始化与列表重建
     // ══════════════════════════════════════════════════════════════════
 
     @Override
     protected void init() {
         super.init();
         computeLayout();
-        refreshEntries();
+        rebuildTabs();
+        rebuildEntries();
+        // 打开时向服务端要一次职业 / 修饰符开关状态（静默指令，不会弹原版配置界面）
+        if (!syncedOnce) {
+            syncedOnce = true;
+            requestRoleStateSync();
+        }
     }
 
     private void computeLayout() {
-        int usableWidth = Math.min((int) (width * USABLE_RATIO), MAX_USABLE_WIDTH);
-        panelX = (width - usableWidth) / 2;
-        panelY = 52;
-        panelW = usableWidth;
-        panelH = height - panelY - 48;
+        panelW = Math.min(this.width - 32, 720);
+        panelH = this.height - 76;
+        panelX = (this.width - panelW) / 2;
+        panelY = 40;
+        tabBarY = panelY - 24;
 
-        // 分类标签栏紧贴面板上方
-        tabBarY = panelY - TAB_BAR_H - 4;
-
-        contentX = panelX + PANEL_PAD;
-        contentY = panelY + BANNER_H + PANEL_PAD;
-        contentW = panelW - PANEL_PAD * 2 - SCROLL_W - 4;
-        contentH = panelH - BANNER_H - PANEL_PAD * 2;
+        contentX = panelX + PAD;
+        contentY = panelY + 1 + HEADER_H + 4;
+        contentW = panelW - PAD * 2 - SCROLL_W - 4;
+        contentH = panelY + panelH - 4 - contentY;
     }
 
-    /** 切换分类后刷新快照并重置动画与滚动 */
-    private void refreshEntries() {
-        currentEntries.clear();
-        if (selectedCatIdx >= 0 && selectedCatIdx < CATEGORIES.size())
-            currentEntries.addAll(CATEGORIES.get(selectedCatIdx).entries);
-        Arrays.fill(hoverAnims, 0f);
+    /** 页签（真正的控件，外观与编辑器里的页签完全一致）。 */
+    private void rebuildTabs() {
+        rebuildTabsOnly();
+    }
+
+    private void rebuildTabsOnly() {
+        clearWidgets();
+        int count = ManageCatalog.CATEGORIES.size();
+        int[] naturalW = new int[count];
+        int total = TAB_GAP * (count - 1);
+        for (int i = 0; i < count; i++) {
+            naturalW[i] = font.width(categoryLabel(i)) + 16;
+            total += naturalW[i];
+        }
+        float scale = total > panelW ? (float) panelW / total : 1.0F;
+        int x = panelX;
+        for (int i = 0; i < count; i++) {
+            int tabW = Math.max(24, (int) (naturalW[i] * scale));
+            final int index = i;
+            addRenderableWidget(new SreTabButton(font, x, tabBarY, tabW, Component.translatable(labelKey(i)),
+                    i == selectedCatIdx, () -> selectCategory(index)));
+            x += tabW + TAB_GAP;
+        }
+    }
+
+    private void rebuildEntries() {
+        entries.clear();
+        entries.addAll(ManageCatalog.build(selectedCatIdx, filter, this));
+        java.util.Arrays.fill(hoverAnims, 0F);
         maxScroll = Math.max(0, totalEntriesHeight() - contentH);
         scrollOffset = Mth.clamp(scrollOffset, 0, maxScroll);
     }
 
-    // ══════════════════════════════════════════════════════════════════
-    // 高度工具
-    // ══════════════════════════════════════════════════════════════════
-
-    private int getEntryH(Entry e) {
-        return switch (e.type) {
-            case BUTTON -> BUTTON_H;
-            case LABEL -> LABEL_H;
-            case SEPARATOR -> SEPARATOR_H;
-        };
+    private void selectCategory(int index) {
+        if (index == selectedCatIdx) {
+            return;
+        }
+        selectedCatIdx = Mth.clamp(index, 0, ManageCatalog.CATEGORIES.size() - 1);
+        scrollOffset = 0;
+        filter = "";
+        // 不在回调里 clearWidgets()：这里正处在 children() 的遍历中，重建推迟到 render 开头
+        tabsNeedRebuild = true;
+        rebuildEntries();
+        click();
     }
 
-    private int totalEntriesHeight() {
-        int h = 0;
-        for (int i = 0; i < currentEntries.size(); i++) {
-            h += getEntryH(currentEntries.get(i));
-            if (i < currentEntries.size() - 1)
-                h += ENTRY_SPACING;
+    private String labelKey(int category) {
+        return ManageCatalog.CATEGORIES.get(category).labelKey();
+    }
+
+    private String categoryLabel(int category) {
+        return Component.translatable(labelKey(category)).getString();
+    }
+
+    private int categoryColor() {
+        return ManageCatalog.CATEGORIES.get(selectedCatIdx).color();
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // ManageCatalog.Context
+    // ══════════════════════════════════════════════════════════════════
+
+    @Override
+    public void command(String command) {
+        if (command == null || command.isBlank() || this.minecraft == null || this.minecraft.player == null) {
+            return;
         }
-        return h;
+        MutableComponent hint = Component.translatable("tip.game_manage.send_command",
+                Component.literal("/" + command).withStyle(ChatFormatting.WHITE)).withStyle(ChatFormatting.GREEN)
+                .withStyle(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND,
+                        "/" + command)).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                Component.translatable("tip.game_manage.click_to_suggest"))));
+        this.minecraft.player.displayClientMessage(hint, false);
+        this.minecraft.player.connection.sendCommand(command);
+    }
+
+    @Override
+    public void open(Supplier<Screen> screen) {
+        if (this.minecraft != null && screen != null) {
+            this.minecraft.setScreen(screen.get());
+        }
+    }
+
+    @Override
+    public void refresh() {
+        requestRoleStateSync();
+        rebuildEntries();
+    }
+
+    @Override
+    public Screen self() {
+        return this;
+    }
+
+    @Override
+    public int startMinutes() {
+        return startMinutes;
+    }
+
+    @Override
+    public void setStartMinutes(int minutes) {
+        startMinutes = Mth.clamp(minutes, 0, 180);
+        rebuildEntries();
+    }
+
+    /** 静默同步：服务端收到后回一份职业 / 修饰符开关 + 人数的快照（不会弹界面）。 */
+    private void requestRoleStateSync() {
+        command("manageRolesUI silent");
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // 高度与几何
+    // ══════════════════════════════════════════════════════════════════
+
+    private int totalEntriesHeight() {
+        int height = 0;
+        for (int i = 0; i < entries.size(); i++) {
+            height += entries.get(i).height();
+            if (i < entries.size() - 1) {
+                height += ROW_GAP;
+            }
+        }
+        return height;
+    }
+
+    private int rowY(int index) {
+        int y = contentY - scrollOffset;
+        for (int i = 0; i < index; i++) {
+            y += entries.get(i).height() + ROW_GAP;
+        }
+        return y;
+    }
+
+    /** 胶囊开关的位置（渲染与命中测试共用同一份几何）。 */
+    private int switchX(int x, int w) {
+        return x + w - 6 - SWITCH_W;
+    }
+
+    private int switchY(int y, int h) {
+        return y + (h - SWITCH_H) / 2;
+    }
+
+    /** 数字行的几何：渲染与命中测试共用，避免两边算得不一样。 */
+    private record CounterBox(int stepY, int autoX, int minusX, int valueX, int valueW, int plusX, boolean hasAuto) {
+    }
+
+    private CounterBox counterBox(ManageEntry.Counter entry, int x, int y, int w, int h) {
+        int stepY = y + (h - STEP_H) / 2;
+        int plusX = x + w - 6 - STEP_W;
+        int minusX = plusX - VALUE_W - STEP_W - 4;
+        boolean hasAuto = entry.reset() != null && entry.forced().getAsInt() >= 0;
+        int autoX = hasAuto ? minusX - 6 - AUTO_W : minusX;
+        return new CounterBox(stepY, autoX, minusX, minusX + STEP_W + 2, VALUE_W, plusX, hasAuto);
     }
 
     // ══════════════════════════════════════════════════════════════════
@@ -432,329 +324,287 @@ public class GameManagementScreen extends Screen {
 
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        renderBackground(g, mouseX, mouseY, partialTick);
+        if (tabsNeedRebuild) {
+            tabsNeedRebuild = false;
+            rebuildTabsOnly();
+        }
+        // 第一步固定是 super.render（它会画背景与页签控件），见 docs/ui_style.md §3
         super.render(g, mouseX, mouseY, partialTick);
 
-        drawPanelBg(g, panelX, panelY, panelW, panelH);
-        renderBanner(g);
-        renderTabBar(g, mouseX, mouseY);
-        renderEntryList(g, mouseX, mouseY);
-        renderVScrollbar(g,
-                panelX + panelW - PANEL_PAD - SCROLL_W,
-                contentY, contentH,
-                scrollOffset, maxScroll,
-                Math.max(1, totalEntriesHeight()),
-                mouseX, mouseY, isDraggingScroll);
-
-        // 顶部遮罩 + 标题
-        g.fillGradient(0, 0, width, tabBarY - 2, 0xBB000000, 0x00000000);
-        g.drawCenteredString(font, this.title, width / 2, 8, 0xEEEEFF);
-
-        // 底部提示
-        g.drawCenteredString(font,
-                Component.translatable("screen.game_manage.hint")
-                        .withStyle(ChatFormatting.GRAY),
-                width / 2, height - 22, 0x88AABB);
+        UiSurface.panel(g, panelX, panelY, panelW, panelH);
+        renderHeader(g);
+        renderRows(g, mouseX, mouseY);
+        UiSurface.scrollbar(g, panelX + panelW - PAD - SCROLL_W, contentY, contentH,
+                scrollbarThumbY(), scrollbarThumbH(), isScrollbarHovered(mouseX, mouseY) || draggingScrollbar);
+        renderFooter(g);
     }
 
-    // ── 顶部标题条 ───────────────────────────────────────────────────
-
-    private void renderBanner(GuiGraphics g) {
-        int col = currentCategory().color | 0xFF000000;
-        // 左侧色条
-        g.fill(panelX + 1, panelY + 1, panelX + 4, panelY + BANNER_H, col);
-        // 渐变背景
-        g.fillGradient(panelX + 4, panelY + 1,
-                panelX + panelW / 2, panelY + BANNER_H,
-                blendColors(0xCC0C1020, col, 0.30f),
-                blendColors(0x440C1020, col, 0.10f));
-        g.fillGradient(panelX + panelW / 2, panelY + 1,
-                panelX + panelW - 1, panelY + BANNER_H,
-                blendColors(0x440C1020, col, 0.10f), 0x00000000);
-        // 底部分割线
-        g.fill(panelX + 1, panelY + BANNER_H - 1,
-                panelX + panelW - 1, panelY + BANNER_H,
-                (currentCategory().color & 0x00FFFFFF) | 0x88000000);
-        // 标题文字（当前分类名）
-        g.drawCenteredString(font,
-                Component.translatable(currentCategory().labelKey)
-                        .withStyle(ChatFormatting.BOLD),
-                panelX + panelW / 2,
-                panelY + (BANNER_H - font.lineHeight) / 2,
-                0xEEEEFF);
+    /** 面板头：分类名（分类色）+ 行数 / 搜索词。 */
+    private void renderHeader(GuiGraphics g) {
+        int color = categoryColor();
+        int textY = panelY + 1 + (HEADER_H - 8) / 2;
+        UiText.draw(g, font, Component.translatable(labelKey(selectedCatIdx)).withStyle(ChatFormatting.BOLD),
+                panelX + PAD, textY, color);
+        String right = filter.isEmpty()
+                ? Component.translatable("screen.game_manage.header.count", entries.size()).getString()
+                : Component.translatable("screen.game_manage.header.filter", filter, entries.size()).getString();
+        UiText.drawRight(g, font, UiText.literal(right), panelX + panelW - PAD, textY,
+                filter.isEmpty() ? SRETheme.MUTED : SRETheme.BRASS);
+        UiSurface.divider(g, panelX + 1, panelY + 1 + HEADER_H, panelW - 2);
     }
 
-    // ── 分类标签栏 ───────────────────────────────────────────────────
-
-    private void renderTabBar(GuiGraphics g, int mouseX, int mouseY) {
-        int n = CATEGORIES.size();
-        int[] naturalW = new int[n];
-        int totalNatural = TAB_GAP * (n - 1);
-        for (int i = 0; i < n; i++) {
-            String lbl = Component.translatable(CATEGORIES.get(i).labelKey).getString();
-            naturalW[i] = font.width(lbl) + 14;
-            totalNatural += naturalW[i];
-        }
-        float scale = totalNatural > panelW ? (float) panelW / totalNatural : 1f;
-
-        int curX = panelX;
-        for (int i = 0; i < n; i++) {
-            int tw = (int) (naturalW[i] * scale);
-            tabX[i] = curX;
-            tabW[i] = tw;
-
-            boolean active = (i == selectedCatIdx);
-            boolean hovered = !active && isInRect(mouseX, mouseY, curX, tabBarY, tw, TAB_BAR_H);
-            int base = CATEGORIES.get(i).color;
-
-            if (active) {
-                g.fillGradient(curX, tabBarY, curX + tw, tabBarY + TAB_BAR_H,
-                        blendColors(0xFF0D1020, base | 0xFF000000, 0.50f),
-                        blendColors(0xFF0A0C18, base | 0xFF000000, 0.28f));
-                // 底部指示条（紧贴面板顶边）
-                g.fill(curX, tabBarY + TAB_BAR_H - 2, curX + tw, tabBarY + TAB_BAR_H,
-                        base | 0xFF000000);
-                g.fill(curX, tabBarY, curX + 1, tabBarY + TAB_BAR_H,
-                        (base & 0x00FFFFFF) | 0x88000000);
-                g.fill(curX + tw - 1, tabBarY, curX + tw, tabBarY + TAB_BAR_H,
-                        (base & 0x00FFFFFF) | 0x88000000);
-                g.fill(curX + 1, tabBarY, curX + tw - 1, tabBarY + 1,
-                        (base & 0x00FFFFFF) | 0x44000000);
-            } else if (hovered) {
-                g.fillGradient(curX, tabBarY, curX + tw, tabBarY + TAB_BAR_H,
-                        blendColors(0xFF0D1020, base | 0xFF000000, 0.22f),
-                        blendColors(0xFF0A0C18, base | 0xFF000000, 0.10f));
-                g.fill(curX, tabBarY + TAB_BAR_H - 1, curX + tw, tabBarY + TAB_BAR_H,
-                        (base & 0x00FFFFFF) | 0x66000000);
-                g.renderOutline(curX, tabBarY, tw, TAB_BAR_H,
-                        (base & 0x00FFFFFF) | 0x44000000);
-            } else {
-                g.fill(curX, tabBarY, curX + tw, tabBarY + TAB_BAR_H, 0x33111828);
-                g.renderOutline(curX, tabBarY, tw, TAB_BAR_H, 0x33334466);
-            }
-
-            String lbl = Component.translatable(CATEGORIES.get(i).labelKey).getString();
-            String truncated = font.plainSubstrByWidth(lbl, tw - 6);
-            int textColor = active ? (base | 0xFF000000)
-                    : hovered ? 0xFFCCDDFF
-                            : 0xFF7788AA;
-            g.drawCenteredString(font, truncated,
-                    curX + tw / 2,
-                    tabBarY + (TAB_BAR_H - font.lineHeight) / 2,
-                    textColor);
-
-            curX += tw + TAB_GAP;
-        }
-    }
-
-    // ── 条目列表 ─────────────────────────────────────────────────────
-
-    private void renderEntryList(GuiGraphics g, int mouseX, int mouseY) {
-        // 上下渐变遮罩（须在 scissor 外绘制才能盖住内容）
+    private void renderRows(GuiGraphics g, int mouseX, int mouseY) {
         g.enableScissor(contentX, contentY, contentX + contentW, contentY + contentH);
-
-        int curY = contentY - scrollOffset;
-        for (int i = 0; i < currentEntries.size(); i++) {
-            Entry entry = currentEntries.get(i);
-            int eh = getEntryH(entry);
-            if (curY + eh >= contentY && curY <= contentY + contentH)
-                renderEntry(g, entry, i, contentX, curY, contentW, eh, mouseX, mouseY);
-            curY += eh + ENTRY_SPACING;
+        for (int i = 0; i < entries.size(); i++) {
+            int y = rowY(i);
+            ManageEntry entry = entries.get(i);
+            int h = entry.height();
+            if (y + h < contentY || y > contentY + contentH) {
+                continue;
+            }
+            renderRow(g, entry, i, y, mouseX, mouseY);
         }
-
         g.disableScissor();
-
-        // 内容区上下淡出边缘
-        g.fillGradient(contentX, contentY,
-                contentX + contentW, contentY + 10,
-                0xAA000000, 0x00000000);
-        g.fillGradient(contentX, contentY + contentH - 10,
-                contentX + contentW, contentY + contentH,
-                0x00000000, 0xAA000000);
     }
 
-    // ── 单条条目 ─────────────────────────────────────────────────────
+    private void renderRow(GuiGraphics g, ManageEntry entry, int index, int y, int mouseX, int mouseY) {
+        int x = contentX;
+        int w = contentW;
+        int h = entry.height();
+        boolean hovered = isInRect(mouseX, mouseY, x, y, w, h) && isInRect(mouseX, mouseY, contentX, contentY, contentW, contentH);
 
-    private void renderEntry(GuiGraphics g, Entry entry, int idx,
-            int x, int y, int w, int h,
-            int mouseX, int mouseY) {
-        switch (entry.type) {
-            case LABEL -> {
-                int col = entry.color | 0xFF000000;
-                // 整体淡晕背景
-                g.fillGradient(x, y, x + w, y + h,
-                        (entry.color & 0x00FFFFFF) | 0x0F000000, 0x00000000);
-                // 左侧色条
-                g.fill(x, y, x + 3, y + h, col);
-                g.fillGradient(x + 3, y, x + 36, y + h,
-                        (entry.color & 0x00FFFFFF) | 0x44000000, 0x00000000);
-                // 文字
-                g.drawString(font, entry.text,
-                        x + 9, y + (h - font.lineHeight) / 2, 0xFFFFFF, true);
+        if (entry instanceof ManageEntry.Label label) {
+            // 分组标题：2px 分类色条 + 粗体标题 + 右侧一条淡分隔线（扁平，不铺背景条）
+            int color = label.color();
+            g.fill(x, y + 2, x + 2, y + h - 1, color);
+            int textX = x + 7;
+            UiText.draw(g, font, label.text().copy().withStyle(ChatFormatting.BOLD), textX, y + (h - 8) / 2, color);
+            int lineX = textX + font.width(label.text().copy().withStyle(ChatFormatting.BOLD)) + 6;
+            if (lineX < x + w) {
+                UiSurface.divider(g, lineX, y + h / 2, x + w - lineX);
             }
+            return;
+        }
+        if (entry instanceof ManageEntry.Divider) {
+            UiSurface.divider(g, x + 2, y + h / 2, w - 4);
+            return;
+        }
 
-            case SEPARATOR -> {
-                int midY = y + h / 2;
-                g.fill(x + 4, midY, x + w - 4, midY + 1, 0xFF1E3060);
-                g.fill(x + 4, midY + 1, x + w - 4, midY + 2, 0x22FFFFFF);
-            }
+        float anim = hoverAnims[Math.floorMod(index, hoverAnims.length)];
+        anim = Mth.lerp(0.25F, anim, hovered ? 1F : 0F);
+        hoverAnims[Math.floorMod(index, hoverAnims.length)] = anim;
 
-            case BUTTON -> {
-                boolean hovered = isInRect(mouseX, mouseY, x, y, w, h);
+        int cardH = h - 1;
+        UiSurface.card(g, x, y, w, cardH, SRETheme.CARD_BG,
+                hovered ? SRETheme.BRASS : SRETheme.CARD_BORDER, UiSurface.RADIUS_ROW);
+        int textY = y + (cardH - 8) / 2;
 
-                // 平滑动画进度
-                float anim = hoverAnims[idx % hoverAnims.length];
-                anim = Mth.lerp(0.22f, anim, hovered ? 1f : 0f);
-                hoverAnims[idx % hoverAnims.length] = anim;
-
-                int raw = entry.color;
-                int full = raw | 0xFF000000;
-
-                // 外边框
-                g.fill(x, y, x + w, y + h,
-                        hovered ? blendColors(0xFF334488, full, 0.70f)
-                                : blendColors(0xFF1E3060, full, 0.25f));
-
-                // 内背景渐变
-                int bgL = hovered ? blendColors(0xFF141828, blendColors(0xFF223380, full, 0.40f), anim)
-                        : 0xFF141828;
-                int bgR = hovered ? blendColors(0xFF0E1020, blendColors(0xFF162060, full, 0.30f), anim)
-                        : 0xFF0E1020;
-                g.fillGradient(x + 1, y + 1, x + w - 1, y + h - 1, bgL, bgR);
-
-                // 顶部亮边
-                g.fill(x + 1, y + 1, x + w - 1, y + 2,
-                        hovered ? 0x33FFFFFF : 0x10FFFFFF);
-
-                // 左侧色条 + 渐变光晕
-                g.fill(x + 1, y + 1, x + 4, y + h - 1, full);
-                g.fillGradient(x + 4, y + 1, x + 16, y + h - 1,
-                        (raw & 0x00FFFFFF) | 0x44000000, 0x00000000);
-
-                // 文字（居中）
-                int textCol = hovered ? 0xFFFFFFFF
-                        : blendColors(0xFFAABBCC, 0xFFDDEEFF, anim * 0.5f);
-                g.drawCenteredString(font, entry.text,
-                        x + w / 2, y + (h - font.lineHeight) / 2, textCol);
+        switch (entry) {
+            case ManageEntry.Command command -> {
+                UiText.draw(g, font, command.text(), x + 7, textY,
+                        hovered ? SRETheme.BRASS_BRIGHT : SRETheme.TEXT);
                 if (hovered) {
-                    var tooltipText = Component
-                            .translatable("screen.game_manage.click_to_send",
-                                    Component.literal("/" + entry.command)
-                                            .withStyle(ChatFormatting.WHITE))
-                            .withStyle(ChatFormatting.YELLOW);
-                    g.renderTooltip(font,
-                            tooltipText,
-                            x - 12 + (w - font.width(tooltipText)) / 2, y);
+                    hoverTooltip(g, y, Component.translatable("screen.game_manage.click_to_send",
+                            Component.literal("/" + command.command()).withStyle(ChatFormatting.WHITE)));
                 }
-                // 悬停指示箭头（右侧淡入）
-                if (anim > 0.05f) {
-                    int alpha = (int) (anim * 0xAA);
-                    g.drawString(font, Component.literal(">"),
-                            x + w - 14,
-                            y + (h - font.lineHeight) / 2,
-                            (alpha << 24) | 0xFFFFFF, false);
+            }
+            case ManageEntry.Nav nav -> {
+                UiText.draw(g, font, nav.text(), x + 7, textY,
+                        hovered ? SRETheme.BRASS_BRIGHT : SRETheme.TEXT);
+                UiText.drawRight(g, font, UiText.literal(">"), x + w - 6, textY,
+                        hovered ? SRETheme.BRASS_BRIGHT : SRETheme.MUTED);
+            }
+            case ManageEntry.Toggle toggle -> {
+                var state = toggle.state().get();
+                UiText.draw(g, font, toggle.text(), x + 7, textY,
+                        state.isOn() ? toggle.labelColor() : SRETheme.MUTED);
+                UiSurface.switchTrack(g, switchX(x, w), switchY(y, cardH), SWITCH_W, SWITCH_H,
+                        state.isOn(), state == SwitchState.ON ? 1F
+                                : state == SwitchState.UNSET ? 0.5F : 0F,
+                        hovered);
+                if (hovered) {
+                    hoverTooltip(g, y, Component.translatable("screen.game_manage.toggle_hint"));
                 }
+            }
+            case ManageEntry.Counter counter -> {
+                CounterBox box = counterBox(counter, x, y, w, cardH);
+                int forced = counter.forced().getAsInt();
+                String value = forced >= 0 ? String.valueOf(forced)
+                        : Component.translatable("screen.game_manage.value.auto").getString();
+                String unit = counter.unit() == null ? "" : counter.unit().getString();
+                if (forced >= 0 && !unit.isEmpty()) {
+                    value = value + " " + unit;
+                }
+                UiText.draw(g, font, counter.text(), x + 7, textY, counter.labelColor());
+                String shown = MapUiGraphics.clip(font, value, box.valueW() - 4);
+                UiText.drawCentered(g, font, UiText.literal(shown), box.valueX() + box.valueW() / 2, textY,
+                        forced >= 0 ? SRETheme.TEXT : SRETheme.MUTED);
+                drawStep(g, box.minusX(), box.stepY(), "-", hovered && isInRect(mouseX, mouseY, box.minusX(),
+                        box.stepY(), STEP_W, STEP_H));
+                drawStep(g, box.plusX(), box.stepY(), "+",
+                        hovered && isInRect(mouseX, mouseY, box.plusX(), box.stepY(), STEP_W, STEP_H));
+                if (box.hasAuto()) {
+                    drawAuto(g, box.autoX(), box.stepY(), counter, hovered
+                            && isInRect(mouseX, mouseY, box.autoX(), box.stepY(), AUTO_W, STEP_H));
+                }
+                if (hovered) {
+                    String current = forced >= 0 ? String.valueOf(forced)
+                            : Component.translatable("screen.game_manage.value.auto_estimate",
+                                    counter.autoEstimate().getAsInt()).getString();
+                    hoverTooltip(g, y, Component.translatable("screen.game_manage.counter_hint", current));
+                }
+            }
+            // 分组标题与分隔线在上面已经 return
+            default -> {
             }
         }
     }
 
-    // ══════════════════════════════════════════════════════════════════
-    // 通用渲染工具（与 RoleIntroduceScreen 风格一致）
-    // ══════════════════════════════════════════════════════════════════
-
-    private void drawPanelBg(GuiGraphics g, int x, int y, int w, int h) {
-        g.fillGradient(x, y, x + w, y + h, 0xD80C1020, 0xD8101828);
-        g.renderOutline(x, y, w, h, 0xFF1E3060);
-        g.fill(x + 1, y + 1, x + w - 1, y + 2, 0x22FFFFFF);
+    /** 「-」/「+」小方块。 */
+    private void drawStep(GuiGraphics g, int x, int y, String glyph, boolean hover) {
+        UiSurface.card(g, x, y, STEP_W, STEP_H, hover ? SRETheme.SURFACE_BOTTOM_ALT : SRETheme.CARD_BG,
+                hover ? SRETheme.BRASS : SRETheme.CARD_BORDER, UiSurface.RADIUS_CHIP);
+        UiText.drawCentered(g, font, UiText.literal(glyph), x + STEP_W / 2, y + (STEP_H - 8) / 2,
+                hover ? SRETheme.BRASS_BRIGHT : SRETheme.TEXT);
     }
 
-    private void renderVScrollbar(GuiGraphics g, int x, int y, int h,
-            int scrollOff, int maxScr, int totalContentH,
-            int mouseX, int mouseY, boolean dragging) {
-        g.fill(x, y, x + SCROLL_W, y + h, 0xFF111828);
-        g.fill(x + 1, y + 1, x + SCROLL_W - 1, y + h - 1, 0x55334466);
-        if (maxScr <= 0)
-            return;
+    /** 「自动」小按钮（只有当前是手动值时才出现）。 */
+    private void drawAuto(GuiGraphics g, int x, int y, ManageEntry.Counter counter, boolean hover) {
+        UiSurface.card(g, x, y, AUTO_W, STEP_H, hover ? SRETheme.SURFACE_BOTTOM_ALT : SRETheme.CARD_BG,
+                hover ? SRETheme.BRASS : SRETheme.CARD_BORDER, UiSurface.RADIUS_CHIP);
+        String text = MapUiGraphics.clip(font,
+                Component.translatable("screen.game_manage.value.auto").getString(), AUTO_W - 4);
+        UiText.drawCentered(g, font, UiText.literal(text), x + AUTO_W / 2, y + (STEP_H - 8) / 2,
+                hover ? SRETheme.BRASS_BRIGHT : SRETheme.MUTED);
+    }
 
-        float ratio = Math.min(1f, (float) h / Math.max(1, totalContentH));
-        int thumbH = Math.max(SCROLL_MIN_THUMB, (int) (h * ratio));
-        int thumbY = y + (int) ((h - thumbH) * ((float) scrollOff / maxScr));
-        boolean hl = dragging || isInRect(mouseX, mouseY, x, thumbY, SCROLL_W, thumbH);
-
-        g.fill(x, thumbY, x + SCROLL_W, thumbY + thumbH,
-                hl ? 0xFF8899CC : 0xFF556699);
-        g.fill(x + 1, thumbY + 1, x + SCROLL_W - 1, thumbY + thumbH - 1,
-                hl ? 0xFFAABBEE : 0xFF7788BB);
-        g.fill(x + 1, thumbY + 1, x + SCROLL_W - 1, thumbY + 3, 0x44FFFFFF);
+    /** 悬停提示：贴在被悬停行的上方（顶到内容区上沿时改放到下方），并按面板宽度裁掉超长指令。 */
+    private void hoverTooltip(GuiGraphics g, int rowY, Component text) {
+        int y = rowY - 10;
+        if (y < contentY) {
+            y = rowY + 14;
+        }
+        String shown = MapUiGraphics.clip(font, text.getString(), contentW - 4);
+        UiText.draw(g, font, Component.literal(shown), contentX + 2, y, SRETheme.BRASS_BRIGHT);
+    }
+    private void renderFooter(GuiGraphics g) {
+        Component hint = filter.isEmpty()
+                ? Component.translatable("screen.game_manage.hint")
+                : Component.translatable("screen.game_manage.hint.filter");
+        UiText.drawCentered(g, font, hint, this.width / 2, this.height - 16, SRETheme.MUTED);
     }
 
     // ══════════════════════════════════════════════════════════════════
-    // 鼠标事件
+    // 滚动条几何
+    // ══════════════════════════════════════════════════════════════════
+
+    private int scrollbarThumbH() {
+        if (maxScroll <= 0) {
+            return contentH;
+        }
+        return Math.max(SCROLL_MIN_THUMB, (int) (contentH * (float) contentH / Math.max(1, totalEntriesHeight())));
+    }
+
+    private int scrollbarThumbY() {
+        if (maxScroll <= 0) {
+            return contentY;
+        }
+        return contentY + (int) ((contentH - scrollbarThumbH()) * ((float) scrollOffset / maxScroll));
+    }
+
+    private boolean isScrollbarHovered(int mouseX, int mouseY) {
+        return isInRect(mouseX, mouseY, panelX + panelW - PAD - SCROLL_W, contentY, SCROLL_W, contentH);
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // 输入
     // ══════════════════════════════════════════════════════════════════
 
     @Override
     public boolean mouseClicked(double mx, double my, int button) {
         if (button == 0) {
+            int mouseX = (int) mx;
+            int mouseY = (int) my;
 
-            // ── 分类标签 ──────────────────────────────────────────
-            for (int i = 0; i < CATEGORIES.size(); i++) {
-                if (tabW[i] > 0 && isInRect((int) mx, (int) my,
-                        tabX[i], tabBarY, tabW[i], TAB_BAR_H)) {
-                    if (selectedCatIdx != i) {
-                        selectedCatIdx = i;
-                        scrollOffset = 0;
-                        refreshEntries();
-                        this.minecraft.getSoundManager()
-                                .play(SimpleSoundInstance.forUI(
-                                        SoundEvents.UI_BUTTON_CLICK, 1f));
-                    }
-                    return true;
-                }
-            }
-
-            // ── 滚动条 ────────────────────────────────────────────
-            int sbX = panelX + panelW - PANEL_PAD - SCROLL_W;
-            if (isInRect((int) mx, (int) my, sbX, contentY, SCROLL_W, contentH)
-                    && maxScroll > 0) {
-                isDraggingScroll = true;
+            if (maxScroll > 0 && isScrollbarHovered(mouseX, mouseY)) {
+                draggingScrollbar = true;
                 dragStartY = my;
                 dragStartOffset = scrollOffset;
                 return true;
             }
 
-            // ── 按钮 ──────────────────────────────────────────────
-            if (isInRect((int) mx, (int) my, contentX, contentY, contentW, contentH)) {
-                int curY = contentY - scrollOffset;
-                for (int i = 0; i < currentEntries.size(); i++) {
-                    Entry entry = currentEntries.get(i);
-                    int eh = getEntryH(entry);
-                    if (entry.type == EntryType.BUTTON
-                            && isInRect((int) mx, (int) my, contentX, curY, contentW, eh)) {
-                        executeCommand(entry.command);
-                        this.minecraft.getSoundManager()
-                                .play(SimpleSoundInstance.forUI(
-                                        SoundEvents.UI_BUTTON_CLICK, 1f));
-                        return true;
+            if (isInRect(mouseX, mouseY, contentX, contentY, contentW, contentH)) {
+                for (int i = 0; i < entries.size(); i++) {
+                    int y = rowY(i);
+                    ManageEntry entry = entries.get(i);
+                    int h = entry.height();
+                    if (h <= 0 || !isInRect(mouseX, mouseY, contentX, y, contentW, h)) {
+                        continue;
                     }
-                    curY += eh + ENTRY_SPACING;
+                    return activate(entry, mouseX, mouseY, y);
                 }
-                return true;
             }
         }
         return super.mouseClicked(mx, my, button);
     }
 
+    /** 命中一行后要做的事（按行类型分派）。 */
+    private boolean activate(ManageEntry entry, int mouseX, int mouseY, int y) {
+        switch (entry) {
+            case ManageEntry.Command command -> {
+                click();
+                command(command.command());
+                return true;
+            }
+            case ManageEntry.Nav nav -> {
+                click();
+                open(nav.target());
+                return true;
+            }
+            case ManageEntry.Toggle toggle -> {
+                click();
+                var state = toggle.state().get() != null ? toggle.state().get()
+                        : SwitchState.UNSET;
+                toggle.setter().accept(!state.isOn());
+                rebuildEntries();
+                return true;
+            }
+            case ManageEntry.Counter counter -> {
+                int cardH = entry.height() - 1;
+                CounterBox box = counterBox(counter, contentX, y, contentW, cardH);
+                int forced = counter.forced().getAsInt();
+                if (box.hasAuto() && isInRect(mouseX, mouseY, box.autoX(), box.stepY(), AUTO_W, STEP_H)) {
+                    click();
+                    counter.reset().run();
+                    return true;
+                }
+                if (isInRect(mouseX, mouseY, box.minusX(), box.stepY(), STEP_W, STEP_H)) {
+                    return applyCounter(counter, forced >= 0 ? forced - 1 : counter.autoEstimate().getAsInt() - 1);
+                }
+                if (isInRect(mouseX, mouseY, box.plusX(), box.stepY(), STEP_W, STEP_H)) {
+                    return applyCounter(counter, forced >= 0 ? forced + 1 : counter.autoEstimate().getAsInt() + 1);
+                }
+                return true;
+            }
+            default -> {
+                return false;
+            }
+        }
+    }
+
+    private boolean applyCounter(ManageEntry.Counter counter, int value) {
+        click();
+        counter.apply().accept(Mth.clamp(value, counter.min(), counter.max()));
+        rebuildEntries();
+        return true;
+    }
+
     @Override
     public boolean mouseDragged(double mx, double my, int button, double dx, double dy) {
-        if (isDraggingScroll && maxScroll > 0) {
-            int total = Math.max(1, totalEntriesHeight());
-            int thumbH = Math.max(SCROLL_MIN_THUMB,
-                    (int) (contentH * Math.min(1f, (float) contentH / total)));
-            double trackH = contentH - thumbH;
-            if (trackH > 0)
-                scrollOffset = Mth.clamp(
-                        (int) (dragStartOffset + (my - dragStartY) / trackH * maxScroll),
-                        0, maxScroll);
+        if (draggingScrollbar && maxScroll > 0) {
+            int thumbH = scrollbarThumbH();
+            double trackH = Math.max(1, contentH - thumbH);
+            scrollOffset = Mth.clamp((int) (dragStartOffset + (my - dragStartY) / trackH * maxScroll), 0, maxScroll);
             return true;
         }
         return super.mouseDragged(mx, my, button, dx, dy);
@@ -762,90 +612,59 @@ public class GameManagementScreen extends Screen {
 
     @Override
     public boolean mouseReleased(double mx, double my, int button) {
-        isDraggingScroll = false;
+        draggingScrollbar = false;
         return super.mouseReleased(mx, my, button);
     }
 
     @Override
     public boolean mouseScrolled(double mx, double my, double scrollX, double scrollY) {
         if (isInRect((int) mx, (int) my, panelX, panelY, panelW, panelH)) {
-            scrollOffset = Mth.clamp(
-                    (int) (scrollOffset - scrollY * (BUTTON_H + ENTRY_SPACING)),
-                    0, maxScroll);
+            scrollOffset = Mth.clamp(scrollOffset - (int) (scrollY * (ManageEntry.ROW_H + ROW_GAP)), 0, maxScroll);
             return true;
         }
         return super.mouseScrolled(mx, my, scrollX, scrollY);
     }
 
-    // ══════════════════════════════════════════════════════════════════
-    // 键盘事件（← → 切换分类，与 RoleIntroduceScreen 一致）
-    // ══════════════════════════════════════════════════════════════════
-
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == 263 || keyCode == 262) { // ← →
-            int newIdx = Mth.clamp(
-                    selectedCatIdx + (keyCode == 263 ? -1 : 1),
-                    0, CATEGORIES.size() - 1);
-            if (newIdx != selectedCatIdx) {
-                selectedCatIdx = newIdx;
-                scrollOffset = 0;
-                refreshEntries();
-                this.minecraft.getSoundManager()
-                        .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
-            }
+        if (keyCode == 263 || keyCode == 262) { // ← / →
+            selectCategory(selectedCatIdx + (keyCode == 263 ? -1 : 1));
             return true;
+        }
+        if (keyCode == 259) { // Backspace：删掉搜索词的最后一个字符
+            if (!filter.isEmpty()) {
+                filter = filter.substring(0, filter.length() - 1);
+                rebuildEntries();
+                return true;
+            }
+        }
+        if (keyCode == 256) { // Esc：先清搜索词，再退出
+            if (!filter.isEmpty()) {
+                filter = "";
+                rebuildEntries();
+                return true;
+            }
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
-    // ══════════════════════════════════════════════════════════════════
-    // 指令执行
-    // ══════════════════════════════════════════════════════════════════
-
-    private void executeCommand(String command) {
-        if (command == null || command.isBlank())
-            return;
-        var text = Component
-                .translatable("tip.game_manage.send_command",
-                        Component.literal("/" + command).withStyle(ChatFormatting.WHITE))
-                .withStyle(ChatFormatting.GREEN)
-                .withStyle(
-                        style -> style.withClickEvent(new ClickEvent(
-                                ClickEvent.Action.SUGGEST_COMMAND, "/" + command))
-                                .withHoverEvent(new HoverEvent(
-                                        HoverEvent.Action.SHOW_TEXT,
-                                        Component.translatable(
-                                                "tip.game_manage.click_to_suggest"))));
-        if (minecraft.player != null) {
-            minecraft.player
-                    .displayClientMessage(text, false);
-            minecraft.player.connection.sendCommand(command);
+    @Override
+    public boolean charTyped(char codePoint, int modifiers) {
+        if (codePoint >= 32 && codePoint != 127 && filter.length() < 32) {
+            filter = filter + codePoint;
+            rebuildEntries();
+            return true;
         }
+        return super.charTyped(codePoint, modifiers);
     }
 
-    // ══════════════════════════════════════════════════════════════════
-    // 工具方法（与 RoleIntroduceScreen 保持一致）
-    // ══════════════════════════════════════════════════════════════════
-
-    private Category currentCategory() {
-        return (selectedCatIdx >= 0 && selectedCatIdx < CATEGORIES.size())
-                ? CATEGORIES.get(selectedCatIdx)
-                : CATEGORIES.get(0);
+    private void click() {
+        if (this.minecraft != null) {
+            this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+        }
     }
 
     private static boolean isInRect(int px, int py, int x, int y, int w, int h) {
         return px >= x && px < x + w && py >= y && py < y + h;
-    }
-
-    private static int blendColors(int c1, int c2, float t) {
-        if (t <= 0f)
-            return c1;
-        if (t >= 1f)
-            return c2;
-        int r = (int) (((c1 >> 16) & 0xFF) + (((c2 >> 16) & 0xFF) - ((c1 >> 16) & 0xFF)) * t);
-        int g = (int) (((c1 >> 8) & 0xFF) + (((c2 >> 8) & 0xFF) - ((c1 >> 8) & 0xFF)) * t);
-        int b = (int) ((c1 & 0xFF) + ((c2 & 0xFF) - (c1 & 0xFF)) * t);
-        return 0xFF000000 | (r << 16) | (g << 8) | b;
     }
 }

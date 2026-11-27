@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client.gui.widget;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.client.util.PinYinUtils;
 import io.wifi.starrailexpress.client.util.SafeNames;
 import net.minecraft.client.Minecraft;
@@ -43,11 +44,11 @@ public class EntityListWidget extends AbstractWidget {
 
     private static final int ROW_HEIGHT = 12;
     private static final int COLOR_BG = 0x66000000;
-    private static final int COLOR_BORDER = 0xFF5A4530;
+    private static final int COLOR_BORDER = SRETheme.CARD_BORDER;
     private static final int COLOR_HOVER = 0x33FFFFFF;
-    private static final int COLOR_SELECTION = 0x88D4AF37;
-    private static final int COLOR_TEXT = 0xFFFFF4DC;
-    private static final int COLOR_MUTED = 0xFF9E8B6E;
+    private static final int COLOR_SELECTION = SRETheme.withAlpha(SRETheme.GOLD, 0x88);
+    private static final int COLOR_TEXT = SRETheme.TEXT;
+    private static final int COLOR_MUTED = SRETheme.MUTED;
 
     private static List<Entry> allEntries;
 

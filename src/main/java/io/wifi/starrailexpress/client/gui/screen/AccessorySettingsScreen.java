@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client.gui.screen;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.client.gui.anim.GuiAnim;
 import io.wifi.starrailexpress.client.util.SkinVisibility;
@@ -57,15 +58,15 @@ import java.util.Map;
 public class AccessorySettingsScreen extends Screen {
 
     // ─── 主题色（与主皮肤页保持一致） ──────────────────────────────────────
-    private static final int ACCENT = 0xFFD4AF37;
-    private static final int BG_TOP = 0xD81A1008;
-    private static final int BG_BOTTOM = 0xD820140A;
-    private static final int SCREEN_BG_TOP = 0xF018120A;
-    private static final int SCREEN_BG_BOTTOM = 0xF0061018;
-    private static final int PANEL_BORDER = 0xFF8B6914;
-    private static final int TEXT_MAIN = 0xFFFFF4DC;
-    private static final int TEXT_TITLE = 0xFFF5E8C8;
-    private static final int TEXT_DIM = 0xFF9E8B6E;
+    private static final int ACCENT = SRETheme.GOLD;
+    private static final int BG_TOP = SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xD8);
+    private static final int BG_BOTTOM = SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM, 0xD8);
+    private static final int SCREEN_BG_TOP = SRETheme.withAlpha(SRETheme.SCREEN_TOP, 0xF0);
+    private static final int SCREEN_BG_BOTTOM = SRETheme.withAlpha(SRETheme.SCREEN_BOTTOM, 0xF0);
+    private static final int PANEL_BORDER = SRETheme.BORDER;
+    private static final int TEXT_MAIN = SRETheme.TEXT;
+    private static final int TEXT_TITLE = SRETheme.TITLE;
+    private static final int TEXT_DIM = SRETheme.MUTED;
 
     /** 「隐藏指定皮肤」列表里可以出现的类别（顺序即显示顺序）。 */
     private static final String[] HIDEABLE_TYPES = {
@@ -434,9 +435,9 @@ public class AccessorySettingsScreen extends Screen {
      */
     private static void renderToggleRow(GuiGraphics g, int x, int y, int width, int height,
             Component label, boolean toggled, boolean hovered, int labelColor) {
-        int bg = toggled ? 0x992A2010 : (hovered ? 0x992A1A08 : 0x991A1008);
+        int bg = toggled ? 0x992A2010 : (hovered ? 0x992A1A08 : SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0x99));
         g.fill(x, y, x + width, y + height, bg);
-        int border = toggled ? 0xFFD4AF37 : (hovered ? 0xFFC9A84C : 0x558B6914);
+        int border = toggled ? SRETheme.GOLD : (hovered ? SRETheme.GOLD_DIM : SRETheme.withAlpha(SRETheme.BORDER, 0x55));
         g.fill(x, y, x + width, y + 1, border);
         g.fill(x, y + height - 1, x + width, y + height, border);
         g.fill(x, y, x + 1, y + height, border);
@@ -445,14 +446,14 @@ public class AccessorySettingsScreen extends Screen {
         int boxSize = Math.min(10, height - 4);
         int boxX = x + 4;
         int boxY = y + (height - boxSize) / 2;
-        g.fill(boxX, boxY, boxX + boxSize, boxY + boxSize, toggled ? 0xFFD4AF37 : 0x553A3020);
-        g.fill(boxX, boxY, boxX + boxSize, boxY + 1, 0x558B6914);
-        g.fill(boxX + boxSize - 1, boxY, boxX + boxSize, boxY + boxSize, 0x558B6914);
-        g.fill(boxX, boxY, boxX + 1, boxY + boxSize, 0x558B6914);
-        g.fill(boxX, boxY + boxSize - 1, boxX + boxSize, boxY + boxSize, 0x558B6914);
+        g.fill(boxX, boxY, boxX + boxSize, boxY + boxSize, toggled ? SRETheme.GOLD : 0x553A3020);
+        g.fill(boxX, boxY, boxX + boxSize, boxY + 1, SRETheme.withAlpha(SRETheme.BORDER, 0x55));
+        g.fill(boxX + boxSize - 1, boxY, boxX + boxSize, boxY + boxSize, SRETheme.withAlpha(SRETheme.BORDER, 0x55));
+        g.fill(boxX, boxY, boxX + 1, boxY + boxSize, SRETheme.withAlpha(SRETheme.BORDER, 0x55));
+        g.fill(boxX, boxY + boxSize - 1, boxX + boxSize, boxY + boxSize, SRETheme.withAlpha(SRETheme.BORDER, 0x55));
         if (toggled) {
             var font = Minecraft.getInstance().font;
-            g.drawString(font, "\u2713", boxX + 1, boxY - 1, 0xFF1A1008, false);
+            g.drawString(font, "\u2713", boxX + 1, boxY - 1, SRETheme.SURFACE_TOP_SOFT, false);
         }
 
         var font = Minecraft.getInstance().font;

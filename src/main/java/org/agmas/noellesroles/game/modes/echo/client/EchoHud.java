@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.game.modes.echo.client;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
@@ -13,8 +14,8 @@ import java.util.*;
 
 /** 公开目标与本人状态分区；旁观者不读取其他人的私有RoleData。 */
 public final class EchoHud {
-    private static final int TEXT = 0xFFFFF4DC, GOLD = 0xFFD4AF37, MUTED = 0xFF9E8B6E;
-    private static final int GREEN = 0xFF72C17B, RED = 0xFFE06B65;
+    private static final int TEXT = SRETheme.TEXT, GOLD = SRETheme.GOLD, MUTED = SRETheme.MUTED;
+    private static final int GREEN = SRETheme.GREEN, RED = SRETheme.RED;
     private static EchoPublicPayload view;
     private static int age;
     private EchoHud() { }
@@ -171,7 +172,7 @@ public final class EchoHud {
     private static void renderSupplies(FakeGuiGraphics g, EchoRoleData d, EchoPublicState s, long tick, int width, int height) {
         var layout = new EchoHudLayout(width, height);
         var supplies = layout.supplies();
-        g.fill(supplies.x(), supplies.y(), supplies.right(), supplies.bottom(), 0xA01A1008);
+        g.fill(supplies.x(), supplies.y(), supplies.right(), supplies.bottom(), SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xA0));
         int half = supplies.width() / 2;
         row(g, tr("cargo", d.cargo().size(), d.capacity(), d.blackCargoCount()), supplies.x() + 3, supplies.y() + 1, half - 6, TEXT);
         Component key = d.key() == null ? tr("key.none") : d.keyPulseAt() > tick
@@ -202,9 +203,9 @@ public final class EchoHud {
         return I18n.exists(key) ? Component.translatable(key) : tr(fallback);
     }
     private static void panel(FakeGuiGraphics g, int x, int y, int width, int height) {
-        g.fillGradient(x, y, x + width, y + height, 0xD81A1008, 0xD820140A);
-        g.renderOutline(x, y, width, height, 0xFF8B6914);
-        g.fill(x + 1, y + 1, x + width - 1, y + 2, 0x33FFE8C0);
+        g.fillGradient(x, y, x + width, y + height, SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xD8), SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM, 0xD8));
+        g.renderOutline(x, y, width, height, SRETheme.BORDER);
+        g.fill(x + 1, y + 1, x + width - 1, y + 2, SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x33));
     }
     static void row(FakeGuiGraphics g, Component text, int x, int y, int width, int color) {
         var font = Minecraft.getInstance().font;

@@ -15,6 +15,7 @@
 
 package net.exmo.sre.record.client;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.api.replay.ReplayDisplayUtils;
 import net.exmo.sre.record.MatchRecord;
 import net.minecraft.ChatFormatting;
@@ -54,13 +55,13 @@ public class MatchRecordsScreen extends Screen {
     private static final int BANNER_H = 26;
 
     // ── 调色板 ──
-    private static final int PANEL_BG_TOP = 0xD81A1008;
-    private static final int PANEL_BG_BOTTOM = 0xD820140A;
-    private static final int PANEL_BORDER = 0xFF8B6914;
-    private static final int GOLD = 0xFFD4AF37;
+    private static final int PANEL_BG_TOP = SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xD8);
+    private static final int PANEL_BG_BOTTOM = SRETheme.withAlpha(SRETheme.SURFACE_BOTTOM, 0xD8);
+    private static final int PANEL_BORDER = SRETheme.BORDER;
+    private static final int GOLD = SRETheme.GOLD;
     private static final int GOLD_DIM = 0xFFB8960C;
-    private static final int CREAM = 0xFFF5E8C8;
-    private static final int TAN = 0xFF9E8B6E;
+    private static final int CREAM = SRETheme.TITLE;
+    private static final int TAN = SRETheme.MUTED;
 
     // 阵营展示顺序（好人→治安官→中立→中立偏杀→杀手→未知）
     private static final int[] FACTION_ORDER = { 1, 5, 2, 3, 4, 0 };
@@ -393,7 +394,7 @@ public class MatchRecordsScreen extends Screen {
     }
 
     private void renderPlaceholder(GuiGraphics g, int x, int y, int w) {
-        g.fill(x, y, x + w, y + CARD_H, 0xFF5A4530);
+        g.fill(x, y, x + w, y + CARD_H, SRETheme.CARD_BORDER);
         g.fillGradient(x + 1, y + 1, x + w - 1, y + CARD_H - 1, 0xFF150D06, 0xFF0E0804);
         g.drawCenteredString(font, Component.translatable("screen.sre.records.loading_row")
                 .withStyle(ChatFormatting.DARK_GRAY), x + w / 2, y + (CARD_H - font.lineHeight) / 2, TAN);
@@ -401,14 +402,14 @@ public class MatchRecordsScreen extends Screen {
 
     private void renderCard(GuiGraphics g, MatchRecord.Summary summary, int x, int y, int w, int h,
             boolean hovered, boolean selected) {
-        int outerBorder = selected ? GOLD : (hovered ? 0xFFC9A84C : 0xFF5A4530);
+        int outerBorder = selected ? GOLD : (hovered ? SRETheme.GOLD_DIM : SRETheme.CARD_BORDER);
         g.fill(x, y, x + w, y + h, outerBorder);
-        int bgL = selected ? 0xFF5A4520 : (hovered ? 0xFF2A1C0E : 0xFF1A1008);
-        int bgR = selected ? 0xFF3A2A10 : (hovered ? 0xFF1C1206 : 0xFF120A04);
+        int bgL = selected ? 0xFF5A4520 : (hovered ? 0xFF2A1C0E : SRETheme.SURFACE_TOP_SOFT);
+        int bgR = selected ? 0xFF3A2A10 : (hovered ? 0xFF1C1206 : SRETheme.SCROLL_TRACK);
         g.fillGradient(x + 1, y + 1, x + w - 1, y + h - 1, bgL, bgR);
-        g.fill(x + 1, y + 1, x + w - 1, y + 2, selected ? 0x44FFE8C0 : 0x10FFFFFF);
+        g.fill(x + 1, y + 1, x + w - 1, y + 2, selected ? SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x44) : 0x10FFFFFF);
 
-        int accent = summary.winningTeam != null || summary.winningTitleJson != null ? GOLD_DIM : 0xFF5A4530;
+        int accent = summary.winningTeam != null || summary.winningTitleJson != null ? GOLD_DIM : SRETheme.CARD_BORDER;
         g.fill(x + 1, y + 1, x + 4, y + h - 1, accent);
 
         int textX = x + 8;
@@ -440,8 +441,8 @@ public class MatchRecordsScreen extends Screen {
             return;
         }
 
-        g.fillGradient(rightX + 1, panelY + 1, rightX + rightW / 2, panelY + BANNER_H, 0xCC8B6914, 0x448B6914);
-        g.fillGradient(rightX + rightW / 2, panelY + 1, rightX + rightW - 1, panelY + BANNER_H, 0x448B6914, 0x00000000);
+        g.fillGradient(rightX + 1, panelY + 1, rightX + rightW / 2, panelY + BANNER_H, SRETheme.withAlpha(SRETheme.BORDER, 0xCC), SRETheme.withAlpha(SRETheme.BORDER, 0x44));
+        g.fillGradient(rightX + rightW / 2, panelY + 1, rightX + rightW - 1, panelY + BANNER_H, SRETheme.withAlpha(SRETheme.BORDER, 0x44), 0x00000000);
 
         Component bannerTitle;
         if (selectedRecord != null && selectedRecord.winningTitleJson != null) {
@@ -480,13 +481,13 @@ public class MatchRecordsScreen extends Screen {
     private void drawPanelBg(GuiGraphics g, int x, int y, int w, int h) {
         g.fillGradient(x, y, x + w, y + h, PANEL_BG_TOP, PANEL_BG_BOTTOM);
         g.renderOutline(x, y, w, h, PANEL_BORDER);
-        g.fill(x + 1, y + 1, x + w - 1, y + 2, 0x22FFE8C0);
+        g.fill(x + 1, y + 1, x + w - 1, y + 2, SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x22));
     }
 
     private void renderVScrollbar(GuiGraphics g, int x, int y, int h, int scrollOffset, int maxScroll,
             int totalContentH, int mouseX, int mouseY, boolean dragging) {
-        g.fill(x, y, x + SCROLL_W, y + h, 0xFF1A1008);
-        g.fill(x + 1, y + 1, x + SCROLL_W - 1, y + h - 1, 0x558B6914);
+        g.fill(x, y, x + SCROLL_W, y + h, SRETheme.SURFACE_TOP_SOFT);
+        g.fill(x + 1, y + 1, x + SCROLL_W - 1, y + h - 1, SRETheme.withAlpha(SRETheme.BORDER, 0x55));
         if (maxScroll <= 0) {
             return;
         }
@@ -494,7 +495,7 @@ public class MatchRecordsScreen extends Screen {
         int thumbH = Math.max(SCROLL_MIN_THUMB, (int) (h * ratio));
         int thumbY = y + (int) ((h - thumbH) * ((float) scrollOffset / maxScroll));
         boolean hl = dragging || isInRect(mouseX, mouseY, x, thumbY, SCROLL_W, thumbH);
-        g.fill(x, thumbY, x + SCROLL_W, thumbY + thumbH, hl ? 0xFFC9A84C : PANEL_BORDER);
+        g.fill(x, thumbY, x + SCROLL_W, thumbY + thumbH, hl ? SRETheme.GOLD_DIM : PANEL_BORDER);
         g.fill(x + 1, thumbY + 1, x + SCROLL_W - 1, thumbY + thumbH - 1, hl ? GOLD : GOLD_DIM);
         g.fill(x + 1, thumbY + 1, x + SCROLL_W - 1, thumbY + 3, 0x44FFFFFF);
     }

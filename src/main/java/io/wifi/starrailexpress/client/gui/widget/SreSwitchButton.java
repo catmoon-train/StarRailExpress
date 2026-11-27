@@ -15,9 +15,10 @@
 
 package io.wifi.starrailexpress.client.gui.widget;
 
-import io.wifi.starrailexpress.client.gui.SREPanelStyle;
-import io.wifi.starrailexpress.client.gui.screen.MinigameUI;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapUiGraphics;
+import io.wifi.starrailexpress.client.ui.SRETheme;
+import io.wifi.starrailexpress.client.ui.UiSurface;
+import io.wifi.starrailexpress.client.ui.UiText;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.Font;
@@ -33,35 +34,37 @@ import java.util.function.Supplier;
  * SRE 的开关按钮 —— 四个自定义工具编辑器与地图工具共用这一份实现（外观完全一致）。
  *
  * <p>
- * 状态不写成文字，而是画成一个<b>带颜色的方块</b>：开 = 绿 ✓、关 = 红 ✗、未设置 = 土褐 -
- * （未设置用 ASCII 短横，任何字体下都不会变成方块）。悬停时方块向自己的强调色靠一点，
- * 点下去之前就能确认点的是哪一项。
+ * 右端是<b>胶囊形切换开关</b>（{@code docs/ui_style.md} §3）：轨道开 = 明亮黄铜、关 = 暗哑青铜灰，
+ * 滑块是一枚银白小圆点。扁平画法，没有立体渐变，只靠「黄铜 × 深灰」的反差和滑块位置表达状态。
+ * 三种状态的位置：开 = 滑块靠右、关 = 靠左、未设置 = 居中停在正中（一眼能看出「还没选」）。
  *
  * <p>
- * 标题有两种摆法：{@code label} 非空时「左标题 + 右方块」（按钮自带标题的行用，相邻的这种行会自动并排）；
- * 标题为空时把「方块 + 状态文字」居中（标题已经画在标签列上的行用）。
+ * 标题有两种摆法：{@code label} 非空时「左标题 + 右开关」（按钮自带标题的行用，相邻的这种行会自动并排）；
+ * 标题为空时把「开关 + 状态文字」居中（标题已经画在标签列上的行用）。
  */
 @Environment(EnvType.CLIENT)
 public class SreSwitchButton extends SreButton {
 
-    /** 状态符号方块边长。 */
-    private static final int CHIP = 12;
-    /** 状态方块底色（混一点深色底，免得高饱和色整块太亮）。 */
-    private static final int CHIP_ON_BG = SREPanelStyle.blendColors(0xFF120A04, SREPanelStyle.GREEN, 0.42F);
-    private static final int CHIP_OFF_BG = SREPanelStyle.blendColors(0xFF120A04, SREPanelStyle.RED, 0.42F);
-    private static final int CHIP_UNSET_BG = SREPanelStyle.blendColors(0xFF120A04, SREPanelStyle.MUTED, 0.32F);
-    private static final String SYMBOL_ON = "✓";
-    private static final String SYMBOL_OFF = "✗";
-    /** 未设置：用 ASCII 的短横，任何字体下都不会变成方块。 */
-    private static final String SYMBOL_UNSET = "-";
+    /** 胶囊轨道宽。 */
+    private static final int SWITCH_W = 18;
+    /** 胶囊轨道高（与 {@link UiSurface#SWITCH_H} 一致）。 */
+    private static final int SWITCH_H = UiSurface.SWITCH_H;
+    /** 状态词与胶囊之间的间距。 */
+    private static final int SWITCH_GAP = 6;
+    /** 按钮内文字左边距。 */
+    private static final int PAD = 5;
+    /** 滑块过渡速度（每帧向目标位置靠近的比例）；瞬时状态本来就相等，不会有多余动画。 */
+    private static final float KNOB_SPEED = 0.35F;
 
     private final Supplier<SwitchState> state;
     private final Function<SwitchState, Component> stateText;
+    /** 滑块位置 0~1 的过渡值；负值表示还没初始化过。 */
+    private float knobAnim = -1.0F;
 
     /**
-     * @param label     按钮自带的标题；为 null 表示标题画在标签列上（按钮里只放「方块 + 状态文字」）
-     * @param state     当前状态（{@link SwitchState#UNSET} = 未设置，画成土褐色的短横）
-     * @param stateText 状态文字（可为 null，那就只画方块）；收 {@link SwitchState}，不用防 null
+     * @param label     按钮自带的标题；为 null 表示标题画在标签列上（按钮里只放「开关 + 状态文字」）
+     * @param state     当前状态（{@link SwitchState#UNSET} = 未设置，滑块停在正中）
+     * @param stateText 状态文字（可为 null，那就只画开关）；收 {@link SwitchState}，不用防 null
      */
     public SreSwitchButton(Font font, Component label, Supplier<SwitchState> state,
             Function<SwitchState, Component> stateText, OnPress onPress) {
@@ -85,11 +88,11 @@ public class SreSwitchButton extends SreButton {
             return button.naturalWidth(font);
         }
         String text = widget.getMessage().getString();
-        return text.isEmpty() ? 0 : font.width(text) + CHIP + 14;
+        return text.isEmpty() ? 0 : font.width(text) + SWITCH_W + SWITCH_GAP + PAD + 4;
     }
 
     /**
-     * 一个就地的「是 / 否」开关（标题为空、状态画成方块 + 状态文字）：点一下切换，把新值交给 setter。
+     * 一个就地的「是 / 否」开关（标题为空、状态画成胶囊 + 状态文字）：点一下切换，把新值交给 setter。
      *
      * <p>
      * 地图工具那种「一行一个设置、标签在标签列上」的地方用这个，之后自己摆位置（{@link #at}）。
@@ -99,7 +102,7 @@ public class SreSwitchButton extends SreButton {
         return toggle(font, null, initial, stateText, setter);
     }
 
-    /** 同上，但按钮自带标题（标题 + 状态词 + 方块都在按钮里）。 */
+    /** 同上，但按钮自带标题（标题 + 状态词 + 胶囊都在按钮里）。 */
     public static SreSwitchButton toggle(Font font, Component title, boolean initial,
             Function<SwitchState, Component> stateText, Consumer<Boolean> setter) {
         SwitchState[] value = { SwitchState.of(initial) };
@@ -120,14 +123,14 @@ public class SreSwitchButton extends SreButton {
         return this;
     }
 
-    /** 宽度：左边距 5 + 标题 + （状态词 + 6）+ 方块 + 右边距（+1 余量），与 {@link #renderString} 对齐。 */
+    /** 宽度：左边距 + 标题 + （状态词 + 间距）+ 胶囊 + 右边距（+ 余量），与 {@link #renderString} 对齐。 */
     private int naturalWidth(Font font) {
-        int width = font.width(getMessage()) + stateWordWidth(font, state.get()) + 6;
+        int width = font.width(getMessage()) + stateWordWidth(font, state.get()) + SWITCH_GAP;
         // 三种状态里挑最宽的那个：切换状态时按钮宽度不会跳
         for (SwitchState candidate : SwitchState.values()) {
-            width = Math.max(width, font.width(getMessage()) + stateWordWidth(font, candidate) + 6);
+            width = Math.max(width, font.width(getMessage()) + stateWordWidth(font, candidate) + SWITCH_GAP);
         }
-        return width + CHIP + 14;
+        return width + SWITCH_W + PAD + 6;
     }
 
     /**
@@ -147,8 +150,8 @@ public class SreSwitchButton extends SreButton {
 
     @Override
     protected int textLimit() {
-        // 右侧要给状态符号留位置
-        return Math.max(8, getWidth() - CHIP - 12);
+        // 右侧要给胶囊开关留位置
+        return Math.max(8, getWidth() - SWITCH_W - SWITCH_GAP - 12);
     }
 
     @Override
@@ -160,40 +163,36 @@ public class SreSwitchButton extends SreButton {
     @Override
     public void renderString(GuiGraphics g, Font font, int color) {
         SwitchState value = state.get();
-        int bg = chipColor(value);
-        int border = chipBorder(value);
-        String symbol = chipSymbol(value);
-        if (isHovered()) {
-            // 悬停时状态方块向自己的强调色靠一点，点下去之前就能确认点的是哪一项
-            bg = SREPanelStyle.blendColors(bg, border, 0.35F);
+        float knob = knobTarget(value);
+        knobAnim = knobAnim < 0.0F ? knob : knobAnim + (knob - knobAnim) * KNOB_SPEED;
+        if (Math.abs(knob - knobAnim) < 0.01F) {
+            knobAnim = knob;
         }
-        int chipY = getY() + (getHeight() - CHIP) / 2;
+
+        int switchY = getY() + (getHeight() - SWITCH_H) / 2;
         Component word = stateText == null ? null : stateText.apply(value);
-        int wordWidth = word == null ? 0 : font.width(word) + 6;
+        int wordWidth = word == null ? 0 : font.width(word) + SWITCH_GAP;
         int textY = getY() + (getHeight() - 8) / 2;
 
         if (hasLabel()) {
-            int chipX = getX() + getWidth() - CHIP - 4;
-            drawChip(g, font, chipX, chipY, bg, border, symbol);
-            // 状态词贴在方块左边（右对齐），标题被截断也不会盖住它
+            int switchX = getX() + getWidth() - SWITCH_W - 4;
+            UiSurface.switchTrack(g, switchX, switchY, SWITCH_W, SWITCH_H, value.isOn(), knobAnim, isHovered());
+            // 状态词贴在开关左边（右对齐），标题被截断也不会盖住它
             if (word != null) {
-                g.drawString(font, word, chipX - wordWidth, textY, border, false);
+                UiText.drawRight(g, font, word, switchX - SWITCH_GAP, textY, stateWordColor(value));
             }
             String shown = MapUiGraphics.clip(font, getMessage().getString(),
                     Math.max(8, textLimit() - wordWidth));
-            // 关 / 未设置时整行暗一档，开的时候才是亮的
-            int labelColor = value.isOn() ? SREPanelStyle.TEXT : SREPanelStyle.MUTED;
-            g.drawString(font, Component.literal(shown), getX() + 5, textY,
-                    isHovered() ? SREPanelStyle.TEXT : labelColor, false);
+            UiText.draw(g, font, Component.literal(shown), getX() + PAD, textY, labelColor(value));
             return;
         }
 
-        // 标题在标签列上的行：把「方块 + 状态文字」居中
-        int groupWidth = CHIP + wordWidth;
-        int chipX = getX() + (getWidth() - groupWidth) / 2;
-        drawChip(g, font, chipX, chipY, bg, border, symbol);
+        // 标题在标签列上的行：把「胶囊 + 状态文字」居中
+        int groupWidth = SWITCH_W + wordWidth;
+        int switchX = getX() + (getWidth() - groupWidth) / 2;
+        UiSurface.switchTrack(g, switchX, switchY, SWITCH_W, SWITCH_H, value.isOn(), knobAnim, isHovered());
         if (word != null) {
-            g.drawString(font, word, chipX + CHIP + 4, textY, border, false);
+            UiText.draw(g, font, word, switchX + SWITCH_W + SWITCH_GAP, textY, stateWordColor(value));
         }
     }
 
@@ -201,33 +200,25 @@ public class SreSwitchButton extends SreButton {
         return !getMessage().getString().isEmpty();
     }
 
-    private static int chipColor(SwitchState value) {
+    /** 滑块目标位置：开 = 靠右、关 = 靠左、未设置 = 停在正中。 */
+    private static float knobTarget(SwitchState value) {
         return switch (value) {
-            case ON -> CHIP_ON_BG;
-            case OFF -> CHIP_OFF_BG;
-            case UNSET -> CHIP_UNSET_BG;
+            case ON -> 1.0F;
+            case OFF -> 0.0F;
+            case UNSET -> 0.5F;
         };
     }
 
-    private static int chipBorder(SwitchState value) {
-        return switch (value) {
-            case ON -> SREPanelStyle.GREEN;
-            case OFF -> SREPanelStyle.RED;
-            case UNSET -> SREPanelStyle.MUTED;
-        };
+    /** 标题色：开 = 明亮黄铜；关 / 未设置 = 暗一档（悬停都提亮到高亮黄铜）。 */
+    private static int labelColor(SwitchState value) {
+        if (value.isOn()) {
+            return SRETheme.TEXT;
+        }
+        return SRETheme.MUTED;
     }
 
-    private static String chipSymbol(SwitchState value) {
-        return switch (value) {
-            case ON -> SYMBOL_ON;
-            case OFF -> SYMBOL_OFF;
-            case UNSET -> SYMBOL_UNSET;
-        };
-    }
-
-    private static void drawChip(GuiGraphics g, Font font, int x, int y, int bg, int border, String symbol) {
-        MinigameUI.roundRect(g, x, y, x + CHIP, y + CHIP, 3, bg);
-        MinigameUI.roundBorder(g, x, y, x + CHIP, y + CHIP, 3, 1, border);
-        g.drawCenteredString(font, Component.literal(symbol), x + CHIP / 2, y + 2, SREPanelStyle.TEXT);
+    /** 状态词色：开 = 黄铜（与轨道呼应），其余 = 暗哑铜。 */
+    private static int stateWordColor(SwitchState value) {
+        return value.isOn() ? SRETheme.BRASS : SRETheme.MUTED;
     }
 }

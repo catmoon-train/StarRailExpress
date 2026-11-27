@@ -17,7 +17,9 @@ package io.wifi.starrailexpress.client.data;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.wifi.starrailexpress.backpack.BackpackManager;
 import io.wifi.starrailexpress.backpack.BackpackState;
+import io.wifi.starrailexpress.backpack.PendingCardState;
 import io.wifi.starrailexpress.progression.ProgressionState;
 
 import java.util.Map;
@@ -87,6 +89,15 @@ public final class ClientPlayerDataCache {
     public static BackpackState backpack(UUID playerUuid) {
         BackpackState state = read(playerUuid, "backpack", BackpackState.class, BackpackState.createDefault());
         return state == null ? BackpackState.createDefault() : state.normalized();
+    }
+
+    /**
+     * 本局待兑现的阵营卡状态（服务端 {@code BackpackManager.CARD_PART} 分区）。
+     * 只用于背包界面显示「本局已生效 / 分不到会退卡」，缺包时返回空状态。
+     */
+    public static PendingCardState pendingCard(UUID playerUuid) {
+        PendingCardState state = read(playerUuid, BackpackManager.CARD_PART, PendingCardState.class, null);
+        return state == null ? PendingCardState.none(0L) : state;
     }
 
     public static void clear() {

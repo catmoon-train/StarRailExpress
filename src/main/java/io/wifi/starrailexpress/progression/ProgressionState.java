@@ -84,12 +84,21 @@ public final class ProgressionState {
         return activeQuests.stream().filter(q -> q.category == QuestCategory.PERMANENT).toList();
     }
 
+    /**
+     * 阵营卡类型。
+     *
+     * <p>
+     * 前四种是「目标固定」的阵营卡：卡本身即目标阵营。{@link #CUSTOM} 是自定义卡，
+     * 使用时才由玩家选择目标阵营，故它自身不带目标（{@link #getTypeRoleId()} 为 {@code 0}）。
+     */
     public enum FactionCardType {
         NONE("sre.pass.faction.none", "none", 0),
         KILLER("sre.pass.faction.killer", "killer", 1),
         CIVILIAN("sre.pass.faction.civilian", "civilian", 2),
         NEUTRAL("sre.pass.faction.neutral", "neutral", 3),
-        NEUTRAL_FOR_KILLER("sre.pass.faction.neutral_for_killer", "neutral_for_killer", 4);
+        NEUTRAL_FOR_KILLER("sre.pass.faction.neutral_for_killer", "neutral_for_killer", 4),
+        /** 自定义卡：使用时弹屏自选目标阵营，卡本身不代表任何阵营。 */
+        CUSTOM("sre.pass.faction.custom", "custom", 5);
 
         public final String displayName;
         public final String questKey;
@@ -103,6 +112,21 @@ public final class ProgressionState {
 
         public Integer getTypeId() {
             return type;
+        }
+
+        /** 是否能作为「目标阵营」被选中：四个真实阵营，不含 {@link #NONE} 与 {@link #CUSTOM}。 */
+        public boolean isSelectableTarget() {
+            return this != NONE && this != CUSTOM;
+        }
+
+        /**
+         * 解析自定义卡的目标阵营。只接受四个真实阵营的键（{@code killer} / {@code civilian} /
+         * {@code neutral} / {@code neutral_for_killer}）；其余（含 {@code null}、{@code custom}）
+         * 一律返回 {@link #NONE}，由调用方按「没选目标」处理。
+         */
+        public static FactionCardType targetFromString(String raw) {
+            FactionCardType type = raw == null ? NONE : fromString(raw.trim());
+            return type.isSelectableTarget() ? type : NONE;
         }
 
         public static FactionCardType fromRole(SRERole role) {
@@ -155,12 +179,16 @@ public final class ProgressionState {
             return NONE;
         }
 
+        /**
+         * 卡片的目标扮演类型（口径同 {@code PlayerRoleWeightManager.getRoleType(SRERole)}）。
+         * 自定义卡没有固定目标，返回 {@code 0}。
+         */
         public int getTypeRoleId() {
-            return switch (this.type) {
-                case 1 -> 4;
-                case 2 -> 1;
-                case 3 -> 2;
-                case 4 -> 3;
+            return switch (this) {
+                case KILLER -> 4;
+                case CIVILIAN -> 1;
+                case NEUTRAL -> 2;
+                case NEUTRAL_FOR_KILLER -> 3;
                 default -> 0;
             };
         }

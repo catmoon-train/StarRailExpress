@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.game.modes.echo.client;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -117,19 +118,19 @@ public final class EchoIntroClient {
         int left = 30;
         int baseY = height - bar - 76;
         // 左侧金色引导线 + 标题 + 正文，与地图规则卡（右侧）分区，不互相遮挡。
-        g.fill(left - 8, baseY, left - 5, baseY + 44, EchoAnim.fade(0xFFD4AF37, fade));
-        drawScaled(g, Component.translatable(cue.titleKey()), left, baseY, 1.55F, EchoAnim.fade(0xFFFFF4DC, fade));
+        g.fill(left - 8, baseY, left - 5, baseY + 44, EchoAnim.fade(SRETheme.GOLD, fade));
+        drawScaled(g, Component.translatable(cue.titleKey()), left, baseY, 1.55F, EchoAnim.fade(SRETheme.TEXT, fade));
         int y = baseY + 24;
         for (FormattedCharSequence line : client.font.split(Component.translatable(cue.bodyKey()),
                 Math.max(60, Math.round(contentWidth / 1.05F)))) {
             if (y > baseY + 58) break;
-            drawScaled(g, line, left, y, 1.05F, EchoAnim.fade(0xFFC8B898, fade));
+            drawScaled(g, line, left, y, 1.05F, EchoAnim.fade(SRETheme.BODY, fade));
             y += 12;
         }
         int span = Math.max(1, cue.endTick() - cue.startTick());
         int done = Mth.clamp(age - cue.startTick(), 0, span);
         g.fill(left, baseY + 62, left + contentWidth, baseY + 64, EchoAnim.fade(0x66382A1B, fade));
-        g.fill(left, baseY + 62, left + contentWidth * done / span, baseY + 64, EchoAnim.fade(0xFFD4AF37, fade));
+        g.fill(left, baseY + 62, left + contentWidth * done / span, baseY + 64, EchoAnim.fade(SRETheme.GOLD, fade));
     }
 
     /** 单条解说自己的淡入/淡出，避免与相邻解说之间出现硬切。 */
@@ -167,7 +168,7 @@ public final class EchoIntroClient {
         if (spec == null) return;
         float alpha = Math.min(1.0F, Math.min(specTicks / 20.0F, (SPEC_TEXT_TICKS - specTicks) / 8.0F));
         if (alpha <= 0.02F) return;
-        int color = EchoAnim.fade(0xFFFFF4DC, alpha);
+        int color = EchoAnim.fade(SRETheme.TEXT, alpha);
         Component text = Component.translatable("echo.intro.spec_tag", Component.translatable(spec.nameKey()));
         // 站在玩家「相机右侧」一点点，读起来像贴在人物旁边而不是压在头顶。
         Vec3 camera = context.camera().getPosition();

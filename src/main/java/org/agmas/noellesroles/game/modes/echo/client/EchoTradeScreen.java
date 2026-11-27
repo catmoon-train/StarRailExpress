@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.game.modes.echo.client;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.client.gui.widget.SreButton;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
@@ -101,31 +102,31 @@ public final class EchoTradeScreen extends Screen {
     @Override public void onClose() { minecraft.setScreen(parent); }
     @Override public void renderBackground(GuiGraphics g,int mx,int my,float partial) {
         float fade=EchoAnim.openProgress(openedAt,180);
-        g.fillGradient(0,0,width,height,EchoAnim.fade(0xE0081018,fade),EchoAnim.fade(0xE018120A,fade));
-        g.fill(x,y,x+w,y+h,EchoAnim.fade(0xF01A1008,fade)); g.renderOutline(x,y,w,h,EchoAnim.fade(0xFF8B6914,fade));
+        g.fillGradient(0,0,width,height,EchoAnim.fade(0xE0081018,fade),EchoAnim.fade(SRETheme.withAlpha(SRETheme.SCREEN_TOP, 0xE0),fade));
+        g.fill(x,y,x+w,y+h,EchoAnim.fade(SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0xF0),fade)); g.renderOutline(x,y,w,h,EchoAnim.fade(SRETheme.BORDER,fade));
     }
     @Override public void render(GuiGraphics g,int mx,int my,float partial) {
         super.render(g,mx,my,partial);
         float fade=EchoAnim.openProgress(openedAt,180);
-        g.drawString(font,title,x+8,y+8,EchoAnim.fade(0xFFD4AF37,fade),false);
+        g.drawString(font,title,x+8,y+8,EchoAnim.fade(SRETheme.GOLD,fade),false);
         var d=EchoBagClient.data(); if(d==null || d.bag()==null) return;
         var t=d.trade();
         if(t==null) {
-            text(g,Component.translatable("echo.trade.target_help"),x+8,y+26,w-16,28,0xFFFFF4DC);
+            text(g,Component.translatable("echo.trade.target_help"),x+8,y+26,w-16,28,SRETheme.TEXT);
         } else {
             long remainMs=Math.max(0,t.deadline()-d.projectedTick())*50L;
-            int headerColor=EchoAnim.blend(0xFF5EB7D8,0xFFE06B65,EchoAnim.urgency(remainMs,10000));
+            int headerColor=EchoAnim.blend(SRETheme.BLUE,SRETheme.RED,EchoAnim.urgency(remainMs,10000));
             text(g,Component.translatable("echo.trade.header",t.peerName(),t.version(),Math.max(0,(t.deadline()-d.projectedTick()+19)/20),t.range()),x+8,y+24,w-16,20,EchoAnim.fade(headerColor,fade));
             int rx=x+w/2+4,rw=w/2-12;
-            text(g,Component.translatable("echo.trade.own_offer"),rx,y+48,rw,10,0xFFD4AF37);
-            for(int n=0;n<t.own().size();n++) text(g,name(t.own().get(n)),rx,y+61+n*11,rw,11,0xFFFFF4DC);
-            text(g,Component.translatable("echo.trade.peer_offer"),rx,y+89,rw,10,0xFFD4AF37);
-            for(int n=0;n<t.theirs().size();n++) text(g,name(t.theirs().get(n)),rx,y+102+n*11,rw,11,0xFFFFF4DC);
-            text(g,Component.translatable(t.peerConfirmed()?"echo.trade.peer_confirmed":"echo.trade.peer_unconfirmed"),rx,y+129,rw,20,0xFF5EB7D8);
-            if(!t.layoutError().isEmpty()) text(g,Component.translatable("echo.error."+t.layoutError().toLowerCase(Locale.ROOT)),rx,y+151,rw,Math.max(10,h-226),0xFFE06B65);
+            text(g,Component.translatable("echo.trade.own_offer"),rx,y+48,rw,10,SRETheme.GOLD);
+            for(int n=0;n<t.own().size();n++) text(g,name(t.own().get(n)),rx,y+61+n*11,rw,11,SRETheme.TEXT);
+            text(g,Component.translatable("echo.trade.peer_offer"),rx,y+89,rw,10,SRETheme.GOLD);
+            for(int n=0;n<t.theirs().size();n++) text(g,name(t.theirs().get(n)),rx,y+102+n*11,rw,11,SRETheme.TEXT);
+            text(g,Component.translatable(t.peerConfirmed()?"echo.trade.peer_confirmed":"echo.trade.peer_unconfirmed"),rx,y+129,rw,20,SRETheme.BLUE);
+            if(!t.layoutError().isEmpty()) text(g,Component.translatable("echo.error."+t.layoutError().toLowerCase(Locale.ROOT)),rx,y+151,rw,Math.max(10,h-226),SRETheme.RED);
         }
         var message=EchoBagClient.waiting()?Component.translatable("echo.ui.waiting"):d.requestError().isEmpty()?Component.translatable("echo.trade.privacy"):Component.translatable("echo.error."+d.requestError().toLowerCase(Locale.ROOT));
-        text(g,message,x+8,y+h-20,w-80,18,d.requestError().isEmpty()?0xFF9E8B6E:0xFFE06B65);
+        text(g,message,x+8,y+h-20,w-80,18,d.requestError().isEmpty()?SRETheme.MUTED:SRETheme.RED);
     }
     private void text(GuiGraphics g,Component value,int x,int y,int w,int h,int color) {
         g.enableScissor(x,y,x+w,y+h); int n=0; for(var line:font.split(value,w)) g.drawString(font,line,x,y+10*n++,color,false); g.disableScissor();

@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.hud;
 
+import io.wifi.starrailexpress.client.ui.SRETheme;
 import io.wifi.starrailexpress.api.RolePassive;
 import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
@@ -33,10 +34,10 @@ import java.util.List;
  * 统一技能 HUD —— 复古车票风格（见 docs/ui_style.md）。
  *
  * 设计要点：
- * - 无背景面板，直接叠在画面上，靠文字投影保证可读性；
- * - 技能名（奶油色）左对齐，状态右对齐（就绪=绿 / 冷却=蓝 / 无次数=土褐）；
+ * - 右下角一块低不透明的深棕渐变面板（棕金描边 + 上边缘装饰线），仍然让画面透出来；
+ * - 技能名（奶油色）左对齐，前置金色小方块；状态右对齐（就绪=绿 / 冷却=蓝 / 无次数=土褐）；
  * - 冷却期间行底部有 1px 金色进度条，直观显示恢复进度；
- * - 当前选中技能以金色侧边条 + 微亮背景标识（V/Y 键循环选择）；
+ * - 当前选中技能以微亮底 + 金色侧边条标识（V/Y 键循环选择）；
  * - 有使用上限（maxCharges &gt; 0）时以金色「xN」徽标显示剩余次数；
  * - 被动技能以分隔线下的暗色行收尾，不参与选择。
  */
@@ -45,19 +46,27 @@ public final class UnifiedSkillHud {
     }
 
     // ── 色板（docs/ui_style.md §2）───────────────────────────────
-    // 无背景板，文字一律带投影以在亮景色上保持可读性
-    private static final int GOLD = 0xFFD4AF37;
-    private static final int TEXT = 0xFFFFF4DC;
-    private static final int MUTED = 0xFF9E8B6E;
-    private static final int GREEN = 0xFF72C17B;
-    private static final int BLUE = 0xFF5EB7D8;
-    private static final int DIVIDER = 0x18FFFFFF;
-    private static final int COOLDOWN_TRACK = 0x4D000000;
+    private static final int GOLD = SRETheme.GOLD;
+    private static final int TEXT = SRETheme.TEXT;
+    private static final int MUTED = SRETheme.MUTED;
+    private static final int GREEN = SRETheme.GREEN;
+    private static final int BLUE = SRETheme.BLUE;
+    private static final int DIVIDER = 0x24FFFFFF;
+    private static final int COOLDOWN_TRACK = 0x59000000;
+    // 面板范式（§3：渐变底 + 棕金描边 + 上边缘装饰线）；HUD 版把不透明度压到 40% 上下，
+    // 依 ui_unified_style_plan.md §7「保留无底板、靠投影」的原则，只给一点层次、不挡场景
+    private static final int PANEL_TOP = SRETheme.withAlpha(SRETheme.SURFACE_TOP_SOFT, 0x66);
+    private static final int PANEL_BOTTOM = 0x7A0B0704;
+    private static final int BORDER = SRETheme.withAlpha(SRETheme.GOLD_DIM, 0x59);
+    private static final int TOP_LINE = SRETheme.withAlpha(SRETheme.BRASS_BRIGHT, 0x2E);
+    private static final int SELECT_BG = SRETheme.withAlpha(SRETheme.GOLD_DIM, 0x2E);
 
     // ── 布局 ────────────────────────────────────────────────────
     private static final int PAD = 5;
-    private static final int ROW_H = 13;
+    private static final int ROW_H = 14;
     private static final int ACCENT_W = 2;
+    /** 技能名前的金色小方块所占的横向空间（含与文字的间隔）。 */
+    private static final int MARK_W = 5;
     private static final int NAME_STATE_GAP = 12;
 
     public static void register() {
@@ -178,43 +187,58 @@ public final class UnifiedSkillHud {
                 maxRowW = Math.max(maxRowW, client.font.width(passiveLine));
             }
 
-            // ── 绘制（右下角锚定，无背景板，仅文字/侧边条/进度条）──────
-            int panelW = maxRowW + PAD * 2 + ACCENT_W + 3;
+            // ── 绘制（右下角锚定：深棕面板 + 行内状态/进度）──────────
+            int panelW = maxRowW + PAD * 2 + ACCENT_W + MARK_W + 1;
             int panelH = rowCount * ROW_H + PAD * 2 + (passives.isEmpty() ? 0 : 2);
             int baseX = graphics.guiWidth() - panelW - 6;
             int baseY = graphics.guiHeight() - panelH - 20;
+            int right = baseX + panelW;
 
-            int textX = baseX + PAD + ACCENT_W + 3;
+            // 面板：上下渐变底 → 棕金描边 → 上边缘装饰线（§3）
+            graphics.fillGradient(baseX, baseY, right, baseY + panelH, PANEL_TOP, PANEL_BOTTOM);
+            graphics.renderOutline(baseX, baseY, panelW, panelH, BORDER);
+            graphics.fill(baseX + 1, baseY + 1, right - 1, baseY + 2, TOP_LINE);
+
+            int textX = baseX + PAD + ACCENT_W + MARK_W + 1;
             for (int r = 0; r < rowCount; r++) {
                 boolean passiveRow = !passives.isEmpty() && r == rowCount - 1;
+                boolean selected = r == selectedIdx;
                 int rowY = baseY + PAD + r * ROW_H + (passiveRow ? 2 : 0);
 
                 if (passiveRow) {
-                    graphics.fill(baseX + PAD, rowY - 1, baseX + panelW - PAD, rowY, DIVIDER);
+                    graphics.fill(baseX + PAD, rowY - 1, right - PAD, rowY, DIVIDER);
                 }
 
-                if (r == selectedIdx) {
-                    // 选中行：呼吸金色侧边条
+                if (selected) {
+                    // 选中行：微亮底 + 呼吸金色侧边条
+                    graphics.fill(baseX + 1, rowY - 1, right - 1, rowY + ROW_H - 1, SELECT_BG);
                     float pulse = 0.7F + 0.3F * Mth.sin((Util.getMillis() % 1600L) / 1600.0F * Mth.TWO_PI);
                     int accent = (((int) (0xFF * pulse)) << 24) | (GOLD & 0xFFFFFF);
                     graphics.fill(baseX + 2, rowY + 1, baseX + 2 + ACCENT_W, rowY + ROW_H - 2, accent);
                 }
 
-                int nameColor = passiveRow ? MUTED : (r == selectedIdx ? TEXT : blend(TEXT, MUTED, 0.35F));
                 int textY = rowY + (ROW_H - client.font.lineHeight) / 2 + 1;
-                // 无背景板，文字带投影才不至于在亮景色上糊掉
+
+                if (!passiveRow) {
+                    // 技能名前的金色小方块：把主技能行与被动行区分开，也比纯文字多一层层次
+                    int markColor = selected ? GOLD : blend(GOLD, MUTED, 0.5F);
+                    graphics.fill(baseX + PAD + ACCENT_W + 1, textY + 3,
+                            baseX + PAD + ACCENT_W + 1 + 3, textY + 6, markColor);
+                }
+
+                int nameColor = passiveRow ? MUTED : (selected ? TEXT : blend(TEXT, MUTED, 0.35F));
+                // 面板只有 40% 上下不透明，文字仍带投影，保证亮景色上也读得清
                 graphics.drawString(client.font, names[r], textX, textY, nameColor, true);
 
                 if (states[r] != null) {
                     int stateW = client.font.width(states[r]);
-                    graphics.drawString(client.font, states[r],
-                            baseX + panelW - PAD - stateW, textY, stateColors[r], true);
+                    graphics.drawString(client.font, states[r], right - PAD - stateW, textY, stateColors[r], true);
                 }
 
                 // 冷却恢复进度条（行底 1px）
                 if (cooldownProgress[r] >= 0.0F) {
                     int trackX0 = textX;
-                    int trackX1 = baseX + panelW - PAD;
+                    int trackX1 = right - PAD;
                     int trackY = rowY + ROW_H - 2;
                     graphics.fill(trackX0, trackY, trackX1, trackY + 1, COOLDOWN_TRACK);
                     int fillX1 = trackX0 + Math.round((trackX1 - trackX0) * cooldownProgress[r]);

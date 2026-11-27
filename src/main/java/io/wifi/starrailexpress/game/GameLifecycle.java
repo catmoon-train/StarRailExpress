@@ -225,7 +225,8 @@ final class GameLifecycle {
         OnGameInitialized.EVENT.invoker().onGameInitialized(serverWorld);
         isGameStarted = false;
         SRERole.resetStatic();
-        var packet = ListRolesCommand.getRoleAndModifierEnableInfoPacket(false);
+        // 开局时把开关快照推给所有人（人数用当前在线数估算自动值，供设置页显示）
+        var packet = ListRolesCommand.getRoleAndModifierEnableInfoPacket(false, serverWorld.players().size());
         for (var p : serverWorld.players()) {
             ServerPlayNetworking.send(p, packet);
         }

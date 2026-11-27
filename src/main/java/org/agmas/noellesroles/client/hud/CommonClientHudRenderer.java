@@ -110,6 +110,8 @@ public class CommonClientHudRenderer {
 
   /**
    * 绘制金币下方的信息行（右对齐）。返回最后一行之后的 y，供状态效果图标接续排布。
+   *
+   * @param inventory true = 物品栏界面绘制，此时无视 HUD 的折叠状态，始终展示完整信息
    */
   public static int renderMessagesBelowMoney(Minecraft client, FakeGuiGraphics guiGraphics,
       DeltaTracker deltaTracker, boolean inventory) {
@@ -117,10 +119,13 @@ public class CommonClientHudRenderer {
     MutableComponentResult texts = OnMessageBelowMoneyRenderer.EVENT.invoker().onRenderer(client, guiGraphics,
         deltaTracker);
     java.util.List<MessageDetail> infoLines = texts.mutipleContent;
-    boolean expanded = NoellesrolesClient.isShowHelpDisplay;
+    // HUD 上跟随玩家的折叠状态；物品栏界面里始终展开完整信息。
+    boolean hudExpanded = NoellesrolesClient.isShowHelpDisplay;
+    boolean expanded = hudExpanded || inventory;
     if (SREClient.gameComponent != null && SREClient.gameComponent.isRunning()) {
       infoLines.add(creditText);
-      infoLines.add(expanded ? foldHelpDisplayTip : showHelpDisplayTip);
+      // 提示行反映 HUD 自身的折叠状态，避免在物品栏里提示成相反的操作
+      infoLines.add(hudExpanded ? foldHelpDisplayTip : showHelpDisplayTip);
     }
 
     int y = INFO_LINES_TOP_Y;
@@ -204,8 +209,8 @@ public class CommonClientHudRenderer {
       }
       {
         if (client.screen == null) {
-          // 开启 showInfoLinesInInventory 时信息行改由 LimitedInventoryScreen 绘制，HUD
-          // 上不再显示，但一定显示credit信息
+          // HUD 上按玩家的折叠状态显示信息行（默认折叠，只留 credit 与展开提示）；
+          // 打开物品栏界面时由 LimitedInventoryScreen 绘制完整信息。
           effectStartY = renderMessagesBelowMoney(client, guiGraphics, deltaTracker, false);
         }
       }
