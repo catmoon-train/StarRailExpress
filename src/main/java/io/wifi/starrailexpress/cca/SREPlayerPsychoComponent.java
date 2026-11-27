@@ -26,6 +26,7 @@ import io.wifi.starrailexpress.network.TriggerStatusBarPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderLookup.Provider;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -443,6 +444,31 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
         this.psychoTicks = tag.contains("psychoTicks") ? tag.getInt("psychoTicks") : 0;
         this.armour = tag.contains("armour") ? tag.getInt("armour") : 1;
         this.type = tag.contains("type") ? tag.getInt("type") : -1;
+    }
+
+    @Override
+    public void writeToRewindNbt(CompoundTag tag, Provider registryLookup) {
+        writeToSyncNbt(tag, registryLookup);
+        if (grantedPsychoWeapon != null) {
+            tag.putString("grantedPsychoWeapon", BuiltInRegistries.ITEM.getKey(grantedPsychoWeapon).toString());
+        }
+        if (savedItemSlot0 != null && !savedItemSlot0.isEmpty()) {
+            tag.put("savedItemSlot0", savedItemSlot0.save(registryLookup));
+        }
+    }
+
+    @Override
+    public void readFromRewindNbt(CompoundTag tag, Provider registryLookup) {
+        readFromSyncNbt(tag, registryLookup);
+        grantedPsychoWeapon = tag.contains("grantedPsychoWeapon")
+                ? MCItemsUtils.getItemById(tag.getString("grantedPsychoWeapon")).orElse(null)
+                : null;
+        savedItemSlot0 = tag.contains("savedItemSlot0")
+                ? ItemStack.parseOptional(registryLookup, tag.getCompound("savedItemSlot0"))
+                : null;
+        if (savedItemSlot0 != null && savedItemSlot0.isEmpty()) {
+            savedItemSlot0 = null;
+        }
     }
 
     public boolean havePsycho() {

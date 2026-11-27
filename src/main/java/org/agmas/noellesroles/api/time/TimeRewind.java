@@ -174,12 +174,6 @@ public final class TimeRewind {
             return new TimeRewindResult(0, failures);
         }
         if (!player.isSpectator()) {
-
-            var ppc = SREPlayerPsychoComponent.KEY.get(player);
-            if (ppc.psychoTicks > 0) {
-                ppc.stopPsycho(true);
-            }
-
             TrainVoicePlugin.resetPlayer(player.getUUID());
         }
 
@@ -224,6 +218,15 @@ public final class TimeRewind {
                         componentId, exception);
             }
         }
+        // 死亡时狂暴已被观战 tick 停止（psychoTicks = -1），必须等快照里的 CCA 状态
+        // 恢复完再判断，否则清理会被跳过，且发放武器记账也需要随组件一起恢复。
+        if (!player.isSpectator()) {
+            var ppc = SREPlayerPsychoComponent.KEY.get(player);
+            if (ppc.psychoTicks > 0) {
+                ppc.stopPsycho(true);
+            }
+        }
+
         // Synchronize only after every component has been restored, so clients never
         // observe a half-rewound graph of related CCA state.
         for (ComponentKey<?> key : restoredKeys) {

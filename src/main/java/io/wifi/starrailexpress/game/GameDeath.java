@@ -15,6 +15,7 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.GameUtilityEvents;
@@ -148,6 +149,14 @@ final class GameDeath {
         }
     }
 
+    private static void resetPsychoOnRevive(ServerPlayer player) {
+        var psycho = SREPlayerPsychoComponent.KEY.get(player);
+        if (psycho.psychoTicks > 0) {
+            psycho.stopPsycho(true);
+            psycho.sync();
+        }
+    }
+
     static void revivePlayerToItsRoom(ServerPlayer player) {
         if (!io.wifi.starrailexpress.event.GameUtilityEvents.ALLOW_REVIVE.invoker().allow(player, null)) return;
         DeathPenaltyComponent.KEY.get(player).clear();
@@ -157,6 +166,7 @@ final class GameDeath {
         if (body != null) body.setNonInteractable(false);
         GameUtils.teleportBackToRoom(player);
         player.setGameMode(GameType.ADVENTURE);
+        resetPsychoOnRevive(player);
         restoreMapGravity(player);
         TrainVoicePlugin.resetPlayer(player.getUUID());
         if (shouldGiveSpectatorsDeathPenalty(player)) pendingReJudgeSpectatorsPenalty();
@@ -179,6 +189,7 @@ final class GameDeath {
         player.addEffect(ModEffects.of(ModEffects.SAFE_TIME, 10, 1, false, false, true));
         player.teleportTo(x, y, z);
         player.setGameMode(GameType.ADVENTURE);
+        resetPsychoOnRevive(player);
         TrainVoicePlugin.resetPlayer(player.getUUID());
         if (shouldGiveSpectatorsDeathPenalty(player)) pendingReJudgeSpectatorsPenalty();
         SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), null);
