@@ -47,7 +47,8 @@ public class PhantomMusicianRoleData extends SimpleRoleData {
     public int teleportCooldown = 0;
     public static final int TELEPORT_COOLDOWN = 120 * 20; // 120秒
     public static final int TELEPORT_COST = 100; // 100金币
-    public static final double TELEPORT_RANGE = 30.0; // 30格范围
+    public static final double TELEPORT_RANGE = 30.0; // 30格范围（下限）
+    public static final double TELEPORT_MAX_RANGE = 100.0; // 传送上限100格
 
     // ==================== 商店音效冷却 ====================
     public int knifeSoundCooldown = 0;
@@ -160,7 +161,7 @@ public class PhantomMusicianRoleData extends SimpleRoleData {
     }
 
     /**
-     * 传送技能：花费100金币传送到30格外随机一人的身边
+     * 传送技能：花费100金币传送到30格外、100格内随机一人的身边
      */
     public void useTeleport() {
         if (org.agmas.noellesroles.game.roles.innocence.decree.DecreeService.blocksTeleport(player)) return;
@@ -174,14 +175,17 @@ public class PhantomMusicianRoleData extends SimpleRoleData {
         if (!(player.level() instanceof ServerLevel serverLevel))
             return;
 
-        // 收集30格外的存活玩家
+        // 收集30格外、100格内的存活玩家
         List<ServerPlayer> targets = new ArrayList<>();
         for (ServerPlayer p : serverLevel.players()) {
             if (p == player)
                 continue;
             if (!GameUtils.isPlayerAliveAndSurvival(p))
                 continue;
-            if (player.distanceToSqr(p) <= TELEPORT_RANGE * TELEPORT_RANGE)
+            double distSq = player.distanceToSqr(p);
+            if (distSq <= TELEPORT_RANGE * TELEPORT_RANGE)
+                continue;
+            if (distSq > TELEPORT_MAX_RANGE * TELEPORT_MAX_RANGE)
                 continue;
             targets.add(p);
         }
