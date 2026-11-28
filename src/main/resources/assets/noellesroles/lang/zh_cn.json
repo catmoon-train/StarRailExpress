@@ -970,6 +970,7 @@
   "item.noellesroles.lightup": "开灯",
   "item.noellesroles.hedinghong": "鹤顶红",
   "item.noellesroles.dogskin_plaster": "狗皮膏药",
+  "item.noellesroles.dogskin_plaster.tooltip": "对目标使用后使目标30秒内san值不会下降",
   "item.noellesroles.catalyst": "催化剂",
   "item.noellesroles.catalyst.tooltip": "右键可以催化所有中毒/中假毒/感染的玩家，并使他们立即死亡",
   "item.noellesroles.master_key": "万能钥匙",

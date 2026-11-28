@@ -942,6 +942,7 @@
   "item.noellesroles.lightup": "Light On",
   "item.noellesroles.hedinghong": "Crane's Crest Red",
   "item.noellesroles.dogskin_plaster": "Dogskin Plaster",
+  "item.noellesroles.dogskin_plaster.tooltip": "Use on a target so their Sanity cannot drop for 30 seconds",
   "item.noellesroles.catalyst": "Catalyst",
   "item.noellesroles.catalyst.tooltip": "Right-click to catalyze every poisoned / fake-poisoned / infected player, killing them instantly",
   "item.noellesroles.master_key": "Master Key",
